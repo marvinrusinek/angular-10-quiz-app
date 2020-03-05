@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { QuizQuestion } from '../../model/QuizQuestion';
+import { QuizQuestion } from '../../models/QuizQuestion';
 
 
 @Component({

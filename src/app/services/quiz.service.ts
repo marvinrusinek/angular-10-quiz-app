@@ -2,7 +2,7 @@ import { Injectable, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
-import { Quiz } from '../model/Quiz';
+import { Quiz } from '../models/Quiz';
 
 
 @Injectable({

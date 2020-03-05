@@ -48,7 +48,7 @@ import { TimerService } from './services/timer.service';
     FontAwesomeModule
   ],
   bootstrap: [ AppComponent ],
-  providers: [ QuizService, TimerService ]
+  providers: [ QuizService, TimerService ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

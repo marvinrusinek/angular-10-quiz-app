@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 
 import { QUIZ_DATA } from '../../quiz';
-import { Quiz } from '../../model/Quiz';
+import { Quiz } from '../../models/Quiz';
 import { QuizService } from '../../services/quiz.service';
 import { TimerService } from '../../services/timer.service';
 

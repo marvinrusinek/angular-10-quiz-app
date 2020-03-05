@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { QuizQuestion } from '../../model/QuizQuestion';
+import { QuizQuestion } from '../../models/QuizQuestion';
 
 export enum CorrectnessTypes {
   Default,
