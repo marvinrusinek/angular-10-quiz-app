@@ -23,11 +23,11 @@ export class TimerComponent implements OnInit {
 
   ngOnInit(): void {
     this.timeLeft = this.timePerQuestion;
-    this.countdown();
+    this.timer();
   }
 
   // countdown clock
-  private countdown() {
+  timer() {
     if (this.quizService.isThereAnotherQuestion()) {
       this.interval = setInterval(() => {
         this.showExplanation = false;
