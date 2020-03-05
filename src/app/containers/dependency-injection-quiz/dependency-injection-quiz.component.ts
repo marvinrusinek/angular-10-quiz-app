@@ -42,7 +42,6 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.quizService.getQuestion);
     this.question = this.quizService.getQuestion;
     this.badgeQuestionNumber = this.quizData.questions[this.questionIndex];
     this.totalQuestions = this.quizData.questions.length;
