@@ -17,6 +17,6 @@ export class BadgeComponent {
   @Input() questionIndex: number;
 
   ngOnInit(): void {
-    this.badgeQuestionNumber = this.quizData.questions[this.questionIndex];
+    this.badgeQuestionNumber = this.questionIndex;
   }
 }
