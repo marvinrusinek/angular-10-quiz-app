@@ -6,6 +6,6 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./score.component.scss']
 })
 export class ScoreComponent {
-  @Input() correctAnswersCount: number;
+  @Input() correctAnswersCount = 0;
   @Input() totalQuestions: number;
 }
