@@ -14,7 +14,7 @@
       [class.unanswered]="!hasAnswer"
       [class.answered]="hasAnswer">
 
-      <span *ngIf="!hasAnswer">{{ quizData.questions[questionIndex].questionText }}</span>
+      <span *ngIf="!hasAnswer">{{ quizData.questions[0].questionText }}</span>
 
       <span *ngIf="(answer !== null) && hasAnswer && showExplanation">
         <span *ngIf="correctAnswers?.length === 1">

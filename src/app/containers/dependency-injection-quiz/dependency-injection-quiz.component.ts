@@ -4,7 +4,7 @@ import { QUIZ_DATA } from '../../quiz';
 import { Quiz } from '../../models/Quiz';
 import { QuizService } from '../../services/quiz.service';
 import { TimerService } from '../../services/timer.service';
-
+import { QuizQuestion } from '../../models/QuizQuestion';
 
 @Component({
   selector: 'codelab-dependency-injection-quiz-component',
@@ -13,7 +13,7 @@ import { TimerService } from '../../services/timer.service';
   providers: [ QuizService, TimerService ]
 })
 export class CodelabDependencyInjectionQuizComponent implements OnInit {
-  @Output() question: string;
+  @Output() question: QuizQuestion;
   @Output() answer: number;
   @Output() totalQuestions: number;
   @Output() correctAnswersCount:number = 0;
@@ -43,7 +43,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
 
   ngOnInit() {
     console.log(this.quizData.questions[this.questionIndex].questionText);
-    this.question = this.quizData.questions[this.questionIndex].questionText;
+    this.question = this.quizData.questions[this.questionIndex];  // pass the question object to question component
     this.badgeQuestionNumber = this.quizData.questions[this.questionIndex];
     this.totalQuestions = this.quizData.questions.length;
     this.mapCorrectAnswersAndCorrectOptions();
