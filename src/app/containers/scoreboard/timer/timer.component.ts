@@ -15,11 +15,11 @@ export class TimerComponent implements OnInit {
   @Input() showExplanation: boolean;
   @Input() elapsedTime: number;
   timePerQuestion = 20;
-  interval;
+  interval; 
 
   constructor(
-    private QuizService,
-    private TimerService) {}
+    private quizService: QuizService,
+    private timerService: TimerService) {}
 
   ngOnInit(): void {
     this.timeLeft = this.timePerQuestion;
