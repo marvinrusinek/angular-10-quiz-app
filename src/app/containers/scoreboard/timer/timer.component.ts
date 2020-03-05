@@ -27,7 +27,7 @@ export class TimerComponent implements OnInit {
   }
 
   // countdown clock
-  countdown() {
+  private countdown() {
     if (this.quizService.isThereAnotherQuestion()) {
       this.interval = setInterval(() => {
         this.showExplanation = false;
