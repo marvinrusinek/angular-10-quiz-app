@@ -44,7 +44,7 @@ export class TimerComponent implements OnInit {
             this.showExplanation = true;
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
             this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-            // this.checkIfAnsweredCorrectly(this.DIQuiz.questions[this.questionIndex].options[this.optionIndex]);
+            this.quizService.checkIfAnsweredCorrectly(this.DIQuiz.questions[this.questionIndex].options[this.optionIndex]);
           }
 
           if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
