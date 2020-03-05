@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
 import { Quiz } from '../models/Quiz';
-
+import { QuizQuestion } from '../models/QuizQuestion';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class QuizService {
   @Input() completionTime;
   @Output() progressValue: number;
 
-  questionIndex: number;
+  questionIndex: number = 0;
   percentage: number;
   finalAnswers = [];
 
@@ -52,6 +52,10 @@ export class QuizService {
     return this.questionIndex = idx;
   }
 
+  numberOfQuestions() {
+    return this.quizData.questions.length;
+  }
+
   isThereAnotherQuestion(): boolean {
     return this.questionIndex <= this.quizData.questions.length;
   }
@@ -60,6 +64,10 @@ export class QuizService {
     return this.questionIndex === this.totalQuestions;
   }
 
+  get getQuestion(): QuizQuestion {
+    return this.quizData.questions[this.questionIndex];
+  }
+  
   /* get getQuestion(): QuizQuestion {
     return this.quizData.questions.filter(
       question => question.index === this.questionIndex
