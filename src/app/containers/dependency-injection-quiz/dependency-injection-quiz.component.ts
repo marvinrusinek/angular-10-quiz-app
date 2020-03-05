@@ -28,7 +28,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   completionTime: number;
   percentage: number;
 
-  questionIndex: number;
+  questionIndex = 0;
 
   correctAnswer: boolean;
   answered: boolean;
@@ -42,6 +42,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.quizService.questions[this.questionIndex].questionText);
     this.question = this.quizService.questions[this.questionIndex];
     this.badgeQuestionNumber = this.quizService.questions[this.questionIndex];
     this.totalQuestions = this.quizData.questions.length;
