@@ -1,0 +1,75 @@
+<mat-card>
+  <mat-card-header>
+    <div mat-card-avatar class="header-image"></div>
+    <mat-card-title>Dependency Injection Quiz</mat-card-title>
+    <mat-card-subtitle>Assess your knowledge of Dependency Injection</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <codelab-scoreboard></codelab-scoreboard>
+
+    <section
+      id="question"
+      #questionElem
+      [class.unanswered]="!hasAnswer"
+      [class.answered]="hasAnswer">
+
+      <span *ngIf="!hasAnswer">{{ DIQuiz.questions[questionIndex].questionText }}</span>
+
+      <span *ngIf="(answer !== null) && hasAnswer && showExplanation">
+        <span *ngIf="correctAnswers?.length === 1">
+        Option {{ DIQuiz.question[questionIndex].options.answer }} is correct because
+        {{ DIQuiz.question[questionIndex].explanation }}.
+        </span>
+        <span *ngIf="correctAnswers?.length > 1">
+        Options {{ DIQuiz.question[questionIndex].options.answer }} are correct because
+          {{ DIQuiz.question[questionIndex].explanation }}.
+        </span>
+      </span>
+    </section>
+
+    <codelab-quiz-question
+      [question]="question"
+      (answer)="answerChanged($event)">
+    </codelab-quiz-question>
+  </mat-card-content>
+
+  <mat-card-footer>
+    <section class="paging">
+      <mat-card-actions>
+        <div class="next-question-nav" *ngIf="question && question.index !== totalQuestions">
+          <button type="button" (click)="navigateToNextQuestion()">
+            Next &raquo;
+          </button>
+        </div>
+        <div class="show-score-nav" *ngIf="question && question.index === totalQuestions">
+          <button type="button" (click)="navigateToResults()">
+            Show Your Score
+          </button>
+        </div>
+      </mat-card-actions>
+    </section>
+
+    <section class="progress-bar">
+      <!-- <mat-progress-bar
+        color="accent"
+        class="mat-elevation-z8"
+        mode="determinate"
+        value="progressValue"
+        aria-labelledby="codelab-quiz-progress-bar"
+        *ngIf="(progressValue >= 0 && progressValue <= 100) && question && question.index <= totalQuestions">
+        <strong>{{ progressValue }}%</strong>
+      </mat-progress-bar> -->
+
+      <ngb-progressbar
+        type="success"
+        [striped]="true"
+        [animated]="true"
+        [value]="progressValue"
+        *ngIf="progressValue >= 0 && progressValue <= 100 &&
+               question && question.index <= totalQuestions">
+        <strong>{{ progressValue }}%</strong>
+      </ngb-progressbar>
+    </section>
+  </mat-card-footer>
+</mat-card>
