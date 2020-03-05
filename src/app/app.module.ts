@@ -19,6 +19,12 @@ import { IntroductionComponent } from './containers/introduction/introduction.co
 import { CodelabQuizQuestionComponent } from './components/question/question.component';
 import { CodelabDependencyInjectionQuizComponent } from './containers/dependency-injection-quiz/dependency-injection-quiz.component';
 import { ResultsComponent } from './containers/results/results.component';
+import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
+import { BadgeComponent } from './containers/scoreboard/badge/badge.component';
+import { ScoreComponent } from './containers/scoreboard/score/score.component';
+import { TimerComponent } from './containers/scoreboard/timer/timer.component';
+
+
 import { QuizService } from './services/quiz.service';
 import { TimerService } from './services/timer.service';
 
@@ -29,7 +35,11 @@ import { TimerService } from './services/timer.service';
     IntroductionComponent,
     CodelabQuizQuestionComponent,
     CodelabDependencyInjectionQuizComponent,
-    ResultsComponent
+    ResultsComponent,
+    ScoreboardComponent,
+    ScoreComponent,
+    TimerComponent,
+    BadgeComponent
   ],
   imports: [
     BrowserModule,
