@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+import { QUIZ_DATA } from '../../quiz.ts';
 import { QuizService } from '../../../services/quiz.service';
 import { TimerService } from '../../../services/timer.service';
 
@@ -10,6 +11,7 @@ import { TimerService } from '../../../services/timer.service';
   providers: [QuizService, TimerService]
 })
 export class TimerComponent implements OnInit {
+  quizData: QUIZ_DATA;
   @Input() answer;
   @Input() timeLeft: number;
   @Input() showExplanation: boolean;
@@ -22,6 +24,8 @@ export class TimerComponent implements OnInit {
   quizIsOver: boolean;
   disabled: boolean;
   
+  @Input() questionIndex: number;
+
   constructor(
     private quizService: QuizService,
     private timerService: TimerService) {}
@@ -44,7 +48,7 @@ export class TimerComponent implements OnInit {
             this.showExplanation = true;
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
             this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-            this.quizService.checkIfAnsweredCorrectly(this.DIQuiz.questions[this.questionIndex].options[this.optionIndex]);
+            this.quizService.checkIfAnsweredCorrectly(this.quizData.questions[this.questionIndex].options[this.optionIndex]);
           }
 
           if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
