@@ -1,6 +1,9 @@
 <section class="scoreboard">
   <div class="row">
-    <codelab-scoreboard-score></codelab-scoreboard-score>
+    <codelab-scoreboard-score
+    [correctAnswersCount]="correctAnswersCount"
+    [totalQuestions]="totalQuestions"
+    ></codelab-scoreboard-score>
     <codelab-scoreboard-badge></codelab-scoreboard-badge>
     <codelab-scoreboard-timer></codelab-scoreboard-timer>
   </div>

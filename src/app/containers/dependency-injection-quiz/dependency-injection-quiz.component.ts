@@ -13,7 +13,6 @@ import { TimerService } from '../../services/timer.service';
   providers: [ QuizService, TimerService ]
 })
 export class CodelabDependencyInjectionQuizComponent implements OnInit {
-  quizData = QUIZ_DATA;  // copy the quiz data object
   @Output() question;
   @Output() answer: number;
   @Output() totalQuestions: number;
@@ -35,14 +34,16 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   answered: boolean;
   disabled: boolean;
 
+  quizData = QUIZ_DATA;  // initialize the quiz data object
+
   constructor(
     private quizService: QuizService,
     private timerService: TimerService) {
   }
 
   ngOnInit() {
-    // this.question = this.quizService.getQuestion;
-    // this.badgeQuestionNumber = this.question.index;
+    this.question = this.quizService.questions[this.questionIndex];
+    this.badgeQuestionNumber = this.quizService.questions[this.questionIndex];
     this.totalQuestions = this.quizData.questions.length;
     this.mapCorrectAnswersAndCorrectOptions();
   }

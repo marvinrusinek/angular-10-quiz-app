@@ -6,4 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./scoreboard.component.scss']
 })
 export class ScoreboardComponent {
+  @Input() correctAnswersCount: number;
+  @Input() totalQuestions: number;
 }
+
