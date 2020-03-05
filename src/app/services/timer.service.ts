@@ -1,4 +1,4 @@
-import { Injectable, Input } from '@angular/core';
+import { Injectable, Input, Output } from '@angular/core';
 
 import { QuizService } from './quiz.service';
 
@@ -8,7 +8,7 @@ import { QuizService } from './quiz.service';
 export class TimerService {
   @Input() timeLeft: number;
   @Input() timePerQuestion = 20;
-  @Input() elapsedTime = 0;
+  @Output() elapsedTime = 0;
   @Input() totalQuestions;
   @Input() completionTime;
   elapsedTimes = [];

@@ -1,15 +1,33 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { QuizService } from '../../../services/quiz.service';
+import { TimerService } from '../../../services/timer.service';
 
 @Component({
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
-  styleUrls: ['./timer.component.scss']
+  styleUrls: ['./timer.component.scss'],
+  providers: [QuizService, TimerService]
 })
-export class TimerComponent {
+export class TimerComponent implements OnInit {
+  @Input() answer;
   @Input() timeLeft: number;
+  @Input() showExplanation: boolean;
+  @Input() elapsedTime: number;
+  timePerQuestion = 20;
+  interval;
+
+  constructor(
+    private QuizService,
+    private TimerService) {}
+
+  ngOnInit(): void {
+    this.timeLeft = this.timePerQuestion;
+    this.countdown();
+  }
 
   // countdown clock
-  private countdown() {
+  countdown() {
     if (this.quizService.isThereAnotherQuestion()) {
       this.interval = setInterval(() => {
         this.showExplanation = false;
@@ -20,20 +38,20 @@ export class TimerComponent {
           if (this.answer !== null) {
             this.showExplanation = true;
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
-            this.calculateTotalElapsedTime(this.elapsedTimes);
+            this.quizService.calculateTotalElapsedTime(this.elapsedTimes);
             // this.checkIfAnsweredCorrectly(this.DIQuiz.questions[this.questionIndex].options[this.optionIndex]);
           }
 
-          if (this.timeLeft === 0 && !this.isFinalQuestion()) {
-            this.navigateToNextQuestion();
+          if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
+            this.quizService.navigateToNextQuestion();
           }
-          if (this.timeLeft === 0 && this.isFinalQuestion()) {
-            this.calculateQuizPercentage();
-            this.navigateToResults();
+          if (this.timeLeft === 0 && this.quizService.isFinalQuestion()) {
+            this.quizService.calculateQuizPercentage();
+            this.quizService.navigateToResults();
           }
-          if (this.isFinalQuestion() && this.hasAnswer === true) {
-            this.calculateQuizPercentage();
-            this.navigateToResults();
+          if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
+            this.quizService.calculateQuizPercentage();
+            this.quizService.navigateToResults();
             this.quizIsOver = true;
           }
 
