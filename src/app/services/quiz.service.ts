@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { QUIZ_DATA } from '../quiz';
 import { Quiz } from '../models/Quiz';
 import { QuizQuestion } from '../models/QuizQuestion';
+import { TimerService } from '../services/timer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,12 +22,44 @@ export class QuizService {
   percentage: number;
   finalAnswers = [];
 
+  @Input() answered: boolean;
+  @Input() hasAnswer: boolean;
+  @Input() correctAnswer: boolean;
+  @Input() showExplanation: boolean;
+
   constructor(
+    private quizService: QuizService,
+    private timerService: TimerService,
     private route: ActivatedRoute,
     private router: Router) {}
 
   getQuiz() {
     return this.quizData;
+  }
+
+// checks whether the question is valid and is answered correctly
+  checkIfAnsweredCorrectly(optionIndex: number) {
+    this.answered = true;
+    this.hasAnswer = true;
+
+    // check if the selected option is equal to the correct answer
+    if (this.quizData.questions[this.questionIndex].options[optionIndex]['selected'] ===
+      this.quizData.questions[this.questionIndex].options[optionIndex]['correct']) {
+      this.showExplanation = true;
+      this.timerService.stopTimer();
+      this.correctAnswer = true;
+      this.correctAnswersCount++;
+      this.timerService.quizDelay(3000);
+      this.timerService.addElapsedTimeToElapsedTimes();
+      this.quizService.addFinalAnswerToFinalAnswers();
+      this.timerService.resetTimer();
+      this.navigateToNextQuestion();
+    } else {
+      this.showExplanation = true;
+      this.answered = false;
+      this.hasAnswer = false;
+      this.correctAnswer = false;
+    }
   }
 
   calculateQuizPercentage() {

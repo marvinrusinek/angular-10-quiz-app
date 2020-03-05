@@ -62,31 +62,6 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
     this.answer = $event;
   }
 
-  // checks whether the question is valid and is answered correctly
-  checkIfAnsweredCorrectly(optionIndex: number) {
-    this.answered = true;
-    this.hasAnswer = true;
-
-    // check if the selected option is equal to the correct answer
-    if (this.quizData.questions[this.questionIndex].options[optionIndex]['selected'] ===
-      this.quizData.questions[this.questionIndex].options[optionIndex]['correct']) {
-      this.showExplanation = true;
-      this.timerService.stopTimer();
-      this.correctAnswer = true;
-      this.correctAnswersCount++;
-      this.timerService.quizDelay(3000);
-      this.timerService.addElapsedTimeToElapsedTimes();
-      this.quizService.addFinalAnswerToFinalAnswers();
-      this.timerService.resetTimer();
-      this.quizService.navigateToNextQuestion();
-    } else {
-      this.showExplanation = true;
-      this.answered = false;
-      this.hasAnswer = false;
-      this.correctAnswer = false;
-    }
-  }
-
   displayNextQuestion() {
     this.timerService.resetTimer();                         // reset the timer
     this.quizService.increaseProgressValue();               // increase the progress value
