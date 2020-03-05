@@ -21,9 +21,9 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   @Output() hasAnswer: boolean;
   @Output() badgeQuestionNumber: number;
   @Output() showExplanation: boolean;
+  @Output() questionIndex = 0;
   @Input() progressValue: number;
 
-  questionIndex = 0;
 
   // @ViewChild('questionElem') questionElem: ElementRef;
   correctAnswers = [];
@@ -42,7 +42,6 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
 
   ngOnInit() {
     this.question = this.quizService.getQuestion;
-    this.badgeQuestionNumber = this.quizData.questions[this.questionIndex];
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.mapCorrectAnswersAndCorrectOptions();
   }
@@ -96,19 +95,5 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
     if (this.questionIndex <= this.totalQuestions) {
       this.badgeQuestionNumber++;               // increase the question number for the badge by 1
     }
-
-    /* if (this.quizService.isThereAnotherQuestion()) {
-      this.displayNextQuestionText();     // display the text for the next question
-    } else {
-      this.navigateToResults();           // navigate to the results page
-    } */
   }
-
-  /* displayNextQuestionText() {
-    if (this.questionIndex < this.totalQuestions) {
-      // this.questionElem.nativeElement.innerHTML = this.DIQuiz.questions[this.questionIndex++]["questionText"];
-    } else {
-      this.quizService.navigateToResults();           // navigate to results
-    }
-  } */
 }
