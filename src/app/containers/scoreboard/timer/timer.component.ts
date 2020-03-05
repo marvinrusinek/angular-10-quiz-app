@@ -10,7 +10,7 @@ export class TimerComponent {
 
   // countdown clock
   private countdown() {
-    if (this.quizService.isThereAnotherQuestion()) {
+    if (this.isThereAnotherQuestion()) {
       this.interval = setInterval(() => {
         this.showExplanation = false;
 
@@ -19,7 +19,7 @@ export class TimerComponent {
 
           if (this.answer !== null) {
             this.showExplanation = true;
-            this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
+            this.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
             this.calculateTotalElapsedTime(this.elapsedTimes);
             // this.checkIfAnsweredCorrectly(this.DIQuiz.questions[this.questionIndex].options[this.optionIndex]);
           }
