@@ -16,7 +16,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   @Output() question: string;
   @Output() answer: number;
   @Output() totalQuestions: number;
-  @Output() correctAnswersCount = 0;
+  @Output() correctAnswersCount:number = 0;
   @Output() timeLeft: number;
   @Output() hasAnswer: boolean;
   @Output() badgeQuestionNumber: number;
@@ -28,7 +28,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   completionTime: number;
   percentage: number;
 
-  questionIndex = 0;
+  questionIndex: number = 0;
 
   correctAnswer: boolean;
   answered: boolean;
@@ -53,7 +53,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
     // console.log(this.quizData);
     for (let i = 1; i <= this.quizData.questions.length; i++) {
       for (let j = 1; j <= this.quizData.questions[i].options.length; j++) {
-        if (this.quizData.questions[i].options[j].correct === true) {
+        if (this.quizData.questions[i].options[j]["correct"] === true) {
           this.correctAnswers.push("Question " + i + ", Options: " + j);
         }
       }
