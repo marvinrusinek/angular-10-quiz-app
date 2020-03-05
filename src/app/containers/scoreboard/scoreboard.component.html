@@ -5,7 +5,11 @@
       [totalQuestions]="totalQuestions"
     ></codelab-scoreboard-score>
     
-    <codelab-scoreboard-badge></codelab-scoreboard-badge>
+    <codelab-scoreboard-badge
+      [badgeQuestionNumber]="badgeQuestionNumber";
+      [totalQuestions]="totalQuestions";
+      [questionIndex]="questionIndex";
+    ></codelab-scoreboard-badge>
     
     <codelab-scoreboard-timer></codelab-scoreboard-timer>
   </div>
