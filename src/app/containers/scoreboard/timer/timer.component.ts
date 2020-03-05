@@ -14,9 +14,14 @@ export class TimerComponent implements OnInit {
   @Input() timeLeft: number;
   @Input() showExplanation: boolean;
   @Input() elapsedTime: number;
+  @Input() elapsedTimes: [];
+  @Input() hasAnswer: boolean;
+
   timePerQuestion = 20;
   interval; 
-
+  quizIsOver: boolean;
+  disabled: boolean;
+  
   constructor(
     private quizService: QuizService,
     private timerService: TimerService) {}
@@ -38,7 +43,7 @@ export class TimerComponent implements OnInit {
           if (this.answer !== null) {
             this.showExplanation = true;
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
-            this.quizService.calculateTotalElapsedTime(this.elapsedTimes);
+            this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
             // this.checkIfAnsweredCorrectly(this.DIQuiz.questions[this.questionIndex].options[this.optionIndex]);
           }
 

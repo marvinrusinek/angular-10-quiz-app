@@ -32,8 +32,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
 
   correctAnswer: boolean;
   answered: boolean;
-  disabled: boolean;
-
+  
   quizData = QUIZ_DATA;  // initialize the quiz data object
 
   constructor(
