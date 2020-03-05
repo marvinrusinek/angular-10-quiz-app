@@ -62,9 +62,9 @@ export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setSelected(optionIndex: number) {
-     this.question.options.forEach(o => o.selected = false);
-     this.question.options[optionIndex].selected = true;
-     this.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
+    this.question.options.forEach(o => o.selected = false);
+    this.question.options[optionIndex].selected = true;
+    this.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
   }
 
   correctAnswers = [];

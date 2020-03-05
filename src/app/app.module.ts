@@ -19,6 +19,8 @@ import { IntroductionComponent } from './containers/introduction/introduction.co
 import { CodelabQuizQuestionComponent } from './components/question/question.component';
 import { CodelabDependencyInjectionQuizComponent } from './containers/dependency-injection-quiz/dependency-injection-quiz.component';
 import { ResultsComponent } from './containers/results/results.component';
+import { QuizService } from './services/quiz.service';
+import { TimerService } from './services/timer.service';
 
 
 @NgModule({
@@ -46,6 +48,7 @@ import { ResultsComponent } from './containers/results/results.component';
     FontAwesomeModule
   ],
   bootstrap: [ AppComponent ],
+  providers: [ QuizService, TimerService ]
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

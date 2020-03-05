@@ -1,77 +1,62 @@
-import { Component, ElementRef, OnInit, Output, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, Input, Output, OnInit } from '@angular/core';
 
-import { QuizQuestion } from '../../model/QuizQuestion';
-import { QuizService } from './quiz.service';
-import { DIQuiz } from './diquiz';
+import { QUIZ_DATA } from '../../quiz';
+import { Quiz } from '../../model/Quiz';
+import { QuizService } from '../../services/quiz.service';
+import { TimerService } from '../../services/timer.service';
+
 
 @Component({
   selector: 'codelab-dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
-  styleUrls: ['./dependency-injection-quiz.component.scss']
+  styleUrls: ['./dependency-injection-quiz.component.scss'],
+  providers: [ QuizService, TimerService ]
 })
 export class CodelabDependencyInjectionQuizComponent implements OnInit {
-  DIQuiz;
+  quizData = QUIZ_DATA;  // copy the quiz data object
   @Output() question;
+  @Output() answer: number;
   @Output() totalQuestions: number;
   @Output() correctAnswersCount = 0;
   @Output() timeLeft: number;
   @Output() hasAnswer: boolean;
   @Output() badgeQuestionNumber: number;
+  @Output() showExplanation: boolean;
+  @Input() progressValue: number;
 
   // @ViewChild('questionElem') questionElem: ElementRef;
-  answer: number;
+  correctAnswers = [];
   completionTime: number;
   percentage: number;
 
-  currentQuestion = 1;
   questionIndex: number;
 
   correctAnswer: boolean;
   answered: boolean;
   disabled: boolean;
-  quizIsOver: boolean;
-  progressValue: number;
 
-  timePerQuestion = 20;
-  interval: any;
-  elapsedTime = 0;
-  elapsedTimes = [];
-
-  finalAnswers = [];
-  correctAnswers = [];
-  showExplanation: boolean;
-
-  constructor(private diQuiz: DIQuiz,
-              private quizService: QuizService,
-              private route: ActivatedRoute,
-              private router: Router) {
-    this.route.paramMap.subscribe(params => {
-      this.setQuestionIndex(+params.get('index'));  // get the question ID and store it
-      this.question = this.getQuestion;
-    });
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService) {
   }
 
   ngOnInit() {
-    this.question = this.getQuestion;
-    this.badgeQuestionNumber = this.question.index;
-    this.totalQuestions = this.DIQuiz.questions.length;
-    this.timeLeft = this.timePerQuestion;
-    this.progressValue = (this.currentQuestion / this.totalQuestions) * 100;
+    // this.question = this.quizService.getQuestion;
+    // this.badgeQuestionNumber = this.question.index;
+    this.totalQuestions = this.quizData.questions.length;
     this.mapCorrectAnswersAndCorrectOptions();
-    this.countdown();
   }
 
   mapCorrectAnswersAndCorrectOptions() {
-    // iterate over the questions in DIQuiz
-    for (let i = 1; i <= this.DIQuiz.questions.length; i++) {
-      for (let j = 1; i <= this.DIQuiz.questions[i].options.length; j++) {
-        if (this.DIQuiz.questions[i].options[j].correct === true) {
+    // console.log(this.quizData);
+    for (let i = 1; i <= this.quizData.questions.length; i++) {
+      for (let j = 1; j <= this.quizData.questions[i].options.length; j++) {
+        if (this.quizData.questions[i].options[j].correct === true) {
           this.correctAnswers.push("Question " + i + ", Options: " + j);
         }
       }
     }
-    console.log(this.correctAnswers);
+    //console.log(this.correctAnswers);
   }
 
   answerChanged($event) {
@@ -84,17 +69,17 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
     this.hasAnswer = true;
 
     // check if the selected option is equal to the correct answer
-    if (this.DIQuiz.questions[this.questionIndex].options[optionIndex]['selected'] ===
-        this.DIQuiz.questions[this.questionIndex].options[optionIndex]['correct']) {
+    if (this.quizData.questions[this.questionIndex].options[optionIndex]['selected'] ===
+      this.quizData.questions[this.questionIndex].options[optionIndex]['correct']) {
       this.showExplanation = true;
-      this.stopTimer();
+      this.timerService.stopTimer();
       this.correctAnswer = true;
       this.correctAnswersCount++;
-      this.quizDelay(3000);
-      this.addElapsedTimeToElapsedTimes();
-      this.addFinalAnswerToFinalAnswers();
-      this.resetTimer();
-      this.navigateToNextQuestion();
+      this.timerService.quizDelay(3000);
+      this.timerService.addElapsedTimeToElapsedTimes();
+      this.quizService.addFinalAnswerToFinalAnswers();
+      this.timerService.resetTimer();
+      this.quizService.navigateToNextQuestion();
     } else {
       this.showExplanation = true;
       this.answered = false;
@@ -103,72 +88,27 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
     }
   }
 
-  navigateToNextQuestion(): void {
-    this.router.navigate(['/question', this.getQuestionIndex() + 1]);
-    this.displayNextQuestion();
-  }
-
   displayNextQuestion() {
-    this.resetTimer();                          // reset the timer
-    this.increaseProgressValue();               // increase the progress value
-    this.questionIndex++;                       // increase the question index by 1
+    this.timerService.resetTimer();                         // reset the timer
+    this.quizService.increaseProgressValue();               // increase the progress value
+    this.questionIndex++;                                   // increase the question index by 1
 
     if (this.questionIndex <= this.totalQuestions) {
       this.badgeQuestionNumber++;               // increase the question number for the badge by 1
     }
 
-    if (this.isThereAnotherQuestion()) {
+    /* if (this.quizService.isThereAnotherQuestion()) {
       this.displayNextQuestionText();     // display the text for the next question
     } else {
       this.navigateToResults();           // navigate to the results page
-    }
+    } */
   }
 
-  displayNextQuestionText() {
+  /* displayNextQuestionText() {
     if (this.questionIndex < this.totalQuestions) {
       // this.questionElem.nativeElement.innerHTML = this.DIQuiz.questions[this.questionIndex++]["questionText"];
     } else {
-      this.navigateToResults();           // navigate to results
+      this.quizService.navigateToResults();           // navigate to results
     }
-  }
-
-  navigateToResults(): void {
-    if (this.questionIndex > this.totalQuestions) {
-      this.router.navigate(['/results'], {
-        state:
-          {
-            allQuestions: this.DIQuiz.questions,
-            totalQuestions: this.totalQuestions,
-            completionTime: this.completionTime,
-            correctAnswersCount: this.correctAnswersCount,
-            percentage: this.percentage
-          }
-      });
-    }
-  }
-
-  addElapsedTimeToElapsedTimes() {
-    if (this.getQuestionIndex() <= this.totalQuestions) {
-      this.elapsedTimes = [...this.elapsedTimes, this.elapsedTime];
-    } else {
-      this.elapsedTimes = [...this.elapsedTimes, 0];
-    }
-    this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
-  }
-
-  addFinalAnswerToFinalAnswers() {
-    this.finalAnswers = [...this.finalAnswers, this.answer];
-  }
-
-  increaseProgressValue() {
-    this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
-  }
-
-  calculateTotalElapsedTime(elapsedTimes) {
-    return this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
-  }
-
-  calculateQuizPercentage() {
-    this.percentage = Math.round(100 * this.correctAnswersCount / this.totalQuestions);
-  }  
+  } */
 }

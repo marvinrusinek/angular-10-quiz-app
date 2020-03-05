@@ -14,16 +14,16 @@
       [class.unanswered]="!hasAnswer"
       [class.answered]="hasAnswer">
 
-      <span *ngIf="!hasAnswer">{{ DIQuiz.questions[questionIndex].questionText }}</span>
+      <span *ngIf="!hasAnswer">{{ quizData.questions[questionIndex].questionText }}</span>
 
       <span *ngIf="(answer !== null) && hasAnswer && showExplanation">
         <span *ngIf="correctAnswers?.length === 1">
-        Option {{ DIQuiz.question[questionIndex].options.answer }} is correct because
-        {{ DIQuiz.question[questionIndex].explanation }}.
+        Option {{ quizData.questions[questionIndex].options.answer }} is correct because
+        {{ quizData.questions[questionIndex].explanation }}.
         </span>
         <span *ngIf="correctAnswers?.length > 1">
-        Options {{ DIQuiz.question[questionIndex].options.answer }} are correct because
-          {{ DIQuiz.question[questionIndex].explanation }}.
+        Options {{ quizData.questions[questionIndex].options.answer }} are correct because
+          {{ quizData.questions[questionIndex].explanation }}.
         </span>
       </span>
     </section>
@@ -38,12 +38,12 @@
     <section class="paging">
       <mat-card-actions>
         <div class="next-question-nav" *ngIf="question && question.index !== totalQuestions">
-          <button type="button" (click)="navigateToNextQuestion()">
+          <button type="button" (click)="quizService.navigateToNextQuestion()">
             Next &raquo;
           </button>
         </div>
         <div class="show-score-nav" *ngIf="question && question.index === totalQuestions">
-          <button type="button" (click)="navigateToResults()">
+          <button type="button" (click)="quizService.navigateToResults()">
             Show Your Score
           </button>
         </div>

@@ -59,7 +59,7 @@ ol li {
     font-style: italic;
     margin: 0 auto !important;
     padding: 10px !important;
-    width: 36rem !important;
+    width: 32rem !important;
     display: inline-flex;
     justify-content: center !important;
     align-items: center;
@@ -93,6 +93,6 @@ ol li {
 }
 
 // hide the radio button next to the answer choice
-::ng-deep .mat-radio-button .mat-radio-container {
+::ng-deep .mat-radio-button {
   display: none;
 }
