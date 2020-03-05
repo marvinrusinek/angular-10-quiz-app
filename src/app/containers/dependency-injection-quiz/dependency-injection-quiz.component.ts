@@ -16,7 +16,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   @Output() question: QuizQuestion;
   @Output() answer: number;
   @Output() totalQuestions: number;
-  @Output() correctAnswersCount:number = 0;
+  @Output() correctAnswersCount: number = 0;
   @Output() timeLeft: number;
   @Output() hasAnswer: boolean;
   @Output() badgeQuestionNumber: number;
@@ -43,7 +43,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   ngOnInit() {
     this.question = this.quizService.getQuestion;
     this.badgeQuestionNumber = this.quizData.questions[this.questionIndex];
-    this.totalQuestions = this.quizData.questions.length;
+    this.totalQuestions = this.quizService.numberOfQuestions();
     this.mapCorrectAnswersAndCorrectOptions();
   }
 
@@ -56,7 +56,7 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
         }
       }
     }
-    //console.log(this.correctAnswers);
+    // console.log(this.correctAnswers);
   }
 
   answerChanged($event) {
