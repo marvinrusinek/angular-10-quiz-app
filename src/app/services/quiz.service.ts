@@ -25,9 +25,9 @@ export class QuizService {
     private route: ActivatedRoute,
     private router: Router) {}
 
-  /* getQuiz() {
-    return quizData;
-  } */
+  getQuiz() {
+    return this.quizData;
+  }
 
   calculateQuizPercentage() {
     this.percentage = Math.round(100 * this.correctAnswersCount / this.totalQuestions);
