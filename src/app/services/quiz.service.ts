@@ -68,7 +68,7 @@ export class QuizService {
 
   navigateToNextQuestion(): void {
     if (this.isThereAnotherQuestion()) {
-      this.router.navigate(['/quiz/question', this.getQuestionIndex() + 1]);
+      this.router.navigate(['/question', this.getQuestionIndex() + 1]);
     } else {
       this.navigateToResults();
     }
