@@ -27,8 +27,8 @@ export enum CorrectnessTypes {
 export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
   // @Input() type = CorrectnessTypes.Default;
   // private correctnessTypes = CorrectnessTypes;
-  @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
+  @Output() answer = new EventEmitter<number>();
   @Input() selectedOption: number;
   @Input() hasAnswer: boolean;
   @Output() formGroup: FormGroup;

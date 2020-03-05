@@ -23,6 +23,8 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   @Output() showExplanation: boolean;
   @Input() progressValue: number;
 
+  questionIndex = 0;
+
   // @ViewChild('questionElem') questionElem: ElementRef;
   correctAnswers = [];
   completionTime: number;
@@ -40,8 +42,8 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.quizData.questions[this.questionIndex].questionText);
-    this.question = this.getQuestion;  // pass the question object to question component
+    console.log(this.quizService.getQuestion);
+    this.question = this.quizService.getQuestion;
     this.badgeQuestionNumber = this.quizData.questions[this.questionIndex];
     this.totalQuestions = this.quizData.questions.length;
     this.mapCorrectAnswersAndCorrectOptions();
