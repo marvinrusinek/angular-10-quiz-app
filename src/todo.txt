@@ -7,6 +7,8 @@ QUIZ TODO:
 
 option index
 
+if there is a single answer use mat-radio otherwise use mat-checkbox
+
 create function that creates a mapping?
 loop over q array
 if option is correct, need to store the option in an array

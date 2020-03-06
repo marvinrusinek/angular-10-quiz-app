@@ -35,6 +35,10 @@ export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
   @Output() formGroup: FormGroup;
   option: number;
 
+  correctAnswers = [];
+  firstCorrectAnswer: number;
+  secondCorrectAnswer: number;
+
   ngOnInit() {
     this.formGroup = new FormGroup({
       answer: new FormControl([null, Validators.required])
@@ -68,10 +72,6 @@ export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
     this.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
   }
 
-  correctAnswers = [];
-  firstCorrectAnswer: number;
-  secondCorrectAnswer: number;
-
   addCorrectAnswersToArray(optionIndex: number) {
     if (this.question.options[optionIndex].correct === true) {
       this.correctAnswers.push(optionIndex);  // could use destructuring here
@@ -80,10 +80,12 @@ export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
 
     // increment indexes by 1 to show correct option numbers
     if (this.correctAnswers.length === 1) {
+      // use mat-radio-buttons
       this.firstCorrectAnswer = this.correctAnswers[0] + 1;
     }
 
     if (this.correctAnswers.length > 1) {
+      // use mat-checkbox
       this.firstCorrectAnswer = this.correctAnswers[0] + 1;
       this.secondCorrectAnswer = this.correctAnswers[1] + 1;
     }

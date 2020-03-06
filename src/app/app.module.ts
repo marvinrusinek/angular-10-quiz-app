@@ -7,6 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule, MAT_RADIO_DEFAULT_OPTIONS } from '@angular/material/radio';
+import { MatCheckboxModule, MAT_CHECKBOX_DEFAULT_OPTIONS } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -48,6 +49,7 @@ import { TimerService } from './services/timer.service';
     MatCardModule,
     MatListModule,
     MatRadioModule,
+    MatCheckboxModule,
     MatIconModule,
     MatButtonModule,
     MatExpansionModule,
