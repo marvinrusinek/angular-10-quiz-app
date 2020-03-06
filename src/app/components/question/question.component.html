@@ -1,9 +1,8 @@
 <ng-content></ng-content>
 
-<form [formGroup]="formGroup">
+<form [formGroup]="formGroup" *ngIf="correctAnswers?.length === 1">
   <ol>
     <mat-radio-group
-      *ngIf="correctAnswers?.length === 1"
       required
       name="answer"
       class="form-group"
