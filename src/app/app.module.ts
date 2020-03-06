@@ -10,7 +10,6 @@ import { MatRadioModule, MAT_RADIO_DEFAULT_OPTIONS } from '@angular/material/rad
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -52,7 +51,6 @@ import { TimerService } from './services/timer.service';
     MatIconModule,
     MatButtonModule,
     MatExpansionModule,
-    MatProgressBarModule,
     NgbModule,
     FontAwesomeModule
   ],
