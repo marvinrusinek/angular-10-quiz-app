@@ -108,4 +108,14 @@ export class QuizService {
       question => question.index === this.questionIndex
     )[0];
   } */
+
+  nextQuestion(): void {
+    this.questionIndex++;
+    this.navigationService.navigateToNextQuestion();
+  }
+
+  previousQuestion(): void {
+    this.questionIndex--;
+    // this.navigationService.navigateToPreviousQuestion();
+  }
 }

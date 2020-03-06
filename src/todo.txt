@@ -1,6 +1,6 @@
 TODO:
 - fix the options error in chrome dev tools
-- PROGRESS BAR,
+- progressbar increment for next question
 - navigating to next question
 - incrementing CORRANS
 - why is clear mat-icon not working?
