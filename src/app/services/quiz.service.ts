@@ -45,7 +45,7 @@ export class QuizService {
     this.hasAnswer = true;
 
     // check if the selected option is equal to the correct answer
-    if (this.question.options[optionIndex]["selected"] === this.question.options[optionIndex]["correct"]) {
+    if (this.question.options[optionIndex].selected === this.question.options[optionIndex].correct) {
       this.showExplanation = true;
       this.timerService.stopTimer();
       this.correctAnswer = true;
