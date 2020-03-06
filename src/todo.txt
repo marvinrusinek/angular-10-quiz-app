@@ -56,17 +56,6 @@ move functions around after and somehow get it to work - In Progress
 make a cool hover effect on options
 
 -------------------------------------------
-get rid of index in allQuestions component
-get rid of optionValue
-correct: true on correct options
-
-move routing from constructor to quiz-routing
-allQuestions should be in its own component and then use generic quiz component
-
-disp next quetsion text should be in template - NO DOM
-
-just pass 2 values to resultscomponent
-
-just use one class in section id 
-
-timer component, timer service
+- disp next quetsion text should be in template - NO DOM
+- just pass 2 values to resultscomponent
+- just use one class in section id 
