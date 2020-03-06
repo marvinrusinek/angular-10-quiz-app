@@ -3,6 +3,7 @@
 <form [formGroup]="formGroup">
   <ol>
     <mat-radio-group
+      *ngIf="correctAnswers?.length === 1"
       required
       name="answer"
       class="form-group"
@@ -32,25 +33,6 @@
             class="feedback-icon"
             *ngIf="option.selected && isIncorrect(option.correct, i)">clear</mat-icon>
         </mat-radio-button>
-
-        <mat-checkbox 
-          *ngIf="correctAnswers?.length === 1"
-          class="option"
-          name="option-radio-button"
-          [value]="i"
-          (change)="setSelected(i)"
-          [class.is-correct]="option.selected && option.correct"
-          [class.is-incorrect]="option.selected && !option.correct">
-
-          <li>{{ option.text }}</li>
-
-          <mat-icon
-            class="feedback-icon"
-            *ngIf="option.selected && isCorrect(option.correct, i)">done</mat-icon>
-          <mat-icon
-            class="feedback-icon"
-            *ngIf="option.selected && isIncorrect(option.correct, i)">clear</mat-icon>
-        </mat-checkbox>
 
         <section class="messages" *ngIf="option.selected">
           <div *ngIf="isCorrect(option.correct, i)">
