@@ -20,7 +20,7 @@ export class NavigationService {
 
   navigateToNextQuestion(): void {
     // if (this.quizService.isThereAnotherQuestion()) {
-      this.router.navigate(['/question', this.questionIndex + 1]);
+      this.router.navigate(['/question', this.questionIndex + 2]);
     // } else {
     //  this.navigateToResults();
     // }
