@@ -19,6 +19,7 @@ export class QuizService {
   @Output() progressValue: number;
 
   questionIndex: number = 0;
+  questionID: number = 1;
   percentage: number;
   finalAnswers = [];
 
@@ -107,13 +108,13 @@ export class QuizService {
   } */
 
   nextQuestion(): void {
-    this.questionIndex++;
-    console.log(this.questionIndex);
+    this.questionID++;
+    console.log(this.questionID);
     this.navigationService.navigateToNextQuestion();
   }
 
   previousQuestion(): void {
-    this.questionIndex--;
+    this.questionID--;
     // this.navigationService.navigateToPreviousQuestion();
   }
 }
