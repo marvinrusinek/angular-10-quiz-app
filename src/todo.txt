@@ -1,7 +1,7 @@
-TODO:
+QUIZ TODO:
 - fix the options error in chrome dev tools
-- progressbar increment for next question
 - navigating to next question
+- progressbar increment for next question
 - incrementing CORRANS
 - why is clear mat-icon not working?
 
@@ -30,9 +30,10 @@ wrong message not being shown
 [Honeybadger] Unable to send error report: no API key has been configured.
 
 - not clearing btwn questions
-- explanation not showing up when any answer is selected - maybe need to use a toggleExplanation variable here!  if the q has ans set toggleExpl true otherwise false
-- last q the correct answer is not being selected and time stopped
-- after answering last question it doesn't forward to results! results mat-card not displaying...
+- explanation not showing up when any answer is selected (maybe need to use a toggleExplanation variable here! if the question has answer, set toggleExpl true otherwise false)
+
+- for last question, make sure that the correct answer is selected and time stopped
+- after answering last question it should forward to results and results mat-card should display...
 
 next questions not showing up with blue border
 questionText undef on last q
