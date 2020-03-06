@@ -55,7 +55,8 @@
         type="success"
         [striped]="true"
         [animated]="true"
-        [value]="progressValue">
+        [value]="progressValue"
+        *ngIf="progressValue > 0 && progressValue <= 100">
         <strong>{{ progressValue }}%</strong>
       </ngb-progressbar>
     </section>
