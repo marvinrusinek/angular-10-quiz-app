@@ -12,15 +12,14 @@ $font-weight-max: 900;
 
   .leader {
     display: block;
-    margin-left: 35px;
+    margin-left: 25px;
     font-weight: $font-weight-max;
     font-size: 18px;
     text-transform: uppercase;
     position: relative;
     top: -5px;
     padding: 0 10px;
-    border: 1px solid black;
-    background-color: #006400;
+    background-color: red;
   }
 
   span.scoreboard {
