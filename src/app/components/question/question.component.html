@@ -1,6 +1,6 @@
 <ng-content></ng-content>
-
-<form [formGroup]="formGroup" *ngIf="correctAnswers?.length === 1">
+<div *ngIf="correctAnswers?.length === 1">
+<form [formGroup]="formGroup">
   <ol>
     <mat-radio-group
       required
@@ -62,3 +62,4 @@
     </mat-radio-group>
   </ol>
 </form>
+</div>
