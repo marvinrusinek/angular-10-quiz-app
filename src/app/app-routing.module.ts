@@ -9,7 +9,7 @@ const routes: Route[] = [
   { path: '', redirectTo: 'intro', pathMatch: 'full' },
   { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
   { path: 'question', component: CodelabDependencyInjectionQuizComponent, pathMatch: 'full' },
-  { path: 'question/:questionID', component: CodelabDependencyInjectionQuizComponent, pathMatch: 'full' },
+  { path: 'question/:questionIndex', component: CodelabDependencyInjectionQuizComponent, pathMatch: 'full' },
   { path: 'results', component: ResultsComponent, pathMatch: 'full' }
 ];
 
