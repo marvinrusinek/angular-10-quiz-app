@@ -12,6 +12,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../models/QuizQuestion';
 
+
 export enum CorrectnessTypes {
   Default,
   Correct = "isCorrect(option.correct, i)",

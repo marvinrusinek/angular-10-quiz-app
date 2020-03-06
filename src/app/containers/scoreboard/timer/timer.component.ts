@@ -1,8 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { QUIZ_DATA } from '../../quiz.ts';
+import { QUIZ_DATA } from '../../../quiz';
+import { QuizQuestion } from '../../../models/QuizQuestion';
 import { QuizService } from '../../../services/quiz.service';
 import { TimerService } from '../../../services/timer.service';
+import { NavigationService } from '../../../services/navigation.service';
+
 
 @Component({
   selector: 'codelab-scoreboard-timer',
@@ -11,7 +14,7 @@ import { TimerService } from '../../../services/timer.service';
   providers: [QuizService, TimerService]
 })
 export class TimerComponent implements OnInit {
-  quizData: QUIZ_DATA;
+  @Input() question: QuizQuestion;
   @Input() answer;
   @Input() timeLeft: number;
   @Input() showExplanation: boolean;
@@ -19,16 +22,19 @@ export class TimerComponent implements OnInit {
   @Input() elapsedTimes: [];
   @Input() hasAnswer: boolean;
 
+  quizData = QUIZ_DATA;
   timePerQuestion = 20;
-  interval; 
+  interval;
   quizIsOver: boolean;
   disabled: boolean;
-  
+
   @Input() questionIndex: number;
+  @Input() optionIndex: number;
 
   constructor(
     private quizService: QuizService,
-    private timerService: TimerService) {}
+    private timerService: TimerService,
+    private navigationService: NavigationService) {}
 
   ngOnInit(): void {
     this.timeLeft = this.timePerQuestion;
@@ -48,19 +54,20 @@ export class TimerComponent implements OnInit {
             this.showExplanation = true;
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
             this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-            this.quizService.checkIfAnsweredCorrectly(this.quizData.questions[this.questionIndex].options[this.optionIndex]);
+            this.quizService.checkIfAnsweredCorrectly(this.optionIndex);
           }
 
           if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
-            this.quizService.navigateToNextQuestion();
+            // maybe show answer(s) and have a quiz delay here
+            this.navigationService.navigateToNextQuestion();
           }
           if (this.timeLeft === 0 && this.quizService.isFinalQuestion()) {
             this.quizService.calculateQuizPercentage();
-            this.quizService.navigateToResults();
+            this.navigationService.navigateToResults();
           }
           if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
             this.quizService.calculateQuizPercentage();
-            this.quizService.navigateToResults();
+            this.navigationService.navigateToResults();
             this.quizIsOver = true;
           }
 

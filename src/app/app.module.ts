@@ -20,11 +20,11 @@ import { CodelabQuizQuestionComponent } from './components/question/question.com
 import { CodelabDependencyInjectionQuizComponent } from './containers/dependency-injection-quiz/dependency-injection-quiz.component';
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
-import { BadgeComponent } from './containers/scoreboard/badge/badge.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimerComponent } from './containers/scoreboard/timer/timer.component';
 
 
+import { NavigationService } from './services/navigation.service';
 import { QuizService } from './services/quiz.service';
 import { TimerService } from './services/timer.service';
 
@@ -38,8 +38,7 @@ import { TimerService } from './services/timer.service';
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
-    TimerComponent,
-    BadgeComponent
+    TimerComponent
   ],
   imports: [
     BrowserModule,
@@ -58,7 +57,7 @@ import { TimerService } from './services/timer.service';
     FontAwesomeModule
   ],
   bootstrap: [ AppComponent ],
-  providers: [ QuizService, TimerService ],
+  providers: [ NavigationService, QuizService, TimerService ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

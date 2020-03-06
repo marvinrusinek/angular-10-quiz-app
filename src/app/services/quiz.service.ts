@@ -2,15 +2,16 @@ import { Injectable, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
-import { Quiz } from '../models/Quiz';
 import { QuizQuestion } from '../models/QuizQuestion';
 import { TimerService } from '../services/timer.service';
+import { NavigationService } from '../services/navigation.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuizService {
   quizData = QUIZ_DATA;   // copy the quiz data object
+  @Input() question;
   @Input() answer;
   @Input() correctAnswersCount;
   @Input() totalQuestions;
@@ -28,10 +29,12 @@ export class QuizService {
   @Input() showExplanation: boolean;
 
   constructor(
-    private quizService: QuizService,
     private timerService: TimerService,
-    private route: ActivatedRoute,
-    private router: Router) {}
+    private navigationService: NavigationService) {}
+
+  ngOnInit(): void {
+    // this.progressValue = ((this.questionIndex + 1) / this.totalQuestions) * 100;
+  }
 
   getQuiz() {
     return this.quizData;
@@ -43,17 +46,16 @@ export class QuizService {
     this.hasAnswer = true;
 
     // check if the selected option is equal to the correct answer
-    if (this.quizData.questions[this.questionIndex].options[optionIndex]['selected'] ===
-      this.quizData.questions[this.questionIndex].options[optionIndex]['correct']) {
+    if (this.question.options["selected"] === this.question.options["correct"]) {
       this.showExplanation = true;
       this.timerService.stopTimer();
       this.correctAnswer = true;
       this.correctAnswersCount++;
       this.timerService.quizDelay(3000);
       this.timerService.addElapsedTimeToElapsedTimes();
-      this.quizService.addFinalAnswerToFinalAnswers();
+      this.addFinalAnswerToFinalAnswers();
       this.timerService.resetTimer();
-      this.navigateToNextQuestion();
+      this.navigationService.navigateToNextQuestion();
     } else {
       this.showExplanation = true;
       this.answered = false;
@@ -100,31 +102,10 @@ export class QuizService {
   get getQuestion(): QuizQuestion {
     return this.quizData.questions[this.questionIndex];
   }
-  
+
   /* get getQuestion(): QuizQuestion {
     return this.quizData.questions.filter(
       question => question.index === this.questionIndex
     )[0];
   } */
-
-  navigateToNextQuestion(): void {
-    if (this.isThereAnotherQuestion()) {
-      this.router.navigate(['/question', this.getQuestionIndex() + 1]);
-    } else {
-      this.navigateToResults();
-    }
-  }
-
-  navigateToResults(): void {
-    this.router.navigate(['/results'], {
-      state:
-        {
-          questions: this.quizData.questions,
-          results: {
-            correctAnswers: this.correctAnswers,
-            completionTime: this.completionTime
-          }
-        }
-    });
-  }
 }

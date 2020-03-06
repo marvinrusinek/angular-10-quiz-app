@@ -19,7 +19,7 @@
       <span *ngIf="(answer !== null) && hasAnswer && showExplanation">
         <span *ngIf="correctAnswers?.length === 1">
         Option {{ quizData.questions[questionIndex].options.answer }} is correct because
-        {{ quizData.questions[questionIndex].explanation }}.
+          {{ quizData.questions[questionIndex].explanation }}.
         </span>
         <span *ngIf="correctAnswers?.length > 1">
         Options {{ quizData.questions[questionIndex].options.answer }} are correct because
@@ -37,13 +37,13 @@
   <mat-card-footer>
     <section class="paging">
       <mat-card-actions>
-        <div class="next-question-nav" *ngIf="question && question.index !== totalQuestions">
-          <button type="button" (click)="quizService.navigateToNextQuestion()">
+        <div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions">
+          <button type="button" (click)="navigationService.navigateToNextQuestion()">
             Next &raquo;
           </button>
         </div>
-        <div class="show-score-nav" *ngIf="question && question.index === totalQuestions">
-          <button type="button" (click)="quizService.navigateToResults()">
+        <div class="show-score-nav" *ngIf="question && questionIndex === totalQuestions">
+          <button type="button" (click)="navigationService.navigateToResults()">
             Show Your Score
           </button>
         </div>
@@ -66,8 +66,7 @@
         [striped]="true"
         [animated]="true"
         [value]="progressValue"
-        *ngIf="progressValue >= 0 && progressValue <= 100 &&
-               question && question.index <= totalQuestions">
+        *ngIf="progressValue >= 0 && progressValue <= 100">
         <strong>{{ progressValue }}%</strong>
       </ngb-progressbar>
     </section>
