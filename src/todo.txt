@@ -1,6 +1,6 @@
 QUIZ TODO:
 - fix the options error in chrome dev tools
-- navigating to next question
+- navigating to next question -- get working, make sure questionID is incremented only once
 - progressbar increment for next question
 - incrementing CORRANS
 - why is clear mat-icon not working?

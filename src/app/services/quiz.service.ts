@@ -27,6 +27,7 @@ export class QuizService {
   @Input() hasAnswer: boolean;
   @Input() correctAnswer: boolean;
   @Input() showExplanation: boolean;
+  @Input() badgeQuestionNumber: number;
 
   quizData = QUIZ_DATA;
 
@@ -59,6 +60,16 @@ export class QuizService {
       this.answered = false;
       this.hasAnswer = false;
       this.correctAnswer = false;
+    }
+  }
+
+  displayNextQuestion() {
+    this.timerService.resetTimer();                         // reset the timer
+    this.increaseProgressValue();               // increase the progress value
+    this.questionIndex++;                                   // increase the question index by 1
+
+    if (this.questionIndex <= this.totalQuestions) {
+      this.badgeQuestionNumber++;               // increase the question number for the badge by 1
     }
   }
 

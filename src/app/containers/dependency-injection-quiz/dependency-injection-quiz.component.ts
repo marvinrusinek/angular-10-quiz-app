@@ -57,14 +57,4 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
   answerChanged($event) {
     this.answer = $event;
   }
-
-  displayNextQuestion() {
-    this.timerService.resetTimer();                         // reset the timer
-    this.quizService.increaseProgressValue();               // increase the progress value
-    this.questionIndex++;                                   // increase the question index by 1
-
-    if (this.questionIndex <= this.totalQuestions) {
-      this.badgeQuestionNumber++;               // increase the question number for the badge by 1
-    }
-  }
 }
