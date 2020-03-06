@@ -1,10 +1,10 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 
 import { QUIZ_DATA } from '../../quiz';
-import { QuizService } from '../../services/quiz.service';
-import { TimerService } from '../../services/timer.service';
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { NavigationService } from '../../services/navigation.service';
+import { QuizService } from '../../services/quiz.service';
+import { TimerService } from '../../services/timer.service';
 
 @Component({
   selector: 'codelab-dependency-injection-quiz-component',

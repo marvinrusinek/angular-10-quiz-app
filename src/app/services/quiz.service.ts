@@ -10,7 +10,6 @@ import { NavigationService } from '../services/navigation.service';
   providedIn: 'root'
 })
 export class QuizService {
-  quizData = QUIZ_DATA;   // copy the quiz data object
   @Input() question;
   @Input() answer;
   @Input() correctAnswersCount;
@@ -28,13 +27,11 @@ export class QuizService {
   @Input() correctAnswer: boolean;
   @Input() showExplanation: boolean;
 
+  quizData = QUIZ_DATA;
+
   constructor(
     private timerService: TimerService,
     private navigationService: NavigationService) {}
-
-  ngOnInit(): void {
-    // this.progressValue = ((this.questionIndex + 1) / this.totalQuestions) * 100;
-  }
 
   getQuiz() {
     return this.quizData;
@@ -111,6 +108,7 @@ export class QuizService {
 
   nextQuestion(): void {
     this.questionIndex++;
+    console.log(this.questionIndex);
     this.navigationService.navigateToNextQuestion();
   }
 
