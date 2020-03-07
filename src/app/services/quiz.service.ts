@@ -40,12 +40,13 @@ export class QuizService {
   }
 
 // checks whether the question is valid and is answered correctly
-  checkIfAnsweredCorrectly(optionIndex: number) {
+  checkIfAnsweredCorrectly() {
     this.answered = true;
     this.hasAnswer = true;
+    this.question = this.getQuestion;
 
     // check if the selected option is equal to the correct answer
-    if (this.question.options[optionIndex].selected === this.question.options[optionIndex].correct) {
+    if (this.question.options.selected === this.question.options.correct) {
       this.showExplanation = true;
       this.timerService.stopTimer();
       this.correctAnswer = true;
