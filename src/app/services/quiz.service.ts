@@ -54,7 +54,7 @@ export class QuizService {
       this.timerService.addElapsedTimeToElapsedTimes();
       this.addFinalAnswerToFinalAnswers();
       this.timerService.resetTimer();
-      this.navigationService.navigateToNextQuestion();
+      this.navigationService.navigateToNextQuestion(this.questionID);
     } else {
       this.showExplanation = true;
       this.answered = false;
