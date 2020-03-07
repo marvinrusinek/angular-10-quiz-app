@@ -1,6 +1,5 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
 
-import { QUIZ_DATA } from '../../quiz';
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { NavigationService } from '../../services/navigation.service';
 import { QuizService } from '../../services/quiz.service';
@@ -30,8 +29,6 @@ export class CodelabDependencyInjectionQuizComponent implements OnInit {
 
   correctAnswer: boolean;
   answered: boolean;
-
-  quizData = QUIZ_DATA;  // initialize the quiz data object
 
   constructor(
     private quizService: QuizService,

@@ -17,7 +17,7 @@ export class NavigationService {
   constructor(private router: Router) {}
 
   navigateToNextQuestion(questionID): void {
-    this.router.navigate(['/question', questionID]);
+    this.router.navigate(['/question'], questionID);
   }
 
   navigateToResults(): void {
