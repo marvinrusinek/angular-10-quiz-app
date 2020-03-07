@@ -120,8 +120,7 @@ export class QuizService {
 
   nextQuestion(): void {
     this.questionID++;
-    console.log(this.questionID);
-    this.navigationService.navigateToNextQuestion();
+    this.navigationService.navigateToNextQuestion(this.questionID);
   }
 
   previousQuestion(): void {

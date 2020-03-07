@@ -1,5 +1,5 @@
 import { Injectable, Input } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
 
@@ -14,16 +14,10 @@ export class NavigationService {
   @Input() completionTime: number;
   @Input() questionIndex: number;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router) {}
+  constructor(private router: Router) {}
 
-  navigateToNextQuestion(): void {
-    // if (this.quizService.isThereAnotherQuestion()) {
-      this.router.navigate(['/question', this.questionIndex + 2]);
-    // } else {
-    //  this.navigateToResults();
-    // }
+  navigateToNextQuestion(questionID): void {
+    this.router.navigate(['/question', questionID]);
   }
 
   navigateToResults(): void {
