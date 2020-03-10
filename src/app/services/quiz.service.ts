@@ -23,7 +23,7 @@ export class QuizService {
   @Output() progressValue: number;
 
   questionIndex = 0;
-  questionID = 1;
+  questionID = 0;
   percentage: number;
   finalAnswers = [];
 
