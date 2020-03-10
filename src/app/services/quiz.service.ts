@@ -23,7 +23,7 @@ export class QuizService {
   @Output() progressValue: number;
 
   questionIndex = 0;
-  questionID = 1;
+  questionID = 0;
   percentage: number;
   finalAnswers = [];
 
@@ -118,7 +118,7 @@ export class QuizService {
   }
 
   navigateToNextQuestion(questionID): void {
-    this.router.navigate(['/quiz/question', questionID]);
+    this.router.navigate(['/question', questionID]);
   }
 
   navigateToResults(): void {
