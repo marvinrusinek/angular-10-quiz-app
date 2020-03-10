@@ -1,4 +1,4 @@
-import { Quiz } from './model/Quiz';
+import { Quiz } from './models/Quiz';
 
 export const QUIZ_DATA: Quiz = {
   title: 'Dependency Injection Quiz',
