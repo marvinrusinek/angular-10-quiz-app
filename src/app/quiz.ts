@@ -6,6 +6,7 @@ export const QUIZ_DATA: Quiz = {
   imageUrl: 'assets/images/DIDiagram.png',
   questions: [
     {
+      questionID: 1,
       questionText: 'What is the objective of dependency injection?',
       options: [
         { text: 'Pass the service to the client.', correct: true, selected: false },
@@ -16,6 +17,7 @@ export const QUIZ_DATA: Quiz = {
       explanation: 'a service gets passed to the client during DI'
     },
     {
+      questionID: 2,
       questionText: 'Which of the following benefit from dependency injection?',
       options: [
         { text: 'Programming', correct: false, selected: false },
@@ -26,6 +28,7 @@ export const QUIZ_DATA: Quiz = {
       explanation: 'DI simplifies both programming and testing as well as being a popular design pattern'
     },
     {
+      questionID: 3,
       questionText: 'Which of the following is the first step in setting up dependency injection?',
       options: [
         { text: 'Require in the component.', correct: false, selected: false },
@@ -36,6 +39,7 @@ export const QUIZ_DATA: Quiz = {
       explanation: 'the first step is marking the class as @Injectable()'
     },
     {
+      questionID: 4,
       questionText: 'In which of the following does dependency injection occur?',
       options: [
         { text: '@Injectable()', correct: false, selected: false },
