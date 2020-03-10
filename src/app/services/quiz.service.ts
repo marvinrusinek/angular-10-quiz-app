@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
 import { QuizQuestion } from '../models/QuizQuestion';
-import { TimerService } from '../services/timer.service';
-import { NavigationService } from '../services/navigation.service';
+import { TimerService } from './timer.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,30 +16,30 @@ export class QuizService {
   @Input() totalQuestions;
   @Input() correctAnswers;
   @Input() completionTime;
-  @Output() progressValue: number;
-
-  questionIndex: number = 0;
-  questionID: number = 1;
-  percentage: number;
-  finalAnswers = [];
-
   @Input() answered: boolean;
   @Input() hasAnswer: boolean;
   @Input() correctAnswer: boolean;
   @Input() showExplanation: boolean;
-  @Input() badgeQuestionNumber: number;
+  @Output() progressValue: number;
 
-  quizData = QUIZ_DATA;
+  questionIndex = 0;
+  questionID = 1;
+  percentage: number;
+  finalAnswers = [];
+
+  quizData = QUIZ_DATA;   // copy the quiz data object
 
   constructor(
     private timerService: TimerService,
-    private navigationService: NavigationService) {}
-
-  getQuiz() {
-    return this.quizData;
+    private router: Router,
+    private route: ActivatedRoute) {
+    this.route.paramMap.subscribe(params => {
+      this.setQuestionIndex(+params.get('questionID'));
+      this.question = this.getQuestion;
+    });
   }
 
-// checks whether the question is valid and is answered correctly
+  // checks whether the question is valid and is answered correctly
   checkIfAnsweredCorrectly() {
     this.answered = true;
     this.hasAnswer = true;
@@ -50,27 +50,19 @@ export class QuizService {
       this.showExplanation = true;
       this.timerService.stopTimer();
       this.correctAnswer = true;
+
+      // need to check if there's more than one answer (correctAnswers.length > 1) and all selected answers are correct
       this.correctAnswersCount++;
-      this.timerService.quizDelay(3000);
+      // this.timerService.quizDelay(3000);
       this.timerService.addElapsedTimeToElapsedTimes();
       this.addFinalAnswerToFinalAnswers();
       this.timerService.resetTimer();
-      this.navigationService.navigateToNextQuestion(this.questionID);
+      this.navigateToNextQuestion(this.questionID);
     } else {
       this.showExplanation = true;
       this.answered = false;
       this.hasAnswer = false;
       this.correctAnswer = false;
-    }
-  }
-
-  displayNextQuestion() {
-    this.timerService.resetTimer();                         // reset the timer
-    this.increaseProgressValue();               // increase the progress value
-    this.questionIndex++;                                   // increase the question index by 1
-
-    if (this.questionIndex <= this.totalQuestions) {
-      this.badgeQuestionNumber++;               // increase the question number for the badge by 1
     }
   }
 
@@ -89,6 +81,10 @@ export class QuizService {
   /*
   *  public API for service
   */
+  getQuiz() {
+    return this.quizData;
+  }
+
   getQuestionIndex() {
     return this.questionIndex;
   }
@@ -113,19 +109,28 @@ export class QuizService {
     return this.quizData.questions[this.questionIndex];
   }
 
-  /* get getQuestion(): QuizQuestion {
-    return this.quizData.questions.filter(
-      question => question.index === this.questionIndex
-    )[0];
-  } */
-
   nextQuestion(): void {
-    this.questionID++;
-    this.navigationService.navigateToNextQuestion(this.questionID);
+    this.questionIndex;
+    this.questionID;
+    this.navigateToNextQuestion(this.questionID);
+    this.timerService.resetTimer();
+    this.increaseProgressValue();
   }
 
-  previousQuestion(): void {
-    this.questionID--;
-    // this.navigationService.navigateToPreviousQuestion();
+  navigateToNextQuestion(questionID): void {
+    this.router.navigate(['/quiz/question', questionID]);
+  }
+
+  navigateToResults(): void {
+    this.router.navigate(['/quiz/results'], {
+      state:
+        {
+          questions: this.quizData.questions,
+          results: {
+            correctAnswers: this.correctAnswers,
+            completionTime: this.completionTime
+          }
+        }
+    });
   }
 }

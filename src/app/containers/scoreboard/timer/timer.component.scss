@@ -11,15 +11,7 @@ $font-weight-max: 900;
   margin-right: 1.5rem;
 
   .leader {
-    display: block;
-    margin-left: 25px;
-    font-weight: $font-weight-max;
-    font-size: 18px;
-    text-transform: uppercase;
-    position: relative;
-    top: -5px;
-    padding: 0 10px;
-    background-color: red;
+    margin-left: 35px;
   }
 
   span.scoreboard {
@@ -32,3 +24,13 @@ $font-weight-max: 900;
     width: auto;
   }
 }
+
+.leader {
+  display: block;
+  font-weight: $font-weight-max;
+  font-size: 18px;
+  text-transform: uppercase;
+  position: relative;
+  top: -5px;
+}
+

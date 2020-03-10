@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { QuizService } from '../../services/quiz.service';
 
@@ -7,7 +7,7 @@ import { QuizService } from '../../services/quiz.service';
   templateUrl: './scoreboard.component.html',
   styleUrls: ['./scoreboard.component.scss']
 })
-export class ScoreboardComponent {
+export class ScoreboardComponent implements OnInit {
   @Input() correctAnswersCount: number;
   @Input() totalQuestions: number;
   @Input() badgeQuestionNumber: number;

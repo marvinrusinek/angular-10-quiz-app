@@ -18,12 +18,12 @@
 
       <span *ngIf="(answer !== null) && hasAnswer && showExplanation">
         <span *ngIf="correctAnswers?.length === 1">
-        Option {{ quizData.questions[questionIndex].options.answer }} is correct because
-          {{ quizData.questions[questionIndex].explanation }}.
+        Option {{ question.options.answer }} is correct because
+          {{ question.explanation }}.
         </span>
         <span *ngIf="correctAnswers?.length > 1">
-        Options {{ quizData.questions[questionIndex].options.answer }} are correct because
-          {{ quizData.questions[questionIndex].explanation }}.
+        Options {{ question.options.answer }} are correct because
+          {{ question.explanation }}.
         </span>
       </span>
     </section>
@@ -43,7 +43,7 @@
           </button>
         </div>
         <div class="show-score-nav" *ngIf="question && questionIndex === totalQuestions">
-          <button type="button" (click)="navigationService.navigateToResults()">
+          <button type="button" (click)="quizService.navigateToResults()">
             Show Your Score
           </button>
         </div>

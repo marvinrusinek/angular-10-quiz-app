@@ -15,8 +15,8 @@ import { QuizQuestion } from '../../models/QuizQuestion';
 
 export enum CorrectnessTypes {
   Default,
-  Correct = "isCorrect(option.correct, i)",
-  Wrong = "isIncorrect(option.correct, i)"
+  Correct = 'isCorrect(option.correct, i)',
+  Wrong = 'isIncorrect(option.correct, i)'
 }
 
 @Component({
@@ -25,7 +25,7 @@ export enum CorrectnessTypes {
   styleUrls: ['./question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
+export class QuizQuestionComponent implements OnInit, OnChanges {
   // @Input() type = CorrectnessTypes.Default;
   // private correctnessTypes = CorrectnessTypes;
   @Input() question: QuizQuestion;
@@ -94,6 +94,7 @@ export class CodelabQuizQuestionComponent implements OnInit, OnChanges {
 
     // sort the correct answers in numerical order 1 & 2 instead of 2 & 1
 
-    // once the correct answers are selected, pause quiz and prevent any other answers from being selected, display "move on to next question..."
+    // once the correct answers are selected, pause quiz and prevent any other answers from being selected,
+    // display "move on to next question..."
   }
 }

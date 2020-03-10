@@ -1,10 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { QUIZ_DATA } from '../../../quiz';
 import { QuizQuestion } from '../../../models/QuizQuestion';
 import { QuizService } from '../../../services/quiz.service';
 import { TimerService } from '../../../services/timer.service';
-import { NavigationService } from '../../../services/navigation.service';
 
 
 @Component({
@@ -21,20 +19,16 @@ export class TimerComponent implements OnInit {
   @Input() elapsedTime: number;
   @Input() elapsedTimes: [];
   @Input() hasAnswer: boolean;
+  @Input() questionIndex: number;
 
-  quizData = QUIZ_DATA;
+  quizInterval;
   timePerQuestion = 20;
-  interval;
   quizIsOver: boolean;
   disabled: boolean;
 
-  @Input() questionIndex: number;
-  @Input() optionIndex: number;
-
   constructor(
     private quizService: QuizService,
-    private timerService: TimerService,
-    private navigationService: NavigationService) {}
+    private timerService: TimerService) {}
 
   ngOnInit(): void {
     this.timeLeft = this.timePerQuestion;
@@ -44,12 +38,13 @@ export class TimerComponent implements OnInit {
   // countdown clock
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {
-      this.interval = setInterval(() => {
+      this.quizInterval = setInterval(() => {
         this.showExplanation = false;
 
         if (this.timeLeft > 0) {
           this.timeLeft--;
 
+          // check if question has been answered (not equal to null)
           if (this.answer !== null) {
             this.showExplanation = true;
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
@@ -59,15 +54,15 @@ export class TimerComponent implements OnInit {
 
           if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
             // maybe show answer(s) and have a quiz delay here
-            this.navigationService.navigateToNextQuestion();
+            this.quizService.navigateToNextQuestion(this.questionIndex);
           }
           if (this.timeLeft === 0 && this.quizService.isFinalQuestion()) {
             this.quizService.calculateQuizPercentage();
-            this.navigationService.navigateToResults();
+            this.quizService.navigateToResults();
           }
           if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
             this.quizService.calculateQuizPercentage();
-            this.navigationService.navigateToResults();
+            this.quizService.navigateToResults();
             this.quizIsOver = true;
           }
 
@@ -75,25 +70,6 @@ export class TimerComponent implements OnInit {
           this.answer === null ? this.disabled = true : this.disabled = false;
         }
       }, 1000);
-    }
-  }
-
-  private resetTimer() {
-    this.timeLeft = this.timePerQuestion;
-  }
-
-  private stopTimer() {
-    this.timeLeft = this.timePerQuestion - this.elapsedTime;
-  }
-
-  quizDelay(milliseconds) {
-    const start = new Date().getTime();
-    let counter = 0;
-    let end = 0;
-
-    while (counter < milliseconds) {
-      end = new Date().getTime();
-      counter = end - start;
     }
   }
 }
