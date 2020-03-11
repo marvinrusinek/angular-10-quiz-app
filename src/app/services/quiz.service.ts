@@ -23,11 +23,11 @@ export class QuizService {
   @Output() progressValue: number;
 
   questionIndex = 0;
-  questionID = 1;
+  questionID = 0;
   percentage: number;
   finalAnswers = [];
 
-  quizData = QUIZ_DATA;   // copy the quiz data object
+  quizData = QUIZ_DATA;
 
   constructor(
     private timerService: TimerService,
