@@ -6,7 +6,7 @@ import { Injectable, Input, Output } from '@angular/core';
 export class TimerService {
   @Input() timeLeft: number;
   @Input() timePerQuestion = 20;
-  @Input() completionTime;
+  @Input() completionTime: number;
   @Output() elapsedTime = 0;
   elapsedTimes = [];
 

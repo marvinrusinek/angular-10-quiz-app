@@ -34,7 +34,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() hasAnswer: boolean;
   @Output() formGroup: FormGroup;
   option: number;
-
   correctAnswers = [];
   firstCorrectAnswer: number;
   secondCorrectAnswer: number;
