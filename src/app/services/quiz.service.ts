@@ -76,7 +76,6 @@ export class QuizService {
   increaseProgressValue() {
     this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
   }
-
   /*
   *  public API for service
   */

@@ -16,7 +16,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   @Output() totalQuestions: number;
   @Output() hasAnswer: boolean;
   @Output() showExplanation: boolean;
-  @Output() questionIndex = 0;
+  @Output() questionIndex: number;
   @Input() progressValue: number;
   correctAnswers = [];
 
