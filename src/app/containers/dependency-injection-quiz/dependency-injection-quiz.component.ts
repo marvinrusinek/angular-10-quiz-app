@@ -25,7 +25,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   ngOnInit() {
     this.question = this.quizService.getQuestion;
     this.totalQuestions = this.quizService.numberOfQuestions();
-    this.progressValue = (this.questionIndex / this.totalQuestions) * 100;
+    this.progressValue = ((this.questionIndex + 1) / this.totalQuestions) * 100;
     this.mapCorrectAnswersAndCorrectOptions();
   }
 
