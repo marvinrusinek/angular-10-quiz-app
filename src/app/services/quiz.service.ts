@@ -107,7 +107,7 @@ export class QuizService {
     return this.quizData.questions[this.questionIndex];
   }
 
-  nextQuestion(): void {
+  nextQuestion() {
     this.questionIndex;
     this.questionID;
     this.navigateToNextQuestion(this.questionID);
@@ -115,7 +115,7 @@ export class QuizService {
     this.increaseProgressValue();
   }
 
-  navigateToNextQuestion(questionID): void {
+  navigateToNextQuestion(questionID) {
     this.router.navigate(['/question', questionID]);
   }
 
