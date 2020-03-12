@@ -41,4 +41,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
   answerChanged($event) {
     this.answer = $event;
   }
+
+  nextQuestion() {
+    this.quizService.nextQuestion();
+  }
 }
