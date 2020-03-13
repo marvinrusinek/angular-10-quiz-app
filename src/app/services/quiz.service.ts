@@ -109,7 +109,7 @@ export class QuizService {
 
   nextQuestion() {
     this.questionIndex;
-    this.questionID;
+    this.questionID--;
     this.navigateToNextQuestion(this.questionID + 1);
     this.timerService.resetTimer();
     this.increaseProgressValue();
