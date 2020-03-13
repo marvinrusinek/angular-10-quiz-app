@@ -78,6 +78,30 @@ export class QuizService {
     this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
   }
   
+  nextQuestion() {
+    this.questionIndex;
+    this.navigateToNextQuestion(this.questionID++);
+    this.timerService.resetTimer();
+    this.increaseProgressValue();
+  }
+
+  navigateToNextQuestion(questionID) {
+    this.router.navigate(['/question', questionID]);
+  }
+
+  navigateToResults(): void {
+    this.router.navigate(['/quiz/results'], {
+      state:
+        {
+          questions: this.quizData.questions,
+          results: {
+            correctAnswers: this.correctAnswers,
+            completionTime: this.completionTime
+          }
+        }
+    });
+  }
+
   /*
   *  public API for service
   */
@@ -107,29 +131,5 @@ export class QuizService {
 
   get getQuestion(): QuizQuestion {
     return this.quizData.questions[this.questionIndex];
-  }
-
-  nextQuestion() {
-    this.questionIndex;
-    this.navigateToNextQuestion(this.questionID++);
-    this.timerService.resetTimer();
-    this.increaseProgressValue();
-  }
-
-  navigateToNextQuestion(questionID) {
-    this.router.navigate(['/question', questionID]);
-  }
-
-  navigateToResults(): void {
-    this.router.navigate(['/quiz/results'], {
-      state:
-        {
-          questions: this.quizData.questions,
-          results: {
-            correctAnswers: this.correctAnswers,
-            completionTime: this.completionTime
-          }
-        }
-    });
   }
 }
