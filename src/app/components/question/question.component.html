@@ -45,8 +45,7 @@
               </div>
             </span>
           </div>
-          <div *ngIf="option.selected && !option.correct && 
-          isIncorrect(option.correct, i)">
+          <div *ngIf="option.selected && !option.correct">
             <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
             <span class="message wrong-message">
               That&apos;s wrong.&nbsp;
