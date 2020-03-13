@@ -86,7 +86,7 @@ export class QuizService {
   }
 
   navigateToNextQuestion(questionID) {
-    this.router.navigate(['question', questionID]);
+    this.router.navigate(['question', questionID], { relativeTo: this.route });
   }
 
   navigateToResults(): void {
