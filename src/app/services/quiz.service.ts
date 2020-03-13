@@ -117,7 +117,7 @@ export class QuizService {
 
   navigateToNextQuestion(questionID) {
     console.log("qID:" + questionID);
-    let newqid = questionID + 1;
+    var newqid = questionID + 1;
     this.router.navigate(['/question', newqid]);
   }
 
