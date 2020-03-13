@@ -2,6 +2,7 @@ import { Injectable, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
+import { Quiz } from '../models/quiz';
 import { QuizQuestion } from '../models/QuizQuestion';
 import { TimerService } from './timer.service';
 
@@ -26,14 +27,14 @@ export class QuizService {
   questionID = 1;
   percentage: number;
   finalAnswers = [];
-  quizData = QUIZ_DATA;
+  quizData: Quiz = QUIZ_DATA;
 
   constructor(
     private timerService: TimerService,
     private router: Router,
     private route: ActivatedRoute) {
     this.route.paramMap.subscribe(params => {
-      this.setQuestionIndex(+params.get(this.question.indexOf(this.quizData)));
+      this.setQuestionIndex(+params.get(this.quizData.indexOf(this.question)));
       this.question = this.getQuestion;
     });
   }
@@ -76,6 +77,7 @@ export class QuizService {
   increaseProgressValue() {
     this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
   }
+  
   /*
   *  public API for service
   */
