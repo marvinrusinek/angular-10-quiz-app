@@ -86,11 +86,11 @@ export class QuizService {
   }
 
   navigateToNextQuestion(questionID) {
-    this.router.navigate(['question', questionID], { relativeTo: this.route });
+    this.router.navigate(['/question', questionID]);
   }
 
   navigateToResults(): void {
-    this.router.navigate(['/quiz/results'], {
+    this.router.navigate(['/results'], {
       state:
         {
           questions: this.quizData.questions,
