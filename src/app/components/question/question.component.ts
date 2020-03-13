@@ -37,6 +37,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
   firstCorrectAnswer: number;
   secondCorrectAnswer: number;
+  matRadio: boolean;
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -65,13 +66,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     return correct !== this.question.options[optionIndex].correct;
   }
 
-  setSelected(optionIndex: number) {
+  setSelected(optionIndex: number): void {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
     this.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
   }
 
-  addCorrectAnswersToArray(optionIndex: number) {
+  addCorrectAnswersToArray(optionIndex: number): void {
     if (this.question.options[optionIndex].correct === true) {
       this.correctAnswers.push(optionIndex);  // could use destructuring here
       console.log(this.correctAnswers);
@@ -79,12 +80,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     // increment indexes by 1 to show correct option numbers
     if (this.correctAnswers.length === 1) {
-      // use mat-radio-buttons
+      this.matRadio = true; // a single answer question
+      // use *ngIf="matRadio" in template
       this.firstCorrectAnswer = this.correctAnswers[0] + 1;
     }
 
     if (this.correctAnswers.length > 1) {
-      // use mat-checkbox
+      this.matRadio = false;  // a checkbox question (with more than 1 answer)
+      // use *ngIf="!matRadio" in template
       this.firstCorrectAnswer = this.correctAnswers[0] + 1;
       this.secondCorrectAnswer = this.correctAnswers[1] + 1;
     }
