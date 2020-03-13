@@ -110,15 +110,13 @@ export class QuizService {
   nextQuestion() {
     this.questionIndex;
     this.questionID;
-    this.navigateToNextQuestion(this.questionID);
+    this.navigateToNextQuestion(this.questionID + 1);
     this.timerService.resetTimer();
     this.increaseProgressValue();
   }
 
   navigateToNextQuestion(questionID) {
-    console.log("qID:" + questionID);
-    var newqid = questionID + 1;
-    this.router.navigate(['/question', newqid]);
+    this.router.navigate(['/question', questionID]);
   }
 
   navigateToResults(): void {
