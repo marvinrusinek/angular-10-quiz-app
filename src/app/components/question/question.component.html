@@ -26,10 +26,10 @@
 
           <mat-icon
             class="feedback-icon"
-            *ngIf="isCorrect(option.correct, i)">done</mat-icon>
+            *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done</mat-icon>
           <mat-icon
             class="feedback-icon"
-            *ngIf="isIncorrect(option.correct, i)">clear</mat-icon>
+            *ngIf="option.selected && !option.correct && isIncorrect(option.correct, i)">clear</mat-icon>
         </mat-radio-button>
 
         <section class="messages" *ngIf="option.selected">
