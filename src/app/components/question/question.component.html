@@ -33,7 +33,7 @@
         </mat-radio-button>
 
         <section class="messages" *ngIf="option.selected">
-          <div *ngIf="isCorrect(option.correct, i)">
+          <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
             <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
             <span class="message correct-message">
               You&apos;re right!&nbsp;
