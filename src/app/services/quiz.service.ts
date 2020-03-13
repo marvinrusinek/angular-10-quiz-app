@@ -33,7 +33,7 @@ export class QuizService {
     private router: Router,
     private route: ActivatedRoute) {
     this.route.paramMap.subscribe(params => {
-      this.setQuestionIndex(+params.get('questionText'));
+      this.setQuestionIndex(+params.get(this.question.indexOf(this.quizData)));
       this.question = this.getQuestion;
     });
   }
