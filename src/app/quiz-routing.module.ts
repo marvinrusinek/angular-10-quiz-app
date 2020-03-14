@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Route, RouterModule } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { DependencyInjectionQuizComponent } from './containers/dependency-injection-quiz/dependency-injection-quiz.component';
