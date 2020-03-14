@@ -6,15 +6,15 @@ import { DependencyInjectionQuizComponent } from './containers/dependency-inject
 import { ResultsComponent } from './containers/results/results.component';
 
 const routes: Route[] = [
-  { path: '', redirectTo: 'intro', pathMatch: 'full' },
-  { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
-  { path: 'question', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
-  { path: 'question/:questionID', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
-  { path: 'results', component: ResultsComponent, pathMatch: 'full' }
+  { path: '', redirectTo: 'intro' },
+  { path: 'intro', component: IntroductionComponent },
+  { path: 'question', component: DependencyInjectionQuizComponent },
+  { path: 'question/:questionID', component: DependencyInjectionQuizComponent },
+  { path: 'results', component: ResultsComponent }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
 export class QuizRoutingModule {}
