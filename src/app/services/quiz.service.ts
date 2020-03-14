@@ -33,10 +33,10 @@ export class QuizService {
     private timerService: TimerService,
     private router: Router,
     private route: ActivatedRoute) {
-    /* this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe(params => {
       this.setQuestionIndex(+params.get('questionText'));
       this.question = this.getQuestion;
-    }); */
+    });
   }
 
   // checks whether the question is valid and is answered correctly
@@ -57,7 +57,7 @@ export class QuizService {
       this.timerService.addElapsedTimeToElapsedTimes();
       this.addFinalAnswerToFinalAnswers();
       this.timerService.resetTimer();
-      this.navigateToNextQuestion(this.questionID);
+      this.navigateToNextQuestion();
     } else {
       this.showExplanation = true;
       this.answered = false;
