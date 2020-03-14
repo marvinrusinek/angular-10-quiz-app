@@ -99,4 +99,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     // once the correct answers are selected, pause quiz and prevent any other answers from being selected,
     // display "move on to next question..."
   }
+
+  checkQuestionType() {
+    if (this.correctAnswers.length == 1) {
+      this.matRadio = true; // a single answer question
+    } else if (this.correctAnswers.length > 1) {
+      this.matRadio = false;  // a checkbox question (with more than 1 answer)
+    } else {
+      console.log("No elements in correctAnswers array");
+    }
+  }
 }
