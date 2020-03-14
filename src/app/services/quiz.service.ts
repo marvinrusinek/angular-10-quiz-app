@@ -79,9 +79,9 @@ export class QuizService {
   }
   
   nextQuestion() {
+    this.navigateToNextQuestion(this.questionID++);
     this.timerService.resetTimer();
     this.increaseProgressValue();
-    this.navigateToNextQuestion(this.questionID++);
   }
 
   navigateToNextQuestion(questionID) {
