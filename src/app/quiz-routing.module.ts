@@ -9,7 +9,7 @@ const routes: Route[] = [
   { path: '', redirectTo: 'intro', pathMatch: 'full' },
   { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
   { path: 'question', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
-  { path: 'question/:id', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
+  { path: 'question/:questionID', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
   { path: 'results', component: ResultsComponent, pathMatch: 'full' }
 ];
 
