@@ -85,7 +85,7 @@ export class QuizService {
     this.increaseProgressValue();
   }
 
-  navigateToNextQuestion() {
+  navigateToNextQuestion(): void {
     this.router.navigate(['question', this.questionID]);
   }
 
