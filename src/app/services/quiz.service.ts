@@ -33,10 +33,10 @@ export class QuizService {
     private timerService: TimerService,
     private router: Router,
     private route: ActivatedRoute) {
-    this.route.paramMap.subscribe(params => {
+    /* this.route.paramMap.subscribe(params => {
       this.setQuestionIndex(+params.get('questionText'));
       this.question = this.getQuestion;
-    });
+    }); */
   }
 
   // checks whether the question is valid and is answered correctly
