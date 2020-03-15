@@ -86,7 +86,7 @@ export class QuizService {
   }
 
   navigateToNextQuestion(): void {
-    this.router.navigate(['question', this.getQuestionIndex() + 1]);
+    this.router.navigate(['question', this.questionID]);
   }
 
   navigateToResults(): void {
