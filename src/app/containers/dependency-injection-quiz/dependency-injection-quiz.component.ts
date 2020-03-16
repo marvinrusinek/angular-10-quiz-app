@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, OnInit } from '@angular/core';
 
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
@@ -8,7 +8,8 @@ import { QuizService } from '../../services/quiz.service';
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService]
+  providers: [QuizService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   @Output() question: QuizQuestion;
