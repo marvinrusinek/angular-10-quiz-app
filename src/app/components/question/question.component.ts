@@ -1,6 +1,5 @@
 import {
   Component,
-  ChangeDetectionStrategy,
   EventEmitter,
   Input,
   OnChanges,
@@ -22,8 +21,7 @@ export enum CorrectnessTypes {
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  styleUrls: ['./question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./question.component.scss']
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   // @Input() type = CorrectnessTypes.Default;
