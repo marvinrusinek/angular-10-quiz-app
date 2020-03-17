@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+
 import { QuizService } from '../../../services/quiz.service';
 
 @Component({
