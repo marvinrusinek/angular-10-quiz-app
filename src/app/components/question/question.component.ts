@@ -98,13 +98,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     // display "move on to next question..."
   }
 
+  // use function to determine whether to use mat-radio-buttons or mat-checkbox
   checkQuestionType() {
-    if (this.correctAnswers.length == 1) {
-      this.matRadio = true; // a single answer question
-    } else if (this.correctAnswers.length > 1) {
-      this.matRadio = false;  // a checkbox question (with more than 1 answer)
-    } else {
-      console.log("No elements in correctAnswers array");
-    }
+    this.matRadio = (this.correctAnswers.length === 1) ? true : false;
   }
 }
