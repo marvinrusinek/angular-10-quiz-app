@@ -78,14 +78,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     // increment indexes by 1 to show correct option numbers
     if (this.correctAnswers.length === 1) {
-      this.matRadio = true; // a single answer question
-      // use *ngIf="matRadio" in template
       this.firstCorrectAnswer = this.correctAnswers[0] + 1;
     }
 
     if (this.correctAnswers.length > 1) {
-      this.matRadio = false;  // a checkbox question (with more than 1 answer)
-      // use *ngIf="!matRadio" in template
       this.firstCorrectAnswer = this.correctAnswers[0] + 1;
       this.secondCorrectAnswer = this.correctAnswers[1] + 1;
     }
