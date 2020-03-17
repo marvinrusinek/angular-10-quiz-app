@@ -17,8 +17,10 @@ ol li {
     cursor: pointer;
 
     .feedback-icon {
-      float: right;
-      margin: -20px -170px 0 0 !important;
+      position: absolute;
+      right: 0;
+      margin-right: 40px;
+      margin-top: -25px;
     }
   }
 
