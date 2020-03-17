@@ -1,7 +1,7 @@
 import { Injectable, Input, Output } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class TimerService {
   @Input() timeLeft: number;
