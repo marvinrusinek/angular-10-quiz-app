@@ -72,7 +72,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   addCorrectAnswersToArray(optionIndex: number): void {
     if (this.question.options[optionIndex].correct === true) {
-      this.correctAnswers.push(optionIndex);  // could use destructuring here
+      this.correctAnswers = [...this.correctAnswers, optionIndex]; // if answer is correct, push to correctAnswers
       console.log(this.correctAnswers);
     }
 
