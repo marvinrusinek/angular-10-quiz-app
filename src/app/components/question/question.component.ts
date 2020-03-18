@@ -96,6 +96,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   // determine whether to use mat-radio-buttons or mat-checkbox
   checkQuestionType() {
-    this.matRadio = (this.correctAnswers.length === 1) ? true : false;
+    this.matRadio = this.correctAnswers.length === 1;
   }
 }
