@@ -68,7 +68,7 @@ export class TimerComponent implements OnInit {
           }
 
           // disable the next button until an option has been selected
-          this.answer === null ? this.disabled = true : this.disabled = false;
+          this.disabled = this.answer === null;
         }
       }, 1000);
     }
