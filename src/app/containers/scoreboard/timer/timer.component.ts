@@ -67,7 +67,7 @@ export class TimerComponent implements OnInit {
             this.quizIsOver = true;
           }
 
-          // disable the next button until an option has been selected
+          // disable the next button until an option has been selected (doesn't seem to be disabled ATM)
           this.disabled = this.answer === null;
         }
       }, 1000);
