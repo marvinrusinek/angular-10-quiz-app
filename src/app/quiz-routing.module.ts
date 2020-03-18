@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Route, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { DependencyInjectionQuizComponent } from './containers/dependency-injection-quiz/dependency-injection-quiz.component';
 import { ResultsComponent } from './containers/results/results.component';
 
-const routes: Route[] = [
+const routes: Routes = [
   { path: '', redirectTo: 'intro', pathMatch: 'full' },
   { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
   { path: 'question', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
