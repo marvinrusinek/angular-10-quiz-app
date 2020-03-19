@@ -78,7 +78,7 @@ export class QuizService {
     this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
   }
   
-  nextQuizQuestion() {
+  nextQuestion() {
     this.questionID++;
     this.navigateToNextQuestion();
     this.timerService.resetTimer();
