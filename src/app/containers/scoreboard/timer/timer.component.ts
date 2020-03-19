@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnInit, NgZone } from '@angular/core';
 
 import { QuizQuestion } from '../../../models/QuizQuestion';
 import { QuizService } from '../../../services/quiz.service';
@@ -29,7 +29,8 @@ export class TimerComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private timerService: TimerService) {}
+    private timerService: TimerService,
+    private zone: NgZone) {}
 
   ngOnInit(): void {
     this.timeLeft = this.timePerQuestion;
@@ -39,7 +40,8 @@ export class TimerComponent implements OnInit {
   // countdown clock
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {
-      this.quizInterval = setInterval(() => {
+      this.zone.runOutsideAngular(() => {
+    setInterval(() => {
         this.showExplanation = false;
 
         if (this.timeLeft > 0) {
@@ -71,6 +73,9 @@ export class TimerComponent implements OnInit {
           this.disabled = this.answer === null;
         }
       }, 1000);
-    }
+      this.zone.run(() => {
+      // this runs inside the angular zone
+    });
+    })}
   }
 }
