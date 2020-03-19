@@ -11,17 +11,17 @@ import { TimerService } from './timer.service';
   providedIn: 'root'
 })
 export class QuizService {
-  @Input() question: QuizQuestion;
-  @Input() answer: number;
-  @Input() correctAnswersCount: number;
-  @Input() totalQuestions: number;
-  @Input() correctAnswers: [];
-  @Input() completionTime: number;
-  @Input() answered: boolean;
-  @Input() hasAnswer: boolean;
-  @Input() correctAnswer: boolean;
-  @Input() showExplanation: boolean;
-  @Output() progressValue: number;
+  question: QuizQuestion;
+  answer: number;
+  correctAnswersCount: number;
+  totalQuestions: number;
+  correctAnswers: [];
+  completionTime: number;
+  answered: boolean;
+  hasAnswer: boolean;
+  correctAnswer: boolean;
+  showExplanation: boolean;
+  progressValue: number;
 
   questionIndex = 0;
   questionID = 1;
