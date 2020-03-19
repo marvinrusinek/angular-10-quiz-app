@@ -39,7 +39,7 @@ export class TimerComponent implements OnInit {
   // countdown clock
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {
-      this.quizInterval = window.setInterval(() => {
+      this.quizInterval = setInterval(() => {
         this.showExplanation = false;
 
         if (this.timeLeft > 0) {
@@ -72,7 +72,7 @@ export class TimerComponent implements OnInit {
         }
       }, 1000);
 
-      window.clearInterval();
+      clearInterval();
     }
   }
 }
