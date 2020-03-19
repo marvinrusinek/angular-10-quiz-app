@@ -80,12 +80,12 @@ export class QuizService {
   
   nextQuizQuestion() {
     this.questionID++;
-    this.navigateToNextQuestion();
+    this.navigateToNextQuizQuestion();
     this.timerService.resetTimer();
     this.increaseProgressValue();
   }
 
-  navigateToNextQuestion(): void {
+  navigateToNextQuizQuestion(): void {
     this.router.navigate(['question', this.questionID]);
   }
 
