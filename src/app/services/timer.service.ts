@@ -6,8 +6,8 @@ import { Injectable, Input, Output } from '@angular/core';
 export class TimerService {
   timeLeft: number;
   timePerQuestion = 20;
-  @Input() completionTime: number;
-  @Output() elapsedTime = 0;
+  completionTime: number;
+  elapsedTime = 0;
   elapsedTimes = [];
 
   resetTimer() {
