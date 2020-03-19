@@ -44,6 +44,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   }
 
   nextQuestion() {
-    this.quizService.nextQuestion();
+    this.quizService.nextQuizQuestion();
   }
 }
