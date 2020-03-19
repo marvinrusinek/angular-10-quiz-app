@@ -55,7 +55,7 @@ export class TimerComponent implements OnInit {
 
           if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
             // show answer(s) and have a quiz delay here
-            this.quizService.navigateToNextQuestion();
+            this.quizService.nextQuestion();
           }
           if (this.timeLeft === 0 && this.quizService.isFinalQuestion()) {
             this.quizService.calculateQuizPercentage();
@@ -71,7 +71,8 @@ export class TimerComponent implements OnInit {
           this.disabled = this.answer === null;
         }
       }, 1000);
-      window.clearInterval(this.quizInterval);
+
+      window.clearInterval();
     }
   }
 }
