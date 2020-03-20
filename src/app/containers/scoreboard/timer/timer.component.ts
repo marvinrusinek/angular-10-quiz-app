@@ -71,7 +71,6 @@ export class TimerComponent implements OnInit {
           this.disabled = this.answer === null;
         }
       }, 1000);
-
       window.clearInterval(this.quizInterval);
     }
   }
