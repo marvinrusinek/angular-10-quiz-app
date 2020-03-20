@@ -15,11 +15,11 @@ import { TimerService } from '../../../services/timer.service';
 export class TimerComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() answer: number;
+  @Input() questionIndex: number;
+  @Input() hasAnswer: boolean;
   @Input() showExplanation: boolean;
   @Input() elapsedTime: number;
   @Input() elapsedTimes: [];
-  @Input() hasAnswer: boolean;
-  @Input() questionIndex: number;
 
   quizInterval;
   timeLeft: number;
