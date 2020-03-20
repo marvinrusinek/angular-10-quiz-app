@@ -72,7 +72,7 @@ export class TimerComponent implements OnInit {
         }
       }, 1000);
 
-      clearInterval();
+      clearInterval(this.quizInterval);
     }
   }
 }
