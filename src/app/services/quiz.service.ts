@@ -122,7 +122,7 @@ export class QuizService {
   }
 
   isThereAnotherQuestion(): boolean {
-    return this.questionIndex <= this.quizData.questions.length;
+    return this.questionIndex <= this.numberOfQuestions();
   }
 
   isFinalQuestion(): boolean {
