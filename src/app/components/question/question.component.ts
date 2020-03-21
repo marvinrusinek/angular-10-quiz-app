@@ -39,6 +39,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     if (answer !== null) {
       this.answer.emit(answer);
       this.selectedOption = answer;
+      this.hasAnswer = true;
     }
   }
 
