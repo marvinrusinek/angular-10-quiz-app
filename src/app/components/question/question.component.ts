@@ -13,7 +13,6 @@ import { QuizQuestion } from '../../models/QuizQuestion';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
   @Input() selectedOption: number;
-  @Input() hasAnswer: boolean;
   @Output() answer = new EventEmitter<number>();
 
   formGroup: FormGroup;
@@ -54,7 +53,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
     this.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
-    this.hasAnswer = true;
   }
 
   addCorrectAnswersToArray(optionIndex: number): void {

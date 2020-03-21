@@ -16,7 +16,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   @Output() answer: number;
   @Output() totalQuestions: number;
   @Output() questionIndex: number;
-  @Output() hasAnswer: boolean;
+  hasAnswer: boolean;
   progressValue: number;
   correctAnswers = [];
 
@@ -40,6 +40,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   answerChanged($event) {
     this.answer = $event;
+    this.hasAnswer = true;
   }
 
   nextQuestion() {
