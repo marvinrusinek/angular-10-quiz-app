@@ -17,6 +17,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   formGroup: FormGroup;
   option: number;
+  optionText: string;
   correctAnswers = [];
   matRadio: boolean;
 
@@ -62,7 +63,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     // increment indexes by 1 to show correct option numbers
     if (this.correctAnswers.length === 1) {
       let firstAnswer = this.correctAnswers[0] + 1;
-      let optionText = "Option " + firstAnswer;
+      this.optionText = "Option " + firstAnswer;
     }
 
     if (this.correctAnswers.length > 1) {
@@ -70,7 +71,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       let secondAnswer = this.correctAnswers[1] + 1;
       let thirdAnswer = this.correctAnswers[2] + 1;
 
-      let optionText = "Options " +  firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
+      this.optionText = "Options " +  firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
     }
 
     // highlight all correct answers at the same time (maybe?)
