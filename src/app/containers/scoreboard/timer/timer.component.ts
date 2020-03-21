@@ -58,17 +58,12 @@ export class TimerComponent implements OnInit {
               // show answer(s) and have a quiz delay here
               this.quizService.nextQuestion();
             }
-            if (this.quizService.isFinalQuestion()) {
+            if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
               this.quizService.calculateQuizPercentage();
               this.quizService.navigateToResults();
+              this.quizIsOver = true;
             }
             clearInterval(this.quizInterval);
-          }
-
-          if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-            this.quizService.calculateQuizPercentage();
-            this.quizService.navigateToResults();
-            this.quizIsOver = true;
           }
 
           // disable the next button until an option has been selected (doesn't seem to be disabled ATM)
