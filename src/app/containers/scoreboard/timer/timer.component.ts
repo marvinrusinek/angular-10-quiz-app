@@ -57,15 +57,14 @@ export class TimerComponent implements OnInit {
             if (!this.quizService.isFinalQuestion()) {
               // show answer(s) and have a quiz delay here
               this.quizService.nextQuestion();
-              clearInterval(this.quizInterval);
             }
             if (this.quizService.isFinalQuestion()) {
               this.quizService.calculateQuizPercentage();
               this.quizService.navigateToResults();
-              clearInterval(this.quizInterval);
             }
+            clearInterval(this.quizInterval);
           }
-          
+
           if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
             this.quizService.calculateQuizPercentage();
             this.quizService.navigateToResults();
