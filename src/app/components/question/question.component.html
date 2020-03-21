@@ -50,10 +50,10 @@
             <span class="message wrong-message">
               That&apos;s wrong.&nbsp;
               <div *ngIf="correctAnswers?.length === 1">
-                The correct answer is Option {{ firstCorrectAnswer }}.
+                The correct answer is {{ optionText }}.
               </div>
               <div *ngIf="correctAnswers?.length > 1">
-                The correct answers are Options {{ firstCorrectAnswer }} and {{ secondCorrectAnswer }}.
+                The correct answers are {{ optionText }}.
               </div>
             </span>
           </div>
