@@ -40,11 +40,6 @@ export class QuizService {
     }); */
   }
 
-  // if the question has a single answer, set mat-radio to true and use matRadio value for the form; if matRadio is false, use checkbox in the form template
-  checkQuestionType() {
-    this.matRadio = this.correctAnswers.length === 1;
-  }
-
   addCorrectAnswersToArray(optionIndex: number): void {
     if (this.question.options[optionIndex].correct === true) {
       this.correctAnswers = [...this.correctAnswers, optionIndex];
@@ -167,5 +162,10 @@ export class QuizService {
 
   get getQuestion(): QuizQuestion {
     return this.quizData.questions[this.questionIndex];
+  }
+
+  // if the question has a single answer, set mat-radio to true and use matRadio value for the form; if matRadio is false, use checkbox in the form template
+  checkQuestionType(): boolean {
+    return this.matRadio = this.correctAnswers.length === 1;
   }
 }
