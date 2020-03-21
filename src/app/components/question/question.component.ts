@@ -29,10 +29,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   // @Input() type = CorrectnessTypes.Default;
   // private correctnessTypes = CorrectnessTypes;
   @Input() question: QuizQuestion;
-  @Output() answer = new EventEmitter<number>();
   @Input() selectedOption: number;
   @Input() hasAnswer: boolean;
-  @Output() formGroup: FormGroup;
+  @Output() answer = new EventEmitter<number>();
+
+  formGroup: FormGroup;
   option: number;
   correctAnswers = [];
   firstCorrectAnswer: number;

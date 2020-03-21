@@ -11,8 +11,8 @@ import { QuizQuestion } from '../../models/QuizQuestion';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultsComponent implements OnInit {
-  @Input() answer: number;
   @Input() question: QuizQuestion;
+  @Input() answer: number;
   allQuestions: QuizQuestion[];
 
   quizMetadata: {

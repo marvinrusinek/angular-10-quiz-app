@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Output, OnInit } from '@angular/core';
 
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
