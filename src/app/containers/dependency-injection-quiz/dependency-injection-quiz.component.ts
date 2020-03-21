@@ -17,7 +17,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   @Output() totalQuestions: number;
   @Output() questionIndex: number;
   @Input() hasAnswer: boolean;
-  showExplanation: boolean;
   progressValue: number;
   correctAnswers = [];
 
@@ -27,8 +26,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.question = this.quizService.getQuestion;
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.progressValue = ((this.quizService.getQuestionIndex() + 1) / this.totalQuestions) * 100;
-    this.hasAnswer = this.quizService.hasAnswer;
-    this.showExplanation = this.quizService.showExplanation;
+    // this.hasAnswer = this.quizService.hasAnswer;
     this.mapCorrectAnswersAndCorrectOptions();
   }
 
