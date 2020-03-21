@@ -37,9 +37,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   radioChange(answer: number) {
     if (answer !== null) {
+      this.hasAnswer = true;
       this.answer.emit(answer);
       this.selectedOption = answer;
-      this.hasAnswer = true;
     }
   }
 
