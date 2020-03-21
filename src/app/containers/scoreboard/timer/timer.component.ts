@@ -43,7 +43,7 @@ export class TimerComponent implements OnInit {
 
         if (this.timeLeft > 0) {
           this.timeLeft--;
-          console.log(this.timeLeft);
+          console.log("timeLeft: " + this.timeLeft);
 
           // check if question has been answered (not equal to null)
           if (this.answer !== null) {

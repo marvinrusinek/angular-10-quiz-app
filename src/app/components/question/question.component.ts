@@ -61,17 +61,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
 
     // increment indexes by 1 to show correct option numbers
+    // if there's only one answer
     if (this.correctAnswers.length === 1) {
       let firstAnswer = this.correctAnswers[0] + 1;
       this.optionText = "Option " + firstAnswer;
     }
 
+    // if there's more than one answer
     if (this.correctAnswers.length > 1) {
       let firstAnswer = this.correctAnswers[0] + 1;
       let secondAnswer = this.correctAnswers[1] + 1;
       let thirdAnswer = this.correctAnswers[2] + 1;
 
-      this.optionText = "Options " +  firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
+      if (firstAnswer && secondAnswer) {
+        this.optionText = "Options " +  firstAnswer + " and " + secondAnswer;
+      }
+      if (firstAnswer && secondAnswer && thirdAnswer) {
+        this.optionText = "Options " +  firstAnswer + ", " + secondAnswer + 
+        " and " + thirdAnswer;
+      }
     }
 
     // highlight all correct answers at the same time (maybe?)
