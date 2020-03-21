@@ -1,4 +1,4 @@
-import { Injectable, Input, Output } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../quiz';
