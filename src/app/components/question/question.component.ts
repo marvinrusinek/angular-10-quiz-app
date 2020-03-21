@@ -1,23 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  Output
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, EventEmitter, Input, OnChanges, OnInit, SimpleChanges, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../models/QuizQuestion';
 
-
-export enum CorrectnessTypes {
-  Default,
-  Correct = 'isCorrect(option.correct, i)',
-  Wrong = 'isIncorrect(option.correct, i)'
-}
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -26,8 +11,6 @@ export enum CorrectnessTypes {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
-  // @Input() type = CorrectnessTypes.Default;
-  // private correctnessTypes = CorrectnessTypes;
   @Input() question: QuizQuestion;
   @Input() selectedOption: number;
   @Input() hasAnswer: boolean;
@@ -54,8 +37,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   radioChange(answer: number) {
     if (answer !== null) {
-      this.answer.emit(answer);       // emit the answer to DI container
-      this.selectedOption = answer;   // store the answer as a selected option, might use later
+      this.answer.emit(answer);
+      this.selectedOption = answer;
     }
   }
 
@@ -75,7 +58,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   addCorrectAnswersToArray(optionIndex: number): void {
     if (this.question.options[optionIndex].correct === true) {
-      this.correctAnswers = [...this.correctAnswers, optionIndex]; // if answer is correct, push to correctAnswers
+      this.correctAnswers = [...this.correctAnswers, optionIndex];
       console.log(this.correctAnswers);
     }
 
