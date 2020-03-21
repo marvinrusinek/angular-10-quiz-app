@@ -37,7 +37,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   radioChange(answer: number) {
     if (answer !== null) {
-      this.hasAnswer = true;
       this.answer.emit(answer);
       this.selectedOption = answer;
     }
@@ -54,9 +53,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   setSelected(optionIndex: number): void {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
-    this.hasAnswer = true;
-    console.log(this.hasAnswer);
     this.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
+    this.hasAnswer = true;
   }
 
   addCorrectAnswersToArray(optionIndex: number): void {
