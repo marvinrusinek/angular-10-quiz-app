@@ -40,7 +40,7 @@ export class QuizService {
     }); */
   }
 
-  // determine whether to use mat-radio-buttons or mat-checkbox
+  // if the question has a single answer, set mat-radio to true and use matRadio value for the form; if matRadio is false, use checkbox in the form template
   checkQuestionType() {
     this.matRadio = this.correctAnswers.length === 1;
   }
