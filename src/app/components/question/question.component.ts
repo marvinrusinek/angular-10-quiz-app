@@ -18,8 +18,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   formGroup: FormGroup;
   option: number;
   correctAnswers = [];
-  firstCorrectAnswer: number;
-  secondCorrectAnswer: number;
   matRadio: boolean;
 
   ngOnInit() {
@@ -63,12 +61,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     // increment indexes by 1 to show correct option numbers
     if (this.correctAnswers.length === 1) {
-      this.firstCorrectAnswer = this.correctAnswers[0] + 1;
+      let firstAnswer = this.correctAnswers[0] + 1;
+      let optionText = "Option " + firstAnswer;
     }
 
     if (this.correctAnswers.length > 1) {
-      this.firstCorrectAnswer = this.correctAnswers[0] + 1;
-      this.secondCorrectAnswer = this.correctAnswers[1] + 1;
+      let firstAnswer = this.correctAnswers[0] + 1;
+      let secondAnswer = this.correctAnswers[1] + 1;
+      let thirdAnswer = this.correctAnswers[2] + 1;
+
+      let optionText = "Options " +  firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
     }
 
     // highlight all correct answers at the same time (maybe?)
