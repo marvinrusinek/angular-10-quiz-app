@@ -16,8 +16,7 @@ export class TimerComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() answer: number;
   @Input() questionIndex: number;
-  @Input() hasAnswer: boolean;
-  @Input() showExplanation: boolean;
+  hasAnswer: boolean;
   
   elapsedTime: number;
   elapsedTimes: [];
@@ -40,7 +39,7 @@ export class TimerComponent implements OnInit {
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {
       this.quizInterval = setInterval(() => {
-        this.showExplanation = false;
+        this.hasAnswer = false;
 
         if (this.timeLeft > 0) {
           this.timeLeft--;
@@ -49,7 +48,7 @@ export class TimerComponent implements OnInit {
 
           // check if question has been answered (not equal to null)
           if (this.answer !== null) {
-            this.showExplanation = true;
+            this.hasAnswer = true;
             this.quizService.checkIfAnsweredCorrectly();
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
             this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
