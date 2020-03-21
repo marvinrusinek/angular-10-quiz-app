@@ -48,21 +48,24 @@ export class TimerComponent implements OnInit {
           // check if question has been answered (not equal to null)
           if (this.answer !== null) {
             this.showExplanation = true;
+            this.quizService.checkIfAnsweredCorrectly();
             this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
             this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-            this.quizService.checkIfAnsweredCorrectly();
           }
 
-          if (this.timeLeft === 0 && !this.quizService.isFinalQuestion()) {
-            // show answer(s) and have a quiz delay here
-            this.quizService.nextQuestion();
-            clearInterval(this.quizInterval);
+          if (this.timeLeft === 0) {
+            if (!this.quizService.isFinalQuestion()) {
+              // show answer(s) and have a quiz delay here
+              this.quizService.nextQuestion();
+              clearInterval(this.quizInterval);
+            }
+            if (this.quizService.isFinalQuestion()) {
+              this.quizService.calculateQuizPercentage();
+              this.quizService.navigateToResults();
+              clearInterval(this.quizInterval);
+            }
           }
-          if (this.timeLeft === 0 && this.quizService.isFinalQuestion()) {
-            this.quizService.calculateQuizPercentage();
-            this.quizService.navigateToResults();
-            clearInterval(this.quizInterval);
-          }
+          
           if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
             this.quizService.calculateQuizPercentage();
             this.quizService.navigateToResults();
