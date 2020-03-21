@@ -18,9 +18,9 @@ export class TimerComponent implements OnInit {
   @Input() questionIndex: number;
   @Input() hasAnswer: boolean;
   @Input() showExplanation: boolean;
-  @Input() elapsedTime: number;
-  @Input() elapsedTimes: [];
-
+  
+  elapsedTime: number;
+  elapsedTimes: [];
   quizInterval: number;
   timeLeft: number;
   timePerQuestion = 20;
