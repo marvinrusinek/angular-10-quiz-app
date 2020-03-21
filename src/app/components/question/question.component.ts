@@ -13,7 +13,7 @@ import { QuizQuestion } from '../../models/QuizQuestion';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
   @Input() selectedOption: number;
-  @Output() hasAnswer: boolean;
+  @Input() hasAnswer: boolean;
   @Output() answer = new EventEmitter<number>();
 
   formGroup: FormGroup;
