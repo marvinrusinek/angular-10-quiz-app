@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Output, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, OnInit } from '@angular/core';
 
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
@@ -16,7 +16,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   @Output() answer: number;
   @Output() totalQuestions: number;
   @Output() questionIndex: number;
-  hasAnswer: boolean;
+  @Input() hasAnswer: boolean;
   showExplanation: boolean;
   progressValue: number;
   correctAnswers = [];
