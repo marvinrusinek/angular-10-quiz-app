@@ -18,7 +18,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   formGroup: FormGroup;
   option: number;
-  matRadio: boolean;
 
   constructor(private quizService: QuizService) {
     this.optionText = this.quizService.optionText;
@@ -55,10 +54,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
     this.quizService.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
-  }
-
-  // determine whether to use mat-radio-buttons or mat-checkbox
-  checkQuestionType() {
-    this.matRadio = this.correctAnswers.length === 1;
   }
 }

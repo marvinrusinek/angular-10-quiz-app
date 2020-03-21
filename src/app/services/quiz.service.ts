@@ -11,6 +11,7 @@ import { TimerService } from './timer.service';
   providedIn: 'root'
 })
 export class QuizService {
+  quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
   answer: number;
   correctAnswersCount: number;
@@ -26,7 +27,8 @@ export class QuizService {
   finalAnswers = [];
   optionText: string;
   correctAnswers = [];
-  quizData: Quiz = QUIZ_DATA;
+  matRadio: boolean;
+  
 
   constructor(
     private timerService: TimerService,
@@ -38,42 +40,12 @@ export class QuizService {
     }); */
   }
 
-  // checks whether the question is valid and is answered correctly
-  checkIfAnsweredCorrectly() {
-    this.answered = true;
-    this.question = this.getQuestion;
-
-    // check if the selected option is equal to the correct answer
-    if (this.question.options.selected === this.question.options.correct) {
-      this.timerService.stopTimer();
-      this.correctAnswer = true;
-
-      // need to check if there's more than one answer (correctAnswers.length > 1) and all selected answers are correct
-      this.correctAnswersCount++;
-      // this.timerService.quizDelay(3000);
-      this.timerService.addElapsedTimeToElapsedTimes();
-      this.addFinalAnswerToFinalAnswers();
-      this.timerService.resetTimer();
-      this.navigateToNextQuestion();
-    } else {
-      this.answered = false;
-      this.correctAnswer = false;
-    }
+  // determine whether to use mat-radio-buttons or mat-checkbox
+  checkQuestionType() {
+    this.matRadio = this.correctAnswers.length === 1;
   }
 
-  calculateQuizPercentage() {
-    this.percentage = Math.round(100 * this.correctAnswersCount / this.totalQuestions);
-  }
-
-  addFinalAnswerToFinalAnswers() {
-    this.finalAnswers = [...this.finalAnswers, this.answer];
-  }
-
-  increaseProgressValue() {
-    this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
-  }
-
-addCorrectAnswersToArray(optionIndex: number): void {
+  addCorrectAnswersToArray(optionIndex: number): void {
     if (this.question.options[optionIndex].correct === true) {
       this.correctAnswers = [...this.correctAnswers, optionIndex];
       console.log(this.correctAnswers);
@@ -105,6 +77,41 @@ addCorrectAnswersToArray(optionIndex: number): void {
     // sort the correct answers in numerical order 1 & 2 instead of 2 & 1
     // once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
     // display "Move on to next question...")
+  }
+
+  // checks whether the question is valid and is answered correctly
+  checkIfAnsweredCorrectly() {
+    this.answered = true;
+    this.question = this.getQuestion;
+
+    // check if the selected option is equal to the correct answer
+    if (this.question.options.selected === this.question.options.correct) {
+      this.timerService.stopTimer();
+      this.correctAnswer = true;
+
+      // need to check if there's more than one answer and if all selected answers are correct
+      this.correctAnswersCount++;
+      // this.timerService.quizDelay(3000);
+      this.timerService.addElapsedTimeToElapsedTimes();
+      this.addFinalAnswerToFinalAnswers();
+      this.timerService.resetTimer();
+      this.navigateToNextQuestion();
+    } else {
+      this.answered = false;
+      this.correctAnswer = false;
+    }
+  }
+
+  calculateQuizPercentage() {
+    this.percentage = Math.round(100 * this.correctAnswersCount / this.totalQuestions);
+  }
+
+  addFinalAnswerToFinalAnswers() {
+    this.finalAnswers = [...this.finalAnswers, this.answer];
+  }
+
+  increaseProgressValue() {
+    this.progressValue = parseFloat((100 * (this.getQuestionIndex() + 1) / this.totalQuestions).toFixed(1));
   }
 
   nextQuestion() {
