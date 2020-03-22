@@ -25,7 +25,7 @@ export class QuizService {
   questionID = 1;
   percentage: number;
   finalAnswers = [];
-  optionText: string;
+  correctAnswerText: string;
   correctAnswers = [];
   matRadio: boolean;
   
@@ -50,7 +50,7 @@ export class QuizService {
     // if there's only one answer
     if (this.correctAnswers.length === 1) {
       let firstAnswer = this.correctAnswers[0] + 1;
-      this.optionText = "Option " + firstAnswer;
+      this.correctAnswerText = "The correct answer is Option " + firstAnswer;
     }
 
     // if there's more than one answer
@@ -60,10 +60,10 @@ export class QuizService {
       let thirdAnswer = this.correctAnswers[2] + 1;
 
       if (firstAnswer && secondAnswer) {
-        this.optionText = "Options " +  firstAnswer + " and " + secondAnswer;
+        this.correctAnswerText = "The correct answers are Options " +  firstAnswer + " and " + secondAnswer;
       }
       if (firstAnswer && secondAnswer && thirdAnswer) {
-        this.optionText = "Options " +  firstAnswer + ", " + secondAnswer + 
+        this.correctAnswerText = "The correct answers are Options " +  firstAnswer + ", " + secondAnswer + 
         " and " + thirdAnswer;
       }
     }
