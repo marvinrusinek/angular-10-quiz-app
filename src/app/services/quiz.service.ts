@@ -71,7 +71,7 @@ export class QuizService {
     // highlight all correct answers at the same time (maybe?)
     // sort the correct answers in numerical order 1 & 2 instead of 2 & 1
     // once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
-    // display "Move on to next question...")
+    // display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
   }
 
   // checks whether the question is valid and is answered correctly
