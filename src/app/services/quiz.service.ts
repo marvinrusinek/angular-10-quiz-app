@@ -164,7 +164,7 @@ export class QuizService {
     return this.quizData.questions[this.questionIndex];
   }
 
-  // if the question has a single answer, set mat-radio to true and use matRadio value for the form; if matRadio is false, use checkbox in the form template
+  // if the question has a single answer, use mat-radio-button in the form, else use mat-checkbox in the form
   getQuestionType(): boolean {
     return this.correctAnswers.length === 1;
   }
