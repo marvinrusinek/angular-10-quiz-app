@@ -1,8 +1,8 @@
 import { QuizQuestion } from './QuizQuestion';
 
 export interface Quiz {
-  milestoneTitle: string;
-  milestoneAbstract: string;
+  milestone: string;
+  summary: string;
   imageUrl: string;
   questions: QuizQuestion[];
 }
