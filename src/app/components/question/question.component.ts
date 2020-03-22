@@ -12,7 +12,6 @@ import { QuizService } from '../../services/quiz.service';
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
-  @Input() selectedOption: number;
   @Output() answer = new EventEmitter<number>();
   formGroup: FormGroup;
   option: number;
@@ -37,10 +36,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   radioChange(answer: number) {
-    if (answer !== null) {
-      this.answer.emit(answer);
-      this.selectedOption = answer;
-    }
+    this.answer.emit(answer);
   }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
