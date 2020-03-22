@@ -1,5 +1,7 @@
 import { Component, ChangeDetectionStrategy, Output, OnInit } from '@angular/core';
 
+import { QUIZ_DATA } from '../../quiz';
+import { Quiz } from '../../models/quiz';
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
 
@@ -12,6 +14,7 @@ import { QuizService } from '../../services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DependencyInjectionQuizComponent implements OnInit {
+  quizData: Quiz = QUIZ_DATA;
   @Output() question: QuizQuestion;
   @Output() answer: number;
   @Output() totalQuestions: number;
