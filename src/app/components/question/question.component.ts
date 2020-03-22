@@ -16,10 +16,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   formGroup: FormGroup;
   matRadio: boolean;
   option: number;
-  optionText: string;
+  myOptionText: string;
   
   constructor(private quizService: QuizService) {
-    this.optionText = this.quizService.optionText;
+    this.myOptionText = this.quizService.optionText;
     this.matRadio = this.quizService.getQuestionType();
   }
 
