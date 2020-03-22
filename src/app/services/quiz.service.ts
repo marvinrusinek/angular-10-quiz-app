@@ -48,14 +48,11 @@ export class QuizService {
   }
 
   setCorrectAnswerText() {
-    // increment indexes by 1 to show correct option numbers
-    // if there's only one answer
     if (this.correctAnswers.length === 1) {
       let firstAnswer = this.correctAnswers[0] + 1;
       this.correctAnswerText = "The correct answer is Option " + firstAnswer;
     }
 
-    // if there's more than one answer
     if (this.correctAnswers.length > 1) {
       let firstAnswer = this.correctAnswers[0] + 1;
       let secondAnswer = this.correctAnswers[1] + 1;
