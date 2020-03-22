@@ -21,7 +21,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   option: number;
 
   constructor(private quizService: QuizService) {
-    this.matRadio = this.quizService.getQuestionType();
+    this.matRadio = this.quizService.getQuestionType;
     this.optionText = this.quizService.optionText;
   }
 
