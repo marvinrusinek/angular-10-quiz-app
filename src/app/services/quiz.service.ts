@@ -45,7 +45,9 @@ export class QuizService {
       this.correctAnswers = [...this.correctAnswers, optionIndex];
       console.log(this.correctAnswers);
     }
+  }
 
+  setCorrectAnswerText() {
     // increment indexes by 1 to show correct option numbers
     // if there's only one answer
     if (this.correctAnswers.length === 1) {
