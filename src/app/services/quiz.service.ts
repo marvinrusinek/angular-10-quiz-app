@@ -62,12 +62,11 @@ export class QuizService {
         this.correctAnswerText = "The correct answers are Options " +  firstAnswer + " and " + secondAnswer;
       }
       if (firstAnswer && secondAnswer && thirdAnswer) {
-        this.correctAnswerText = "The correct answers are Options " +  firstAnswer + ", " + secondAnswer + 
-        " and " + thirdAnswer;
+        this.correctAnswerText = "The correct answers are Options " +  firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
       }
     }
 
-    // highlight all correct answers at the same time (maybe?)
+    // highlight all correct answers at the same time (using mat-checkbox)
     // sort the correct answers in numerical order 1 & 2 instead of 2 & 1
     // once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
     // display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
