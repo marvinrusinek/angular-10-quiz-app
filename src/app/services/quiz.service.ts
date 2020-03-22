@@ -80,7 +80,7 @@ export class QuizService {
     this.question = this.getQuestion;
 
     // check if the selected option is equal to the correct answer
-    if (this.question.options.selected === this.question.options.correct) {
+    if (this.question.options['selected'] === this.question.options['correct']) {
       this.timerService.stopTimer();
       this.correctAnswer = true;
 
@@ -165,7 +165,7 @@ export class QuizService {
   }
 
   // if the question has a single answer, set mat-radio to true and use matRadio value for the form; if matRadio is false, use checkbox in the form template
-  checkQuestionType(): boolean {
-    return this.matRadio = this.correctAnswers.length === 1;
+  getQuestionType(): boolean {
+    return this.correctAnswers.length === 1;
   }
 }
