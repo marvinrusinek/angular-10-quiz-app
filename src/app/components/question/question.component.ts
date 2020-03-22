@@ -51,5 +51,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
     this.quizService.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
+    this.quizService.setCorrectAnswerText();
   }
 }
