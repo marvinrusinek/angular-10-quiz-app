@@ -14,15 +14,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
   @Input() selectedOption: number;
   @Output() answer = new EventEmitter<number>();
-  matRadio: boolean;
-  optionText: string;
-
   formGroup: FormGroup;
   option: number;
+  optionText: string;
+  matRadio: boolean;
 
   constructor(private quizService: QuizService) {
-    this.matRadio = this.quizService.getQuestionType();
     this.optionText = this.quizService.optionText;
+    this.matRadio = this.quizService.getQuestionType();
   }
 
   ngOnInit() {
