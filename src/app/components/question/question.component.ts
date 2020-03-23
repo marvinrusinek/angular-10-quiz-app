@@ -28,6 +28,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.formGroup = new FormGroup({
       answer: new FormControl([null, Validators.required])
     });
+    this.correctAnswerText = this.quizService.correctAnswerText;
   }
 
   ngOnChanges(changes: SimpleChanges) {
