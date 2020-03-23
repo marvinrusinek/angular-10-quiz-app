@@ -18,13 +18,13 @@ export class DependencyInjectionQuizComponent implements OnInit {
   @Output() question: QuizQuestion;
   @Output() answer: number;
   @Output() totalQuestions: number;
-  @Output() questionIndex: number;
+  @Input() questionIndex: number;
+  @Input() optionIndex: number;
   hasAnswer: boolean;
   progressValue: number;
   correctAnswers = [];
   option: number;
-  @Input() optionIndex: number;
-
+  
   constructor(private quizService: QuizService) {}
 
   ngOnInit() {
@@ -40,7 +40,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.correctAnswers.push('Question ' + this.questionIndex++ + ', Options: ' + j++);
       }
     }
-    // console.log(this.correctAnswers);
+    console.log("Correct Answers: " + this.correctAnswers);
   }
 
   answerChanged($event) {
