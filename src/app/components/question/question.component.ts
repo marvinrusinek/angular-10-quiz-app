@@ -13,7 +13,8 @@ import { QuizService } from '../../services/quiz.service';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
   @Output() answer = new EventEmitter<number>();
-  @Output() optionIndex: number;
+  optionIndex: number;
+  optionNumber: number;
   formGroup: FormGroup;
   matRadio: boolean;
   correctAnswerText: string;
@@ -48,10 +49,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setSelected(optionIndex: number): void {
-    this.optionIndex = optionIndex;
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
-    this.quizService.addCorrectAnswersToArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
+    this.quizService.addCorrectIndexesToCorrectOptionsArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
     this.quizService.setCorrectAnswerText();
   }
 }

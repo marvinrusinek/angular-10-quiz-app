@@ -40,9 +40,9 @@ export class QuizService {
     }); */
   }
 
-  addCorrectAnswersToArray(optionIndex: number): void {
+  addCorrectIndexesToCorrectOptionsArray(optionIndex: number): void {
     if (this.question.options[optionIndex].correct === true) {
-      this.correctAnswers = [...this.correctAnswers, optionIndex];
+      this.correctAnswers = [...this.correctAnswers, optionIndex + 1]; //store the correct option numbers
       console.log(this.correctAnswers);
     }
   }
@@ -54,9 +54,9 @@ export class QuizService {
     }
 
     if (this.correctAnswers.length > 1) {
-      let firstAnswer = this.correctAnswers[0] + 1;
-      let secondAnswer = this.correctAnswers[1] + 1;
-      let thirdAnswer = this.correctAnswers[2] + 1;
+      let firstAnswer = this.correctAnswers[0];
+      let secondAnswer = this.correctAnswers[1];
+      let thirdAnswer = this.correctAnswers[2];
 
       if (firstAnswer && secondAnswer) {
         this.correctAnswerText = "The correct answers are Options " + firstAnswer + " and " + secondAnswer;
