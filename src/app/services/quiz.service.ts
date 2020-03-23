@@ -69,6 +69,10 @@ export class QuizService {
     // display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
   }
 
+  getCorrectAnswerText() {
+    return this.correctAnswerText;
+  }
+
   // checks whether the question is valid and is answered correctly
   checkIfAnsweredCorrectly() {
     this.answered = true;

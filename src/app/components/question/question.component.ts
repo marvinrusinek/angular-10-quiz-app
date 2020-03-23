@@ -22,6 +22,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   constructor(private quizService: QuizService) {
    // console.log("CAT: " + this.quizService.correctAnswerText);
     this.matRadio = this.quizService.getQuestionType();
+    this.quizService.getCorrectAnswerText();
   }
 
   ngOnInit() {
