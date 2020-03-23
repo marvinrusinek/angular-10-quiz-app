@@ -41,7 +41,7 @@ export class QuizService {
   }
 
   addCorrectIndexesToCorrectOptionsArray(optionIndex: number): void {
-    if (this.question.options[optionIndex].correct === true) {
+    if (this.question.options[optionIndex]['correct'] === true) {
       this.correctAnswers = [...this.correctAnswers, optionIndex + 1]; //store the correct option numbers
       console.log(this.correctAnswers);
     }
