@@ -59,10 +59,10 @@ export class QuizService {
       let thirdAnswer = this.correctAnswers[2] + 1;
 
       if (firstAnswer && secondAnswer) {
-        this.correctAnswerText = "The correct answers are Options " +  firstAnswer + " and " + secondAnswer;
+        this.correctAnswerText = "The correct answers are Options " + firstAnswer + " and " + secondAnswer;
       }
       if (firstAnswer && secondAnswer && thirdAnswer) {
-        this.correctAnswerText = "The correct answers are Options " +  firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
+        this.correctAnswerText = "The correct answers are Options " + firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
       }
     }
 
