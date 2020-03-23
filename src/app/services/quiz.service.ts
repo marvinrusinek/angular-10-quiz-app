@@ -26,6 +26,7 @@ export class QuizService {
   percentage: number;
   finalAnswers = [];
   correctAnswerText: string;
+  correctAnswerStr: string;
   correctAnswers = [];
   matRadio: boolean;
   
@@ -38,6 +39,7 @@ export class QuizService {
       this.setQuestionIndex(+params.get('questionText'));
       this.question = this.getQuestion;
     }); */
+    this.correctAnswerStr = this.correctAnswerText;
   }
 
   addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex: number): void {
@@ -56,7 +58,7 @@ export class QuizService {
     if (this.correctAnswers.length > 1) {
       if (this.correctAnswers[0] && this.correctAnswers[1]) {
         this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(' and ', this.correctAnswers[1]); 
-        console.log(this.correctAnswerText);
+        console.log("CORR ANS:" + this.correctAnswerText);
       }
       if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
         this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(', ', this.correctAnswers[1], ' and ', this.correctAnswers[2]);
@@ -67,10 +69,6 @@ export class QuizService {
     // sort the correct answers in numerical order 1 & 2 instead of 2 & 1
     // once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
     // display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
-  }
-
-  getCorrectAnswerText() {
-    return this.correctAnswerText;
   }
 
   // checks whether the question is valid and is answered correctly

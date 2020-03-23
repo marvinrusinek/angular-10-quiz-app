@@ -36,13 +36,13 @@
           <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
             <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
             <span class="message correct-message">
-              You&apos;re right!&nbsp;{{ correctAnswerText }} 
+              You&apos;re right!&nbsp;{{ quizService.correctAnswerStr }} 
             </span>
           </div>
           <div *ngIf="option.selected && !option.correct">
             <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
             <span class="message wrong-message">
-              That&apos;s wrong.&nbsp;{{ correctAnswerText }}
+              That&apos;s wrong.&nbsp;{{ quizService.correctAnswerStr }}
             </span>
           </div>
         </section>
