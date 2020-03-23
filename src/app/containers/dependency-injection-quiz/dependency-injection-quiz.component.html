@@ -17,12 +17,10 @@
 
       <span *ngIf="hasAnswer">
         <span *ngIf="correctAnswers?.length === 1">
-        Option {{ question.options.answer }} is correct because
-          {{ question.explanation }}.
+          Option {{ option }} is correct because {{ question.explanation }}.
         </span>
         <span *ngIf="correctAnswers?.length > 1">
-        Options {{ question.options.answer }} are correct because
-          {{ question.explanation }}.
+          Options {{ option }} are correct because {{ question.explanation }}.
         </span>
       </span>
     </section>

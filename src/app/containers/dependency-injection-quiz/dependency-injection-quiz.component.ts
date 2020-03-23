@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Output, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, OnInit } from '@angular/core';
 
 import { QUIZ_DATA } from '../../quiz';
 import { Quiz } from '../../models/quiz';
@@ -22,6 +22,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
   hasAnswer: boolean;
   progressValue: number;
   correctAnswers = [];
+  option: number;
+  @Input() optionIndex: number;
 
   constructor(private quizService: QuizService) {}
 
@@ -44,6 +46,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
   answerChanged($event) {
     this.answer = $event;
     this.hasAnswer = true;
+    if (this.question.options[this.optionIndex].correct === true) {
+      this.option = this.answer + 1;
+    }
   }
 
   nextQuestion() {
