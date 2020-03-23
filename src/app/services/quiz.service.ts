@@ -49,16 +49,11 @@ export class QuizService {
 
   setCorrectAnswerText() {
     if (this.correctAnswers.length === 1) {
-      let firstAnswer = this.correctAnswers[0];
-      this.correctAnswerText = "The correct answer is Option " + firstAnswer;
+      this.correctAnswerText = "The correct answer is Option " + this.correctAnswers[0];
       console.log(this.correctAnswerText);
     }
 
     if (this.correctAnswers.length > 1) {
-      let firstAnswer = this.correctAnswers[0];
-      let secondAnswer = this.correctAnswers[1];
-      let thirdAnswer = this.correctAnswers[2];
-
       if (this.correctAnswers[0] && this.correctAnswers[1]) {
         this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(' and ', this.correctAnswers[1]); 
         console.log(this.correctAnswerText);
