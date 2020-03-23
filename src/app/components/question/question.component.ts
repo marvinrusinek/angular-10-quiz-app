@@ -20,7 +20,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswerText: string;
   
   constructor(private quizService: QuizService) {
-    this.correctAnswerText = this.quizService.correctAnswerText;
+   // console.log("CAT: " + this.quizService.correctAnswerText);
     this.matRadio = this.quizService.getQuestionType();
   }
 
@@ -52,7 +52,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   setSelected(optionIndex: number): void {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
-    this.quizService.addCorrectIndexesToCorrectOptionsArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
+    this.quizService.addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
     this.quizService.setCorrectAnswerText();
   }
 }

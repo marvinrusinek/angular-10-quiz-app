@@ -40,10 +40,10 @@ export class QuizService {
     }); */
   }
 
-  addCorrectIndexesToCorrectOptionsArray(optionIndex: number): void {
+  addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex: number): void {
     if (this.question.options[optionIndex]['correct'] === true) {
       this.correctAnswers = [...this.correctAnswers, optionIndex + 1]; //store the correct option numbers
-      console.log(this.correctAnswers);
+      console.log("CorAns: " + this.correctAnswers);
     }
   }
 
