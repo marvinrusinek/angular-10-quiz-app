@@ -39,7 +39,10 @@ export class QuizService {
       this.setQuestionIndex(+params.get('questionText'));
       this.question = this.getQuestion;
     }); */
-    this.correctAnswerStr = this.correctAnswerText;
+  }
+
+  getCorrectAnswerString(): any {
+    return this.correctAnswerText;
   }
 
   addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex: number): void {
