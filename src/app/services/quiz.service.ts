@@ -49,8 +49,9 @@ export class QuizService {
 
   setCorrectAnswerText() {
     if (this.correctAnswers.length === 1) {
-      let firstAnswer = this.correctAnswers[0] + 1;
+      let firstAnswer = this.correctAnswers[0];
       this.correctAnswerText = "The correct answer is Option " + firstAnswer;
+      console.log(this.correctAnswerText);
     }
 
     if (this.correctAnswers.length > 1) {
@@ -58,11 +59,12 @@ export class QuizService {
       let secondAnswer = this.correctAnswers[1];
       let thirdAnswer = this.correctAnswers[2];
 
-      if (firstAnswer && secondAnswer) {
-        this.correctAnswerText = "The correct answers are Options " + firstAnswer + " and " + secondAnswer;
+      if (this.correctAnswers[0] && this.correctAnswers[1]) {
+        this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(' and ', this.correctAnswers[1]); 
+        console.log(this.correctAnswerText);
       }
-      if (firstAnswer && secondAnswer && thirdAnswer) {
-        this.correctAnswerText = "The correct answers are Options " + firstAnswer + ", " + secondAnswer + " and " + thirdAnswer;
+      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
+        this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(', ', this.correctAnswers[1], ' and ', this.correctAnswers[2]);
       }
     }
 
