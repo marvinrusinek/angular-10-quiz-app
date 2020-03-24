@@ -6,7 +6,8 @@ import { QuizService } from '../../../services/quiz.service';
   selector: 'codelab-scoreboard-score',
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [QuizService]
 })
 export class ScoreComponent implements OnInit {
   correctAnswersCount = 0;

@@ -10,8 +10,8 @@ import { QuizService } from '../../services/quiz.service';
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [QuizService]
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
