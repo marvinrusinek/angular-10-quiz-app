@@ -22,14 +22,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   
   constructor(private quizService: QuizService) {
    // console.log("CAT: " + this.quizService.correctAnswerText);
-    this.matRadio = this.quizService.getQuestionType();
-    this.correctAnswerStr = this.quizService.correctAnswerText;
   }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
       answer: new FormControl([null, Validators.required])
     });
+    this.matRadio = this.quizService.getQuestionType();
     this.correctAnswerStr = this.quizService.correctAnswerText;
   }
 

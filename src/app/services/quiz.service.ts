@@ -41,7 +41,7 @@ export class QuizService {
     }); */
   }
 
-  getCorrectAnswerString(): any {
+  getCorrectAnswerString(): string {
     return this.correctAnswerText;
   }
 
