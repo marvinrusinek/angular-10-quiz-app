@@ -20,7 +20,7 @@ export class TimerComponent implements OnInit {
   
   elapsedTime: number;
   elapsedTimes: [];
-  timeLeft: number;
+  timeleft: number;
   timePerQuestion = 20;
   quizIsOver: boolean;
   disabled: boolean;
@@ -30,7 +30,7 @@ export class TimerComponent implements OnInit {
     private timerService: TimerService) {}
 
   ngOnInit(): void {
-    this.timeLeft = this.timePerQuestion;
+    this.timeleft = this.timePerQuestion;
     this.timer();
   }
 
@@ -38,9 +38,9 @@ export class TimerComponent implements OnInit {
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {      
       setInterval(() => {
-        if (this.timeLeft > 0) {
-          this.timeLeft--;
-          console.log("timeLeft: " + this.timeLeft);
+        if (this.timeleft > 0) {
+          this.timeleft--;
+          console.log("timeleft: " + this.timeleft);
         }
 
         // check if question has been answered (not equal to null)
