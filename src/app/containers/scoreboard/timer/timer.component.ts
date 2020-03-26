@@ -35,13 +35,13 @@ export class TimerComponent implements OnInit {
   }
 
   // countdown clock
-  timer() {
+  private timer() {
     if (this.quizService.isThereAnotherQuestion()) {
       setInterval(() => {
         if (this.timeLeft > 0) {
           this.timeLeft--;
           console.log('timeLeft: ' + this.timeLeft);
-
+        
           // check if question has been answered (not equal to null)
           if (this.answer !== null) {
             this.hasAnswer = true;
