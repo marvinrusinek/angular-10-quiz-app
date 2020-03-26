@@ -42,7 +42,6 @@ export class TimerComponent implements OnInit {
           this.timeLeft--;
           console.log('timeLeft: ' + this.timeLeft);
         
-          // check if question has been answered (not equal to null)
           if (this.answer !== null) {
             this.hasAnswer = true;
             this.quizService.checkIfAnsweredCorrectly();
