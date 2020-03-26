@@ -37,32 +37,36 @@ export class TimerComponent implements OnInit {
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {
       setInterval(() => {
-        if (this.timeLeft > 0) {
-          this.timeLeft--;
-          console.log('timeLeft: ' + this.timeLeft);
-        
-          if (this.answer !== null) {
-            this.hasAnswer = true;
-            this.quizService.checkIfAnsweredCorrectly();
-            this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
-            this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-          }
-
-          if (this.timeLeft === 0) {
-            if (!this.quizService.isFinalQuestion()) {
-              // show answer(s) and have a quiz delay here
-              this.quizService.nextQuestion();
-            }
-            if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-              this.quizService.calculateQuizPercentage();
-              this.quizService.navigateToResults();
-              this.quizIsOver = true;
-            }
-            clearInterval();
-          }
-        }
+        this.quizTimerLogic();
       }, 1000);
       clearInterval();
+    }
+  }
+
+  quizTimerLogic() {
+    if (this.timeLeft > 0) {
+      this.timeLeft--;
+      console.log('timeLeft: ' + this.timeLeft);
+        
+      if (this.answer !== null) {
+        this.hasAnswer = true;
+        this.quizService.checkIfAnsweredCorrectly();
+        this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
+        this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
+      }
+
+      if (this.timeLeft === 0) {
+        if (!this.quizService.isFinalQuestion()) {
+          // show answer(s) and have a quiz delay here
+          this.quizService.nextQuestion();
+        }
+        if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
+          this.quizService.calculateQuizPercentage();
+          this.quizService.navigateToResults();
+          this.quizIsOver = true;
+        }
+        clearInterval();
+      }
     }
   }
 }
