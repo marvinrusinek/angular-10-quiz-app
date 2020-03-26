@@ -86,7 +86,7 @@ export class QuizService {
 
       // need to check if there's more than one answer and if all selected answers are correct
       this.correctAnswersCount++;
-      /this.timerService.quizDelay(3000);
+      this.timerService.quizDelay(3000);
       this.timerService.addElapsedTimeToElapsedTimes();
       this.addFinalAnswerToFinalAnswers();
       this.timerService.resetTimer();
