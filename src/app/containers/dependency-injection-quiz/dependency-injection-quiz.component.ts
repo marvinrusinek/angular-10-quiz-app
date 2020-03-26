@@ -33,7 +33,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.progressValue = ((this.quizService.getQuestionIndex() + 1) / this.totalQuestions) * 100;
     this.mapCorrectAnswersAndCorrectOptions();
-    this.disabled = this.answer === null; // for disabling the next button
+    this.disabled = this.answer === null; // to disable the next button
   }
 
   mapCorrectAnswersAndCorrectOptions() {
