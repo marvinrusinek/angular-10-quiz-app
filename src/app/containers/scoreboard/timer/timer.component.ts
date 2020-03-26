@@ -9,7 +9,7 @@ import { TimerService } from '../../../services/timer.service';
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [QuizService, TimerService]
 })
 export class TimerComponent implements OnInit {
