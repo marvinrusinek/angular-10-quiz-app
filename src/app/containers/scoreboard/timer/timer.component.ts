@@ -60,14 +60,14 @@ export class TimerComponent implements OnInit {
               this.quizService.navigateToResults();
               this.quizIsOver = true;
             }
-            // clearInterval(this.quizInterval);
+            clearInterval();
           }
 
           // disable the next button until an option has been selected (doesn't seem to be disabled ATM)
           this.disabled = this.answer === null;
         }
       }, 1000);
-      // clearInterval(this.quizInterval);
+      clearInterval();
     }
   }
 }
