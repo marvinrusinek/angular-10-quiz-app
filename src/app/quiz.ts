@@ -18,30 +18,30 @@ export const QUIZ_DATA: Quiz = {
     {
       questionText: 'Which of the following benefit from dependency injection?',
       options: [
-        { text: 'Programming', correct: false, selected: false },
-        { text: 'Testability', correct: false, selected: false },
-        { text: 'Software design', correct: false, selected: false },
-        { text: 'All of the above.', correct: true, selected: false },
+        { text: 'Programming', selected: false },
+        { text: 'Testability', selected: false },
+        { text: 'Software design', selected: false },
+        { text: 'All of the above.', correct: true, selected: false }
       ],
       explanation: 'DI simplifies both programming and testing as well as being a popular design pattern'
     },
     {
       questionText: 'Which of the following is the first step in setting up dependency injection?',
       options: [
-        { text: 'Require in the component.', correct: false, selected: false },
-        { text: 'Provide in the module.', correct: false, selected: false },
+        { text: 'Require in the component.', selected: false },
+        { text: 'Provide in the module.', selected: false },
         { text: 'Mark dependency as @Injectable().', correct: true, selected: false },
-        { text: 'Declare an object.', correct: false, selected: false }
+        { text: 'Declare an object.', selected: false }
       ],
       explanation: 'the first step is marking the class as @Injectable()'
     },
     {
       questionText: 'In which of the following does dependency injection occur?',
       options: [
-        { text: '@Injectable()', correct: false, selected: false },
+        { text: '@Injectable()', selected: false },
         { text: 'constructor', correct: true, selected: false },
-        { text: 'function', correct: false, selected: false },
-        { text: 'NgModule', correct: false, selected: false }
+        { text: 'function', selected: false },
+        { text: 'NgModule', selected: false }
       ],
       explanation: 'object instantiations are taken care of by the constructor in Angular'
     }
