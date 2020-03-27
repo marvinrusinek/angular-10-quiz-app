@@ -58,7 +58,7 @@ export class TimerComponent implements OnInit {
 
       if (this.timeLeft === 0) {
         if (!this.quizService.isFinalQuestion()) {
-          // create and call a function to show correct answers
+          // show correct answers in the template
           this.timerService.quizDelay(3000);
           this.quizService.nextQuestion();
         }
