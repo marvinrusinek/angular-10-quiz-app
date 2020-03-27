@@ -8,10 +8,10 @@ export const QUIZ_DATA: Quiz = {
     {
       questionText: 'What is the objective of dependency injection?',
       options: [
-        { text: 'Pass the service to the client.', correct: true, selected: false },
-        { text: 'Allow the client to find service.', correct: true, selected: false },
-        { text: 'Allow the client to build service.', selected: false },
-        { text: 'Give the client part service.', selected: false }
+        { text: 'Pass the service to the client.', correct: true },
+        { text: 'Allow the client to find service.', correct: true },
+        { text: 'Allow the client to build service.' },
+        { text: 'Give the client part service.' }
       ],
       explanation: 'a service gets passed to the client during DI'
     },
