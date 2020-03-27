@@ -51,7 +51,8 @@ export class TimerComponent implements OnInit {
       if (this.answer !== null) {
         this.hasAnswer = true;
         this.quizService.checkIfAnsweredCorrectly();
-        this.timerService.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
+        this.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
+        this.timerService.addElapsedTimeToElapsedTimes(this.elapsedTime);
         this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
       }
 

@@ -29,8 +29,8 @@ export class TimerService {
     }
   }
 
-  addElapsedTimeToElapsedTimes() {
-    this.elapsedTimes = [...this.elapsedTimes, this.elapsedTime];
+  addElapsedTimeToElapsedTimes(elapsedTime) {
+    this.elapsedTimes = [...this.elapsedTimes, elapsedTime];
     
     // commented because of circular dependency
     /*  if (this.quizService.getQuestionIndex() <= this.quizService.totalQuestions) {
