@@ -58,7 +58,8 @@ export class TimerComponent implements OnInit {
 
       if (this.timeLeft === 0) {
         if (!this.quizService.isFinalQuestion()) {
-          // show answer(s) and have a quiz delay here
+          // show answer(s)
+          this.timerService.quizDelay(3000);
           this.quizService.nextQuestion();
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
