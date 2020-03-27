@@ -70,7 +70,7 @@ export class TimerComponent implements OnInit {
         clearInterval(this.interval);
       }
     } else {
-      this.timeLeft = 60;
+      this.timeLeft = 20;
     }
   }
 
