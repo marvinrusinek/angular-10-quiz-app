@@ -1,1 +1,59 @@
+QUIZ TODO:
+- navigating to next question -- get working, make sure button is pressable only once so questionID is incremented only once
+- timer not working in quiz app in IntelliJ and in StackBlitz
+- display correctAnswerText for messages - get value from the QuizService and the databinding should pick it up
+- show the correct option number(s) in explanation 
+	(databinding not working to fetch in the form and DI component (try console.logging))
+- show correct options in messages below options
 
+- should say "The correct answer is/are Option 1 (and Option 2)." (IN PROGRESS)
+  - basically done, need databinding to work
+
+- if wrong answer is picked before correct, it says "That's wrong" without saying what the correct options are
+- if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next q (done)
+
+- once navigation works, check that progressbar increments for next question
+- once navigation works, check that correctAnswerCount is incremented
+- once navigation works, make sure there is clearing of options in between questions
+- once navigation works, make sure border is blue for question and gray for answers
+
+- remove selected in the interface and make adjustments to the app
+- also questions without id in interface
+- mat-checkbox for multiple ans q's (if there is a single answer use mat-radio otherwise use mat-checkbox), created function in Quiz API to check the question type
+
+- change the quiz-topic-img instead to use the image path in QUIZ_DATA <img mat-card-image [src]="quizData.imageUrl"> instead of loading it in the CSS
+
+- answer showing up as error in di-quiz template - answer is not a field on model! - check if this is still an issue
+- fix the selected error .selected vs ['selected']
+
+- create function that creates a mapping - I believe I've done this
+	- loop over q array
+	- if option is correct, need to store the option in an array
+	- if the question has more than one option that is correct
+		- have a multiple variable set to true and push the additional options after
+		- have a mapping between q # and correct answer(s)
+
+- use only one class in section id 
+
+- display of next question text should be in template - no DOM!
+
+- disable next btn in DI component
+- displaying checkmark and x's in the same position from the right of the option box (already done, but maybe it can be done w/o position: absolute?)
+
+- for last question, make sure that the correct answer is selected and time stopped
+- after answering last question it should forward to Results and mat-card should display
+
+- work on Results Component, passing the data from DI Component/services to the Results
+	- just pass 2 values to resultscomponent
+	- make sure percent and completion time display
+	- show your results button not navigating to results - should never exceed the totalQuestions
+	- make sure mat-accordion works
+	- have a correctness bar in the results: show the %, then the bar, then the score 2/8
+	- fb button bonus!
+
+- make a cool hover effect on options
+- animated next btn when moving to next q?
+- previous btn???
+
+
+Get the app working 100% correctly, then work on RxJS/NgRx!!!
