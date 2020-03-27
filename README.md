@@ -1,3 +1,67 @@
 # Angular 9 Quiz App
 
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
+
+# QUIZ ToDo ITEMS: 
+
+- navigating to next question -- get working, make sure button is pressable only once so questionID is incremented only once
+- timer not working in quiz app in IntelliJ and in StackBlitz
+- make sure that the Dependency Injection functionality works correctly
+
+# Immediate:
+- display correctAnswerText for messages - get value from the QuizService and the data-binding should pick it up
+- show the correct option number(s) in explanation 
+	(databinding not working to fetch in the form and DI component (try console.logging))
+- show correct options in messages below options
+
+- should say The correct answer is/are Option 1 (and Option 2). (IN PROGRESS)
+
+- if wrong answer is picked before correct, it says "That's wrong" without saying what the correct options are
+- if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next q (done)
+
+-----
+once navigation works,
+- check that progressbar increments for next question
+- check that correctAnswerCount is incremented
+- check that border is blue for question and gray for answers
+- ensure there is clearing of options in-between questions
+
+- make it work without "selected" field in Option.ts - I believe I've done this, just not sure if adding selected? field is appropriate
+- questions without id in interface (already is, just need to get the navigation and rest of app working without it)
+- mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
+
+- change the quiz-topic-img instead to use the image path in QUIZ_DATA <img mat-card-image [src]="quizData.imageUrl"> instead of loading it in the CSS
+
+- answer showing up as error in di-quiz template - answer is not a field on model! - check if this is still an issue
+- fix the selected error .selected vs ['selected']
+
+- create function that creates a mapping - I believe I've done this
+	- loop over q array
+	- if option is correct, need to store the option in an array
+	- if the question has more than one option that is correct
+		- have a multiple variable set to true and push the additional options after
+		- have a mapping between q # and correct answer(s)
+
+- use only one class in section id 
+
+- display of next question text should be in template - no DOM!
+
+- disable next btn in DI component
+- displaying checkmark and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
+
+- for last question, make sure that the correct answer is selected and time stopped
+- after answering last question it should forward to Results and mat-card should display
+
+- add cool hover effect on options
+- add animated next button when moving to next question
+- add previous button
+
+- work on ResultsComponent and passing the data from DI Component/services to the Results
+	- just pass 2 values to ResultsComponent
+	- make sure percent and completion time display
+	- show your results button not navigating to results - should never exceed the totalQuestions
+	- make sure mat-accordion works
+	- add a correctness bar to the results: show the %, then the bar, then the score 2/8
+	- add FaceBook button bonus
+
+Get the app working 100% correctly, then work on RxJS/NgRx!
