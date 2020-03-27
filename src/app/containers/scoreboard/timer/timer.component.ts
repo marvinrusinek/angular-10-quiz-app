@@ -18,7 +18,7 @@ export class TimerComponent implements OnInit {
   hasAnswer: boolean;
   
   interval;
-  timeLeft: number = 20;
+  timeLeft: number;
   timePerQuestion = 20;
   elapsedTime: number;
   elapsedTimes: [];
@@ -29,7 +29,7 @@ export class TimerComponent implements OnInit {
     private timerService: TimerService) {}
 
   ngOnInit(): void {
-    // this.timeLeft = this.timePerQuestion;
+    this.timeLeft = this.timePerQuestion;
     this.timer();
   }
 
