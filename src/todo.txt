@@ -18,6 +18,7 @@ once navigation works,
   - make sure there is clearing of options in between questions
   - make sure border is blue for question and gray for answers
 
+- make it work w/o "selected" field in Option.ts???
 - questions without id in interface  (already is, just need to get the navigation and rest of app working without it)
 - mat-checkbox for multiple answer questions (if there is a single answer use mat-radio otherwise use mat-checkbox), created function in API to check the question type
 
