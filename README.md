@@ -43,15 +43,11 @@ once navigation works,
 		- have a mapping between q # and correct answer(s)
 
 - use only one class in section id 
-
 - display of next question text should be in template - no DOM!
-
-- disable next btn in DI component
+- disable next button in DI component
 - displaying checkmark and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
-
 - for last question, make sure that the correct answer is selected and time stopped
 - after answering last question it should forward to Results and mat-card should display
-
 - add cool hover effect on options
 - add animated next button when moving to next question
 - add previous button
