@@ -17,7 +17,8 @@ export class TimerComponent implements OnInit {
   @Input() answer: number;
   hasAnswer: boolean;
   
-  timeLeft: number;
+  interval;
+  timeLeft: number = 20;
   timePerQuestion = 20;
   elapsedTime: number;
   elapsedTimes: [];
@@ -28,14 +29,14 @@ export class TimerComponent implements OnInit {
     private timerService: TimerService) {}
 
   ngOnInit(): void {
-    this.timeLeft = this.timePerQuestion;
+    // this.timeLeft = this.timePerQuestion;
     this.timer();
   }
 
   // countdown clock
   timer() {
     if (this.quizService.isThereAnotherQuestion()) {
-      setInterval(() => {
+      this.interval = setInterval(() => {
         this.quizTimerLogic();
       }, 1000);
       clearInterval();
@@ -66,8 +67,14 @@ export class TimerComponent implements OnInit {
           this.quizService.navigateToResults();
           this.quizIsOver = true;
         }
-        clearInterval();
+        clearInterval(this.interval);
       }
+    } else {
+      this.timeLeft = 60;
     }
+  }
+
+  pauseTimer() {
+    clearInterval(this.interval);
   }
 }
