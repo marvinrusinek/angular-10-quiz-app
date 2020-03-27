@@ -18,10 +18,10 @@ export class TimerComponent implements OnInit {
   @Input() questionIndex: number;
   hasAnswer: boolean;
   
-  elapsedTime: number;
-  elapsedTimes: [];
   timeLeft: number;
   timePerQuestion = 20;
+  elapsedTime: number;
+  elapsedTimes: [];
   quizIsOver: boolean;
 
   constructor(
