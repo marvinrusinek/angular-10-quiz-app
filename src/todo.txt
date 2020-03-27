@@ -12,10 +12,11 @@ QUIZ TODO:
 - if wrong answer is picked before correct, it says "That's wrong" without saying what the correct options are
 - if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next q (done)
 
-- once navigation works, check that progressbar increments for next question
-- once navigation works, check that correctAnswerCount is incremented
-- once navigation works, make sure there is clearing of options in between questions
-- once navigation works, make sure border is blue for question and gray for answers
+once navigation works, 
+  - check that progressbar increments for next question
+  - check that correctAnswerCount gets incremented for correct answer(s)
+  - make sure there is clearing of options in between questions
+  - make sure border is blue for question and gray for answers
 
 - remove selected in the interface and make adjustments to the app
 - also questions without id in interface
