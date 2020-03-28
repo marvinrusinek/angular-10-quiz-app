@@ -21,7 +21,7 @@
 - Should QuestionComponent move into containers? Thinking about the architecture here...
 
 -----
-# Once navigation works,
+# Once navigation works:
 - check that progressbar increments for next question
 - check that correctAnswerCount is incremented
 - check that border is blue for question and gray for answers
