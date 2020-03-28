@@ -24,7 +24,9 @@
 - if wrong answer(s) are picked before correct, it says "That's wrong" without saying what the correct options are (IN PROGRESS)
 - if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and navigate to the next question (done)
 - Should QuestionComponent move into containers? Thinking about the architecture here...
-
+- QuizService - in checkIfAnsweredCorrectly(): if (this.question.options['selected'] === this.question.options['correct']) {
+	- what I want to check here is if the selected value is the correct answer
+	- make sure it picks up the selected value and compares it to correct because selected is not a required field (nor is correct)
 -----
 # Once navigation works:
 - check that progressbar increments for next question
