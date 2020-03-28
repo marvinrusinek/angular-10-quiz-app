@@ -23,6 +23,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   hasAnswer: boolean;
   progressValue: number;
   correctAnswers = [];
+  explanationOptionsText: string;
   option: number;
   disabled: boolean;
   
@@ -34,6 +35,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.progressValue = ((this.quizService.getQuestionIndex() + 1) / this.totalQuestions) * 100;
     this.disabled = this.answer === null; // to disable the next button
     this.mapCorrectAnswersAndCorrectOptions();
+    this.explanationOptionsText = this.quizService.explanationOptionsText;
     this.quizService.setExplanationOptionsAndCorrectAnswerMessages(this.correctAnswers);
   }
 

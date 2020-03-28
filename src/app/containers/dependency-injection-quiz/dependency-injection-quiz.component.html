@@ -10,19 +10,10 @@
 
     <section
       id="question"
-      [class.unanswered]="!hasAnswer"
       [class.answered]="hasAnswer">
 
       <span *ngIf="!hasAnswer">{{ question.questionText }}</span>
-
-      <span *ngIf="hasAnswer">
-        <span *ngIf="correctAnswers?.length === 1">
-          Option {{ option }} is correct because {{ question.explanation }}.
-        </span>
-        <span *ngIf="correctAnswers?.length > 1">
-          Options {{ option }} are correct because {{ question.explanation }}.
-        </span>
-      </span>
+      <span *ngIf="hasAnswer">{{ explanationOptionsText }}</span>
     </section>
 
     <codelab-quiz-question
