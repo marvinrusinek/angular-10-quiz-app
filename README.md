@@ -15,7 +15,7 @@
 - show correct options in messages below options
 
 - should say The correct answer is/are Option 1 (and Option 2). (IN PROGRESS)
-
+- use static field for correctness types (see @kirjs message about this)
 - highlight all correct answers at the same time (using mat-checkbox)
 - sort correct answers in numerical order 1 & 2 instead of 2 & 1
 - once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
