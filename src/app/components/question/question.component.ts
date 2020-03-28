@@ -18,7 +18,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   optionNumber: number;
   formGroup: FormGroup;
   matRadio: boolean;
-  correctAnswerStr: string;
+  correctAnswerMessage: string;
   
   constructor(private quizService: QuizService) {}
 
@@ -27,7 +27,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       answer: new FormControl([null, Validators.required])
     });
     this.matRadio = this.quizService.getQuestionType();
-    this.correctAnswerStr = this.quizService.correctAnswerText;
+    this.correctAnswerMessage = this.quizService.correctAnswerMessage;
   }
 
   ngOnChanges(changes: SimpleChanges) {
