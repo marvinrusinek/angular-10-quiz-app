@@ -18,6 +18,7 @@
 
 - if wrong answer is picked before correct, it says "That's wrong" without saying what the correct options are
 - if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next question (done)
+- Should QuestionComponent move into containers? Thinking about the architecture here...
 
 -----
 # Once navigation works,
