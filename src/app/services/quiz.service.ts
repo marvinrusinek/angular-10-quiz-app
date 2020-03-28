@@ -54,29 +54,29 @@ export class QuizService {
   }
 
   setExplanationOptionsAndCorrectAnswerMessages() {
-    let reason = ' is correct because ' + this.question.explanation + '.';
+    let explanation = ' is correct because ' + this.question.explanation + '.';
 
     if (this.correctAnswers.length === 1) {
       let correctAnswersText = this.correctAnswers[0];
-      this.explanationOptionsText = 'Option ' + correctAnswersText + reason;
+      this.explanationOptionsText = 'Option ' + correctAnswersText + explanation;
       this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
     }
 
     if (this.correctAnswers.length > 1) {
       if (this.correctAnswers[0] && this.correctAnswers[1]) {
         let correctAnswersText = this.correctAnswers[0].concat(' and ', this.correctAnswers[1]);
-        this.explanationOptionsText = 'Options ' + correctAnswersText + reason;
+        this.explanationOptionsText = 'Options ' + correctAnswersText + explanation;
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
       if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
         let correctAnswersText = this.correctAnswers[0].concat(', ', this.correctAnswers[1], ' and ', this.correctAnswers[2]);
-        this.explanationOptionsText = 'Options ' + correctAnswersText + reason + '.';
+        this.explanationOptionsText = 'Options ' + correctAnswersText + explanation + '.';
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
       if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswer[3]) {
         let correctAnswersText = this.correctAnswers[0].concat(', ',
           this.correctAnswers[1], ', ' + this.correctAnswers[2] + ' and ' + this.correctAnswers[3]);
-        this.explanationOptionsText = 'Options ' + correctAnswersText + reason;
+        this.explanationOptionsText = 'Options ' + correctAnswersText + explanation;
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
     }
