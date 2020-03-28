@@ -16,8 +16,13 @@
 
 - should say The correct answer is/are Option 1 (and Option 2). (IN PROGRESS)
 
-- if wrong answer is picked before correct, it says "That's wrong" without saying what the correct options are
-- if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next question (done)
+- highlight all correct answers at the same time (using mat-checkbox)
+- sort correct answers in numerical order 1 & 2 instead of 2 & 1
+- once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
+- display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
+
+- if wrong answer(s) are picked before correct, it says "That's wrong" without saying what the correct options are
+- if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and navigate to the next question (done)
 - Should QuestionComponent move into containers? Thinking about the architecture here...
 
 -----
