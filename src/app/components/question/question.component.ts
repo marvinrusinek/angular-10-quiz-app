@@ -54,6 +54,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
    // should add indexes only if the correct answer is chosen (use if stmt)
     this.quizService.addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex);
-    this.quizService.setExplanationOptionsAndCorrectAnswerMessages();
   }
 }
