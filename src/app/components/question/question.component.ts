@@ -20,9 +20,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   matRadio: boolean;
   correctAnswerStr: string;
   
-  constructor(private quizService: QuizService) {
-   // console.log("CAT: " + this.quizService.correctAnswerText);
-  }
+  constructor(private quizService: QuizService) {}
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -54,8 +52,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.question.options.forEach(o => o.selected = false);
     this.question.options[optionIndex].selected = true;
 
-    // should add indexes only if the correct answer is chosen
-    this.quizService.addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex);   // add correct option(s) positions to the correctAnswers array
-    this.quizService.setCorrectAnswerText();
+   // should add indexes only if the correct answer is chosen (use if stmt)
+    this.quizService.addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex);
+    this.quizService.setExplanationOptionsAndAnswerMessages();
   }
 }

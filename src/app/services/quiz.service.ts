@@ -28,6 +28,8 @@ export class QuizService {
   correctAnswerText: string;
   correctAnswerStr: string;
   correctAnswers = [];
+  explanationOptionsText: string;
+  correctAnswerMessage: string;
   matRadio: boolean;
   
 
@@ -51,26 +53,41 @@ export class QuizService {
     }
   }
 
-  setCorrectAnswerText() {
+  setExplanationOptionsAndAnswerMessages() {
+    let reason = ' is correct because ' + this.question.explanation + '.';
+
     if (this.correctAnswers.length === 1) {
-      this.correctAnswerText = "The correct answer is Option " + this.correctAnswers[0];
-      console.log(this.correctAnswerText);
+      let correctAnswersText = this.correctAnswers[0];
+
+      this.explanationOptionsText = 'Option ' + correctAnswersText + reason;
+
+      this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
     }
 
     if (this.correctAnswers.length > 1) {
       if (this.correctAnswers[0] && this.correctAnswers[1]) {
-        this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(' and ', this.correctAnswers[1]); 
-        console.log("CORR ANS:" + this.correctAnswerText);
+        let correctAnswersText = this.correctAnswers[0].concat(' and ', this.correctAnswers[1]);
+
+        this.explanationOptionsText = 'Options ' + correctAnswersText + reason;
+
+        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
       if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
-        this.correctAnswerText = "The correct answers are Options " + this.correctAnswers[0].concat(', ', this.correctAnswers[1], ' and ', this.correctAnswers[2]);
+        let correctAnswersText = this.correctAnswers[0].concat(', ', this.correctAnswers[1], ' and ', this.correctAnswers[2]);
+
+        this.explanationOptionsText = 'Options ' + correctAnswersText + reason + '.';
+
+        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+      }
+      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswer[3]) {
+        let correctAnswersText = this.correctAnswers[0].concat(', ',
+          this.correctAnswers[1], ', ' + this.correctAnswers[2] + ' and ' + this.correctAnswers[3]);
+
+        this.explanationOptionsText = 'Options ' + correctAnswersText + reason;
+
+        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
     }
-
-    // highlight all correct answers at the same time (using mat-checkbox)
-    // sort the correct answers in numerical order 1 & 2 instead of 2 & 1
-    // once the correct answer(s) are selected, pause quiz and prevent any other answers from being selected,
-    // display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
   }
 
   // checks whether the question is valid and is answered correctly
