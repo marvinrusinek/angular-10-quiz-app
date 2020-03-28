@@ -37,13 +37,13 @@ once navigation works,
 
 - create function that creates a mapping - I believe I've done this
 	- loop over q array
-	- if option is correct, need to store the option in an array
-	- if the question has more than one option that is correct
-		- have a multiple variable set to true and push the additional options after
-		- have a mapping between q # and correct answer(s)
+		- if option is correct, need to store the option in an array
+		- if the question has more than one option that is correct
+			- have a multiple variable set to true and push the additional options after
+			- have a mapping between q # and correct answer(s)
 
-- use only one class in section id 
-- display of next question text should be in template - no DOM!
+- in DI component: move the correctAnswers?.length logic into the ts file so the logic isn't in the template
+- display of next question text should be in template - NO DOM!
 - disable next button in DI component
 - displaying checkmark and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
 - for last question, make sure that the correct answer is selected and time stopped
