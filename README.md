@@ -37,15 +37,14 @@
 - fix the selected error .selected vs ['selected']
 
 - create function that creates a mapping - I believe I've done this
-	- loop over q array
+	- loop over this.quizData.question array
 		- if option is correct, need to store the option in an array
 		- if the question has more than one option that is correct
 			- have a multiple variable set to true and push the additional options after
-			- have a mapping between q # and correct answer(s)
-
+			- have a mapping between question # and correct answer(s) - [1: 1, 2], [2: 4], [3: 3], ...
 - in DI component: move the correctAnswers?.length logic into the ts file so the logic isn't in the template
 - display of next question text should be in template - NO DOM!
-- disable next button in DI component
+- disable next button in DI 2
 - display checkmarks and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
 
 - after answering last question it should forward to Results and mat-card should display
