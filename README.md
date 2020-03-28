@@ -9,6 +9,7 @@
 - make sure that the Dependency Injection functionality works correctly
 
 # Immediate:
+- fetch explanationOptionsText and correctAnswerMessage from QuizService
 - display correctAnswerMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
 - show the correct option number(s) in explanation (IN PROGRESS)
 	(data-binding not working to fetch in the form and DI component -- try console.logging)
