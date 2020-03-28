@@ -9,7 +9,7 @@
 - make sure that the Dependency Injection functionality works correctly
 
 # Immediate:
-- display correctAnsweMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
+- display correctAnswerMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
 - show the correct option number(s) in explanation (IN PROGRESS)
 	(databinding not working to fetch in the form and DI component -- try console.logging)
 - show correct options in messages below options (IN PROGRESS)
@@ -39,6 +39,7 @@
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 
 - change the quiz-topic-img instead to use the image path in QUIZ_DATA <img mat-card-image [src]="quizData.imageUrl"> instead of loading it in the CSS
+- using QuizService/TimerService is making the score and timer load really slow (maybe it's just StackBlitz...)
 
 - answer showing up as error in di-quiz template - answer is not a field on model! - check if this is still an issue
 - fix the selected error .selected vs ['selected']
