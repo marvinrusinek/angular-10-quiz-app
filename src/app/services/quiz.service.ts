@@ -74,6 +74,7 @@ export class QuizService {
       if (correctAnswers[0] && correctAnswers[1]) {
         let correctAnswersText = correctAnswers[0].concat(' and ', correctAnswers[1]);
         this.explanationOptionsText = 'Options ' + correctAnswersText + this.explanation;
+        console.log("EXPL: " + this.explanationOptionsText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
