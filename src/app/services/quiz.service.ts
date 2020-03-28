@@ -53,7 +53,7 @@ export class QuizService {
     }
   }
 
-  setExplanationOptionsAndAnswerMessages() {
+  setExplanationOptionsAndCorrectAnswerMessages() {
     let reason = ' is correct because ' + this.question.explanation + '.';
 
     if (this.correctAnswers.length === 1) {
