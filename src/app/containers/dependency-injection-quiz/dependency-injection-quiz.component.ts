@@ -37,6 +37,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.mapCorrectAnswersAndCorrectOptions();
     this.explanationOptionsText = this.quizService.explanationOptionsText;
     this.quizService.setExplanationOptionsAndCorrectAnswerMessages(this.correctAnswers);
+    this.showExplanation();
   }
 
   changeExplanation() {
