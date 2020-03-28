@@ -2,7 +2,7 @@
 
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
-# QUIZ ToDo ITEMS: 
+# Quiz App To-Do Items: 
 
 - navigating to next question -- get working, make sure button is pressable only once so questionID is incremented only once
 - timer not working in quiz app in IntelliJ and in StackBlitz
@@ -17,15 +17,15 @@
 - should say The correct answer is/are Option 1 (and Option 2). (IN PROGRESS)
 
 - if wrong answer is picked before correct, it says "That's wrong" without saying what the correct options are
-- if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next q (done)
+- if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and then move to the next question (done)
 
 -----
-once navigation works,
+# Once navigation works,
 - check that progressbar increments for next question
 - check that correctAnswerCount is incremented
 - check that border is blue for question and gray for answers
-- ensure there is clearing of options in-between questions
-
+- ensure clearing of options in-between questions
+- for last question, make sure that the correct answer is selected and time stopped
 - make it work without "selected" field in Option.ts - I believe I've done this, just not sure if adding selected? field is appropriate
 - questions without id in interface (already is, just need to get the navigation and rest of app working without it)
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
@@ -45,8 +45,8 @@ once navigation works,
 - in DI component: move the correctAnswers?.length logic into the ts file so the logic isn't in the template
 - display of next question text should be in template - NO DOM!
 - disable next button in DI component
-- displaying checkmark and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
-- for last question, make sure that the correct answer is selected and time stopped
+- display checkmarks and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
+
 - after answering last question it should forward to Results and mat-card should display
 - add cool hover effect on options
 - add animated next button when moving to next question
