@@ -53,29 +53,29 @@ export class QuizService {
     }
   }
 
-  setExplanationOptionsAndCorrectAnswerMessages() {
+  setExplanationOptionsAndCorrectAnswerMessages(correctAnswers) {
     let explanation = ' is correct because ' + this.question.explanation + '.';
 
     if (this.correctAnswers.length === 1) {
-      let correctAnswersText = this.correctAnswers[0];
+      let correctAnswersText = correctAnswers[0];
       this.explanationOptionsText = 'Option ' + correctAnswersText + explanation;
-      this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
+      this.correctAnswerMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
     }
 
     if (this.correctAnswers.length > 1) {
-      if (this.correctAnswers[0] && this.correctAnswers[1]) {
-        let correctAnswersText = this.correctAnswers[0].concat(' and ', this.correctAnswers[1]);
+      if (correctAnswers[0] && correctAnswers[1]) {
+        let correctAnswersText = correctAnswers[0].concat(' and ', correctAnswers[1]);
         this.explanationOptionsText = 'Options ' + correctAnswersText + explanation;
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
-      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
-        let correctAnswersText = this.correctAnswers[0].concat(', ', this.correctAnswers[1], ' and ', this.correctAnswers[2]);
+      if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
+        let correctAnswersText = correctAnswers[0].concat(', ', correctAnswers[1], ' and ', correctAnswers[2]);
         this.explanationOptionsText = 'Options ' + correctAnswersText + explanation + '.';
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
-      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswer[3]) {
-        let correctAnswersText = this.correctAnswers[0].concat(', ',
-          this.correctAnswers[1], ', ' + this.correctAnswers[2] + ' and ' + this.correctAnswers[3]);
+      if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
+        let correctAnswersText = correctAnswers[0].concat(', ', correctAnswers[1], ', ' + correctAnswers[2], ' and ',
+          correctAnswers[3]);
         this.explanationOptionsText = 'Options ' + correctAnswersText + explanation;
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
