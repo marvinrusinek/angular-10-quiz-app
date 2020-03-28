@@ -11,7 +11,7 @@
 # Immediate:
 - display correctAnswerMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
 - show the correct option number(s) in explanation (IN PROGRESS)
-	(databinding not working to fetch in the form and DI component -- try console.logging)
+	(data-binding not working to fetch in the form and DI component -- try console.logging)
 - show correct options in messages below options (IN PROGRESS)
 - should say The correct answer is/are Option 1 (and Option 2). (IN PROGRESS)
 
@@ -68,4 +68,4 @@
 	- add a correctness bar to the results: show the %, then the bar, then the score 2/8
 	- add FaceBook button bonus
 
-Get the app working 100% correctly, then work on RxJS/NgRx!
+Get the app working 100% correctly, then work on NgRx!
