@@ -28,6 +28,7 @@ export class QuizService {
   correctAnswerText: string;
   correctAnswerStr: string;
   correctAnswers = [];
+  explanationOptions: string;
   explanationOptionsText: string;
   correctAnswerMessage: string;
   matRadio: boolean;
@@ -43,9 +44,14 @@ export class QuizService {
     }); */
   }
 
-  getCorrectAnswerString(): string {
-    return this.correctAnswerText;
+  setExplanationOptionsText() {
+    this.explanationOptions = this.explanationOptionsText;
   }
+
+  getExplanationOptionsText() {
+    return this.explanationOptions;
+  }
+
 
   addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex: number): void {
     if (this.question.options[optionIndex]['correct'] === true) {
