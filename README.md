@@ -51,7 +51,7 @@
 			- have a mapping between question # and correct answer(s) - [1: 1, 2], [2: 4], [3: 3], ...
 - in DI component: move the correctAnswers?.length logic into the ts file so the logic isn't in the template
 - display of next question text should be in template - NO DOM!
-- disable next button in DI 2
+- disable next button in DI-Quiz template
 - display checkmarks and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
 
 - after answering last question it should forward to Results and mat-card should display
@@ -60,7 +60,7 @@
 - add previous button
 
 - work on ResultsComponent and passing the data from DI Component/services to the Results
-	- just pass 2 values to ResultsComponent
+	- just pass 2 values to ResultsComponent (see @kirjs message)
 	- make sure percent and completion time display
 	- show your results button not navigating to results - should never exceed the totalQuestions
 	- make sure mat-accordion works
