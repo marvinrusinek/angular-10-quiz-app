@@ -61,7 +61,7 @@ export class QuizService {
   }
 
   setExplanationOptionsAndCorrectAnswerMessages(correctAnswers) {
-    console.log("expl: " + this.question.explanation);
+    this.question = this.getQuestion;
     this.explanation = ' is correct because ' + this.question.explanation + '.';
 
     if (this.correctAnswers.length === 1) {
