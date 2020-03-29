@@ -10,9 +10,7 @@
       (change)="radioChange($event.value)"
       aria-labelledby="quiz-form-mat-radio-group">
 
-      <div class="radio-options"
-           *ngFor="let option of question.options;
-                   let i = index">
+      <div class="radio-options" *ngFor="let option of currentQuestion.options; let i = index">
 
         <mat-radio-button
           class="option"
@@ -24,19 +22,16 @@
 
           <li>{{ option.text }}</li>
 
-          <mat-icon
-            class="feedback-icon"
-            *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done</mat-icon>
-          <mat-icon
-            class="feedback-icon"
-            *ngIf="option.selected && !option.correct">clear</mat-icon>
+          <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
+          </mat-icon>
+          <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear</mat-icon>
         </mat-radio-button>
 
         <section class="messages" *ngIf="option.selected">
           <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
             <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
             <span class="message correct-message">
-              You&apos;re right!&nbsp;{{ correctAnswerMessage }} 
+              You&apos;re right!&nbsp;{{ correctAnswerMessage }}
             </span>
           </div>
           <div *ngIf="option.selected && !option.correct">

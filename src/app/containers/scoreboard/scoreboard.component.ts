@@ -1,24 +1,32 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { QuizService } from '../../services/quiz.service';
+
 
 @Component({
   selector: 'codelab-scoreboard',
   templateUrl: './scoreboard.component.html',
   styleUrls: ['./scoreboard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService]
+  providers: [QuizService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreboardComponent implements OnInit {
-  @Input() correctAnswersCount: number;
-  @Input() totalQuestions: number;
-  @Input() badgeQuestionNumber: number;
-  @Input() questionIndex: number;
+  totalQuestions: number;
+  badgeQuestionNumber: number;
 
-  constructor(private quizService: QuizService) {}
+  constructor(private quizService: QuizService,
+              private route: ActivatedRoute) {}
 
-  ngOnInit(): void {
-    this.badgeQuestionNumber = this.quizService.getQuestionIndex() + 1;
+  ngOnInit() {
+    let questionID;
+    this.route.params.subscribe(params => {
+      console.log(params);
+      if (params.questionID) {
+        questionID = params.questionID;
+        this.badgeQuestionNumber = questionID;
+      }
+    });
     this.totalQuestions = this.quizService.numberOfQuestions();
   }
 }

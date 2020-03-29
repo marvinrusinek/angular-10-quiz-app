@@ -8,23 +8,26 @@ import { QuizService } from '../../services/quiz.service';
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
   styleUrls: ['./question.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService]
+  providers: [QuizService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
-  @Input() question: QuizQuestion;
+  currentQuestion: QuizQuestion;
+
   @Output() answer = new EventEmitter<number>();
-  optionIndex: number;
-  optionNumber: number;
+  @Input() set question(value: QuizQuestion) {
+    this.currentQuestion = value;
+  }
+
   formGroup: FormGroup;
   matRadio: boolean;
   correctAnswerMessage: string;
-  
-  constructor(private quizService: QuizService) {}
+
+  constructor(private quizService: QuizService) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
-      answer: new FormControl([null, Validators.required])
+      answer: new FormControl(['', Validators.required])
     });
     this.matRadio = this.quizService.getQuestionType();
     this.correctAnswerMessage = this.quizService.correctAnswerMessage;
@@ -32,7 +35,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.question && changes.question.currentValue && !changes.question.firstChange) {
-      this.formGroup.patchValue({answer: ''});
+      this.currentQuestion = changes.question.currentValue;
+      this.formGroup.patchValue({ answer: '' });
     }
   }
 
@@ -41,18 +45,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
-    return correct === this.question.options[optionIndex].correct;
+    return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
   isIncorrect(correct: boolean, optionIndex: number): boolean {
-    return correct !== this.question.options[optionIndex].correct;
+    return correct !== this.currentQuestion.options[optionIndex].correct;
   }
 
   setSelected(optionIndex: number): void {
-    this.question.options.forEach(o => o.selected = false);
-    this.question.options[optionIndex].selected = true;
-
-   // should add indexes only if the correct answer is chosen (use if stmt)
+    this.currentQuestion.options.forEach(o => o.selected = false);
+    this.currentQuestion.options[optionIndex].selected = true;
     this.quizService.addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex);
   }
 }

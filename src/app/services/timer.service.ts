@@ -31,17 +31,12 @@ export class TimerService {
 
   addElapsedTimeToElapsedTimes(elapsedTime) {
     this.elapsedTimes = [...this.elapsedTimes, elapsedTime];
-    
-    // commented because of circular dependency
-    /*  if (this.quizService.getQuestionIndex() <= this.quizService.totalQuestions) {
-      this.elapsedTimes = [...this.elapsedTimes, this.elapsedTime];
-    } else {
-      this.elapsedTimes = [...this.elapsedTimes, 0];
-    } */
     this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
   }
 
-  calculateTotalElapsedTime(elapsedTimes) {
-    return this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
+  calculateTotalElapsedTime(elapsedTimes?: any) {
+    if (this.elapsedTimes) {
+      return this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
+    }
   }
 }

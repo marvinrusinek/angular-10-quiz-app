@@ -1,25 +1,19 @@
 <mat-card>
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
-    <mat-card-title>{{ quizData.milestone }} Quiz</mat-card-title>
-    <mat-card-subtitle>Assess your knowledge of {{ quizData.milestone }}</mat-card-subtitle>
+    <mat-card-title>{{ quizData?.milestone }} Quiz</mat-card-title>
+    <mat-card-subtitle>Assess your knowledge of {{ quizData?.milestone }}</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
     <codelab-scoreboard></codelab-scoreboard>
 
-    <section
-      id="question"
-      [class.answered]="hasAnswer">
-
-      <span *ngIf="!hasAnswer">{{ question.questionText }}</span>
+    <section id="question" [class.answered]="hasAnswer">
+      <span *ngIf="!hasAnswer">{{ question?.questionText }}</span>
       <span *ngIf="hasAnswer">{{ explanationOptionsText }}</span>
     </section>
 
-    <codelab-quiz-question
-      [question]="question"
-      [optionIndex]="optionIndex"
-      (answer)="answerChanged($event)">
+    <codelab-quiz-question [question]="question" (answer)="selectedAnswer($event)">
     </codelab-quiz-question>
   </mat-card-content>
 
@@ -40,11 +34,7 @@
     </section>
 
     <section class="progress-bar">
-      <ngb-progressbar
-        type="success"
-        [striped]="true"
-        [animated]="true"
-        [value]="progressValue">
+      <ngb-progressbar type="success" [striped]="true" [animated]="true" [value]="progressValue">
         <strong>{{ progressValue }}%</strong>
       </ngb-progressbar>
     </section>

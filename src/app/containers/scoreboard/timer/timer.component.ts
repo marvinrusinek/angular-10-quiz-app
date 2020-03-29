@@ -9,14 +9,14 @@ import { TimerService } from '../../../services/timer.service';
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, TimerService]
+  providers: [QuizService, TimerService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimerComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() answer: number;
   hasAnswer: boolean;
-  
+
   interval;
   timeLeft: number;
   timePerQuestion = 20;
@@ -46,9 +46,8 @@ export class TimerComponent implements OnInit {
   quizTimerLogic() {
     if (this.timeLeft > 0) {
       this.timeLeft--;
-      console.log('timeLeft: ' + this.timeLeft);
-        
-      if (this.answer !== null) {
+
+      if (this.answer) {
         this.hasAnswer = true;
         this.quizService.checkIfAnsweredCorrectly();
         this.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
@@ -63,14 +62,14 @@ export class TimerComponent implements OnInit {
           this.quizService.nextQuestion();
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-          this.quizService.calculateQuizPercentage();
+          // this.quizService.calculateQuizPercentage(); add later, code is commented in quizservice
           this.quizService.navigateToResults();
           this.quizIsOver = true;
         }
         clearInterval(this.interval);
       }
     } else {
-      this.timeLeft = 20;
+      this.timeLeft = this.timePerQuestion;
     }
   }
 

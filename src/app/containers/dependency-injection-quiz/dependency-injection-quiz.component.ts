@@ -1,77 +1,98 @@
-import { Component, ChangeDetectionStrategy, Input, Output, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 import { QUIZ_DATA } from '../../quiz';
 import { Quiz } from '../../models/quiz';
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
+import { TimerService } from '../../services/timer.service';
 
 
 @Component({
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService]
+  providers: [QuizService, TimerService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  @Output() question: QuizQuestion;
-  @Output() answer: number;
-  @Output() totalQuestions: number;
-  @Input() questionIndex: number;
-  @Input() optionIndex: number;
+  question: QuizQuestion;
+  answer: number;
+  totalQuestions: number;
+  questionIndex: number;
   hasAnswer: boolean;
   progressValue: number;
-  correctAnswers = [];
   explanationOptionsText: string;
-  option: number;
   disabled: boolean;
-  
-  constructor(private quizService: QuizService) {}
+  questionID: any;
+
+  constructor(private quizService: QuizService,
+              private timerService: TimerService,
+              private route: ActivatedRoute,
+              private router: Router) {}
 
   ngOnInit() {
-    this.question = this.quizService.getQuestion;
-    this.totalQuestions = this.quizService.numberOfQuestions();
-    this.progressValue = ((this.quizService.getQuestionIndex() + 1) / this.totalQuestions) * 100;
-    this.disabled = this.answer === null; // to disable the next button
-    this.mapCorrectAnswersAndCorrectOptions();
-    
-    this.quizService.setExplanationOptionsAndCorrectAnswerMessages(this.correctAnswers);
-    this.explanationOptionsText = this.quizService.explanationOptionsText;
-    this.showExplanation();
-  }
-
-  changeExplanation() {
-    this.quizService.setExplanationOptionsText();
-  }
-
-  showExplanation() {
-    this.quizService.getExplanationOptionsText();
-  }
-
-
-  mapCorrectAnswersAndCorrectOptions() {
-    for (let j = 0; j < this.question.options.length; j++) {
-      if (this.question.options[j].correct === true) {
-        this.correctAnswers.push('Question ' + this.questionIndex++ + ', Options: ' + j++);
+    this.route.params.subscribe(params => {
+      console.log(params);
+      if (params.questionID) {
+        this.questionID = params.questionID;
+        this.getQuestion();
       }
+    });
+
+    if (this.questionID === '1') {
+      this.quizService.correctAnswersCount.next(0);
     }
-    console.log("Correct Answers: " + this.correctAnswers);
+
+    this.totalQuestions = this.quizService.numberOfQuestions();
+    this.progressValue = (this.questionID / this.totalQuestions) * 100;
+    this.explanationOptionsText = this.quizService.explanationOptionsText;
   }
 
-  answerChanged($event) {
-    this.answer = $event;
-    this.hasAnswer = true;
-    if (this.question.options[this.optionIndex].correct === true) {
-      this.option = this.answer + 1;
-    }
+  private getQuestion() {
+    this.question = this.quizService.quizData.questions[parseInt(this.questionID, 0) - 1];
+    this.explanationOptionsText = this.question.explanation;
+  }
+
+  selectedAnswer(data) {
+    this.answer = data;
   }
 
   nextQuestion() {
-    this.quizService.nextQuestion();
+    this.router.navigate(['/question', parseInt(this.questionID, 0) + 1]);
+    this.checkIfAnsweredCorrectly();
   }
-  
+
   results() {
-    this.quizService.navigateToResults();
+    this.checkIfAnsweredCorrectly();
+    this.router.navigate(['/results'], {
+      state: {
+        questions: this.quizService.quizData,
+        results: {
+          correctAnswers: this.quizService.correctAnswers,
+          completionTime: this.quizService.completionTime
+        }
+      }
+    });
+  }
+
+  checkIfAnsweredCorrectly() {
+    if (this.question) {
+      if (this.question.options && this.question.options['selected'] === this.question.options['correct']) {
+        let count;
+        this.quizService.correctAnswer$.subscribe(data => {
+          count = data + 1;
+          console.log('count: ', count);
+        });
+        this.quizService.correctAnswersCount.next(count);
+        this.quizService.addFinalAnswerToFinalAnswers();
+
+        this.quizService.finalAnswers = [...this.quizService.finalAnswers, this.answer];
+        this.timerService.resetTimer();
+      }
+    }
   }
 }
