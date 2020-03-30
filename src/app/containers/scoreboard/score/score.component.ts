@@ -7,8 +7,7 @@ import { QuizService } from '../../../services/quiz.service';
   selector: 'codelab-scoreboard-score',
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
-  providers: [QuizService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [QuizService]
 })
 export class ScoreComponent implements OnInit {
   public correctAnswersCount: number;
@@ -20,7 +19,7 @@ export class ScoreComponent implements OnInit {
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.quizService.correctAnswer$.subscribe(data => {
       this.correctAnswersCount = data;
-      console.log('correctAnswersCount: ', this.correctAnswersCount);
+      console.log("correctAnswersCount: ", this.correctAnswersCount);
     });
   }
 }

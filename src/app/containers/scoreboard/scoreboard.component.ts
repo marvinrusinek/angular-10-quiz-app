@@ -1,15 +1,13 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { QuizService } from '../../services/quiz.service';
-
 
 @Component({
   selector: 'codelab-scoreboard',
   templateUrl: './scoreboard.component.html',
   styleUrls: ['./scoreboard.component.scss'],
-  providers: [QuizService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [QuizService]
 })
 export class ScoreboardComponent implements OnInit {
   totalQuestions: number;
@@ -27,6 +25,7 @@ export class ScoreboardComponent implements OnInit {
         this.badgeQuestionNumber = questionID;
       }
     });
+
     this.totalQuestions = this.quizService.numberOfQuestions();
   }
 }

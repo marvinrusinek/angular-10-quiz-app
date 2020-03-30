@@ -2,23 +2,15 @@
 
 <form [formGroup]="formGroup">
   <ol>
-    <mat-radio-group
-      required
-      name="answer"
-      class="form-group"
-      formControlName="answer"
-      (change)="radioChange($event.value)"
-      aria-labelledby="quiz-form-mat-radio-group">
+    <mat-radio-group required name="answer" class="form-group" formControlName="answer"
+                     (change)="radioChange($event.value)" aria-labelledby="quiz-form-mat-radio-group">
 
-      <div class="radio-options" *ngFor="let option of currentQuestion.options; let i = index">
+      <div class="radio-options" *ngFor="let option of currentQuestion.options;
+                   let i = index">
 
-        <mat-radio-button
-          class="option"
-          name="option-radio-button"
-          [value]="i"
-          (change)="setSelected(i)"
-          [class.is-correct]="option.selected && option.correct"
-          [class.is-incorrect]="option.selected && !option.correct">
+        <mat-radio-button class="option" name="option-radio-button" [value]="i" (change)="setSelected(i)"
+                          [class.is-correct]="option.selected && option.correct"
+                          [class.is-incorrect]="option.selected && !option.correct">
 
           <li>{{ option.text }}</li>
 

@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -14,16 +15,17 @@ import { QuizService } from '../../services/quiz.service';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
 
-  @Output() answer = new EventEmitter<number>();
   @Input() set question(value: QuizQuestion) {
     this.currentQuestion = value;
-  }
+  };
 
+  @Output() answer = new EventEmitter<number>();
+  optionIndex: number;
   formGroup: FormGroup;
   matRadio: boolean;
   correctAnswerMessage: string;
 
-  constructor(private quizService: QuizService) { }
+  constructor(private quizService: QuizService) {}
 
   ngOnInit() {
     this.formGroup = new FormGroup({

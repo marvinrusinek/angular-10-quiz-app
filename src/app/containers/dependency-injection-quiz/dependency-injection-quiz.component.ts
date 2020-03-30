@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -14,8 +14,7 @@ import { TimerService } from '../../services/timer.service';
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService, TimerService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [QuizService, TimerService]
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
@@ -23,6 +22,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   answer: number;
   totalQuestions: number;
   questionIndex: number;
+  optionIndex: number;
   hasAnswer: boolean;
   progressValue: number;
   explanationOptionsText: string;
@@ -31,8 +31,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   constructor(private quizService: QuizService,
               private timerService: TimerService,
-              private route: ActivatedRoute,
-              private router: Router) {}
+              private router: Router,
+              private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -42,11 +42,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.getQuestion();
       }
     });
-
     if (this.questionID === '1') {
       this.quizService.correctAnswersCount.next(0);
     }
-
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.progressValue = (this.questionID / this.totalQuestions) * 100;
     this.explanationOptionsText = this.quizService.explanationOptionsText;
@@ -85,7 +83,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         let count;
         this.quizService.correctAnswer$.subscribe(data => {
           count = data + 1;
-          console.log('count: ', count);
+          console.log('count: ', count)
         });
         this.quizService.correctAnswersCount.next(count);
         this.quizService.addFinalAnswerToFinalAnswers();

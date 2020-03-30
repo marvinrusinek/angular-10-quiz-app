@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { QuizQuestion } from '../../../models/QuizQuestion';
 import { QuizService } from '../../../services/quiz.service';
@@ -9,8 +9,7 @@ import { TimerService } from '../../../services/timer.service';
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
-  providers: [QuizService, TimerService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [QuizService, TimerService]
 })
 export class TimerComponent implements OnInit {
   @Input() question: QuizQuestion;
@@ -46,7 +45,6 @@ export class TimerComponent implements OnInit {
   quizTimerLogic() {
     if (this.timeLeft > 0) {
       this.timeLeft--;
-
       if (this.answer) {
         this.hasAnswer = true;
         this.quizService.checkIfAnsweredCorrectly();
@@ -62,7 +60,7 @@ export class TimerComponent implements OnInit {
           this.quizService.nextQuestion();
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-          // this.quizService.calculateQuizPercentage(); add later, code is commented in quizservice
+          // this.quizService.calculateQuizPercentage();  uncomment later, I added the commented function in QuizService
           this.quizService.navigateToResults();
           this.quizIsOver = true;
         }
