@@ -9,6 +9,7 @@
 - make sure that the Dependency Injection functionality works correctly
 
 # Immediate:
+- use index instead of questionId
 - fetch explanationOptionsText and correctAnswerMessage from QuizService
 - display correctAnswerMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
 - show the correct option number(s) in explanation (IN PROGRESS)
