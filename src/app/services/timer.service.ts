@@ -10,11 +10,11 @@ export class TimerService {
   elapsedTime = 0;
   elapsedTimes = [];
 
-  public timeLeft = new BehaviorSubject<number>(20);
+  public timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
   public getLeftTime$ = this.timeLeft.asObservable();
 
   resetTimer() {
-    this.timeLeft.next(20);
+    this.timeLeft.next(this.timePerQuestion);
   }
 
   stopTimer() {
