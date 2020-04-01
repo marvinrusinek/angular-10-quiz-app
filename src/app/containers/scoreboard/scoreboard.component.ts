@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { QuizService } from '../../services/quiz.service';
@@ -17,12 +17,12 @@ export class ScoreboardComponent implements OnInit {
               private route: ActivatedRoute) {}
 
   ngOnInit() {
-    let questionID;
+    let questionIndex;
     this.route.params.subscribe(params => {
       console.log(params);
-      if (params.questionID) {
-        questionID = params.questionID;
-        this.badgeQuestionNumber = questionID;
+      if (params.questionIndex) {
+        questionIndex = params.questionIndex;
+        this.badgeQuestionNumber = questionIndex;
       }
     });
 

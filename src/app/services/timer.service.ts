@@ -1,21 +1,24 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TimerService {
-  timeLeft: number;
   timePerQuestion = 20;
   completionTime: number;
   elapsedTime = 0;
   elapsedTimes = [];
 
+  public timeLeft = new BehaviorSubject<number>(20);
+  public getLeftTime$ = this.timeLeft.asObservable();
+
   resetTimer() {
-    this.timeLeft = this.timePerQuestion;
+    this.timeLeft.next(20);
   }
 
   stopTimer() {
-    this.timeLeft = this.timePerQuestion - this.elapsedTime;
+    this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
   }
 
   quizDelay(milliseconds) {
@@ -35,7 +38,8 @@ export class TimerService {
   }
 
   calculateTotalElapsedTime(elapsedTimes?: any) {
-    if (this.elapsedTimes)
+    if (this.elapsedTimes) {
       return this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
+    }
   }
 }
