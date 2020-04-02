@@ -147,7 +147,7 @@ export class QuizService {
 
   nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/quiz/question', questionIndex]);
+    this.router.navigate(['/question', questionIndex]);
   }
 
   navigateToResults() {
