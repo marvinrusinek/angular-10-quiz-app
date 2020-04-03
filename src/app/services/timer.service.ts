@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 20;
   completionTime: number;
@@ -11,7 +9,7 @@ export class TimerService {
   elapsedTimes = [];
 
   public timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
-  public getLeftTime$ = this.timeLeft.asObservable();
+  public getTimeLeft$ = this.timeLeft.asObservable();
 
   resetTimer() {
     this.timeLeft.next(this.timePerQuestion);

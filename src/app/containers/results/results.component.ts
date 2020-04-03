@@ -5,6 +5,7 @@ import { Quiz } from '../../models/Quiz';
 import { QUIZ_DATA } from '../../quiz';
 import { QuizService } from '../../services/quiz.service';
 
+
 @Component({
   selector: 'codelab-quiz-results',
   templateUrl: './results.component.html',
@@ -13,7 +14,6 @@ import { QuizService } from '../../services/quiz.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-
   quizMetadata: QuizMetadata = {
     completionTime: null,
     correctAnswersCount: null,
@@ -25,12 +25,15 @@ export class ResultsComponent implements OnInit {
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
 
+  // check if paths are still correct
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
   TRY_AGAIN = '../../../assets/images/try-again.jpeg';
 
-  constructor(private quizService: QuizService,
-              private router: Router) {
+  constructor(
+    private quizService: QuizService,
+    private router: Router
+  ) {
 
     console.log(this.router.getCurrentNavigation());
     this.quizMetadata.totalQuestions = this.router.getCurrentNavigation().extras.state.totalQuestions;

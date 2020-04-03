@@ -24,9 +24,9 @@ export class QuizService {
   finalAnswers = [];
   correctAnswerStr: string;
   correctAnswers = [];
-  explanationOptions: string;
-  explanationOptionsText: string;
+  explanationText: string;
   correctAnswerMessage: string;
+  questionIndex = 0;
 
   constructor(private timerService: TimerService,
               private router: Router) {}
@@ -51,27 +51,29 @@ export class QuizService {
     }
   }
 
-  setExplanationOptionsAndCorrectAnswerMessages(correctAnswers) {
+  setExplanationAndCorrectAnswerMessages(correctAnswers) {
     // this.question = this.getQuestion;
     if (this.question) {
-      this.explanation = ' is correct because ' + this.question.explanation + '.';
+      if (this.correctAnswers.length === 1) {
+        this.explanation = ' is correct because ' + this.question.explanation + '.';
+      }
+      if (this.correctAnswers.length > 1) {
+        this.explanation = ' are correct because ' + this.question.explanation + '.';
+      }
     }
 
     if (this.correctAnswers && this.correctAnswers.length === 1 &&
       correctAnswers && correctAnswers.length > 0) {
       const correctAnswersText = correctAnswers[0];
-      this.explanationOptionsText = 'Option ' + correctAnswersText + this.explanation;
+      this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       this.correctAnswerMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
     }
 
     if (this.correctAnswers && this.correctAnswers.length > 1 &&
       correctAnswers && correctAnswers.length > 0) {
       if (correctAnswers[0] && correctAnswers[1]) {
-        const correctAnswersText = correctAnswers[0].concat(
-          ' and ',
-          correctAnswers[1]
-        );
-        this.explanationOptionsText = 'Options ' + correctAnswersText + this.explanation;
+        const correctAnswersText = correctAnswers[0].concat(' and ', correctAnswers[1]);
+        this.explanationText = 'Options ' + correctAnswersText + this.explanation;
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
@@ -81,7 +83,7 @@ export class QuizService {
           ' and ',
           correctAnswers[2]
         );
-        this.explanationOptionsText = 'Options ' + correctAnswersText + this.explanation + '.';
+        this.explanationText = 'Options ' + correctAnswersText + this.explanation + '.';
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
@@ -93,7 +95,7 @@ export class QuizService {
           ' and ',
           correctAnswers[3]
         );
-        this.explanationOptionsText = 'Options ' + correctAnswersText + this.explanation;
+        this.explanationText = 'Options ' + correctAnswersText + this.explanation;
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
     }
@@ -110,7 +112,11 @@ export class QuizService {
     return this.quizData;
   }
 
-  /* getQuestionIndex() {
+  isThereAnotherQuestion(): boolean {
+    return this.questionIndex <= this.numberOfQuestions();
+  }
+
+  getQuestionIndex() {
     return this.questionIndex;
   }
 
@@ -118,14 +124,9 @@ export class QuizService {
     return (this.questionIndex = idx);
   }
 
-  isThereAnotherQuestion(): boolean {
-    return this.questionIndex <= this.numberOfQuestions();
-  }
-
-   get getQuestion(): QuizQuestion {
+  get getQuestion(): QuizQuestion {
     return this.quizData.questions[this.questionIndex];
   }
-   */
 
   numberOfQuestions() {
     if (this.quizData && this.quizData.questions) {
@@ -147,7 +148,7 @@ export class QuizService {
 
   nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
   }
 
   navigateToResults() {
@@ -156,9 +157,9 @@ export class QuizService {
         questions: this.quizData,
         results: {
           correctAnswers: this.correctAnswers,
-          completionTime: 20,
-          totalQuestions: this.totalQuestions,
-          correctAnswersCount: this.correctAnswers ? this.correctAnswers.length : 0
+          completionTime: 20
+          // totalQuestions: this.totalQuestions,
+          // correctAnswersCount: this.correctAnswers ? this.correctAnswers.length : 0
         }
       }
     });

@@ -28,24 +28,26 @@ export class TimerComponent implements OnInit, OnChanges {
               private timerService: TimerService) {}
 
   ngOnInit(): void {
-    this.timerService.getLeftTime$.subscribe(data => {
+    this.timerService.getTimeLeft$.subscribe(data => {
       this.timeLeft = data;
     });
     this.timer();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.selectedAnswer && changes.selectedAnswer.currentValue != changes.selectedAnswer.firstChange) {
+    if (changes.selectedAnswer && changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange) {
       this.answer = changes.selectedAnswer.currentValue;
     }
   }
 
   // countdown clock
   timer() {
-    this.interval = setInterval(() => {
-      this.quizTimerLogic();
-    }, 1000);
-    clearInterval();
+    if (this.quizService.isThereAnotherQuestion()) {
+      this.interval = setInterval(() => {
+        this.quizTimerLogic();
+      }, 1000);
+      clearInterval(this.interval);
+    }
   }
 
   quizTimerLogic() {
