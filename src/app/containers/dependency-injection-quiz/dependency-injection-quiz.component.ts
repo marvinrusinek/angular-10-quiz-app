@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import {Component, ChangeDetectionStrategy, Input, OnInit, SimpleChanges} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -20,9 +20,6 @@ import { TimerService } from '../../services/timer.service';
 export class DependencyInjectionQuizComponent implements OnInit {
   explanationText: string;
 
-  get explanation(): string { return this.quizService.explanationText; }
-  set explanation(value: string) { this.quizService.explanationText = value; }
-
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
   answer: number;
@@ -31,10 +28,14 @@ export class DependencyInjectionQuizComponent implements OnInit {
   questionIndex: number;
   count: number;
 
+  get explanation(): string { return this.quizService.explanationText; }
+  @Input() set explanation(value: string) { this.quizService.explanationText = value; }
+
   constructor(private quizService: QuizService,
               private timerService: TimerService,
               private route: ActivatedRoute) {
     this.explanationText = this.explanation;
+    console.log('exptxt: ' + this.explanationText);
   }
 
   ngOnInit() {
@@ -63,7 +64,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
     }
 
     this.explanationText = this.explanation;
-    console.log("Explanation Text: " + this.explanationText);
   }
 
   private getQuestion() {

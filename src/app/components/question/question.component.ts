@@ -14,14 +14,10 @@ import { QuizService } from '../../services/quiz.service';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
 
-  public get getCorrectAnswerMessage(): string {
-    // console.log("COR ANS: " + this.quizService.correctAnswerMessage);
-    return this.quizService.correctAnswerMessage;
-  }
+  get getCorrectAnswerMessage() { return this.quizService.correctAnswerMessage; }
+  @Input() set getCorrectAnswerMessage(value: string) { this.quizService.correctAnswerMessage = value; }
 
-  @Input() set question(value: QuizQuestion) {
-    this.currentQuestion = value;
-  };
+  @Input() set question(value: QuizQuestion) { this.currentQuestion = value; };
   @Output() answer = new EventEmitter<number>();
   formGroup: FormGroup;
   matRadio: boolean;
@@ -34,8 +30,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       answer: new FormControl([null, Validators.required])
     });
     this.matRadio = this.quizService.getQuestionType();
-
-    // this.correctAnswerMessage = this.quizService.correctAnswerMessage;
+    this.correctAnswerMessage = this.getCorrectAnswerMessage;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -69,6 +64,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     } /* else {
       console.log('else');
     } */
-    this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
+    this.quizService.setExplanationAndCorrectAnswerMessages();
   }
 }

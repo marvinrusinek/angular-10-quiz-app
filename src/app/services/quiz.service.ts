@@ -8,7 +8,7 @@ import { QuizQuestion } from '../models/QuizQuestion';
 import { TimerService } from './timer.service';
 
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class QuizService {
   quizData: Quiz = { ...QUIZ_DATA };
   question: QuizQuestion;
@@ -51,8 +51,8 @@ export class QuizService {
     }
   }
 
-  setExplanationAndCorrectAnswerMessages(correctAnswers) {
-    // this.question = this.getQuestion;
+  setExplanationAndCorrectAnswerMessages() {
+    this.question = this.getQuestion;
     if (this.question) {
       if (this.correctAnswers.length === 1) {
         this.explanation = ' is correct because ' + this.question.explanation + '.';
@@ -62,40 +62,30 @@ export class QuizService {
       }
     }
 
-    if (this.correctAnswers && this.correctAnswers.length === 1 &&
-      correctAnswers && correctAnswers.length > 0) {
-      const correctAnswersText = correctAnswers[0];
+    if (this.correctAnswers && this.correctAnswers.length === 1) {
+      const correctAnswersText = this.correctAnswers[0];
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
-      this.correctAnswerMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
+      console.log(this.explanationText);
+      this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
     }
 
-    if (this.correctAnswers && this.correctAnswers.length > 1 &&
-      correctAnswers && correctAnswers.length > 0) {
-      if (correctAnswers[0] && correctAnswers[1]) {
-        const correctAnswersText = correctAnswers[0].concat(' and ', correctAnswers[1]);
+    if (this.correctAnswers && this.correctAnswers.length > 1) {
+      if (this.correctAnswers[0] && this.correctAnswers[1]) {
+        const correctAnswersText = this.correctAnswers[0] + ' and ' + this.correctAnswers[1];
         this.explanationText = 'Options ' + correctAnswersText + this.explanation;
+        console.log(this.explanationText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
-      if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const correctAnswersText = correctAnswers[0].concat(
-          ', ',
-          correctAnswers[1],
-          ' and ',
-          correctAnswers[2]
-        );
+      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
+        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ' and ' + this.correctAnswers[2];
         this.explanationText = 'Options ' + correctAnswersText + this.explanation + '.';
+        console.log(this.explanationText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
-      if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
-        const correctAnswersText = correctAnswers[0].concat(
-          ', ',
-          correctAnswers[1],
-          ', ',
-          correctAnswers[2],
-          ' and ',
-          correctAnswers[3]
-        );
+      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswers[3]) {
+        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ', ' + this.correctAnswers[2] + ' and ' + this.correctAnswers[3];
         this.explanationText = 'Options ' + correctAnswersText + this.explanation;
+        console.log(this.explanationText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
       }
     }
@@ -148,7 +138,7 @@ export class QuizService {
 
   nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
   }
 
   navigateToResults() {
