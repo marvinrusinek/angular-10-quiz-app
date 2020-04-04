@@ -19,10 +19,9 @@ import { TimerService } from '../../services/timer.service';
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   explanationText: string;
-  public get getExplanationText(): string {
-    // console.log("EXP TXT: " + this.quizService.explanationText);
-    return this.quizService.explanationText;
-  }
+
+  get explanation(): string { return this.quizService.explanationText; }
+  set explanation(value: string) { this.quizService.explanationText = value; }
 
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
@@ -35,8 +34,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   constructor(private quizService: QuizService,
               private timerService: TimerService,
               private route: ActivatedRoute) {
-    this.explanationText = this.getExplanationText;
-    console.log("EXPL TEXT: " + this.explanationText);
+    this.explanationText = this.explanation;
   }
 
   ngOnInit() {
@@ -57,18 +55,19 @@ export class DependencyInjectionQuizComponent implements OnInit {
         } else {
           this.progressValue = ((this.questionIndex - 1) / this.totalQuestions) * 100;
         }
-
       }
     });
 
     if (this.questionIndex === 1) {
       this.quizService.correctAnswersCount.next(0);
     }
+
+    this.explanationText = this.explanation;
+    console.log("Explanation Text: " + this.explanationText);
   }
 
   private getQuestion() {
     this.question = this.quizService.getQuestions().questions[this.questionIndex - 1];
-    this.explanationText = this.getExplanationText;
     // this.explanationText = this.question.explanation;
   }
 
