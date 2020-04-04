@@ -28,14 +28,14 @@ export class DependencyInjectionQuizComponent implements OnInit {
   questionIndex: number;
   count: number;
 
-  get explanation(): string { return this.quizService.explanationText; }
-  @Input() set explanation(value: string) { this.quizService.explanationText = value; }
+  get explanation(): string { return this.quizService.explanationText; };
+  @Input() set explanation(value: string) { this.quizService.explanationText = value; };
 
   constructor(private quizService: QuizService,
               private timerService: TimerService,
               private route: ActivatedRoute) {
     this.explanationText = this.explanation;
-    console.log('exptxt: ' + this.explanationText);
+    console.log("ExpTxt: " + this.quizService.explanationText);
   }
 
   ngOnInit() {

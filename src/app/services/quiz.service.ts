@@ -8,7 +8,7 @@ import { QuizQuestion } from '../models/QuizQuestion';
 import { TimerService } from './timer.service';
 
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class QuizService {
   quizData: Quiz = { ...QUIZ_DATA };
   question: QuizQuestion;
@@ -67,6 +67,7 @@ export class QuizService {
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       console.log(this.explanationText);
       this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
+      console.log(this.correctAnswerMessage);
     }
 
     if (this.correctAnswers && this.correctAnswers.length > 1) {
@@ -75,18 +76,23 @@ export class QuizService {
         this.explanationText = 'Options ' + correctAnswersText + this.explanation;
         console.log(this.explanationText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+        console.log(this.correctAnswerMessage);
       }
       if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
-        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ' and ' + this.correctAnswers[2];
+        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ' and ' +
+                                   this.correctAnswers[2];
         this.explanationText = 'Options ' + correctAnswersText + this.explanation + '.';
         console.log(this.explanationText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+        console.log(this.correctAnswerMessage);
       }
       if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswers[3]) {
-        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ', ' + this.correctAnswers[2] + ' and ' + this.correctAnswers[3];
+        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ', ' +
+                                   this.correctAnswers[2] + ' and ' + this.correctAnswers[3];
         this.explanationText = 'Options ' + correctAnswersText + this.explanation;
         console.log(this.explanationText);
         this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+        console.log(this.correctAnswerMessage);
       }
     }
   }

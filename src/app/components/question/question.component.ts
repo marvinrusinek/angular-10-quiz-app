@@ -14,8 +14,8 @@ import { QuizService } from '../../services/quiz.service';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
 
-  get getCorrectAnswerMessage() { return this.quizService.correctAnswerMessage; }
-  @Input() set getCorrectAnswerMessage(value: string) { this.quizService.correctAnswerMessage = value; }
+  get getCorrectAnswerMessage() { return this.quizService.correctAnswerMessage; };
+  @Input() set getCorrectAnswerMessage(value: string) { this.quizService.correctAnswerMessage = value; };
 
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; };
   @Output() answer = new EventEmitter<number>();
@@ -23,7 +23,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   matRadio: boolean;
   correctAnswerMessage: string;
 
-  constructor(private quizService: QuizService) {}
+  constructor(private quizService: QuizService) {
+  }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
