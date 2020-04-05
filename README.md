@@ -8,12 +8,10 @@
 - make sure that the Dependency Injection works correctly
 
 # Immediate:
-- fetch explanationOptionsText and correctAnswerMessage from QuizService
-- display correctAnswerMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
-- show the correct option number(s) in explanation (IN PROGRESS)
-	(data-binding not working to fetch in the form and DI component -- try console.logging)
+- fetch and display explanationText and correctAnswerMessage from QuizService
+- show the correct option number(s) in explanation (IN PROGRESS) (data-binding not working to fetch in the form and DI component -- try console.logging)
 - show correct options in messages below options (IN PROGRESS)
-- should say The correct answer is/are Option 1 (and Option 2). (IN PROGRESS)
+- should say "The correct answer is/are Option 1 (and Option 2)." (IN PROGRESS)
 
 - use static field in QuestionComponent ts file for correctness types (see @kirjs message about this)
 - highlight all correct answers at the same time (using mat-checkbox)
