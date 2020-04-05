@@ -4,9 +4,8 @@
 
 # To-Do Items: 
 # Important:
-- navigating to next question -- get working, make sure button is pressable only once so questionID is incremented only once
 - timer not working in quiz app in IntelliJ and in StackBlitz
-- make sure that the Dependency Injection functionality works correctly
+- make sure that the Dependency Injection works correctly
 
 # Immediate:
 - fetch explanationOptionsText and correctAnswerMessage from QuizService
