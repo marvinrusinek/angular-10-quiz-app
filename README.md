@@ -9,7 +9,6 @@
 - make sure that the Dependency Injection functionality works correctly
 
 # Immediate:
-- use index instead of questionId
 - fetch explanationOptionsText and correctAnswerMessage from QuizService
 - display correctAnswerMessage for messages - get value from the QuizService and the data-binding should pick it up (IN PROGRESS)
 - show the correct option number(s) in explanation (IN PROGRESS)
@@ -31,7 +30,7 @@
 	- make sure it picks up the selected value and compares it to correct because selected is not a required field (nor is correct)
 -----
 # Once navigation works:
-- check that progressbar increments for next question
+- check that progressbar increments for next question - it does, I think there was a case where it actually decreased, check
 - check that correctAnswerCount is incremented
 - check that border is blue for question and gray for answers
 - ensure clearing of options in-between questions
