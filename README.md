@@ -29,10 +29,8 @@
 	- make sure it picks up the selected value and compares it to correct because selected is not a required field (nor is correct)
 -----
 # Once navigation works:
-- check that progressbar increments for next question - it does, I think there was a case where it actually decreased, check
-- check that correctAnswerCount is incremented
+- correctAnswerCount is not incrementing for each correct answer
 - check that border is blue for question and gray for answers
-- ensure clearing of options in-between questions
 - for last question, make sure that the correct answer is selected and time stopped
 - make it work without "selected" field in Option.ts - I believe I've done this, just not sure if adding selected? field is appropriate
 - questions without id in interface (already is, just need to get the navigation and rest of app working without it)
