@@ -23,8 +23,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   matRadio: boolean;
   correctAnswerMessage: string;
 
-  constructor(private quizService: QuizService) {
-  }
+  constructor(private quizService: QuizService) {}
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -49,10 +48,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
-  }
-
-  isIncorrect(correct: boolean, optionIndex: number): boolean {
-    return correct !== this.currentQuestion.options[optionIndex].correct;
   }
 
   setSelected(optionIndex: number): void {
