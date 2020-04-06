@@ -1,5 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuizRoutingModule } from './quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -38,6 +39,7 @@ import { TimerService } from './services/timer.service';
   imports: [
     CommonModule,
     BrowserAnimationsModule,
+    RouterModule,
     QuizRoutingModule,
     ReactiveFormsModule,
     MatCardModule,
