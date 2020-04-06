@@ -8,15 +8,12 @@ import { TimerService } from '../../../services/timer.service';
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
-  providers: [QuizService, TimerService]
+  providers: [TimerService]
 })
 export class TimerComponent implements OnInit, OnChanges {
   answer;
-  @Input() set selectedAnswer(value) {
-    this.answer = value;
-  }
+  @Input() set selectedAnswer(value) { this.answer = value; };
   hasAnswer: boolean;
-
   interval;
   timeLeft: number;
   timePerQuestion = 20;
@@ -24,8 +21,10 @@ export class TimerComponent implements OnInit, OnChanges {
   elapsedTimes: [];
   quizIsOver: boolean;
 
-  constructor(private quizService: QuizService,
-              private timerService: TimerService) {}
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService
+  ) { }
 
   ngOnInit(): void {
     this.timerService.getTimeLeft$.subscribe(data => {
@@ -42,12 +41,10 @@ export class TimerComponent implements OnInit, OnChanges {
 
   // countdown clock
   timer() {
-    if (this.quizService.isThereAnotherQuestion()) {
-      this.interval = setInterval(() => {
-        this.quizTimerLogic();
-      }, 1000);
-      clearInterval(this.interval);
-    }
+    this.interval = setInterval(() => {
+      this.quizTimerLogic();
+    }, 1000);
+    clearInterval();
   }
 
   quizTimerLogic() {
