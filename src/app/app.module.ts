@@ -1,6 +1,5 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule, NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuizRoutingModule } from './quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -21,9 +20,6 @@ import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimerComponent } from './containers/scoreboard/timer/timer.component';
-import { QuizService } from './services/quiz.service';
-import { TimerService } from './services/timer.service';
-
 
 @NgModule({
   declarations: [
@@ -39,7 +35,6 @@ import { TimerService } from './services/timer.service';
   imports: [
     CommonModule,
     BrowserAnimationsModule,
-    RouterModule,
     QuizRoutingModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -51,8 +46,8 @@ import { TimerService } from './services/timer.service';
     NgbModule,
     FontAwesomeModule
   ],
-  bootstrap: [ AppComponent ],
-  providers: [ QuizService, TimerService ],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  bootstrap: [AppComponent],
+  providers: [],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }
