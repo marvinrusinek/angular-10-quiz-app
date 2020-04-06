@@ -28,8 +28,10 @@ export class QuizService {
   correctAnswerMessage: string;
   questionIndex = 0;
 
-  constructor(private timerService: TimerService,
-              private router: Router) {}
+  constructor(
+    private timerService: TimerService,
+    private router: Router
+  ) {}
 
   getQuestions() {
     return { ...this.quizData };
@@ -102,8 +104,8 @@ export class QuizService {
   }
 
   /*
- *  public API for service
- */
+   *  public API for service
+   */
   getQuiz() {
     return this.quizData;
   }
@@ -139,12 +141,12 @@ export class QuizService {
   }
 
   isFinalQuestion() {
-    return this.quizData.questions.length === this.currentQuestionIndex;
+    return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
   nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/quiz/question', questionIndex]);
+    this.router.navigate(['/question', questionIndex]);
   }
 
   navigateToResults() {
