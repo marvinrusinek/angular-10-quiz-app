@@ -1,6 +1,6 @@
-import { NgModule, NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QuizRoutingModule } from './quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -37,7 +37,7 @@ import { TimerService } from './services/timer.service';
   ],
   imports: [
     CommonModule,
-   // BrowserAnimationsModule,
+    BrowserAnimationsModule,
     QuizRoutingModule,
     ReactiveFormsModule,
     MatCardModule,
