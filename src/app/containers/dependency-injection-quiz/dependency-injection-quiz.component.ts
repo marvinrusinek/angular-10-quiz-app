@@ -1,10 +1,10 @@
-import {Component, ChangeDetectionStrategy, Input, OnInit, SimpleChanges} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
+import { Quiz } from '../../models/Quiz';
 import { QUIZ_DATA } from '../../quiz';
-import { Quiz } from '../../models/quiz';
 import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
 import { TimerService } from '../../services/timer.service';
@@ -14,29 +14,23 @@ import { TimerService } from '../../services/timer.service';
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService, TimerService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [QuizService, TimerService]
 })
 export class DependencyInjectionQuizComponent implements OnInit {
-  explanationText: string;
-
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
   answer: number;
   totalQuestions: number;
   progressValue: number;
+  explanationText: string;
   questionIndex: number;
   count: number;
 
-  get explanation(): string { return this.quizService.explanationText; };
-  @Input() set explanation(value: string) { this.quizService.explanationText = value; };
-
-  constructor(private quizService: QuizService,
-              private timerService: TimerService,
-              private route: ActivatedRoute) {
-    this.explanationText = this.explanation;
-    console.log("ExpTxt: " + this.quizService.explanationText);
-  }
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
     this.quizService.correctAnswer$.subscribe(data => {
@@ -56,14 +50,14 @@ export class DependencyInjectionQuizComponent implements OnInit {
         } else {
           this.progressValue = ((this.questionIndex - 1) / this.totalQuestions) * 100;
         }
+
+        this.explanationText = this.quizService.explanationText;
       }
     });
 
     if (this.questionIndex === 1) {
       this.quizService.correctAnswersCount.next(0);
     }
-
-    this.explanationText = this.explanation;
   }
 
   private getQuestion() {
@@ -87,10 +81,11 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   checkIfAnsweredCorrectly() {
     if (this.question) {
-      if (this.question.options &&
-          this.question.options[this.answer] &&
-          this.question.options[this.answer]['selected'] &&
-          this.question.options[this.answer]['correct']
+      if (
+        this.question.options &&
+        this.question.options[this.answer] &&
+        this.question.options[this.answer]['selected'] &&
+        this.question.options[this.answer]['correct']
       ) {
         this.quizService.correctAnswersCount.next(this.count);
         this.quizService.finalAnswers = [...this.quizService.finalAnswers, this.answer];
