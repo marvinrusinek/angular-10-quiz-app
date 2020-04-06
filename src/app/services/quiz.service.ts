@@ -22,7 +22,6 @@ export class QuizService {
 
   currentQuestionIndex = 1;
   finalAnswers = [];
-  correctAnswerStr: string;
   correctAnswers = [];
   explanationText: string;
   correctAnswerMessage: string;
@@ -155,9 +154,7 @@ export class QuizService {
         questions: this.quizData,
         results: {
           correctAnswers: this.correctAnswers,
-          completionTime: 20
-          // totalQuestions: this.totalQuestions,
-          // correctAnswersCount: this.correctAnswers ? this.correctAnswers.length : 0
+          completionTime: this.completionTime
         }
       }
     });
