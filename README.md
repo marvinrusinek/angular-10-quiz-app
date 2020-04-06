@@ -3,11 +3,9 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
 # To-Do Items: 
-# Important:
-- timer not working in quiz app in IntelliJ and in StackBlitz
-- make sure that the Dependency Injection works correctly
 
 # Immediate:
+- make sure that the Dependency Injection works correctly
 - fetch and display explanationText and correctAnswerMessage from QuizService
 - show the correct option number(s) in explanation (IN PROGRESS) (data-binding not working to fetch in the form and DI component -- try console.logging)
 - show correct options in messages below options (IN PROGRESS)
@@ -16,6 +14,8 @@
 - use static field in QuestionComponent ts file for correctness types (see @kirjs message about this)
 - highlight all correct answers at the same time (using mat-checkbox)
 - sort correct answers in numerical order 1 & 2 instead of 2 & 1
+- remove pauseTimer in timer.component.ts unless I decide to use it somehow...
+
 - once all the correct answer(s) are selected,
 	- pause quiz and prevent any other answers from being selected
 	- display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
@@ -24,16 +24,15 @@
 - Should QuestionComponent move into containers? Thinking about the architecture here...
 -----
 # Once navigation works:
-- correctAnswerCount is not incrementing for each correct answer
-- check that border is blue for question and gray for answers
+- ensure that border is blue for question and gray for answers
 - for last question, make sure that the correct answer is selected and time stopped
 - make it work without "selected" field in Option.ts - I believe I've done this, just not sure if adding selected? field is appropriate
-- mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 
+still todo:
+- mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 - change the quiz-topic-img instead to use the image path in QUIZ_DATA <img mat-card-image [src]="quizData.imageUrl"> instead of loading it in the CSS
 
 - answer showing up as error in di-quiz template - answer is not a field on model! - check if this is still an issue
-- fix the selected error .selected vs ['selected']
 
 - create function that creates a mapping - I believe I've done this
 	- loop over this.quizData.question array
@@ -42,7 +41,7 @@
 			- have a multiple variable set to true and push the additional options after
 			- have a mapping between question # and correct option number(s) - [1: 1, 2], [2: 4], [3: 3], ...
 - display of next question text should be in template - NO DOM!
-- disable next button in DI-Quiz template
+- disable next button in DI-Quiz template???
 - display checkmarks and x's in the same position from the right of the option box (already done, but maybe it can be done without position: absolute ???)
 
 - after answering last question it should forward to Results and mat-card should display
