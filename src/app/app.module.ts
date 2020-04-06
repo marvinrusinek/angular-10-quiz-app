@@ -20,6 +20,8 @@ import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimerComponent } from './containers/scoreboard/timer/timer.component';
+import { QuizService } from './services/quiz.service';
+import { TimerService } from './services/timer.service';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,7 @@ import { TimerComponent } from './containers/scoreboard/timer/timer.component';
     FontAwesomeModule
   ],
   bootstrap: [AppComponent],
-  providers: [],
+  providers: [QuizService, TimerService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }
