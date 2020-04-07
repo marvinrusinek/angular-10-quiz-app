@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { QUIZ_DATA } from '../../quiz';
 import { Quiz } from '../../models/quiz';
@@ -27,9 +27,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private timerService: TimerService
+    private timerService: TimerService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
