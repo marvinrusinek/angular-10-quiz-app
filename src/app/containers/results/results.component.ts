@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { Quiz } from '../../models/Quiz';
 import { QUIZ_DATA } from '../../quiz';
+import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
 
 
@@ -25,7 +26,6 @@ export class ResultsComponent implements OnInit {
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
 
-  // check if paths are still correct
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
   TRY_AGAIN = '../../../assets/images/try-again.jpeg';
@@ -34,7 +34,6 @@ export class ResultsComponent implements OnInit {
     private quizService: QuizService,
     private router: Router
   ) {
-
     console.log(this.router.getCurrentNavigation());
     this.quizMetadata.totalQuestions = this.router.getCurrentNavigation().extras.state.totalQuestions;
     this.quizMetadata.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;

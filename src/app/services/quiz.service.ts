@@ -8,12 +8,11 @@ import { QuizQuestion } from '../models/QuizQuestion';
 import { TimerService } from './timer.service';
 
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class QuizService {
   quizData: Quiz = { ...QUIZ_DATA };
   question: QuizQuestion;
   answer: number;
-  explanation: string;
 
   public correctAnswersCount = new BehaviorSubject<number>(0);
   public correctAnswer$ = this.correctAnswersCount.asObservable();
@@ -23,14 +22,14 @@ export class QuizService {
   currentQuestionIndex = 1;
   finalAnswers = [];
   correctAnswers = [];
-  explanationText: string;
+  explanationOptions: string;
+  explanationOptionsText: string;
   correctAnswerMessage: string;
-  questionIndex = 0;
 
   constructor(
     private timerService: TimerService,
     private router: Router
-  ) {}
+  ) { }
 
   getQuestions() {
     return { ...this.quizData };
@@ -43,86 +42,29 @@ export class QuizService {
     this.correctAnswerMessage = undefined;
   }
 
+  setExplanationOptionsText() {
+    this.explanationOptions = this.explanationOptionsText;
+  }
+
+  getExplanationOptionsText() {
+    return this.explanationOptions;
+  }
+
   addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex: number): void {
-    if (this.question && optionIndex &&
-        this.question.options && this.question.options[optionIndex]['correct'] === true) {
+    if (
+      optionIndex &&
+      this.question &&
+      this.question.options &&
+      this.question.options[optionIndex]['correct'] === true
+    ) {
       this.correctAnswers = [...this.correctAnswers, optionIndex + 1];
     } else {
       console.log('else');
     }
   }
 
-  setExplanationAndCorrectAnswerMessages() {
-    this.question = this.getQuestion;
-    if (this.question) {
-      if (this.correctAnswers.length === 1) {
-        this.explanation = ' is correct because ' + this.question.explanation + '.';
-      }
-      if (this.correctAnswers.length > 1) {
-        this.explanation = ' are correct because ' + this.question.explanation + '.';
-      }
-    }
-
-    if (this.correctAnswers && this.correctAnswers.length === 1) {
-      const correctAnswersText = this.correctAnswers[0];
-      this.explanationText = 'Option ' + correctAnswersText + this.explanation;
-      console.log(this.explanationText);
-      this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
-      console.log(this.correctAnswerMessage);
-    }
-
-    if (this.correctAnswers && this.correctAnswers.length > 1) {
-      if (this.correctAnswers[0] && this.correctAnswers[1]) {
-        const correctAnswersText = this.correctAnswers[0] + ' and ' + this.correctAnswers[1];
-        this.explanationText = 'Options ' + correctAnswersText + this.explanation;
-        console.log(this.explanationText);
-        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
-        console.log(this.correctAnswerMessage);
-      }
-      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
-        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ' and ' +
-                                   this.correctAnswers[2];
-        this.explanationText = 'Options ' + correctAnswersText + this.explanation + '.';
-        console.log(this.explanationText);
-        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
-        console.log(this.correctAnswerMessage);
-      }
-      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswers[3]) {
-        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ', ' +
-                                   this.correctAnswers[2] + ' and ' + this.correctAnswers[3];
-        this.explanationText = 'Options ' + correctAnswersText + this.explanation;
-        console.log(this.explanationText);
-        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
-        console.log(this.correctAnswerMessage);
-      }
-    }
-  }
-
   addFinalAnswerToFinalAnswers() {
     this.finalAnswers = [...this.finalAnswers, this.answer];
-  }
-
-  /*
-   *  public API for service
-   */
-  getQuiz() {
-    return this.quizData;
-  }
-
-  isThereAnotherQuestion(): boolean {
-    return this.questionIndex <= this.numberOfQuestions();
-  }
-
-  getQuestionIndex() {
-    return this.questionIndex;
-  }
-
-  setQuestionIndex(idx: number) {
-    return (this.questionIndex = idx);
-  }
-
-  get getQuestion(): QuizQuestion {
-    return this.quizData.questions[this.questionIndex];
   }
 
   numberOfQuestions() {
@@ -133,19 +75,17 @@ export class QuizService {
     }
   }
 
-
-  // if the question has a single answer, use mat-radio-button in the form, else use mat-checkbox in the form
   getQuestionType(): boolean {
     return (this.correctAnswers && this.correctAnswers.length === 1);
   }
 
   isFinalQuestion() {
-    return (this.quizData.questions.length === this.currentQuestionIndex);
+    return (this.quizData.questions.length == this.currentQuestionIndex);
   }
 
   nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
   }
 
   navigateToResults() {

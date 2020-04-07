@@ -8,8 +8,7 @@
     <section class="results">
       <section class="statistics">
         <h3>Statistics</h3>
-        <span>You scored {{ quizMetadata?.correctAnswersCount }}
-              out of {{ quizMetadata?.totalQuestions }} questions correctly.</span>
+        <span>You scored {{ quizMetadata?.correctAnswersCount }} out of {{ quizMetadata?.totalQuestions }} questions correctly.</span>
         <span>You completed the quiz in {{ elapsedMinutes }} minutes and {{ elapsedSeconds }} seconds.</span>
 
         <div class="quiz-feedback">
@@ -35,7 +34,7 @@
         <details>
           <summary>View a more detailed summary of your quiz</summary>
           <mat-accordion>
-            <mat-expansion-panel #quizQuestion role="tab" *ngFor="let question of quizData.questions; index as i">
+            <mat-expansion-panel #quizQuestion role="tab" *ngFor="let question of quizData.questions; let i = index">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <strong>Question #{{ i + 1 }}: </strong>&nbsp;&nbsp;<em>{{ question?.questionText }}</em>
@@ -44,7 +43,7 @@
                 <ng-template matExpansionPanelContent>
                   <div class="quiz-summary-field">
                     <span>
-                      <span class="leader">Question #{{ question?.index }}: </span>{{ question?.questionText }}
+                      <span class="leader">Question #{{ i + 1 }}: </span>{{ question?.questionText }}
                     </span>
                   </div>
                   <div class="quiz-summary-field">
@@ -79,7 +78,7 @@
     <section class="return">
       <mat-card-actions>
         <a class="btn" (click)="restart()">Restart Quiz</a>
-        <a href="https://www.codelab.fun" class="btn">Back to Codelab</a>
+        <a class="btn" href="https://www.codelab.fun">Back to Codelab</a>
       </mat-card-actions>
     </section>
 

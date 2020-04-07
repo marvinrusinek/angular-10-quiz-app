@@ -6,7 +6,7 @@
   </mat-card-header>
 
   <mat-card-content>
-    <codelab-scoreboard></codelab-scoreboard> <!-- [selectedAnswer]="answer" -->
+    <codelab-scoreboard [selectedAnswer]="answer"></codelab-scoreboard>
 
     <section id="question" [class.answered]="answer">
       <span *ngIf="!answer">{{ question?.questionText }}</span>
@@ -34,8 +34,12 @@
     </section>
 
     <section class="progress-bar">
-      <ngb-progressbar type="success" [striped]="true" [animated]="true" [value]="progressValue">
-        <strong>{{ progressValue }}%</strong>
+      <ngb-progressbar
+        type="success"
+        [striped]="true"
+        [animated]="true"
+        [value]="progressValue">
+          <strong>{{ progressValue }}%</strong>
       </ngb-progressbar>
     </section>
   </mat-card-footer>
