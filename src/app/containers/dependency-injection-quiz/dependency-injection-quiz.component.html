@@ -6,14 +6,16 @@
   </mat-card-header>
 
   <mat-card-content>
-    <codelab-scoreboard [selectedAnswer]="answer"></codelab-scoreboard>
+    <codelab-scoreboard></codelab-scoreboard>
 
     <section id="question" [class.answered]="answer">
       <span *ngIf="!answer">{{ question?.questionText }}</span>
       <span *ngIf="answer">{{ explanationText }}</span>
     </section>
 
-    <codelab-quiz-question [question]="question" (answer)="selectedAnswer($event)">
+    <codelab-quiz-question
+      [question]="question"
+      (answer)="selectedAnswer($event)">
     </codelab-quiz-question>
   </mat-card-content>
 

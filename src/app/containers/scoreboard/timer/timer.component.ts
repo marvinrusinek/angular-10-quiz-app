@@ -1,6 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
 
-import { QuizQuestion } from '../../../models/QuizQuestion';
 import { QuizService } from '../../../services/quiz.service';
 import { TimerService } from '../../../services/timer.service';
 
@@ -8,8 +7,7 @@ import { TimerService } from '../../../services/timer.service';
 @Component({
   selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
-  styleUrls: ['./timer.component.scss'],
-  providers: []
+  styleUrls: ['./timer.component.scss']
 })
 export class TimerComponent implements OnInit, OnChanges {
   answer;
@@ -28,7 +26,7 @@ export class TimerComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit(): void {
-    this.timerService.getLeftTime$.subscribe(data => {
+    this.timerService.getTimeLeft$.subscribe(data => {
       this.timeLeft = data;
     });
     this.timer();
@@ -51,7 +49,8 @@ export class TimerComponent implements OnInit, OnChanges {
   quizTimerLogic() {
     if (this.timeLeft > 0) {
       this.timeLeft--;
-      if (this.answer !== null) {
+
+      if (this.answer) {
         this.hasAnswer = true;
         this.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
         this.timerService.addElapsedTimeToElapsedTimes(this.elapsedTime);
@@ -60,7 +59,7 @@ export class TimerComponent implements OnInit, OnChanges {
 
       if (this.timeLeft === 0) {
         if (!this.quizService.isFinalQuestion()) {
-          this.timerService.quizDelay(3000);
+          this.timerService.addQuizDelay(3000);
           this.quizService.nextQuestion();
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {

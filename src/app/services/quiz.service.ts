@@ -7,23 +7,20 @@ import { Quiz } from '../models/quiz';
 import { QuizQuestion } from '../models/QuizQuestion';
 import { TimerService } from './timer.service';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizService {
   quizData: Quiz = { ...QUIZ_DATA };
   question: QuizQuestion;
   answer: number;
-
   public correctAnswersCount = new BehaviorSubject<number>(0);
   public correctAnswer$ = this.correctAnswersCount.asObservable();
   totalQuestions: number;
   completionTime: number;
-
   currentQuestionIndex = 1;
   finalAnswers = [];
   correctAnswers = [];
-  explanationOptions: string;
-  explanationOptionsText: string;
+  explanation: string;
+  explanationText: string;
   correctAnswerMessage: string;
 
   constructor(
@@ -42,29 +39,47 @@ export class QuizService {
     this.correctAnswerMessage = undefined;
   }
 
-  setExplanationOptionsText() {
-    this.explanationOptions = this.explanationOptionsText;
-  }
+  setExplanationAndCorrectAnswerMessages() {
+    // this.question = this.getQuestion;
+    // if (this.question) {
+      this.explanation = (this.correctAnswers.length === 1) ?
+        ' is correct because ' + this.question.explanation + '.' :
+        ' are correct because ' + this.question.explanation + '.'
+    // }
 
-  getExplanationOptionsText() {
-    return this.explanationOptions;
-  }
-
-  addCorrectIndexesToCorrectAnswerOptionsArray(optionIndex: number): void {
-    if (
-      optionIndex &&
-      this.question &&
-      this.question.options &&
-      this.question.options[optionIndex]['correct'] === true
-    ) {
-      this.correctAnswers = [...this.correctAnswers, optionIndex + 1];
-    } else {
-      console.log('else');
+    if (this.correctAnswers && this.correctAnswers.length === 1) {
+      const correctAnswersText = this.correctAnswers[0];
+      this.explanationText = 'Option ' + correctAnswersText + this.explanation;
+      console.log(this.explanationText);
+      this.correctAnswerMessage = 'The correct answer is Option ' + this.correctAnswers[0] + '.';
+      console.log(this.correctAnswerMessage);
     }
-  }
 
-  addFinalAnswerToFinalAnswers() {
-    this.finalAnswers = [...this.finalAnswers, this.answer];
+    if (this.correctAnswers && this.correctAnswers.length > 1) {
+      if (this.correctAnswers[0] && this.correctAnswers[1]) {
+        const correctAnswersText = this.correctAnswers[0] + ' and ' + this.correctAnswers[1];
+        this.explanationText = 'Options ' + correctAnswersText + this.explanation;
+        console.log(this.explanationText);
+        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+        console.log(this.correctAnswerMessage);
+      }
+      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2]) {
+        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ' and ' +
+          this.correctAnswers[2];
+        this.explanationText = 'Options ' + correctAnswersText + this.explanation + '.';
+        console.log(this.explanationText);
+        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+        console.log(this.correctAnswerMessage);
+      }
+      if (this.correctAnswers[0] && this.correctAnswers[1] && this.correctAnswers[2] && this.correctAnswers[3]) {
+        const correctAnswersText = this.correctAnswers[0] + ', ' + this.correctAnswers[1] + ', ' +
+          this.correctAnswers[2] + ' and ' + this.correctAnswers[3];
+        this.explanationText = 'Options ' + correctAnswersText + this.explanation;
+        console.log(this.explanationText);
+        this.correctAnswerMessage = 'The correct answers are Options ' + correctAnswersText + '.';
+        console.log(this.correctAnswerMessage);
+      }
+    }
   }
 
   numberOfQuestions() {
@@ -80,16 +95,16 @@ export class QuizService {
   }
 
   isFinalQuestion() {
-    return (this.quizData.questions.length == this.currentQuestionIndex);
+    return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
   nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
   }
 
   navigateToResults() {
-    this.router.navigate(['/results'], {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData,
         results: {

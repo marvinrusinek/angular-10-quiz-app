@@ -1,10 +1,10 @@
 $font-stack: Space Mono, monospace;
 $font-weight-max: 900;
 
-/* @font-face {
-  font-family: "DjbUpOnTheScoreboard";
-  src: url("../../../../../../assets/fonts/DjbUpOnTheScoreboard.ttf") format("truetype");
-} */
+@font-face {
+  font-family: 'DjbUpOnTheScoreboard';
+  src: url('../../../../../../assets/fonts/DjbUpOnTheScoreboard.ttf') format('truetype');
+}
 
 .time-left {
   float: right;
@@ -12,10 +12,20 @@ $font-weight-max: 900;
 
   .leader {
     margin-left: 35px;
+    display: block;
+    font-weight: $font-weight-max;
+    font-size: 18px;
+    text-transform: uppercase;
+    position: relative;
+    top: -5px;
+    padding: 0 10px;
+    background-color: #81e081;
+    border-radius: 5px;
+    text-align: center;
   }
 
   span.scoreboard {
-    font-family: "DjbUpOnTheScoreboard", $font-stack;
+    font-family: 'DjbUpOnTheScoreboard', $font-stack;
     font-weight: $font-weight-max;
     font-size: 30px;
     color: #006400;
@@ -25,16 +35,3 @@ $font-weight-max: 900;
     margin-left: 35px;
   }
 }
-
-.leader {
-  display: block;
-  font-weight: $font-weight-max;
-  font-size: 18px;
-  text-transform: uppercase;
-  position: relative;
-  top: -5px;
-  padding: 0 10px;
-  background-color: #81e081;
-  border-radius: 5px;
-}
-

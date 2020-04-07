@@ -1,9 +1,8 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Quiz } from '../../models/Quiz';
 import { QUIZ_DATA } from '../../quiz';
-import { QuizQuestion } from '../../models/QuizQuestion';
 import { QuizService } from '../../services/quiz.service';
 
 
@@ -30,10 +29,9 @@ export class ResultsComponent implements OnInit {
   NOT_BAD = '../../../assets/images/not-bad.jpg';
   TRY_AGAIN = '../../../assets/images/try-again.jpeg';
 
-  constructor(
-    private quizService: QuizService,
-    private router: Router
-  ) {
+  constructor(private router: Router,
+    private quizService: QuizService) {
+
     console.log(this.router.getCurrentNavigation());
     this.quizMetadata.totalQuestions = this.router.getCurrentNavigation().extras.state.totalQuestions;
     this.quizMetadata.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
@@ -48,8 +46,8 @@ export class ResultsComponent implements OnInit {
   }
 
   restart() {
-    this.router.navigate(['/intro']);
-    this.quizService.resetAll();
+    this.quizService.resetAll();  // need to reset the answers to empty/null
+    this.router.navigate(['/quiz/intro']);
   }
 }
 

@@ -1,18 +1,18 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { QuizService } from '../../services/quiz.service';
 
-
 @Component({
   selector: 'codelab-scoreboard',
   templateUrl: './scoreboard.component.html',
-  styleUrls: ['./scoreboard.component.scss'],
-  providers: [ QuizService ]
+  styleUrls: ['./scoreboard.component.scss']
 })
 export class ScoreboardComponent implements OnInit, OnChanges {
   answer;
-  @Input() set selectedAnswer(value) { this.answer = value; };
+  @Input() set selectedAnswer(value) {
+    this.answer = value;
+  }
   totalQuestions: number;
   badgeQuestionNumber: number;
 
@@ -29,11 +29,12 @@ export class ScoreboardComponent implements OnInit, OnChanges {
         this.badgeQuestionNumber = questionIndex;
       }
     });
+
     this.totalQuestions = this.quizService.numberOfQuestions();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.selectedAnswer && changes.selectedAnswer.currentValue != changes.selectedAnswer.firstChange) {
+    if (changes.selectedAnswer && changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange) {
       this.answer = changes.selectedAnswer.currentValue;
     }
   }

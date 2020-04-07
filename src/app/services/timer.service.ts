@@ -8,18 +8,18 @@ export class TimerService {
   elapsedTime = 0;
   elapsedTimes = [];
 
-  public timeLeft = new BehaviorSubject<number>(20);
-  public getLeftTime$ = this.timeLeft.asObservable();
+  public timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
+  public getTimeLeft$ = this.timeLeft.asObservable();
 
   resetTimer() {
-    this.timeLeft.next(20);
+    this.timeLeft.next(this.timePerQuestion);
   }
 
   stopTimer() {
     this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
   }
 
-  quizDelay(milliseconds) {
+  addQuizDelay(milliseconds) {
     const start = new Date().getTime();
     let counter = 0;
     let end = 0;

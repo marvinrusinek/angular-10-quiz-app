@@ -26,7 +26,7 @@ export const QUIZ_DATA: Quiz = {
       explanation: 'DI simplifies both programming and testing as well as being a popular design pattern'
     },
     {
-      questionText: 'Which of the following is the first step in setting up dependency injection?',
+      questionText: 'What is the first step in setting up dependency injection?',
       options: [
         { text: 'Require in the component.' },
         { text: 'Provide in the module.' },
@@ -45,6 +45,5 @@ export const QUIZ_DATA: Quiz = {
       ],
       explanation: 'object instantiations are taken care of by the constructor in Angular'
     }
-    // add more questions here
   ]
 };

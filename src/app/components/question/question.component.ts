@@ -1,4 +1,13 @@
-import { Component, ChangeDetectionStrategy, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../models/QuizQuestion';
@@ -9,18 +18,23 @@ import { QuizService } from '../../services/quiz.service';
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
   styleUrls: ['./question.component.scss'],
-  providers: [QuizService]
+  providers: [QuizService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
-  @Input() set question(value: QuizQuestion) { this.currentQuestion = value; };
+
+  @Input() set question(value: QuizQuestion) {
+    this.currentQuestion = value;
+  };
+
   @Output() answer = new EventEmitter<number>();
-  optionIndex: number;
   formGroup: FormGroup;
   matRadio: boolean;
   correctAnswerMessage: string;
 
-  constructor(private quizService: QuizService) { }
+  constructor(private quizService: QuizService) {
+  }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -31,10 +45,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.question && changes.question.currentValue != changes.question.firstChange) {
+    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
       if (this.formGroup) {
-        this.formGroup.patchValue({ answer: '' });
+        this.formGroup.patchValue({answer: ''});
       }
     }
   }
@@ -60,5 +74,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     } else {
       console.log('else');
     }
+    this.quizService.setExplanationAndCorrectAnswerMessages();
   }
 }
