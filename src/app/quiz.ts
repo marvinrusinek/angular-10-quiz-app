@@ -45,6 +45,6 @@ export const QUIZ_DATA: Quiz = {
       ],
       explanation: 'object instantiations are taken care of by the constructor in Angular'
     }
-    // add more questions here!
+    // add more questions here
   ]
 };
