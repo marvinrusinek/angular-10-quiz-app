@@ -37,7 +37,7 @@
           <mat-accordion>
             <mat-expansion-panel #quizQuestion role="tab" *ngFor="let question of quizData.questions; index as i">
               <mat-expansion-panel-header>
-                <mat-panel-title>
+                <mat-panel-title>f
                   <strong>Question #{{ i + 1 }}: </strong>&nbsp;&nbsp;<em>{{ question?.questionText }}</em>
                 </mat-panel-title>
 
@@ -53,7 +53,7 @@
                       Option {{ answer }} &mdash; {{ question?.options[answer - 1].text }}
                       <mat-icon class="correct" *ngIf="question?.answer === answer">done</mat-icon>
                       <mat-icon class="incorrect" *ngIf="question?.answer !== answer">clear</mat-icon>
-                      <span *ngIf="answer == null"> (no answer provided)</span>
+                      <span *ngIf="!answer"> (no answer provided)</span>
                     </span>
                   </div>
                   <div class="quiz-summary-field">
