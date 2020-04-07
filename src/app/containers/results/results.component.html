@@ -35,7 +35,7 @@
         <details>
           <summary>View a more detailed summary of your quiz</summary>
           <mat-accordion>
-            <mat-expansion-panel #quizQuestion role="tab" *ngFor="let question of quizData.questions; let i = index">
+            <mat-expansion-panel #quizQuestion role="tab" *ngFor="let question of quizData.questions; index as i">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <strong>Question #{{ i + 1 }}: </strong>&nbsp;&nbsp;<em>{{ question?.questionText }}</em>
