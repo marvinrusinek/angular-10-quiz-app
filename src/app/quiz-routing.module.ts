@@ -6,6 +6,11 @@ import { DependencyInjectionQuizComponent } from './containers/dependency-inject
 import { ResultsComponent } from './containers/results/results.component';
 
 const routes: Routes = [
+  {
+    path: 'quiz',
+    loadChildren: () =>
+      import('./quiz-routing.module').then(m => m.QuizRoutingModule)
+  },
   { path: '', redirectTo: 'intro' },
   { path: 'intro', component: IntroductionComponent },
   { path: 'question', component: DependencyInjectionQuizComponent },
