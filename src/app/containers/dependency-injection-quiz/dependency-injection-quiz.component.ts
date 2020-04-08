@@ -21,9 +21,10 @@ export class DependencyInjectionQuizComponent implements OnInit {
   totalQuestions: number;
   progressValue: number;
   explanation: string;
-  explanationText: string;
   questionIndex: number;
   count: number;
+
+  get explanationText(): string { return this.quizService.explanationText; }
 
   constructor(
     private quizService: QuizService,
@@ -49,8 +50,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
         } else {
           this.progressValue = ((this.questionIndex - 1) / this.totalQuestions) * 100;
         }
-
-        this.explanationText = this.quizService.explanationText;
       }
     });
 
@@ -61,7 +60,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   private getQuestion() {
     this.question = this.quizService.getQuestions().questions[this.questionIndex - 1];
-    // this.explanationText = this.question.explanation;
   }
 
   selectedAnswer(data) {

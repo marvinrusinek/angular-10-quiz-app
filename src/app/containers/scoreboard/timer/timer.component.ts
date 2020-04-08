@@ -11,7 +11,7 @@ import { TimerService } from '../../../services/timer.service';
 })
 export class TimerComponent implements OnInit, OnChanges {
   answer;
-  @Input() set selectedAnswer(value) { this.answer = value; };
+  @Input() set selectedAnswer(value) { this.answer = value; }
   hasAnswer: boolean;
   interval;
   timeLeft: number;

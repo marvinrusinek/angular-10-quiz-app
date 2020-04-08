@@ -6,7 +6,8 @@
       How well do you know {{ quizData?.milestone }}?<br />
       Take the quiz and find out!
     </mat-card-subtitle>
-    <div mat-card-image class="quiz-topic-img"></div>
+    <img [src]="quizData.imageUrl">
+    <!-- <div mat-card-image class="quiz-topic-img"></div> -->
   </mat-card-header>
 
   <mat-card-content>
@@ -22,6 +23,6 @@
       mat-raised-button
       disableRipple="false"
       class="btn btn-outline-primary"
-      routerLink="/question/1">Start the Quiz!</button>
+      routerLink="/quiz/question/1">Start the Quiz!</button>
   </mat-card-actions>
 </mat-card>

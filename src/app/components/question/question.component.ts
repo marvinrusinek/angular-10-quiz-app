@@ -18,30 +18,23 @@ import { QuizService } from '../../services/quiz.service';
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
   styleUrls: ['./question.component.scss'],
-  providers: [QuizService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
-
-  @Input() set question(value: QuizQuestion) {
-    this.currentQuestion = value;
-  };
-
   @Output() answer = new EventEmitter<number>();
+  @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
+  get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
   matRadio: boolean;
-  correctAnswerMessage: string;
 
-  constructor(private quizService: QuizService) {
-  }
+  constructor(private quizService: QuizService) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
       answer: new FormControl(['', Validators.required])
     });
     this.matRadio = this.quizService.getQuestionType();
-    this.correctAnswerMessage = this.quizService.correctAnswerMessage;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -74,6 +67,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     } else {
       console.log('else');
     }
-    this.quizService.setExplanationAndCorrectAnswerMessages();
+    this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
   }
 }

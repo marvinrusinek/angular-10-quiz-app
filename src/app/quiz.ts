@@ -3,7 +3,7 @@ import { Quiz } from './models/Quiz';
 export const QUIZ_DATA: Quiz = {
   milestone: 'Dependency Injection',
   summary: 'Dependency Injection is extremely powerful because it is a way of providing dependencies in your code instead of hard-coding them.',
-  imageUrl: 'images/DIDiagram.png',
+  imageUrl: 'containers/introduction/images/DIDiagram.png',
   questions: [
     {
       questionText: 'What is the objective of dependency injection?',
