@@ -3,13 +3,9 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
 # To-Do Items:
-- fetch and display explanationText and correctAnswerMessage from QuizService
-	- show the correct option number(s) in explanation (IN PROGRESS) (data-binding not working to fetch in the form and DI component -- try console.logging)
-	- show correct options in messages below options (IN PROGRESS)
-	- should say "The correct answer is/are Option 1 (and Option 2)." (IN PROGRESS)
-
-- reset time between questions
 - show next new questions
+- reset time between questions
+- options/correctAnswerMessage needs to clear between questions
 - mat-accordion panels in resultscomponent not expanding (check if I have it set up right) 
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 - remove pauseTimer in timer.component.ts unless I decide to use it somehow...
