@@ -2,9 +2,7 @@
 
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
-# To-Do Items: 
-
-# Immediate:
+# To-Do Items:
 - fetch and display explanationText and correctAnswerMessage from QuizService
 	- show the correct option number(s) in explanation (IN PROGRESS) (data-binding not working to fetch in the form and DI component -- try console.logging)
 	- show correct options in messages below options (IN PROGRESS)
