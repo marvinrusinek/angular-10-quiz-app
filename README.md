@@ -3,6 +3,7 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
 # To-Do Items:
+- first question: Options 1 and 2 should be shown as correct in correctAnswersMessage
 - show next new questions
 - reset time between questions
 - options/correctAnswerMessage needs to clear between questions
