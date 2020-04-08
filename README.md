@@ -4,6 +4,7 @@
 
 # To-Do Items:
 - first question: Options 1 and 2 should be shown as correct in correctAnswersMessage
+- use string concatenation function concat in setting function
 - show next new questions
 - reset time between questions
 - mat-accordion panels in resultscomponent not expanding (check if I have it set up right) 
