@@ -3,7 +3,8 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
 # To-Do Items:
-- first question: Options 1 and 2 should be shown as correct in correctAnswersMessage (for some reason, option 1 doesn't seem to get included in correct answers after option 2 is selected correct)
+- first question: Options 1 and 2 should be shown as correct in correctMessage (correct message should be "Option 1 is correct because XYZ AND Option 2 is correct because XYZ.")
+- sort correct answers in numerical order 1 & 2 instead of 2 & 1 - done, check if this has taken effect!
 - show next new questions 
 - reset time between questions (probably did this - check!)
 - mat-accordion panels in resultscomponent not expanding (check if I have it set up right) 
