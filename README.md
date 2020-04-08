@@ -4,15 +4,17 @@
 
 # To-Do Items:
 - first question: Options 1 and 2 should be shown as correct in correctAnswersMessage
-- use string concatenation function concat in setting function
-- show next new questions
-- reset time between questions
+- sort correct answers in numerical order 1 & 2 instead of 2 & 1
+- show next new questions 
+- reset time between questions (probably did this - check!)
 - mat-accordion panels in resultscomponent not expanding (check if I have it set up right) 
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
+- for multiple choice answers the explanations should show for both, or however many correct answers
+
 - remove pauseTimer in timer.component.ts unless I decide to use it somehow...
 - use static field in QuestionComponent ts file for correctness types (see @kirjs message about this)
 - highlight all correct answers at the same time (using mat-checkbox)
-- sort correct answers in numerical order 1 & 2 instead of 2 & 1
+
 - remove pauseTimer in timer.component.ts unless I decide to use it somehow...
 
 - once all the correct answer(s) are selected,
