@@ -3,11 +3,13 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
 # To-Do Items:
+- show next new questions
+- reset time between questions (probably did this - check!), stop timer when correct answer(s) have been selected, add quiz delay (shouldn't have to happen on click of next button)
+
 - first question: Options 1 and 2 should be shown as correct in correctMessage (correct message should be "Option 1 is correct because XYZ AND Option 2 is correct because XYZ."), at the moment it seems that only option 2 is being shown as being correct - weird!
 - sort correct answers in numerical order 1 & 2 instead of 2 & 1 - done, doesn't seem that this has taken effect!
 - correctMessage not showing up on first wrong answer selected (need to check logic)
-- show next new questions 
-- reset time between questions (probably did this - check!)
+ 
 - mat-accordion panels in resultscomponent not expanding - seems to work if opening panels in backwards order, not forwards - weird!
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 - for multiple choice answers the explanations should show for both, or however many correct answers
