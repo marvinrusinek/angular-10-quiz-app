@@ -7,9 +7,10 @@
 - reset time between questions (probably did this - check!), stop timer when correct answer(s) have been selected, add quiz delay (shouldn't have to happen on click of next button)
 
 - first question: Options 1 and 2 should be shown as correct in correctMessage (correct message should be "Option 1 is correct because XYZ AND Option 2 is correct because XYZ."), at the moment it seems that only option 2 is being shown as being correct - weird!
+
 - sort correct answers in numerical order 1 & 2 instead of 2 & 1 - done, doesn't seem that this has taken effect!
-- correctMessage not showing up on first wrong answer selected (need to check logic)
- 
+- correctMessage not showing up on first wrong answer selected (need to check logic) - if wrong answer(s) are picked before correct, it says "That's wrong" without saying what the correct options are (IN PROGRESS)
+
 - mat-accordion panels in resultscomponent not expanding - seems to work if opening panels in backwards order, not forwards - weird!
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 - for multiple choice answers the explanations should show for both, or however many correct answers
@@ -23,7 +24,7 @@
 - once all the correct answer(s) are selected,
 	- pause quiz and prevent any other answers from being selected
 	- display "Move on to next question...") or somehow animate the next button so it's obvious to move to the next question
-- if wrong answer(s) are picked before correct, it says "That's wrong" without saying what the correct options are (IN PROGRESS)
+
 - if no answer is selected after time expires, show correct answer with explanation (work on) with quiz delay (done) and navigate to the next question (done)
 - Should QuestionComponent move into containers? Thinking about the architecture here...
 - ensure that border is blue for question and gray for answers
@@ -48,7 +49,7 @@
 - after answering last question it should forward to Results and mat-card should display
 - add cool hover effect on options
 - add animated next button when moving to next question
-- add previous button
+- add previous button potentially
 
 - work on ResultsComponent and passing the data from DI Component/services to the Results
 	- just pass 2 values to ResultsComponent (see @kirjs message)
