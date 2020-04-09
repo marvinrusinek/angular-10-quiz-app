@@ -11,7 +11,7 @@
 - sort correct answers in numerical order 1 & 2 instead of 2 & 1 - done, doesn't seem that this has taken effect!
 - correctMessage not showing up on first wrong answer selected (need to check logic) - if wrong answer(s) are picked before correct, it says "That's wrong" without saying what the correct options are (IN PROGRESS)
 
-- mat-accordion panels in resultscomponent not expanding - seems to work if opening panels in backwards order, not forwards - weird!
+- mat-accordion panels in resultscomponent not expanding - seems to work if expanding panels in backwards order, not forwards - weird!, also doesn't seem to collapse - weird!
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 - for multiple choice answers the explanations should show for both, or however many correct answers
 
