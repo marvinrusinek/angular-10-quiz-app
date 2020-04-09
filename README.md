@@ -8,7 +8,7 @@
 - correctMessage not showing up on first wrong answer selected (need to check logic)
 - show next new questions 
 - reset time between questions (probably did this - check!)
-- mat-accordion panels in resultscomponent not expanding (check if I have it set up right) 
+- mat-accordion panels in resultscomponent not expanding - seems to work if opening panels in backwards order, not forwards - weird!
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
 - for multiple choice answers the explanations should show for both, or however many correct answers
 
