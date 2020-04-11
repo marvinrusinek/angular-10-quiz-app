@@ -62,7 +62,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   private getQuestion() {
     this.question = this.quizService.getQuestions().questions[this.questionIndex - 1];
-    // this.explanationText = this.question.explanation;
   }
 
   selectedAnswer(data) {
