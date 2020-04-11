@@ -20,8 +20,8 @@ import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimerComponent } from './containers/scoreboard/timer/timer.component';
-import { QuizService } from './services/quiz.service';
-import { TimerService } from './services/timer.service';
+import { QuizService } from './shared/services/quiz.service';
+import { TimerService } from './shared/services/timer.service';
 
 @NgModule({
   declarations: [
