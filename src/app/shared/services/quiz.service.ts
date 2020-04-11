@@ -36,13 +36,11 @@ export class QuizService {
   }
 
   resetAll() {
-    // this.correctAnswersCount.next(0);
     this.currentQuestionIndex = 1;
     this.correctAnswers = [];
     this.correctMessage = undefined;
     this.explanationText = undefined;
     this.timerService.stopTimer();
-    this.timerService.addQuizDelay(3000);
     this.timerService.resetTimer();
   }
 

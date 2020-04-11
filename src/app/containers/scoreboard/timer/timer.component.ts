@@ -59,7 +59,6 @@ export class TimerComponent implements OnInit, OnChanges {
 
       if (this.timeLeft === 0) {
         if (!this.quizService.isFinalQuestion()) {
-          this.timerService.addQuizDelay(3000);
           this.quizService.nextQuestion();
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {

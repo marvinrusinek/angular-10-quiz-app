@@ -16,19 +16,7 @@ export class TimerService {
   }
 
   stopTimer() {
-    this.getTimeLeft$ = this.timeLeft;
-    // this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
-  }
-
-  addQuizDelay(milliseconds) {
-    const start = new Date().getTime();
-    let counter = 0;
-    let end = 0;
-
-    while (counter < milliseconds) {
-      end = new Date().getTime();
-      counter = end - start;
-    }
+    this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
   }
 
   addElapsedTimeToElapsedTimes(elapsedTime) {
