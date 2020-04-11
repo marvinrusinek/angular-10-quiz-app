@@ -7,7 +7,7 @@ export class TimerService {
   completionTime: number;
   elapsedTime = 0;
   elapsedTimes = [];
-
+  
   timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
   getTimeLeft$ = this.timeLeft.asObservable();
 
