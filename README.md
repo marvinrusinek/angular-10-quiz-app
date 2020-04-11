@@ -38,7 +38,6 @@
 
 - add cool hover effect on options
 - add animated next button when moving to next question
-- add previous button potentially
 
 - work on ResultsComponent and passing the data from DI Component/services to the Results
 	- just pass 2 values to ResultsComponent (see @kirjs message)
