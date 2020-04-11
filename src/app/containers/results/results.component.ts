@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Quiz } from '../../models/Quiz';
-import { QUIZ_DATA } from '../../quiz';
-import { QuizService } from '../../services/quiz.service';
+import { Quiz } from '../../shared/interfaces/Quiz';
+import { QUIZ_DATA } from '../../assets/quiz';
+import { QuizService } from '../../shared/services/quiz.service';
 
 
 @Component({

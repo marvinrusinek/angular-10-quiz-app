@@ -35,18 +35,13 @@
         <details>
           <summary>View a more detailed summary of your quiz</summary>
           <mat-accordion>
-            <mat-expansion-panel #quizQuestion role="tab" *ngFor="let question of quizData.questions; index as i">
+            <mat-expansion-panel class="quiz-summary-question" #quizQuestion role="tab" *ngFor="let question of quizData.questions; index as i">
               <mat-expansion-panel-header>
-                <mat-panel-title>f
+                <mat-panel-title>
                   <strong>Question #{{ i + 1 }}: </strong>&nbsp;&nbsp;<em>{{ question?.questionText }}</em>
                 </mat-panel-title>
 
                 <ng-template matExpansionPanelContent>
-                  <div class="quiz-summary-field">
-                    <span>
-                      <span class="leader">Question #{{ i + 1 }}: </span>{{ question?.questionText }}
-                    </span>
-                  </div>
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Your Answer: </span>

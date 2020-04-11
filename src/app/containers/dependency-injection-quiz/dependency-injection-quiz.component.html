@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card *ngIf="questionIndex <= totalQuestions">
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
     <mat-card-title>{{ quizData?.milestone }} Quiz</mat-card-title>

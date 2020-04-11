@@ -16,7 +16,8 @@ export class TimerService {
   }
 
   stopTimer() {
-    this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
+    this.getTimeLeft$ = this.timeLeft;
+    // this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
   }
 
   addQuizDelay(milliseconds) {

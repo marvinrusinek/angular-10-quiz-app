@@ -2,26 +2,29 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-import { QUIZ_DATA } from '../quiz';
-import { Quiz } from '../models/quiz';
-import { QuizQuestion } from '../models/QuizQuestion';
+import { Quiz } from '../interfaces/Quiz';
+import { QUIZ_DATA } from '../../assets/quiz';
+import { QuizQuestion } from '../interfaces/QuizQuestion';
 import { TimerService } from './timer.service';
+
 
 @Injectable({ providedIn: 'root' })
 export class QuizService {
   quizData: Quiz = { ...QUIZ_DATA };
   question: QuizQuestion;
   answer: number;
+
+  correctAnswersCount = new BehaviorSubject<number>(0);
+  correctAnswer$ = this.correctAnswersCount.asObservable();
   totalQuestions: number;
   completionTime: number;
+
   currentQuestionIndex = 1;
   finalAnswers = [];
   correctAnswers = [];
   explanation: string;
   explanationText: string;
   correctMessage: string;
-  correctAnswersCount = new BehaviorSubject<number>(0);
-  correctAnswer$ = this.correctAnswersCount.asObservable();
 
   constructor(
     private timerService: TimerService,
@@ -33,39 +36,50 @@ export class QuizService {
   }
 
   resetAll() {
-    this.correctAnswersCount.next(0);
+    // this.correctAnswersCount.next(0);
     this.currentQuestionIndex = 1;
     this.correctAnswers = [];
     this.correctMessage = undefined;
+    this.explanationText = undefined;
+    this.timerService.stopTimer();
+    this.timerService.addQuizDelay(3000);
+    this.timerService.resetTimer();
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers) {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.explanation = (this.correctAnswers.length === 1) ?
-                        ' is correct because ' + this.question.explanation + '.' :
-                        ' are correct because ' + this.question.explanation + '.';
+      ' is correct because ' + this.question.explanation + '.' :
+      ' are correct because ' + this.question.explanation + '.';
 
-    if (this.correctAnswers.length === 1) {
+    if (correctAnswers.length === 1) {
       const correctAnswersText = correctAnswers[0];
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       this.correctMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
     }
 
-    if (this.correctAnswers.length > 1) {
-      if (this.correctAnswers[0] && this.correctAnswers[1]) {
-        const correctOptions = correctAnswers[0].concat(' and ', correctAnswers[1]);
-        this.explanationText = 'Options ' + correctOptions + this.explanation + '.';
+    if (correctAnswers.length > 1) {
+      if (correctAnswers[0] && correctAnswers[1]) {
+        const sortedAnswers = correctAnswers.sort();
+        console.log('sorted answers: ', sortedAnswers);
+        const correctOptions = sortedAnswers[0].concat(' and ', sortedAnswers[1]);
+        this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
+          ' AND Option ' + correctOptions[1] + 'this.explanation2' + '.';
         this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const correctOptions = correctAnswers[0].concat(', ', correctAnswers[1], ' and ', correctAnswers[2]);
-        this.explanationText = 'Options ' + correctOptions + this.explanation + '.';
+        const sortedAnswers = correctAnswers.sort();
+        const correctOptions = sortedAnswers[0].concat(', ', sortedAnswers[1], ' and ', sortedAnswers[2]);
+        this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
+          ', Option ' + correctOptions[1] + 'this.explanation2' +
+          'AND Option ' + correctOptions[2] + 'this.explanation3' + '.';
         this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
-        const correctOptions = correctAnswers[0].concat(', ', correctAnswers[1], ', ', correctAnswers[2],
-                                                        ' and ', correctAnswers[3]);
-        this.explanationText = 'Options ' + correctOptions + this.explanation + '.';
+        const sortedAnswers = correctAnswers.sort();
+        const correctOptions = sortedAnswers[0].concat(', ', sortedAnswers[1], ', ', sortedAnswers[2],
+          ' and ', sortedAnswers[3]);
+        this.explanationText = 'All options are correct!';
         this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
       }
     }
@@ -74,7 +88,8 @@ export class QuizService {
   numberOfQuestions() {
     if (this.quizData && this.quizData.questions) {
       return this.quizData.questions.length;
-    } else {
+    }
+    else {
       return 0;
     }
   }
@@ -83,19 +98,18 @@ export class QuizService {
     return (this.correctAnswers && this.correctAnswers.length === 1);
   }
 
-  isFinalQuestion(): boolean {
+  isFinalQuestion() {
     return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
-  nextQuestion(): void {
+  nextQuestion() {
     let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
     this.resetAll();
-    questionIndex++;
   }
 
-  navigateToResults(): void {
-    this.router.navigate(['/results'], {
+  navigateToResults() {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData,
         results: {

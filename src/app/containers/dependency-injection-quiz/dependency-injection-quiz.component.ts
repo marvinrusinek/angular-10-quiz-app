@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
-import { QUIZ_DATA } from '../../quiz';
-import { Quiz } from '../../models/quiz';
-import { QuizQuestion } from '../../models/QuizQuestion';
-import { QuizService } from '../../services/quiz.service';
-import { TimerService } from '../../services/timer.service';
+import { Quiz } from '../../shared/interfaces/Quiz';
+import { QUIZ_DATA } from '../../assets/quiz';
+import { QuizQuestion } from '../../shared/interfaces/QuizQuestion';
+import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
 
 
 @Component({
@@ -20,7 +22,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   answer: number;
   totalQuestions: number;
   progressValue: number;
-  explanation: string;
   questionIndex: number;
   count: number;
 
@@ -29,13 +30,14 @@ export class DependencyInjectionQuizComponent implements OnInit {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit() {
     this.quizService.correctAnswer$.subscribe(data => {
       this.count = data + 1;
-    });
+    })
 
     this.route.params.subscribe(params => {
       this.totalQuestions = this.quizService.numberOfQuestions();
@@ -60,6 +62,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   private getQuestion() {
     this.question = this.quizService.getQuestions().questions[this.questionIndex - 1];
+    // this.explanationText = this.question.explanation;
   }
 
   selectedAnswer(data) {
@@ -86,7 +89,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
       ) {
         this.quizService.correctAnswersCount.next(this.count);
         this.quizService.finalAnswers = [...this.quizService.finalAnswers, this.answer];
-        this.timerService.resetTimer();
       } else {
         console.log('Inside else');
       }
