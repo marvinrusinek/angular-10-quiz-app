@@ -40,10 +40,10 @@
 - add animated next button when moving to next question
 
 - work on ResultsComponent and passing the data from DI Component/services to the Results
-	- just pass 2 values to ResultsComponent (see @kirjs message)
+	- pass 2 values: quiz object and then a results object (which has answers and completion time for each question) to ResultsComponent (see @kirjs message)
 	- work on getting correctAnswersCount displaying (may need to create a separate ScoreService??)
 	- make sure percent and completion time display
-	- make sure mat-accordion works - doesn't seem to show more than one panel if all have been selected and then closing panels
+	- mat-accordion works if all questions are answered, but seems to show only one panel at a time (open and close buttons don't work!)
 	- add a correctness bar to the results: show the %, then the bar, then the score 2/8
 	- add FaceBook button bonus
 
