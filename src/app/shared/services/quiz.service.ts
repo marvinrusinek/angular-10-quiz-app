@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-import { Quiz } from '../interfaces/Quiz';
 import { QUIZ_DATA } from '../../assets/quiz';
+import { Quiz } from '../interfaces/Quiz';
 import { QuizQuestion } from '../interfaces/QuizQuestion';
 import { TimerService } from './timer.service';
 
@@ -45,7 +45,6 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers) {
-    this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.explanation = (this.correctAnswers.length === 1) ?
       ' is correct because ' + this.question.explanation + '.' :
       ' are correct because ' + this.question.explanation + '.';
@@ -57,28 +56,24 @@ export class QuizService {
     }
 
     if (correctAnswers.length > 1) {
+      const sortedAnswers = correctAnswers.sort();
+
       if (correctAnswers[0] && correctAnswers[1]) {
-        const sortedAnswers = correctAnswers.sort();
-        console.log('sorted answers: ', sortedAnswers);
         const correctOptions = sortedAnswers[0].concat(' and ', sortedAnswers[1]);
         this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
-          ' AND Option ' + correctOptions[1] + 'this.explanation2' + '.';
+                               ' AND Option ' + correctOptions[1] + 'this.explanation2' + '.';
         this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const sortedAnswers = correctAnswers.sort();
         const correctOptions = sortedAnswers[0].concat(', ', sortedAnswers[1], ' and ', sortedAnswers[2]);
         this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
-          ', Option ' + correctOptions[1] + 'this.explanation2' +
-          'AND Option ' + correctOptions[2] + 'this.explanation3' + '.';
+                               ', Option ' + correctOptions[1] + 'this.explanation2' +
+                               'AND Option ' + correctOptions[2] + 'this.explanation3' + '.';
         this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
-        const sortedAnswers = correctAnswers.sort();
-        const correctOptions = sortedAnswers[0].concat(', ', sortedAnswers[1], ', ', sortedAnswers[2],
-          ' and ', sortedAnswers[3]);
-        this.explanationText = 'All options are correct!';
-        this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
+        this.explanationText = 'All are correct!';
+        this.correctMessage = 'All are correct!';
       }
     }
   }
@@ -101,8 +96,7 @@ export class QuizService {
   }
 
   nextQuestion() {
-    let questionIndex = this.currentQuestionIndex + 1;
-    this.router.navigate(['/quiz/question', questionIndex]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex + 1]);
     this.resetAll();
   }
 

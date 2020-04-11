@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -6,8 +6,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 @Component({
   selector: 'codelab-scoreboard-score',
   templateUrl: './score.component.html',
-  styleUrls: ['./score.component.scss'],
-  providers: []
+  styleUrls: ['./score.component.scss']
 })
 export class ScoreComponent implements OnInit {
   public correctAnswersCount: number;

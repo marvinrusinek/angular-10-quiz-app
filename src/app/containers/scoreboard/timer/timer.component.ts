@@ -41,12 +41,12 @@ export class TimerComponent implements OnInit, OnChanges {
   // countdown clock
   timer() {
     this.interval = setInterval(() => {
-      this.quizTimerLogic();
+      this.timerLogic();
     }, 1000);
     clearInterval();
   }
 
-  quizTimerLogic() {
+  timerLogic() {
     if (this.timeLeft > 0) {
       this.timeLeft--;
 
@@ -70,9 +70,5 @@ export class TimerComponent implements OnInit, OnChanges {
     } else {
       this.timeLeft = this.timePerQuestion;
     }
-  }
-
-  pauseTimer() {
-    clearInterval(this.interval);
   }
 }
