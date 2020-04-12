@@ -16,7 +16,7 @@ import { TimerService } from "../../shared/services/timer.service";
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  correctAnswers: [];
+  correctAnswers: any[];
   correctAnswersCount: number;
   totalQuestions: number;
   completionTime: number;
@@ -45,7 +45,8 @@ export class ResultsComponent implements OnInit {
     this.correctAnswersCount = Number(this.quizService.correctAnswer$);
 
     // console.log(this.router.getCurrentNavigation());
-    this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
+    this.correctAnswers = this.quizService.correctAnswers;
+    // this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
     this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
   }
 
