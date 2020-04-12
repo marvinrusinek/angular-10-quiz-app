@@ -28,7 +28,7 @@ export class ResultsComponent implements OnInit {
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
 
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
-  get percentage(): number { return this.quizService.calculateQuizPercentage(); };
+  get percentage(): number { return this.quizService.calculateQuizPercentage(); };  // shows NaN in console
 
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
