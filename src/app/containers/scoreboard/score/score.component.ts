@@ -18,6 +18,6 @@ export class ScoreComponent implements OnInit {
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.quizService.correctAnswer$.subscribe(data => {
       this.correctAnswersCount = data;
-    })
+    });
   }
 }
