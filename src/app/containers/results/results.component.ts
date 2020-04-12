@@ -12,8 +12,7 @@ import { TimerService } from "../../shared/services/timer.service";
   selector: 'codelab-quiz-results',
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss'],
-  providers: [QuizService],
-  viewProviders: [MatExpansionPanel]
+  providers: [QuizService]
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
