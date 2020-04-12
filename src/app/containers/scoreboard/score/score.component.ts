@@ -9,8 +9,8 @@ import { QuizService } from '../../../shared/services/quiz.service';
   styleUrls: ['./score.component.scss']
 })
 export class ScoreComponent implements OnInit {
-  public correctAnswersCount: number;
-  public totalQuestions: number;
+  correctAnswersCount: number;
+  totalQuestions: number;
 
   constructor(private quizService: QuizService) { }
 
@@ -19,6 +19,7 @@ export class ScoreComponent implements OnInit {
     this.quizService.correctAnswer$.subscribe(data => {
       this.correctAnswersCount = data;
       console.log('correctAnswersCount: ', this.correctAnswersCount);
-    });
+    })
+    this.quizService.sendScore(this.correctAnswersCount);
   }
 }

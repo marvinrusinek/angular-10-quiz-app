@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../interfaces/Quiz';
@@ -14,6 +14,8 @@ export class QuizService {
   question: QuizQuestion;
   answer: number;
 
+  sendScore$: Observable<any>;
+  private sendScoreSubject = new Subject<any>();
   correctAnswersCount = new BehaviorSubject<number>(0);
   correctAnswer$ = this.correctAnswersCount.asObservable();
   totalQuestions: number;
@@ -25,18 +27,30 @@ export class QuizService {
   explanation: string;
   explanationText: string;
   correctMessage: string;
+  hasAnswer: boolean;
+  percentage: number;
 
   constructor(
     private timerService: TimerService,
     private router: Router
-  ) { }
+  ) {
+    this.totalQuestions = this.numberOfQuestions();
+    this.sendScore$ = this.sendScoreSubject.asObservable();   // trying to get correctAnswersCount from ScoreComponent
+    // this.correctAnswersAmount = this.numberOfCorrectAnswers();
+  }
+
+  sendScore(data) {
+    console.log('DATA: ', data);
+    this.sendScoreSubject.next(data);
+  }
 
   getQuestions() {
     return { ...this.quizData };
   }
 
   resetAll() {
-    this.currentQuestionIndex = 1;
+    this.answer = null;
+    this.hasAnswer = false;
     this.correctAnswers = [];
     this.correctMessage = undefined;
     this.explanationText = undefined;
@@ -45,27 +59,28 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers) {
-    this.explanation = (this.correctAnswers.length === 1) ?
-      ' is correct because ' + this.question.explanation + '.' :
-      ' are correct because ' + this.question.explanation + '.';
+    this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
+    this.hasAnswer = true;
 
     if (correctAnswers.length === 1) {
+      this.explanation = ' is correct because ' + this.question.explanation + '.';
       const correctAnswersText = correctAnswers[0];
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       this.correctMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
     }
 
     if (correctAnswers.length > 1) {
+      this.explanation = ' are correct because ' + this.question.explanation + '.';
       const sortedAnswers = correctAnswers.sort();
 
       if (correctAnswers[0] && correctAnswers[1]) {
-        const correctOptions = sortedAnswers[0].concat(' and ', sortedAnswers[1]);
+        const correctOptions = sortedAnswers.concat(' and ', sortedAnswers[1]);
         this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
                                ' AND Option ' + correctOptions[1] + 'this.explanation2' + '.';
         this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const correctOptions = sortedAnswers[0].concat(', ', sortedAnswers[1], ' and ', sortedAnswers[2]);
+        const correctOptions = sortedAnswers.concat(', ', sortedAnswers[1], ' and ', sortedAnswers[2]);
         this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
                                ', Option ' + correctOptions[1] + 'this.explanation2' +
                                'AND Option ' + correctOptions[2] + 'this.explanation3' + '.';
@@ -78,13 +93,21 @@ export class QuizService {
     }
   }
 
-  numberOfQuestions() {
+  calculateQuizPercentage(): number {
+    return this.percentage = ((Number(this.correctAnswer$) / this.totalQuestions) * 100);
+  }
+
+  numberOfQuestions(): number {
     if (this.quizData && this.quizData.questions) {
       return this.quizData.questions.length;
     }
     else {
       return 0;
     }
+  }
+
+  numberOfCorrectAnswers(): number {
+    return parseInt(this.correctAnswer$.toPromise().toString());
   }
 
   getQuestionType(): boolean {
@@ -100,14 +123,17 @@ export class QuizService {
     this.resetAll();
   }
 
+  prevQuestion() {
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
+    this.resetAll();
+  }
+
   navigateToResults() {
     this.router.navigate(['/quiz/results'], {
       state: {
-        questions: this.quizData,
-        results: {
-          correctAnswers: this.correctAnswers,
-          completionTime: this.completionTime
-        }
+        questions: this.quizData.questions,
+        correctAnswers: this.correctAnswers,
+        completionTime: this.completionTime
       }
     });
   }

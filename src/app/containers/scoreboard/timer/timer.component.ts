@@ -19,6 +19,7 @@ export class TimerComponent implements OnInit, OnChanges {
   elapsedTime: number;
   elapsedTimes: [];
   quizIsOver: boolean;
+  inProgress: boolean;
 
   constructor(
     private quizService: QuizService,
@@ -49,6 +50,8 @@ export class TimerComponent implements OnInit, OnChanges {
   timerLogic() {
     if (this.timeLeft > 0) {
       this.timeLeft--;
+      this.quizIsOver = false;
+      this.inProgress = true;
 
       if (this.answer) {
         this.hasAnswer = true;
@@ -60,15 +63,20 @@ export class TimerComponent implements OnInit, OnChanges {
       if (this.timeLeft === 0) {
         if (!this.quizService.isFinalQuestion()) {
           this.quizService.nextQuestion();
+          this.quizIsOver = false;
+          this.inProgress = true;
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
           this.quizService.navigateToResults();
+          this.quizService.calculateQuizPercentage();
           this.quizIsOver = true;
+          this.inProgress = false;
         }
         clearInterval(this.interval);
       }
     } else {
       this.timeLeft = this.timePerQuestion;
+      this.hasAnswer = false;
     }
   }
 }

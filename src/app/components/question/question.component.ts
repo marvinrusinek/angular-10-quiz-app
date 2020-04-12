@@ -13,12 +13,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { QuizQuestion } from '../../shared/interfaces/QuizQuestion';
 import { QuizService } from '../../shared/services/quiz.service';
 
-export enum CorrectnessTypes {
-  Default,
-  Correct,
-  Incorrect = 2,
-  Warning
-}
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -27,9 +21,6 @@ export enum CorrectnessTypes {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
-  @Input() type = CorrectnessTypes.Correct;
-  private correctnessTypes = CorrectnessTypes;
-
   currentQuestion: QuizQuestion;
   @Output() answer = new EventEmitter<number>();
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }

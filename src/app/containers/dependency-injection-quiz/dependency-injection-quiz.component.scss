@@ -57,18 +57,24 @@ section.answered {
       margin-right: -0.4rem;
     }
 
-    .show-score-nav {
-      width: 150px;
-      text-align: center;
-      margin: 0 auto;
+    .prev-question-nav {
+      float: left;
+      margin-left: 1.5rem;
     }
 
-    .next-question-nav:hover, .show-score-nav:hover {
+    .next-question-nav:hover,
+    .prev-question-nav:hover {
       border: 1px solid #007aff;
     }
 
+    .show-score-nav {
+      width: 150px;
+      margin: 0 auto;
+      margin-top: 20px;
+    }
+
     .show-score-nav:hover {
-      width: 141.5px;
+      border: none;
     }
   }
 }
@@ -80,5 +86,6 @@ section.progress-bar {
 
   ngb-progressbar {
     border-radius: 10px;
+    height: 20px;
   }
 }

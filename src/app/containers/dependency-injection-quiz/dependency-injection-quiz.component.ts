@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QUIZ_DATA } from '../../assets/quiz';
@@ -25,6 +23,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   questionIndex: number;
   count: number;
 
+  get timeLeft(): any { return this.timerService.getTimeLeft$; } // behaviorsubject not assignable to number, databinding doesn't seem to work
   get explanationText(): string { return this.quizService.explanationText; }
 
   constructor(
@@ -71,6 +70,10 @@ export class DependencyInjectionQuizComponent implements OnInit {
   nextQuestion() {
     this.checkIfAnsweredCorrectly();
     this.quizService.nextQuestion();
+  }
+
+  prevQuestion() {
+    this.quizService.prevQuestion();
   }
 
   results() {
