@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatAccordion, MatExpansionPanel } from '@angular/material/expansion';
+import { MatAccordion } from '@angular/material/expansion';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../../shared/interfaces/Quiz';
