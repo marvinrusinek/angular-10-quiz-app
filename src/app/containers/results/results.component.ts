@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatAccordion } from '@angular/material/expansion';
+import { MatAccordion, MatExpansionPanel } from '@angular/material/expansion';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../../shared/interfaces/Quiz';
@@ -12,7 +12,8 @@ import { TimerService } from "../../shared/services/timer.service";
   selector: 'codelab-quiz-results',
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss'],
-  providers: [QuizService]
+  providers: [QuizService],
+  viewProviders: [MatExpansionPanel]
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
