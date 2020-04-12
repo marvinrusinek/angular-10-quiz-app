@@ -7,10 +7,11 @@
 
   <mat-card-content>
     <section class="results">
-      <h2>Congratulations, you&apos;ve completed the quiz!</h2>
+      <h3>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
         <h3>Statistics</h3>
-        <span>You scored {{ correctAnswersCount }} out of {{ totalQuestions }} ({{ percentage }}%) questions correctly.</span>
+        <span>You scored {{ correctAnswersCount }} out of {{ totalQuestions }}
+              ({{ percentage }}%) questions correctly.</span>
         <span>You completed the quiz in {{ elapsedMinutes }} minutes and {{ elapsedSeconds }} seconds.</span>
         <span *ngIf="elapsedMinutes < 1">You completed the quiz quickly!</span>
         <!-- <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: percentage%"></div> -->

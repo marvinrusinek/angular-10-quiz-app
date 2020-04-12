@@ -19,6 +19,7 @@ export class ResultsComponent implements OnInit {
   correctAnswers: any[];
   correctAnswersCount: number;
   totalQuestions: number;
+  completionTime: number;
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
@@ -27,8 +28,7 @@ export class ResultsComponent implements OnInit {
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
 
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
-  get percentage(): number { return this.quizService.calculateQuizPercentage(); };  // shows NaN in console
-  get completionTime(): number { return this.timerService.completionTime; };
+  get percentage(): number { return this.quizService.calculateQuizPercentage(); };  // console shows NaN
 
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
@@ -41,13 +41,13 @@ export class ResultsComponent implements OnInit {
   )
   {
     this.totalQuestions = this.quizService.totalQuestions;
-    
+    this.completionTime = this.timerService.completionTime;
     this.correctAnswersCount = Number(this.quizService.correctAnswer$);
 
     // console.log(this.router.getCurrentNavigation());
-    this.correctAnswers = this.quizService.correctAnswers;
     // this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
-    // this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
+    this.correctAnswers = this.quizService.correctAnswers;
+    this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
   }
 
   ngOnInit() {
