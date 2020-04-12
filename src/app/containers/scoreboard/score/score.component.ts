@@ -20,6 +20,5 @@ export class ScoreComponent implements OnInit {
       this.correctAnswersCount = data;
       console.log('correctAnswersCount: ', this.correctAnswersCount);
     })
-    this.quizService.sendScore(this.correctAnswersCount);
   }
 }
