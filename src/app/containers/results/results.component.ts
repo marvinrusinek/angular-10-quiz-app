@@ -5,6 +5,7 @@ import { MatAccordion } from '@angular/material/expansion';
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from "../../shared/services/timer.service";
 
 
 @Component({
@@ -16,6 +17,8 @@ import { QuizService } from '../../shared/services/quiz.service';
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   correctAnswers: [];
+  correctAnswersCount: number;
+  totalQuestions: number;
   completionTime: number;
   elapsedMinutes: number;
   elapsedSeconds: number;
@@ -24,8 +27,6 @@ export class ResultsComponent implements OnInit {
   accordionList: any;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
 
-  get totalQuestions(): number { return this.quizService.totalQuestions };
-  get correctAnswersCount(): number { return this.scoreService.correctAnswerCount };
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
   get percentage(): number { return this.quizService.calculateQuizPercentage(); };
 
@@ -35,16 +36,17 @@ export class ResultsComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
+    private timerService: TimerService,
     private router: Router
-  ) {
-    /* this.quizService.sendScore$.subscribe((data) => {
-      this.correctAnswersCount = data;
-    }); */
+  )
+  {
+    this.totalQuestions = this.quizService.totalQuestions;
+    this.completionTime = this.timerService.completionTime;
+    this.correctAnswersCount = Number(this.quizService.correctAnswer$);
 
     // console.log(this.router.getCurrentNavigation());
     this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
     this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
-    // this.percentage = this.router.getCurrentNavigation().extras.state.percentage;
   }
 
   ngOnInit() {

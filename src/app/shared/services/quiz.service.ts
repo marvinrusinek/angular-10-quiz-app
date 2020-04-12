@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../interfaces/Quiz';
@@ -14,8 +14,6 @@ export class QuizService {
   question: QuizQuestion;
   answer: number;
 
-  sendScore$: Observable<any>;
-  private sendScoreSubject = new Subject<any>();
   correctAnswersCount = new BehaviorSubject<number>(0);
   correctAnswer$ = this.correctAnswersCount.asObservable();
   totalQuestions: number;
@@ -35,13 +33,6 @@ export class QuizService {
     private router: Router
   ) {
     this.totalQuestions = this.numberOfQuestions();
-    this.sendScore$ = this.sendScoreSubject.asObservable();   // trying to get correctAnswersCount from ScoreComponent
-    // this.correctAnswersAmount = this.numberOfCorrectAnswers();
-  }
-
-  sendScore(data) {
-    console.log('DATA: ', data);
-    this.sendScoreSubject.next(data);
   }
 
   getQuestions() {
@@ -119,17 +110,17 @@ export class QuizService {
   }
 
   nextQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex + 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex + 1]);
     this.resetAll();
   }
 
   prevQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   navigateToResults() {
-    this.router.navigate(['/results'], {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers,
