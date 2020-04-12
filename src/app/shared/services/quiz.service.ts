@@ -123,8 +123,8 @@ export class QuizService {
     this.router.navigate(['/results'], {
       state: {
         questions: this.quizData.questions,
-        correctAnswers: this.correctAnswers,
-        completionTime: this.completionTime
+        correctAnswers: this.correctAnswers
+        // completionTime: this.completionTime
       }
     });
   }

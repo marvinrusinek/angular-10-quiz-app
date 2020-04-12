@@ -47,7 +47,7 @@ export class ResultsComponent implements OnInit {
     // console.log(this.router.getCurrentNavigation());
     this.correctAnswers = this.quizService.correctAnswers;
     // this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
-    this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
+    // this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
   }
 
   ngOnInit() {
