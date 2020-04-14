@@ -10,7 +10,7 @@ import {
 
 export const slideInAnimation =
   trigger('routeAnimations', [
-    transition('HomePage <=> AboutPage', [
+    transition('Introduction <=> Question', [
       style({ position: 'relative' }),
       query(':enter, :leave', [
         style({
@@ -34,7 +34,7 @@ export const slideInAnimation =
       ]),
       query(':enter', animateChild()),
     ]),
-    transition('* <=> FilterPage', [
+    transition('Question <=> Question', [
       style({ position: 'relative' }),
       query(':enter, :leave', [
         style({
