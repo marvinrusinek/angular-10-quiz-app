@@ -4,7 +4,7 @@
 
 # To-Do Items:
 - show next new questions
-- add an animation in-between questions (i.e., fadein/fadeout probably using vanilla JS/jQuery) when next button is clicked
+- add Angular animation between questions when next button is clicked (IN PROGRESS, I added a slideIn animation when the first question is reached)
 - stop timer when correct answer(s) have been selected
 
 - first question: Options 1 and 2 should be shown as correct in correctMessage (correct message should be "Option 1 is correct because XYZ AND Option 2 is correct because XYZ."), at the moment it seems that only option 2 is being shown as being correct - weird!
