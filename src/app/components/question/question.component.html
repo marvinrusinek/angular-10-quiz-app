@@ -27,11 +27,15 @@
 
               <li>{{ option.text }}</li>
 
-              <mat-icon class="feedback-icon"
-                        *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
+              <mat-icon
+                inline="true"
+                class="feedback-icon"
+                *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
               </mat-icon>
-              <mat-icon class="feedback-icon"
-                        *ngIf="option.selected && !option.correct">clear
+              <mat-icon
+                inline="true"
+                class="feedback-icon"
+                *ngIf="option.selected && !option.correct">clear
               </mat-icon>
             </mat-radio-button>
 

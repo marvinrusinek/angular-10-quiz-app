@@ -1,18 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { map, share, pairwise, startWith } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
 
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QUIZ_DATA } from '../../assets/quiz';
 import { QuizQuestion } from '../../shared/interfaces/QuizQuestion';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { RouterAnimations } from '../../router/route-animations';
+import { QuestionsRoutingService } from '../../shared/services/questions-routing.service';
 
 
 @Component({
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService, TimerService]
+  providers: [QuizService, TimerService, QuestionsRoutingService],
+  animations: [RouterAnimations.routeSlide]
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
@@ -23,19 +28,32 @@ export class DependencyInjectionQuizComponent implements OnInit {
   questionIndex: number;
   count: number;
 
-  get timeLeft(): any { return this.timerService.getTimeLeft$; } // behaviorsubject not assignable to number, databinding doesn't seem to work
-  get explanationText(): string { return this.quizService.explanationText; }
+  get explanationText(): string { return this.quizService.explanationText; };
+  // get timeLeft(): any { return this.timerService.getTimeLeft$; };
+
+  // Angular routing animation variables
+  questions;
+  questionChange$: Observable<number>;
+  next$: Observable<number>;
+  prev$: Observable<number>;
+  routeTrigger$: Observable<object>;
+
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
+    private questionsRouting: QuestionsRoutingService,
     private route: ActivatedRoute
-  ) { }
+  ) {
+    this.questions = quizService.getQuestions();
+    this.questionChange$ = questionsRouting.questionChange$;
+    this.setupRouting();
+  }
 
   ngOnInit() {
     this.quizService.correctAnswer$.subscribe(data => {
       this.count = data + 1;
-    })
+    });
 
     this.route.params.subscribe(params => {
       this.totalQuestions = this.quizService.numberOfQuestions();
@@ -54,7 +72,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
     });
 
     if (this.questionIndex === 1) {
-      this.quizService.correctAnswersCount.next(0);
+      this.quizService.correctAnswersCountSubject.next(0);
     }
   }
 
@@ -77,6 +95,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   results() {
     this.checkIfAnsweredCorrectly();
+    this.quizService.saveCount(this.count);
     this.quizService.navigateToResults();
   }
 
@@ -88,11 +107,38 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.quizService.correctAnswersCount.next(this.count);
+        this.quizService.correctAnswersCountSubject.next(this.count);
         this.quizService.finalAnswers = [...this.quizService.finalAnswers, this.answer];
       } else {
         console.log('Inside else');
       }
     }
+  }
+
+  // revert back to index variables???
+  private setupRouting() {
+    this.prev$ = this.questionChange$
+      .pipe(
+        map(index => index === 0 ? index : index - 1),
+        share()
+      );
+    this.next$ = this.questionChange$
+      .pipe(
+        map(index => index === this.questions.length - 1 ? index : index + 1),
+        share()
+      );
+
+    this.routeTrigger$ = this.questionChange$
+      .pipe(
+        startWith(0),
+        pairwise(),
+        map(([prev, curr]) => ({
+          value: curr,
+          params: {
+            offsetEnter: prev > curr ? 100 : -100,
+            offsetLeave: prev > curr ? -100 : 100
+          }
+        })),
+      );
   }
 }

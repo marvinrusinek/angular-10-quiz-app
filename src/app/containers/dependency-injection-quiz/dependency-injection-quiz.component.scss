@@ -22,11 +22,11 @@ mat-card-header {
   }
 }
 
-section.unanswered {
+.unanswered {
   border: 2px solid #007aff !important;
 }
 
-section.answered {
+.answered {
   border: 2px solid #979797 !important;
 }
 
@@ -70,7 +70,7 @@ section.answered {
     .show-score-nav {
       width: 150px;
       margin: 0 auto;
-      margin-top: 20px;
+      margin-top: 40px;
     }
 
     .show-score-nav:hover {
