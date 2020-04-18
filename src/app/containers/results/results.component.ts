@@ -5,7 +5,7 @@ import { MatAccordion } from '@angular/material/expansion';
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QuizService } from '../../shared/services/quiz.service';
-import { TimerService } from "../../shared/services/timer.service";
+import { TimerService } from '../../shared/services/timer.service';
 
 
 @Component({
@@ -16,7 +16,7 @@ import { TimerService } from "../../shared/services/timer.service";
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  correctAnswers: any[];
+  correctAnswers: [];
   correctAnswersCount: number;
   totalQuestions: number;
   completionTime: number;
@@ -26,9 +26,13 @@ export class ResultsComponent implements OnInit {
 
   accordionList: any;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
+  panelOpenState = false;
 
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
-  get percentage(): number { return this.quizService.calculateQuizPercentage(); };  // console shows NaN
+  get percentage(): number { return this.quizService.calculateQuizPercentage(); };
+  get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
+
+
 
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
@@ -40,13 +44,16 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
+    this.quizService.correctAnswer$.subscribe(data => {
+      this.correctAnswersCount = data;
+    });
+
     this.totalQuestions = this.quizService.totalQuestions;
     this.completionTime = this.timerService.completionTime;
-    this.correctAnswersCount = Number(this.quizService.correctAnswer$);
 
     // console.log(this.router.getCurrentNavigation());
-    // this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
-    this.correctAnswers = this.quizService.correctAnswers;
+    this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
+    // this.correctAnswers = this.quizService.correctAnswers;
     this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
   }
 

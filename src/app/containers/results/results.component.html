@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
     <mat-card-title>{{ quizData?.milestone }} Quiz</mat-card-title>
@@ -9,7 +9,7 @@
     <section class="results">
       <h3>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
-        <h3>Statistics</h3>
+        <h3 class="mt-20">Statistics</h3>
         <span>You scored {{ correctAnswersCount }} out of {{ totalQuestions }}
               ({{ percentage }}%) questions correctly.</span>
         <span>You completed the quiz in {{ elapsedMinutes }} minutes and {{ elapsedSeconds }} seconds.</span>
@@ -36,26 +36,34 @@
         <details>
           <summary>View a more detailed summary of your quiz</summary>
 
-          <mat-accordion
-            [multi]="true"
-            #accordion="matAccordion">
-
+          <mat-accordion [multi]="true" #accordion="matAccordion">
             <mat-expansion-panel
               class="quiz-summary-question"
-              *ngFor="let panel of accordionList;
-                      let question of quizData.questions; index as i">
+              *ngFor="let panel of accordionList; let question of quizData.questions; index as i"
+              (opened)="panelOpenState = true" (closed)="panelOpenState = false" hideToggle="true">
 
               <mat-expansion-panel-header>
+                <mat-panel-description>
+                  <mat-icon class="accordion-icon" *ngIf="!panelOpenState">add</mat-icon>
+                  <mat-icon class="accordion-icon" *ngIf="panelOpenState">remove</mat-icon>
+                </mat-panel-description>
+
                 <mat-panel-title>
-                  <span class="question-leader"><strong>Question #{{ i + 1 }}: </strong></span>&nbsp;&nbsp;
-                    <em>{{ question?.questionText }}</em>
+                  <span class="question-leader">Question #{{ i + 1 }}: </span>&nbsp;&nbsp;
+                  <span class="question-text">{{ question?.questionText }}</span>
                 </mat-panel-title>
 
                 <ng-template
                   matExpansionPanelContent
                   *ngFor="let finalAnswer of finalAnswers;
-                          let correctAnswer of correctAnswers">
+                          let correctAnswer of correctAnswers;"> <!-- let elapsedTime of elapsedTimes; -->
 
+                  <div class="quiz-summary-field">
+                    <span>
+                      <span class="leader">Correct Answer(s): </span>
+                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                    </span>
+                  </div>
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Your Answer: </span>
@@ -67,24 +75,27 @@
                   </div>
                   <div class="quiz-summary-field">
                     <span>
-                      <span class="leader">Correct Answer: </span>
-                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
-                    </span>
-                  </div>
-                  <div class="quiz-summary-field">
-                    <span>
                       <span class="leader">Explanation: </span>
                       Option {{ correctAnswer }} was correct because {{ question?.explanation }}.
                     </span>
                   </div>
+                  <!-- <div class="quiz-summary-field">
+                    <span>
+                      <span class="leader">Elapsed Time: </span> {{ elapsedTime }} sec.
+                    </span>
+                  </div> -->
                 </ng-template>
               </mat-expansion-panel-header>
             </mat-expansion-panel>
           </mat-accordion>
-          <div class="mat-accordion-buttons">
-            <button mat-flat-button color="primary" (click)="openAllPanels()"><strong>Expand All</strong></button> &nbsp;
-            <button mat-flat-button color="primary" (click)="closeAllPanels()"><strong>Collapse All</strong></button>
-          </div>
+          <mat-action-row class="mat-accordion-buttons">
+            <button mat-raised-button color="primary" (click)="openAllPanels()">
+              <strong>Expand All</strong>
+            </button> &nbsp;
+            <button mat-raised-button color="primary" (click)="closeAllPanels()">
+              <strong>Collapse All</strong>
+            </button>
+          </mat-action-row>
         </details>
       </section>
     </section>
