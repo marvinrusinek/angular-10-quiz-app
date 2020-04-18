@@ -14,8 +14,10 @@ export class QuizService {
   question: QuizQuestion;
   answer: number;
 
-  correctAnswersCount = new BehaviorSubject<number>(0);
-  correctAnswer$ = this.correctAnswersCount.asObservable();
+
+  correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  correctAnswer$ = this.correctAnswersCountSubject.asObservable();
+  correctAnswersCount: number;
   totalQuestions: number;
   completionTime: number;
 
@@ -28,11 +30,18 @@ export class QuizService {
   hasAnswer: boolean;
   percentage: number;
 
+
   constructor(
     private timerService: TimerService,
     private router: Router
   ) {
     this.totalQuestions = this.numberOfQuestions();
+    this.hasAnswer = true;
+  }
+
+  saveCount(value) {
+    this.correctAnswersCount = value;
+    this.correctAnswersCountSubject.next(this.correctAnswersCount);
   }
 
   getQuestions() {
@@ -65,17 +74,14 @@ export class QuizService {
       const sortedAnswers = correctAnswers.sort();
 
       if (correctAnswers[0] && correctAnswers[1]) {
-        const correctOptions = sortedAnswers.concat(' and ', sortedAnswers[1]);
-        this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
-                               ' AND Option ' + correctOptions[1] + 'this.explanation2' + '.';
-        this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
+        const sortedAnswersConcat = sortedAnswers[0].concat( ' and ' + sortedAnswers[1]);
+        this.explanationText = 'Options ' + sortedAnswersConcat + this.explanation;
+        this.correctMessage = 'The correct answers are Options ' + sortedAnswersConcat + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const correctOptions = sortedAnswers.concat(', ', sortedAnswers[1], ' and ', sortedAnswers[2]);
-        this.explanationText = 'Option ' + correctOptions[0] + this.explanation +
-                               ', Option ' + correctOptions[1] + 'this.explanation2' +
-                               'AND Option ' + correctOptions[2] + 'this.explanation3' + '.';
-        this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
+        const sortedAnswersConcat = sortedAnswers[0].concat(', ' + sortedAnswers[1] + ' AND ' + sortedAnswers[2]);
+        this.explanationText = 'Options ' + sortedAnswersConcat + this.explanation;
+        this.correctMessage = 'The correct answers are Options ' + sortedAnswersConcat + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
         this.explanationText = 'All are correct!';
@@ -84,6 +90,7 @@ export class QuizService {
     }
   }
 
+  // not working
   calculateQuizPercentage(): number {
     return this.percentage = ((Number(this.correctAnswer$) / this.totalQuestions) * 100);
   }
@@ -97,6 +104,7 @@ export class QuizService {
     }
   }
 
+  // not working
   numberOfCorrectAnswers(): number {
     return parseInt(this.correctAnswer$.toPromise().toString());
   }
@@ -110,17 +118,20 @@ export class QuizService {
   }
 
   nextQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex + 1]);
+    this.currentQuestionIndex++;
+    let index = this.currentQuestionIndex;
+    this.router.navigate(['/quiz/question', index]);
     this.resetAll();
   }
 
   prevQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   navigateToResults() {
-    this.router.navigate(['/results'], {
+    this.saveCount(this.correctAnswersCount);
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers,
