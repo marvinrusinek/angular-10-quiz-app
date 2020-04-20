@@ -32,8 +32,6 @@ export class ResultsComponent implements OnInit {
   get percentage(): number { return this.quizService.calculateQuizPercentage(); };
   get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
 
-
-
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
   TRY_AGAIN = '../../../assets/images/try-again.jpeg';
@@ -44,7 +42,7 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
-    this.quizService.correctAnswer$.subscribe(data => {
+    this.quizService.correctAnswersCountSubject.subscribe(data => {
       this.correctAnswersCount = data;
     });
 
@@ -58,6 +56,10 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
+    /* this.quizService.correctAnswer$.subscribe(data => {
+      this.correctAnswersCount = data;
+    }); */
+
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
     this.elapsedSeconds = this.completionTime % 60;
   }

@@ -14,9 +14,8 @@ export class QuizService {
   question: QuizQuestion;
   answer: number;
 
-
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  correctAnswer$ = this.correctAnswersCountSubject.asObservable();
+  // correctAnswer$ = this.correctAnswersCountSubject.asObservable();
   correctAnswersCount: number;
   totalQuestions: number;
   completionTime: number;
@@ -39,7 +38,7 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  saveCount(value) {
+  sendCountToResults(value) {
     this.correctAnswersCount = value;
     this.correctAnswersCountSubject.next(this.correctAnswersCount);
   }
@@ -90,9 +89,8 @@ export class QuizService {
     }
   }
 
-  // not working
   calculateQuizPercentage(): number {
-    return this.percentage = ((Number(this.correctAnswer$) / this.totalQuestions) * 100);
+    return this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
   }
 
   numberOfQuestions(): number {
@@ -102,11 +100,6 @@ export class QuizService {
     else {
       return 0;
     }
-  }
-
-  // not working
-  numberOfCorrectAnswers(): number {
-    return parseInt(this.correctAnswer$.toPromise().toString());
   }
 
   getQuestionType(): boolean {
@@ -120,18 +113,17 @@ export class QuizService {
   nextQuestion() {
     this.currentQuestionIndex++;
     let index = this.currentQuestionIndex;
-    this.router.navigate(['/question', index]);
+    this.router.navigate(['/quiz/question', index]);
     this.resetAll();
   }
 
   prevQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   navigateToResults() {
-    this.saveCount(this.correctAnswersCount);
-    this.router.navigate(['/results'], {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers,

@@ -50,10 +50,16 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.setupRouting();
   }
 
+  passCountToQuizService(count) {
+    this.quizService.sendCountToResults(count);
+  }
+
+
   ngOnInit() {
-    this.quizService.correctAnswer$.subscribe(data => {
+    this.quizService.correctAnswersCountSubject.subscribe(data => {
       this.count = data + 1;
     });
+    this.passCountToQuizService(this.count);
 
     this.route.params.subscribe(params => {
       this.totalQuestions = this.quizService.numberOfQuestions();
@@ -95,7 +101,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   results() {
     this.checkIfAnsweredCorrectly();
-    this.quizService.saveCount(this.count);
     this.quizService.navigateToResults();
   }
 
@@ -115,7 +120,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
     }
   }
 
-  // revert back to index variables???
   private setupRouting() {
     this.prev$ = this.questionChange$
       .pipe(
