@@ -3,15 +3,20 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-9-quiz-app)
 
 # To-Do Items:
-- show next new questions
-- add Angular animation between questions when next button is clicked (IN PROGRESS, I added a slideIn animation when the first question is reached)
+# Immediate:
+- show next new questions and fix problem between toggling btwn explanationText and next question
+- display correctAnswersCount using BehaviorSubject (almost done, just need to figure out how to initialize the Subject)
+- get completionTime from timer service to resultscomp, calculate the elapsed time in minutes and seconds - use getter
+- get elapsed times from elapsed times array in timer service to the resultscomp - use getter
+
+# Priority: 
+- add Angular animation between questions when next button is clicked (IN PROGRESS, I added a slideIn animation when the first question is reached, need to figure out how to do it in between questions using routing)
 - stop timer when correct answer(s) have been selected
 
 - first question: Options 1 and 2 should be shown as correct in correctMessage (correct message should be "Option 1 is correct because XYZ AND Option 2 is correct because XYZ."), at the moment it seems that only option 2 is being shown as being correct - weird!
 
 - sort correct answers in numerical order 1 & 2 instead of 2 & 1 - done, doesn't seem that this has taken effect!
 - correctMessage not showing up on first wrong answer selected (need to check logic) - if wrong answer(s) are picked before correct, it says "That's wrong" without saying what the correct options are (IN PROGRESS)
-
 - use static field in QuestionComponent ts file for correctness types (see @kirjs message about this)
 
 - mat-checkbox for multiple answer questions (if there is a single answer - use mat-radio, otherwise use mat-checkbox), created function in Quiz API to check the question type
