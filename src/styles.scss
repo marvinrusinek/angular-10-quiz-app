@@ -5,7 +5,7 @@ $font-weight-max: 900;
 mat-card {
   margin: 0 auto;
   margin: 5% 0 20px 25% !important;
-  width: 42rem;
+  width: 42rem !important;
   height: inherit;
   padding: 20px;
   display: flex;
@@ -27,7 +27,7 @@ mat-card-header {
 
   .header-image {
     float: left;
-    // background: url('../assets/images/codelab_logo.jpeg') no-repeat center center;
+    background: url('../assets/images/codelab_logo.jpeg') no-repeat center center;
     background-size: contain;
     margin: -10px 0 0 -40px;
     height: 100px !important;

@@ -1,7 +1,5 @@
-<mat-card
-  class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
-  *ngIf="question && questionIndex <= totalQuestions"
-  [@routeSlide]="routeTrigger$ | async">
+<mat-card *ngIf="question && questionIndex <= totalQuestions"
+          [@routeSlide]="routeTrigger$ | async">
 
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
