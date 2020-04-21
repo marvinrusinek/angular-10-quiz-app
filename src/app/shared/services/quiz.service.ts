@@ -18,7 +18,6 @@ export class QuizService {
   // correctAnswer$ = this.correctAnswersCountSubject.asObservable();
   correctAnswersCount: number;
   totalQuestions: number;
-  completionTime: number;
 
   currentQuestionIndex = 1;
   finalAnswers = [];
@@ -126,8 +125,7 @@ export class QuizService {
     this.router.navigate(['/results'], {
       state: {
         questions: this.quizData.questions,
-        correctAnswers: this.correctAnswers,
-        completionTime: this.completionTime
+        correctAnswers: this.correctAnswers
       }
     });
   }
