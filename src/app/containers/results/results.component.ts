@@ -42,10 +42,6 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
-    this.quizService.correctAnswersCountSubject.subscribe(data => {
-      this.correctAnswersCount = data;
-    });
-
     this.totalQuestions = this.quizService.totalQuestions;
     this.completionTime = this.timerService.completionTime;
 
@@ -56,9 +52,9 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    /* this.quizService.correctAnswer$.subscribe(data => {
+    this.quizService.correctAnswersCountSubject.subscribe(data => {
       this.correctAnswersCount = data;
-    }); */
+    });
 
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
     this.elapsedSeconds = this.completionTime % 60;

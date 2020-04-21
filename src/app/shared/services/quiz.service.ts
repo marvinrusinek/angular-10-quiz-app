@@ -38,7 +38,7 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  sendCountToResults(value) {
+  sendCountToResults(value: number) {
     this.correctAnswersCount = value;
     this.correctAnswersCountSubject.next(this.correctAnswersCount);
   }
