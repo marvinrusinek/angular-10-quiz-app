@@ -8,8 +8,8 @@ import { ResultsComponent } from '../containers/results/results.component';
 const routes: Routes = [
   { path: '', redirectTo: 'intro', pathMatch: 'full' },
   { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
-  { path: 'question', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
-  { path: 'question/:questionIndex', component: DependencyInjectionQuizComponent, pathMatch: 'full' },
+  { path: 'question', component: DependencyInjectionQuizComponent, pathMatch: 'full', children: [
+  { path: ':questionIndex', component: DependencyInjectionQuizComponent, pathMatch: 'full' }]},
   { path: 'results', component: ResultsComponent, pathMatch: 'full' }
 ];
 
