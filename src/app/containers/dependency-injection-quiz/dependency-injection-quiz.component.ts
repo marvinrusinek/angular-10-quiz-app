@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, share, pairwise, startWith } from 'rxjs/operators';
@@ -27,6 +27,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   progressValue: number;
   questionIndex: number;
   count: number;
+  @Input() hasAnswer: boolean;
 
   get explanationText(): string { return this.quizService.explanationText; };
   // get timeLeft(): any { return this.timerService.getTimeLeft$; };

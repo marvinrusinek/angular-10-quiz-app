@@ -23,6 +23,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   @Output() answer = new EventEmitter<number>();
+  @Output() hasAnswer: boolean;
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
@@ -48,6 +49,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   radioChange(answer: number) {
     this.answer.emit(answer);
+    this.hasAnswer = true;
   }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
