@@ -91,11 +91,13 @@ export class DependencyInjectionQuizComponent implements OnInit {
   }
 
   nextQuestion() {
+    this.answer = null;
     this.checkIfAnsweredCorrectly();
     this.quizService.nextQuestion();
   }
 
   prevQuestion() {
+    this.answer = null;
     this.quizService.prevQuestion();
   }
 
