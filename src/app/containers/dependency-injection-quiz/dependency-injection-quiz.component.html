@@ -12,7 +12,7 @@
 
     <section id="question" [class.answered]="answer">
       <span *ngIf="!answer">{{ question?.questionText }}</span>
-      <span *ngIf="answer">{{ explanationText }}</span>
+      <span *ngIf="hasAnswer">{{ explanationText }}</span>
     </section>
 
     <codelab-quiz-question
