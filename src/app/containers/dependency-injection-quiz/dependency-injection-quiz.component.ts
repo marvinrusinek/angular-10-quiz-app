@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { animate, state as animationState, style, transition, trigger, keyframes } from '@angular/animations';
-import { ActivatedRoute, Router } from '@angular/router';
+import { animate, style, transition, trigger, keyframes } from '@angular/animations';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QUIZ_DATA } from '../../assets/quiz';
@@ -22,7 +21,7 @@ type AnimationState = 'animationStarted' | 'none';
       transition('* => animationStarted', [
         animate('1s', keyframes([
           style({ transform: 'scale(1.0)' }),
-          style({ transform: 'scale(1.5)' }),
+          style({ transform: 'scale(1.3)' }),
           style({ transform: 'scale(1.0)' })
         ]))
       ]),
@@ -38,24 +37,16 @@ export class DependencyInjectionQuizComponent implements OnInit {
   questionIndex: number;
   count: number;
   @Input() hasAnswer: boolean;
-
   get explanationText(): string { return this.quizService.explanationText; };
   // get timeLeft(): any { return this.timerService.getTimeLeft$; };
 
-  // Angular routing animation variables
-  animationState$ = new BehaviorSubject<AnimationState>("none");
-  currentValue$ = this.activatedRoute.params.pipe(
-    map(params => params.id),
-  );
-  private lastClickedRoute: string;
-
+  animationState$ = new BehaviorSubject<AnimationState>('none');
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router
-  ) {}
+    private activatedRoute: ActivatedRoute
+  ) { }
 
   sendCountToQuizService(count: number) {
     this.quizService.sendCountToResults(count);
@@ -102,16 +93,14 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   nextQuestion() {
     this.answer = null;
-    this.animationState$.next('animationStarted');
-    // this.lastClickedRoute = question;
     this.checkIfAnsweredCorrectly();
+    this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
   }
 
   prevQuestion() {
     this.answer = null;
     this.animationState$.next('animationStarted');
-    // this.lastClickedRoute = question;
     this.quizService.prevQuestion();
   }
 
@@ -130,8 +119,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
       ) {
         this.quizService.correctAnswersCountSubject.next(this.count);
         this.quizService.finalAnswers = [...this.quizService.finalAnswers, this.answer];
-      } else {
-        console.log('Inside else');
       }
     }
   }
