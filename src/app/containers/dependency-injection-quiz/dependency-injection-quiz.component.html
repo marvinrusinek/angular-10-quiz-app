@@ -1,4 +1,6 @@
-<mat-card *ngIf="question && questionIndex <= totalQuestions">
+<mat-card *ngIf="question && questionIndex <= totalQuestions"
+          [@changeRoute]="animationState$ | async"
+          (@changeRoute.done)="animationDoneHandler()">
 
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
@@ -24,8 +26,7 @@
   <mat-card-footer>
     <section class="paging">
       <mat-card-actions>
-        <nav [@changeRoute]="animationState$ | async"
-             (@changeRoute.done)="animationDoneHandler()">
+        <nav>
           <div class="prev-question-nav" *ngIf="question && questionIndex > 1">
             <button type="button" mat-raised-button  (click)="prevQuestion()">
               <strong>&laquo; Previous</strong>
