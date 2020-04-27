@@ -10,8 +10,8 @@
       <h3>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
         <h3 class="mt-20">Statistics</h3>
-        <span>You scored {{ correctAnswersCount }} out of {{ totalQuestions }}
-              ({{ percentage }}%) questions correctly.</span>
+        <span>You scored {{ correctAnswersCount }} out of {{ totalQuestions }} ({{ percentage }}%) questions
+              correctly.</span>
         <span>You completed the quiz in {{ elapsedMinutes }} minutes and {{ elapsedSeconds }} seconds.</span>
         <span *ngIf="elapsedMinutes < 1">You completed the quiz quickly!</span>
         <!-- <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: percentage%"></div> -->
@@ -56,14 +56,8 @@
                 <ng-template
                   matExpansionPanelContent
                   *ngFor="let finalAnswer of finalAnswers;
-                          let correctAnswer of correctAnswers;"> <!-- let elapsedTime of elapsedTimes; -->
+                          let correctAnswer of correctAnswers"> <!--let elapsedTime of elapsedTimes;-->
 
-                  <div class="quiz-summary-field">
-                    <span>
-                      <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
-                    </span>
-                  </div>
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Your Answer: </span>
@@ -75,13 +69,19 @@
                   </div>
                   <div class="quiz-summary-field">
                     <span>
+                      <span class="leader">Correct Answer(s): </span>
+                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                    </span>
+                  </div>
+                  <div class="quiz-summary-field">
+                    <span>
                       <span class="leader">Explanation: </span>
                       Option {{ correctAnswer }} was correct because {{ question?.explanation }}.
                     </span>
                   </div>
                   <!-- <div class="quiz-summary-field">
                     <span>
-                      <span class="leader">Elapsed Time: </span> {{ elapsedTime }} sec.
+                      <span class="leader">Elapsed Time: </span> {{ elapsedTime }} seconds
                     </span>
                   </div> -->
                 </ng-template>
