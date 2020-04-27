@@ -1,6 +1,4 @@
-<mat-card *ngIf="question && questionIndex <= totalQuestions"
-          [@changeRoute]="animationState$ | async"
-          (@changeRoute.done)="animationDoneHandler()">
+<mat-card *ngIf="question && questionIndex <= totalQuestions">
 
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
@@ -19,7 +17,9 @@
     <codelab-quiz-question
       [question]="question"
       [hasAnswer]="hasAnswer"
-      (answer)="selectedAnswer($event)">
+      (answer)="selectedAnswer($event)"
+      [@changeRoute]="animationState$ | async"
+      (@changeRoute.done)="animationDoneHandler()">
     </codelab-quiz-question>
   </mat-card-content>
 
