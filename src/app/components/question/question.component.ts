@@ -60,6 +60,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
+  /* isIncorrect(correct: boolean, optionIndex: number): boolean {
+    return correct !== this.currentQuestion.options[optionIndex].correct;
+  } */
+
   setSelected(optionIndex: number): void {
     this.currentQuestion.options.forEach(o => o.selected = false);
     this.currentQuestion.options[optionIndex].selected = true;
@@ -68,9 +72,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       optionIndex &&
       this.currentQuestion &&
       this.currentQuestion.options &&
+      this.currentQuestion.options[optionIndex]['selected'] ===
+      this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
       this.quizService.correctAnswers = [...this.quizService.correctAnswers, optionIndex + 1];  // store correct options
+      this.timerService.stopTimer();
+      this.timerService.quizDelay(3000);
+      this.timerService.resetTimer();
+      this.answer = null;
+      if (this.quizService.currentQuestionIndex < this.quizService.totalQuestions) this.quizService.nextQuestion();
     }
 
     optionIndex = null; // need to reset optionIndex for each new q

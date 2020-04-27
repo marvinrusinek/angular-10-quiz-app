@@ -28,6 +28,7 @@ export class TimerService {
       end = new Date().getTime();
       counter = end - start;
     }
+  }
 
   addElapsedTimeToElapsedTimes(elapsedTime) {
     this.elapsedTimes = [...this.elapsedTimes, elapsedTime];
