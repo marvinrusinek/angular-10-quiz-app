@@ -12,6 +12,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../shared/interfaces/QuizQuestion';
 import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
 
 
 @Component({
@@ -23,13 +24,16 @@ import { QuizService } from '../../shared/services/quiz.service';
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   @Output() answer = new EventEmitter<number>();
-  @Output() hasAnswer: boolean;
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
   matRadio: boolean;
+  @Output() hasAnswer: boolean;
 
-  constructor(private quizService: QuizService) { }
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService
+  ) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
