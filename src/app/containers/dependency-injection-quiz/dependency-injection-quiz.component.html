@@ -24,6 +24,8 @@
   <mat-card-footer>
     <section class="paging">
       <mat-card-actions>
+        <nav [@changeRoute]="animationState$ | async"
+             (@changeRoute.done)="animationDoneHandler()">
           <div class="prev-question-nav" *ngIf="question && questionIndex > 1">
             <button type="button" mat-raised-button  (click)="prevQuestion()">
               <strong>&laquo; Previous</strong>
@@ -40,6 +42,7 @@
               <strong>Show Your Score</strong>
             </button>
           </div>
+        </nav>
       </mat-card-actions>
     </section>
 

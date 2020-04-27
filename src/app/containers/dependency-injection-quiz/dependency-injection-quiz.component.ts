@@ -69,11 +69,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
     }
   }
 
-  navigate(route: string): void {
-    this.animationState$.next('animationStarted');
-    this.lastClickedRoute = route;
-  }
-
   ngOnInit() {
     this.quizService.correctAnswersCountSubject.subscribe(data => {
       this.count = data + 1;
@@ -111,12 +106,16 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   nextQuestion() {
     this.answer = null;
+    this.animationState$.next('animationStarted');
+    this.lastClickedRoute = activatedRoute;
     this.checkIfAnsweredCorrectly();
     this.quizService.nextQuestion();
   }
 
   prevQuestion() {
     this.answer = null;
+    this.animationState$.next('animationStarted');
+    this.lastClickedRoute = activatedRoute;
     this.quizService.prevQuestion();
   }
 
