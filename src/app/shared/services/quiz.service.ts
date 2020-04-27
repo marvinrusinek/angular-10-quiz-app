@@ -113,6 +113,7 @@ export class QuizService {
     this.currentQuestionIndex++;
     let index = this.currentQuestionIndex;
     this.router.navigate(['/question', index]);
+    this.timerService.resetTimer();
     this.resetAll();
   }
 
