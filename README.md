@@ -6,9 +6,8 @@
 # Immediate:
 - fix problem with display of explanationText, only showing up on correct answer, needs to be for any option
 - display correctAnswersCount using BehaviorSubject (almost done, just need to figure out how to initialize the Subject)
-- add Angular animation between questions when next button is clicked (IN PROGRESS, I added a slideIn animation when the first question is reached, need to figure out how to do it in between questions using routing, look for a cooler animation if I have time)
-- get completionTime from timer service to resultscomp, calculate the elapsed time in minutes and seconds - use getter
-- get elapsed times from elapsed times array in timer service to the resultscomp - use getter
+- get completionTime from timer service to resultscomp, calculate the elapsed time in minutes and seconds
+- get elapsed times from elapsedTimes array in TimerService to the ResultsComponent
 
 # Priority: 
 - stop timer when correct answer(s) have been selected (this.timerService.stopTimer() called inside QuestionComponent, stops timer but at the same time resets it, don't want this!)
