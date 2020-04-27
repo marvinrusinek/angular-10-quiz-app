@@ -140,30 +140,4 @@ export class DependencyInjectionQuizComponent implements OnInit {
       }
     }
   }
-
-  private setupRouting() {
-    this.prev$ = this.questionChange$
-      .pipe(
-        map(index => index === 0 ? index : index - 1),
-        share()
-      );
-    this.next$ = this.questionChange$
-      .pipe(
-        map(index => index === this.questions.length - 1 ? index : index + 1),
-        share()
-      );
-
-    this.routeTrigger$ = this.questionChange$
-      .pipe(
-        startWith(0),
-        pairwise(),
-        map(([prev, curr]) => ({
-          value: curr,
-          params: {
-            offsetEnter: prev > curr ? 100 : -100,
-            offsetLeave: prev > curr ? -100 : 100
-          }
-        })),
-      );
-  }
 }
