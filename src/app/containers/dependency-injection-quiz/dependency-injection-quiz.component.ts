@@ -62,8 +62,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   }
 
   animationDoneHandler(): void {
-    // this.router.navigate(['question', this.lastClickedRoute]);
-    // this.lastClickedRoute = null;
     this.animationState$.next('none');
   }
 
