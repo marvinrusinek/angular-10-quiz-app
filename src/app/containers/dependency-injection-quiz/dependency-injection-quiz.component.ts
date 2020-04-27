@@ -1,23 +1,33 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map, share, pairwise, startWith } from 'rxjs/operators';
+import { animate, state as animationState, style, transition, trigger, keyframes } from '@angular/animations';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QUIZ_DATA } from '../../assets/quiz';
 import { QuizQuestion } from '../../shared/interfaces/QuizQuestion';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
-import { RouterAnimations } from '../../router/route-animations';
-import { QuestionsRoutingService } from '../../shared/services/questions-routing.service';
 
+type AnimationState = 'animationStarted' | 'none';
 
 @Component({
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService, TimerService, QuestionsRoutingService],
-  animations: [RouterAnimations.routeSlide]
+  providers: [QuizService, TimerService],
+  animations: [
+    trigger('changeRoute', [
+      transition('* => animationStarted', [
+        animate('1s', keyframes([
+          style({ transform: 'scale(1.0)' }),
+          style({ transform: 'scale(1.5)' }),
+          style({ transform: 'scale(1.0)' })
+        ]))
+      ]),
+    ])
+  ]
 })
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
@@ -33,26 +43,35 @@ export class DependencyInjectionQuizComponent implements OnInit {
   // get timeLeft(): any { return this.timerService.getTimeLeft$; };
 
   // Angular routing animation variables
-  questions;
-  questionChange$: Observable<number>;
-  next$: Observable<number>;
-  prev$: Observable<number>;
-  routeTrigger$: Observable<object>;
+  animationState$ = new BehaviorSubject<AnimationState>("none");
+  currentValue$ = this.activatedRoute.params.pipe(
+    map(params => params.id),
+  );
+  private lastClickedRoute: string;
 
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private questionsRouting: QuestionsRoutingService,
-    private route: ActivatedRoute
-  ) {
-    this.questions = quizService.getQuestions();
-    this.questionChange$ = questionsRouting.questionChange$;
-    this.setupRouting();
-  }
+    private activatedRoute: ActivatedRoute,
+    private router: Router
+  ) {}
 
   sendCountToQuizService(count: number) {
     this.quizService.sendCountToResults(count);
+  }
+
+  animationDoneHandler(): void {
+    if (this.lastClickedRoute) {
+      this.router.navigate(['question', this.lastClickedRoute]);
+      this.lastClickedRoute = null;
+      this.animationState$.next('none');
+    }
+  }
+
+  navigate(route: string): void {
+    this.animationState$.next('animationStarted');
+    this.lastClickedRoute = route;
   }
 
   ngOnInit() {
@@ -61,7 +80,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
       this.sendCountToQuizService(this.count);
     });
 
-    this.route.params.subscribe(params => {
+    this.activatedRoute.params.subscribe(params => {
       this.totalQuestions = this.quizService.numberOfQuestions();
 
       if (params.questionIndex) {
