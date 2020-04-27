@@ -107,7 +107,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   nextQuestion() {
     this.answer = null;
     this.animationState$.next('animationStarted');
-    this.lastClickedRoute = question;
+    // this.lastClickedRoute = question;
     this.checkIfAnsweredCorrectly();
     this.quizService.nextQuestion();
   }
@@ -115,7 +115,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   prevQuestion() {
     this.answer = null;
     this.animationState$.next('animationStarted');
-    this.lastClickedRoute = question;
+    // this.lastClickedRoute = question;
     this.quizService.prevQuestion();
   }
 
