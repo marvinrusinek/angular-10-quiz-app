@@ -1,7 +1,7 @@
 <mat-card 
-  *ngIf="question && questionIndex <= totalQuestions"
   [@changeRoute]="animationState$ | async"
-  (@changeRoute.done)="animationDoneHandler()">
+  (@changeRoute.done)="animationDoneHandler()"
+  *ngIf="question && questionIndex <= totalQuestions">
 
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
