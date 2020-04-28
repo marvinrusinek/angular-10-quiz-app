@@ -25,7 +25,7 @@ export class ResultsComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
-  result$: Observable<number>;
+  correctCount$: Observable<number>;
 
   accordionList: any;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
@@ -55,7 +55,7 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.result$ = this.quizService.correctAnswersCountSubject;
+    this.correctCount$ = this.quizService.correctAnswersCountSubject;
 
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
     this.elapsedSeconds = this.completionTime % 60;
