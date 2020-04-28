@@ -35,7 +35,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   totalQuestions: number;
   progressValue: number;
   questionIndex: number;
-  count: number;
+  private count;
   @Input() hasAnswer: boolean;
   get explanationText(): string { return this.quizService.explanationText; };
   // get timeLeft(): any { return this.timerService.getTimeLeft$; };
@@ -49,9 +49,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.quizService.correctAnswersCountSubject.subscribe(data => {
-      this.count = data + 1;
-    });
+    this.count = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCountToQuizService(this.count);
 
     this.activatedRoute.params.subscribe(params => {
@@ -75,8 +73,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
     }
   }
 
-  sendCountToQuizService(count: number) {
-    this.quizService.sendCountToResults(count);
+  sendCountToQuizService(newValue) {
+    this.count = newValue;
+    this.quizService.sendCountToResults(this.count);
   }
 
   animationDoneHandler(): void {
