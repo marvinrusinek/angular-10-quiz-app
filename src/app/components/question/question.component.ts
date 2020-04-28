@@ -76,7 +76,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
-      this.quizService.correctAnswers = [...this.quizService.correctAnswers, optionIndex + 1];  // store correct options
+      this.quizService.correctAnswers = [...this.quizService.correctAnswers, optionIndex + 1];
       this.timerService.resetTimer();
       this.answer = null;
 
@@ -88,7 +88,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       }
     }
 
-    optionIndex = null; // need to reset optionIndex for each new q
+    optionIndex = null;
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
   }
 }
