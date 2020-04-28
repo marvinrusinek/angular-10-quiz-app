@@ -118,7 +118,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['correct']
       ) {
         this.quizService.correctAnswersCountSubject.next(this.count);
-        this.quizService.finalAnswers = [...this.quizService.finalAnswers, this.answer];
+        this.quizService.addFinalAnswer(this.answer);
       }
     }
   }

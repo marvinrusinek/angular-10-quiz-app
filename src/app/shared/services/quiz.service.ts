@@ -42,10 +42,6 @@ export class QuizService {
     this.correctAnswersCountSubject.next(this.correctAnswersCount);
   }
 
-  getQuestions() {
-    return { ...this.quizData };
-  }
-
   resetAll() {
     this.answer = null;
     this.hasAnswer = false;
@@ -90,6 +86,17 @@ export class QuizService {
 
   calculateQuizPercentage(): number {
     return this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
+  }
+
+  addFinalAnswer(answer) {
+    this.finalAnswers = [...this.finalAnswers, answer];
+  }
+
+  /*
+   * public API
+   */
+  getQuestions() {
+    return { ...this.quizData };
   }
 
   numberOfQuestions(): number {
