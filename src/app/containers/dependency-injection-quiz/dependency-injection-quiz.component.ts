@@ -48,14 +48,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
     private activatedRoute: ActivatedRoute
   ) { }
 
-  sendCountToQuizService(count: number) {
-    this.quizService.sendCountToResults(count);
-  }
-
-  animationDoneHandler(): void {
-    this.animationState$.next('none');
-  }
-
   ngOnInit() {
     this.quizService.correctAnswersCountSubject.subscribe(data => {
       this.count = data + 1;
@@ -81,6 +73,14 @@ export class DependencyInjectionQuizComponent implements OnInit {
     if (this.questionIndex === 1) {
       this.quizService.correctAnswersCountSubject.next(0);
     }
+  }
+
+  sendCountToQuizService(count: number) {
+    this.quizService.sendCountToResults(count);
+  }
+
+  animationDoneHandler(): void {
+    this.animationState$.next('none');
   }
 
   private getQuestion() {
