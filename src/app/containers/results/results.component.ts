@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
+import { Observable } from 'rxjs';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../../shared/interfaces/Quiz';
@@ -24,6 +25,7 @@ export class ResultsComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
+  result$: Observable<number>;
 
   accordionList: any;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
@@ -53,9 +55,7 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.quizService.correctAnswersCountSubject.subscribe(data => {
-      this.correctAnswersCount = data;
-    });
+    this.result$ = this.quizService.correctAnswersCountSubject;
 
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
     this.elapsedSeconds = this.completionTime % 60;
