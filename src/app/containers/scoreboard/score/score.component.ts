@@ -19,8 +19,5 @@ export class ScoreComponent implements OnInit {
   ngOnInit() {
     this.totalQuestions = this.quizService.numberOfQuestions();
     this.correctCount$ = this.quizService.correctAnswersCountSubject;
-    /* this.quizService.correctAnswersCountSubject.subscribe(data => {
-      this.correctAnswersCount = data;
-    }); */
   }
 }
