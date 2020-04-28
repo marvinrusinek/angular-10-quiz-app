@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -11,13 +12,15 @@ import { QuizService } from '../../../shared/services/quiz.service';
 export class ScoreComponent implements OnInit {
   correctAnswersCount: number;
   totalQuestions: number;
+  correctCount$: Observable<number>;
 
   constructor(private quizService: QuizService) { }
 
   ngOnInit() {
     this.totalQuestions = this.quizService.numberOfQuestions();
-    this.quizService.correctAnswersCountSubject.subscribe(data => {
+    this.correctCount$ = this.quizService.correctAnswersCountSubject;
+    /* this.quizService.correctAnswersCountSubject.subscribe(data => {
       this.correctAnswersCount = data;
-    });
+    }); */
   }
 }
