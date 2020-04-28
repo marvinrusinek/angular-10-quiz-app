@@ -15,7 +15,6 @@ export class QuizService {
   answer: number;
 
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  // correctAnswer$ = this.correctAnswersCountSubject.asObservable();
   correctAnswersCount: number;
   totalQuestions: number;
 
