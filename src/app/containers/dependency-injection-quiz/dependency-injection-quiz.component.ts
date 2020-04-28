@@ -116,7 +116,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.quizService.correctAnswersCountSubject.next(this.count);
+        // this.quizService.correctAnswersCountSubject.next(this.count);
+        this.sendCountToQuizService(this.count);
         this.quizService.addFinalAnswer(this.answer);
       }
     }
