@@ -43,7 +43,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   radioChange(answer: number) {
     this.answer.emit(answer);
-    this.hasAnswer = true;
   }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
