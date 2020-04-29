@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
 
-import { QuizService } from '../../../shared/services/quiz.service';
-import { TimerService } from '../../../shared/services/timer.service';
+import { QuizService } from '@shared/services/quiz.service';
+import { TimerService } from '@shared/services/timer.service';
 
 
 @Component({

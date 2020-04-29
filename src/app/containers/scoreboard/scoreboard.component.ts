@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { QuizService } from '../../shared/services/quiz.service';
+import { QuizService } from '@shared/services/quiz.service';
 
 @Component({
   selector: 'codelab-scoreboard',

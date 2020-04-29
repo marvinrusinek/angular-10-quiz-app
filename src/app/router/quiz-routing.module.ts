@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { IntroductionComponent } from '../containers/introduction/introduction.component';
-import { DependencyInjectionQuizComponent } from '../containers/dependency-injection-quiz/dependency-injection-quiz.component';
-import { ResultsComponent } from '../containers/results/results.component';
+import { IntroductionComponent } from '@containers/introduction/introduction.component';
+import { DependencyInjectionQuizComponent } from '@containers/dependency-injection-quiz/dependency-injection-quiz.component';
+import { ResultsComponent } from '@containers/results/results.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'intro', pathMatch: 'full' },

@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-import { QUIZ_DATA } from '../../assets/quiz';
-import { Quiz } from '../interfaces/Quiz';
-import { QuizQuestion } from '../interfaces/QuizQuestion';
-import { TimerService } from './timer.service';
+import { QUIZ_DATA } from '@assets/quiz';
+import { Quiz } from '@models/Quiz';
+import { QuizQuestion } from '@models/QuizQuestion';
+import { TimerService } from '@timer.service';
 
 
 @Injectable({ providedIn: 'root' })
