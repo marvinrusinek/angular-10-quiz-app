@@ -46,6 +46,7 @@ import { TimerService } from './shared/services/timer.service';
     NgbModule,
     FontAwesomeModule
   ],
+  exports: [MatExpansionModule],
   bootstrap: [AppComponent],
   providers: [QuizService, TimerService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
