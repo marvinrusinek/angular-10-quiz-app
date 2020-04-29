@@ -38,7 +38,7 @@
           <mat-accordion [multi]="true" #accordion="matAccordion">
             <mat-expansion-panel
               class="quiz-summary-question"
-              *ngFor="let panel of accordionList; let question of quizData.questions; index as i"
+              *ngFor="let question of quizData.questions; index as i"
               (opened)="panelOpenState = true" (closed)="panelOpenState = false" hideToggle="true">
 
               <mat-expansion-panel-header>

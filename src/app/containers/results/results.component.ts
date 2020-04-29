@@ -19,14 +19,13 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   correctAnswers: [];
-  correctAnswersCount: number;
   totalQuestions: number;
   completionTime: number;
   elapsedMinutes: number;
   elapsedSeconds: number;
-  codelabUrl = 'https://www.codelab.fun';
   correctCount$: Observable<number>;
-
+  codelabUrl = 'https://www.codelab.fun';
+  
   accordionList: any;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
@@ -50,7 +49,6 @@ export class ResultsComponent implements OnInit {
 
     // console.log(this.router.getCurrentNavigation());
     this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
-    // this.correctAnswers = this.quizService.correctAnswers;
     this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
   }
 
