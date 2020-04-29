@@ -69,7 +69,7 @@ export class ResultsComponent implements OnInit {
   }
 
   restart() {
-    this.quizService.resetAll();  // need to reset the answers to empty/null
+    this.quizService.resetAll();  // not resetting
     this.router.navigate(['/intro']);
   }
 }
