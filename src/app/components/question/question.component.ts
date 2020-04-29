@@ -19,7 +19,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
   matRadio: boolean;
-  @Output() hasAnswer: boolean;
 
   constructor(
     private quizService: QuizService,

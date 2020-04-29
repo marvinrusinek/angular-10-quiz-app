@@ -36,7 +36,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   progressValue: number;
   questionIndex: number;
   private count;
-  @Input() hasAnswer: boolean;
   get explanationText(): string { return this.quizService.explanationText; };
   // get timeLeft(): any { return this.timerService.getTimeLeft$; };
 
