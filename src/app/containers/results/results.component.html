@@ -55,7 +55,7 @@
                 <ng-template
                   matExpansionPanelContent
                   *ngFor="let finalAnswer of finalAnswers; let i = index">
-
+                  <ng-container *ngFor="let correctAnswer of correctAnswers">
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Your Answer: </span>
@@ -68,13 +68,13 @@
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswers[i] }} &mdash; {{ question?.options[correctAnswers[i] - 1].text }}
+                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
                     </span>
                   </div>
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Explanation: </span>
-                      Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
+                      Option {{ correctAnswer }} was correct because {{ question?.explanation }}.
                     </span>
                   </div>
                   <!-- <div class="quiz-summary-field">
@@ -82,11 +82,12 @@
                       <span class="leader">Elapsed Time: </span> {{ elapsedTime }} seconds
                     </span>
                   </div> -->
+                  </ng-container>
                 </ng-template>
               </mat-expansion-panel-header>
             </mat-expansion-panel>
           </mat-accordion>
-          
+
           <mat-action-row class="mat-accordion-buttons">
             <button mat-raised-button color="primary" (click)="openAllPanels()">
               <strong>Expand All</strong>
