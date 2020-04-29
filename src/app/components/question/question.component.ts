@@ -65,12 +65,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.timerService.resetTimer();
       optionIndex = null;
 
-      if (this.quizService.currentQuestionIndex < this.quizService.totalQuestions) {
+      /* if (this.quizService.currentQuestionIndex < this.quizService.totalQuestions) {
         this.quizService.nextQuestion();
       }
       else {
         this.quizService.navigateToResults();
-      }
+      } */
     }
     
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
