@@ -10,7 +10,6 @@ import { QuizService } from '../../../shared/services/quiz.service';
   styleUrls: ['./score.component.scss']
 })
 export class ScoreComponent implements OnInit {
-  correctAnswersCount: number;
   totalQuestions: number;
   correctCount$: Observable<number>;
 
