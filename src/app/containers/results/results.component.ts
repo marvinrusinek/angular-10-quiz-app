@@ -26,10 +26,9 @@ export class ResultsComponent implements OnInit {
   correctCount$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
   
-  accordionList: any;
-  @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
-
+  @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
+  
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
   get percentage(): number { return this.quizService.calculateQuizPercentage(); };
   get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
