@@ -54,9 +54,7 @@
 
                 <ng-template
                   matExpansionPanelContent
-                  *ngFor="let finalAnswer of finalAnswers;
-                          let correctAnswer of correctAnswers"> <!--let elapsedTime of elapsedTimes;-->
-
+                  *ngFor="let finalAnswer of finalAnswers; let i = index">
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Your Answer: </span>
