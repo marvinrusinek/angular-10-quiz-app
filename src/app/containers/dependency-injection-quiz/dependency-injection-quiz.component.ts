@@ -46,9 +46,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.count = this.quizService.correctAnswersCountSubject.getValue();
-    this.sendCountToQuizService(this.count);
-
     this.activatedRoute.params.subscribe(params => {
       this.totalQuestions = this.quizService.numberOfQuestions();
 
@@ -68,6 +65,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
     if (this.questionIndex === 1) {
       this.quizService.correctAnswersCountSubject.next(0);
     }
+
+    this.count = this.quizService.correctAnswersCountSubject.getValue();
+    this.sendCountToQuizService(this.count);
   }
 
   sendCountToQuizService(newValue) {
