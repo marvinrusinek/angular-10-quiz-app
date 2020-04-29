@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { animate, style, transition, trigger, keyframes } from '@angular/animations';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/interfaces/Quiz';
 import { QUIZ_DATA } from '../../assets/quiz';
@@ -42,16 +41,11 @@ export class DependencyInjectionQuizComponent implements OnInit {
   // get timeLeft(): any { return this.timerService.getTimeLeft$; };
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  currentValue$ = this.activatedRoute.params.pipe(
-    map(params => params.id),
-  );
-  private lastClickedRoute: string;
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router
+    private activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -85,11 +79,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   }
 
   animationDoneHandler(): void {
-    if (this.lastClickedRoute) {
-      this.router.navigate([ 'route', this.lastClickedRoute]);
-      this.lastClickedRoute = null;
-      this.animationState$.next('none');
-    }
+    this.animationState$.next('none');
   }
 
   private getQuestion() {
