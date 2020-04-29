@@ -37,8 +37,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
   questionIndex: number;
   private count;
   get explanationText(): string { return this.quizService.explanationText; };
-  // get timeLeft(): any { return this.timerService.getTimeLeft$; };
-
   animationState$ = new BehaviorSubject<AnimationState>('none');
 
   constructor(
