@@ -53,6 +53,8 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log("FinalAnswers: ", this.finalAnswers);
+    console.log("CorrectAnswers:", this.correctAnswers);
     this.correctCount$ = this.quizService.correctAnswersCountSubject;
 
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
