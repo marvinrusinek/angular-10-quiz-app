@@ -14,7 +14,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
-  @Output() answer = new EventEmitter<number>();
+  answer = new EventEmitter<number>();
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
