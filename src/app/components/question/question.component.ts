@@ -61,16 +61,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
-      this.quizService.correctAnswers = [...this.quizService.correctAnswers, optionIndex + 1];
+      this.quizService.addCorrectAnswers(optionIndex + 1);
       this.timerService.resetTimer();
       optionIndex = null;
-
-      /* if (this.quizService.currentQuestionIndex < this.quizService.totalQuestions) {
-        this.quizService.nextQuestion();
-      }
-      else {
-        this.quizService.navigateToResults();
-      } */
     }
     
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
