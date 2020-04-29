@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { QuizQuestion } from '../../shared/interfaces/QuizQuestion';
-import { QuizService } from '../../shared/services/quiz.service';
-import { TimerService } from '../../shared/services/timer.service';
+import { QuizQuestion } from '@shared/models/QuizQuestion';
+import { QuizService } from '@shared/services/quiz.service';
+import { TimerService } from '@shared/services/timer.service';
 
 
 @Component({

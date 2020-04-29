@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { QUIZ_DATA } from '../../assets/quiz';
-import { Quiz } from '../../shared/interfaces/quiz';
+import { QUIZ_DATA } from '@assets/quiz';
+import { Quiz } from '@shared/models/quiz';
 
 
 @Component({
