@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../../shared/interfaces/Quiz';
@@ -20,9 +20,9 @@ export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   correctAnswers: [];
   totalQuestions: number;
-  completionTime: number;
   elapsedMinutes: number;
   elapsedSeconds: number;
+  percentage: number;
   correctCount$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
   
@@ -30,8 +30,8 @@ export class ResultsComponent implements OnInit {
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
-  get percentage(): number { return this.quizService.calculateQuizPercentage(); };
   get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
+  get completionTime(): number { return this.timerService.completionTime; };
 
   CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
   NOT_BAD = '../../../assets/images/not-bad.jpg';
@@ -44,11 +44,8 @@ export class ResultsComponent implements OnInit {
   )
   {
     this.totalQuestions = this.quizService.totalQuestions;
-    this.completionTime = this.timerService.completionTime;
-
-    // console.log(this.router.getCurrentNavigation());
     this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
-    this.completionTime = this.router.getCurrentNavigation().extras.state.completionTime;
+    this.calculateQuizPercentage();
   }
 
   ngOnInit() {
@@ -56,6 +53,18 @@ export class ResultsComponent implements OnInit {
 
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
     this.elapsedSeconds = this.completionTime % 60;
+  }
+
+  calculateQuizPercentage(): number {
+    // trying to convert the observable<number> to number
+    let currentCorrectCountSub: Subscription;
+    /* currentCorrectCountSub = this.store.select(getCurrentPage).subscribe(
+      (count: number) => {
+        this.correctCount$ = count;
+      }
+    ); */
+
+    return this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
   }
 
   closeAllPanels() {
