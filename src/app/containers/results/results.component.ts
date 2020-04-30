@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 import { Observable, Subscription } from 'rxjs';
 
-import { QUIZ_DATA } from '@assets/quiz';
-import { Quiz } from '@shared/models/Quiz';
-import { QuizService } from '@shared/services/quiz.service';
-import { TimerService } from '@shared/services/timer.service';
+import { QUIZ_DATA } from '../../assets/quiz';
+import { Quiz } from '../../shared/models/Quiz';
+import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
 
 
 @Component({

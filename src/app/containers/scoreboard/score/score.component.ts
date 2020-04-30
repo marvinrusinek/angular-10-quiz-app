@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { QuizService } from '@shared/services/quiz.service';
+import { QuizService } from '../../shared/services/quiz.service';
 
 
 @Component({

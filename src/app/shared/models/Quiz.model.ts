@@ -1,4 +1,4 @@
-import { QuizQuestion } from './QuizQuestion';
+import { QuizQuestion } from './QuizQuestion.model';
 
 export interface Quiz {
   milestone: string;

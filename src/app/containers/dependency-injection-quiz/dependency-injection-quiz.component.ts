@@ -3,11 +3,11 @@ import { animate, style, transition, trigger, keyframes } from '@angular/animati
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-import { QUIZ_DATA } from '@assets/quiz';
-import { Quiz } from '@shared/models/Quiz';
-import { QuizQuestion } from '@shared/models/QuizQuestion';
-import { QuizService } from '@shared/services/quiz.service';
-import { TimerService } from '@shared/services/timer.service';
+import { QUIZ_DATA } from '../../assets/quiz';
+import { Quiz } from '../../shared/models/Quiz';
+import { QuizQuestion } from '../../shared/models/QuizQuestion';
+import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
