@@ -1,27 +1,23 @@
 <main>
-  <section>
-    <ng-content></ng-content>
-  </section>
+  <ng-content></ng-content>
 
   <section>
     <form [formGroup]="formGroup">
-      <ol>
+      <ol *ngIf="multipleAnswer === false">
         <mat-radio-group
           required
           name="answer"
           class="form-group"
           formControlName="answer"
-          (change)="radioChange($event.value)"
-          aria-labelledby="quiz-form-mat-radio-group">
+          (change)="radioChange($event.value)">
 
           <div class="radio-options"
-               *ngFor="let option of currentQuestion.options; index as i">
+               *ngFor="let option of currentQuestion.options; let i = index">
 
             <mat-radio-button
-              class="option"
-              name="option-radio-button"
               [value]="i"
               (change)="setSelected(i)"
+              name="option-radio-button"
               [class.is-correct]="option.selected && option.correct"
               [class.is-incorrect]="option.selected && !option.correct">
 
@@ -55,6 +51,57 @@
             </section>
           </div>
         </mat-radio-group>
+      </ol>
+
+      <ol *ngIf="multipleAnswer === true">
+        <mat-checkbox-group
+          required
+          name="answer"
+          class="form-group"
+          formControlName="answer"
+          (change)="checkboxChange($event.value)"
+          aria-labelledby="quiz-form-mat-radio-group">
+
+          <div class="checkbox-options"
+               *ngFor="let option of currentQuestion.options; let i = index">
+
+            <mat-checkbox
+              [value]="i"
+              (change)="setSelected(i)"
+              name="option-checkbox"
+              [class.is-correct]="option.selected && option.correct"
+              [class.is-incorrect]="option.selected && !option.correct">
+
+              <li>{{ option.text }}</li>
+
+              <mat-icon
+                inline="true"
+                class="feedback-icon"
+                *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
+              </mat-icon>
+              <mat-icon
+                inline="true"
+                class="feedback-icon"
+                *ngIf="option.selected && !option.correct">clear
+              </mat-icon>
+            </mat-checkbox>
+
+            <section class="messages" *ngIf="option.selected">
+              <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
+                <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+                <span class="message correct-message">
+                  You&apos;re right!&nbsp;{{ correctMessage }}
+                </span>
+              </div>
+              <div *ngIf="option.selected && !option.correct">
+                <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+                <span class="message wrong-message">
+                  That&apos;s wrong.&nbsp;{{ correctMessage }}
+                </span>
+              </div>
+            </section>
+          </div>
+        </mat-checkbox-group>
       </ol>
     </form>
   </section>

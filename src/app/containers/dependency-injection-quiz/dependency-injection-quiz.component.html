@@ -1,7 +1,8 @@
-<mat-card 
+<mat-card
   [@changeRoute]="animationState$ | async"
   (@changeRoute.done)="animationDoneHandler()"
-  *ngIf="question && questionIndex <= totalQuestions">
+  *ngIf="question && questionIndex <= totalQuestions"
+  class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
 
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
@@ -32,11 +33,13 @@
               <strong>&laquo; Previous</strong>
             </button>
           </div>
+
           <div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions">
             <button type="button" mat-raised-button (click)="nextQuestion()">
               <strong>Next &raquo;</strong>
             </button>
           </div>
+
           <div class="show-score-nav" *ngIf="question && questionIndex === totalQuestions">
             <button type="button" mat-raised-button (click)="results()"
                     disableRipple="true" class="btn btn-outline-primary">

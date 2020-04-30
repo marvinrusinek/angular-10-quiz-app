@@ -5,6 +5,7 @@ import { QuizRoutingModule } from './router/quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,6 +41,7 @@ import { TimerService } from './shared/services/timer.service';
     ReactiveFormsModule,
     MatCardModule,
     MatRadioModule,
+    MatCheckboxModule,
     MatIconModule,
     MatButtonModule,
     MatExpansionModule,

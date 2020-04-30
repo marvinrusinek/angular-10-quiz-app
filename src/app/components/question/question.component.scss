@@ -8,26 +8,16 @@ ol li {
   margin-left: 30px;
 }
 
-.radio-options {
+.radio-options, .checkbox-options {
   margin-bottom: 5px;
   margin-left: 0.5rem;
   padding: 4px;
 
-  mat-radio-button {
+  mat-radio-button, mat-checkbox {
     cursor: pointer;
-
-    .feedback-icon {
-      position: absolute;
-      right: 0;
-      margin-right: 40px;
-      margin-top: -25px;
-    }
-  }
-
-  .option {
     width: 39rem;
-    height: 80% !important;
-    font-family: $font-stack !important;
+    height: 100%;
+    font-family: $font-stack;
     font-size: 20px !important;
     color: #0f0900;
     background-color: #f5f5f5;
@@ -35,6 +25,13 @@ ol li {
     padding: 5px 5px 0 30px;
     margin-left: -5px;
     vertical-align: middle;
+
+    .feedback-icon {
+      position: absolute;
+      right: 0;
+      margin-right: 40px;
+      margin-top: -25px;
+    }
 
     &:hover {
       border: 2px solid #007aff;
@@ -100,7 +97,8 @@ ol li {
   }
 }
 
-// hide the radio button next to the answer choice
-::ng-deep .mat-radio-button .mat-radio-container {
+// hide the radio button/checkbox next to the answer choice
+/* ::ng-deep .mat-radio-button .mat-radio-container,
+::ng-deep .mat-checkbox .mat-radio-container {
   display: none;
-}
+} */

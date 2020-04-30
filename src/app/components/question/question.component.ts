@@ -18,7 +18,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
-  matRadio: boolean;
+  multipleAnswer: boolean;
 
   constructor(
     private quizService: QuizService,
@@ -29,7 +29,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.formGroup = new FormGroup({
       answer: new FormControl(['', Validators.required])
     });
-    this.matRadio = this.quizService.getQuestionType(); // returns false
+    this.multipleAnswer = this.quizService.getQuestionType();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -42,6 +42,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   radioChange(answer: number) {
+    this.answer.emit(answer);
+  }
+  checkboxChange(answer: number) {
     this.answer.emit(answer);
   }
 
@@ -65,7 +68,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.timerService.resetTimer();
       optionIndex = null;
     }
-    
+
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
   }
 }

@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { animate, style, transition, trigger, keyframes } from '@angular/animations';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
+import { Quiz } from '../../shared/models/Quiz.model';
 import { QUIZ_DATA } from '../../assets/quiz';
-import { Quiz } from '../../shared/models/Quiz';
-import { QuizQuestion } from '../../shared/models/QuizQuestion';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -113,8 +113,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.sendCountToQuizService(this.count + 1);
-        this.quizService.addFinalAnswer(this.answer);
+        this.sendCountToQuizService(this.count);
+        this.quizService.addFinalAnswers(this.answer);
       }
     }
   }
