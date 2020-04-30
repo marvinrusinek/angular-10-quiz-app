@@ -1,4 +1,4 @@
-import { Quiz } from '../shared/models/Quiz';
+import { Quiz } from '../shared/models/Quiz.model';
 
 export const QUIZ_DATA: Quiz = {
   milestone: 'Dependency Injection',
