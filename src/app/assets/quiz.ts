@@ -6,16 +6,6 @@ export const QUIZ_DATA: Quiz = {
   imageUrl: 'DIDiagram.png',
   questions: [
     {
-      questionText: 'What is the objective of dependency injection?',
-      options: [
-        { text: 'Pass the service to the client.', correct: true },
-        { text: 'Allow the client to find service.', correct: true },
-        { text: 'Allow the client to build service.' },
-        { text: 'Give the client part service.' }
-      ],
-      explanation: 'a service gets passed to the client during DI'
-    },
-    {
       questionText: 'Which of the following benefit from dependency injection?',
       options: [
         { text: 'Programming' },
@@ -26,14 +16,14 @@ export const QUIZ_DATA: Quiz = {
       explanation: 'DI simplifies both programming and testing as well as being a popular design pattern'
     },
     {
-      questionText: 'What is the first step in setting up dependency injection?',
+      questionText: 'What is the objective of dependency injection?',
       options: [
-        { text: 'Require in the component.' },
-        { text: 'Provide in the module.' },
-        { text: 'Mark dependency as @Injectable().', correct: true },
-        { text: 'Declare an object.' }
+        { text: 'Pass the service to the client.', correct: true },
+        { text: 'Allow the client to find service.', correct: true },
+        { text: 'Allow the client to build service.' },
+        { text: 'Give the client part service.' }
       ],
-      explanation: 'the first step is marking the class as @Injectable()'
+      explanation: 'a service gets passed to the client during DI'
     },
     {
       questionText: 'In which of the following does dependency injection occur?',
@@ -44,6 +34,16 @@ export const QUIZ_DATA: Quiz = {
         { text: 'NgModule' }
       ],
       explanation: 'object instantiations are taken care of by the constructor in Angular'
+    },
+    {
+      questionText: 'What is the first step in setting up dependency injection?',
+      options: [
+        { text: 'Require in the component.' },
+        { text: 'Provide in the module.' },
+        { text: 'Mark dependency as @Injectable().', correct: true },
+        { text: 'Declare an object.' }
+      ],
+      explanation: 'the first step is marking the class as @Injectable()'
     }
   ]
 };
