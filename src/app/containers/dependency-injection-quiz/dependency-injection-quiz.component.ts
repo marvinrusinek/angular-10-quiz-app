@@ -15,7 +15,6 @@ type AnimationState = 'animationStarted' | 'none';
   selector: 'dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  providers: [QuizService, TimerService],
   animations: [
     trigger('changeRoute', [
       transition('* => animationStarted', [
@@ -88,8 +87,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
   }
 
   nextQuestion() {
-    this.answer = null;
     this.checkIfAnsweredCorrectly();
+    this.answer = null;
     this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
   }
@@ -113,7 +112,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.sendCountToQuizService(this.count);
+        this.sendCountToQuizService(this.count + 1);
         this.quizService.addFinalAnswers(this.answer);
       }
     }
