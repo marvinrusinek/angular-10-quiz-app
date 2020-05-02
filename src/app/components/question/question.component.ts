@@ -18,7 +18,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
-  multipleAnswer = false;
+  singleAnswer = false;
   alreadyAnswered = false;
   correctAnswers = [];
 
@@ -35,7 +35,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.multipleAnswer = this.correctAnswers.length === 1 ? true : false;
+    this.singleAnswer = this.correctAnswers.length === 1 ? true : false;
     console.log('changes: ', changes);
     console.log('question: ', this.question);
     
