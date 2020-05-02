@@ -3,7 +3,7 @@
 
   <section>
     <form [formGroup]="formGroup">
-      <ol *ngIf="singleAnswer">
+      <ol *ngIf="singleAnswer === true">
         <mat-radio-group
           required
           name="answer"
@@ -54,7 +54,7 @@
         </mat-radio-group>
       </ol>
 
-      <ol *ngIf="!singleAnswer">
+      <ol *ngIf="singleAnswer === false">
         <mat-checkbox-group
           required
           name="answer"
