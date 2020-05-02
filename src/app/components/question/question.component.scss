@@ -15,7 +15,7 @@ ol li {
 
   mat-radio-button, mat-checkbox {
     cursor: pointer;
-    width: 39rem;
+    width: 39rem !important;
     height: 100%;
     font-family: $font-stack;
     font-size: 20px !important;
