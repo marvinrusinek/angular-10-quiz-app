@@ -18,8 +18,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
-  multipleAnswer: boolean;
+  singleAnswer = false;
   alreadyAnswered = false;
+  correctAnswers = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,10 +35,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.multipleAnswer = this.quizService.getQuestionType();
-    console.log("multipleAnswer: ", this.multipleAnswer)
-    console.log("changes: ", changes);
-    console.log("question: ", this.question);
+    this.singleAnswer = this.correctAnswers.length === 1;
+    console.log('changes: ', changes);
+    console.log('question: ', this.question);
     
     if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
@@ -99,6 +99,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.currentQuestion.options.forEach(o => o.selected = false);
     this.currentQuestion.options[optionIndex].selected = true;
 
+    if (this.currentQuestion.options[optionIndex].correct = true) {
+      this.correctAnswers.push(optionIndex + 1);
+    }
+
     if (
       optionIndex &&
       this.currentQuestion &&
@@ -107,7 +111,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
-      this.quizService.addCorrectAnswers(optionIndex + 1);
+      this.quizService.correctAnswers = [...this.quizService.correctAnswers, optionIndex + 1];
+
+      // this.quizService.addCorrectAnswers(optionIndex + 1);
       this.timerService.resetTimer();
       optionIndex = null;
     }

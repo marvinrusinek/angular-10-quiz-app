@@ -110,11 +110,6 @@ export class QuizService {
     }
   }
 
-  getQuestionType(): boolean {
-    console.log("correctAnswers: ", this.correctAnswers);
-    return (this.correctAnswers.length === 1);
-  }
-
   isFinalQuestion() {
     return (this.quizData.questions.length === this.currentQuestionIndex);
   }
