@@ -41,6 +41,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.formGroup = new FormGroup({
             answer: new FormControl([null, Validators.required])
           });
+          this.alreadyAnswered = false;
           break;
         case 'MULTIPLE_CHOICE':
           const multipleChoiceValidator = (control: AbstractControl) =>
@@ -54,6 +55,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
               multipleChoiceValidator
             ),
           });
+          this.alreadyAnswered = false;
           break;
       }
     }
