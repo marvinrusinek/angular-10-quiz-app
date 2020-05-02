@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -22,6 +22,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   alreadyAnswered = false;
 
   constructor(
+    private formBuilder: FormBuilder,
     private quizService: QuizService,
     private timerService: TimerService
   ) { }
@@ -34,6 +35,33 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes.question) {
+      switch (this.question.type) {
+        case 'SINGLE_CHOICE':
+          this.formGroup = new FormGroup({
+            answer: new FormControl([null, Validators.required])
+          });
+          break;
+        case 'MULTIPLE_CHOICE':
+          const multipleChoiceValidator = (control: AbstractControl) =>
+            control.value.reduce(
+              (valid: boolean, currentValue: boolean) => valid || currentValue
+              , false
+            ) ? null : {answers: 'At least one answer needs to be checked!'};
+          this.formGroup = new FormGroup({
+            answers: this.formBuilder.array(this.question.shuffledAnswers
+                .map((answer: string) => this.formBuilder.control(false)),
+              multipleChoiceValidator
+            ),
+          });
+          break;
+      }
+    }
+  }
+
+
+  // old onChanges
+  /* ngOnChanges(changes: SimpleChanges) {
     if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
       if (this.formGroup) {
@@ -41,7 +69,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         this.alreadyAnswered = false;
       }
     }
-  }
+  } */
 
   radioChange(answer: number) {
     this.answer.emit(answer);
