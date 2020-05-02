@@ -36,6 +36,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;
+    console.log('mult ans: ', this.multipleAnswer);
     console.log('changes: ', changes);
     console.log('question: ', this.question);
     
