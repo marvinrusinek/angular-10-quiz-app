@@ -7,4 +7,4 @@ export interface QuizQuestion {
   explanation: string,
   shuffledAnswers?: string
 }
-type Questions = QuizQuestion[];
+// type Questions = QuizQuestion[];
