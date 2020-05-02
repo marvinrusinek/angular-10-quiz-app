@@ -37,6 +37,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.question) {
       this.alreadyAnswered = false;
+      this.answer = null;
       switch (this.question.type) {
         case 'SINGLE_CHOICE':
           this.formGroup = new FormGroup({
