@@ -31,10 +31,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.formGroup = new FormGroup({
       answer: new FormControl(['', Validators.required])
     });
-    this.multipleAnswer = this.quizService.getQuestionType();
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    this.multipleAnswer = this.quizService.getQuestionType();
+    console.log("multipleAnswer: ", this.multipleAnswer)
+    console.log("changes: ", changes);
+    console.log("question: ", this.question);
     if (changes.question) {
       this.alreadyAnswered = false;
       switch (this.question.type) {
