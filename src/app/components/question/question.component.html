@@ -9,6 +9,7 @@
           name="answer"
           class="form-group"
           formControlName="answer"
+          [disabled]="alreadyAnswered"
           (change)="radioChange($event.value)">
 
           <div class="radio-options"
@@ -59,6 +60,7 @@
           name="answer"
           class="form-group"
           formControlName="answer"
+          [disabled]="alreadyAnswered"
           (change)="checkboxChange($event.value)"
           aria-labelledby="quiz-form-mat-radio-group">
 
