@@ -19,6 +19,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
   multipleAnswer: boolean;
+  alreadyAnswered = false;
 
   constructor(
     private quizService: QuizService,
@@ -37,6 +38,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion = changes.question.currentValue;
       if (this.formGroup) {
         this.formGroup.patchValue({answer: ''});
+        this.alreadyAnswered = false;
       }
     }
   }
@@ -70,5 +72,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
 
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
+    this.alreadyAnswered = true;
   }
 }
