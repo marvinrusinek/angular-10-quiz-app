@@ -18,7 +18,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
-  singleAnswer = false;
+  singleAnswer = true;
   alreadyAnswered = false;
   correctAnswers = [];
 
