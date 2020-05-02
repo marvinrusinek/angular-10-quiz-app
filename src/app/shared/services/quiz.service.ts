@@ -90,7 +90,7 @@ export class QuizService {
     this.correctAnswers = [...this.correctAnswers, optionValue];
   }
 
-  addFinalAnswer(answer) {
+  addFinalAnswers(answer) {
     this.finalAnswers = [...this.finalAnswers, answer];
   }
 
