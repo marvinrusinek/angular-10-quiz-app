@@ -38,7 +38,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     console.log("multipleAnswer: ", this.multipleAnswer)
     console.log("changes: ", changes);
     console.log("question: ", this.question);
-    if (changes.question) {
+    
+    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
+      this.currentQuestion = changes.question.currentValue;
+      if (this.formGroup) {
+        this.formGroup.patchValue({answer: ''});
+        this.alreadyAnswered = false;
+      }
+    }
+    
+    /* if (changes.question) {
       this.alreadyAnswered = false;
       switch (this.question.type) {
         case 'SINGLE_CHOICE':
@@ -60,7 +69,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           });
           break;
       }
-    }
+    } */
   }
 
 
