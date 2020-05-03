@@ -16,6 +16,7 @@
 
             <mat-radio-button
               [value]="i"
+              class="option"
               (change)="setSelected(i)"
               name="option-radio-button"
               [class.is-correct]="option.selected && option.correct"
@@ -67,6 +68,7 @@
 
             <mat-checkbox
               [value]="i"
+              class="option"
               (change)="setSelected(i)"
               name="option-checkbox"
               [class.is-correct]="option.selected && option.correct"
