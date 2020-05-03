@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -23,7 +23,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
 
   constructor(
-    private formBuilder: FormBuilder,
+
     private quizService: QuizService,
     private timerService: TimerService
   ) { }
@@ -74,9 +74,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
-      this.quizService.correctAnswers = [...this.quizService.correctAnswers, optionIndex + 1];
-
-      // this.quizService.addCorrectAnswers(optionIndex + 1);
       this.timerService.resetTimer();
       optionIndex = null;
     }
