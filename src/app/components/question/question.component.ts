@@ -23,7 +23,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
 
   constructor(
-
     private quizService: QuizService,
     private timerService: TimerService
   ) { }
