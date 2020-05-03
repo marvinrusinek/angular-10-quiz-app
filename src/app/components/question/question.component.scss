@@ -15,32 +15,29 @@ ol li {
 
   mat-radio-button, mat-checkbox {
     cursor: pointer;
-    
-    .feedback-icon {
-      position: absolute;
-      right: 0;
-      margin-right: 40px;
-      margin-top: -25px;
-    }
+    width: 39rem !important;
+    height: 80% !important;
+    font-family: $font-stack !important;
+    font-size: 20px !important;
+    color: #0f0900;
+    background-color: #f5f5f5 !important;
+    border: 2px solid #979797 !important;
+    padding: 5px 5px 0 30px;
+    margin-left: -5px;
+    vertical-align: middle;
 
-    .option {
-      width: 39rem !important;
-      height: 100%;
-      font-family: $font-stack;
-      font-size: 20px !important;
-      color: #0f0900;
-      background-color: #f5f5f5;
-      border: 2px solid #979797;
-      padding: 5px 5px 0 30px;
-      margin-left: -5px;
-      vertical-align: middle;
-
-      &:hover {
-        border: 2px solid #007aff;
-      }
+    &:hover {
+      border: 2px solid #007aff;
     }
   }
-  
+
+  .feedback-icon {
+    position: absolute;
+    right: 0;
+    margin-right: 40px;
+    margin-top: -25px;
+  }
+
   .is-correct {
     background-color: #00c853;
   }
@@ -49,7 +46,6 @@ ol li {
     background-color: #ff0000;
   }
 }
-
 
 .messages {
   display: flex;
