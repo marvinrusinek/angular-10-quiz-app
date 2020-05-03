@@ -35,55 +35,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;
-    console.log('mult ans: ', this.multipleAnswer);
-    console.log('changes: ', changes);
-    console.log('question: ', this.question);
-    
     if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
+      this.correctAnswers = this.getCorrectAnswers(this.currentQuestion);
+      this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;
+
       if (this.formGroup) {
         this.formGroup.patchValue({answer: ''});
         this.alreadyAnswered = false;
       }
     }
-    
-    /* if (changes.question) {
-      this.alreadyAnswered = false;
-      switch (this.question.type) {
-        case 'SINGLE_CHOICE':
-          this.formGroup = new FormGroup({
-            answer: new FormControl([null, Validators.required])
-          });
-          break;
-        case 'MULTIPLE_CHOICE':
-          const multipleChoiceValidator = (control: AbstractControl) =>
-            control.value.reduce(
-              (valid: boolean, currentValue: boolean) => valid || currentValue
-              , false
-            ) ? null : {answers: 'At least one answer needs to be checked!'};
-          this.formGroup = new FormGroup({
-            answers: this.formBuilder.array(this.question.shuffledAnswers
-                .map((answer: string) => this.formBuilder.control(false)),
-              multipleChoiceValidator
-            ),
-          });
-          break;
-      }
-    } */
   }
-
-
-  // old onChanges
-  /* ngOnChanges(changes: SimpleChanges) {
-    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
-      this.currentQuestion = changes.question.currentValue;
-      if (this.formGroup) {
-        this.formGroup.patchValue({answer: ''});
-        this.alreadyAnswered = false;
-      }
-    }
-  } */
 
   radioChange(answer: number) {
     this.answer.emit(answer);
@@ -121,5 +83,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
     this.alreadyAnswered = true;
+  }
+
+  getCorrectAnswers(question: QuizQuestion) {
+    return question.options.filter((item) => item.correct);
   }
 }
