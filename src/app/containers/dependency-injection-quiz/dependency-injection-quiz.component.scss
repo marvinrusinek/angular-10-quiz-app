@@ -52,11 +52,11 @@ mat-card-header {
   width: 40rem;
 
   mat-card-actions {
-    margin: -10px 0 45px 0;
+    margin: 10px 0 45px 0;
 
     .prev-question-nav {
       float: left;
-      margin-left: 0.3rem;
+      margin-left: 0.7rem;
     }
 
     .restart-nav {
@@ -66,7 +66,7 @@ mat-card-header {
 
     .next-question-nav {
       float: right;
-      margin-right: -1.5rem;
+      margin-right: -1.25rem;
     }
 
     /* .prev-question-nav:hover,
