@@ -12,6 +12,8 @@ mat-card-header {
     display: inline-block;
     margin: -100px -150px 0 -120px !important;
     margin-top: 5px !important;
+    font-weight: bold;
+    font-size: 36px;
   }
 
   mat-card-subtitle {
@@ -50,20 +52,25 @@ mat-card-header {
   width: 40rem;
 
   mat-card-actions {
-    margin: -10px 0 10px 0;
-
-    .next-question-nav {
-      float: right;
-      margin-right: -0.4rem;
-    }
+    margin: -10px 0 45px 0;
 
     .prev-question-nav {
       float: left;
-      margin-left: 1.5rem;
+      margin-left: 0.3rem;
     }
 
-    .next-question-nav:hover,
-    .prev-question-nav:hover {
+    .restart-nav {
+      float: left;
+      margin-left: 14rem;
+    }
+
+    .next-question-nav {
+      float: right;
+      margin-right: -1.5rem;
+    }
+
+    .prev-question-nav:hover,
+    .next-question-nav:hover {
       border: 1px solid #007aff;
     }
 
@@ -75,6 +82,7 @@ mat-card-header {
 
     .show-score-nav:hover {
       border: none;
+      color: white;
     }
   }
 }

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { animate, style, transition, trigger, keyframes } from '@angular/animations';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QUIZ_DATA } from '../../assets/quiz';
@@ -32,16 +33,20 @@ export class DependencyInjectionQuizComponent implements OnInit {
   question: QuizQuestion;
   answer: number;
   totalQuestions: number;
+  @Input() formGroup: FormGroup;
   progressValue: number;
   questionIndex: number;
+  finalAnswers = [];
   private count;
   get explanationText(): string { return this.quizService.explanationText; };
   animationState$ = new BehaviorSubject<AnimationState>('none');
+  @Input() multipleAnswer: boolean;
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -86,17 +91,22 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.answer = data;
   }
 
+  prevQuestion() {
+    this.answer = null;
+    this.animationState$.next('animationStarted');
+    this.quizService.prevQuestion();
+  }
+
+  restart(): void {
+    this.quizService.resetAll();
+    this.router.navigate(['/quiz/intro']);
+  }
+
   nextQuestion() {
     this.checkIfAnsweredCorrectly();
     this.answer = null;
     this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
-  }
-
-  prevQuestion() {
-    this.answer = null;
-    this.animationState$.next('animationStarted');
-    this.quizService.prevQuestion();
   }
 
   results() {
@@ -113,7 +123,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['correct']
       ) {
         this.sendCountToQuizService(this.count + 1);
-        this.quizService.addFinalAnswers(this.answer);
+        this.finalAnswers.push(this.answer);
       }
     }
   }

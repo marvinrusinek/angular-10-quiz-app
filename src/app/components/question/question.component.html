@@ -9,10 +9,12 @@
           name="answer"
           class="form-group"
           formControlName="answer"
-          (change)="radioChange($event.value)">
+          (change)="radioChange($event.value)"
+          aria-labelledby="quiz-form-mat-radio-group">
 
-          <div class="radio-options"
-               *ngFor="let option of currentQuestion.options; let i = index">
+          <div
+            class="radio-options"
+            *ngFor="let option of currentQuestion.options; let i = index">
 
             <mat-radio-button
               [value]="i"
@@ -60,15 +62,15 @@
           class="form-group"
           formControlName="answer"
           (change)="checkboxChange($event.value)"
-          aria-labelledby="quiz-form-mat-radio-group">
+          aria-labelledby="quiz-form-mat-checkbox-group">
 
           <div class="checkbox-options"
                *ngFor="let option of currentQuestion.options; let i = index">
 
-            <mat-checkbox
+            <mat-checkbox style="width: 39rem"
               [value]="i"
-              (change)="setSelected(i)"
               name="option-checkbox"
+              (change)="setSelected(i)"
               [class.is-correct]="option.selected && option.correct"
               [class.is-incorrect]="option.selected && !option.correct">
 
