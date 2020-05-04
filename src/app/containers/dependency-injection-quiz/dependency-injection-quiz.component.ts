@@ -36,8 +36,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
   @Input() formGroup: FormGroup;
   progressValue: number;
   questionIndex: number;
+  count: number;
   finalAnswers = [];
-  private count;
   get explanationText(): string { return this.quizService.explanationText; };
   animationState$ = new BehaviorSubject<AnimationState>('none');
   @Input() multipleAnswer: boolean;

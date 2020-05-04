@@ -85,12 +85,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.timerService.resetTimer();
       optionIndex = null;
     }
-
-    this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
+      
     this.alreadyAnswered = true;
   }
 
   getCorrectAnswers(question: QuizQuestion) {
+    this.quizService.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
     return question.options.filter((item) => item.correct);
   }
 }
