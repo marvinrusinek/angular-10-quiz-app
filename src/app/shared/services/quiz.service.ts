@@ -86,14 +86,6 @@ export class QuizService {
     return this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
   }
 
-  addCorrectAnswers(optionValue): void {
-    this.correctAnswers = [...this.correctAnswers, optionValue];
-  }
-
-  addFinalAnswers(answer) {
-    this.finalAnswers = [...this.finalAnswers, answer];
-  }
-
   /*
    * public API
    */
