@@ -99,7 +99,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   restart(): void {
     this.quizService.resetAll();
-    this.router.navigate(['/quiz/intro']);
+    this.router.navigate(['/intro']);
   }
 
   nextQuestion() {
