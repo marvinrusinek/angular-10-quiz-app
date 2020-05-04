@@ -69,9 +69,25 @@ mat-card-header {
       margin-right: -1.5rem;
     }
 
-    .prev-question-nav:hover,
+    /* .prev-question-nav:hover,
     .next-question-nav:hover {
       border: 1px solid #007aff;
+    } */
+
+    .prev-question-nav,
+    .next-question-nav,
+    .restart-nav {
+      -webkit-transform: scale(1);
+      transform: scale(1);
+      -webkit-transition: .3s ease-in-out;
+      transition: .3s ease-in-out;
+    }
+
+    .prev-question-nav:hover,
+    .next-question-nav:hover,
+    .restart-nav {
+      -webkit-transform: scale(1.3);
+      transform: scale(1.3);
     }
 
     .show-score-nav {
