@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
 import { QUIZ_DATA } from '../../assets/quiz';
-import { Quiz } from '../models/Quiz';
-import { QuizQuestion } from '../models/QuizQuestion';
+import { Quiz } from '../models/Quiz.model';
+import { QuizQuestion } from '../models/QuizQuestion.model';
 import { TimerService } from './timer.service';
 
 
@@ -13,11 +13,7 @@ export class QuizService {
   quizData: Quiz = { ...QUIZ_DATA };
   question: QuizQuestion;
   answer: number;
-
-  correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  correctAnswersCount: number;
   totalQuestions: number;
-
   currentQuestionIndex = 1;
   finalAnswers = [];
   correctAnswers = [];
@@ -25,8 +21,7 @@ export class QuizService {
   explanationText: string;
   correctMessage: string;
   hasAnswer: boolean;
-  percentage: number;
-
+  correctAnswersCountSubject = new BehaviorSubject<number>(0);
 
   constructor(
     private timerService: TimerService,
@@ -66,24 +61,20 @@ export class QuizService {
       const sortedAnswers = correctAnswers.sort();
 
       if (correctAnswers[0] && correctAnswers[1]) {
-        const sortedAnswersConcat = sortedAnswers[0].concat( ' and ' + sortedAnswers[1]);
-        this.explanationText = 'Options ' + sortedAnswersConcat + this.explanation;
-        this.correctMessage = 'The correct answers are Options ' + sortedAnswersConcat + '.';
+        const concatSortedAnswers = sortedAnswers[0] + ' and ' + sortedAnswers[1];
+        this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
+        this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const sortedAnswersConcat = sortedAnswers[0].concat(', ' + sortedAnswers[1] + ' AND ' + sortedAnswers[2]);
-        this.explanationText = 'Options ' + sortedAnswersConcat + this.explanation;
-        this.correctMessage = 'The correct answers are Options ' + sortedAnswersConcat + '.';
+        const concatSortedAnswers = sortedAnswers[0] + ', ' + sortedAnswers[1] + ' AND ' + sortedAnswers[2];
+        this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
+        this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
         this.explanationText = 'All are correct!';
         this.correctMessage = 'All are correct!';
       }
     }
-  }
-
-  calculateQuizPercentage(): number {
-    return this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
   }
 
   /*
@@ -102,25 +93,25 @@ export class QuizService {
     }
   }
 
-  isFinalQuestion() {
+  isFinalQuestion(): boolean {
     return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
-  nextQuestion() {
+  nextQuestion(): void {
     this.currentQuestionIndex++;
     let index = this.currentQuestionIndex;
-    this.router.navigate(['/question', index]);
+    this.router.navigate(['/quiz/question', index]);
     this.timerService.resetTimer();
     this.resetAll();
   }
 
-  prevQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+  previousQuestion(): void {
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
-  navigateToResults() {
-    this.router.navigate(['/results'], {
+  navigateToResults(): void {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers
