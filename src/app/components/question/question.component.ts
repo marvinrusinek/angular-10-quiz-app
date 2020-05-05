@@ -12,7 +12,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
-
+import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -30,7 +30,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   alreadyAnswered = false;
   correctAnswers = [];
 
-  constructor(private quizService: QuizService) { }
+  constructor(
+    private quizService: QuizService, private timerService: TimerService
+  ) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -78,6 +80,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
+      this.timerService.stopTimer();
       this.quizService.correctAnswers.push(optionIndex + 1);
       this.quizService.correctSound.play();
       optionIndex = null;
