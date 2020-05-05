@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../../assets/quiz';
 import { Quiz } from '../models/Quiz.model';
@@ -22,6 +23,15 @@ export class QuizService {
   correctMessage: string;
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  
+  correctSound = new Howl({
+    src: 'http://www.marvinrusinek.com/sound-correct.mp3',
+    html5: true
+  });
+  incorrectSound = new Howl({
+    src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
+    html5: true
+  });
 
   constructor(
     private timerService: TimerService,
