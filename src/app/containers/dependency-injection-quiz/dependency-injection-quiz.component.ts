@@ -91,10 +91,10 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.answer = data;
   }
 
-  prevQuestion() {
+  previousQuestion() {
     this.answer = null;
     this.animationState$.next('animationStarted');
-    this.quizService.prevQuestion();
+    this.quizService.previousQuestion();
   }
 
   restart(): void {
