@@ -124,7 +124,7 @@ export class QuizService {
   }
 
   navigateToResults(): void {
-    this.router.navigate(['/results'], {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers
