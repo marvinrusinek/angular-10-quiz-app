@@ -9,8 +9,8 @@ import { QuizService } from '../../shared/services/quiz.service';
   styleUrls: ['./scoreboard.component.scss']
 })
 export class ScoreboardComponent implements OnInit, OnChanges {
-  answer;
   @Input() set selectedAnswer(value) { this.answer = value; }
+  answer;
   totalQuestions: number;
   badgeQuestionNumber: number;
 

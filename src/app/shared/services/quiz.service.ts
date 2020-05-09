@@ -23,7 +23,7 @@ export class QuizService {
   correctMessage: string;
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  
+
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
     html5: true
@@ -32,6 +32,7 @@ export class QuizService {
     src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
     html5: true
   });
+
 
   constructor(
     private timerService: TimerService,
@@ -55,12 +56,13 @@ export class QuizService {
     this.timerService.resetTimer();
   }
 
-  setExplanationAndCorrectAnswerMessages(correctAnswers) {
+  setExplanationAndCorrectAnswerMessages(correctAnswers: any) {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
 
     if (correctAnswers.length === 1) {
       this.explanation = ' is correct because ' + this.question.explanation + '.';
+      console.log('corranschoice: ', correctAnswers[0]);
       const correctAnswersText = correctAnswers[0];
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       this.correctMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
@@ -71,6 +73,7 @@ export class QuizService {
       const sortedAnswers = correctAnswers.sort();
 
       if (correctAnswers[0] && correctAnswers[1]) {
+        console.log('corranschoice: ', correctAnswers[0] + ' ' + correctAnswers[1]);
         const concatSortedAnswers = sortedAnswers[0] + ' and ' + sortedAnswers[1];
         this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
         this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers + '.';

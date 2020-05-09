@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { QUIZ_DATA } from '../../assets/quiz';
-import { Quiz } from '../../shared/models/Quiz';
+import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -18,23 +18,20 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   correctAnswers: [];
+  correctAnswersCount: number;
   totalQuestions: number;
+  percentage: number;
   elapsedMinutes: number;
   elapsedSeconds: number;
-  percentage: number;
-  correctCount$: Observable<number>;
+  correctAnswersCount$: Observable<number>;
+  completionTime$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
-  
+
   panelOpenState = false;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
-  
-  get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
-  get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
-  get completionTime(): number { return this.timerService.completionTime; };
 
-  CONGRATULATIONS = '../../../assets/images/ng-trophy.jpg';
-  NOT_BAD = '../../../assets/images/not-bad.jpg';
-  TRY_AGAIN = '../../../assets/images/try-again.jpeg';
+  get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
+  // get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
 
   constructor(
     private quizService: QuizService,
@@ -42,28 +39,24 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
-    this.totalQuestions = this.quizService.totalQuestions;
+    this.totalQuestions = quizService.totalQuestions;
     this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
     this.calculateQuizPercentage();
   }
 
   ngOnInit() {
-    this.correctCount$ = this.quizService.correctAnswersCountSubject;
+    console.log('final answers', this.finalAnswers);
+    console.log('correct answers', this.correctAnswers);
 
-    this.elapsedMinutes = Math.floor(this.completionTime / 60);
-    this.elapsedSeconds = this.completionTime % 60;
+    this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
+    this.completionTime$ = this.timerService.completionTimeSubject;
+    console.log('completionTime: ', this.completionTime$);
+    // this.elapsedMinutes = Math.floor(this.timerService.completionTime / 60);
+    // this.elapsedSeconds = this.timerService.completionTime % 60;
   }
 
-  calculateQuizPercentage(): number {
-    // trying to convert the observable<number> to number
-    let currentCorrectCountSub: Subscription;
-    /* currentCorrectCountSub = this.store.select(getCurrentPage).subscribe(
-      (count: number) => {
-        this.correctCount$ = count;
-      }
-    ); */
-
-    return this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
+  get percentageOfCorrectlyAnsweredQuestions(): number {
+    return this.percentage = Math.ceil(100 * this.correctAnswersCount / this.totalQuestions);
   }
 
   closeAllPanels() {
@@ -74,7 +67,7 @@ export class ResultsComponent implements OnInit {
   }
 
   restart() {
-    this.quizService.resetAll();  // not resetting
+    this.quizService.resetAll();  // need to reset the answers to empty/null
     this.router.navigate(['/intro']);
   }
 }

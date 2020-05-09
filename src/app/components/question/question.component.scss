@@ -39,11 +39,11 @@ ol li {
   }
 
   .is-correct {
-    background-color: #00c853;
+    background-color: #00c853 !important;
   }
 
   .is-incorrect {
-    background-color: #ff0000;
+    background-color: #ff0000 !important;
   }
 }
 
@@ -96,8 +96,13 @@ ol li {
   }
 }
 
-// hide the radio button/checkbox next to the answer choice
-::ng-deep .mat-radio-button .mat-radio-container,
-::ng-deep .mat-checkbox .mat-radio-container {
+// hide the radio buttons/checkboxes next to the answer choice
+::ng-deep .mat-radio-button .mat-radio-container {
+  display: none;
+}
+::ng-deep .mat-checkbox .mat-checkbox-container {
+  display: none;
+}
+::ng-deep .mat-option .mat-checkbox-container {
   display: none;
 }

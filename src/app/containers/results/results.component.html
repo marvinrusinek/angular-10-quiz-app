@@ -9,27 +9,53 @@
     <section class="results">
       <h3>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
-        <h3 class="mt-20">Statistics</h3>
-        <span>You scored {{ correctCount$ | async }} out of {{ totalQuestions }} ({{ percentage }}%) questions correctly.</span>
-        <span>You completed the quiz in {{ completionTime }}  seconds.</span>
-        <!-- <span>You completed the quiz in {{ elapsedMinutes }} minutes and {{ elapsedSeconds }} seconds.</span> -->
-        <span *ngIf="elapsedMinutes < 1">You completed the quiz quickly!</span>
-        <!-- <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: percentage%"></div> -->
+        <h3 class="py-25">Statistics</h3>
+        <ng-template
+          let-percentage
+          [ngTemplateOutlet]="percentageTemplate" #percentageTemplate
+          [ngTemplateOutletContext]="{ $implicit: (((correctAnswersCount$ | async) / totalQuestions) * 100) }">
+          <h3 class="your-score">
+            You scored {{ correctAnswersCount$ | async }} out of {{ totalQuestions }}
+            ({{ percentage }}%) questions correctly.</h3>
 
-        <div class="quiz-feedback">
-          <div *ngIf="percentage >= 80">
-            <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of Congratulations">
-            <h3>Great job! </h3>
+          <div class="quiz-feedback">
+            <div *ngIf="'percentage' >= 80">
+              <img mat-card-image src="../../assets/images/congratulations.jpg" alt="Photo of Congratulations">
+              <h3>Great job! </h3>
+            </div>
+            <div *ngIf="'percentage' >= 60 && 'percentage' < 80">
+              <img mat-card-image src="../../assets/images/notbad.jpg" alt="Photo of 'Not Bad'">
+              <h3>Not bad! </h3>
+            </div>
+            <div *ngIf="'percentage' < 60">
+              <img mat-card-image src="../../assets/images/tryagain.jpeg" alt="Photo of 'Try Again'">
+              <h3>Try again! </h3>
+            </div>
           </div>
-          <div *ngIf="percentage >= 60 && percentage < 80">
-            <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'">
-            <h3>Not bad! </h3>
-          </div>
-          <div *ngIf="percentage < 60">
-            <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'">
-            <h3>Try again! </h3>
-          </div>
-        </div>
+        </ng-template>
+
+        <section class="elapsed-time">
+          <h3>
+            <ng-template
+              let-elapsedMinutes
+              [ngTemplateOutletContext]="{ $implicit: ((completionTime$ | async) / 60) | number }"
+              [ngTemplateOutlet]="elapsedMinutesTemplate" #elapsedMinutesTemplate>
+              You completed the quiz in {{ elapsedMinutes }} minutes and
+            </ng-template>
+            <ng-template
+              let-elapsedSeconds
+              [ngTemplateOutletContext]="{ $implicit: ((completionTime$ | async) % 60) }"
+              [ngTemplateOutlet]="elapsedSecondsTemplate" #elapsedSecondsTemplate>
+              {{ elapsedSeconds }} seconds.
+            </ng-template>
+          </h3>
+        </section>
+
+        <!--
+        <div
+          class="progress-bar progress-bar-striped progress-bar-animated"
+          style="width: percentage%">
+        </div> -->
       </section>
 
       <section class="quizSummary">
@@ -88,10 +114,10 @@
           </mat-accordion>
           <mat-action-row class="mat-accordion-buttons">
             <button mat-raised-button color="primary" (click)="openAllPanels()">
-              <mat-icon>unfold_more</mat-icon>&nbsp;<strong>Expand All</strong>
+              <strong>Expand All</strong>&nbsp;&nbsp;<mat-icon>unfold_more</mat-icon>
             </button> &nbsp;
             <button mat-raised-button color="primary" (click)="closeAllPanels()">
-              <mat-icon>unfold_less</mat-icon>&nbsp;<strong>Collapse All</strong>
+              <strong>Collapse All</strong>&nbsp;&nbsp;<mat-icon>unfold_less</mat-icon>
             </button>
           </mat-action-row>
         </details>
@@ -100,8 +126,12 @@
 
     <section class="return">
       <mat-card-actions>
-        <a class="btn" (click)="restart()">Restart Quiz</a>
-        <a class="btn" href="https://www.codelab.fun">Back to Codelab</a>
+        <a class="btn" (click)="restart()">
+          <i class="fas fa-power-off"></i>&nbsp;&nbsp;Restart Quiz
+        </a>
+        <a class="btn" href={{codelabUrl}}>
+          <i class="fas fa-laptop"></i>&nbsp;&nbsp;Back to Codelab
+        </a>
       </mat-card-actions>
     </section>
 

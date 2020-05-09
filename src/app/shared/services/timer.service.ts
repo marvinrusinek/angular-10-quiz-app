@@ -4,12 +4,9 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 20;
-  completionTime: number;
   elapsedTime = 0;
-  elapsedTimes = [];
-
   timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
-  getTimeLeft$ = this.timeLeft.asObservable();
+  completionTimeSubject = new BehaviorSubject<number>(this.elapsedTime);
 
   resetTimer() {
     this.timeLeft.next(this.timePerQuestion);
@@ -19,14 +16,7 @@ export class TimerService {
     this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
   }
 
-  addElapsedTimeToElapsedTimes(elapsedTime) {
-    this.elapsedTimes = [...this.elapsedTimes, elapsedTime];
-    this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
-  }
-
-  calculateTotalElapsedTime(elapsedTimes?: any) {
-    if (this.elapsedTimes) {
-      return this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
-    }
+  sendCompletionTimeToResults(value) {
+    this.completionTimeSubject.next(value);
   }
 }

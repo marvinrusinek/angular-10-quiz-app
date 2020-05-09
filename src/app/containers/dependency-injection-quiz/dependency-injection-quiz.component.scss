@@ -69,11 +69,6 @@ mat-card-header {
       margin-right: -1.25rem;
     }
 
-    /* .prev-question-nav:hover,
-    .next-question-nav:hover {
-      border: 1px solid #007aff;
-    } */
-
     .prev-question-nav,
     .next-question-nav,
     .restart-nav {
@@ -94,11 +89,6 @@ mat-card-header {
       width: 150px;
       margin: 0 auto;
       margin-top: 40px;
-    }
-
-    .show-score-nav:hover {
-      border: none;
-      color: white;
     }
   }
 }

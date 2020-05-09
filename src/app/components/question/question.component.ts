@@ -14,6 +14,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -26,13 +27,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
   get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
+  quizStarted: boolean;
   multipleAnswer: boolean;
   alreadyAnswered = false;
   correctAnswers = [];
 
-  constructor(
-    private quizService: QuizService, private timerService: TimerService
-  ) { }
+  constructor(private quizService: QuizService, private timerService: TimerService) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -64,13 +64,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
+
+  elapsedTime: number;
+  elapsedTimes = [];
+  completionTime: number;
+  completionCount: number;
+
   setSelected(optionIndex: number): void {
+    this.quizStarted = true;
     this.currentQuestion.options.forEach(o => o.selected = false);
     this.currentQuestion.options[optionIndex].selected = true;
-
-    if (this.currentQuestion.options[optionIndex].correct === true) {
-      this.correctAnswers.push(optionIndex + 1);
-    }
 
     if (
       optionIndex &&
@@ -80,7 +83,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]['correct'] &&
       this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
-      this.timerService.stopTimer();
       this.quizService.correctAnswers.push(optionIndex + 1);
       this.quizService.correctSound.play();
       optionIndex = null;
@@ -88,7 +90,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     else {
       this.quizService.incorrectSound.play();
     }
-      
+
     this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
     this.alreadyAnswered = true;
   }

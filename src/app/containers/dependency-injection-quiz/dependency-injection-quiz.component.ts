@@ -1,8 +1,7 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { animate, style, transition, trigger, keyframes } from '@angular/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { FormGroup } from '@angular/forms';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QUIZ_DATA } from '../../assets/quiz';
@@ -33,13 +32,12 @@ export class DependencyInjectionQuizComponent implements OnInit {
   question: QuizQuestion;
   answer: number;
   totalQuestions: number;
-  @Input() formGroup: FormGroup;
   progressValue: number;
   questionIndex: number;
   count: number;
   finalAnswers = [];
-  get explanationText(): string { return this.quizService.explanationText; };
   animationState$ = new BehaviorSubject<AnimationState>('none');
+  get explanationText(): string { return this.quizService.explanationText; };
   @Input() multipleAnswer: boolean;
 
   constructor(
@@ -99,7 +97,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   restart(): void {
     this.quizService.resetAll();
-    this.router.navigate(['/intro']);
+    this.router.navigate(['/quiz/intro']);
   }
 
   nextQuestion() {

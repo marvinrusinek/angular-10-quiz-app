@@ -47,6 +47,16 @@ mat-card-header {
       display: block;
     }
 
+    .your-score, .elapsed-time span {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .percent-sign {
+      font-size: large;
+      font-weight: bold;
+    }
+    
     .quiz-feedback {
       margin-top: 20px;
     }
