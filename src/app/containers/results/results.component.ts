@@ -21,8 +21,6 @@ export class ResultsComponent implements OnInit {
   correctAnswersCount: number;
   totalQuestions: number;
   percentage: number;
-  elapsedMinutes: number;
-  elapsedSeconds: number;
   correctAnswersCount$: Observable<number>;
   completionTime$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
@@ -41,7 +39,7 @@ export class ResultsComponent implements OnInit {
   {
     this.totalQuestions = quizService.totalQuestions;
     this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
-    this.calculateQuizPercentage();
+    this.percentageOfCorrectlyAnsweredQuestions();
   }
 
   ngOnInit() {
@@ -55,7 +53,7 @@ export class ResultsComponent implements OnInit {
     // this.elapsedSeconds = this.timerService.completionTime % 60;
   }
 
-  get percentageOfCorrectlyAnsweredQuestions(): number {
+  percentageOfCorrectlyAnsweredQuestions(): number {
     return this.percentage = Math.ceil(100 * this.correctAnswersCount / this.totalQuestions);
   }
 
