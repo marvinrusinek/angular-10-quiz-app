@@ -49,8 +49,6 @@ export class QuizService {
   resetAll() {
     this.answer = null;
     this.hasAnswer = false;
-   // this.correctAnswers = [];
-    this.correctMessage = undefined;
     this.explanationText = undefined;
     this.timerService.stopTimer();
     this.timerService.resetTimer();
@@ -89,6 +87,8 @@ export class QuizService {
         this.correctMessage = 'All are correct!';
       }
     }
+    correctAnswers = [];
+    this.correctMessage = undefined;
   }
 
   /*
