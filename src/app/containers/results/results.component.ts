@@ -30,6 +30,7 @@ export class ResultsComponent implements OnInit {
 
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
   // get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
+  // NEED TO GET ELAPSED TIMES FROM TIMER COMPONENT
 
   constructor(
     private quizService: QuizService,
