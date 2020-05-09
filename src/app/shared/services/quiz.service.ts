@@ -57,6 +57,7 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: any) {
+    this.correctAnswers = correctAnswers;
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
 
