@@ -66,11 +66,11 @@ export class TimerComponent implements OnInit, OnChanges {
       if (this.answer !== null) {
         this.hasAnswer = true;
         this.elapsedTime = this.timePerQuestion - this.timeLeft;
-        console.log('elapsedTime: ', this.elapsedTime);
+        // console.log('elapsedTime: ', this.elapsedTime);
         this.elapsedTimes.push(this.elapsedTime);
-        console.log('push elapsed', this.elapsedTimes);
+        // console.log('push elapsed', this.elapsedTimes);
         this.completionTime = this.calculateTotalElapsedTime();
-        console.log('completionTime', this.completionTime);
+        // console.log('completionTime', this.completionTime);
       }
 
       if (this.timeLeft === 0) {
