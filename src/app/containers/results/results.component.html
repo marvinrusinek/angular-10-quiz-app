@@ -19,15 +19,15 @@
             ({{ percentage }}%) questions correctly.</h3>
 
           <div class="quiz-feedback">
-            <div *ngIf="'percentage' >= 80">
+            <div *ngIf="percentage >= 80">
               <img mat-card-image src="../../assets/images/congratulations.jpg" alt="Photo of Congratulations">
               <h3>Great job! </h3>
             </div>
-            <div *ngIf="'percentage' >= 60 && 'percentage' < 80">
+            <div *ngIf="percentage >= 60 && percentage < 80">
               <img mat-card-image src="../../assets/images/notbad.jpg" alt="Photo of 'Not Bad'">
               <h3>Not bad! </h3>
             </div>
-            <div *ngIf="'percentage' < 60">
+            <div *ngIf="percentage < 60">
               <img mat-card-image src="../../assets/images/tryagain.jpeg" alt="Photo of 'Try Again'">
               <h3>Try again! </h3>
             </div>
@@ -38,7 +38,7 @@
           <h3>
             <ng-template
               let-elapsedMinutes
-              [ngTemplateOutletContext]="{ $implicit: ((completionTime$ | async) / 60) | number }"
+              [ngTemplateOutletContext]="{ $implicit: Math.floor((completionTime$ | async) / 60) }"
               [ngTemplateOutlet]="elapsedMinutesTemplate" #elapsedMinutesTemplate>
               You completed the quiz in {{ elapsedMinutes }} minutes and
             </ng-template>
