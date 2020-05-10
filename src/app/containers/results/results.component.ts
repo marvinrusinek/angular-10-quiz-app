@@ -24,6 +24,7 @@ export class ResultsComponent implements OnInit {
   correctAnswersCount$: Observable<number>;
   completionTime$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
+  Math: Math = Math;
 
   panelOpenState = false;
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
