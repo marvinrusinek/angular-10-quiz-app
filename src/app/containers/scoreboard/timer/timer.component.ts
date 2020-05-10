@@ -33,12 +33,8 @@ export class TimerComponent implements OnInit, OnChanges {
       this.timeLeft = data;
     });
     this.timer();
+    this.sendCompletionTimeToTimerService(this.completionTime);
   }
-
-  /* sendCompletionTimeToTimerService(newValue) {
-    this.completionCount = newValue;
-    this.timerService.sendCompletionTimeToResults(this.completionCount);
-  } */
 
   ngOnChanges(changes: SimpleChanges) {
     if (
@@ -66,11 +62,7 @@ export class TimerComponent implements OnInit, OnChanges {
       if (this.answer !== null) {
         this.hasAnswer = true;
         this.elapsedTime = this.timePerQuestion - this.timeLeft;
-        // console.log('elapsedTime: ', this.elapsedTime);
         this.elapsedTimes.push(this.elapsedTime);
-        // console.log('push elapsed', this.elapsedTimes);
-        this.completionTime = this.calculateTotalElapsedTime();
-        // console.log('completionTime', this.completionTime);
       }
 
       if (this.timeLeft === 0) {
@@ -80,6 +72,7 @@ export class TimerComponent implements OnInit, OnChanges {
           this.inProgress = true;
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
+          this.completionTime = this.calculateTotalElapsedTime();
           this.quizService.navigateToResults();
           this.timerService.stopTimer();
           this.quizIsOver = true;
@@ -95,11 +88,9 @@ export class TimerComponent implements OnInit, OnChanges {
 
   calculateTotalElapsedTime(): number {
     if (this.elapsedTimes.length > 0) {
-      return this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
-      console.log('calcTotalElapsedTime', this.completionTime);
-
-      // this.completionCount = this.timerService.completionTimeSubject.getValue();
+      this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
       this.sendCompletionTimeToTimerService(this.completionTime);
+      return this.completionTime;
     }
   }
 

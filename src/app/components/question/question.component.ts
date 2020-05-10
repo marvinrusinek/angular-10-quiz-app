@@ -32,7 +32,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   alreadyAnswered = false;
   correctAnswers = [];
 
-  constructor(private quizService: QuizService, private timerService: TimerService) { }
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService
+  ) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
