@@ -39,7 +39,7 @@ export class ResultsComponent implements OnInit {
   )
   {
     this.totalQuestions = quizService.totalQuestions;
-    this.correctAnswers = this.router.getCurrentNavigation().extras.state.correctAnswers;
+    this.correctAnswers = router.getCurrentNavigation().extras.state.correctAnswers;
     this.percentageOfCorrectlyAnsweredQuestions();
   }
 
