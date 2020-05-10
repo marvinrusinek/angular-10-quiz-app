@@ -49,6 +49,8 @@ export class QuizService {
   resetAll() {
     this.answer = null;
     this.hasAnswer = false;
+    this.correctAnswers = [];
+    this.correctMessage = undefined;
     this.explanationText = undefined;
     this.timerService.stopTimer();
     this.timerService.resetTimer();
