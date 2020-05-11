@@ -32,7 +32,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   alreadyAnswered = false;
   correctAnswers = [];
 
-  constructor(private quizService: QuizService, private timerService: TimerService) { }
+  constructor(
+    private quizService: QuizService, 
+    private timerService: TimerService
+  ) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -63,12 +66,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
-
-
-  elapsedTime: number;
-  elapsedTimes = [];
-  completionTime: number;
-  completionCount: number;
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;

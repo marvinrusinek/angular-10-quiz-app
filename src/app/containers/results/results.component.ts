@@ -18,7 +18,6 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  correctAnswers: [];
   correctAnswersCount: number;
   totalQuestions: number;
   percentage: number;
@@ -28,7 +27,9 @@ export class ResultsComponent implements OnInit {
   Math: Math = Math;
   resultsMap: Result; // = new Result(this.finalAnswers, this.elapsedTimes);
 
-  get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
+  get correctAnswers(): Array<number> { 
+    return this.quizService.correctAnswers };
+  // get userAnswers from di-quiz-comp!
   elapsedTimes: number[]; // get elapsed times from timer component
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
@@ -39,31 +40,30 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
-    // this.resultsMap = [this.finalAnswers[], this.elapsedTimes];
-
+    // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
-    this.correctAnswers = router.getCurrentNavigation().extras.state.correctAnswers;
-    this.percentageOfCorrectlyAnsweredQuestions();
+    this.percentageOfCorrectlyAnsweredQuestions();  // possibly remove, already being calculated in the view
   }
 
   ngOnInit() {
-    console.log('final answers', this.finalAnswers);
     console.log('correct answers', this.correctAnswers);
+    // console.log('user answers', this.userAnswers);
 
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
     this.completionTime$ = this.timerService.completionTimeSubject;
     console.log('completionTime: ', this.completionTime$);
   }
 
+  // possibly remove, already being calculated in the view
   percentageOfCorrectlyAnsweredQuestions(): number {
     return Math.ceil(100 * this.correctAnswersCount / this.totalQuestions);
   }
 
-  closeAllPanels() {
-    this.Accordion.closeAll();
-  }
   openAllPanels() {
     this.Accordion.openAll();
+  }
+  closeAllPanels() {
+    this.Accordion.closeAll();
   }
 
   restart() {
@@ -71,11 +71,3 @@ export class ResultsComponent implements OnInit {
     this.router.navigate(['/quiz/intro']);
   }
 }
-
-/* export class QuizMetadata {
-  correctAnswers: [];
-  totalQuestions: number;
-  completionTime: number;
-  correctAnswersCount: number;
-  percentage: number;
-} */
