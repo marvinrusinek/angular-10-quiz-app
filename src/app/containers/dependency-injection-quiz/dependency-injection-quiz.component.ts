@@ -34,8 +34,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
   totalQuestions: number;
   progressValue: number;
   questionIndex: number;
-  count: number;
-  userAnswers = [];
+  correctCount: number;
+  userAnswers: number[] = [];
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; };
   @Input() multipleAnswer: boolean;
@@ -68,13 +68,13 @@ export class DependencyInjectionQuizComponent implements OnInit {
       this.quizService.correctAnswersCountSubject.next(0);
     }
 
-    this.count = this.quizService.correctAnswersCountSubject.getValue();
-    this.sendCorrectCountToQuizService(this.count);
+    this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
+    this.sendCorrectCountToQuizService(this.correctCount);
   }
 
   sendCorrectCountToQuizService(newValue) {
-    this.count = newValue;
-    this.quizService.sendCountToResults(this.count);
+    this.correctCount = newValue;
+    this.quizService.sendCorrectCountToResults(this.correctCount);
   }
 
   animationDoneHandler(): void {
@@ -120,7 +120,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.sendCorrectCountToQuizService(this.count + 1);
+        this.sendCorrectCountToQuizService(this.correctCount + 1);
         this.userAnswers.push(this.answer);
       }
     }
