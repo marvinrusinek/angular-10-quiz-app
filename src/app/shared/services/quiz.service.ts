@@ -113,18 +113,18 @@ export class QuizService {
   nextQuestion(): void {
     this.currentQuestionIndex++;
     let index = this.currentQuestionIndex;
-    this.router.navigate(['/quiz/question', index]);
+    this.router.navigate(['/question', index]);
     this.timerService.resetTimer();
     this.resetAll();
   }
 
   previousQuestion(): void {
-    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   navigateToResults(): void {
-    this.router.navigate(['/quiz/results'], {
+    this.router.navigate(['/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers
