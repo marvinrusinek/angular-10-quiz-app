@@ -120,27 +120,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.sendCountToQuizService(this.count + 1);
+        this.sendCorrectCountToQuizService(this.count + 1);
         this.userAnswers.push(this.answer);
       }
     }
   }
-
-  /* onSubmit(): void {
-    let answer = null;
-    if (this.multipleAnswer === false) {
-      answer = this.formGroup.value.answer;
-    }
-    if (this.multipleAnswer === true) {
-      answer = this.formGroup.value.answers
-        .map((isChecked: boolean, index: number) => isChecked ? index : -1)
-        .filter((checkedIndex: number) => checkedIndex >= 0);
-    }
-
-    const submitAnswer = {
-      questionId: this.questionIndex,
-      answer,
-    };
-    // this.submitAnswer.emit(submitAnswer);
-  } */
 }
