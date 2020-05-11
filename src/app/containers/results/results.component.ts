@@ -3,8 +3,9 @@ import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 import { Observable } from 'rxjs';
 
-import { QUIZ_DATA } from '../../assets/quiz';
+import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { Result } from '../../shared/models/Result.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -25,13 +26,12 @@ export class ResultsComponent implements OnInit {
   completionTime$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
   Math: Math = Math;
-
-  panelOpenState = false;
-  @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
+  resultsMap: Result; // = new Result(this.finalAnswers, this.elapsedTimes);
 
   get finalAnswers(): Array<number> { return this.quizService.finalAnswers; };
-  // get elapsedTimes(): Array<number> { return this.timerService.elapsedTimes; };
-  // NEED TO GET ELAPSED TIMES FROM TIMER COMPONENT
+  elapsedTimes: number[]; // get elapsed times from timer component
+  @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
+  panelOpenState = false;
 
   constructor(
     private quizService: QuizService,
@@ -39,6 +39,8 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
+    // this.resultsMap = [this.finalAnswers[], this.elapsedTimes];
+
     this.totalQuestions = quizService.totalQuestions;
     this.correctAnswers = router.getCurrentNavigation().extras.state.correctAnswers;
     this.percentageOfCorrectlyAnsweredQuestions();
@@ -51,12 +53,10 @@ export class ResultsComponent implements OnInit {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
     this.completionTime$ = this.timerService.completionTimeSubject;
     console.log('completionTime: ', this.completionTime$);
-    // this.elapsedMinutes = Math.floor(this.timerService.completionTime / 60);
-    // this.elapsedSeconds = this.timerService.completionTime % 60;
   }
 
   percentageOfCorrectlyAnsweredQuestions(): number {
-    return this.percentage = Math.ceil(100 * this.correctAnswersCount / this.totalQuestions);
+    return Math.ceil(100 * this.correctAnswersCount / this.totalQuestions);
   }
 
   closeAllPanels() {
@@ -67,8 +67,8 @@ export class ResultsComponent implements OnInit {
   }
 
   restart() {
-    this.quizService.resetAll();  // need to reset the answers to empty/null
-    this.router.navigate(['/intro']);
+    this.quizService.resetAll();
+    this.router.navigate(['/quiz/intro']);
   }
 }
 

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { Howl } from 'howler';
 
-import { QUIZ_DATA } from '../../assets/quiz';
+import { QUIZ_DATA } from '../quiz';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { TimerService } from './timer.service';
@@ -88,8 +88,6 @@ export class QuizService {
         this.correctMessage = 'All are correct!';
       }
     }
-    correctAnswers = [];
-    this.correctMessage = undefined;
   }
 
   /*
@@ -115,18 +113,18 @@ export class QuizService {
   nextQuestion(): void {
     this.currentQuestionIndex++;
     let index = this.currentQuestionIndex;
-    this.router.navigate(['/question', index]);
+    this.router.navigate(['/quiz/question', index]);
     this.timerService.resetTimer();
     this.resetAll();
   }
 
   previousQuestion(): void {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   navigateToResults(): void {
-    this.router.navigate(['/results'], {
+    this.router.navigate(['/quiz/results'], {
       state: {
         questions: this.quizData.questions,
         correctAnswers: this.correctAnswers

@@ -16,7 +16,7 @@ ol li {
 
   mat-radio-button, mat-checkbox {
     cursor: pointer;
-    width: 39rem !important;
+    width: 39rem;
     height: 80% !important;
     font-family: $font-stack !important;
     font-size: 20px !important;
@@ -104,3 +104,4 @@ ol li {
 ::ng-deep .mat-checkbox .mat-checkbox-inner-container {
   display: none;
 }
+

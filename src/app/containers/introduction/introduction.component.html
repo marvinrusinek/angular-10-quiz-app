@@ -1,15 +1,14 @@
 <mat-card class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
-    <mat-card-title>{{ quizData?.milestone }} Quiz</mat-card-title>
+    <mat-card-title i18n>{{ quizData?.milestone }} Quiz</mat-card-title>
     <mat-card-subtitle>
-      <span>How well do you know {{ quizData?.milestone }}?</span>
-      <span>Take the quiz and find out!</span>
+      <span i18n>How well do you know {{ quizData?.milestone }}?</span>
+      <span i18n>Take the quiz and find out!</span>
     </mat-card-subtitle>
     <div mat-card-image class="quiz-topic-image"
-      [ngStyle]="{ 'background':
-                      'url(' + quizData?.imageUrl + ') no-repeat center center',
-                   'background-size': '95%' }">
+         [ngStyle]="{ 'background': 'url(' + quizData?.imageUrl + ') no-repeat center center',
+                      'background-size': '95%' }">
     </div>
   </mat-card-header>
 
@@ -25,7 +24,7 @@
       mat-raised-button
       disableRipple="true"
       class="btn btn-outline-primary"
-      routerLink="/question/1">
+      routerLink="/quiz/question/1">
       <strong>Start the Quiz!</strong>
     </button>
   </mat-card-actions>

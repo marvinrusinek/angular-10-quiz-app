@@ -56,7 +56,7 @@ mat-card-header {
       font-size: large;
       font-weight: bold;
     }
-    
+
     .quiz-feedback {
       margin-top: 20px;
     }
@@ -198,20 +198,20 @@ mat-card-header {
 
     /* a.btn.facebook {
       background-color: #4267b2;
-      background-image: url('../../assets/images/facebook.gif');
-      top: 5px;
+      background-image: url('../../../../assets/images/facebook.gif');
+      top: 10px !important;
     } */
 
     a.btn.twitter {
       background-color: #59adeb;
-      background-image: url('../../assets/images/twitter.svg');
-      top: 5px;
+      background-image: url('../../../../assets/images/twitter.svg');
+      top: 10px !important;
     }
 
     a.btn.email {
       background-color: #f0a121;
-      background-image: url('../../assets/images/email.svg');
-      top: 5px;
+      background-image: url('../../../../assets/images/email.svg');
+      top: 10px !important;
     }
   }
 }

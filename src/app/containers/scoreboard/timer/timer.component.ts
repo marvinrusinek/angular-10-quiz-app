@@ -17,7 +17,7 @@ export class TimerComponent implements OnInit, OnChanges {
   timeLeft: number;
   timePerQuestion = 20;
   elapsedTime: number;
-  elapsedTimes = [];
+  elapsedTimes: number[] = [];
   completionTime: number;
   completionCount: number;
   quizIsOver: boolean;
@@ -72,7 +72,8 @@ export class TimerComponent implements OnInit, OnChanges {
           this.inProgress = true;
         }
         if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-          this.completionTime = this.calculateTotalElapsedTime();
+          console.log('compTime: ', this.completionTime);
+          // this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
           this.quizService.navigateToResults();
           this.timerService.stopTimer();
           this.quizIsOver = true;
@@ -86,9 +87,9 @@ export class TimerComponent implements OnInit, OnChanges {
     }
   }
 
-  calculateTotalElapsedTime(): number {
-    if (this.elapsedTimes.length > 0) {
-      this.completionTime = this.elapsedTimes.reduce((acc, cur) => acc + cur, 0);
+  calculateTotalElapsedTime(elapsedTimes: number[]): number {
+    if (elapsedTimes.length > 0) {
+      this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
       this.sendCompletionTimeToTimerService(this.completionTime);
       return this.completionTime;
     }

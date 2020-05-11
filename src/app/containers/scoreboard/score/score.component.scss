@@ -3,7 +3,7 @@ $font-weight-max: 900;
 
 @font-face {
   font-family: 'DjbUpOnTheScoreboard';
-  src: url('../../../assets/fonts/DjbUpOnTheScoreboard.ttf') format('truetype');
+  src: url('../../../../../assets/fonts/DjbUpOnTheScoreboard.ttf') format('truetype');
 }
 
 .score {
@@ -12,6 +12,7 @@ $font-weight-max: 900;
 
   .leader {
     margin-left: 10px;
+    margin-top: 5px;
     display: block;
     font-weight: $font-weight-max;
     font-size: 18px;
@@ -29,7 +30,7 @@ $font-weight-max: 900;
     font-size: 30px;
     color: #006400;
     display: inline-block;
-    margin: -5px 0 0 15px;
+    margin: -10px 0 0 15px;
     width: auto;
     margin-left: 20px;
   }

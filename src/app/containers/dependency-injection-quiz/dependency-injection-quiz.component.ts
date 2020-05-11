@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QUIZ_DATA } from '../../assets/quiz';
+import { QUIZ_DATA } from '../../shared/quiz';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -125,4 +125,22 @@ export class DependencyInjectionQuizComponent implements OnInit {
       }
     }
   }
+
+  /* onSubmit(): void {
+    let answer = null;
+    if (this.multipleAnswer === false) {
+      answer = this.formGroup.value.answer;
+    }
+    if (this.multipleAnswer === true) {
+      answer = this.formGroup.value.answers
+        .map((isChecked: boolean, index: number) => isChecked ? index : -1)
+        .filter((checkedIndex: number) => checkedIndex >= 0);
+    }
+
+    const submitAnswer = {
+      questionId: this.questionIndex,
+      answer,
+    };
+    // this.submitAnswer.emit(submitAnswer);
+  } */
 }
