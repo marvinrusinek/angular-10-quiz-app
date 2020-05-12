@@ -42,7 +42,7 @@
         </ng-template>
 
         <section class="completion-time">
-          <span class="elapsed-time">
+          <span class="elapsed-time" i18n>
             <ng-template
               let-elapsedMinutes
               [ngTemplateOutletContext]="{ $implicit: Math.floor((completionTime$ | async) / 60) }"
