@@ -47,7 +47,7 @@ mat-card-header {
       display: block;
     }
 
-    .your-score, .elapsed-time span {
+    span.your-score, span.elapsed-time {
       font-size: 18px;
       font-weight: bold;
     }
@@ -59,6 +59,10 @@ mat-card-header {
 
     .quiz-feedback {
       margin-top: 20px;
+
+      img {
+        border-radius: 10px;
+      }
     }
   }
 

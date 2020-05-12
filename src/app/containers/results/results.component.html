@@ -1,40 +1,48 @@
 <mat-card class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
-    <mat-card-title>{{ quizData?.milestone }} Quiz</mat-card-title>
-    <mat-card-subtitle>Results</mat-card-subtitle>
+    <mat-card-title i18n>{{ quizData?.milestone }} Quiz</mat-card-title>
+    <mat-card-subtitle i18n>Results</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
     <section class="results">
-      <h3>Congratulations! You&apos;ve completed the quiz!</h3>
+      <h3 i18n>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
         <ng-template
           let-percentage
           [ngTemplateOutlet]="percentageTemplate" #percentageTemplate
           [ngTemplateOutletContext]="{ $implicit: (((correctAnswersCount$ | async) / totalQuestions) * 100) }">
-          <h3 class="your-score">
+          <span class="your-score" i18n>
             You scored {{ correctAnswersCount$ | async }} out of {{ totalQuestions }}
-            ({{ percentage }}%) questions correctly.</h3>
+            ({{ percentage }}%) questions correctly.</span>
 
           <div class="quiz-feedback">
             <div *ngIf="percentage >= 80">
-              <img mat-card-image src="../../assets/images/congratulations.jpg" alt="Photo of Congratulations">
-              <h3>Great job! </h3>
+              <img mat-card-image src="../../assets/images/congratulations.jpg" alt="Photo of 'Congratulations'">
+              <h3 i18n>Great job! </h3>
             </div>
             <div *ngIf="percentage >= 60 && percentage < 80">
               <img mat-card-image src="../../assets/images/notbad.jpg" alt="Photo of 'Not Bad'">
-              <h3>Not bad! </h3>
+              <h3 i18n>Not bad! </h3>
             </div>
             <div *ngIf="percentage < 60">
               <img mat-card-image src="../../assets/images/tryagain.jpeg" alt="Photo of 'Try Again'">
-              <h3>Try again! </h3>
+              <h3 i18n>Try again! </h3>
             </div>
+
+            <!-- <div class="progress">
+              <div role="progress-bar"
+                   [ngStyle]="{ 'width': 'percentage + % !important' }"
+                   class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                   aria-valuemin="0" aria-valuemax="100" aria-valuenow={{percentage}}>
+              </div>
+            </div> -->
           </div>
         </ng-template>
 
-        <section class="elapsed-time">
-          <h3>
+        <section class="completion-time">
+          <span class="elapsed-time">
             <ng-template
               let-elapsedMinutes
               [ngTemplateOutletContext]="{ $implicit: Math.floor((completionTime$ | async) / 60) }"
@@ -47,14 +55,10 @@
               [ngTemplateOutlet]="elapsedSecondsTemplate" #elapsedSecondsTemplate>
               {{ elapsedSeconds }} seconds.
             </ng-template>
-          </h3>
+          </span>
         </section>
 
-        <!--
-        <div
-          class="progress-bar progress-bar-striped progress-bar-animated"
-          style="width: percentage%">
-        </div> -->
+        <br clear="all" />
       </section>
 
       <section class="quizSummary">
@@ -80,14 +84,14 @@
 
                 <ng-template
                   matExpansionPanelContent
-                  *ngFor="let finalAnswer of finalAnswers; let i = index">
+                  *ngFor="let userAnswer of userAnswers; let i = index">
                   <div class="quiz-summary-field">
                     <span>
                       <span class="leader">Your Answer: </span>
-                      Option {{ finalAnswer }} &mdash; {{ question?.options[finalAnswer - 1].text }}
-                      <mat-icon class="correct" *ngIf="question?.options[finalAnswer].correct === true">done</mat-icon>
-                      <mat-icon class="incorrect" *ngIf="question?.options[finalAnswer].correct === false">clear</mat-icon>
-                      <span *ngIf="!finalAnswer"> (no answer provided)</span>
+                      Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
+                      <mat-icon class="correct" *ngIf="question?.options[userAnswer].correct === true">done</mat-icon>
+                      <mat-icon class="incorrect" *ngIf="question?.options[userAnswer].correct === false">clear</mat-icon>
+                      <span *ngIf="!userAnswer"> (no answer provided)</span>
                     </span>
                   </div>
                   <div class="quiz-summary-field">
