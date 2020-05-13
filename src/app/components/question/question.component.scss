@@ -17,12 +17,12 @@ ol li {
   mat-radio-button, mat-checkbox {
     cursor: pointer;
     width: 39rem;
-    height: 80% !important;
-    font-family: $font-stack !important;
-    font-size: 20px !important;
+    height: 80%;
+    font-family: $font-stack;
+    font-size: 20px;
     color: #0f0900;
-    background-color: #f5f5f5 !important;
-    border: 2px solid #979797 !important;
+    background-color: #f5f5f5;
+    border: 2px solid #979797;
     padding: 5px 5px 0 30px;
     margin-left: -5px;
     vertical-align: middle;
@@ -40,29 +40,29 @@ ol li {
   }
 
   .is-correct {
-    background-color: #00c853 !important;
+    background-color: #00c853;
   }
 
   .is-incorrect {
-    background-color: #ff0000 !important;
+    background-color: #ff0000;
   }
 }
 
 .messages {
   display: flex;
   justify-content: center;
-  margin-top: 5px !important;
+  margin-top: 5px;
 
   .message {
     font-family: $font-stack;
     font-weight: $font-weight-max;
     font-size: 16px;
     font-style: italic;
-    margin: 0 auto !important;
+    margin: 0 auto;
     padding: 10px !important;
-    width: 35rem !important;
+    width: 35rem;
     display: inline-flex;
-    justify-content: center !important;
+    justify-content: center;
     align-items: center;
     vertical-align: middle;
   }

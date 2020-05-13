@@ -12,7 +12,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
-import { TimerService } from '../../shared/services/timer.service';
 
 
 @Component({
@@ -31,11 +30,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   multipleAnswer: boolean;
   alreadyAnswered = false;
   correctAnswers = [];
+  @Output() selectedOption = true;
 
-  constructor(
-    private quizService: QuizService, 
-    private timerService: TimerService
-  ) { }
+  constructor(private quizService: QuizService) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -59,9 +56,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   radioChange(answer: number) {
     this.answer.emit(answer);
   }
-  checkboxChange(answer: number) {
-    this.answer.emit(answer);
-  }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
@@ -69,16 +63,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
+    this.answer.emit(optionIndex);
+
     this.currentQuestion.options.forEach(o => o.selected = false);
     this.currentQuestion.options[optionIndex].selected = true;
+
+    if (this.currentQuestion.options[optionIndex].selected === true) {
+      this.selectedOption = true;
+    }
 
     if (
       optionIndex &&
       this.currentQuestion &&
       this.currentQuestion.options &&
+      this.currentQuestion.options[optionIndex]['correct'] === true && 
       this.currentQuestion.options[optionIndex]['selected'] ===
-      this.currentQuestion.options[optionIndex]['correct'] &&
-      this.currentQuestion.options[optionIndex]['correct'] === true
+      this.currentQuestion.options[optionIndex]['correct']
     ) {
       this.quizService.correctAnswers.push(optionIndex + 1);
       this.quizService.correctSound.play();
