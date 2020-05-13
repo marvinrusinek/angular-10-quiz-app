@@ -72,7 +72,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.sendCorrectCountToQuizService(this.correctCount);
   }
 
-  sendCorrectCountToQuizService(newValue) {
+  sendCorrectCountToQuizService(newValue: number): void {
     this.correctCount = newValue;
     this.quizService.sendCorrectCountToResults(this.correctCount);
   }

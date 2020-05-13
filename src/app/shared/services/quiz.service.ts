@@ -42,7 +42,7 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  sendCorrectCountToResults(value) {
+  sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
   }
 
@@ -56,7 +56,7 @@ export class QuizService {
     this.timerService.resetTimer();
   }
 
-  setExplanationAndCorrectAnswerMessages(correctAnswers: any) {
+  setExplanationAndCorrectAnswerMessages(correctAnswers: any): void {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
 
