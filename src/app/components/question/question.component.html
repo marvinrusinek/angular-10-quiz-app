@@ -1,72 +1,56 @@
 <ng-content></ng-content>
 
-<form [formGroup]="formGroup">
+<form
+  [formGroup]="formGroup">
+  <div class="options"
+       *ngFor="let option of currentQuestion.options; index as i">
   <ol *ngIf="!multipleAnswer">
-    <div class="radio-options"
-         *ngFor="let option of currentQuestion.options; index as i">
+    <li><mat-radio-button
+      (change)="setSelected(i)"
+      [class.is-correct]="option.selected && option.correct"
+      [class.is-incorrect]="option.selected && !option.correct">
+      {{ option.text }}
+      <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
+      </mat-icon>
+      <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear</mat-icon>
+    </mat-radio-button>
 
-      <mat-radio-button
-        (change)="setSelected(i)"
-        [class.is-correct]="option.selected && option.correct"
-        [class.is-incorrect]="option.selected && !option.correct">
-
-        <li>{{ option.text }}</li>
-
-        <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
-        </mat-icon>
-        <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear
-        </mat-icon>
-      </mat-radio-button>
-
-      <section class="messages" *ngIf="option.selected">
-        <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
-          <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message correct-message">
-            You&apos;re right! {{ correctMessage }}
-          </span>
-        </div>
-        <div *ngIf="option.selected && !option.correct">
-          <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message wrong-message">
-            That&apos;s wrong. {{ correctMessage }}
-          </span>
-        </div>
-      </section>
-    </div>
+    <section class="messages" *ngIf="option.selected">
+      <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
+        <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+        <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+      </div>
+      <div *ngIf="option.selected && !option.correct">
+        <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+        <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
+      </div>
+    </section>
+    </li>
   </ol>
 
   <ol *ngIf="multipleAnswer">
-    <div class="checkbox-options"
-         *ngFor="let option of currentQuestion.options; index as i">
-      <mat-checkbox
-        (change)="setSelected(i)"
-        [class.is-correct]="option.selected && option.correct"
-        [class.is-incorrect]="option.selected && !option.correct">
+    <li><mat-checkbox
+      (change)="setSelected(i)"
+      [class.is-correct]="option.selected && option.correct"
+      [class.is-incorrect]="option.selected && !option.correct">
+      {{ option.text }}
 
-        <li>{{ option.text }}</li>
+      <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
+      </mat-icon>
+      <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear</mat-icon>
+    </mat-checkbox>
 
-        <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">done
-        </mat-icon>
-        <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear
-        </mat-icon>
-      </mat-checkbox>
-
-      <section class="messages" *ngIf="option.selected">
-        <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
-          <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message correct-message">
-            You&apos;re right! {{ correctMessage }}
-          </span>
-        </div>
-        <div *ngIf="option.selected && !option.correct">
-          <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message wrong-message">
-            That&apos;s wrong. {{ correctMessage }}
-          </span>
-        </div>
-      </section>
-    </div>
+    <section class="messages" *ngIf="option.selected">
+      <div *ngIf="option.selected && option.correct && isCorrect(option.correct, i)">
+        <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+        <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+      </div>
+      <div *ngIf="option.selected && !option.correct">
+        <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+        <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
+      </div>
+    </section>
+    </li>
   </ol>
+  </div>
 </form>
-
-
