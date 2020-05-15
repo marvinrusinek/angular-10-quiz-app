@@ -25,7 +25,7 @@ export class ResultsComponent implements OnInit {
   completionTime$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
   Math: Math = Math;
-  resultsMap: Result; // = new Result(this.finalAnswers, this.elapsedTimes);
+  resultsMap: Result; // = new Result(this.userAnswers, this.elapsedTimes);
 
   get correctAnswers(): Array<number> { 
     return this.quizService.correctAnswers };
