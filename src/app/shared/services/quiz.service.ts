@@ -42,10 +42,6 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  sendCorrectCountToResults(value: number): void {
-    this.correctAnswersCountSubject.next(value);
-  }
-
   resetAll() {
     this.answer = null;
     this.hasAnswer = false;
@@ -54,6 +50,19 @@ export class QuizService {
     this.explanationText = undefined;
     this.timerService.stopTimer();
     this.timerService.resetTimer();
+  }
+
+  sendCorrectCountToResults(value: number): void {
+    this.correctAnswersCountSubject.next(value);
+  }
+
+  getCorrectAnswers(question: QuizQuestion) {
+    // push answers that are correct onto correctAnswers array
+    this.correctAnswers.push(
+      question.options.filter((item) => item.correct)
+    );
+    
+    return question.options.filter((item) => item.correct);
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: any): void {
