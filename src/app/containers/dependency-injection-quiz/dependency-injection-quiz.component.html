@@ -1,8 +1,7 @@
 <mat-card
   [@changeRoute]="animationState$ | async"
   (@changeRoute.done)="animationDoneHandler()"
-  *ngIf="question && questionIndex <= totalQuestions"
-  class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+  *ngIf="question && questionIndex <= totalQuestions">
 
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
@@ -21,6 +20,7 @@
     <codelab-quiz-question
       [question]="question"
       multipleAnswer="multipleAnswer"
+      selectedOption="selectedOption"
       (answer)="selectedAnswer($event)">
     </codelab-quiz-question>
   </mat-card-content>
@@ -34,7 +34,8 @@
               type="button"
               mat-flat-button
               (click)="previousQuestion()"
-              (window:keydown.ArrowLeft)="previousQuestion()">
+              (window:keydown.ArrowLeft)="previousQuestion()"
+              matTooltip="&laquo; Previous Question" matTooltipPosition="above">
               <svg viewBox="0 0 410.258 410.258" style="enable-background:new 0 0 410.258 410.258;">
                 <polygon style="fill:#007aff;"
                   points="298.052,24 266.052,0 112.206,205.129 266.052,410.258 298.052,386.258 162.206,205.129 "/>
@@ -42,13 +43,13 @@
             </button>
           </div>
 
-          <div
-            class="restart-nav" *ngIf="question && (questionIndex > 1) && (questionIndex < totalQuestions)">
+          <div class="restart-nav" *ngIf="question && (questionIndex > 1) && (questionIndex < totalQuestions)">
             <button
               type="button"
               mat-flat-button
-              (click)="restart()">
-              <svg width="30px" height="30px" viewBox="0 0 305.836 305.836" style="enable-background:new 0 0 305.836 305.836;">
+              (click)="restart()"
+              matTooltip="Restart Quiz" matTooltipPosition="above">
+              <svg viewBox="0 0 305.836 305.836" style="enable-background:new 0 0 305.836 305.836;">
                 <path style="fill:#007aff;" d="M152.924,300.748c84.319,0,152.912-68.6,152.912-152.918c0-39.476-15.312-77.231-42.346-105.564
 	                c0,0,3.938-8.857,8.814-19.783c4.864-10.926-2.138-18.636-15.648-17.228l-79.125,8.289c-13.511,1.411-17.999,11.467-10.021,22.461
 	                l46.741,64.393c7.986,10.992,17.834,12.31,22.008,2.937l7.56-16.964c12.172,18.012,18.976,39.329,18.976,61.459
@@ -65,7 +66,8 @@
               mat-flat-button
               (click)="nextQuestion()"
               (window:keydown.ArrowRight)="nextQuestion()"
-              (window:keydown.Enter)="nextQuestion()">
+              (window:keydown.Enter)="nextQuestion()"
+              matTooltip="Next Question &raquo;" matTooltipPosition="above">
               <svg viewBox="0 0 410.258 410.258" style="enable-background:new 0 0 410.258 410.258;">
                 <polygon style="fill:#007aff;"
                   points="144.206,0 112.206,24 248.052,205.129 112.206,386.258 144.206,410.258 298.052,205.129 "/>
