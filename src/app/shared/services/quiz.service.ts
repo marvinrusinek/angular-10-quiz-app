@@ -42,7 +42,7 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  resetAll() {
+  resetAll(): void {
     this.answer = null;
     this.hasAnswer = false;
     this.correctAnswers = [];
@@ -121,8 +121,8 @@ export class QuizService {
 
   nextQuestion(): void {
     this.currentQuestionIndex++;
-    let index = this.currentQuestionIndex;
-    this.router.navigate(['/question', index]);
+    let questionIndex = this.currentQuestionIndex;
+    this.router.navigate(['/question', questionIndex]);
     this.timerService.resetTimer();
     this.resetAll();
   }

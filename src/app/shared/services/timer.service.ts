@@ -8,15 +8,15 @@ export class TimerService {
   timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
   completionTimeSubject = new BehaviorSubject<number>(this.elapsedTime);
 
-  resetTimer() {
+  resetTimer(): void {
     this.timeLeft.next(this.timePerQuestion);
   }
 
-  stopTimer() {
+  stopTimer(): void {
     this.timeLeft.next(this.timePerQuestion - this.elapsedTime);
   }
 
-  sendCompletionTimeToResults(value) {
+  sendCompletionTimeToResults(value: number): void {
     this.completionTimeSubject.next(value);
   }
 }
