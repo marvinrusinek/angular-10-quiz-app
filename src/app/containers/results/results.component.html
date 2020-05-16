@@ -31,13 +31,14 @@
               <h3 i18n>Try again! </h3>
             </div>
 
-            <!-- <div class="progress">
-              <div role="progress-bar"
-                   [ngStyle]="{ 'width': 'percentage + % !important' }"
-                   class="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                   aria-valuemin="0" aria-valuemax="100" aria-valuenow={{percentage}}>
-              </div>
-            </div> -->
+            <ngb-progressbar
+              type="success"
+              [striped]="true"
+              [animated]="true"
+              [value]="percentage"
+              class="progress-bar bg-success">
+              <strong>{{ percentage }}%</strong>
+            </ngb-progressbar>
           </div>
         </ng-template>
 
