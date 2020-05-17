@@ -18,6 +18,8 @@ export class QuizService {
   currentQuestionIndex = 1;
   userAnswers = [];
   correctAnswers = [];
+  multipleAnswer: boolean;
+  corrAnsLength: number;
   explanation: string;
   explanationText: string;
   correctMessage: string;
@@ -57,11 +59,12 @@ export class QuizService {
   }
 
   getCorrectAnswers(question: QuizQuestion) {
-    // push answers that are correct onto correctAnswers array
-    this.correctAnswers.push(
-      question.options.filter((item) => item.correct)
-    );
-    
+    this.correctAnswers.push(question.options.filter((item) => item.correct));
+    this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
+    if (this.correctAnswers.length > 1) {
+      this.multipleAnswer = true;
+      this.corrAnsLength = this.correctAnswers.length;
+    }
     return question.options.filter((item) => item.correct);
   }
 
