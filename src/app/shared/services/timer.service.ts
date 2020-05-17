@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, PartialObserver, Subject} from 'rxjs';
+import { BehaviorSubject, Observable, PartialObserver, Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TimerService {
