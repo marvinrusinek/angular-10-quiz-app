@@ -1,10 +1,8 @@
 import { Option } from './Option.model';
 
 export interface QuizQuestion {
-  type: string,
   questionText: string,
   options: Option[],
-  explanation: string,
-  shuffledAnswers?: string
+  explanation: string
 }
 // type Questions = QuizQuestion[];
