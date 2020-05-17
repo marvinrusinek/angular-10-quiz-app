@@ -2,6 +2,8 @@ import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/cor
 
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
+import {interval, Observable, PartialObserver, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 
 @Component({
@@ -13,7 +15,6 @@ export class TimerComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
   hasAnswer: boolean;
-  interval;
   timeLeft: number;
   timePerQuestion = 20;
   elapsedTime: number;
@@ -22,6 +23,11 @@ export class TimerComponent implements OnInit, OnChanges {
   completionCount: number;
   quizIsOver: boolean;
   inProgress: boolean;
+
+  timer: Observable<number>;
+  timerObserver: PartialObserver<number>;
+  isStop = new Subject();
+  isPause = new Subject();
 
   constructor(
     private quizService: QuizService,
@@ -32,8 +38,7 @@ export class TimerComponent implements OnInit, OnChanges {
     this.timerService.timeLeft.subscribe(data => {
       this.timeLeft = data;
     });
-    this.timer();
-    this.sendCompletionTimeToTimerService(this.completionTime);
+    this.timerClock();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -46,51 +51,67 @@ export class TimerComponent implements OnInit, OnChanges {
   }
 
   // countdown clock
-  timer() {
-    this.interval = setInterval(() => {
-      this.timerLogic();
-    }, 1000);
-    clearInterval();
-  }
-
-  timerLogic() {
-    if (this.timeLeft > 0) {
-      this.timeLeft--;
-      this.quizIsOver = false;
-      this.inProgress = true;
-
-      if (this.answer !== null) {
-        this.hasAnswer = true;
-        this.elapsedTime = this.timePerQuestion - this.timeLeft;
-        this.elapsedTimes.push(this.elapsedTime);
-      }
-
-      if (this.timeLeft === 0) {
-        if (!this.quizService.isFinalQuestion()) {
-          this.quizService.nextQuestion();
+  timerClock() {
+    this.timer = interval(1000)
+      .pipe(
+        takeUntil(this.isPause),
+        takeUntil(this.isStop)
+      );
+    this.timerObserver = {
+      next: (_: number) => {
+        this.timePerQuestion -= 1;
           this.quizIsOver = false;
           this.inProgress = true;
+
+          if (this.answer !== null) {
+            this.hasAnswer = true;
+            this.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
+            this.elapsedTimes.push(this.elapsedTime);
+            this.calculateTotalElapsedTime(this.elapsedTimes);
+          }
+
+          if (this.timePerQuestion === 0) {
+            if (!this.quizService.isFinalQuestion()) {
+              this.quizService.nextQuestion();
+              this.quizIsOver = false;
+              this.inProgress = true;
+            }
+            if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
+              console.log('compTime: ', this.completionTime);
+              this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
+              this.sendCompletionTimeToTimerService(this.completionTime);
+              this.quizService.navigateToResults();
+              this.quizIsOver = true;
+              this.inProgress = false;
+            }
+            this.stopTimer();
+          }
+
+          this.timeLeft = this.timePerQuestion;
+          this.hasAnswer = false;
         }
-        if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-          console.log('compTime: ', this.completionTime);
-          // this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
-          this.quizService.navigateToResults();
-          this.timerService.stopTimer();
-          this.quizIsOver = true;
-          this.inProgress = false;
-        }
-        clearInterval(this.interval);
-      }
-    } else {
-      this.timeLeft = this.timePerQuestion;
-      this.hasAnswer = false;
-    }
+    };
+
+    this.timer.subscribe(this.timerObserver);
+  }
+
+  goOn() {
+    this.timer.subscribe(this.timerObserver);
+  }
+
+  pauseTimer() {
+    this.isPause.next();
+    // setTimeout(() => this.goOn(), 1000)
+  }
+
+  stopTimer() {
+    this.timePerQuestion = 0;
+    this.isStop.next();
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
     if (elapsedTimes.length > 0) {
       this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
-      this.sendCompletionTimeToTimerService(this.completionTime);
       return this.completionTime;
     }
   }
