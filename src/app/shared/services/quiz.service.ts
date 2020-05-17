@@ -16,7 +16,7 @@ export class QuizService {
   answer: number;
   totalQuestions: number;
   currentQuestionIndex = 1;
-  finalAnswers = [];
+  userAnswers = [];
   correctAnswers = [];
   explanation: string;
   explanationText: string;
