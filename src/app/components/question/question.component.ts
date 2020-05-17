@@ -88,11 +88,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizService.incorrectSound.play();
     }
 
-    this.quizService.setExplanationAndCorrectAnswerMessages(this.quizService.correctAnswers);
     this.alreadyAnswered = true;
-  }
-
-  getCorrectAnswers(question: QuizQuestion) {
-    return question.options.filter((item) => item.correct);
   }
 }
