@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
+import { interval, Observable, PartialObserver, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
-import {interval, Observable, PartialObserver, Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 
 @Component({
@@ -35,10 +35,10 @@ export class TimerComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit(): void {
-    this.timerService.timeLeft.subscribe(data => {
+    this.timerService.timeLeft$.subscribe(data => {
       this.timeLeft = data;
     });
-    this.timerClock();
+    this.countdownClock();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -50,8 +50,7 @@ export class TimerComponent implements OnInit, OnChanges {
     }
   }
 
-  // countdown clock
-  timerClock() {
+  countdownClock() {
     this.timer = interval(1000)
       .pipe(
         takeUntil(this.isPause),
@@ -65,7 +64,7 @@ export class TimerComponent implements OnInit, OnChanges {
 
           if (this.answer !== null) {
             this.hasAnswer = true;
-            this.elapsedTime = Math.ceil(this.timePerQuestion - this.timeLeft);
+            this.elapsedTime = Math.ceil(20 - this.timePerQuestion);
             this.elapsedTimes.push(this.elapsedTime);
             this.calculateTotalElapsedTime(this.elapsedTimes);
           }
@@ -87,7 +86,7 @@ export class TimerComponent implements OnInit, OnChanges {
             this.stopTimer();
           }
 
-          this.timeLeft = this.timePerQuestion;
+          this.timeLeft = 20;
           this.hasAnswer = false;
         }
     };
