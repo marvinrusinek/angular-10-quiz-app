@@ -120,7 +120,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.quizService.resetAll();
+        this.timerService.stopTimer();
         this.sendCorrectCountToQuizService(this.correctCount + 1);
         this.userAnswers.push(this.answer);
       }
