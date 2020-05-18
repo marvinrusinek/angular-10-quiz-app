@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
-import { interval, Observable, PartialObserver, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { concat, fromEvent, interval, Observable, PartialObserver, Subject } from 'rxjs';
+import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
@@ -92,6 +92,35 @@ export class TimerComponent implements OnInit, OnChanges {
     };
 
     this.timer.subscribe(this.timerObserver);
+
+
+    const $ = document.querySelector.bind(document);
+
+    const start$ = fromEvent($('#start'), 'click').pipe(shareReplay(1));
+    const reset$ = fromEvent($('#reset'), 'click');
+    const stop$ = fromEvent($('#stop'), 'click');
+    const markTimestamp$ = fromEvent($('#mark'), 'click');
+    const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
+
+    const src$ = concat(
+      start$.pipe(first()),
+      reset$
+    ).pipe(
+      switchMapTo(
+        timer(0, 1000)
+          .pipe(
+            takeUntil(markTimestamp$),
+            repeatWhen(
+              completeSbj => completeSbj.pipe(switchMapTo(
+                continueFromLastTimestamp$.pipe(first())
+              ))
+            ),
+            scan((acc, crt) => acc + 1000, 0)
+          )
+      ),
+      takeUntil(stop$),
+      repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
+    ).subscribe(console.log)
   }
 
   goOn() {
