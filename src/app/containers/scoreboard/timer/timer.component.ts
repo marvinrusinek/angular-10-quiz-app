@@ -121,7 +121,7 @@ export class TimerComponent implements OnInit, OnChanges {
       ),
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    ).subscribe(console.log)
+    ).subscribe(console.log);
   }
 
   goOn() {
