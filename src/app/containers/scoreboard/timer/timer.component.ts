@@ -23,7 +23,6 @@ export class TimerComponent implements OnInit, OnChanges {
   completionCount: number;
   quizIsOver: boolean;
   inProgress: boolean;
-  src$: Observable<number>;
 
   constructor(
     private quizService: QuizService,
@@ -55,7 +54,7 @@ export class TimerComponent implements OnInit, OnChanges {
     const markTimestamp$ = fromEvent($('#mark'), 'click');
     const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
 
-    this.src$ = concat(
+    const src$ = concat(
       start$.pipe(first()),
       reset$
     ).pipe(
@@ -74,20 +73,6 @@ export class TimerComponent implements OnInit, OnChanges {
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
     ).subscribe(console.log);
-  }
-
-  goOn() {
-    this.timer.subscribe(this.timerObserver);
-  }
-
-  pauseTimer() {
-    this.isPause.next();
-    // setTimeout(() => this.goOn(), 1000)
-  }
-
-  stopTimer() {
-    this.timePerQuestion = 0;
-    this.isStop.next();
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
