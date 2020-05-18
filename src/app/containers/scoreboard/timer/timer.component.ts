@@ -23,11 +23,7 @@ export class TimerComponent implements OnInit, OnChanges {
   completionCount: number;
   quizIsOver: boolean;
   inProgress: boolean;
-
-  timer: Observable<number>;
-  timerObserver: PartialObserver<number>;
-  isStop = new Subject();
-  isPause = new Subject();
+  src$: Observable<number>;
 
   constructor(
     private quizService: QuizService,
@@ -59,7 +55,7 @@ export class TimerComponent implements OnInit, OnChanges {
     const markTimestamp$ = fromEvent($('#mark'), 'click');
     const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
 
-    const src$ = concat(
+    this.src$ = concat(
       start$.pipe(first()),
       reset$
     ).pipe(
