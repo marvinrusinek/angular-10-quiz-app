@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
-import { concat, fromEvent, interval, Observable, PartialObserver, Subject, timer } from 'rxjs';
+import { concat, fromEvent, Observable, timer } from 'rxjs';
 import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
