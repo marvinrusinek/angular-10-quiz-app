@@ -51,6 +51,50 @@ export class TimerComponent implements OnInit, OnChanges {
   }
 
   countdownClock() {
+/* this.timer = interval(1000)
+      .pipe(
+        takeUntil(this.isPause),
+        takeUntil(this.isStop)
+      );
+    this.timerObserver = {
+      next: (_: number) => {
+        this.timePerQuestion -= 1;
+          this.quizIsOver = false;
+          this.inProgress = true;
+
+          if (this.answer !== null) {
+            this.hasAnswer = true;
+            this.elapsedTime = Math.ceil(20 - this.timePerQuestion);
+            this.elapsedTimes.push(this.elapsedTime);
+            this.calculateTotalElapsedTime(this.elapsedTimes);
+          }
+
+          if (this.timePerQuestion === 0) {
+            if (!this.quizService.isFinalQuestion()) {
+              this.quizService.nextQuestion();
+              this.quizIsOver = false;
+              this.inProgress = true;
+            }
+            if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
+              console.log('compTime: ', this.completionTime);
+              this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
+              this.sendCompletionTimeToTimerService(this.completionTime);
+              this.quizService.navigateToResults();
+              this.quizIsOver = true;
+              this.inProgress = false;
+            }
+            this.stopTimer();
+          }
+
+          this.timeLeft = 20;
+          this.hasAnswer = false;
+        }
+    };
+
+    this.timer.subscribe(this.timerObserver);
+     */
+
+
     const $ = document.querySelector.bind(document);
 
     const start$ = fromEvent($('#start'), 'click').pipe(shareReplay(1));
