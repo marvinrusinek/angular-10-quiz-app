@@ -116,7 +116,7 @@ export class TimerComponent implements OnInit, OnChanges {
                 continueFromLastTimestamp$.pipe(first())
               ))
             ),
-            scan((acc, crt) => acc + 1000, 0)
+            scan((acc, crt) => acc - 1000, 20000)
           )
       ),
       takeUntil(stop$),
