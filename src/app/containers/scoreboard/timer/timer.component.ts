@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
-import { concat, fromEvent, Observable, of, timer } from 'rxjs';
+import { concat, fromEvent, Observable, of, Subscription, timer } from 'rxjs';
 import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -15,7 +15,7 @@ export class TimerComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
   hasAnswer: boolean;
-  timeLeft$: Observable<any>;
+  timeLeft$: Observable<Subscription>;
   timeLeft: number;
   timePerQuestion = 20;
   elapsedTime: number;
@@ -55,7 +55,7 @@ export class TimerComponent implements OnInit, OnChanges {
     const markTimestamp$ = fromEvent($('#mark'), 'click');
     const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
 
-    const src$ = concat(
+    const src$ = of(concat(
       start$.pipe(first()),
       reset$
     ).pipe(
@@ -73,10 +73,10 @@ export class TimerComponent implements OnInit, OnChanges {
       ),
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    ).subscribe(console.log);
+    ).subscribe(console.log));
 
-    const timeObs = of(src$);
-    this.timeLeft$ = timeObs;
+    // const timeObs = of(src$);
+    this.timeLeft$ = src$;
     this.timeLeft = Number(this.timeLeft$);
   }
 
