@@ -55,7 +55,7 @@ export class TimerComponent implements OnInit, OnChanges {
     const markTimestamp$ = fromEvent($('#mark'), 'click');
     const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
 
-    const src$ = concat(
+    this.timeLeft$ = of(concat(
       start$.pipe(first()),
       reset$
     ).pipe(
@@ -73,11 +73,10 @@ export class TimerComponent implements OnInit, OnChanges {
       ),
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    ).subscribe(console.log);
+    ).subscribe(console.log));
 
-    const timeObs = of(src$);
-    this.timeLeft$ = src$;
-    this.timeLeft = Number(this.timeLeft$);
+  
+    // this.timeLeft = Number(this.timeLeft$);
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
