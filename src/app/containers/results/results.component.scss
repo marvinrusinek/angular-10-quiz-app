@@ -60,6 +60,7 @@ mat-card-header {
     .progress-bar {
       width: 400px;
       margin: 0 auto;
+      border-radius: 10px;
     }
 
     .quiz-feedback {
@@ -67,6 +68,12 @@ mat-card-header {
 
       img {
         border-radius: 10px;
+      }
+
+      ul li {
+        list-style-type: square;
+        text-align: left;
+        margin-left: 16%;
       }
     }
   }

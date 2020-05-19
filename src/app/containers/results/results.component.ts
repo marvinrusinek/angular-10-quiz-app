@@ -18,21 +18,24 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  correctAnswersCount: number;
+  // correctAnswersCount: number;
   totalQuestions: number;
   percentage: number;
   correctAnswersCount$: Observable<number>;
   completionTime$: Observable<number>;
   codelabUrl = 'https://www.codelab.fun';
   Math: Math = Math;
-  resultsMap: Result; // = new Result(this.userAnswers, this.elapsedTimes);
+  resultsMap: Result; // = new Result(this.finalAnswers, this.elapsedTimes);
 
-  get correctAnswers(): Array<number> { 
-    return this.quizService.correctAnswers };
+  get correctAnswers(): Array<number> { return this.quizService.correctAnswers };
   // get userAnswers from di-quiz-comp!
   elapsedTimes: number[]; // get elapsed times from timer component
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
+
+  CONGRATULATIONS = "../../assets/images/congratulations.jpg";
+  NOT_BAD = '../../assets/images/notbad.jpg';
+  TRY_AGAIN = '../../assets/images/tryagain.jpeg';
 
   constructor(
     private quizService: QuizService,
@@ -40,9 +43,10 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
+    console.log('results corr ans: ', this.correctAnswers);
     // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
-    this.percentageOfCorrectlyAnsweredQuestions();  // possibly remove, already being calculated in the view
+    this.percentageOfCorrectlyAnsweredQuestions(); // possibly get rid of, already being calculated in the view
   }
 
   ngOnInit() {
@@ -54,9 +58,9 @@ export class ResultsComponent implements OnInit {
     console.log('completionTime: ', this.completionTime$);
   }
 
-  // possibly remove, already being calculated in the view
-  percentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(100 * this.correctAnswersCount / this.totalQuestions);
+  // possibly get rid of, already being calculated in the view
+  percentageOfCorrectlyAnsweredQuestions(): void {
+    this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
   }
 
   openAllPanels() {

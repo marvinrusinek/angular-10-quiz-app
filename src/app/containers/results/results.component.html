@@ -1,7 +1,7 @@
 <mat-card>
   <mat-card-header>
     <div mat-card-avatar class="header-image"></div>
-    <mat-card-title i18n>{{ quizData?.milestone }} Quiz</mat-card-title>
+    <mat-card-title i18n>{{ quizData?.milestone }}</mat-card-title>
     <mat-card-subtitle i18n>Results</mat-card-subtitle>
   </mat-card-header>
 
@@ -9,38 +9,45 @@
     <section class="results">
       <h3 i18n>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
-        <ng-template
-          let-percentage
-          [ngTemplateOutlet]="percentageTemplate" #percentageTemplate
-          [ngTemplateOutletContext]="{ $implicit: (((correctAnswersCount$ | async) / totalQuestions) * 100) }">
-          <span class="your-score" i18n>
-            You scored {{ correctAnswersCount$ | async }} out of {{ totalQuestions }}
-            ({{ percentage }}%) questions correctly.</span>
+        <span class="your-score" i18n>
+          You scored {{ correctAnswersCount$ | async }} out of {{ totalQuestions }}
+          ({{ percentage }}%) questions correctly.</span>
 
           <div class="quiz-feedback">
             <div *ngIf="percentage >= 80">
-              <img mat-card-image src="../../assets/images/congratulations.jpg" alt="Photo of 'Congratulations'">
+              <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of 'Congratulations'" title="Congratulations">
               <h3 i18n>Great job! </h3>
             </div>
             <div *ngIf="percentage >= 60 && percentage < 80">
-              <img mat-card-image src="../../assets/images/notbad.jpg" alt="Photo of 'Not Bad'">
+              <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'" title="Not Bad">
               <h3 i18n>Not bad! </h3>
             </div>
             <div *ngIf="percentage < 60">
-              <img mat-card-image src="../../assets/images/tryagain.jpeg" alt="Photo of 'Try Again'">
+              <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" title="Try Again">
               <h3 i18n>Try again! </h3>
+              <p>You may wish to brush up on your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
+              <ul>
+                <li>
+                  <a href="https://angular.io/guide/dependency-injection" target="_blank"><em>Dependency injection in Angular</em>, angular.io</a>
+                </li>
+                <li>
+                  <a href="https://angular.io/guide/dependency-injection-in-action" target="_blank"><em>Dependency injection in action</em>, angular.io</a>
+                </li>
+                <li>
+                  <a href="https://angular.io/guide/architecture-services" target="_blank"><em>Introduction to services and dependency injection</em>, angular.io</a>
+                </li>
+              </ul>
             </div>
-
-            <ngb-progressbar
-              type="success"
-              [striped]="true"
-              [animated]="true"
-              [value]="percentage"
-              class="progress-bar bg-success">
-              <strong>{{ percentage }}%</strong>
-            </ngb-progressbar>
           </div>
-        </ng-template>
+
+          <ngb-progressbar
+            type="success"
+            [striped]="true"
+            [animated]="true"
+            [value]="percentage"
+            class="progress-bar bg-success">
+            <strong>{{ percentage }}%</strong>
+          </ngb-progressbar>
 
         <section class="completion-time">
           <span class="elapsed-time" i18n>
@@ -85,7 +92,7 @@
 
                 <ng-template
                   matExpansionPanelContent
-                  *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers">
+                  *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers;">
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Your Answer: </span>
