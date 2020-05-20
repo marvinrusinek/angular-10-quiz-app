@@ -14,6 +14,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -30,7 +31,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   multipleAnswer: boolean;
   alreadyAnswered = false;
   correctAnswers = [];
-  @Output() selectedOption = true;
+  userAnswers = [];
+  @Output() selectedOption: boolean;
+  isCorrectAnswerSelected = false;
 
   constructor(private quizService: QuizService, private timerService: TimerService) { }
 
@@ -44,7 +47,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
       this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-      this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;
+      this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;  // could move to quizservice
 
       if (this.formGroup) {
         this.formGroup.patchValue({answer: ''});
@@ -53,16 +56,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  radioChange(answer: number) {
-    this.answer.emit(answer);
-  }
-
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
+    this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.answer.emit(optionIndex);
 
     this.currentQuestion.options.forEach(o => o.selected = false);
@@ -76,12 +76,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       optionIndex &&
       this.currentQuestion &&
       this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex]['correct'] === true && 
       this.currentQuestion.options[optionIndex]['selected'] ===
-      this.currentQuestion.options[optionIndex]['correct']
+      this.currentQuestion.options[optionIndex]['correct'] &&
+      this.currentQuestion.options[optionIndex]['correct'] === true
     ) {
       this.timerService.stopTimer();
-      this.quizService.correctAnswers.push(optionIndex + 1);
+      this.quizService.userAnswers.push(optionIndex + 1);
       this.quizService.correctSound.play();
       optionIndex = null;
     }
