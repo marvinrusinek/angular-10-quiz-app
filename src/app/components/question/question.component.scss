@@ -10,16 +10,16 @@ ol li {
 }
 
 .options {
-  margin-bottom: 5px;
   margin-left: 0.5rem;
   padding: 5px;
 
   mat-checkbox:first-child {
-    margin-top: 20px !important;
+    margin-top: 10px !important;
+    padding-top: 30px !important;
   }
 
   mat-checkbox {
-    padding-top: 20px !important;
+    margin-top: 20px !important;
 
     li {
       height: 47px;
