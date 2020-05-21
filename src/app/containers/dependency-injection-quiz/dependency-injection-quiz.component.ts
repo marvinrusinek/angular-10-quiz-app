@@ -122,7 +122,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
       ) {
         this.timerService.stopTimer();
         this.sendCorrectCountToQuizService(this.correctCount + 1);
-        this.userAnswers.push(this.answer);
+        this.userAnswers.push(this.answer + 1);
       }
     }
   }
