@@ -7,11 +7,11 @@ import { TimerService } from '../../../shared/services/timer.service';
 
 
 @Component({
-  selector: 'codelab-scoreboard-timer',
-  templateUrl: './timer.component.html',
-  styleUrls: ['./timer.component.scss']
+  selector: 'codelab-scoreboard-time',
+  templateUrl: './time.component.html',
+  styleUrls: ['./time.component.scss']
 })
-export class TimerComponent implements OnInit, OnChanges {
+export class TimeComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
   hasAnswer: boolean;
