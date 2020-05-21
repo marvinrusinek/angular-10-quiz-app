@@ -18,11 +18,12 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  // correctAnswersCount: number;
   totalQuestions: number;
   percentage: number;
   correctAnswersCount$: Observable<number>;
   completionTime$: Observable<number>;
+  elapsedMinutes: number;
+  elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
   Math: Math = Math;
   resultsMap: Result; // = new Result(this.finalAnswers, this.elapsedTimes);
@@ -46,7 +47,8 @@ export class ResultsComponent implements OnInit {
     console.log('results corr ans: ', this.correctAnswers);
     // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
-    this.percentageOfCorrectlyAnsweredQuestions(); // possibly get rid of, already being calculated in the view
+    this.percentageOfCorrectlyAnsweredQuestions();
+    this.calculateElapsedTime();
   }
 
   ngOnInit() {
@@ -61,6 +63,11 @@ export class ResultsComponent implements OnInit {
   // possibly get rid of, already being calculated in the view
   percentageOfCorrectlyAnsweredQuestions(): void {
     this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
+  }
+
+  calculateElapsedTime() {
+    this.elapsedMinutes = this.timerService.completionTimeSubject.value / 60;
+    this.elapsedSeconds = this.timerService.completionTimeSubject.value % 60;
   }
 
   openAllPanels() {
