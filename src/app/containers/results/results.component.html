@@ -81,7 +81,7 @@
 
                 <ng-template
                   matExpansionPanelContent
-                  *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers;">
+                  *ngFor="let userAnswer of userAnswers$ | async; let correctAnswer of correctAnswers;">
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Your Answer: </span>
