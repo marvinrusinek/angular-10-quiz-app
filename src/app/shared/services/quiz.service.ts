@@ -59,7 +59,7 @@ export class QuizService {
     this.correctAnswersCountSubject.next(value);
   }
 
-  sendUserAnswersToResults(value: []): void {
+  sendUserAnswersToResults(value: number[]): void {
     this.userAnswersSubject.next(value);
   }
 
