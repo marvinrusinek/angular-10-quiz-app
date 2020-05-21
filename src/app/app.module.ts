@@ -19,7 +19,7 @@ import { DependencyInjectionQuizComponent } from './containers/dependency-inject
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
-import { TimerComponent } from './containers/scoreboard/timer/timer.component';
+import { TimeComponent } from './containers/scoreboard/time/time.component';
 import { QuizService } from './shared/services/quiz.service';
 import { TimerService } from './shared/services/timer.service';
 
@@ -32,7 +32,7 @@ import { TimerService } from './shared/services/timer.service';
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
-    TimerComponent
+    TimeComponent
   ],
   imports: [
     CommonModule,
