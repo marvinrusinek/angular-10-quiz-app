@@ -25,8 +25,8 @@ export class ResultsComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
-  Math: Math = Math;
-  resultsMap: Result; // = new Result(this.finalAnswers, this.elapsedTimes);
+  userAnswers: [];
+  userAnswersResults: [number[], number[]];
 
   get correctAnswers(): Array<number> { return this.quizService.correctAnswers };
   // get userAnswers from di-quiz-comp!
@@ -45,7 +45,7 @@ export class ResultsComponent implements OnInit {
   )
   {
     console.log('results corr ans: ', this.correctAnswers);
-    // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
+    this.userAnswersResults = [this.userAnswers, this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
     this.percentageOfCorrectlyAnsweredQuestions();
     this.calculateElapsedTime();
