@@ -21,6 +21,7 @@ export class ResultsComponent implements OnInit {
   totalQuestions: number;
   percentage: number;
   correctAnswersCount$: Observable<number>;
+  userAnswers$: Observable<number[]>;
   completionTime$: Observable<number>;
   elapsedMinutes: number;
   elapsedSeconds: number;
@@ -53,9 +54,8 @@ export class ResultsComponent implements OnInit {
 
   ngOnInit() {
     console.log('correct answers', this.correctAnswers);
-    // console.log('user answers', this.userAnswers);
-
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
+    this.userAnswers$ = this.quizService.userAnswersSubject;
     this.completionTime$ = this.timerService.completionTimeSubject;
     console.log('completionTime: ', this.completionTime$);
   }

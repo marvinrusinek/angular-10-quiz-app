@@ -126,4 +126,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
       }
     }
   }
+
+  sendUserAnswersToQuizService(newValue: []): void {
+    this.quizService.sendUserAnswersToResults(newValue);
+  }
 }
