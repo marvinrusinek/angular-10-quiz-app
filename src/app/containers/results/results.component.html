@@ -51,18 +51,7 @@
 
         <section class="completion-time">
           <span class="elapsed-time" i18n>
-            <ng-template
-              let-elapsedMinutes
-              [ngTemplateOutletContext]="{ $implicit: Math.floor((completionTime$ | async) / 60) }"
-              [ngTemplateOutlet]="elapsedMinutesTemplate" #elapsedMinutesTemplate>
-              You completed the quiz in {{ elapsedMinutes }} minutes and
-            </ng-template>
-            <ng-template
-              let-elapsedSeconds
-              [ngTemplateOutletContext]="{ $implicit: ((completionTime$ | async) % 60) }"
-              [ngTemplateOutlet]="elapsedSecondsTemplate" #elapsedSecondsTemplate>
-              {{ elapsedSeconds }} seconds.
-            </ng-template>
+            You completed the quiz in {{ elapsedMinutes }} minutes and {{ elapsedSeconds }} seconds.
           </span>
         </section>
 
