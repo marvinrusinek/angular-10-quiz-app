@@ -83,8 +83,8 @@ export class TimeComponent implements OnInit, OnChanges {
     }
   }
 
-  sendCompletionTimeToTimerService(newValue) {
-    this.completionCount = newValue;
+  sendCompletionTimeToTimerService(value: number): void {
+    this.completionCount = value;
     this.timerService.sendCompletionTimeToResults(this.completionCount);
   }
 }
