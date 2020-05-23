@@ -73,20 +73,18 @@ export class TimeComponent implements OnInit, OnChanges {
       ),
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    ).subscribe(console.log));
+    ).subscribe(function() {
+     this.quizIsOver = false;
+     this.inProgress = true;
 
-    /* add all this logic to the timer */
-    this.quizIsOver = false;
-    this.inProgress = true;
-
-    if (this.answer !== null) {
+     if (this.answer !== null) {
       this.hasAnswer = true;
       this.elapsedTime = Math.ceil(20 - this.timePerQuestion);
       this.elapsedTimes.push(this.elapsedTime);
       this.calculateTotalElapsedTime(this.elapsedTimes);
-    }
+     }
 
-    if (this.timePerQuestion === 0) {
+     if (this.timePerQuestion === 0) {
       if (!this.quizService.isFinalQuestion()) {
         this.quizService.nextQuestion();
         this.quizIsOver = false;
@@ -105,6 +103,7 @@ export class TimeComponent implements OnInit, OnChanges {
 
     this.timeLeft = 20;
     this.hasAnswer = false;
+    }));
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
