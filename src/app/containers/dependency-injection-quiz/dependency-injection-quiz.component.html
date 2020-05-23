@@ -76,8 +76,12 @@
           </div>
 
           <div class="show-score-nav" *ngIf="question && questionIndex === totalQuestions">
-            <button type="button" mat-raised-button (click)="results()"
-                    disableRipple="true" class="btn btn-outline-primary">
+            <button 
+              type="button" 
+              mat-raised-button 
+              (click)="results()"
+              disableRipple="true"
+              class="btn btn-outline-primary">
               <strong>Show Your Score</strong>
             </button>
           </div>
