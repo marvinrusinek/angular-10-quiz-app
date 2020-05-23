@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -45,6 +46,7 @@ import { TimerService } from './shared/services/timer.service';
     MatIconModule,
     MatButtonModule,
     MatExpansionModule,
+    MatTooltipModule,
     NgbModule,
     FontAwesomeModule
   ],
