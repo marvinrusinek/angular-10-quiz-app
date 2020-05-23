@@ -16,12 +16,16 @@
 
       <section class="messages">
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
-          <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+          <span>
+            <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+          </span>
         </div>
         <div *ngIf="option.selected && !option.correct">
-          <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
+          <span>
+            <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
+          </span>
         </div>
       </section>
     </div>
@@ -42,12 +46,16 @@
 
       <section class="messages">
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
-          <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+          <span>
+            <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+          </span>
         </div>
         <div *ngIf="option.selected && !option.correct">
-          <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-          <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
+          <span>
+            <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
+          </span>
         </div>
       </section>
     </div>
