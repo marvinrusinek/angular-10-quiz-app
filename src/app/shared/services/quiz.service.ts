@@ -57,10 +57,10 @@ export class QuizService {
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter((item) => item.correct);
     this.correctAnswersAmount = identifiedCorrectAnswers.length;
-    
-    this.correctAnswers.push(identifiedCorrectAnswers); // need to pass the correct answer option numbers here!
-    this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
-    
+
+    this.correctAnswers.push(identifiedCorrectAnswers); // need to push the correct answer option numbers here!
+    this.setExplanationAndCorrectAnswerMessages(this.correctAnswers); // pass the correct answers
+
     return identifiedCorrectAnswers;
   }
 
