@@ -17,13 +17,13 @@
       <section class="messages">
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
           <span>
-            <mat-icon class="sentiment-icon">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <mat-icon class="sentiment-icon">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
           </span>
         </div>
         <div *ngIf="option.selected && !option.correct">
           <span>
-            <mat-icon class="sentiment-icon">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <mat-icon class="sentiment-icon">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <span class="message wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
           </span>
         </div>
@@ -48,13 +48,13 @@
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
           <span>
             <mat-icon class="sentiment-icon">sentiment_very_satisfied</mat-icon>   
-            <span class="message correct-message" i18n>&nbsp;&nbsp;&nbsp;You&apos;re right! {{ correctMessage }}</span>
+            <span class="message correct-message" i18n>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You&apos;re right! {{ correctMessage }}</span>
           </span>
         </div>
         <div *ngIf="option.selected && !option.correct">
           <span>
             <mat-icon class="sentiment-icon">sentiment_very_dissatisfied</mat-icon>   
-            <span class="message wrong-message" i18n>&nbsp;&nbsp;&nbsp;That&apos;s wrong. {{ correctMessage }}</span>
+            <span class="message wrong-message" i18n>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;That&apos;s wrong. {{ correctMessage }}</span>
           </span>
         </div>
       </section>
