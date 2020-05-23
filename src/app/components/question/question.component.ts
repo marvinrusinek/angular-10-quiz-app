@@ -33,7 +33,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
   isCorrectAnswerSelected = false;
 
-  constructor(private quizService: QuizService, private timerService: TimerService) { }
+  constructor(
+    private quizService: QuizService, 
+    private timerService: TimerService
+  ) { }
 
   ngOnInit() {
     this.formGroup = new FormGroup({
@@ -45,7 +48,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
       this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-      this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;  // could move to quizservice
+      this.multipleAnswer = this.correctAnswers.length > 1 ? true : false;  // controls mat-radio/mat-checkbox display
 
       if (this.formGroup) {
         this.formGroup.patchValue({answer: ''});

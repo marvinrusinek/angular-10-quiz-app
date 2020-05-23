@@ -72,11 +72,6 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.sendCorrectCountToQuizService(this.correctCount);
   }
 
-  sendCorrectCountToQuizService(newValue: number): void {
-    this.correctCount = newValue;
-    this.quizService.sendCorrectCountToResults(this.correctCount);
-  }
-
   animationDoneHandler(): void {
     this.animationState$.next('none');
   }
@@ -128,7 +123,12 @@ export class DependencyInjectionQuizComponent implements OnInit {
     }
   }
 
-  sendUserAnswersToQuizService(newValue: number[]): void {
-    this.quizService.sendUserAnswersToResults(newValue);
+  sendCorrectCountToQuizService(value: number): void {
+    this.correctCount = value;
+    this.quizService.sendCorrectCountToResults(this.correctCount);
+  }
+
+  sendUserAnswersToQuizService(value: number[]): void {
+    this.quizService.sendUserAnswersToResults(value);
   }
 }
