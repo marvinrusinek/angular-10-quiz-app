@@ -14,14 +14,14 @@
 
     <section id="question" [class.answered]="answer">
       <span *ngIf="!answer">{{ question?.questionText }}</span>
-      <span *ngIf="correctAnswersAmount > 1">&nbsp;<em>({{ correctAnswersAmount }} answers are correct)</em></span>
+      <span *ngIf="correctAnswersAmount > 1">
+        &nbsp;<em>({{ correctAnswersAmount }} answers are correct)</em>
+      <//span>
       <span *ngIf="answer">{{ explanationText }}</span>
     </section>
 
     <codelab-quiz-question
       [question]="question"
-      multipleAnswer="multipleAnswer"
-      selectedOption="selectedOption"
       (answer)="selectedAnswer($event)">
     </codelab-quiz-question>
   </mat-card-content>
