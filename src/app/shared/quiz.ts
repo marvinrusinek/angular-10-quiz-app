@@ -6,16 +6,6 @@ export const QUIZ_DATA: Quiz = {
   imageUrl: 'DIDiagram.png',
   questions: [
     {
-      questionText: 'Which of the following benefit from dependency injection?',
-      options: [
-        { text: 'Programming' },
-        { text: 'Testability' },
-        { text: 'Software design' },
-        { text: 'All of the above.', correct: true }
-      ],
-      explanation: 'DI simplifies both programming and testing as well as being a popular design pattern'
-    },
-    {
       questionText: 'What is the objective of dependency injection?',
       options: [
         { text: 'Pass the service to the client.', correct: true },
@@ -24,6 +14,16 @@ export const QUIZ_DATA: Quiz = {
         { text: 'Give the client part service.' }
       ],
       explanation: 'a service gets passed to the client during DI'
+    },
+    {
+      questionText: 'Which of the following benefit from dependency injection?',
+      options: [
+        { text: 'Programming' },
+        { text: 'Testability' },
+        { text: 'Software design' },
+        { text: 'All of the above.', correct: true }
+      ],
+      explanation: 'DI simplifies both programming and testing as well as being a popular design pattern'
     },
     {
       questionText: 'In which of the following does dependency injection occur?',
