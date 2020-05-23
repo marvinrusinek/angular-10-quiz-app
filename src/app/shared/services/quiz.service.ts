@@ -55,11 +55,11 @@ export class QuizService {
   }
 
   getCorrectAnswers(question: QuizQuestion) {
-    const correctAnswerOptions = question.options.filter((item) => item.correct);
-    this.correctAnswers.push(correctAnswerOptions);
-    this.correctAnswersAmount = correctAnswerOptions.length;
+    const identifiedCorrectAnswers = question.options.filter((item) => item.correct);
+    this.correctAnswers.push(identifiedCorrectAnswers);
+    this.correctAnswersAmount = identifiedCorrectAnswers.length;
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
-    return correctAnswerOptions;
+    return identifiedCorrectAnswers;
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
