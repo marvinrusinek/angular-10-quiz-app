@@ -72,7 +72,7 @@ export class QuizService {
     return question.options.filter((item) => item.correct);
   }
 
-  setExplanationAndCorrectAnswerMessages(correctAnswers: any): void {
+  setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
 
