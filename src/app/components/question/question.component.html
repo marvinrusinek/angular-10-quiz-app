@@ -47,13 +47,13 @@
       <section class="messages">
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
           <span>
-            <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>&nbsp;&nbsp;&nbsp;
-            <span class="message correct-message">You&apos;re right! {{ correctMessage }}</span>
+            <mat-icon class="sentiment">sentiment_very_satisfied</mat-icon>   
+            <span class="message correct-message">&nbsp;&nbsp;&nbsp;You&apos;re right! {{ correctMessage }}</span>
           </span>
         </div>
         <div *ngIf="option.selected && !option.correct">
           <span>
-            <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>&nbsp;&nbsp;&nbsp;
+            <mat-icon class="sentiment">sentiment_very_dissatisfied</mat-icon>   
             <span class="message wrong-message">That&apos;s wrong. {{ correctMessage }}</span>
           </span>
         </div>
