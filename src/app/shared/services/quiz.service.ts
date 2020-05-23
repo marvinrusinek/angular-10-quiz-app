@@ -54,19 +54,12 @@ export class QuizService {
     this.timerService.resetTimer();
   }
 
-  sendCorrectCountToResults(value: number): void {
-    this.correctAnswersCountSubject.next(value);
-  }
-
-  sendUserAnswersToResults(value: number[]): void {
-    this.userAnswersSubject.next(value);
-  }
-
   getCorrectAnswers(question: QuizQuestion) {
-    this.correctAnswers.push(question.options.filter((item) => item.correct));
-    this.correctAnswersAmount = question.options.filter((item) => item.correct).length;
+    const correctAnswerOptions = question.options.filter((item) => item.correct);
+    this.correctAnswers.push(correctAnswerOptions);
+    this.correctAnswersAmount = correctAnswerOptions.length;
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
-    return question.options.filter((item) => item.correct);
+    return correctAnswerOptions;
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
@@ -123,6 +116,12 @@ export class QuizService {
     return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
+
+  previousQuestion(): void {
+    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.resetAll();
+  }
+
   nextQuestion(): void {
     this.currentQuestionIndex++;
     let questionIndex = this.currentQuestionIndex;
@@ -131,12 +130,15 @@ export class QuizService {
     this.resetAll();
   }
 
-  previousQuestion(): void {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
-    this.resetAll();
-  }
-
   navigateToResults(): void {
     this.router.navigate(['/results']);
+  }
+
+  sendCorrectCountToResults(value: number): void {
+    this.correctAnswersCountSubject.next(value);
+  }
+
+  sendUserAnswersToResults(value: number[]): void {
+    this.userAnswersSubject.next(value);
   }
 }
