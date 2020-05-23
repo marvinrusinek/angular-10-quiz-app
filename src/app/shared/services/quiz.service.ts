@@ -66,10 +66,6 @@ export class QuizService {
     this.correctAnswers.push(question.options.filter((item) => item.correct));
     this.correctAnswersAmount = question.options.filter((item) => item.correct).length;
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
-    if (this.correctAnswers.length > 1) {
-      this.multipleAnswer = true;
-      this.corrAnsLength = this.correctAnswers.length;
-    }
     return question.options.filter((item) => item.correct);
   }
 
