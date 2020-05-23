@@ -31,7 +31,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   multipleAnswer: boolean;
   alreadyAnswered = false;
   correctAnswers = [];
-  @Output() selectedOption: boolean;
   isCorrectAnswerSelected = false;
 
   constructor(private quizService: QuizService, private timerService: TimerService) { }
@@ -66,10 +65,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.currentQuestion.options.forEach(o => o.selected = false);
     this.currentQuestion.options[optionIndex].selected = true;
-
-    if (this.currentQuestion.options[optionIndex].selected === true) {
-      this.selectedOption = true;
-    }
 
     if (
       optionIndex &&
