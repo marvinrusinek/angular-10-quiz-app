@@ -38,7 +38,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   userAnswers: number[] = [];
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; };
-  get correctAnswersAmount(): number { return this.quizService.correctAnswersAmount };
+  get correctAnswersAmount(): number { return this.quizService.correctAnswersAmount; };
 
   constructor(
     private quizService: QuizService,
