@@ -19,7 +19,7 @@ export class QuizService {
   userAnswers = [];
   correctAnswers = [];
   multipleAnswer: boolean;
-  corrAnsLength: number;
+  correctAnswersAmount: number;
   explanation: string;
   explanationText: string;
   correctMessage: string;
@@ -64,6 +64,7 @@ export class QuizService {
 
   getCorrectAnswers(question: QuizQuestion) {
     this.correctAnswers.push(question.options.filter((item) => item.correct));
+    this.correctAnswersAmount = question.options.filter((item) => item.correct).length;
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
     if (this.correctAnswers.length > 1) {
       this.multipleAnswer = true;
