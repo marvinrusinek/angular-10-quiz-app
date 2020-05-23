@@ -18,8 +18,8 @@ export class QuizService {
   currentQuestionIndex = 1;
   userAnswers = [];
   correctAnswers = [];
-  multipleAnswer: boolean;
-  correctAnswersAmount: number;
+  multipleAnswer: boolean;  // check if used in service!
+  numberOfCorrectOptions: number;
   explanation: string;
   explanationText: string;
   correctMessage: string;
@@ -56,7 +56,7 @@ export class QuizService {
 
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter((item) => item.correct);
-    this.correctAnswersAmount = identifiedCorrectAnswers.length;
+    this.numberOfCorrectOptions = identifiedCorrectAnswers.length;
 
     this.correctAnswers.push(identifiedCorrectAnswers); // need to push the correct answer option numbers here!
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswers); // pass the correct answers

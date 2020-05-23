@@ -13,9 +13,10 @@
     <codelab-scoreboard></codelab-scoreboard>
 
     <section id="question" [class.answered]="answer">
-      <span *ngIf="!answer">{{ question?.questionText }}</span>
-      <span *ngIf="correctAnswersAmount > 1">
-        &nbsp;<em>({{ correctAnswersAmount }} answers are correct)</em>
+      <span *ngIf="!answer">{{ question?.questionText }}&nbsp;
+        <span *ngIf="numberOfCorrectOptions > 1">
+          <em>({{ numberOfCorrectOptions }} options are correct)</em>
+        </span>
       </span>
       <span *ngIf="answer">{{ explanationText }}</span>
     </section>
