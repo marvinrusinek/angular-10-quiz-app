@@ -25,8 +25,8 @@
             <div *ngIf="percentage < 60">
               <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" title="Try Again">
               <h3 i18n>Try again! </h3>
-              <p>You may wish to brush up on your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
-              <ul>
+              <p i18n>You may wish to brush up on your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
+              <ul i18n>
                 <li>
                   <a href="https://angular.io/guide/dependency-injection" target="_blank"><em>Dependency injection in Angular</em>, angular.io</a>
                 </li>
