@@ -126,12 +126,14 @@
 
     <section class="return">
       <mat-card-actions>
-        <a class="btn" (click)="restart()">
-          <i class="fas fa-power-off"></i>&nbsp;&nbsp;Restart Quiz
-        </a>
-        <a class="btn" href={{codelabUrl}}>
-          <i class="fas fa-laptop"></i>&nbsp;&nbsp;Back to Codelab
-        </a>
+        <mat-nav-list>
+          <a class="btn" (click)="restart()">
+            <i class="fas fa-power-off"></i>&nbsp;&nbsp;Restart Quiz
+          </a>
+          <a class="btn" href={{codelabUrl}}>
+            <i class="fas fa-laptop"></i>&nbsp;&nbsp;Back to Codelab
+          </a>
+        </mat-nav-list>
       </mat-card-actions>
     </section>
 
