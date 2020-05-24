@@ -16,6 +16,7 @@ export class QuizService {
   answer: number;
   totalQuestions: number;
   currentQuestionIndex = 1;
+  correctAnswersForEachQuestion = [];
   correctAnswers = [];
   numberOfCorrectOptions: number;
   correctAnswerOptions: number[];
@@ -44,13 +45,14 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  resetAll(): void {
+  resetAll() {
     this.answer = null;
     this.hasAnswer = false;
-    this.correctAnswers = [];
-    this.correctMessage = undefined;
-    this.explanationText = undefined;
-    this.timerService.stopTimer();
+    this.correctAnswersForEachQuestion = [];
+    this.correctAnswerOptions = [];
+    this.correctMessage = '';
+    this.explanationText = '';
+    this.timerService.stopTimer()
     this.timerService.resetTimer();
   }
 
@@ -60,8 +62,9 @@ export class QuizService {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectOptions = identifiedCorrectAnswers.length;
 
-    this.correctAnswers.push(this.correctAnswerOptions);
-    this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
+    this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
+    this.correctAnswers.push(this.correctAnswersForEachQuestion);
+    this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion);
 
     return identifiedCorrectAnswers;
   }
@@ -84,7 +87,7 @@ export class QuizService {
       if (correctAnswers[0] && correctAnswers[1]) {
         const concatSortedAnswers = sortedAnswers[0] + ' and ' + sortedAnswers[1];
         this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
-        this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers + '.';
+        this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers[0] + ' and ' + concatSortedAnswers[1] + '.';
       }
       if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
         const concatSortedAnswers = sortedAnswers[0] + ', ' + sortedAnswers[1] + ' AND ' + sortedAnswers[2];
@@ -118,21 +121,21 @@ export class QuizService {
     return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
-  previousQuestion(): void {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+  previousQuestion() {
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
-  nextQuestion(): void {
+  nextQuestion() {
     this.currentQuestionIndex++;
     let questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question', questionIndex]);
-    this.timerService.resetTimer();
+    this.router.navigate(['/quiz/question', questionIndex]);
     this.resetAll();
+    this.timerService.resetTimer();
   }
 
-  navigateToResults(): void {
-    this.router.navigate(['/results']);
+  navigateToResults() {
+    this.router.navigate(['/quiz/results']);
   }
 
   sendCorrectCountToResults(value: number): void {
