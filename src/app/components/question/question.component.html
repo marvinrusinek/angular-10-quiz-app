@@ -1,7 +1,7 @@
 <ng-content></ng-content>
 
 <form [formGroup]="formGroup">
-  <ol *ngIf="!multipleAnswer">
+  <ol *ngIf="!multipleAnswer" class="single-answer">
     <div class="options" *ngFor="let option of currentQuestion.options; index as i">
       <mat-radio-button
         (change)="setSelected(i)"

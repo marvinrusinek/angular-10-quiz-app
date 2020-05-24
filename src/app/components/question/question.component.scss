@@ -123,6 +123,12 @@ ol li {
   }
 }
 
+.single-answer {
+  .sentiment-icon {
+    margin-top: 10px;
+  }
+}
+
 // hide the radio buttons/checkboxes next to the answer choice
 ::ng-deep .mat-radio-button .mat-radio-container {
   display: none;
