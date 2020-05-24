@@ -16,10 +16,9 @@ export class QuizService {
   answer: number;
   totalQuestions: number;
   currentQuestionIndex = 1;
-  userAnswers = [];
   correctAnswers = [];
-  multipleAnswer: boolean;  // check if used in service!
   numberOfCorrectOptions: number;
+  correctAnswerOptions: number[];
   explanation: string;
   explanationText: string;
   correctMessage: string;
@@ -35,6 +34,7 @@ export class QuizService {
     src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
     html5: true
   });
+
 
   constructor(
     private timerService: TimerService,
@@ -55,11 +55,13 @@ export class QuizService {
   }
 
   getCorrectAnswers(question: QuizQuestion) {
-    const identifiedCorrectAnswers = question.options.filter((item) => item.correct);
+    this.correctAnswerOptions = question.options.filter(option => option.correct)
+                                                .map(option => question.options.indexOf(option) + 1);
+    const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectOptions = identifiedCorrectAnswers.length;
 
-    this.correctAnswers.push(identifiedCorrectAnswers); // need to push the correct answer option numbers here!
-    this.setExplanationAndCorrectAnswerMessages(this.correctAnswers); // pass the correct answers
+    this.correctAnswers.push(this.correctAnswerOptions);
+    this.setExplanationAndCorrectAnswerMessages(this.correctAnswers);
 
     return identifiedCorrectAnswers;
   }
@@ -70,7 +72,6 @@ export class QuizService {
 
     if (correctAnswers.length === 1) {
       this.explanation = ' is correct because ' + this.question.explanation + '.';
-      console.log('corranschoice: ', correctAnswers[0]);
       const correctAnswersText = correctAnswers[0];
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       this.correctMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
@@ -81,7 +82,6 @@ export class QuizService {
       const sortedAnswers = correctAnswers.sort();
 
       if (correctAnswers[0] && correctAnswers[1]) {
-        console.log('corranschoice: ', correctAnswers[0] + ' ' + correctAnswers[1]);
         const concatSortedAnswers = sortedAnswers[0] + ' and ' + sortedAnswers[1];
         this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
         this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers + '.';
@@ -118,22 +118,21 @@ export class QuizService {
     return (this.quizData.questions.length === this.currentQuestionIndex);
   }
 
-
   previousQuestion(): void {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   nextQuestion(): void {
     this.currentQuestionIndex++;
     let questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
     this.timerService.resetTimer();
     this.resetAll();
   }
 
   navigateToResults(): void {
-    this.router.navigate(['/results']);
+    this.router.navigate(['/quiz/results']);
   }
 
   sendCorrectCountToResults(value: number): void {
