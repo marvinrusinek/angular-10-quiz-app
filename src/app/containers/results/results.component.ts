@@ -83,6 +83,6 @@ export class ResultsComponent implements OnInit {
 
   restart() {
     this.quizService.resetAll();
-    this.router.navigate(['/quiz/intro']);
+    this.router.navigate(['/intro']);
   }
 }
