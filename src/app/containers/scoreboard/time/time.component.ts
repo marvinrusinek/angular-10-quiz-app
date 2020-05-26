@@ -15,6 +15,7 @@ export class TimeComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
   hasAnswer: boolean;
+
   timeLeft$: Observable<Subscription>;
   timeLeft: number;
   timePerQuestion = 20;
@@ -22,6 +23,7 @@ export class TimeComponent implements OnInit, OnChanges {
   elapsedTimes: number[] = [];
   completionTime: number;
   completionCount: number;
+
   quizIsOver: boolean;
   inProgress: boolean;
 
@@ -79,9 +81,9 @@ export class TimeComponent implements OnInit, OnChanges {
 
      if (this.answer !== null) {
       this.hasAnswer = true;
-      this.elapsedTime = Math.ceil(20 - this.timePerQuestion);
-      this.elapsedTimes.push(this.elapsedTime);
-      this.calculateTotalElapsedTime(this.elapsedTimes);
+      this.timerService.elapsedTime = Math.ceil(20 - this.timePerQuestion);
+      this.timerService.elapsedTimes.push(this.elapsedTime);
+      // this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
      }
 
      if (this.timePerQuestion === 0) {
@@ -92,8 +94,8 @@ export class TimeComponent implements OnInit, OnChanges {
       }
       if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
         console.log('compTime: ', this.completionTime);
-        this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
-        this.sendCompletionTimeToTimerService(this.completionTime);
+        this.timerService.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
+        // this.sendCompletionTimeToTimerService(this.completionTime);
         this.quizService.navigateToResults();
         this.quizIsOver = true;
         this.inProgress = false;
@@ -106,15 +108,8 @@ export class TimeComponent implements OnInit, OnChanges {
     }));
   }
 
-  calculateTotalElapsedTime(elapsedTimes: number[]): number {
-    if (elapsedTimes.length > 0) {
-      this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
-      return this.completionTime;
-    }
-  }
-
-  sendCompletionTimeToTimerService(value: number): void {
+ /* sendCompletionTimeToTimerService(value: number): void {
     this.completionCount = value;
     this.timerService.sendCompletionTimeToResults(this.completionCount);
-  }
+  } */
 }

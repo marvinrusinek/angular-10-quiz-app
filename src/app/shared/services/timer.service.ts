@@ -5,9 +5,11 @@ import { BehaviorSubject, Observable, PartialObserver, Subject } from 'rxjs';
 export class TimerService {
   timePerQuestion = 20;
   elapsedTime = 0;
+  elapsedTimes: number[] = [];
+  completionTime: number;
   timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
   timeLeft$ = this.timeLeft.asObservable();
-  completionTimeSubject = new BehaviorSubject<number>(this.elapsedTime);
+  // completionTimeSubject = new BehaviorSubject<number>(this.elapsedTime);
 
   timer: Observable<number>;
   timerObserver: PartialObserver<number>;
@@ -28,7 +30,14 @@ export class TimerService {
     // setTimeout(() => this.goOn(), 1000)
   }
 
-  sendCompletionTimeToResults(value: number): void {
-    this.completionTimeSubject.next(value);
+  calculateTotalElapsedTime(elapsedTimes: number[]): number {
+    if (elapsedTimes.length > 0) {
+      this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
+      return this.completionTime;
+    }
   }
+
+  /* sendCompletionTimeToResults(value: number): void {
+    this.completionTimeSubject.next(value);
+  } */
 }

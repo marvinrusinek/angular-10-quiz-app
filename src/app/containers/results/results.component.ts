@@ -28,8 +28,9 @@ export class ResultsComponent implements OnInit {
   userAnswersResults: Result[];
 
   get correctAnswers(): number[] { return this.quizService.correctAnswers };
-  get userAnswers(): number[] { return this.quizService.userAnswers };
-  elapsedTimes: number[]; // get elapsed times from timer component
+  get userAnswers(): number[] { return this.quizService.userAnswers; };
+  get elapsedTimes(): number[] { return this.timerService.elapsedTimes; };
+  get completionTime(): number { return this.timerService.completionTime; };
 
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
@@ -65,8 +66,8 @@ export class ResultsComponent implements OnInit {
   }
 
   calculateElapsedTime() {
-    this.elapsedMinutes = this.timerService.completionTimeSubject.value / 60;
-    this.elapsedSeconds = this.timerService.completionTimeSubject.value % 60;
+    this.elapsedMinutes = this.timerService.completionTime / 60;
+    this.elapsedSeconds = this.timerService.completionTime % 60;
     console.log('elapsedMinutes: ', this.elapsedMinutes);
     console.log('elapsedSeconds: ', this.elapsedSeconds);
   }
