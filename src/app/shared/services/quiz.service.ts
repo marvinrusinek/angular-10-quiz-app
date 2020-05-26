@@ -124,20 +124,20 @@ export class QuizService {
   }
 
   previousQuestion() {
-    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   nextQuestion() {
     this.currentQuestionIndex++;
     let questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/quiz/question', questionIndex]);
+    this.router.navigate(['/question', questionIndex]);
     this.resetAll();
     this.timerService.resetTimer();
   }
 
   navigateToResults() {
-    this.router.navigate(['/quiz/results']);
+    this.router.navigate(['/results']);
   }
 
   sendCorrectCountToResults(value: number): void {
