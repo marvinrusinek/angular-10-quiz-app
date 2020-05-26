@@ -81,8 +81,9 @@
 
                 <ng-template
                   matExpansionPanelContent
-                  *ngFor="let userAnswer of userAnswers$ | async; let correctAnswer of correctAnswers;">
-                  <div class="quiz-summary-field">
+                  *ngFor="let correctAnswer of correctAnswers; let i = index;">
+                  <!-- let userAnswer of userAnswers$ | async; 
+                    <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Your Answer: </span>
                       Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
@@ -90,17 +91,17 @@
                       <mat-icon class="incorrect" *ngIf="question?.options[userAnswer].correct === false">clear</mat-icon>
                       <span *ngIf="!userAnswer"> (no answer provided)</span>
                     </span>
-                  </div>
+                  </div> -->
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                      Option {{ correctAnswers[i] }} &mdash; {{ question?.options[correctAnswer - 1].text }}
                     </span>
                   </div>
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Explanation: </span>
-                      Option {{ correctAnswer }} was correct because {{ question?.explanation }}.
+                      Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
                     </span>
                   </div>
                   <!-- <div class="quiz-summary-field">
