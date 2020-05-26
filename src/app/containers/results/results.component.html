@@ -81,7 +81,7 @@
 
                 <ng-template
                   matExpansionPanelContent
-                  *ngFor="let correctAnswer of correctAnswers; let i = index;">
+                  *ngFor="let correctAnswer of correctAnswers; let j = index;">
                   <!-- let userAnswer of userAnswers$ | async; 
                     <div class="quiz-summary-field">
                     <span i18n>
@@ -95,13 +95,13 @@
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswers[i] }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                      Option {{ correctAnswers[j] }} &mdash; {{ question?.options[correctAnswer - 1].text }}
                     </span>
                   </div>
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Explanation: </span>
-                      Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
+                      Option {{ correctAnswers[j] }} was correct because {{ question?.explanation }}.
                     </span>
                   </div>
                   <!-- <div class="quiz-summary-field">
