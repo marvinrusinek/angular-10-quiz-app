@@ -27,7 +27,7 @@ export class ResultsComponent implements OnInit {
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
   userAnswers: [];
-  userAnswersResults: [number[], number[]];
+  userAnswersResults: Result[];
 
   get correctAnswers(): Array<number> { return this.quizService.correctAnswers };
   // get userAnswers from di-quiz-comp!
@@ -45,8 +45,8 @@ export class ResultsComponent implements OnInit {
     private router: Router
   )
   {
-    console.log('results corr ans: ', this.correctAnswers);
-    this.userAnswersResults = [this.userAnswers, this.elapsedTimes];
+    // this.userAnswersResults = new Result(this.userAnswers, this.elapsedTimes);
+    // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
     this.percentageOfCorrectlyAnsweredQuestions();
     this.calculateElapsedTime();
@@ -54,6 +54,8 @@ export class ResultsComponent implements OnInit {
 
   ngOnInit() {
     console.log('correct answers', this.correctAnswers);
+    // console.log('user answers', this.userAnswers);
+
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
     this.userAnswers$ = this.quizService.userAnswersSubject;
     this.completionTime$ = this.timerService.completionTimeSubject;
@@ -79,6 +81,6 @@ export class ResultsComponent implements OnInit {
 
   restart() {
     this.quizService.resetAll();
-    this.router.navigate(['/quiz/intro']);
+    this.router.navigate(['/intro']);
   }
 }

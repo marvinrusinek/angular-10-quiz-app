@@ -26,6 +26,7 @@ export class QuizService {
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   userAnswersSubject = new BehaviorSubject<number[]>([]);
+  concatAnswers: string[];
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -64,7 +65,8 @@ export class QuizService {
 
     this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
     this.correctAnswers.push(this.correctAnswersForEachQuestion);
-    this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion);
+    console.log('sorted # array', this.correctAnswersForEachQuestion.sort().join(','));
+    this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
 
     return identifiedCorrectAnswers;
   }
@@ -72,34 +74,34 @@ export class QuizService {
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
+    const correctAnswersStringArray = correctAnswers.map(v => v.toString());
 
-    if (correctAnswers.length === 1) {
+    if (correctAnswersStringArray.length === 1) {
       this.explanation = ' is correct because ' + this.question.explanation + '.';
       const correctAnswersText = correctAnswers[0];
       this.explanationText = 'Option ' + correctAnswersText + this.explanation;
       this.correctMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
     }
-
-    if (correctAnswers.length > 1) {
+    if (correctAnswersStringArray.length === 2) {
       this.explanation = ' are correct because ' + this.question.explanation + '.';
-      const sortedAnswers = correctAnswers.sort();
 
-      if (correctAnswers[0] && correctAnswers[1]) {
-        const concatSortedAnswers = sortedAnswers[0] + ' and ' + sortedAnswers[1];
-        this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
-        this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers[0] + ' and ' + concatSortedAnswers[1] + '.';
-      }
-      if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2]) {
-        const concatSortedAnswers = sortedAnswers[0] + ', ' + sortedAnswers[1] + ' AND ' + sortedAnswers[2];
-        this.explanationText = 'Options ' + concatSortedAnswers + this.explanation;
-        this.correctMessage = 'The correct answers are Options ' + concatSortedAnswers + '.';
-      }
-      if (correctAnswers[0] && correctAnswers[1] && correctAnswers[2] && correctAnswers[3]) {
-        this.explanationText = 'All are correct!';
-        this.correctMessage = 'All are correct!';
-      }
+      const concatAnswers = correctAnswersStringArray[0].concat(' and ', correctAnswersStringArray[1]);
+      this.explanationText = 'Options ' + concatAnswers + this.explanation;
+      this.correctMessage = 'The correct answers are Options ' + concatAnswers + '.';
+    }
+    if (correctAnswersStringArray.length === 3) {
+      const concatAnswers = correctAnswers[0] + ', ' +
+                            correctAnswers[1] + ' and ' +
+                            correctAnswers[2];
+      this.explanationText = 'Options ' + concatAnswers + this.explanation;
+      this.correctMessage = 'The correct answers are Options ' + concatAnswers + '.';
+    }
+    if (correctAnswersStringArray.length === 4) {
+      this.explanationText = 'All are correct!';
+      this.correctMessage = 'All are correct!';
     }
   }
+
 
   /*
    * public API
@@ -122,20 +124,20 @@ export class QuizService {
   }
 
   previousQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]);
+    this.router.navigate(['/quiz/question', this.currentQuestionIndex - 1]);
     this.resetAll();
   }
 
   nextQuestion() {
     this.currentQuestionIndex++;
     let questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question', questionIndex]);
+    this.router.navigate(['/quiz/question', questionIndex]);
     this.resetAll();
     this.timerService.resetTimer();
   }
 
   navigateToResults() {
-    this.router.navigate(['/results']);
+    this.router.navigate(['/quiz/results']);
   }
 
   sendCorrectCountToResults(value: number): void {
