@@ -57,7 +57,7 @@ export class ResultsComponent implements OnInit {
     console.log('user answers: ', this.userAnswers);
 
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
-    this.completionTime$ = this.timerService.completionTimeSubject;
+    // this.completionTime$ = this.timerService.completionTimeSubject;
     console.log('completionTime: ', this.completionTime$);
   }
 
