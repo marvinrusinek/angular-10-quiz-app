@@ -15,15 +15,15 @@
 
           <div class="quiz-feedback">
             <div *ngIf="percentage >= 80">
-              <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of 'Congratulations'" title="Congratulations">
+              <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of 'Congratulations'" i18n-title title="Congratulations">
               <h3 i18n>Great job! </h3>
             </div>
             <div *ngIf="percentage >= 60 && percentage < 80">
-              <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'" title="Not Bad">
+              <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'" i18n-title title="Not Bad">
               <h3 i18n>Not bad! </h3>
             </div>
             <div *ngIf="percentage < 60">
-              <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" title="Try Again">
+              <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" i18n-title title="Try Again">
               <h3 i18n>Try again! </h3>
               <p i18n>You may wish to brush up on your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
               <ul>
@@ -65,7 +65,7 @@
           <mat-accordion [multi]="true" #accordion="matAccordion">
             <mat-expansion-panel
               class="quiz-summary-question"
-              *ngFor="let question of quizData.questions; index as i"
+              *ngFor="let question of quizData.questions; let i = index"
               (opened)="panelOpenState = true" (closed)="panelOpenState = false" hideToggle="true">
 
               <mat-expansion-panel-header>
@@ -80,10 +80,8 @@
                 </mat-panel-title>
 
                 <ng-template
-                  matExpansionPanelContent
-                  *ngFor="let correctAnswer of correctAnswers">
-                  <!-- let userAnswer of userAnswers$ | async; 
-                    <div class="quiz-summary-field">
+                  matExpansionPanelContent *ngFor="let correctAnswer of correctAnswers; index as j">
+                  <!--<div class="quiz-summary-field"> let userAnswer of userAnswers$ | async;
                     <span i18n>
                       <span class="leader">Your Answer: </span>
                       Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
@@ -91,24 +89,20 @@
                       <mat-icon class="incorrect" *ngIf="question?.options[userAnswer].correct === false">clear</mat-icon>
                       <span *ngIf="!userAnswer"> (no answer provided)</span>
                     </span>
-                  </div> -->
+                  </div>-->
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                      Option {{ correctAnswers[j] }} &mdash; {{ question?.options[correctAnswers[j] - 1].text }}
                     </span>
                   </div>
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Explanation: </span>
-                      Option {{ correctAnswer }} was correct because {{ question?.explanation }}.
+                      <span>Option {{ correctAnswers[j] }} was correct because {{ question?.explanation }}.</span>
+                      <!--<span *ngIf="correctAnswers > 1">Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.</span>-->
                     </span>
                   </div>
-                  <!-- <div class="quiz-summary-field">
-                    <span i18n>
-                      <span class="leader">Elapsed Time: </span> {{ elapsedTimes[i] }} seconds
-                    </span>
-                  </div> -->
                 </ng-template>
               </mat-expansion-panel-header>
             </mat-expansion-panel>

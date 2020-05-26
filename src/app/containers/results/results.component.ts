@@ -29,7 +29,8 @@ export class ResultsComponent implements OnInit {
   userAnswers: [];
   userAnswersResults: Result[];
 
-  get correctAnswers(): Array<number> { return this.quizService.correctAnswers };
+  get correctAnswers(): number[] { return this.quizService.correctAnswers };
+  corrAnswers: number[];
   // get userAnswers from di-quiz-comp!
   elapsedTimes: number[]; // get elapsed times from timer component
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
@@ -53,7 +54,8 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('correct answers', this.correctAnswers);
+    this.corrAnswers = this.correctAnswers;
+    console.log('correct answers: ', this.correctAnswers);
     // console.log('user answers', this.userAnswers);
 
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
@@ -81,6 +83,6 @@ export class ResultsComponent implements OnInit {
 
   restart() {
     this.quizService.resetAll();
-    this.router.navigate(['/intro']);
+    this.router.navigate(['/quiz/intro']);
   }
 }
