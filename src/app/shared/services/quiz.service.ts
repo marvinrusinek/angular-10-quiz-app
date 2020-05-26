@@ -17,7 +17,8 @@ export class QuizService {
   totalQuestions: number;
   currentQuestionIndex = 1;
   correctAnswersForEachQuestion = [];
-  correctAnswers = [];
+  correctAnswers: number[] = [];
+  userAnswers: number[] = [];
   numberOfCorrectOptions: number;
   correctAnswerOptions: number[];
   explanation: string;
@@ -25,7 +26,6 @@ export class QuizService {
   correctMessage: string;
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  userAnswersSubject = new BehaviorSubject<number[]>([]);
   concatAnswers: string[];
 
   correctSound = new Howl({
@@ -142,9 +142,5 @@ export class QuizService {
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
-  }
-
-  sendUserAnswersToResults(value: number[]): void {
-    this.userAnswersSubject.next(value);
   }
 }

@@ -21,17 +21,14 @@ export class ResultsComponent implements OnInit {
   totalQuestions: number;
   percentage: number;
   correctAnswersCount$: Observable<number>;
-  userAnswers$: Observable<number[]>;
   completionTime$: Observable<number>;
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
-  userAnswers: [];
   userAnswersResults: Result[];
 
   get correctAnswers(): number[] { return this.quizService.correctAnswers };
-  corrAnswers: number[];
-  // get userAnswers from di-quiz-comp!
+  get userAnswers(): number[] { return this.quizService.userAnswers };
   elapsedTimes: number[]; // get elapsed times from timer component
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
@@ -54,17 +51,14 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.corrAnswers = this.correctAnswers;
     console.log('correct answers: ', this.correctAnswers);
-    // console.log('user answers', this.userAnswers);
+    console.log('user answers: ', this.userAnswers);
 
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
-    this.userAnswers$ = this.quizService.userAnswersSubject;
     this.completionTime$ = this.timerService.completionTimeSubject;
     console.log('completionTime: ', this.completionTime$);
   }
 
-  // possibly get rid of, already being calculated in the view
   percentageOfCorrectlyAnsweredQuestions(): void {
     this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
   }

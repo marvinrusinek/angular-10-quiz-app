@@ -80,8 +80,8 @@
                 </mat-panel-title>
 
                 <ng-template
-                  matExpansionPanelContent *ngFor="let correctAnswer of correctAnswers; index as j">
-                  <!--<div class="quiz-summary-field"> let userAnswer of userAnswers$ | async;
+                  matExpansionPanelContent *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers; index as j">
+                  <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Your Answer: </span>
                       Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
@@ -89,7 +89,7 @@
                       <mat-icon class="incorrect" *ngIf="question?.options[userAnswer].correct === false">clear</mat-icon>
                       <span *ngIf="!userAnswer"> (no answer provided)</span>
                     </span>
-                  </div>-->
+                  </div>
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Correct Answer(s): </span>
