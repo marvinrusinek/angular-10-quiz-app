@@ -130,7 +130,7 @@ export class QuizService {
 
   nextQuestion() {
     this.currentQuestionIndex++;
-    let questionIndex = this.currentQuestionIndex;
+    const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question', questionIndex]);
     this.resetAll();
     this.timerService.resetTimer();
