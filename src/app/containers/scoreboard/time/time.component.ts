@@ -20,9 +20,8 @@ export class TimeComponent implements OnInit, OnChanges {
   timeLeft: number;
   timePerQuestion = 20;
   elapsedTime: number;
-  elapsedTimes: number[] = [];
+  // elapsedTimes: number[] = []; remove, already in timerservice
   completionTime: number;
-  completionCount: number;
 
   quizIsOver: boolean;
   inProgress: boolean;
@@ -64,29 +63,35 @@ export class TimeComponent implements OnInit, OnChanges {
       switchMapTo(
         timer(0, 1000)
           .pipe(
-            takeUntil(markTimestamp$),
+            /* takeUntil(markTimestamp$),
             repeatWhen(
               completeSbj => completeSbj.pipe(switchMapTo(
                 continueFromLastTimestamp$.pipe(first())
               ))
-            ),
+            ), */
             scan((acc) => acc - 1000, this.timePerQuestion * 1000)
           )
-      ),
+      ) /*,
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    ).subscribe(function() {
-     this.quizIsOver = false;
-     this.inProgress = true;
+       */
+    ).subscribe(console.log)
+      // .add(function() {this.myTearDownLogic();})
+    )
+  }
 
-     if (this.answer !== null) {
+  myTearDownLogic() {
+    this.quizIsOver = false;
+    this.inProgress = true;
+
+    if (this.answer !== null) {
       this.hasAnswer = true;
       this.timerService.elapsedTime = Math.ceil(20 - this.timePerQuestion);
       this.timerService.elapsedTimes.push(this.elapsedTime);
       // this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-     }
+    }
 
-     if (this.timePerQuestion === 0) {
+    if (this.timePerQuestion === 0) {
       if (!this.quizService.isFinalQuestion()) {
         this.quizService.nextQuestion();
         this.quizIsOver = false;
@@ -94,7 +99,7 @@ export class TimeComponent implements OnInit, OnChanges {
       }
       if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
         console.log('compTime: ', this.completionTime);
-        this.timerService.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
+        this.timerService.completionTime = this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes);
         // this.sendCompletionTimeToTimerService(this.completionTime);
         this.quizService.navigateToResults();
         this.quizIsOver = true;
@@ -105,11 +110,10 @@ export class TimeComponent implements OnInit, OnChanges {
 
     this.timeLeft = 20;
     this.hasAnswer = false;
-    }));
   }
 
- /* sendCompletionTimeToTimerService(value: number): void {
-    this.completionCount = value;
-    this.timerService.sendCompletionTimeToResults(this.completionCount);
-  } */
+  /* sendCompletionTimeToTimerService(value: number): void {
+     this.completionCount = value;
+     this.timerService.sendCompletionTimeToResults(this.completionCount);
+   } */
 }
