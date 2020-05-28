@@ -16,11 +16,10 @@ export class TimeComponent implements OnInit, OnChanges {
   answer;
   hasAnswer: boolean;
 
-  timeLeft$: Observable<Subscription>;
+  timeLeft$: Observable<number>;
   timeLeft: number;
   timePerQuestion = 20;
   elapsedTime: number;
-  // elapsedTimes: number[] = []; remove, already in timerservice
   completionTime: number;
 
   quizIsOver: boolean;
@@ -32,10 +31,10 @@ export class TimeComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit(): void {
+    this.countdownClock();
     /* this.timerService.timeLeft$.subscribe(data => {
       this.timeLeft = data;
     }); */
-    this.countdownClock();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -56,7 +55,7 @@ export class TimeComponent implements OnInit, OnChanges {
     const markTimestamp$ = fromEvent($('#mark'), 'click');
     const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
 
-    this.timeLeft$ = of(concat(
+    this.timeLeft$ = concat(
       start$.pipe(first()),
       reset$
     ).pipe(
@@ -69,14 +68,12 @@ export class TimeComponent implements OnInit, OnChanges {
                 continueFromLastTimestamp$.pipe(first())
               ))
             ),
-            scan((acc) => acc - 1000, this.timePerQuestion * 1000)
+            scan((acc, crt) => acc - 1000, this.timePerQuestion * 1000)
           )
       ),
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    ).subscribe(console.log)
-      // .add(function() {this.myTearDownLogic();})
-    )
+    );
   }
 
   myTearDownLogic() {
