@@ -63,18 +63,17 @@ export class TimeComponent implements OnInit, OnChanges {
       switchMapTo(
         timer(0, 1000)
           .pipe(
-            /* takeUntil(markTimestamp$),
+            takeUntil(markTimestamp$),
             repeatWhen(
               completeSbj => completeSbj.pipe(switchMapTo(
                 continueFromLastTimestamp$.pipe(first())
               ))
-            ), */
+            ),
             scan((acc) => acc - 1000, this.timePerQuestion * 1000)
           )
-      ) /*,
+      ),
       takeUntil(stop$),
       repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-       */
     ).subscribe(console.log)
       // .add(function() {this.myTearDownLogic();})
     )
