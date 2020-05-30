@@ -11,43 +11,44 @@
       <section class="statistics">
         <span class="your-score" i18n>
           You scored {{ correctAnswersCount$ | async }} out of {{ totalQuestions }}
-          ({{ percentage }}%) questions correctly.</span>
+          ({{ percentage }}%) questions correctly.
+        </span>
 
-          <div class="quiz-feedback">
-            <div *ngIf="percentage >= 80">
-              <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of 'Congratulations'" i18n-title title="Congratulations">
-              <h3 i18n>Great job! </h3>
-            </div>
-            <div *ngIf="percentage >= 60 && percentage < 80">
-              <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'" i18n-title title="Not Bad">
-              <h3 i18n>Not bad! </h3>
-            </div>
-            <div *ngIf="percentage < 60">
-              <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" i18n-title title="Try Again">
-              <h3 i18n>Try again! </h3>
-              <p i18n>You may wish to brush up on your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
-              <ul>
-                <li i18n>
-                  <a href="https://angular.io/guide/dependency-injection" target="_blank"><em>Dependency injection in Angular</em>, angular.io</a>
-                </li>
-                <li i18n>
-                  <a href="https://angular.io/guide/dependency-injection-in-action" target="_blank"><em>Dependency injection in action</em>, angular.io</a>
-                </li>
-                <li i18n>
-                  <a href="https://angular.io/guide/architecture-services" target="_blank"><em>Introduction to services and dependency injection</em>, angular.io</a>
-                </li>
-              </ul>
-            </div>
+        <div class="quiz-feedback">
+          <div *ngIf="percentage >= 80">
+            <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of 'Congratulations'" i18n-title title="Congratulations">
+            <h3 i18n>Great job! </h3>
           </div>
+          <div *ngIf="percentage >= 60 && percentage < 80">
+            <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'" i18n-title title="Not Bad">
+            <h3 i18n>Not bad! </h3>
+          </div>
+          <div *ngIf="percentage < 60">
+            <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" i18n-title title="Try Again">
+            <h3 i18n>Try again! </h3>
+            <p i18n>You may wish to brush up your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
+            <ul>
+              <li i18n>
+                <a href="https://angular.io/guide/dependency-injection" target="_blank"><em>Dependency injection in Angular</em>, angular.io</a>
+              </li>
+              <li i18n>
+                <a href="https://angular.io/guide/dependency-injection-in-action" target="_blank"><em>Dependency injection in action</em>, angular.io</a>
+              </li>
+              <li i18n>
+                <a href="https://angular.io/guide/architecture-services" target="_blank"><em>Introduction to services and dependency injection</em>, angular.io</a>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-          <ngb-progressbar
-            type="success"
-            [striped]="true"
-            [animated]="true"
-            [value]="percentage"
-            class="progress-bar bg-success">
-            <strong>{{ percentage }}%</strong>
-          </ngb-progressbar>
+        <!-- <ngb-progressbar
+          type="success"
+          [striped]="true"
+          [animated]="true"
+          [value]="percentage"
+          class="progress-bar bg-success">
+          <strong>{{ percentage }}%</strong>
+        </ngb-progressbar> -->
 
         <section class="completion-time">
           <span class="elapsed-time" i18n>
@@ -80,7 +81,8 @@
                 </mat-panel-title>
 
                 <ng-template
-                  matExpansionPanelContent *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers; index as j">
+                  matExpansionPanelContent
+                  *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers; index as j">
                   <div class="quiz-summary-field">
                     <span i18n>
                       <span class="leader">Your Answer: </span>
