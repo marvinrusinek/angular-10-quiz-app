@@ -41,14 +41,14 @@
           </div>
         </div>
 
-        <!-- <ngb-progressbar
+        <ngb-progressbar
           type="success"
           [striped]="true"
           [animated]="true"
           [value]="percentage"
           class="progress-bar bg-success">
           <strong>{{ percentage }}%</strong>
-        </ngb-progressbar> -->
+        </ngb-progressbar>
 
         <section class="completion-time">
           <span class="elapsed-time" i18n>
@@ -87,8 +87,8 @@
                     <span i18n>
                       <span class="leader">Your Answer: </span>
                       Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
-                      <mat-icon class="correct" *ngIf="question?.options[userAnswer - 1].correct === true">done</mat-icon>
-                      <mat-icon class="incorrect" *ngIf="question?.options[userAnswer - 1].correct === false">clear</mat-icon>
+                      <mat-icon class="correct" *ngIf="question?.options[userAnswer - 1].correct">done</mat-icon>
+                      <mat-icon class="incorrect" *ngIf="!question?.options[userAnswer - 1].correct">clear</mat-icon>
                       <span *ngIf="!userAnswer"> (no answer provided)</span>
                     </span>
                   </div>
