@@ -86,28 +86,24 @@
                 <ng-template
                   matExpansionPanelContent
                   *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers; index as j">
-                  <div class="quiz-summary-field">
-                    <span i18n>
+                  <ul class="quiz-summary-fields">
+                    <li i18n>
                       <span class="leader">Your Answer: </span>
                       Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
                       <mat-icon class="correct" *ngIf="question?.options[userAnswer - 1].correct">done</mat-icon>
                       <mat-icon class="incorrect" *ngIf="!question?.options[userAnswer - 1].correct">clear</mat-icon>
                       <span *ngIf="!userAnswer"> (no answer provided)</span>
-                    </span>
-                  </div>
-                  <div class="quiz-summary-field">
-                    <span i18n>
+                    </li>
+                    <li i18n>
                       <span class="leader">Correct Answer(s): </span>
                       Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
-                    </span>
-                  </div>
-                  <div class="quiz-summary-field">
-                    <span i18n>
+                    </li>
+                    <li i18n>
                       <span class="leader">Explanation: </span>
                       <span>Option {{ correctAnswer }} was correct because {{ question?.explanation }}.</span>
                       <!--<span *ngIf="correctAnswers > 1">Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.</span>-->
-                    </span>
-                  </div>
+                    </li>
+                  </ul>
                 </ng-template>
               </mat-expansion-panel-header>
             </mat-expansion-panel>

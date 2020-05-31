@@ -74,6 +74,7 @@ mat-card-header {
         list-style-type: square;
         text-align: left;
         margin-left: 16%;
+        width: 400px;
       }
     }
   }
@@ -140,16 +141,17 @@ mat-card-header {
           padding: 10px;
           text-align: left;
 
-          .quiz-summary-field {
+          ul.quiz-summary-fields {
             display: block !important;
             margin-bottom: 10px;
             text-align: left;
 
-            span {
-              display: inline !important;
+            li {
+              display: block;
               text-align: left;
               font-size: 16px;
               color: #00008b;
+              margin: 0 0 5px -30px;
             }
 
             .leader {
