@@ -45,7 +45,7 @@ export class ResultsComponent implements OnInit {
     // this.userAnswersResults = new Result(this.userAnswers, this.elapsedTimes);
     // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
-    this.percentageOfCorrectlyAnsweredQuestions();
+    this.calculatePercentageOfCorrectlyAnsweredQuestions();
     this.calculateElapsedTime();
   }
 
@@ -60,7 +60,7 @@ export class ResultsComponent implements OnInit {
     console.log('completionTime: ', this.completionTime$);
   }
 
-  percentageOfCorrectlyAnsweredQuestions(): void {
+  calculatePercentageOfCorrectlyAnsweredQuestions(): void {
     this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
   }
 
