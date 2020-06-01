@@ -52,12 +52,8 @@ export class ResultsComponent implements OnInit {
   ngOnInit() {
     this.correctAnswers = this.quizService.correctAnswers;
     this.userAnswers = this.quizService.userAnswers;
-    console.log('correct answers: ', this.correctAnswers);
-    console.log('user answers: ', this.userAnswers);
-
+    this.elapsedTimes = this.timerService.elapsedTimes;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
-    // this.completionTime$ = this.timerService.completionTimeSubject;
-    console.log('completionTime: ', this.completionTime$);
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): void {
