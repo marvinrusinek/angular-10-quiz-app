@@ -58,14 +58,12 @@ export class QuizService {
   }
 
   getCorrectAnswers(question: QuizQuestion) {
-    this.correctAnswerOptions = question.options.filter(option => option.correct)
-                                                .map(option => question.options.indexOf(option) + 1);
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectOptions = identifiedCorrectAnswers.length;
-
+    this.correctAnswerOptions = question.options.filter(option => option.correct)
+                                                .map(option => question.options.indexOf(option) + 1);
     this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
     this.correctAnswers.push(this.correctAnswersForEachQuestion);
-    console.log('sorted # array', this.correctAnswersForEachQuestion.sort().join(','));
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
 
     return identifiedCorrectAnswers;
@@ -113,8 +111,7 @@ export class QuizService {
   numberOfQuestions(): number {
     if (this.quizData && this.quizData.questions) {
       return this.quizData.questions.length;
-    }
-    else {
+    } else {
       return 0;
     }
   }
