@@ -71,23 +71,24 @@ export class QuizService {
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
-    if (correctAnswers.length === 1) {
+    this.hasAnswer = true;
+    if (correctAnswers[0][0]) {
       this.explanation = ' is correct because ' + this.question.explanation + '.';
-      const correctAnswersText = correctAnswers[0];
-      this.explanationText = 'Option ' + correctAnswersText + this.explanation;
-      this.correctMessage = 'The correct answer is Option ' + correctAnswers[0] + '.';
+      const correctOptions = correctAnswers[0][0];
+      this.explanationText = 'Option ' + correctAnswers + this.explanation;
+      this.correctMessage = 'The correct answer is Option ' + correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1]) {
       this.explanation = ' are correct because ' + this.question.explanation + '.';
-      const concatAnswers = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
-      this.explanationText = 'Options ' + concatAnswers + this.explanation;
-      this.correctMessage = 'The correct answers are Options ' + concatAnswers + '.';
+      const correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
+      this.explanationText = 'Options ' + correctOptions + this.explanation;
+      this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2]) {
       this.explanation = ' are correct because ' + this.question.explanation + '.';
-      const concatAnswers = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
-      this.explanationText = 'Options ' + concatAnswers + this.explanation;
-      this.correctMessage = 'The correct answers are Options ' + concatAnswers + '.';
+      const correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
+      this.explanationText = 'Options ' + correctOptions + this.explanation;
+      this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2] && correctAnswers[0][3]) {
       this.explanationText = 'All are correct!';
