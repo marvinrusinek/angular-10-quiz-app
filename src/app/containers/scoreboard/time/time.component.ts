@@ -41,7 +41,6 @@ export class TimeComponent implements OnInit, OnChanges {
     const start$ = this.timerService.isStart.asObservable().pipe(shareReplay(1));
     const reset$ = this.timerService.isReset.asObservable();
     const stop$ = this.timerService.isStop.asObservable();
-    start$.subscribe((data) => console.log(data));
     this.timeLeft$ = concat(start$.pipe(first()), reset$).pipe(
       switchMapTo(
         timer(0, 1000).pipe(
