@@ -12,7 +12,7 @@ import { TimerService } from '../../shared/services/timer.service';
 type AnimationState = 'animationStarted' | 'none';
 
 @Component({
-  selector: 'dependency-injection-quiz-component',
+  selector: 'codelab-dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
   animations: [
@@ -35,10 +35,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
   progressValue: number;
   questionIndex: number;
   correctCount: number;
-  userAnswers: number[] = [];
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  get explanationText(): string { return this.quizService.explanationText; };
-  get numberOfCorrectOptions(): number { return this.quizService.numberOfCorrectOptions; };
+  get explanationText(): string { return this.quizService.explanationText; }
+  get numberOfCorrectOptions(): number { return this.quizService.numberOfCorrectOptions; }
 
   constructor(
     private quizService: QuizService,
@@ -94,7 +93,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.quizService.resetAll();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.router.navigate(['/quiz/intro']);
+    this.answer = null;
+    this.router.navigate(['/intro']);
   }
 
   nextQuestion() {
@@ -117,10 +117,9 @@ export class DependencyInjectionQuizComponent implements OnInit {
         this.question.options[this.answer]['selected'] &&
         this.question.options[this.answer]['correct']
       ) {
-        this.timerService.stopTimer();
         this.sendCorrectCountToQuizService(this.correctCount + 1);
-        this.quizService.userAnswers.push(this.answer + 1);
       }
+      this.quizService.userAnswers.push(this.answer + 1);
     }
   }
 
