@@ -21,13 +21,15 @@ export class ResultsComponent implements OnInit {
   totalQuestions: number;
   percentage: number;
   correctAnswersCount$: Observable<number>;
-  completionTime$: Observable<number>;
+  completionTime: number;
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
   userAnswersResults: Result[];
 
-  get completionTime(): number { return this.timerService.completionTime; };
+  correctAnswers: number[] = [];
+  userAnswers: number[] = [];
+  elapsedTimes: number[] = [];
 
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
@@ -51,10 +53,10 @@ export class ResultsComponent implements OnInit {
   ngOnInit() {
     this.correctAnswers = this.quizService.correctAnswers;
     this.userAnswers = this.quizService.userAnswers;
-
     this.elapsedTimes = this.timerService.elapsedTimes;
     console.log('elapsedTimes: ', this.elapsedTimes);
-
+    this.completionTime = this.timerService.completionTime;
+    console.log('comp time: ', this.completionTime);
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
   }
 
@@ -63,8 +65,11 @@ export class ResultsComponent implements OnInit {
   }
 
   calculateElapsedTime() {
-    this.elapsedMinutes = this.timerService.completionTime / 60;
-    this.elapsedSeconds = this.timerService.completionTime % 60;
+    this.completionTime = this.timerService.completionTime;
+    console.log('completionTime: ', this.completionTime);
+
+    this.elapsedMinutes = this.completionTime / 60;
+    this.elapsedSeconds = this.completionTime % 60;
 
     console.log('elapsedMinutes: ', this.elapsedMinutes);
     console.log('elapsedSeconds: ', this.elapsedSeconds);
