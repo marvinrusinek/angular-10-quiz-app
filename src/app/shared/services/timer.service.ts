@@ -36,7 +36,7 @@ export class TimerService {
     this.isPause.next(1);
   }
 
-  setElapsed(time): void {
+  setElapsed(time: number): void {
     this.elapsedTime = time;
   }
 
