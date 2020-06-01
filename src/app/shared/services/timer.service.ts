@@ -15,6 +15,9 @@ export class TimerService {
   isTimerStart = false;
 
   stopTimer(): void {
+    if (!this.isTimerStart) {
+      return;
+    }
     this.isTimerStart = false;
     this.timePerQuestion = 0;
     this.isStop.next(1);

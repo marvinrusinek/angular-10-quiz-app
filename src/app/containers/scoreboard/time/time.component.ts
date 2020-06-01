@@ -44,7 +44,7 @@ export class TimeComponent implements OnInit, OnChanges {
     this.timeLeft$ = concat(start$.pipe(first()), reset$).pipe(
       switchMapTo(
         timer(0, 1000).pipe(
-          scan((acc) => acc > 0 ? acc - 1 : acc, this.timePerQuestion),
+          scan((acc) => acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc, this.timePerQuestion),
         )
       ),
       takeUntil(stop$.pipe(skip(1))),
@@ -58,8 +58,6 @@ export class TimeComponent implements OnInit, OnChanges {
           )
         )
       )
-    ).pipe(tap((value) => this.timerService.setElapsed(this.timePerQuestion - value)));
-
-    this.timeLeft = Number(this.timeLeft$);
+    ).pipe(tap((value: number) => this.timerService.setElapsed(this.timePerQuestion - value)));
   }
 }
