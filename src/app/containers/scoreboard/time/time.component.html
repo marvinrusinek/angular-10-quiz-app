@@ -1,6 +1,6 @@
 <div class="time-left">
-  <span class="leader" i18n>Time</span>
+  <label class="leader" i18n>Time</label>
   <span class="scoreboard" i18n>
-    0:{{ timeLeft$ | async }}
+    0:<span *ngIf="timeLeft < 10">0</span>{{ timeLeft$ | async }}
   </span>
 </div>

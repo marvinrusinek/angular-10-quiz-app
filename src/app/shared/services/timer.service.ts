@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, PartialObserver, Subject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TimerService {
@@ -7,27 +7,37 @@ export class TimerService {
   elapsedTime = 0;
   elapsedTimes: number[] = [];
   completionTime: number;
-  timeLeft = new BehaviorSubject<number>(this.timePerQuestion);
-  timeLeft$ = this.timeLeft.asObservable();
-  // completionTimeSubject = new BehaviorSubject<number>(this.elapsedTime);
 
   timer: Observable<number>;
-  timerObserver: PartialObserver<number>;
-  isStop = new Subject();
-  isPause = new Subject();
+  isStart = new BehaviorSubject(1);
+  isStop = new BehaviorSubject(1);
+  isReset = new BehaviorSubject(1);
+  isPause = new BehaviorSubject(1);
+  isTimerStart = false;
 
   resetTimer(): void {
-    this.timerObserver.next(this.timePerQuestion);
+    if (!this.isTimerStart) {
+      this.isTimerStart = true;
+      this.isStart.next(1);
+    }
+    this.isTimerStart = true;
+    this.isReset.next(1);
   }
 
-  stopTimer() {
+  stopTimer(): void {
+    this.isTimerStart = false;
     this.timePerQuestion = 0;
-    this.isStop.next();
+    this.isStop.next(1);
+    this.elapsedTimes.push(this.elapsedTime);
   }
 
-  pauseTimer() {
-    this.isPause.next();
-    // setTimeout(() => this.goOn(), 1000)
+  pauseTimer(): void {
+    this.isTimerStart = false;
+    this.isPause.next(1);
+  }
+
+  setElapsed(time): void {
+    this.elapsedTime = time;
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
@@ -36,8 +46,4 @@ export class TimerService {
       return this.completionTime;
     }
   }
-
-  /* sendCompletionTimeToResults(value: number): void {
-    this.completionTimeSubject.next(value);
-  } */
 }

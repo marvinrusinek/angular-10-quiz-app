@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/cor
 import { ActivatedRoute } from '@angular/router';
 
 import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-scoreboard',
@@ -16,6 +17,7 @@ export class ScoreboardComponent implements OnInit, OnChanges {
 
   constructor(
     private quizService: QuizService,
+    private timerService: TimerService,
     private route: ActivatedRoute
   ) { }
 
@@ -25,6 +27,7 @@ export class ScoreboardComponent implements OnInit, OnChanges {
       if (params.questionIndex) {
         questionIndex = params.questionIndex;
         this.badgeQuestionNumber = questionIndex;
+        this.timerService.resetTimer();
       }
     });
 

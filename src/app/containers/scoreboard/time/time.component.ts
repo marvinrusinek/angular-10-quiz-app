@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
-import { concat, fromEvent, Observable, of, Subscription, timer } from 'rxjs';
-import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil } from 'rxjs/operators';
+import { concat, Observable, timer } from 'rxjs';
+import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
@@ -14,16 +14,10 @@ import { TimerService } from '../../../shared/services/timer.service';
 export class TimeComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
-  hasAnswer: boolean;
 
   timeLeft$: Observable<number>;
   timeLeft: number;
   timePerQuestion = 20;
-  elapsedTime: number;
-  completionTime: number;
-
-  quizIsOver: boolean;
-  inProgress: boolean;
 
   constructor(
     private quizService: QuizService,
@@ -32,9 +26,6 @@ export class TimeComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.countdownClock();
-    /* this.timerService.timeLeft$.subscribe(data => {
-      this.timeLeft = data;
-    }); */
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -47,69 +38,29 @@ export class TimeComponent implements OnInit, OnChanges {
   }
 
   countdownClock() {
-    const $ = document.querySelector.bind(document);
-
-    const start$ = fromEvent($('#start'), 'click').pipe(shareReplay(1));
-    const reset$ = fromEvent($('#reset'), 'click');
-    const stop$ = fromEvent($('#stop'), 'click');
-    const markTimestamp$ = fromEvent($('#mark'), 'click');
-    const continueFromLastTimestamp$ = fromEvent($('#continue'), 'click');
-
-    this.timeLeft$ = concat(
-      start$.pipe(first()),
-      reset$
-    ).pipe(
+    const start$ = this.timerService.isStart.asObservable().pipe(shareReplay(1));
+    const reset$ = this.timerService.isReset.asObservable();
+    const stop$ = this.timerService.isStop.asObservable();
+    start$.subscribe((data) => console.log(data));
+    this.timeLeft$ = concat(start$.pipe(first()), reset$).pipe(
       switchMapTo(
-        timer(0, 1000)
-          .pipe(
-            takeUntil(markTimestamp$),
-            repeatWhen(
-              completeSbj => completeSbj.pipe(switchMapTo(
-                continueFromLastTimestamp$.pipe(first())
-              ))
-            ),
-            scan((acc, crt) => acc - 1000, this.timePerQuestion * 1000)
-          )
+        timer(0, 1000).pipe(
+          scan((acc) => acc > 0 ? acc - 1 : acc, this.timePerQuestion),
+        )
       ),
-      takeUntil(stop$),
-      repeatWhen(completeSbj => completeSbj.pipe(switchMapTo(start$.pipe(skip(1), first()))))
-    );
+      takeUntil(stop$.pipe(skip(1))),
+      repeatWhen(completeSubj =>
+        completeSubj.pipe(
+          switchMapTo(
+            start$.pipe(
+              skip(1),
+              first()
+            )
+          )
+        )
+      )
+    ).pipe(tap((value) => this.timerService.setElapsed(this.timePerQuestion - value)));
+
+    this.timeLeft = Number(this.timeLeft$);
   }
-
-  myTearDownLogic() {
-    this.quizIsOver = false;
-    this.inProgress = true;
-
-    if (this.answer !== null) {
-      this.hasAnswer = true;
-      this.timerService.elapsedTime = Math.ceil(20 - this.timePerQuestion);
-      this.timerService.elapsedTimes.push(this.elapsedTime);
-      // this.timerService.calculateTotalElapsedTime(this.elapsedTimes);
-    }
-
-    if (this.timePerQuestion === 0) {
-      if (!this.quizService.isFinalQuestion()) {
-        this.quizService.nextQuestion();
-        this.quizIsOver = false;
-        this.inProgress = true;
-      }
-      if (this.quizService.isFinalQuestion() && this.hasAnswer === true) {
-        console.log('compTime: ', this.completionTime);
-        this.timerService.completionTime = this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes);
-        // this.sendCompletionTimeToTimerService(this.completionTime);
-        this.quizService.navigateToResults();
-        this.quizIsOver = true;
-        this.inProgress = false;
-      }
-      this.timerService.stopTimer();
-    }
-
-    this.timeLeft = 20;
-    this.hasAnswer = false;
-  }
-
-  /* sendCompletionTimeToTimerService(value: number): void {
-     this.completionCount = value;
-     this.timerService.sendCompletionTimeToResults(this.completionCount);
-   } */
 }
