@@ -61,14 +61,8 @@ export class ResultsComponent implements OnInit {
 
   calculateElapsedTime(): void {
     this.completionTime = this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes);
-    console.log(this.elapsedTimes);
-    console.log('completionTime: ', this.completionTime);
-
     this.elapsedMinutes = Math.floor(this.completionTime / 60);
     this.elapsedSeconds = this.completionTime % 60;
-
-    console.log('elapsedMinutes: ', this.elapsedMinutes);
-    console.log('elapsedSeconds: ', this.elapsedSeconds);
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): void {
