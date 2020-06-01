@@ -53,7 +53,7 @@ export class QuizService {
     this.correctAnswerOptions = [];
     this.correctMessage = '';
     this.explanationText = '';
-    this.timerService.stopTimer()
+    this.timerService.stopTimer();
     this.timerService.resetTimer();
   }
 

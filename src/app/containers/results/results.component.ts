@@ -76,6 +76,8 @@ export class ResultsComponent implements OnInit {
 
   restart() {
     this.quizService.resetAll();
-    this.router.navigate(['/intro']);
+    this.timerService.elapsedTimes = [];
+    this.timerService.completionTime = 0;
+    this.router.navigate(['/quiz/intro']);
   }
 }

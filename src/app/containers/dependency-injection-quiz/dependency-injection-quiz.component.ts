@@ -90,9 +90,11 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.quizService.previousQuestion();
   }
 
-  restart(): void {
+  restart() {
     this.quizService.resetAll();
-    this.router.navigate(['/intro']);
+    this.timerService.elapsedTimes = [];
+    this.timerService.completionTime = 0;
+    this.router.navigate(['/quiz/intro']);
   }
 
   nextQuestion() {
