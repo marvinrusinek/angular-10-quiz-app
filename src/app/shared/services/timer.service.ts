@@ -15,6 +15,13 @@ export class TimerService {
   isPause = new BehaviorSubject(1);
   isTimerStart = false;
 
+  stopTimer(): void {
+    this.isTimerStart = false;
+    this.timePerQuestion = 0;
+    this.isStop.next(1);
+    this.elapsedTimes.push(this.elapsedTime);
+  }
+
   resetTimer(): void {
     if (!this.isTimerStart) {
       this.isTimerStart = true;
@@ -22,13 +29,6 @@ export class TimerService {
     }
     this.isTimerStart = true;
     this.isReset.next(1);
-  }
-
-  stopTimer(): void {
-    this.isTimerStart = false;
-    this.timePerQuestion = 0;
-    this.isStop.next(1);
-    this.elapsedTimes.push(this.elapsedTime);
   }
 
   pauseTimer(): void {
