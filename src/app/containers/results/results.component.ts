@@ -27,7 +27,6 @@ export class ResultsComponent implements OnInit {
   codelabUrl = 'https://www.codelab.fun';
   userAnswersResults: Result[];
 
-  get elapsedTimes(): number[] { return this.timerService.elapsedTimes; };
   get completionTime(): number { return this.timerService.completionTime; };
 
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
@@ -52,7 +51,10 @@ export class ResultsComponent implements OnInit {
   ngOnInit() {
     this.correctAnswers = this.quizService.correctAnswers;
     this.userAnswers = this.quizService.userAnswers;
+
     this.elapsedTimes = this.timerService.elapsedTimes;
+    console.log('elapsedTimes: ', this.elapsedTimes);
+
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
   }
 

@@ -12,7 +12,6 @@ export class TimerService {
   isStart = new BehaviorSubject(1);
   isStop = new BehaviorSubject(1);
   isReset = new BehaviorSubject(1);
-  isPause = new BehaviorSubject(1);
   isTimerStart = false;
 
   stopTimer(): void {
@@ -29,11 +28,6 @@ export class TimerService {
     }
     this.isTimerStart = true;
     this.isReset.next(1);
-  }
-
-  pauseTimer(): void {
-    this.isTimerStart = false;
-    this.isPause.next(1);
   }
 
   setElapsed(time: number): void {
