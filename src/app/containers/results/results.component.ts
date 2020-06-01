@@ -65,9 +65,6 @@ export class ResultsComponent implements OnInit {
   }
 
   calculateElapsedTime() {
-    // this.elapsedMinutes = this.timerService.completionTimeSubject.value / 60;
-    // this.elapsedSeconds = this.timerService.completionTimeSubject.value % 60;
-    
     this.elapsedMinutes = this.timerService.completionTime / 60;
     this.elapsedSeconds = this.timerService.completionTime % 60;
 
