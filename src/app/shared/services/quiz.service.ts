@@ -111,10 +111,6 @@ export class QuizService {
     }
   }
 
-  isFinalQuestion(): boolean {
-    return (this.quizData.questions.length === this.currentQuestionIndex);
-  }
-
   previousQuestion() {
     this.router.navigate(['/question', this.currentQuestionIndex - 1]);
     this.resetAll();
