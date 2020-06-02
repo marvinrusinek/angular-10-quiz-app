@@ -9,9 +9,9 @@ export class TimerService {
   completionTime: number;
 
   timer: Observable<number>;
-  isStart = new BehaviorSubject(1);
-  isStop = new BehaviorSubject(1);
-  isReset = new BehaviorSubject(1);
+  isStart = new BehaviorSubject<number>(1);
+  isStop = new BehaviorSubject<number>(1);
+  isReset = new BehaviorSubject<number>(1);
   isTimerStart = false;
 
   stopTimer(): void {

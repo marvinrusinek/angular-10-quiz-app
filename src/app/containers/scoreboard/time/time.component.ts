@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { concat, Observable, timer } from 'rxjs';
 import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap } from 'rxjs/operators';
 
@@ -11,20 +11,16 @@ import { TimerService } from '../../../shared/services/timer.service';
   templateUrl: './time.component.html',
   styleUrls: ['./time.component.scss']
 })
-export class TimeComponent implements OnInit, OnChanges {
+export class TimeComponent implements OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
-
-  timeLeft$: Observable<number>;
-  timeLeft: number;
   timePerQuestion = 20;
+  timeLeft$: Observable<number>;
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService
-  ) { }
-
-  ngOnInit(): void {
+  ) {
     this.countdownClock();
   }
 
