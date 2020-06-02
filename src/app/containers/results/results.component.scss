@@ -1,5 +1,4 @@
-$font-stack: Space Mono, monospace;
-$font-weight-max: 900;
+@import "../../../_variables.scss";
 
 mat-card-header {
   display: block;
@@ -18,7 +17,7 @@ mat-card-header {
     font-size: 48px !important;
     font-weight: 900;
     margin-left: -50px !important;
-    color: #00c853;
+    color: $color-green;
   }
 }
 
@@ -54,7 +53,7 @@ mat-card-header {
 
     .percent-sign {
       font-size: large;
-      font-weight: bold;
+      font-weight: $font-weight-max;
     }
 
     .progress-bar {
@@ -88,7 +87,7 @@ mat-card-header {
 
       summary {
         font-size: 16px;
-        color: #007aff;
+        color: $color-vivid-blue;
         font-weight: $font-weight-max;
         margin-bottom: 20px;
         outline: none;
@@ -99,12 +98,12 @@ mat-card-header {
         padding-bottom: 20px;
 
         mat-expansion-panel:hover {
-          outline: blue;
+          outline: $color-vivid-blue;
         }
 
         mat-panel-title {
-          background-color: #f5f5f5 !important;
-          color: #0f0000 !important;
+          background-color: $color-light-gray !important;
+          color: $color-black !important;
           white-space: nowrap;
 
           .question-leader {
@@ -115,7 +114,7 @@ mat-card-header {
           .question-text {
             font-weight: 700;
             font-style: italic;
-            color: #0f0900;
+            color: $color-black;
             white-space: nowrap;
           }
         }
@@ -125,7 +124,7 @@ mat-card-header {
           left: 0;
           margin: 0 0 0 25px;
           margin-left: -5px;
-          color: grey;
+          color: $color-gray;
           font-weight: $font-weight-max;
           font-size: 20px;
         }
@@ -133,10 +132,10 @@ mat-card-header {
         .quiz-summary-question {
           font-family: $font-stack;
           font-size: 14px;
-          border: 2px solid #385d8a;
+          border: 2px solid $color-chambray-blue;
           border-radius: 5px;
-          color: #0f0900;
-          background-color: #f5f5f5;
+          color: $color-black;
+          background-color: $color-light-gray;
           margin-bottom: 15px;
           padding: 10px;
           text-align: left;
@@ -163,11 +162,11 @@ mat-card-header {
               top: 10px !important;
             }
             mat-icon.correct {
-              color: #006400 !important;
+              color: $color-green !important;
               font-weight: $font-weight-max;
             }
             mat-icon.incorrect {
-              color: #ff0000 !important;
+              color: $color-red !important;
               font-weight: $font-weight-max;
             }
           }
@@ -215,19 +214,19 @@ mat-card-header {
     }
 
     /* a.btn.facebook {
-      background-color: #4267b2;
+      background-color: $color-dark-blue;
       background-image: url('../../../../assets/images/facebook.gif');
       top: 10px !important;
     } */
 
     a.btn.twitter {
-      background-color: #59adeb;
+      background-color: $color-soft-blue;
       background-image: url('../../../../assets/images/twitter.svg');
       top: 10px !important;
     }
 
     a.btn.email {
-      background-color: #f0a121;
+      background-color: $color-fuel-yellow;
       background-image: url('../../../../assets/images/email.svg');
       top: 10px !important;
     }

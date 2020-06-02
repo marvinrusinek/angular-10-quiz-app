@@ -1,3 +1,5 @@
+@import "../../../_variables.scss";
+
 mat-card-header {
   display: block;
 
@@ -13,9 +15,14 @@ mat-card-header {
   }
 }
 
-mat-card-content span {
-  text-align: justify;
-  margin-top: -25px;
+mat-card-content {
+  display: flex;
+  justify-content: center;
+
+  span {
+    text-align: justify;
+    margin-top: -25px;
+  }
 }
 
 mat-card-actions {
@@ -25,6 +32,6 @@ mat-card-actions {
     margin-bottom: 10px;
   }
   button:hover {
-    border: 1px solid #007aff;
+    border: 1px solid $color-vivid-blue;
   }
 }
