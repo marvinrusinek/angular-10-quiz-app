@@ -78,8 +78,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
       optionIndex = null;
-    }
-    else {
+    } else {
       this.quizService.incorrectSound.play();
     }
 
