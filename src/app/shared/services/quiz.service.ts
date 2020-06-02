@@ -17,16 +17,16 @@ export class QuizService {
   totalQuestions: number;
   currentQuestionIndex = 1;
   correctAnswersForEachQuestion = [];
-  correctAnswers: number[] = [];
-  userAnswers: number[] = [];
+  correctAnswers = [];
+  userAnswers = [];
   numberOfCorrectOptions: number;
-  correctAnswerOptions: number[];
+  correctAnswerOptions: number[] = [];
+  correctOptions: string;
   explanation: string;
   explanationText: string;
   correctMessage: string;
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  concatAnswers: string[];
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -74,21 +74,21 @@ export class QuizService {
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' is correct because ' + this.question.explanation + '.';
-      const correctOptions = correctAnswers[0][0];
+      this.correctOptions = correctAnswers[0][0];
       this.explanationText = 'Option ' + correctAnswers + this.explanation;
-      this.correctMessage = 'The correct answer is Option ' + correctOptions + '.';
+      this.correctMessage = 'The correct answer is Option ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1]) {
       this.explanation = ' are correct because ' + this.question.explanation + '.';
-      const correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
-      this.explanationText = 'Options ' + correctOptions + this.explanation;
-      this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
+      this.correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
+      this.explanationText = 'Options ' + this.correctOptions + this.explanation;
+      this.correctMessage = 'The correct answers are Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2]) {
       this.explanation = ' are correct because ' + this.question.explanation + '.';
-      const correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
-      this.explanationText = 'Options ' + correctOptions + this.explanation;
-      this.correctMessage = 'The correct answers are Options ' + correctOptions + '.';
+      this.correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
+      this.explanationText = 'Options ' + this.correctOptions + this.explanation;
+      this.correctMessage = 'The correct answers are Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2] && correctAnswers[0][3]) {
       this.explanationText = 'All are correct!';
