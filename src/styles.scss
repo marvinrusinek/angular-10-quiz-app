@@ -1,17 +1,15 @@
-@import "~@angular/material/prebuilt-themes/indigo-pink.css";
-$font-stack: Space Mono, monospace;
-$font-weight-max: 900;
+@import "./_variables.scss";
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 
 mat-card {
   margin: 0 auto;
-  margin: 5% 0 20px 25% !important;
+  margin: 2% 0 20px 25%;
   width: 42rem !important;
-  height: inherit;
+  height: auto !important;
   padding: 20px;
   display: flex;
   justify-content: center;
   flex-direction: column;
-  position: relative;
   border: 1px solid black;
   border-radius: 10px !important;
 }
@@ -27,7 +25,7 @@ mat-card-header {
 
   .header-image {
     float: left;
-    background: url('../assets/images/codelab_logo.jpeg') no-repeat center center;
+    background: url('../../../assets/images/codelab_logo.jpeg') no-repeat center center;
     background-size: contain;
     margin: -10px 0 0 -40px;
     height: 100px !important;
@@ -39,7 +37,7 @@ mat-card-header {
     font-weight: $font-weight-max;
     font-size: 30px !important;
     margin: -10px 0 10px 10px;
-    color: #007aff;
+    color: $color-vivid-blue;
     text-align: center;
   }
   mat-card-subtitle {
@@ -47,7 +45,7 @@ mat-card-header {
     font-weight: $font-weight-max;
     font-size: 17.5px !important;
     font-style: italic;
-    color: #808080;
+    color: $color-gray;
     text-align: center;
   }
 }
