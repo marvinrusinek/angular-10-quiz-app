@@ -67,8 +67,21 @@ ol li {
 .messages {
   display: flex;
   justify-content: center;
-  margin-top: 5px;
+  margin-bottom: 10px;
   height: auto;
+
+  span {
+    font-size: 17px;
+    margin-top: 10px;
+  }
+
+  .sentiment-icon {
+    font-size: 30px;
+    color: #fddc30;
+    margin: 10px -50px 0 25px;
+    vertical-align: top;
+    float: left;
+  }
 
   .message {
     font-family: $font-stack;
@@ -77,7 +90,8 @@ ol li {
     font-style: italic;
     margin: 0 auto;
     padding: 10px !important;
-    width: 37rem !important;
+    width: 35rem;
+    height: auto;
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -102,24 +116,13 @@ ol li {
     border-radius: 5px;
     color: #ff0000;
     padding: 5px;
+    margin-top: -10px;
     word-wrap: break-word;
-  }
 
-  mat-icon {
-    font-size: 30px;
-    color: #9acd32;
-    margin: 10px -50px 0 0;
-    vertical-align: top;
-  }
-
-  .sentiment-icon {
-    float: left;
-    margin-left: 15px;
-  }
-
-  span {
-    font-size: 17px;
-    margin-top: 10px;
+    .sentiment-icon {
+      float: left;
+      margin-top: -40px !important;
+    }
   }
 }
 
