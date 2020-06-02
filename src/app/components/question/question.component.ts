@@ -73,9 +73,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       optionIndex &&
       this.currentQuestion &&
       this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex]['selected'] ===
-      this.currentQuestion.options[optionIndex]['correct'] &&
-      this.currentQuestion.options[optionIndex]['correct'] === true
+      this.currentQuestion.options[optionIndex]['correct']
     ) {
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
