@@ -104,12 +104,12 @@
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                      Option {{ correctAnswer[0][j] }} &mdash; {{ question?.options[correctAnswer - 1].text }}
                     </li>
                     <li i18n>
                       <span class="leader">Explanation: </span>
-                      <span>Option {{ correctAnswer }} was correct because {{ question?.explanation }}.</span>
-                      <!--<span *ngIf="correctAnswers > 1">Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.</span>-->
+                      <span *ngIf="correctAnswer == 1">Option {{ correctAnswer }} was correct because {{ question?.explanation }}.</span>
+                      <span *ngIf="correctAnswer > 1">Options {{ correctAnswer }} were correct because {{ question?.explanation }}.</span>
                     </li>
                   </ul>
                 </ng-template>
