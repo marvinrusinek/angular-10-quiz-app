@@ -16,16 +16,25 @@
 
         <div class="quiz-feedback">
           <div *ngIf="percentage >= 80">
-            <img mat-card-image [src]="CONGRATULATIONS" alt="Photo of 'Congratulations'" i18n-title title="Congratulations">
-            <h3 i18n>Great job! </h3>
+            <img mat-card-image
+                 [src]="CONGRATULATIONS"
+                 alt="Photo of 'Congratulations'"
+                 i18n-title title="Congratulations">
+            <h3 i18n>Great job!</h3>
           </div>
           <div *ngIf="percentage >= 60 && percentage < 80">
-            <img mat-card-image [src]="NOT_BAD" alt="Photo of 'Not Bad'" i18n-title title="Not Bad">
-            <h3 i18n>Not bad! </h3>
+            <img mat-card-image
+                 [src]="NOT_BAD"
+                 alt="Photo of 'Not Bad'"
+                 i18n-title title="Not Bad">
+            <h3 i18n>Not bad!</h3>
           </div>
           <div *ngIf="percentage < 60">
-            <img mat-card-image [src]="TRY_AGAIN" alt="Photo of 'Try Again'" i18n-title title="Try Again">
-            <h3 i18n>Try again! </h3>
+            <img mat-card-image
+                 [src]="TRY_AGAIN"
+                 alt="Photo of 'Try Again'"
+                 i18n-title title="Try Again">
+            <h3 i18n>Try again!</h3>
             <p i18n>Brush up your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
             <ul>
               <li i18n>
@@ -92,24 +101,32 @@
                 </mat-panel-title>
 
                 <ng-template
-                  matExpansionPanelContent
-                  *ngFor="let userAnswer of userAnswers; let correctAnswer of correctAnswers; index as j">
+                  matExpansionPanelContent>
                   <ul class="quiz-summary-fields">
                     <li i18n>
                       <span class="leader">Your Answer: </span>
-                      Option {{ userAnswer }} &mdash; {{ question?.options[userAnswer - 1].text }}
-                      <mat-icon class="correct" *ngIf="question?.options[userAnswer - 1].correct">done</mat-icon>
-                      <mat-icon class="incorrect" *ngIf="!question?.options[userAnswer - 1].correct">clear</mat-icon>
-                      <span *ngIf="!userAnswer"> (no answer provided)</span>
+                      Option {{ userAnswers[i] }} &mdash; {{ question?.options[i].text }}
+                      <mat-icon class="correct" *ngIf="userAnswers[i] === correctAnswers[i]">done</mat-icon>
+                      <mat-icon class="incorrect" *ngIf="userAnswers[i] !== correctAnswers[i]">clear</mat-icon>
+                      <span *ngIf="userAnswers[i] === null"> (no answer provided)</span>
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      Option {{ correctAnswer }} &mdash; {{ question?.options[correctAnswer - 1].text }}
+                      <span *ngIf="correctAnswers[i].length === 1">
+                        Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
+                      </span>
+                      <span *ngIf="correctAnswers[i].length > 1">
+                        Options {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
+                      </span>
                     </li>
                     <li i18n>
                       <span class="leader">Explanation: </span>
-                      <span *ngIf="correctAnswer === 1">Option {{ correctAnswer }} was correct because {{ question?.explanation }}.</span>
-                      <span *ngIf="correctAnswer > 1">Options {{ correctAnswer[0][j] }} were correct because {{ question?.explanation }}.</span>
+                      <span *ngIf="correctAnswers[i].length === 1">
+                        Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
+                      </span>
+                      <span *ngIf="correctAnswers[i].length > 1">
+                        Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.
+                      </span>
                     </li>
                   </ul>
                 </ng-template>
