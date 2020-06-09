@@ -25,7 +25,6 @@ export class ResultsComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
-  userAnswersResults: Result[];
 
   correctAnswers: number[] = [];
   userAnswers: number[] = [];
@@ -43,8 +42,6 @@ export class ResultsComponent implements OnInit {
     private timerService: TimerService,
     private router: Router
   ) {
-    // this.userAnswersResults = new Result(this.userAnswers, this.elapsedTimes);
-    // this.resultsMap = [this.userAnswers[], this.elapsedTimes];
     this.totalQuestions = quizService.totalQuestions;
     this.calculatePercentageOfCorrectlyAnsweredQuestions();
     this.calculateElapsedTime();
@@ -65,6 +62,14 @@ export class ResultsComponent implements OnInit {
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): void {
     this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
+  }
+
+  checkIfAnswersAreCorrect(correctAnswers: [], userAnswers: []) {
+    const resultsComparisonArray = new Array();
+    for (let i = 0; i < correctAnswers.length; i++) {
+      resultsComparisonArray.push(correctAnswers[i] === userAnswers[i] ? true : false);
+    }
+    return resultsComparisonArray;
   }
 
   openAllPanels() {
