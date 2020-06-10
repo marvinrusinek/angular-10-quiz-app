@@ -130,6 +130,10 @@
                         Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.
                       </span>
                     </li>
+                    <li i18n>
+                      <span class="leader">Elapsed Time: </span>
+                      <span>{{ elapsedTimes[i] }} second</span>
+                    </li>
                   </ul>
 
                   <ul class="quiz-summary-fields" *ngIf="correctAnswers[i].length === 1">
@@ -159,6 +163,10 @@
                       <span *ngIf="correctAnswers[i].length > 1">
                         Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.
                       </span>
+                    </li>
+                    <li i18n>
+                      <span class="leader">Elapsed Time: </span>
+                      <span>{{ elapsedTimes[i] }} seconds</span>
                     </li>
                   </ul>
                 </ng-template>
