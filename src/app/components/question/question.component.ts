@@ -25,12 +25,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   @Output() answer = new EventEmitter<number>();
   @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
-  get correctMessage(): string { return this.quizService.correctMessage; }
   formGroup: FormGroup;
   quizStarted: boolean;
   multipleAnswer: boolean;
   alreadyAnswered = false;
   correctAnswers = [];
+  correctMessage: string;
   isCorrectAnswerSelected = false;
 
   constructor(
@@ -42,6 +42,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.formGroup = new FormGroup({
       answer: new FormControl(['', Validators.required])
     });
+    this.correctMessage = this.quizService.correctMessage;
   }
 
   ngOnChanges(changes: SimpleChanges) {
