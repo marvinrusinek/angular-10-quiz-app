@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
-//import { Result } from '../../shared/models/Result.model';
+// import { Result } from '../../shared/models/Result.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -64,7 +64,7 @@ export class ResultsComponent implements OnInit {
     this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
   }
 
-  checkIfAnswersAreCorrect(correctAnswers: [], userAnswers: []) {
+  checkIfAnswersAreCorrect(correctAnswers: [], userAnswers: []): boolean[] {
     const resultsComparisonArray = new Array();
     for (let i = 0; i < correctAnswers.length; i++) {
       resultsComparisonArray.push(correctAnswers[i] === userAnswers[i] ? true : false);
