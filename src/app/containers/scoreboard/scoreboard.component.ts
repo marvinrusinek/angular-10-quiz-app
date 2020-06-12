@@ -22,11 +22,9 @@ export class ScoreboardComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    let questionIndex;
     this.route.params.subscribe(params => {
       if (params.questionIndex) {
-        questionIndex = params.questionIndex;
-        this.badgeQuestionNumber = questionIndex;
+        this.badgeQuestionNumber = params.questionIndex;
         this.timerService.resetTimer();
       }
     });
@@ -35,7 +33,8 @@ export class ScoreboardComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.selectedAnswer && changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange) {
+    if (changes.selectedAnswer &&
+        changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange) {
       this.answer = changes.selectedAnswer.currentValue;
     }
   }
