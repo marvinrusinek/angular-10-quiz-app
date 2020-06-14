@@ -60,8 +60,7 @@ export class QuizService {
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectOptions = identifiedCorrectAnswers.length;
-    this.correctAnswerOptions = question.options.filter(option => option.correct)
-                                                .map(option => question.options.indexOf(option) + 1);
+    this.correctAnswerOptions = question.options.filter(option => option.correct).map(option => question.options.indexOf(option) + 1);
     this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
     this.correctAnswers.push(this.correctAnswersForEachQuestion);
     this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
@@ -73,26 +72,26 @@ export class QuizService {
     this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
-      this.explanation = ' is correct because ' + this.question.explanation + '.';
+      this.explanation = ' was correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0];
       this.explanationText = 'Option ' + correctAnswers + this.explanation;
-      this.correctMessage = 'The correct answer is Option ' + this.correctOptions + '.';
+      this.correctMessage = 'The correct answer was Option ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1]) {
-      this.explanation = ' are correct because ' + this.question.explanation + '.';
+      this.explanation = ' were correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
       this.explanationText = 'Options ' + this.correctOptions + this.explanation;
-      this.correctMessage = 'The correct answers are Options ' + this.correctOptions + '.';
+      this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2]) {
-      this.explanation = ' are correct because ' + this.question.explanation + '.';
+      this.explanation = ' were correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
       this.explanationText = 'Options ' + this.correctOptions + this.explanation;
-      this.correctMessage = 'The correct answers are Options ' + this.correctOptions + '.';
+      this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2] && correctAnswers[0][3]) {
-      this.explanationText = 'All are correct!';
-      this.correctMessage = 'All are correct!';
+      this.explanationText = 'All were correct!';
+      this.correctMessage = 'All were correct!';
     }
   }
 
