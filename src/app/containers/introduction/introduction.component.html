@@ -12,10 +12,11 @@
     </div>
   </mat-card-header>
 
-  <mat-card-content>
-    <span i18n><strong>{{ quizData?.summary }}</strong>  Taking this quiz should solidify your understanding of
-      {{ quizData?.milestone }}. Beat the clock and match wits with your friends! Good luck and have fun with this quiz.
-      Share and enjoy!</span>
+<mat-card-content>
+    <span i18n><strong>{{ quizData?.summary }}</strong>  This quiz is composed of
+      <strong>{{ quizData?.questions.length }}</strong> timed, multiple-choice questions. Taking this quiz should
+      solidify your understanding of {{ quizData?.milestone }}. Beat the clock and match wits with your friends! Good
+      luck and have fun with this quiz. Share and enjoy!</span>
   </mat-card-content>
 
   <mat-card-actions>
