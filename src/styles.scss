@@ -1,5 +1,10 @@
-@import "./_variables.scss";
+@import "variables";
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
+
+@font-face {
+  font-family: 'DjbUpOnTheScoreboard';
+  src: url('../../../../../assets/fonts/DjbUpOnTheScoreboard.ttf') format('truetype');
+}
 
 mat-card {
   margin: 0 auto;
