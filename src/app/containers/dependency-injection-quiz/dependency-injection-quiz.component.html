@@ -18,7 +18,7 @@
           <em>({{ numberOfCorrectOptions }} options are correct.)</em>
         </span>
       </span>
-      <span *ngIf="answer >= 0" i18n>{{ explanationText }}</span>
+      <span *ngIf="answer >= 0 && answer !== null" i18n>{{ explanationText }}</span>
     </section>
 
     <codelab-quiz-question
