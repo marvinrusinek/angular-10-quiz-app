@@ -1,4 +1,5 @@
-@import "variables";
+@import "_variables";
+@import "_mixins";
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 
 @font-face {

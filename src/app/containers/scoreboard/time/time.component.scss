@@ -1,31 +1,15 @@
 @import "../../../../_variables.scss";
-
+@import "../../../../_mixins.scss";
 .time-left {
   float: right;
   margin-right: 1.5rem;
 
   .leader {
-    display: block;
     margin-top: 5px;
     margin-left: 35px;
-    font-weight: $font-weight-max;
-    font-size: 18px;
-    text-transform: uppercase;
-    position: relative;
-    top: -5px;
-    padding: 0 10px;
-    background-color: $color-pastel-green;
-    border-radius: 5px;
-    text-align: center;
   }
 
   span.scoreboard {
-    font-family: 'DjbUpOnTheScoreboard', $font-stack;
-    font-weight: $font-weight-max;
-    font-size: 30px;
-    color: $color-dark-green;
-    display: inline-block;
     margin: -10px 0 0 35px;
-    width: auto;
   }
 }
