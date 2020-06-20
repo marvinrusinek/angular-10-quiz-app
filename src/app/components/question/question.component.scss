@@ -84,9 +84,6 @@ ol li {
 
   .message {
     font-family: $font-stack;
-    font-weight: $font-weight-max;
-    font-size: 16px;
-    font-style: italic;
     margin: 20px auto;
     padding: 10px !important;
     width: 35rem;
@@ -95,27 +92,18 @@ ol li {
     justify-content: center;
     align-items: center;
     vertical-align: middle;
-    word-wrap: break-word;
   }
 
   .correct-message {
-    font-weight: $font-weight-max;
-    font-style: italic;
     border: 2px solid $color-vivid-blue;
-    border-radius: 5px;
     color: $color-green;
-    word-wrap: break-word;
   }
 
   .wrong-message {
-    font-weight: $font-weight-max;
-    font-style: italic;
     border: 2px solid $color-red;
-    border-radius: 5px;
     color: $color-red;
     padding: 5px;
     margin-top: -10px;
-    word-wrap: break-word;
 
     .sentiment-icon {
       float: left;
