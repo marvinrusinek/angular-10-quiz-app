@@ -102,65 +102,31 @@
 
                 <ng-template
                   matExpansionPanelContent>
-                  <ul class="quiz-summary-fields" *ngIf="correctAnswers[i].length > 1">
+                  <ul class="quiz-summary-fields" *ngIf="correctAnswers.length >= 1">
                     <li i18n>
                       <span class="leader">Your Answer: </span>
                       Option {{ userAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       <mat-icon class="correct"
-                                *ngIf="checkIfAnswersAreCorrect(correctAnswers, userAnswers)">done</mat-icon>
+                                *ngIf="checkIfAnswersAreCorrect(correctAnswers, userAnswers, i)">done</mat-icon>
                       <mat-icon class="incorrect"
-                                *ngIf="!checkIfAnswersAreCorrect(correctAnswers, userAnswers)">clear</mat-icon>
+                                *ngIf="!checkIfAnswersAreCorrect(correctAnswers, userAnswers, i)">clear</mat-icon>
                       <span *ngIf="userAnswers[i] === null"> (no answer provided)</span>
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      <span *ngIf="correctAnswers[i].length === 1">
+                      <span *ngIf="correctAnswers.length === 1">
                         Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       </span>
-                      <span *ngIf="correctAnswers[i].length > 1">
+                      <span *ngIf="correctAnswers.length > 1">
                         Options {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       </span>
                     </li>
                     <li i18n>
                       <span class="leader">Explanation: </span>
-                      <span *ngIf="correctAnswers[i].length === 1">
+                      <span *ngIf="correctAnswers.length === 1">
                         Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
                       </span>
-                      <span *ngIf="correctAnswers[i].length > 1">
-                        Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.
-                      </span>
-                    </li>
-                    <li i18n>
-                      <span class="leader">Elapsed Time: </span>
-                      <span>{{ elapsedTimes[i] }} seconds</span>
-                    </li>
-                  </ul>
-
-                  <ul class="quiz-summary-fields" *ngIf="correctAnswers[i].length === 1">
-                    <li i18n>
-                      <span class="leader">Your Answer: </span>
-                      Option {{ userAnswers[i] }} &mdash; {{ question?.options[i].text }}
-                      <mat-icon class="correct"
-                                *ngIf="checkIfAnswersAreCorrect(correctAnswers, userAnswers)">done</mat-icon>
-                      <mat-icon class="incorrect"
-                                *ngIf="!checkIfAnswersAreCorrect(correctAnswers, userAnswers)">clear</mat-icon>
-                      <span *ngIf="userAnswers[i] === null"> (no answer provided)</span>
-                    </li>
-                    <li i18n>
-                      <span class="leader">Correct Answer(s): </span>
-                      <span *ngIf="correctAnswers[i].length === 1">
-                        Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
-                      </span>
-                      <span *ngIf="correctAnswers[i].length > 1">
-                        Options {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
-                      </span>
-                    </li>
-                    <li i18n>
-                      <span class="leader">Explanation: </span>
-                      <span *ngIf="correctAnswers[i].length === 1">
-                        Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
-                      </span>
-                      <span *ngIf="correctAnswers[i].length > 1">
+                      <span *ngIf="correctAnswers.length > 1">
                         Options {{ correctAnswers[i] }} were correct because {{ question?.explanation }}.
                       </span>
                     </li>
