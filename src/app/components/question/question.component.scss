@@ -31,15 +31,15 @@ ol li {
     height: 47px;
     font-family: $font-stack;
     font-size: 20px !important;
-    color: $color-dark-brown;
-    background-color: $color-light-gray;
-    border: 2px solid $color-medium-gray;
+    color: $dark-brown;
+    background-color: $light-gray;
+    border: 2px solid $medium-gray;
     padding: 5px 5px 0 30px;
     margin-left: -5px;
     vertical-align: middle;
 
     &:hover {
-      border: 2px solid $color-vivid-blue;
+      border: 2px solid $vivid-blue;
     }
   }
 
@@ -55,11 +55,11 @@ ol li {
   }
 
   .is-correct {
-    background-color: $color-green;
+    background-color: $green;
   }
 
   .is-incorrect {
-    background-color: $color-red;
+    background-color: $red;
   }
 }
 
@@ -76,7 +76,7 @@ ol li {
 
   .sentiment-icon {
     font-size: 30px;
-    color: $color-light-yellow;
+    color: $light-yellow;
     margin: 30px -50px 0 10px;
     vertical-align: top;
     float: left;
@@ -95,13 +95,13 @@ ol li {
   }
 
   .correct-message {
-    border: 2px solid $color-vivid-blue;
-    color: $color-green;
+    border: 2px solid $vivid-blue;
+    color: $green;
   }
 
   .wrong-message {
-    border: 2px solid $color-red;
-    color: $color-red;
+    border: 2px solid $red;
+    color: $red;
     padding: 5px;
     margin-top: -10px;
 

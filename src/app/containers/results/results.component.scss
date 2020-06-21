@@ -17,7 +17,7 @@ mat-card-header {
     font-size: 48px !important;
     font-weight: 900;
     margin-left: -50px !important;
-    color: $color-green;
+    color: $green;
   }
 }
 
@@ -46,7 +46,7 @@ mat-card-header {
       display: block;
     }
 
-    span.your-score, span.elapsed-time {
+    .your-score, .elapsed-time {
       font-size: 18px;
       font-weight: bold;
     }
@@ -87,7 +87,7 @@ mat-card-header {
 
       summary {
         font-size: 16px;
-        color: $color-vivid-blue;
+        color: $vivid-blue;
         font-weight: $font-weight-max;
         margin-bottom: 20px;
         outline: none;
@@ -98,23 +98,23 @@ mat-card-header {
         padding-bottom: 20px;
 
         mat-expansion-panel:hover {
-          outline: $color-vivid-blue;
+          outline: $vivid-blue;
         }
 
         mat-panel-title {
-          background-color: $color-light-gray !important;
-          color: $color-black !important;
+          background-color: $light-gray !important;
+          color: $black !important;
           white-space: nowrap;
 
           .question-leader {
             font-weight: $font-weight-max;
-            color: #00008b;
+            color: $darker-blue;
             white-space: nowrap;
           }
           .question-text {
             font-weight: 700;
             font-style: italic;
-            color: $color-black;
+            color: $black;
             white-space: nowrap;
           }
         }
@@ -124,7 +124,7 @@ mat-card-header {
           left: 0;
           margin: 0 0 0 25px;
           margin-left: -5px;
-          color: $color-gray;
+          color: $gray;
           font-weight: $font-weight-max;
           font-size: 20px;
         }
@@ -132,10 +132,10 @@ mat-card-header {
         .quiz-summary-question {
           font-family: $font-stack;
           font-size: 14px;
-          border: 2px solid $color-chambray-blue;
+          border: 2px solid $chambray-blue;
           border-radius: 5px;
-          color: $color-black;
-          background-color: $color-light-gray;
+          color: $black;
+          background-color: $light-gray;
           margin-bottom: 15px;
           padding: 10px;
           text-align: left;
@@ -149,7 +149,7 @@ mat-card-header {
               display: block;
               text-align: left;
               font-size: 16px;
-              color: #00008b;
+              color: $darker-blue;
               margin: 0 0 5px -30px;
             }
 
@@ -162,11 +162,11 @@ mat-card-header {
               top: 10px !important;
             }
             mat-icon.correct {
-              color: $color-green !important;
+              color: $green !important;
               font-weight: $font-weight-max;
             }
             mat-icon.incorrect {
-              color: $color-red !important;
+              color: $red !important;
               font-weight: $font-weight-max;
             }
           }
@@ -191,9 +191,9 @@ mat-card-header {
 
   a.btn {
     margin-right: 15px;
-    background-color: #20b2aa;
-    color: white;
-    border: 1px solid black;
+    background-color: $light-sea-green;
+    color: $white;
+    border: 1px solid $black;
     border-radius: 5px;
   }
 }
@@ -210,24 +210,24 @@ mat-card-header {
       padding: 9px 15px 8px 42px;
       background: no-repeat 10px 5px;
       background-size: 25px 25px;
-      color: white;
+      color: $white;
     }
 
     /* a.btn.facebook {
-      background-color: $color-dark-blue;
-      background-image: url('../../../../assets/images/facebook.gif');
+      background-color: $dark-blue;
+      background-image: url($facebook-path);
       top: 10px !important;
     } */
 
     a.btn.twitter {
-      background-color: $color-soft-blue;
-      background-image: url('../../../../assets/images/twitter.svg');
+      background-color: $soft-blue;
+      background-image: url($twitter-path);
       top: 10px !important;
     }
 
     a.btn.email {
-      background-color: $color-fuel-yellow;
-      background-image: url('../../../../assets/images/email.svg');
+      background-color: $fuel-yellow;
+      background-image: url($email-path);
       top: 10px !important;
     }
   }

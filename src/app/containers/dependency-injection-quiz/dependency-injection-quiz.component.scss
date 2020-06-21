@@ -23,11 +23,11 @@ mat-card-header {
 }
 
 .unanswered {
-  border: 2px solid $color-vivid-blue !important;
+  border: 2px solid $vivid-blue !important;
 }
 
 .answered {
-  border: 2px solid $color-medium-gray !important;
+  border: 2px solid $medium-gray !important;
 }
 
 #question {
@@ -38,9 +38,9 @@ mat-card-header {
   margin-bottom: 25px !important;
   float: left;
   padding: 5px 10px 15px 20px;
-  background-color: $color-light-gray;
-  border: 2px solid $color-vivid-blue;
-  color: $color-dark-brown;
+  background-color: $light-gray;
+  border: 2px solid $vivid-blue;
+  color: $dark-brown;
   width: 39.5rem !important;
   height: auto;
   vertical-align: middle;
