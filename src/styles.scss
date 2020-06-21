@@ -1,23 +1,26 @@
-@import "_variables";
-@import "_mixins";
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
+@import "variables";
+@import "mixins";
 
 @font-face {
   font-family: 'DjbUpOnTheScoreboard';
-  src: url('../../../../../assets/fonts/DjbUpOnTheScoreboard.ttf') format('truetype');
+  src: url($scoreboard-font) format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'LucidaUnicodeCalligraphy';
+  src: url($congratulations-font) format('truetype');
+  font-display: swap;
 }
 
 mat-card {
-  margin: 0 auto;
   margin: 2% 0 20px 25%;
-  width: 42rem !important;
-  height: auto !important;
+  width: 42rem;
+  height: auto;
   padding: 20px;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  border: 1px solid black;
+  border: 1px solid $black;
   border-radius: 10px !important;
+  box-shadow: 10px 10px 5px $gray !important;
 }
 mat-card:hover {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2) !important;
@@ -31,7 +34,7 @@ mat-card-header {
 
   .header-image {
     float: left;
-    background: url('../../../assets/images/codelab_logo.jpeg') no-repeat center center;
+    background: url($header-image) no-repeat center center;
     background-size: contain;
     margin: -10px 0 0 -40px;
     height: 100px !important;
