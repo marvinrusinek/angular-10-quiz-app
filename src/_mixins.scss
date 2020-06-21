@@ -8,8 +8,8 @@
   text-transform: uppercase;
   position: relative;
   padding: 0 10px;
-  background-color: darken($color-pastel-green, 5%);
-  color: $color-black;
+  background-color: darken($pastel-green, 5%);
+  color: $black;
   border-radius: 5px;
   text-align: center;
 }
@@ -18,7 +18,7 @@
   font-family: 'DjbUpOnTheScoreboard', $font-stack;
   font-weight: $font-weight-max;
   font-size: 30px;
-  color: darken($color-dark-green, 5%);
+  color: darken($dark-green, 5%);
   display: inline-block;
 }
 
