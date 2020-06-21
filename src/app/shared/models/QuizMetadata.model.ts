@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-export interface Quiz {
+export interface QuizMetadata {
   totalQuestions: number;
   percentage: number;
   correctAnswersCount$: Observable<number>;
