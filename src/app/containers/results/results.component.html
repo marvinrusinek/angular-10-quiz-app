@@ -105,7 +105,7 @@
                   <ul class="quiz-summary-fields" *ngIf="correctAnswers.length >= 1">
                     <li i18n>
                       <span class="leader">Your Answer: </span>
-                      Option {{ userAnswers[i] }} &mdash; {{ question?.options[userAnswers[i]-1].text }}
+                      Option {{ userAnswers[i] }} &mdash; {{ question?.options[userAnswers[i] - 1].text }}
                       <mat-icon class="correct"
                                 *ngIf="checkIfAnswersAreCorrect(correctAnswers, userAnswers, i)">done</mat-icon>
                       <mat-icon class="incorrect"
@@ -118,7 +118,8 @@
                         Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       </span>
                       <span *ngIf="correctAnswers.length > 1">
-                        Options {{ correctAnswers[i][0] | join }} &mdash; {{ question?.options[correctAnswers[i][0][0]-1].text}}
+                        Options {{ correctAnswers[i][0] | join }} &mdash; 
+                        {{ question?.options[correctAnswers[i][0][0] - 1].text}}
                       </span>
                     </li>
                     <li i18n>
