@@ -20,9 +20,12 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
+  totalQuestions: number;
+  correctAnswersCount$: Observable<number>;
+  percentage: number;
+  completionTime: number;
+  // quizMetadata: QuizMetadata = {};
 
-  quizMetadata: QuizMetadata = {};
-  
   elapsedMinutes: number;
   elapsedSeconds: number;
   codelabUrl = 'https://www.codelab.fun';
@@ -43,7 +46,7 @@ export class ResultsComponent implements OnInit {
     private timerService: TimerService,
     private router: Router
   ) {
-    this.quizMetadata.totalQuestions = quizService.totalQuestions;
+    this.totalQuestions = quizService.totalQuestions;
     this.calculatePercentageOfCorrectlyAnsweredQuestions();
     this.calculateElapsedTime();
   }
@@ -52,30 +55,22 @@ export class ResultsComponent implements OnInit {
     this.correctAnswers = this.quizService.correctAnswers;
     this.userAnswers = this.quizService.userAnswers;
     this.elapsedTimes = this.timerService.elapsedTimes;
-    this.quizMetadata.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
+    this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
   }
 
   calculateElapsedTime(): void {
-    this.quizMetadata.completionTime = this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes);
-    this.elapsedMinutes = Math.floor(this.quizMetadata.completionTime / 60);
-    this.elapsedSeconds = this.quizMetadata.completionTime % 60;
+    this.completionTime = this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes);
+    this.elapsedMinutes = Math.floor(this.completionTime / 60);
+    this.elapsedSeconds = this.completionTime % 60;
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): void {
-    this.quizMetadata.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.quizMetadata.totalQuestions);
+    this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
   }
 
-  checkIfAnswersAreCorrect(correctAnswers, userAnswers,index:number): boolean {
+  checkIfAnswersAreCorrect(correctAnswers, userAnswers, index: number): boolean {
     return correctAnswers[index][0].indexOf(userAnswers[index]) > -1;
   }
-
-  /* checkIfAnswersAreCorrect(correctAnswers: [], userAnswers: []): boolean[] {
-    const resultsComparisonArray = new Array();
-    for (let i = 0; i < correctAnswers.length; i++) {
-      resultsComparisonArray.push(correctAnswers[i] === userAnswers[i] ? true : false);
-    }
-    return resultsComparisonArray;
-  } */
 
   openAllPanels() {
     this.Accordion.openAll();

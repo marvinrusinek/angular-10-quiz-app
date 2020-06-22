@@ -23,6 +23,7 @@ import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimeComponent } from './containers/scoreboard/time/time.component';
 import { QuizService } from './shared/services/quiz.service';
 import { TimerService } from './shared/services/timer.service';
+import { JoinPipe } from './pipes/join.pipe';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { TimerService } from './shared/services/timer.service';
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
-    TimeComponent
+    TimeComponent,
+    JoinPipe
   ],
   imports: [
     CommonModule,
