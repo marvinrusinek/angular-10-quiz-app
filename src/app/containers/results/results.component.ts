@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
-
 import { Result } from '../../shared/models/Result.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
