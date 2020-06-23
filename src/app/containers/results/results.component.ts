@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
-import { Observable } from 'rxjs';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -36,6 +35,7 @@ export class ResultsComponent implements OnInit {
 
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
+
   CONGRATULATIONS = '../../assets/images/congratulations.jpg';
   NOT_BAD = '../../assets/images/notbad.jpg';
   TRY_AGAIN = '../../assets/images/tryagain.jpeg';
@@ -50,8 +50,8 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.quizMetadata.totalQuestions = this.quizService.totalQuestions;
     this.correctAnswers = this.quizService.correctAnswers;
+    this.quizMetadata.totalQuestions = this.quizService.totalQuestions;
   }
 
   calculateElapsedTime(): void {
