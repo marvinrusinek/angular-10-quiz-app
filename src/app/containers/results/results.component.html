@@ -37,9 +37,9 @@
             <p i18n>Brush up your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
             <ul class="resources" *ngFor="let resource of quizResources.resources">
               <li i18n>
-                <a href="{{resource?.articleUrl}}" target="_blank">
-                  <em>{{ resource?.articleTitle }}</em>, {{ resource?.articleWebsite }}
-                </a>
+                <a href={{resource.articleUrl}} target="_blank">
+                  <em>{{ resource?.articleTitle }}</em>
+                </a>, {{ resource?.articleWebsite }}
               </li>
             </ul>
           </div>
@@ -142,10 +142,10 @@
     <section class="return">
       <mat-card-actions>
         <mat-nav-list>
-          <a class="btn" (click)="restart()">
+          <a class="btn hvr-radial-out" (click)="restart()">
             <i class="fas fa-power-off"></i>&nbsp;&nbsp;Restart Quiz
           </a>
-          <a class="btn" [href]="codelabUrl">
+          <a class="btn hvr-radial-out" [href]="codelabUrl">
             <i class="fas fa-laptop"></i>&nbsp;&nbsp;Back to Codelab
           </a>
         </mat-nav-list>
@@ -157,11 +157,11 @@
     <section class="challenge-social">
       <h4>Challenge your friends!</h4>
       <div class="social-buttons">
-        <!-- <a class="btn facebook" target="_blank"
+        <!-- <a class="btn facebook hvr-shutter-out-horizontal" target="_blank"
            href="https://www.facebook.com/share?text=I scored {{ quizMetadata?.percentage }}% on this awesome Angular quiz. Try to beat my score at &amp;hashtag=quiz&amp;url={{ codelabUrl }}">Share your score</a> -->
-        <a class="btn twitter" target="_blank"
+        <a class="btn twitter hvr-shutter-out-horizontal" target="_blank"
            href="https://www.twitter.com/share?text=I scored {{ quizMetadata?.percentage }}% on this awesome Angular quiz. Try to beat my score at &amp;hashtag=quiz&amp;url={{ codelabUrl }}">Tweet your score</a>
-        <a class="btn email"
+        <a class="btn email hvr-shutter-out-horizontal"
            href="mailto:?subject=Try to beat my quiz score!&amp;body=I scored {{ quizMetadata?.percentage }}% on this awesome Angular quiz. Try to beat my score at {{ codelabUrl }}">Email a friend</a>
       </div>
     </section>
