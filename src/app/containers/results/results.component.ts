@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 import { Observable } from 'rxjs';
 
-import { QUIZ_DATA } from '../../shared/quiz';
+import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
 import { Result } from '../../shared/models/Result.model';
