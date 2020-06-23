@@ -47,3 +47,28 @@ export const QUIZ_DATA: Quiz = {
     }
   ]
 };
+
+export const QUIZ_RESOURCES = {
+  resources: [
+    {
+      articleTitle: 'Dependency injection in Angular',
+      articleUrl: 'https://angular.io/guide/dependency-injection',
+      articleWebsite: 'angular.io'
+    },
+    {
+      articleTitle: 'Dependency injection in action',
+      articleUrl: 'https://angular.io/guide/dependency-injection-in-action',
+      articleWebsite: 'angular.io'
+    },
+    {
+      articleTitle: 'Introduction to services and dependency injection',
+      articleUrl: 'https://angular.io/guide/architecture-services',
+      articleWebsite: 'angular.io'
+    },
+    {
+      articleTitle: 'Total Guide To Angular 6+ Dependency Injection...',
+      articleUrl: 'https://medium.com/@tomastrajan/total-guide-to-angular-6-dependency-injection-providedin-vs-providers-85b7a347b59f',
+      articleWebsite: 'medium.com'
+    }
+  ]
+};

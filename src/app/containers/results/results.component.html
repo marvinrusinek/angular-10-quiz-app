@@ -35,25 +35,10 @@
                  i18n-title title="Try Again">
             <h3 i18n>Try again!</h3>
             <p i18n>Brush up your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
-            <ul>
+            <ul class="resources" *ngFor="let resource of quizResources.resources">
               <li i18n>
-                <a href="https://angular.io/guide/dependency-injection" target="_blank">
-                  <em>Dependency injection in Angular</em>, angular.io
-                </a>
-              </li>
-              <li i18n>
-                <a href="https://angular.io/guide/dependency-injection-in-action" target="_blank">
-                  <em>Dependency injection in action</em>, angular.io
-                </a>
-              </li>
-              <li i18n>
-                <a href="https://angular.io/guide/architecture-services" target="_blank">
-                  <em>Introduction to services and dependency injection</em>, angular.io
-                </a>
-              </li>
-              <li i18n>
-                <a href="https://medium.com/@tomastrajan/total-guide-to-angular-6-dependency-injection-providedin-vs-providers-85b7a347b59f" target="_blank">
-                  <em>Total Guide To Angular 6+ Dependency Injection&hellip;</em>, Tomas Trajan, medium.com
+                <a href="resource?.articleUrl" target="_blank">
+                  <em>{{ resource?.articleTitle }}</em>, {{ resource?.articleWebsite }}
                 </a>
               </li>
             </ul>

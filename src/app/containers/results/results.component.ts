@@ -19,6 +19,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
+  quizResources = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
