@@ -80,7 +80,7 @@
 
       <section class="quizSummary">
         <details>
-          <summary i18n>Click to view a more detailed summary of your quiz</summary>
+          <summary i18n>Click to view a more detailed summary of your quiz&hellip;</summary>
 
           <mat-accordion [multi]="true" #accordion="matAccordion">
             <mat-expansion-panel
@@ -105,11 +105,12 @@
                     <li i18n>
                       <span class="leader">Your Answer(s): </span>
                       <ng-container *ngIf="results?.userAnswers[i]">
-                        Option {{ results?.userAnswers[i] }} &mdash; {{ question?.options[results?.userAnswers[i] - 1].text }}
+                        Option {{ results?.userAnswers[i] }} &mdash;
+                        {{ question?.options[results?.userAnswers[i] - 1].text }}
                         <mat-icon class="correct"
-                                  *ngIf="checkIfAnswersAreCorrect(correctAnswers, results?.userAnswers, i)">done</mat-icon>
+                          *ngIf="checkIfAnswersAreCorrect(correctAnswers, results?.userAnswers, i)">done</mat-icon>
                         <mat-icon class="incorrect"
-                                  *ngIf="!checkIfAnswersAreCorrect(correctAnswers, results?.userAnswers, i)">clear</mat-icon>
+                          *ngIf="!checkIfAnswersAreCorrect(correctAnswers, results?.userAnswers, i)">clear</mat-icon>
                       </ng-container>
                       <span *ngIf="!results?.userAnswers[i]"> (no answer provided)</span>
                     </li>
