@@ -104,14 +104,14 @@
                   <ul class="quiz-summary-fields" *ngIf="correctAnswers.length >= 1">
                     <li i18n>
                       <span class="leader">Your Answer(s): </span>
-                      <ng-container *ngIf="results.userAnswers[i]">
-                        Option {{ results.userAnswers[i] }} &mdash; {{ question?.options[results.userAnswers[i] - 1].text }}
+                      <ng-container *ngIf="results?.userAnswers[i]">
+                        Option {{ results?.userAnswers[i] }} &mdash; {{ question?.options[results?.userAnswers[i] - 1].text }}
                         <mat-icon class="correct"
-                                  *ngIf="checkIfAnswersAreCorrect(correctAnswers, results.userAnswers, i)">done</mat-icon>
+                                  *ngIf="checkIfAnswersAreCorrect(correctAnswers, results?.userAnswers, i)">done</mat-icon>
                         <mat-icon class="incorrect"
-                                  *ngIf="!checkIfAnswersAreCorrect(correctAnswers, results.userAnswers, i)">clear</mat-icon>
+                                  *ngIf="!checkIfAnswersAreCorrect(correctAnswers, results?.userAnswers, i)">clear</mat-icon>
                       </ng-container>
-                      <span *ngIf="!results.userAnswers[i]"> (no answer provided)</span>
+                      <span *ngIf="!results?.userAnswers[i]"> (no answer provided)</span>
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s): </span>
@@ -134,7 +134,7 @@
                     </li>
                     <li i18n>
                       <span class="leader">Elapsed Time: </span>
-                      <span>{{ results.elapsedTimes[i] }} seconds</span>
+                      <span>{{ results?.elapsedTimes[i] }} seconds</span>
                     </li>
                   </ul>
                 </ng-template>
