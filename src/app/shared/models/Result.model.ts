@@ -1,5 +1,5 @@
 export interface Result {
-  answers: number[],
-  time: number
+  userAnswers: number[],
+  elapsedTimes: number[]
 }
 type Results = Result[];

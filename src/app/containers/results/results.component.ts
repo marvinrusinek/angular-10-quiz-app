@@ -19,52 +19,47 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
-  totalQuestions: number;
-  correctAnswersCount$: Observable<number>;
-  percentage: number;
-  completionTime: number;
-  // quizMetadata: QuizMetadata = {};
-
+  quizMetadata: Partial<QuizMetadata> = {
+    totalQuestions: this.quizService.totalQuestions,
+    correctAnswersCount$: this.quizService.correctAnswersCountSubject,
+    percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
+    completionTime: this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes)
+  };
+  results: Partial<Result> = {
+    userAnswers: this.quizService.userAnswers,
+    elapsedTimes: this.timerService.elapsedTimes
+  };
+  correctAnswers: number[] = [];
   elapsedMinutes: number;
   elapsedSeconds: number;
-  codelabUrl = 'https://www.codelab.fun';
-
-  correctAnswers: number[] = [];
-  userAnswers: number[] = [];
-  elapsedTimes: number[] = [];
 
   @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
   panelOpenState = false;
-
-  CONGRATULATIONS = "../../assets/images/congratulations.jpg";
+  CONGRATULATIONS = '../../assets/images/congratulations.jpg';
   NOT_BAD = '../../assets/images/notbad.jpg';
   TRY_AGAIN = '../../assets/images/tryagain.jpeg';
+  codelabUrl = 'https://www.codelab.fun';
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
     private router: Router
   ) {
-    this.totalQuestions = quizService.totalQuestions;
-    this.calculatePercentageOfCorrectlyAnsweredQuestions();
     this.calculateElapsedTime();
   }
 
   ngOnInit() {
+    this.quizMetadata.totalQuestions = this.quizService.totalQuestions;
     this.correctAnswers = this.quizService.correctAnswers;
-    this.userAnswers = this.quizService.userAnswers;
-    this.elapsedTimes = this.timerService.elapsedTimes;
-    this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
   }
 
   calculateElapsedTime(): void {
-    this.completionTime = this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes);
-    this.elapsedMinutes = Math.floor(this.completionTime / 60);
-    this.elapsedSeconds = this.completionTime % 60;
+    this.elapsedMinutes = Math.floor(this.quizMetadata.completionTime / 60);
+    this.elapsedSeconds = this.quizMetadata.completionTime % 60;
   }
 
-  calculatePercentageOfCorrectlyAnsweredQuestions(): void {
-    this.percentage = Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.totalQuestions);
+  calculatePercentageOfCorrectlyAnsweredQuestions(): number {
+    return Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.quizService.numberOfQuestions());
   }
 
   checkIfAnswersAreCorrect(correctAnswers, userAnswers, index: number): boolean {

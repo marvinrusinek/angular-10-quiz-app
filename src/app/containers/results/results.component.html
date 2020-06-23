@@ -9,26 +9,26 @@
       <h3 i18n>Congratulations! You&apos;ve completed the quiz!</h3>
       <section class="statistics">
         <span class="your-score" i18n>
-          You scored {{ correctAnswersCount$ | async }} out of {{ totalQuestions }}
-          ({{ percentage }}%) questions correctly.
+          You scored {{ quizMetadata?.correctAnswersCount$ | async }} out of {{ quizMetadata?.totalQuestions }}
+          ({{ quizMetadata?.percentage }}%) questions correctly.
         </span>
 
         <div class="quiz-feedback">
-          <div *ngIf="percentage >= 80">
+          <div *ngIf="quizMetadata?.percentage >= 80">
             <img mat-card-image
                  [src]="CONGRATULATIONS"
                  alt="Photo of 'Congratulations'"
                  i18n-title title="Congratulations">
             <h3 i18n>Great job!</h3>
           </div>
-          <div *ngIf="percentage >= 60 && percentage < 80">
+          <div *ngIf="quizMetadata?.percentage >= 60 && quizMetadata?.percentage < 80">
             <img mat-card-image
                  [src]="NOT_BAD"
                  alt="Photo of 'Not Bad'"
                  i18n-title title="Not Bad">
             <h3 i18n>Not bad!</h3>
           </div>
-          <div *ngIf="percentage < 60">
+          <div *ngIf="quizMetadata?.percentage < 60">
             <img mat-card-image
                  [src]="TRY_AGAIN"
                  alt="Photo of 'Try Again'"
@@ -60,14 +60,13 @@
           </div>
         </div>
 
-        <!-- wanted to use NgCircleProgressModule here -->
         <ngb-progressbar
           type="success"
           [striped]="true"
           [animated]="true"
-          [value]="percentage"
+          [value]="quizMetadata.percentage"
           class="progress-bar bg-success">
-          <strong>{{ percentage }}%</strong>
+          <strong>{{ quizMetadata?.percentage }}%</strong>
         </ngb-progressbar>
 
         <section class="completion-time">
@@ -104,13 +103,15 @@
                   matExpansionPanelContent>
                   <ul class="quiz-summary-fields" *ngIf="correctAnswers.length >= 1">
                     <li i18n>
-                      <span class="leader">Your Answer: </span>
-                      Option {{ userAnswers[i] }} &mdash; {{ question?.options[userAnswers[i] - 1].text }}
-                      <mat-icon class="correct"
-                                *ngIf="checkIfAnswersAreCorrect(correctAnswers, userAnswers, i)">done</mat-icon>
-                      <mat-icon class="incorrect"
-                                *ngIf="!checkIfAnswersAreCorrect(correctAnswers, userAnswers, i)">clear</mat-icon>
-                      <span *ngIf="userAnswers[i] === null"> (no answer provided)</span>
+                      <span class="leader">Your Answer(s): </span>
+                      <ng-container *ngIf="results.userAnswers[i]">
+                        Option {{ results.userAnswers[i] }} &mdash; {{ question?.options[results.userAnswers[i] - 1].text }}
+                        <mat-icon class="correct"
+                                  *ngIf="checkIfAnswersAreCorrect(correctAnswers, results.userAnswers, i)">done</mat-icon>
+                        <mat-icon class="incorrect"
+                                  *ngIf="!checkIfAnswersAreCorrect(correctAnswers, results.userAnswers, i)">clear</mat-icon>
+                      </ng-container>
+                      <span *ngIf="!results.userAnswers[i]"> (no answer provided)</span>
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s): </span>
@@ -118,8 +119,8 @@
                         Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       </span>
                       <span *ngIf="correctAnswers.length > 1">
-                        Options {{ correctAnswers[i][0] | join }} &mdash; 
-                        {{ question?.options[correctAnswers[i][0][0] - 1].text}}
+                        Options {{ correctAnswers[i][0] | join }} &mdash;
+                        {{ question?.options[correctAnswers[i][0][0] - 1 ].text}}
                       </span>
                     </li>
                     <li i18n>
@@ -133,7 +134,7 @@
                     </li>
                     <li i18n>
                       <span class="leader">Elapsed Time: </span>
-                      <span>{{ elapsedTimes[i] }} seconds</span>
+                      <span>{{ results.elapsedTimes[i] }} seconds</span>
                     </li>
                   </ul>
                 </ng-template>
@@ -171,11 +172,11 @@
       <h4>Challenge your friends!</h4>
       <div class="social-buttons">
         <!-- <a class="btn facebook" target="_blank"
-           href="https://www.facebook.com/share?text=I scored {{ percentage }}% on this awesome Angular quiz. Try to beat my score at &amp;hashtag=quiz&amp;url={{ codelabUrl }}">Share your score</a> -->
+           href="https://www.facebook.com/share?text=I scored {{ quizMetadata?.percentage }}% on this awesome Angular quiz. Try to beat my score at &amp;hashtag=quiz&amp;url={{ codelabUrl }}">Share your score</a> -->
         <a class="btn twitter" target="_blank"
-           href="https://www.twitter.com/share?text=I scored {{ percentage }}% on this awesome Angular quiz. Try to beat my score at &amp;hashtag=quiz&amp;url={{ codelabUrl }}">Tweet your score</a>
+           href="https://www.twitter.com/share?text=I scored {{ quizMetadata?.percentage }}% on this awesome Angular quiz. Try to beat my score at &amp;hashtag=quiz&amp;url={{ codelabUrl }}">Tweet your score</a>
         <a class="btn email"
-           href="mailto:?subject=Try to beat my quiz score!&amp;body=I scored {{ percentage }}% on this awesome Angular quiz. Try to beat my score at {{ codelabUrl }}">Email a friend</a>
+           href="mailto:?subject=Try to beat my quiz score!&amp;body=I scored {{ quizMetadata?.percentage }}% on this awesome Angular quiz. Try to beat my score at {{ codelabUrl }}">Email a friend</a>
       </div>
     </section>
   </mat-card-content>
