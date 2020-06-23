@@ -97,8 +97,12 @@ mat-card-header {
       mat-accordion {
         padding-bottom: 20px;
 
+        mat-expansion-panel {
+          border: 2px solid $dark-blue;
+        }
+
         mat-expansion-panel:hover {
-          outline: $vivid-blue;
+          border: 2px solid $vivid-blue;
         }
 
         mat-panel-title {
