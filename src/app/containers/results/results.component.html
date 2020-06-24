@@ -101,10 +101,10 @@
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s): </span>
-                      <span *ngIf="correctAnswers.length === 1">
+                      <span *ngIf="correctAnswers[i][0].length === 1">
                         Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       </span>
-                      <span *ngIf="correctAnswers.length > 1">
+                      <span *ngIf="correctAnswers[i][0].length > 1">
                         Options {{ correctAnswers[i][0] | join }} &mdash;
                         {{ question?.options[correctAnswers[i][0][0] - 1 ].text}}
                       </span>
