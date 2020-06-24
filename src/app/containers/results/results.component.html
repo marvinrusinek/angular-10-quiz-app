@@ -67,7 +67,7 @@
         <details>
           <summary i18n>Click to view a more detailed summary of your quiz&hellip;</summary>
 
-          <mat-accordion [multi]="true" #accordion="matAccordion">
+          <mat-accordion #accordion="matAccordion" [multi]="true">
             <mat-expansion-panel
               class="quiz-summary-question"
               *ngFor="let question of quizData.questions; let i = index"
