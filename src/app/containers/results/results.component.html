@@ -37,9 +37,9 @@
             <p i18n>Brush up your knowledge of {{ quizData?.milestone }} with these valuable resources:</p>
             <ul class="resources" *ngFor="let resource of quizResources.resources">
               <li i18n>
-                <a href={{resource?.articleUrl}} target="_blank">
-                  <em>{{ resource?.articleTitle }}</em>
-                </a>, {{ resource?.articleWebsite }}
+                <a href={{resource?.url}} target="_blank">
+                  <em>{{ resource?.title }}</em>
+                </a>, {{ resource?.host }}
               </li>
             </ul>
           </div>
