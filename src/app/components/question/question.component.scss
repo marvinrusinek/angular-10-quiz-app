@@ -131,8 +131,8 @@ ol li {
 }
 
 .multiple-answer {
-  .message {
-    margin-top: 10px;
+  .message .wrong-message {
+    margin-top: 10px !important;
   }
 
   .sentiment-icon {
