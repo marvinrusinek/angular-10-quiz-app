@@ -111,10 +111,10 @@
                     </li>
                     <li i18n>
                       <span class="leader">Explanation: </span>
-                      <span *ngIf="correctAnswers.length === 1">
+                      <span *ngIf="correctAnswers[i][0].length === 1">
                         Option {{ correctAnswers[i] }} was correct because {{ question?.explanation }}.
                       </span>
-                      <span *ngIf="correctAnswers.length > 1">
+                      <span *ngIf="correctAnswers[i][0].length > 1">
                         Options {{ correctAnswers[i][0] | join }} were correct because {{ question?.explanation }}.
                       </span>
                     </li>
