@@ -42,7 +42,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.formGroup = new FormGroup({
       answer: new FormControl(['', Validators.required])
     });
-    this.correctMessage = this.quizService.correctMessage;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -64,6 +63,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
+    this.correctMessage = this.quizService.correctMessage;
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.answer.emit(optionIndex);
 

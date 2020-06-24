@@ -163,6 +163,9 @@ mat-card-header {
 
             .leader {
               font-weight: $font-weight-max;
+              display: inline;
+              background: none;
+              text-transform: capitalize;
             }
 
             mat-icon {
