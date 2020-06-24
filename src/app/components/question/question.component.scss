@@ -112,11 +112,32 @@ ol li {
   }
 }
 
-.wrong-message .sentiment-icon {
-  margin-top: -20px !important; // not working
+.single-answer {
+  mat-radio-button {
+    height: 57.6px;
+  }
+
+  .message {
+    margin-top: 20px;
+  }
+
+  .sentiment-icon {
+    margin-top: 30px;
+  }
+
+  .feedback-icon {
+    margin-top: -30px;
+  }
 }
-.multiple-answer .wrong-message .sentiment-icon {
-  margin-top: -15px !important; // not working
+
+.multiple-answer {
+  .message {
+    margin-top: 10px;
+  }
+
+  .sentiment-icon {
+    margin-top: 20px;
+  }
 }
 
 // hide the radio buttons/checkboxes next to the answer choice
