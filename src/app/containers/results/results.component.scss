@@ -162,7 +162,8 @@ mat-card-header {
             }
 
             .leader {
-              font-weight: $font-weight-max;
+              font-family: Roboto, "Helvetica Neue", sans-serif;
+              font-weight: 700;
               display: inline;
               background: none;
               text-transform: inherit;
