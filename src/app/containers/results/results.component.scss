@@ -8,16 +8,11 @@ mat-card-header {
   }
 
   mat-card-title {
-    font-size: 30px;
-    text-align: center;
-    margin: 0 0 0 -50px;
-  }
-
-  mat-card-subtitle {
+    font-family: 'Roboto', arial, sans-serif;
     font-size: 48px !important;
+    font-style: italic;
     font-weight: 900;
-    margin-left: -50px !important;
-    color: $green;
+    color: $green-angular-leaf;
   }
 }
 
