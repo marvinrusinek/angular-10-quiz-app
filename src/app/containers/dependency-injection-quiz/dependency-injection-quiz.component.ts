@@ -30,7 +30,7 @@ type AnimationState = 'animationStarted' | 'none';
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
-  answer: number;
+  answer: number[] = [];
   totalQuestions: number;
   progressValue: number;
   questionIndex: number;
@@ -80,7 +80,12 @@ export class DependencyInjectionQuizComponent implements OnInit {
   }
 
   selectedAnswer(data) {
-    this.answer = data;
+    const correctAnswers = this.question.options.filter((options) => options.correct);
+    if (correctAnswers.length > 1 && this.answer.indexOf(data) === -1) {
+      this.answer.push(data);
+    } else {
+      this.answer[0] = data;
+    }
   }
 
   previousQuestion() {
@@ -91,6 +96,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   restart() {
     this.quizService.resetAll();
+    this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answer = null;
@@ -99,7 +105,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   nextQuestion() {
     this.checkIfAnsweredCorrectly();
-    this.answer = null;
+    this.answer = [];
     this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
   }
@@ -111,15 +117,17 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   checkIfAnsweredCorrectly() {
     if (this.question) {
-      if (
-        this.question.options &&
-        this.question.options[this.answer] &&
-        this.question.options[this.answer]['selected'] &&
-        this.question.options[this.answer]['correct']
-      ) {
+      const incorrectAnswerFound = !!this.answer.find((answer) => {
+        return (this.question.options &&
+          this.question.options[answer] &&
+          this.question.options[answer]['selected'] &&
+          !this.question.options[answer]['correct']);
+      });
+      if (!incorrectAnswerFound) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
       }
-      this.quizService.userAnswers.push(this.answer + 1);
+      const answers = this.answer && this.answer.length > 0 ? this.answer.map((answer) => answer + 1) : [];
+      this.quizService.userAnswers.push(this.answer && this.answer.length > 0 ? answers : this.answer);
     }
   }
 

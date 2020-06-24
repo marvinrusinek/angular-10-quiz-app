@@ -57,6 +57,10 @@ export class QuizService {
     this.timerService.resetTimer();
   }
 
+  resetQuestions() {
+    this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
+  }
+
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectOptions = identifiedCorrectAnswers.length;

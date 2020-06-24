@@ -17,7 +17,7 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultsComponent implements OnInit {
-  quizData: Quiz = QUIZ_DATA;
+  quizData: Quiz = JSON.parse(JSON.stringify(QUIZ_DATA));
   quizResources = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
@@ -63,8 +63,8 @@ export class ResultsComponent implements OnInit {
     return Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.quizService.totalQuestions);
   }
 
-  checkIfAnswersAreCorrect(correctAnswers, userAnswers, index: number): boolean {
-    return correctAnswers[index][0].indexOf(userAnswers[index]) > -1;
+  checkIfAnswersAreCorrect(correctAnswers, userAnswers,index:number): boolean {
+    return !(!userAnswers[index] || userAnswers[index].length === 0 || userAnswers[index].find((ans) => correctAnswers[index][0].indexOf(ans) === -1));
   }
 
   openAllPanels() {
@@ -76,6 +76,7 @@ export class ResultsComponent implements OnInit {
 
   restart() {
     this.quizService.resetAll();
+    this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.router.navigate(['/intro']);
