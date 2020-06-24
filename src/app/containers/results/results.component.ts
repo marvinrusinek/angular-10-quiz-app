@@ -25,7 +25,7 @@ export class ResultsComponent implements OnInit {
     percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
     completionTime: this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes)
   };
-  results: Partial<Result> = {
+  results: Result = {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
