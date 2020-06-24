@@ -69,7 +69,11 @@ mat-card-header {
         border-radius: 10px;
       }
 
-      ul li {
+      ul.resources {
+        line-height: 0.5;
+      }
+
+      ul.resources li {
         list-style-type: square;
         text-align: left;
         margin-left: 16%;
