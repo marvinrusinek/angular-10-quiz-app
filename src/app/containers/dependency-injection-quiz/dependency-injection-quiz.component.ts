@@ -121,12 +121,12 @@ export class DependencyInjectionQuizComponent implements OnInit {
             return this.question.options &&
         this.question.options[ans] &&
         this.question.options[ans]['selected'] &&
-        !this.question.options[ans]['correct']
+        !this.question.options[ans]['correct'];
       })
       if (!incorrectAnswerFound) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
       }
-      const answers = this.answer && this.answer.length > 0 ? this.answer.map((ans) => ans+1) : [];
+      const answers = this.answer && this.answer.length > 0 ? this.answer.map((ans) => ans + 1) : [];
       this.quizService.userAnswers.push(this.answer && this.answer.length > 0 ? answers : this.answer);
     }
   }
