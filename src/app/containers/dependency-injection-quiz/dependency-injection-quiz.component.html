@@ -13,7 +13,7 @@
     <codelab-scoreboard></codelab-scoreboard>
 
     <section id="question" [class.answered]="answer">
-      <span *ngIf="!answer" i18n>{{ question?.questionText }}&nbsp;
+      <span i18n>{{ question?.questionText }}&nbsp;
         <span *ngIf="numberOfCorrectOptions > 1">
           <em>({{ numberOfCorrectOptions }} options are correct.)</em>
         </span>
