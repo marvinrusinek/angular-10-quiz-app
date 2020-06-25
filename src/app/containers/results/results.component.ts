@@ -63,7 +63,7 @@ export class ResultsComponent implements OnInit {
     return Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.quizService.totalQuestions);
   }
 
-  checkIfAnswersAreCorrect(correctAnswers, userAnswers,index:number): boolean {
+  checkIfAnswersAreCorrect(correctAnswers, userAnswers, index: number): boolean {
     return !(!userAnswers[index] || userAnswers[index].length === 0 || userAnswers[index].find((answer) => correctAnswers[index][0].indexOf(answer) === -1));
   }
 
