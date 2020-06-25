@@ -8,10 +8,10 @@ export const QUIZ_DATA: Quiz = {
     {
       questionText: 'What is the objective of dependency injection?',
       options: [
-        { text: 'Pass the service to the client.', correct: true },
-        { text: 'Allow the client to find service.', correct: true },
-        { text: 'Allow the client to build service.' },
-        { text: 'Give the client part service.' }
+        { text: 'Pass the service to the client', correct: true },
+        { text: 'Allow the client to find service', correct: true },
+        { text: 'Allow the client to build service' },
+        { text: 'Give the client part service' }
       ],
       explanation: 'a service gets passed to the client during DI'
     },
@@ -38,10 +38,10 @@ export const QUIZ_DATA: Quiz = {
     {
       questionText: 'What is the first step in setting up dependency injection?',
       options: [
-        { text: 'Require in the component.' },
-        { text: 'Provide in the module.' },
-        { text: 'Mark dependency as @Injectable().', correct: true },
-        { text: 'Declare an object.' }
+        { text: 'Require in the component' },
+        { text: 'Provide in the module' },
+        { text: 'Mark dependency as @Injectable()', correct: true },
+        { text: 'Declare an object' }
       ],
       explanation: 'the first step is marking the class as @Injectable()'
     }
