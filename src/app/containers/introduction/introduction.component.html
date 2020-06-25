@@ -6,13 +6,14 @@
       <span>How well do you know {{ quizData?.milestone }}?</span>
       <span>Take the quiz and find out!</span>
     </mat-card-subtitle>
-    <div mat-card-image class="quiz-topic-image"
-         [ngStyle]="{ 'background': 'url(' + quizData?.imageUrl + ') no-repeat center center',
-                      'background-size': '95%' }">
-    </div>
   </mat-card-header>
 
-<mat-card-content>
+  <div mat-card-image class="quiz-topic-image"
+         [ngStyle]="{ 'background': 'url(' + quizData?.imageUrl + ') no-repeat center center',
+                      'background-size': '95%' }">
+  </div>
+
+  <mat-card-content>
     <span i18n><strong>{{ quizData?.summary }}</strong>  This quiz is composed of
       <strong>{{ quizData?.questions.length }}</strong> timed, multiple-choice questions. Taking this quiz should
       solidify your understanding of {{ quizData?.milestone }}. Beat the clock and match wits with your friends! Good
