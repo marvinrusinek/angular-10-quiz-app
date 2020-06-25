@@ -110,7 +110,9 @@
                       </span>
                       <span *ngIf="correctAnswers.length > 1">
                         Options {{ correctAnswers[i][0] | join }} &mdash;
-                        {{ question?.options[correctAnswers[i][0][0] - 1].text }}
+                        <ng-container *ngFor="let item of correctAnswers[i][0]; let isLast = last">
+                          {{ question?.options[item - 1].text }} <span *ngIf="!isLast"> AND </span>
+                        </ng-container>
                       </span>
                     </li>
                     <li i18n>
