@@ -64,7 +64,7 @@ export class ResultsComponent implements OnInit {
   }
 
   checkIfAnswersAreCorrect(correctAnswers, userAnswers,index:number): boolean {
-    return !(!userAnswers[index] || userAnswers[index].length === 0 || userAnswers[index].find((ans) => correctAnswers[index][0].indexOf(ans) === -1));
+    return !(!userAnswers[index] || userAnswers[index].length === 0 || userAnswers[index].find((answer) => correctAnswers[index][0].indexOf(answer) === -1));
   }
 
   openAllPanels() {
