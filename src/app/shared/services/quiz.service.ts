@@ -11,7 +11,7 @@ import { TimerService } from './timer.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizService {
-  quizData: Quiz = { ...QUIZ_DATA };
+  quizData: Quiz = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
   answer: number;
   totalQuestions: number;
