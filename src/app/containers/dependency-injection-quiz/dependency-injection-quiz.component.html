@@ -12,7 +12,7 @@
   <mat-card-content>
     <codelab-scoreboard></codelab-scoreboard>
 
-    <section id="question" [class.answered]="answer">
+    <section id="question" [ngClass]="!answer || answer.length === 0 ? 'unanswered': 'answered'">
       <span *ngIf="!answer || answer.length === 0" i18n>{{ question?.questionText }}&nbsp;
         <span *ngIf="numberOfCorrectOptions > 1">
           <em>({{ numberOfCorrectOptions }} options are correct.)</em>
