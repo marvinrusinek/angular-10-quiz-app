@@ -36,7 +36,6 @@
               type="button"
               mat-flat-button
               (click)="previousQuestion()"
-              (window:keydown.ArrowLeft)="previousQuestion()"
               matTooltip="&laquo; Previous Question" matTooltipPosition="above">
               <svg
                 viewBox="0 0 410.258 410.258"
@@ -74,8 +73,6 @@
               type="button"
               mat-flat-button
               (click)="nextQuestion()"
-              (window:keydown.ArrowRight)="nextQuestion()"
-              (window:keydown.Enter)="nextQuestion()"
               matTooltip="Next Question &raquo;" matTooltipPosition="above">
               <svg
                 viewBox="0 0 410.258 410.258"
