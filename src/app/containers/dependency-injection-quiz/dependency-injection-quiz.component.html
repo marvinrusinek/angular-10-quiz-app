@@ -14,7 +14,7 @@
 
     <section id="question" [ngClass]="!answer || answer.length === 0 ? 'unanswered': 'answered'">
       <span *ngIf="!answer || answer.length === 0" i18n>{{ question?.questionText }}&nbsp;
-        <span *ngIf="numberOfCorrectOptions > 1">
+        <span class="number-correct" *ngIf="numberOfCorrectOptions > 1">
           <em>({{ numberOfCorrectOptions }} options are correct.)</em>
         </span>
       </span>
