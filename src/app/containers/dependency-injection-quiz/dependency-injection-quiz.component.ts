@@ -120,7 +120,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   checkIfAnsweredCorrectly() {
     if (this.question) {
-      const incorrectAnswerFound = !!this.answer.find((answer) => {
+      const incorrectAnswerFound = this.answer.find((answer) => {
         return this.question.options &&
           this.question.options[answer] &&
           this.question.options[answer]['selected'] &&
