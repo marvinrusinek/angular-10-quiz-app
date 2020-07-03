@@ -30,6 +30,10 @@ mat-card-header {
   border: 2px solid $medium-gray !important;
 }
 
+.number-correct {
+  color: $green;
+}
+
 #question {
   font-family: $font-stack;
   font-weight: 700;
