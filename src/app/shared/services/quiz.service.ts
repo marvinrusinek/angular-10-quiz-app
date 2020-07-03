@@ -30,11 +30,13 @@ export class QuizService {
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
-    html5: true
+    html5: true,
+    format: ['mp3', 'aac']
   });
   incorrectSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
-    html5: true
+    html5: true,
+    format: ['mp3', 'aac']
   });
 
 
