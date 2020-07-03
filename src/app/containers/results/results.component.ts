@@ -78,6 +78,6 @@ export class ResultsComponent implements OnInit {
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.router.navigate(['/intro']);
+    this.router.navigate(['/intro']).then();
   }
 }
