@@ -33,7 +33,7 @@ export class ResultsComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
 
-  @ViewChild('accordion', { static: false }) Accordion: MatAccordion;
+  @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
 
   CONGRATULATIONS = '../../assets/images/congratulations.jpg';
@@ -51,7 +51,6 @@ export class ResultsComponent implements OnInit {
 
   ngOnInit() {
     this.correctAnswers = this.quizService.correctAnswers;
-    // this.quizMetadata.totalQuestions = this.quizService.totalQuestions;
   }
 
   calculateElapsedTime(): void {
@@ -68,10 +67,10 @@ export class ResultsComponent implements OnInit {
   }
 
   openAllPanels() {
-    this.Accordion.openAll();
+    this.accordion.openAll();
   }
   closeAllPanels() {
-    this.Accordion.closeAll();
+    this.accordion.closeAll();
   }
 
   restart() {
