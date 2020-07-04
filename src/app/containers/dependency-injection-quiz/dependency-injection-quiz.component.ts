@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { animate, style, transition, trigger, keyframes } from '@angular/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -15,7 +15,6 @@ type AnimationState = 'animationStarted' | 'none';
   selector: 'codelab-dependency-injection-quiz-component',
   templateUrl: './dependency-injection-quiz.component.html',
   styleUrls: ['./dependency-injection-quiz.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('changeRoute', [
       transition('* => animationStarted', [
@@ -31,14 +30,14 @@ type AnimationState = 'animationStarted' | 'none';
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
-  answers: number[] = [];
-  questionIndex: number;
+  answer: number[] = [];
   totalQuestions: number;
   progressValue: number;
+  questionIndex: number;
   correctCount: number;
-  animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectOptions(): number { return this.quizService.numberOfCorrectOptions; }
+  animationState$ = new BehaviorSubject<AnimationState>('none');
 
   constructor(
     private quizService: QuizService,
@@ -82,44 +81,43 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   selectedAnswer(data) {
     const correctAnswers = this.question.options.filter((options) => options.correct);
-    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
-      this.answers.push(data);
+    if (correctAnswers.length > 1 && this.answer.indexOf(data) === -1) {
+      this.answer.push(data);
     } else {
-      this.answers[0] = data;
+      this.answer[0] = data;
     }
   }
 
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
-    this.answers = [];
+    this.answer = [];
     this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
   }
 
   advanceToPreviousQuestion() {
-    this.answers = null;
+    this.answer = null;
     this.animationState$.next('animationStarted');
     this.quizService.previousQuestion();
   }
 
   advanceToResults() {
-    this.quizService.resetAll();
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
   }
-
+  
   restartQuiz() {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.answers = null;
-    this.router.navigate(['/quiz/intro']).then();
+    this.answer = null;
+    this.router.navigate(['/intro']).then();
   }
 
   checkIfAnsweredCorrectly() {
     if (this.question) {
-      const correctAnswerFound = this.answers.find((answer) => {
+      const correctAnswerFound = this.answer.find((answer) => {
         return this.question.options &&
           this.question.options[answer] &&
           this.question.options[answer]['selected'] &&
@@ -128,8 +126,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
       if (correctAnswerFound) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
       }
-      const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
-      this.quizService.userAnswers.push(this.answers && this.answers.length > 0 ? answers : this.answers);
+      const answers = this.answer && this.answer.length > 0 ? this.answer.map((answer) => answer + 1) : [];
+      this.quizService.userAnswers.push(this.answer && this.answer.length > 0 ? answers : this.answer);
     }
   }
 
