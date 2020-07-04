@@ -88,31 +88,31 @@ export class DependencyInjectionQuizComponent implements OnInit {
     }
   }
 
-  previousQuestion() {
-    this.answer = null;
-    this.animationState$.next('animationStarted');
-    this.quizService.previousQuestion();
-  }
-
-  restart() {
-    this.quizService.resetAll();
-    this.quizService.resetQuestions();
-    this.timerService.elapsedTimes = [];
-    this.timerService.completionTime = 0;
-    this.answer = null;
-    this.router.navigate(['/intro']).then();
-  }
-
-  nextQuestion() {
+  advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
     this.answer = [];
     this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
   }
 
-  results() {
+  advanceToPreviousQuestion() {
+    this.answer = null;
+    this.animationState$.next('animationStarted');
+    this.quizService.previousQuestion();
+  }
+
+  advanceToResults() {
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
+  }
+  
+  restartQuiz() {
+    this.quizService.resetAll();
+    this.quizService.resetQuestions();
+    this.timerService.elapsedTimes = [];
+    this.timerService.completionTime = 0;
+    this.answer = null;
+    this.router.navigate(['/intro']).then();
   }
 
   checkIfAnsweredCorrectly() {

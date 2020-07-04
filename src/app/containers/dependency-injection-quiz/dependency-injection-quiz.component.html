@@ -35,7 +35,7 @@
             <button
               type="button"
               mat-flat-button
-              (click)="previousQuestion()"
+              (click)="advanceToPreviousQuestion()"
               matTooltip="&laquo; Previous Question" matTooltipPosition="above">
               <svg
                 viewBox="0 0 410.258 410.258"
@@ -51,7 +51,7 @@
             <button
               type="button"
               mat-flat-button
-              (click)="restart()"
+              (click)="restartQuiz()"
               matTooltip="Restart Quiz" matTooltipPosition="above">
               <svg
                 viewBox="0 0 305.836 305.836"
@@ -72,7 +72,7 @@
             <button
               type="button"
               mat-flat-button
-              (click)="nextQuestion()"
+              (click)="advanceToNextQuestion()"
               matTooltip="Next Question &raquo;" matTooltipPosition="above">
               <svg
                 viewBox="0 0 410.258 410.258"
@@ -88,7 +88,7 @@
             <button
               type="button"
               mat-raised-button
-              (click)="results()"
+              (click)="advanceToResults()"
               disableRipple="true"
               class="btn btn-outline-primary">
               <strong>Show Your Score</strong>
