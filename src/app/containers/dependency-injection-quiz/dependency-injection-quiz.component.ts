@@ -30,14 +30,14 @@ type AnimationState = 'animationStarted' | 'none';
 export class DependencyInjectionQuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
-  answer: number[] = [];
+  answers: number[] = [];
+  questionIndex: number;
   totalQuestions: number;
   progressValue: number;
-  questionIndex: number;
   correctCount: number;
+  animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectOptions(): number { return this.quizService.numberOfCorrectOptions; }
-  animationState$ = new BehaviorSubject<AnimationState>('none');
 
   constructor(
     private quizService: QuizService,
@@ -81,43 +81,44 @@ export class DependencyInjectionQuizComponent implements OnInit {
 
   selectedAnswer(data) {
     const correctAnswers = this.question.options.filter((options) => options.correct);
-    if (correctAnswers.length > 1 && this.answer.indexOf(data) === -1) {
-      this.answer.push(data);
+    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
+      this.answers.push(data);
     } else {
-      this.answer[0] = data;
+      this.answers[0] = data;
     }
   }
 
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
-    this.answer = [];
+    this.answers = [];
     this.animationState$.next('animationStarted');
     this.quizService.nextQuestion();
   }
 
   advanceToPreviousQuestion() {
-    this.answer = null;
+    this.answers = null;
     this.animationState$.next('animationStarted');
     this.quizService.previousQuestion();
   }
 
   advanceToResults() {
+    this.quizService.resetAll();
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
   }
-  
+
   restartQuiz() {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.answer = null;
-    this.router.navigate(['/intro']).then();
+    this.answers = null;
+    this.router.navigate(['/quiz/intro']).then();
   }
 
   checkIfAnsweredCorrectly() {
     if (this.question) {
-      const correctAnswerFound = this.answer.find((answer) => {
+      const correctAnswerFound = this.answers.find((answer) => {
         return this.question.options &&
           this.question.options[answer] &&
           this.question.options[answer]['selected'] &&
@@ -126,8 +127,8 @@ export class DependencyInjectionQuizComponent implements OnInit {
       if (correctAnswerFound) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
       }
-      const answers = this.answer && this.answer.length > 0 ? this.answer.map((answer) => answer + 1) : [];
-      this.quizService.userAnswers.push(this.answer && this.answer.length > 0 ? answers : this.answer);
+      const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
+      this.quizService.userAnswers.push(this.answers && this.answers.length > 0 ? answers : this.answers);
     }
   }
 
