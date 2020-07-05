@@ -12,13 +12,13 @@
   <mat-card-content>
     <codelab-scoreboard></codelab-scoreboard>
 
-    <section id="question" [ngClass]="!answer || answer.length === 0 ? 'unanswered': 'answered'">
-      <span *ngIf="!answer || answer.length === 0" i18n>{{ question?.questionText }}&nbsp;
+    <section id="question" [ngClass]="!answers || answers.length === 0 ? 'unanswered': 'answered'">
+      <span *ngIf="!answers || answers.length === 0" i18n>{{ question?.questionText }}&nbsp;
         <span class="number-correct" *ngIf="numberOfCorrectOptions > 1">
           <em>({{ numberOfCorrectOptions }} options are correct.)</em>
         </span>
       </span>
-      <span *ngIf="answer && answer.length > 0" i18n>{{ explanationText }}</span>
+      <span *ngIf="answers && answers.length > 0" i18n>{{ explanationText }}</span>
     </section>
 
     <codelab-quiz-question
