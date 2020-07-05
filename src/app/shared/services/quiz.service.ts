@@ -13,7 +13,7 @@ import { TimerService } from './timer.service';
 export class QuizService {
   quizData: Quiz = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
-  answer: number;
+  answers: number[];
   totalQuestions: number;
   currentQuestionIndex = 1;
   correctAnswersForEachQuestion = [];
@@ -119,7 +119,7 @@ export class QuizService {
   }
 
   resetAll() {
-    this.answer = null;
+    this.answers = null;
     this.hasAnswer = false;
     this.correctAnswersForEachQuestion = [];
     this.correctAnswerOptions = [];
