@@ -38,7 +38,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
   correctCount: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
-  get numberOfCorrectOptions(): number { return this.quizService.numberOfCorrectOptions; }
+  get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectOptions; }
 
   constructor(
     private quizService: QuizService,
