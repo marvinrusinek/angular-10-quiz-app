@@ -19,7 +19,7 @@ export class QuizService {
   correctAnswersForEachQuestion = [];
   correctAnswers = [];
   userAnswers = [];
-  numberOfCorrectOptions: number;
+  numberOfCorrectAnswers: number;
   correctAnswerOptions: number[] = [];
   correctOptions: string;
   explanation: string;
@@ -65,7 +65,7 @@ export class QuizService {
 
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
-    this.numberOfCorrectOptions = identifiedCorrectAnswers.length;
+    this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
     this.correctAnswerOptions = question.options.filter(option => option.correct).map(option => question.options.indexOf(option) + 1);
     this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
     this.correctAnswers.push(this.correctAnswersForEachQuestion);
