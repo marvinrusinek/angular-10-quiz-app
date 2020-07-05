@@ -48,21 +48,6 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  resetAll() {
-    this.answer = null;
-    this.hasAnswer = false;
-    this.correctAnswersForEachQuestion = [];
-    this.correctAnswerOptions = [];
-    this.correctMessage = '';
-    this.explanationText = '';
-    this.timerService.stopTimer();
-    this.timerService.resetTimer();
-  }
-
-  resetQuestions() {
-    this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
-  }
-
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
@@ -112,6 +97,10 @@ export class QuizService {
     return (this.quizData && this.quizData.questions) ? this.quizData.questions.length : 0;
   } 
 
+  sendCorrectCountToResults(value: number): void {
+    this.correctAnswersCountSubject.next(value);
+  }
+
   navigateToNextQuestion() {
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
@@ -129,7 +118,18 @@ export class QuizService {
     this.router.navigate(['/results']).then();
   }
 
-  sendCorrectCountToResults(value: number): void {
-    this.correctAnswersCountSubject.next(value);
+  resetAll() {
+    this.answer = null;
+    this.hasAnswer = false;
+    this.correctAnswersForEachQuestion = [];
+    this.correctAnswerOptions = [];
+    this.correctMessage = '';
+    this.explanationText = '';
+    this.timerService.stopTimer();
+    this.timerService.resetTimer();
+  }
+
+  resetQuestions() {
+    this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
   }
 }

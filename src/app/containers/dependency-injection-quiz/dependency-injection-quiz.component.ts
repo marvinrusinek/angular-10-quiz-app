@@ -93,13 +93,13 @@ export class DependencyInjectionQuizComponent implements OnInit {
     this.checkIfAnsweredCorrectly();
     this.answers = [];
     this.animationState$.next('animationStarted');
-    this.quizService.nextQuestion();
+    this.quizService.navigateToNextQuestion();
   }
 
   advanceToPreviousQuestion() {
     this.answers = null;
     this.animationState$.next('animationStarted');
-    this.quizService.previousQuestion();
+    this.quizService.navigateToPreviousQuestion();
   }
 
   advanceToResults() {
