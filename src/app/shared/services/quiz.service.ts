@@ -109,24 +109,20 @@ export class QuizService {
   }
 
   numberOfQuestions(): number {
-    if (this.quizData && this.quizData.questions) {
-      return this.quizData.questions.length;
-    } else {
-      return 0;
-    }
-  }
+    return (this.quizData && this.quizData.questions) ? this.quizData.questions.length : 0;
+  } 
 
-  previousQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]).then();
-    this.resetAll();
-  }
-
-  nextQuestion() {
+  navigateToNextQuestion() {
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question', questionIndex]).then();
     this.resetAll();
     this.timerService.resetTimer();
+  }
+
+  navigateToPreviousQuestion() {
+    this.router.navigate(['/question', this.currentQuestionIndex - 1]).then();
+    this.resetAll();
   }
 
   navigateToResults() {
