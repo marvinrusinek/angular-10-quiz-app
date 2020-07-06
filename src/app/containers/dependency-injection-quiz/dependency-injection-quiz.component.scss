@@ -60,6 +60,10 @@ mat-card-header {
     svg {
       width: 36px;
       height: 36px;
+
+      polygon, path {
+        fill: $dodger-blue;
+      }
     }
 
     .prev-question-nav {

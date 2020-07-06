@@ -38,7 +38,7 @@
               (click)="advanceToPreviousQuestion()"
               matTooltip="&laquo; Previous Question" matTooltipPosition="above">
               <svg viewBox="0 0 410.258 410.258">
-                <polygon fill="#007aff" [attr.points]="paging.previousButtonPoints" />
+                <polygon [attr.points]="paging.previousButtonPoints" />
               </svg>
             </button>
           </div>
@@ -50,7 +50,7 @@
               (click)="restartQuiz()"
               matTooltip="Restart Quiz" matTooltipPosition="above">
               <svg viewBox="0 0 305.836 305.836">
-                <path fill="#007aff" [attr.d]="paging.restartButtonPath" />
+                <path [attr.d]="paging.restartButtonPath" />
               </svg>
             </button>
           </div>
@@ -62,7 +62,7 @@
               (click)="advanceToNextQuestion()"
               matTooltip="Next Question &raquo;" matTooltipPosition="above">
               <svg viewBox="0 0 410.258 410.258">
-                <polygon fill="#007aff" [attr.points]="paging.nextButtonPoints" />
+                <polygon [attr.points]="paging.nextButtonPoints" />
               </svg>
             </button>
           </div>
