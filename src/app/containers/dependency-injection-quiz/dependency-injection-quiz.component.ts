@@ -131,7 +131,7 @@ export class DependencyInjectionQuizComponent implements OnInit {
           this.question.options[answer]['selected'] &&
           this.question.options[answer]['correct'];
       });
-      if (correctAnswerFound) {
+      if (correctAnswerFound > -1) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
       }
       const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
