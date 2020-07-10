@@ -22,7 +22,7 @@ export class ScoreboardComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params: Params) => {
       if (params.questionIndex) {
         this.badgeQuestionNumber = params.questionIndex;
         this.timerService.resetTimer();
