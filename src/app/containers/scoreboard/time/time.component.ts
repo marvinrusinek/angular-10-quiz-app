@@ -40,7 +40,7 @@ export class TimeComponent implements OnChanges {
     this.timeLeft$ = concat(start$.pipe(first()), reset$).pipe(
       switchMapTo(
         timer(0, 1000).pipe(
-          scan((acc: number) => acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc, this.timePerQuestion),
+          scan((acc: number) => acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc, this.timePerQuestion)
         )
       ),
       takeUntil(stop$.pipe(skip(1))),
