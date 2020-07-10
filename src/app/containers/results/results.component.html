@@ -84,11 +84,11 @@
 
                 <ng-template
                   matExpansionPanelContent>
-                  <ul class="quiz-summary-fields" *ngIf="correctAnswers.length >= 1">
+                  <ul class="quiz-summary-fields" *ngIf="correctAnswers?.length >= 1">
                     <li i18n>
                       <span class="leader">Your Answer(s):</span>
                       <ng-container *ngIf="results?.userAnswers[i]">
-                        Option {{ results.userAnswers[i] | join }} &mdash;
+                        Option {{ results?.userAnswers[i] | join }} &mdash;
                         <ng-container *ngFor="let item of results?.userAnswers[i]; let isLast = last">
                           {{ question?.options[item - 1].text }} <span *ngIf="!isLast"> AND </span>
                         </ng-container>
@@ -103,10 +103,10 @@
                     </li>
                     <li i18n>
                       <span class="leader">Correct Answer(s):</span>
-                      <span *ngIf="correctAnswers.length === 1">
+                      <span *ngIf="correctAnswers?.length === 1">
                         Option {{ correctAnswers[i] }} &mdash; {{ question?.options[i].text }}
                       </span>
-                      <span *ngIf="correctAnswers.length > 1">
+                      <span *ngIf="correctAnswers?.length > 1">
                         Options {{ correctAnswers[i][0] | join }} &mdash;
                         <ng-container *ngFor="let item of correctAnswers[i][0]; let isLast = last">
                           {{ question?.options[item - 1].text }} <span *ngIf="!isLast"> AND </span>
