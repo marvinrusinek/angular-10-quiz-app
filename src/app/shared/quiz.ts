@@ -6,7 +6,7 @@ export const QUIZ_DATA: Quiz[] = [
     id: 'TS_Quiz',
     milestone: 'TypeScript',
     summary: 'TypeScript simplifies JavaScript code, making it easier to read and debug.',
-    imageUrl: '../../../assets/images/ts.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/ts.png',
     questions: [
       {
         questionText: 'Which of the following does TypeScript use to specify the type information?',
@@ -104,7 +104,7 @@ export const QUIZ_DATA: Quiz[] = [
     id: 'DI_Quiz',
     milestone: 'Dependency Injection',
     summary: 'Dependency Injection is extremely powerful because it is a way of providing dependencies in your code instead of hard-coding them.',
-    imageUrl: '../../../assets/images/DIDiagram.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/DIDiagram.png',
     questions: [
       {
         questionText: 'What is the objective of dependency injection?',
