@@ -28,7 +28,7 @@ type AnimationState = 'animationStarted' | 'none';
     ])
   ]
 })
-export class DependencyInjectionQuizComponent implements OnInit {
+export class QuizComponent implements OnInit {
   quizData: Quiz = QUIZ_DATA;
   question: QuizQuestion;
   answers: number[] = [];
