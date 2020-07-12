@@ -12,9 +12,9 @@ import { TimerService } from '../../shared/services/timer.service';
 type AnimationState = 'animationStarted' | 'none';
 
 @Component({
-  selector: 'codelab-dependency-injection-quiz-component',
-  templateUrl: './dependency-injection-quiz.component.html',
-  styleUrls: ['./dependency-injection-quiz.component.scss'],
+  selector: 'codelab-quiz-component',
+  templateUrl: './quiz.component.html',
+  styleUrls: ['./quiz.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('changeRoute', [
