@@ -16,7 +16,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizQuestionComponent } from './components/question/question.component';
-import { DependencyInjectionQuizComponent } from './containers/dependency-injection-quiz/dependency-injection-quiz.component';
+import { QuizComponent } from './containers/quiz/quiz.component';
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
@@ -30,7 +30,7 @@ import { JoinPipe } from './pipes/join.pipe';
     AppComponent,
     IntroductionComponent,
     QuizQuestionComponent,
-    DependencyInjectionQuizComponent,
+    QuizComponent,
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
