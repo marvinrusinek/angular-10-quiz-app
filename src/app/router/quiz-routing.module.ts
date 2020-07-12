@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { IntroductionComponent } from '../containers/introduction/introduction.component';
-import { DependencyInjectionQuizComponent } from '../containers/quiz/quiz.component';
+import { QuizComponent } from '../containers/quiz/quiz.component';
 import { ResultsComponent } from '../containers/results/results.component';
 
 const routes: Routes = [
