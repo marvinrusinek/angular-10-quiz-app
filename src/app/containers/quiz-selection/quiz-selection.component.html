@@ -25,7 +25,7 @@
       <mat-grid-list cols="2">
         <mat-grid-tile
           *ngFor="let quiz of quizData"
-          [routerLink]="['/quiz/intro/', quiz.id]"
+          [routerLink]="['/intro/', quiz.id]"
           (click)="onClick()"
           [ngClass]="{ 'done': currentQuestionIndex === POSITIVE_INFINITY }"
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center top',
