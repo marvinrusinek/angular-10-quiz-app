@@ -17,6 +17,7 @@ import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizQuestionComponent } from './components/question/question.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
+import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
@@ -31,6 +32,7 @@ import { JoinPipe } from './pipes/join.pipe';
     IntroductionComponent,
     QuizQuestionComponent,
     QuizComponent,
+    QuizSelectionComponent,
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
