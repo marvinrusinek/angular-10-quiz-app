@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Quiz } from '../shared/models/*';
+import { Quiz } from '../shared/models/Quiz';
 import { QUIZ_DATA } from '../shared/quiz-data';
 
 @Component({
