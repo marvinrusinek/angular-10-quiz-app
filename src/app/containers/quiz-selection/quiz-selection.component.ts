@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -7,7 +7,8 @@ import { QUIZ_DATA } from '../../shared/quiz';
 @Component({
   selector: 'codelab-quiz-selection',
   templateUrl: './quiz-selection.component.html',
-  styleUrls: ['./quiz-selection.component.scss']
+  styleUrls: ['./quiz-selection.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit {
   @Input() quiz: Quiz;
