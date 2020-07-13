@@ -56,5 +56,9 @@ mat-card-header {
     font-style: italic;
     color: $gray;
     text-align: center;
+
+    span {
+      display: block;
+    }
   }
 }
