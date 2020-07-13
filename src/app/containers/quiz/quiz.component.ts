@@ -88,7 +88,7 @@ export class QuizComponent implements OnInit {
   }
 
   private getQuestion() {
-    const indexOfQuizId = this.quizData.find(element => this.quizData[0].id === this.quizName);
+    const indexOfQuizId = this.quizData.findIndex(element => this.quizData[0].id === this.quizName);
     console.log(indexOfQuizId);
     this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
   }
