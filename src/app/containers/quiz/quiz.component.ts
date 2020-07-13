@@ -29,7 +29,8 @@ type AnimationState = 'animationStarted' | 'none';
   ]
 })
 export class QuizComponent implements OnInit {
-  quizData: Quiz = QUIZ_DATA;
+  quizData: Quiz[] = QUIZ_DATA;
+  quizName: String = '';
   question: QuizQuestion;
   answers: number[] = [];
   questionIndex: number;
@@ -54,6 +55,10 @@ export class QuizComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.activatedRoute.url.subscribe(segments => {
+      this.quizName = segments[1].toString();
+    });
+
     this.activatedRoute.params.subscribe(params => {
       this.totalQuestions = this.quizService.numberOfQuestions();
 
@@ -83,7 +88,9 @@ export class QuizComponent implements OnInit {
   }
 
   private getQuestion() {
-    this.question = this.quizService.getQuestions().questions[this.questionIndex - 1];
+    const indexOfQuizId = this.quizData.find(element => this.quizData[0].id === this.quizName);
+    console.log(indexOfQuizId);
+    this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
   }
 
   selectedAnswer(data) {
