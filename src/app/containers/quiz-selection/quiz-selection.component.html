@@ -2,34 +2,42 @@
   <mat-card>
     <mat-card-header>
       <div class="container">
-        <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1" class="home">
+        <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 logo">
           <a href="https://www.codelab.fun" target="_blank">
-            <mat-icon class="home-img">home</mat-icon>
+            <div mat-card-avatar class="header-image"></div>
           </a>
         </div>
-        <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10" class="logo">
-          <a href="https://www.codelab.fun" target="_blank">
-            <img class="logo-img" src="https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/codelab_logo.jpeg">
-          </a>
-          <h2>Quiz App</h2>
+        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+          <h1>Angular Codelab Quiz App</h1>
         </div>
-        <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1" class="info">
-          <a href="https://github.com/marvinrusinek/codelab-angular-10-quiz-app" target="_blank">
-            <mat-icon class="info-icon">info</mat-icon>
+        <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 info">
+          <a href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
+            <mat-icon class="info">info</mat-icon>
           </a>
         </div>
       </div>
     </mat-card-header>
 
-    <mat-content>
-      <mat-grid-list cols="2">
+    <mat-card-content>
+      <!-- <h3 class="text-center">Select a quiz from the menu or the tiles below&hellip;</h3> -->
+
+      <mat-toolbar>
+        <button mat-button [matMenuTriggerFor]="menu"><h3>Milestones &#x25BC;</h3></button>
+        <mat-menu #menu="matMenu">
+          <div *ngFor="let quiz of quizData">
+            <button [routerLink]="['/quiz/intro/', quiz.id]" mat-menu-item>{{ quiz.milestone }}</button>
+          </div>
+        </mat-menu>
+      </mat-toolbar>
+
+      <mat-grid-list cols="3" rowHeight="350px">
         <mat-grid-tile
           *ngFor="let quiz of quizData"
-          [routerLink]="['/intro/', quiz.id]"
+          [routerLink]="['/quiz/intro/', quiz.id]"
           (click)="onClick()"
           [ngClass]="{ 'done': currentQuestionIndex === POSITIVE_INFINITY }"
-          [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center top',
-                       'background-size': '380px 275px' }">
+          [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
+                       'background-size': '300px 210px' }">
 
           <!-- display quiz status icon in top right corner -->
           <span *ngIf="currentQuestionIndex === 0" class="icon" i18n-data-tooltip mat-tooltip="Start">
@@ -51,11 +59,15 @@
 
           <!-- quiz-info -->
           <div class="quiz-info">
-            <h3 class="quiz-title">{{ quiz.milestone }}</h3>
-            <p class="quiz-subtitle">{{ quiz.summary }}</p>
+            <h5 class="quiz-title">{{ quiz.milestone }}</h5>
+            <summary class="quiz-subtitle">{{ quiz.summary }}</summary>
           </div>
         </mat-grid-tile>
       </mat-grid-list>
-    </mat-content>
+    </mat-card-content>
+
+    <mat-card-footer>
+      <h3 class="text-center">Copyright &copy; 2020 codelab.fun</h3>
+    </mat-card-footer>
   </mat-card>
 </ng-container>

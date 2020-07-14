@@ -10,6 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -51,6 +54,9 @@ import { JoinPipe } from './pipes/join.pipe';
     MatButtonModule,
     MatExpansionModule,
     MatTooltipModule,
+    MatGridListModule,
+    MatMenuModule,
+    MatToolbarModule,
     NgbModule,
     FontAwesomeModule
   ],
