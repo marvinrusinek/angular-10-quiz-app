@@ -75,11 +75,15 @@ export class ResultsComponent implements OnInit {
     this.accordion.closeAll();
   }
 
-  restart() {
+  restartQuiz() {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.router.navigate(['/intro']).then();
+  }
+
+  selectQuiz() {
+    this.router.navigate(['/select']).then();
   }
 }
