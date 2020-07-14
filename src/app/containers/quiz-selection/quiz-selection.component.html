@@ -19,13 +19,11 @@
     </mat-card-header>
 
     <mat-card-content>
-      <!-- <h3 class="text-center">Select a quiz from the menu or the tiles below&hellip;</h3> -->
-
       <mat-toolbar>
         <button mat-button [matMenuTriggerFor]="menu"><h3>Milestones &#x25BC;</h3></button>
         <mat-menu #menu="matMenu">
           <div *ngFor="let quiz of quizData">
-            <button [routerLink]="['/quiz/intro/', quiz.id]" mat-menu-item>{{ quiz.milestone }}</button>
+            <button [routerLink]="['/intro/', quiz.id]" mat-menu-item>{{ quiz.milestone }}</button>
           </div>
         </mat-menu>
       </mat-toolbar>
