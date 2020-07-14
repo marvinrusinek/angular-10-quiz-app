@@ -39,7 +39,7 @@
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }">
 
-          <!-- display quiz status icon in top right corner -->
+          <!-- need to display quiz status icon in top right corner -->
           <span *ngIf="currentQuestionIndex === 0" class="icon" i18n-data-tooltip mat-tooltip="Start">
             <svg viewBox="0 0 24 24">
               <path [attr.d]="quizStatus.start" />
