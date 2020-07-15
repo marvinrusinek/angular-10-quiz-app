@@ -30,7 +30,7 @@ type AnimationState = 'animationStarted' | 'none';
 })
 export class QuizComponent implements OnInit {
   quizData: Quiz[] = QUIZ_DATA;
-  quizName: String = '';
+  quizName = '';
   question: QuizQuestion;
   answers: number[] = [];
   questionIndex: number;
@@ -88,8 +88,8 @@ export class QuizComponent implements OnInit {
   }
 
   private getQuestion() {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('id');
-    const indexOfQuizId = this.quizData.findIndex(el => el.id === quizId);
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const indexOfQuizId = this.quizData.findIndex(el => el.quizId === quizId);
     this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
   }
 
