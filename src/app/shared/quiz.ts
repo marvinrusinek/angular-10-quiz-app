@@ -6,7 +6,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'typescript',
     milestone: 'TypeScript',
     summary: 'TypeScript simplifies JavaScript code, making it easier to read and debug.',
-    imageUrl: '../../../assets/images/ts.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/ts.png',
     questions: [
       {
         questionText: 'Which of the following does TypeScript use to specify the type information?',
@@ -104,7 +104,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'templates',
     milestone: 'Templates',
     summary: 'Angular has a very expressive template system, which takes HTML as a base, and extends it with custom elements.',
-    imageUrl: '../../../assets/images/template.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/template.png',
     questions: [
       {
         questionText: '',
@@ -122,7 +122,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'dependency-injection',
     milestone: 'Dependency Injection',
     summary: 'Dependency Injection is a way of providing dependencies in your code instead of hard-coding them.',
-    imageUrl: '../../../assets/images/DIDiagram.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/DIDiagram.png',
     questions: [
       {
         questionText: 'What is the objective of dependency injection?',
@@ -170,7 +170,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'component-tree',
     milestone: 'Component Tree',
     summary: 'An Angular application can be thought of as a tree of reusable components.',
-    imageUrl: '../../../assets/images/tree.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/tree.png',
     questions: [
       {
         questionText: '',
@@ -188,7 +188,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'router',
     milestone: 'Angular Router',
     summary: 'The Angular router helps developers build Single Page Applications with multiple views and allow navigation between those views.',
-    imageUrl: '../../../assets/images/router.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/router.png',
     questions: [
       {
         questionText: '',
@@ -206,7 +206,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'material',
     milestone: 'Angular Material',
     summary: 'Angular Material provides a set of Material Design components that are consistent, versatile and look great on mobile devices.',
-    imageUrl: '../../../assets/images/material.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/material.png',
     questions: [
       {
         questionText: '',
@@ -224,7 +224,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'forms',
     milestone: 'Forms',
     summary: 'Angular forms build upon standard HTML forms to help create custom form controls and support easy validation.',
-    imageUrl: '../../../assets/images/forms.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/forms.png',
     questions: [
       {
         questionText: '',
@@ -242,7 +242,7 @@ export const QUIZ_DATA: Quiz[] = [
     quizId: 'angular-cli',
     milestone: 'Angular-CLI',
     summary: 'The Angular CLI is a command-line interface tool used for initializing, developing, scaffolding and maintaining Angular applications.',
-    imageUrl: '../../../assets/images/angular-cli.png',
+    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/angular-cli.png',
     questions: [
       {
         questionText: '',
