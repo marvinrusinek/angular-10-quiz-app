@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { Howl } from 'howler';
 
@@ -11,7 +11,7 @@ import { TimerService } from './timer.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizService {
-  quizData: Quiz = JSON.parse(JSON.stringify(QUIZ_DATA));
+  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
   answers: number[];
   totalQuestions: number;
@@ -27,6 +27,7 @@ export class QuizService {
   correctMessage: string;
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  indexOfQuizId: number;
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -42,10 +43,14 @@ export class QuizService {
 
   constructor(
     private timerService: TimerService,
-    private router: Router
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {
     this.totalQuestions = this.numberOfQuestions();
     this.hasAnswer = true;
+
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.indexOfQuizId = this.quizData.findIndex((el) => el.id === quizId);
   }
 
   getCorrectAnswers(question: QuizQuestion) {
@@ -60,7 +65,7 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
-    this.question = this.getQuestions().questions[this.currentQuestionIndex - 1];
+    this.question = this.getQuestions()[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' was correct because ' + this.question.explanation + '.';
@@ -94,7 +99,7 @@ export class QuizService {
   }
 
   numberOfQuestions(): number {
-    return (this.quizData && this.quizData.questions) ? this.quizData.questions.length : 0;
+    return (this.quizData && this.quizData[this.indexOfQuizId].questions) ? this.quizData[this.indexOfQuizId].questions.length : 0;
   } 
 
   sendCorrectCountToResults(value: number): void {
