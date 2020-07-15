@@ -50,7 +50,7 @@ export class QuizService {
     this.hasAnswer = true;
 
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex((el) => el.id === quizId);
+    this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === quizId);
   }
 
   getCorrectAnswers(question: QuizQuestion) {

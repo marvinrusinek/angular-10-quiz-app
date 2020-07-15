@@ -1,7 +1,7 @@
 import { QuizQuestion } from './QuizQuestion.model';
 
 export interface Quiz {
-  id: string,
+  quizId: string,
   milestone: string,
   summary: string,
   imageUrl: string,

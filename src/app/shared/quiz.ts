@@ -3,7 +3,7 @@ import { QuizResource } from '@codelab-quiz/shared/models/QuizResource.model';
 
 export const QUIZ_DATA: Quiz[] = [
   {
-    id: 'typescript',
+    quizId: 'typescript',
     milestone: 'TypeScript',
     summary: 'TypeScript simplifies JavaScript code, making it easier to read and debug.',
     imageUrl: '../../../assets/images/ts.png',
@@ -101,7 +101,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'templates',
+    quizId: 'templates',
     milestone: 'Templates',
     summary: 'Angular has a very expressive template system, which takes HTML as a base, and extends it with custom elements.',
     imageUrl: '../../../assets/images/template.png',
@@ -119,7 +119,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'dependency-injection',
+    quizId: 'dependency-injection',
     milestone: 'Dependency Injection',
     summary: 'Dependency Injection is a way of providing dependencies in your code instead of hard-coding them.',
     imageUrl: '../../../assets/images/DIDiagram.png',
@@ -167,7 +167,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'component-tree',
+    quizId: 'component-tree',
     milestone: 'Component Tree',
     summary: 'An Angular application can be thought of as a tree of reusable components.',
     imageUrl: '../../../assets/images/tree.png',
@@ -185,7 +185,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'router',
+    quizId: 'router',
     milestone: 'Angular Router',
     summary: 'The Angular router helps developers build Single Page Applications with multiple views and allow navigation between those views.',
     imageUrl: '../../../assets/images/router.png',
@@ -203,7 +203,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'material',
+    quizId: 'material',
     milestone: 'Angular Material',
     summary: 'Angular Material provides a set of Material Design components that are consistent, versatile and look great on mobile devices.',
     imageUrl: '../../../assets/images/material.png',
@@ -221,7 +221,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'forms',
+    quizId: 'forms',
     milestone: 'Forms',
     summary: 'Angular forms build upon standard HTML forms to help create custom form controls and support easy validation.',
     imageUrl: '../../../assets/images/forms.png',
@@ -239,7 +239,7 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
-    id: 'angular-cli',
+    quizId: 'angular-cli',
     milestone: 'Angular-CLI',
     summary: 'The Angular CLI is a command-line interface tool used for initializing, developing, scaffolding and maintaining Angular applications.',
     imageUrl: '../../../assets/images/angular-cli.png',
@@ -260,7 +260,7 @@ export const QUIZ_DATA: Quiz[] = [
 
 export const QUIZ_RESOURCES: QuizResource[] = [
   {
-    id: 'TS_Quiz',
+    quizId: 'TS_Quiz',
     milestone: 'TypeScript',
     resources: [
       {
@@ -286,7 +286,7 @@ export const QUIZ_RESOURCES: QuizResource[] = [
     ]
   },
   {
-    id: 'DI_Quiz',
+    quizId: 'DI_Quiz',
     milestone: 'Dependency Injection',
     resources: [
       {
