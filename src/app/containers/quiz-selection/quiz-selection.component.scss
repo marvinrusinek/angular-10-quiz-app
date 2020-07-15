@@ -50,6 +50,12 @@ mat-card {
     mat-toolbar {
       width: 180px;
       margin: 0 auto;
+      background: transparentize($light-gray, 0.5);
+
+      button span {
+        font-size: 24px;
+        font-weight: 700;
+      }
 
       button:hover {
         border: 1px solid $dodger-blue;
