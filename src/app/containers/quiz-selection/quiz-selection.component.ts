@@ -28,10 +28,10 @@ export class QuizSelectionComponent implements OnInit {
   onClick(): void {
     if (this.currentQuestionIndex < Number.POSITIVE_INFINITY) {
       // start or continue
-      this.router.navigate(['/quiz/question/', this.quiz.id, this.currentQuestionIndex]);
+      this.router.navigate(['/question/', this.quiz.quizId, this.currentQuestionIndex]);
     } else if (this.currentQuestionIndex === Number.POSITIVE_INFINITY) {
       // evaluation
-      this.router.navigate(['/quiz/question/', this.quiz.id, 'evaluation']);
+      this.router.navigate(['/question/', this.quiz.quizId, 'evaluation']);
     }
   }
 }
