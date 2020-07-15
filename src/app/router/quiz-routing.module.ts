@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
   { path: 'intro/:id', component: IntroductionComponent, pathMatch: 'full' },
   { path: 'question', component: QuizComponent, pathMatch: 'full' },
-  { path: 'question/:id/:questionIndex', component: QuizComponent, pathMatch: 'full' },
+  { path: 'question/:quizId/:questionIndex', component: QuizComponent, pathMatch: 'full' },
   { path: 'results', component: ResultsComponent, pathMatch: 'full' }
 ];
 
