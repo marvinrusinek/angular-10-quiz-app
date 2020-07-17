@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { animate, style, transition, trigger, keyframes } from '@angular/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -34,7 +34,7 @@ export class QuizComponent implements OnInit {
   question: QuizQuestion;
   answers: number[] = [];
   questionIndex: number;
-  @Input() totalQuestions: number;
+  totalQuestions: number;
   progressValue: number;
   correctCount: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -53,9 +53,7 @@ export class QuizComponent implements OnInit {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {
-    // this.quizService.getTotalQuestions(this.totalQuestions);
-   }
+  ) { }
 
   ngOnInit() {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
