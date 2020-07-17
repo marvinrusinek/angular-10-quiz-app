@@ -1,6 +1,6 @@
 import { Injectable, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../quiz';
@@ -28,6 +28,8 @@ export class QuizService {
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   indexOfQuizId: number;
+  totalQuestions$: Observable<number>;
+  totalQuestionsSubject = new Subject<number>();
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -51,6 +53,11 @@ export class QuizService {
 
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === quizId);
+  }
+
+  getTotalQuestions(data) {
+    console.log(data);
+    this.totalQuestionsSubject.next(data);
   }
 
   getCorrectAnswers(question: QuizQuestion) {

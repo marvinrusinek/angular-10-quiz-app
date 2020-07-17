@@ -53,7 +53,9 @@ export class QuizComponent implements OnInit {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {
+    this.quizService.getTotalQuestions(this.totalQuestions);
+   }
 
   ngOnInit() {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');

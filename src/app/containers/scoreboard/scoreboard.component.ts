@@ -19,7 +19,11 @@ export class ScoreboardComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
-  ) { }
+  ) { 
+    this.quizService.totalQuestions$.subscribe((data) => {
+      this.totalQuestions = data;
+    });
+  }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {
@@ -29,7 +33,7 @@ export class ScoreboardComponent implements OnInit, OnChanges {
       }
     });
 
-    this.totalQuestions = this.quizService.numberOfQuestions();
+    /this.totalQuestions = this.quizService.numberOfQuestions();
   }
 
   ngOnChanges(changes: SimpleChanges) {
