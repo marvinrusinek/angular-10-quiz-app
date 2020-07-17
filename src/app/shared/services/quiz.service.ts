@@ -55,8 +55,7 @@ export class QuizService {
     this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === quizId);
   }
 
-  getTotalQuestions(data) {
-    console.log(data);
+  getTotalQuestions(data: number) {
     this.totalQuestionsSubject.next(data);
   }
 
@@ -72,7 +71,7 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
-    this.question = this.quizDa[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
+    this.question = this.quizDat[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' was correct because ' + this.question.explanation + '.';
