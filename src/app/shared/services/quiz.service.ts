@@ -94,14 +94,14 @@ export class QuizService {
   /*
    * public API
    */
-  getQuestions() {
+/*  getQuestions() {
     return { ...this.quizData };
   }
 
   numberOfQuestions(): number {
     return (this.quizData && this.getQuestions()[this.indexOfQuizId].questions) ? this.getQuestions()[this.indexOfQuizId].questions.length : 0;
     // return (this.quizData && this.quizData[this.indexOfQuizId].questions) ? this.quizData[this.indexOfQuizId].questions.length : 0;
-  } 
+  } */ 
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
