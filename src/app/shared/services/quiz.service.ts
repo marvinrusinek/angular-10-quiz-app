@@ -48,15 +48,9 @@ export class QuizService {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    // this.totalQuestions = this.numberOfQuestions();
-    this.hasAnswer = true;
-
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === quizId);
-  }
-
-  getTotalQuestions(data: number) {
-    this.totalQuestionsSubject.next(data);
+    this.hasAnswer = true;
   }
 
   getCorrectAnswers(question: QuizQuestion) {
@@ -71,7 +65,7 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
-    this.question = this.quizDat[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
+    this.question = this.quizData[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' was correct because ' + this.question.explanation + '.';
@@ -111,6 +105,10 @@ export class QuizService {
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
+  }
+
+  sendTotalQuestionsToScore(value: number) {
+    this.totalQuestionsSubject.next(value);
   }
 
   navigateToNextQuestion() {

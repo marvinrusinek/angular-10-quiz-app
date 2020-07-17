@@ -87,6 +87,9 @@ export class QuizComponent implements OnInit {
 
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
+    
+    
+    this.sendTotalQuestionsToQuizService(this.totalQuestions);
   }
 
   animationDoneHandler(): void {
@@ -154,5 +157,10 @@ export class QuizComponent implements OnInit {
   sendCorrectCountToQuizService(value: number): void {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
+  }
+
+  sendTotalQuestionstToQuizService(value: number): void {
+    this.totalQuestions = value;
+    this.quizService.sendTotalQuestionsToScore(this.totalQuestions);
   }
 }
