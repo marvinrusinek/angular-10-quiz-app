@@ -11,6 +11,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 })
 export class ScoreComponent implements OnInit {
   totalQuestions: number;
+  totalQuestions$: Observable<number>;
   correctAnswersCount$: Observable<number>;
 
   constructor(private quizService: QuizService) {

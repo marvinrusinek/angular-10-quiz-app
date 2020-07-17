@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -13,6 +14,7 @@ export class ScoreboardComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
   totalQuestions: number;
+  totalQuestions$: Observable<number>;
   badgeQuestionNumber: number;
 
   constructor(
