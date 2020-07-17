@@ -96,7 +96,6 @@ export class QuizComponent implements OnInit {
   }
 
   private getQuestion() {
-    // this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
   }
 
