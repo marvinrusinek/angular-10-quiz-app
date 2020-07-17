@@ -65,7 +65,7 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
-    this.question = this.quizD[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
+    this.question = this.quizDa[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' was correct because ' + this.question.explanation + '.';
