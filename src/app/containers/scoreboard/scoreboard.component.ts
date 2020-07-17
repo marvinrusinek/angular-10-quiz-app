@@ -18,11 +18,11 @@ export class ScoreboardComponent implements OnInit, OnChanges {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private route: ActivatedRoute
+    private activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    this.route.params.subscribe((params: Params) => {
+    this.activatedRoute.params.subscribe((params: Params) => {
       if (params.questionIndex) {
         this.badgeQuestionNumber = params.questionIndex;
         this.timerService.resetTimer();
