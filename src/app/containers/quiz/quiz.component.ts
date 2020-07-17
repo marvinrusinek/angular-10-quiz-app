@@ -54,7 +54,7 @@ export class QuizComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.quizService.getTotalQuestions(this.totalQuestions);
+    //this.quizService.getTotalQuestions(this.totalQuestions);
    }
 
   ngOnInit() {
@@ -88,7 +88,8 @@ export class QuizComponent implements OnInit {
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
     
-    
+    this.totalQuestions = 
+    this.quizService.totalQuestionsSubject.getValue();
     this.sendTotalQuestionsToQuizService(this.totalQuestions);
   }
 
