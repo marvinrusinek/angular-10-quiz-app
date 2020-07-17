@@ -93,7 +93,7 @@ export class QuizComponent implements OnInit {
 
   private getQuestion() {
     // this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
-    this.question = this.quizData[thiindexOfQuizId].questions[this.questionIndex - 1];
+    this.question = this.quizData[thisindexOfQuizId].questions[this.questionIndex - 1];
   }
 
   selectedAnswer(data) {
