@@ -90,7 +90,8 @@ export class QuizComponent implements OnInit {
   private getQuestion() {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     const indexOfQuizId = this.quizData.findIndex(el => el.quizId === quizId);
-    this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
+    // this.question = this.quizService.getQuestions()[indexOfQuizId].questions[this.questionIndex - 1];
+    this.question = this.quizData[indexOfQuizId].questions[this.questionIndex - 1];
   }
 
   selectedAnswer(data) {
