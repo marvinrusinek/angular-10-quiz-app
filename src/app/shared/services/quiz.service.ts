@@ -1,4 +1,4 @@
-import { Injectable, Input } from '@angular/core';
+import { Injectable, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { Howl } from 'howler';
@@ -14,7 +14,7 @@ export class QuizService {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
   answers: number[];
-  @Input() totalQuestions: number;
+  @Output() totalQuestions: number;
   currentQuestionIndex = 1;
   correctAnswersForEachQuestion = [];
   correctAnswers = [];
