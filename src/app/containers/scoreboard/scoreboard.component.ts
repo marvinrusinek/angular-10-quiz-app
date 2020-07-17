@@ -14,18 +14,13 @@ export class ScoreboardComponent implements OnInit, OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
   totalQuestions: number;
-  totalQuestions$: Observable<number>;
   badgeQuestionNumber: number;
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
-  ) { 
-    this.quizService.totalQuestions$.subscribe((data) => {
-      this.totalQuestions = data;
-    });
-  }
+  ) { }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params) => {
@@ -34,6 +29,8 @@ export class ScoreboardComponent implements OnInit, OnChanges {
         this.timerService.resetTimer();
       }
     });
+
+    this.totalQuestions = this.quizService.totalQuestions
   }
 
   ngOnChanges(changes: SimpleChanges) {

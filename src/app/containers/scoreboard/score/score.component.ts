@@ -11,17 +11,12 @@ import { QuizService } from '../../../shared/services/quiz.service';
 })
 export class ScoreComponent implements OnInit {
   totalQuestions: number;
-  totalQuestions$: Observable<number>;
   correctAnswersCount$: Observable<number>;
 
-  constructor(private quizService: QuizService) {
-    this.quizService.totalQuestions$.subscribe((data) => {
-      this.totalQuestions = data;
-    });
-   }
+  constructor(private quizService: QuizService) { }
 
   ngOnInit() {
-    // this.totalQuestions = this.quizService.numberOfQuestions();
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
+    this.totalQuestions = this.quizService.totalQuestions;
   }
 }

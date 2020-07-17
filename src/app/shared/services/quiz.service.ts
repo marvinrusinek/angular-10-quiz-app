@@ -53,6 +53,10 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
+  setTotalQuestions(value: number): void {
+    this.totalQuestions = value;
+  }
+
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;

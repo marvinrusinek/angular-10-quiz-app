@@ -65,6 +65,7 @@ export class QuizComponent implements OnInit {
 
     this.activatedRoute.params.subscribe(params => {
       this.totalQuestions = this.quizData[this.indexOfQuizId].questions.length;
+      this.quizService.setTotalQuestions(this.totalQuestions);
 
       if (params.questionIndex) {
         this.questionIndex = parseInt(params.questionIndex, 0);
