@@ -54,7 +54,7 @@ export class QuizComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    //this.quizService.getTotalQuestions(this.totalQuestions);
+    // this.quizService.getTotalQuestions(this.totalQuestions);
    }
 
   ngOnInit() {

@@ -29,7 +29,7 @@ export class QuizService {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   indexOfQuizId: number;
   totalQuestions$: Observable<number>;
-  totalQuestionsSubject = new Subject<number>();
+  totalQuestionsSubject = new BehaviorSubject<number>(0);
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
