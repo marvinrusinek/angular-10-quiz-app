@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { Howl } from 'howler';
@@ -14,7 +14,7 @@ export class QuizService {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
   answers: number[];
-  totalQuestions: number;
+  @Input() totalQuestions: number;
   currentQuestionIndex = 1;
   correctAnswersForEachQuestion = [];
   correctAnswers = [];
@@ -46,7 +46,7 @@ export class QuizService {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    this.totalQuestions = this.numberOfQuestions();
+    // this.totalQuestions = this.numberOfQuestions();
     this.hasAnswer = true;
 
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -65,7 +65,7 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
-    this.question = this.getQuestions()[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
+    this.question = this.quizD[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
     this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' was correct because ' + this.question.explanation + '.';
