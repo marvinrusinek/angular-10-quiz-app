@@ -32,8 +32,6 @@ export class ScoreboardComponent implements OnInit, OnChanges {
         this.timerService.resetTimer();
       }
     });
-
-    /this.totalQuestions = this.quizService.numberOfQuestions();
   }
 
   ngOnChanges(changes: SimpleChanges) {
