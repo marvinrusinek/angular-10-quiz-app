@@ -160,7 +160,7 @@ export class QuizComponent implements OnInit {
     this.quizService.sendCorrectCountToResults(this.correctCount);
   }
 
-  sendTotalQuestionstToQuizService(value: number): void {
+  sendTotalQuestionsToQuizService(value: number): void {
     this.totalQuestions = value;
     this.quizService.sendTotalQuestionsToScore(this.totalQuestions);
   }

@@ -107,7 +107,7 @@ export class QuizService {
     this.correctAnswersCountSubject.next(value);
   }
 
-  sendTotalQuestionsToScore(value: number) {
+  sendTotalQuestionsToScore(value: number): void {
     this.totalQuestionsSubject.next(value);
   }
 
