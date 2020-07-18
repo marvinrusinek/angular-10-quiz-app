@@ -46,9 +46,9 @@ export class ResultsComponent implements OnInit {
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
 
-  CONGRATULATIONS = '../../assets/images/congratulations.jpg';
-  NOT_BAD = '../../assets/images/notbad.jpg';
-  TRY_AGAIN = '../../assets/images/tryagain.jpeg';
+  CONGRATULATIONS = 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/congratulations.jpg';
+  NOT_BAD = 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/not-bad.jpg';
+  TRY_AGAIN = 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/try-again.jpeg';
   codelabUrl = 'https://www.codelab.fun';
 
   constructor(
