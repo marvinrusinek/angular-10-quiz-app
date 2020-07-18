@@ -4,7 +4,17 @@
   margin-top: 10px;
 
   .row {
-    display: inline;
+    display: inline-flex;
+  }
+
+  .scoreboard-score {
+    float: left;
+    margin-left: 1rem;
+  }
+
+  .scoreboard-time {
+    float: left;
+    margin-left: 0.7rem;
   }
 
   .badge {
