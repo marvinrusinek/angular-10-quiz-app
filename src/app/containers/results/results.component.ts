@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
 import { Result } from '../../shared/models/Result.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -29,6 +30,7 @@ export class ResultsComponent implements OnInit {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
+  quizName = '';
   correctAnswers: number[] = [];
   elapsedMinutes: number;
   elapsedSeconds: number;
@@ -44,12 +46,16 @@ export class ResultsComponent implements OnInit {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
+    private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
     this.calculateElapsedTime();
   }
 
   ngOnInit() {
+    this.activatedRoute.url.subscribe(segments => {
+      this.quizName = segments[1].toString();
+    });
     this.correctAnswers = this.quizService.correctAnswers;
   }
 
