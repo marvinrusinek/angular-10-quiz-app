@@ -108,18 +108,15 @@ mat-card-header {
         mat-panel-title {
           background-color: $light-gray !important;
           color: $black !important;
-          white-space: nowrap;
 
           .question-leader {
             font-weight: $font-weight-max;
             color: $darker-blue;
-            white-space: nowrap;
           }
           .question-text {
             font-weight: 700;
             font-style: italic;
             color: $black;
-            word-break: break-all;
           }
         }
 
