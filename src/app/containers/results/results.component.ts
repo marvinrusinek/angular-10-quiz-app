@@ -20,6 +20,7 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ResultsComponent implements OnInit {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
+
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
@@ -30,9 +31,11 @@ export class ResultsComponent implements OnInit {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
+
   quizName = '';
   quizId: string;
   indexOfQuizId: number;
+  
   correctAnswers: number[] = [];
   elapsedMinutes: number;
   elapsedSeconds: number;
