@@ -112,7 +112,8 @@ mat-card-header {
           .question-leader {
             font-weight: $font-weight-max;
             color: $darker-blue;
-            
+            white-space: nowrap;
+
           }
           .question-text {
             font-weight: 700;
