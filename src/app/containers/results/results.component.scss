@@ -119,7 +119,7 @@ mat-card-header {
             font-weight: 700;
             font-style: italic;
             color: $black;
-            white-space: wrap;
+            word-break: break-all;
           }
         }
 
