@@ -68,7 +68,7 @@ export class ResultsComponent implements OnInit {
     });
     this.correctAnswers = this.quizService.correctAnswers;
     this.questions = this.quizService.questions;
-    /this.resources = this.quizService.resources;
+    // this.resources = this.quizService.resources;
   }
 
   calculateElapsedTime(): void {

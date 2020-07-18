@@ -76,7 +76,11 @@ export class QuizComponent implements OnInit {
       if (params.questionIndex) {
         this.questionIndex = parseInt(params.questionIndex, 0);
         this.quizService.currentQuestionIndex = this.questionIndex;
+
         this.getQuestion();
+        this.getQuestions();
+        this.getQuizId();
+        // this.getResources();
 
         if (this.questionIndex === 1) {
           this.progressValue = 0;
