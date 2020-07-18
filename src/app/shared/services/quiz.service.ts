@@ -86,16 +86,16 @@ export class QuizService {
     }
   }
 
-  setQuizId(value: string): void {
-    this.quizId = value;
+  setQuizId(quizId: string): void {
+    this.quizId = quizId;
   }
 
-  setQuestion(value: QuizQuestion): void {
-    this.question = value;
+  setQuestion(question: QuizQuestion): void {
+    this.question = question;
   }
 
-  setTotalQuestions(value: number): void {
-    this.totalQuestions = value;
+  setTotalQuestions(totalQuestions: number): void {
+    this.totalQuestions = totalQuestions;
   }
 
   sendCorrectCountToResults(value: number): void {
