@@ -133,7 +133,7 @@ export class QuizComponent implements OnInit {
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answers = null;
-    this.router.navigate(['/intro']).then();
+    this.router.navigate(['/question/, this.quizId, 1']).then();
   }
 
   checkIfAnsweredCorrectly() {
