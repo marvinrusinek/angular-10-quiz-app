@@ -31,6 +31,8 @@ export class ResultsComponent implements OnInit {
     elapsedTimes: this.timerService.elapsedTimes
   };
   quizName = '';
+  quizId: string;
+  indexOfQuizId: numbe
   correctAnswers: number[] = [];
   elapsedMinutes: number;
   elapsedSeconds: number;
@@ -49,6 +51,8 @@ export class ResultsComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
     this.calculateElapsedTime();
   }
 
