@@ -21,7 +21,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
-  quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
+  // quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
 
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
@@ -34,6 +34,7 @@ export class ResultsComponent implements OnInit {
     elapsedTimes: this.timerService.elapsedTimes
   };
   questions: QuizQuestion[];
+  // resources: Resource[];
   quizName = '';
   quizId: string;
   indexOfQuizId: number;
@@ -67,6 +68,7 @@ export class ResultsComponent implements OnInit {
     });
     this.correctAnswers = this.quizService.correctAnswers;
     this.questions = this.quizService.questions;
+    /this.resources = this.quizService.resources;
   }
 
   calculateElapsedTime(): void {
