@@ -32,7 +32,7 @@ export class ResultsComponent implements OnInit {
   };
   quizName = '';
   quizId: string;
-  indexOfQuizId: numbe
+  indexOfQuizId: number;
   correctAnswers: number[] = [];
   elapsedMinutes: number;
   elapsedSeconds: number;

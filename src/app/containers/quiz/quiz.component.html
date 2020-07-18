@@ -90,7 +90,7 @@
           [animated]="true"
           [value]="progressValue"
           class="progress-bar bg-info">
-            <strong>{{ progressValue }}%</strong>
+            <strong>{{ progressValue.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
