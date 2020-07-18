@@ -13,6 +13,7 @@ import { TimerService } from './timer.service';
 export class QuizService {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
+  questions: QuizQuestion[];
   answers: number[];
   totalQuestions: number;
   currentQuestionIndex = 1;
@@ -86,10 +87,6 @@ export class QuizService {
     }
   }
 
-  setQuizId(quizId: string): void {
-    this.quizId = quizId;
-  }
-
   setQuestion(question: QuizQuestion): void {
     this.question = question;
   }
@@ -97,6 +94,14 @@ export class QuizService {
   setQuestions(questions: QuizQuestion[]): void {
     this.questions = questions;
   }
+
+  setQuizId(quizId: string): void {
+    this.quizId = quizId;
+  }
+
+  /* setResources(resources: Resource[]): void {
+    this.resources = resources;
+  } */
 
   setTotalQuestions(totalQuestions: number): void {
     this.totalQuestions = totalQuestions;

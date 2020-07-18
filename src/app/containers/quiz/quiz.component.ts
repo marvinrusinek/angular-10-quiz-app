@@ -3,9 +3,11 @@ import { animate, style, transition, trigger, keyframes } from '@angular/animati
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-import { QUIZ_DATA } from '../../shared/quiz';
+import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { Resource } from '@codelab-quiz/shared/models/Resource.model';
+import { QuizResource } from '@codelab-quiz/shared/models/QuizResource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -31,8 +33,10 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizComponent implements OnInit {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   quizName = '';
+  // quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
   question: QuizQuestion;
   questions: QuizQuestion[];
+  // resources: Resource[];
   answers: number[] = [];
   questionIndex: number;
   totalQuestions: number;
@@ -97,12 +101,21 @@ export class QuizComponent implements OnInit {
   private getQuestion() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
+  }
 
+  private getQuestions() {
     this.questions = this.quizData[this.indexOfQuizId].questions;
     this.quizService.setQuestions(this.questions);
-    
+  }
+
+  private getQuizId() {
     this.quizService.setQuizId(this.quizId);
   }
+
+  /* private getResources() {
+    this.resources = this.quizResources[this.indexOfQuizId].resources;
+    this.quizService.setResources(this.resources);
+  } */
 
   selectedAnswer(data) {
     const correctAnswers = this.question.options.filter((options) => options.correct);
