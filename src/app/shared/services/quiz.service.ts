@@ -27,9 +27,8 @@ export class QuizService {
   correctMessage: string;
   hasAnswer: boolean;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  quizId: string;
   indexOfQuizId: number;
-  totalQuestions$: Observable<number>;
-  totalQuestionsSubject = new BehaviorSubject<number>(0);
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -48,8 +47,8 @@ export class QuizService {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === quizId);
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === this.quizId);
     this.hasAnswer = true;
   }
 
@@ -104,13 +103,13 @@ export class QuizService {
   navigateToNextQuestion() {
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question', questionIndex]).then();
+    this.router.navigate(['/question', this.quizId, questionIndex]).then();
     this.resetAll();
     this.timerService.resetTimer();
   }
 
   navigateToPreviousQuestion() {
-    this.router.navigate(['/question', this.currentQuestionIndex - 1]).then();
+    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex - 1]).then();
     this.resetAll();
   }
 
