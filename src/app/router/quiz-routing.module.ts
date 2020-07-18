@@ -9,9 +9,8 @@ import { ResultsComponent } from '../containers/results/results.component';
 const routes: Routes = [
   { path: '', redirectTo: 'select', pathMatch: 'full' },
   { path: 'select', component: QuizSelectionComponent, pathMatch: 'full' },
-  { path: 'intro', component: IntroductionComponent, pathMatch: 'full' },
   { path: 'intro/:quizId', component: IntroductionComponent, pathMatch: 'full' },
-  { path: 'question', component: QuizComponent, pathMatch: 'full' },
+
   { path: 'question/:quizId/:questionIndex', component: QuizComponent, pathMatch: 'full' },
   { path: 'results', component: ResultsComponent, pathMatch: 'full' }
 ];
