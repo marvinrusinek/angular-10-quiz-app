@@ -18,8 +18,8 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResultsComponent implements OnInit {
-  quizData: Quiz = JSON.parse(JSON.stringify(QUIZ_DATA));
-  quizResources = QUIZ_RESOURCES;
+  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
+  quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
