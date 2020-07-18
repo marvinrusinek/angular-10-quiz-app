@@ -116,7 +116,7 @@ export class QuizService {
   }
 
   navigateToResults() {
-    this.router.navigate(['/results']).then();
+    this.router.navigate(['/results', this.quizId]).then();
   }
 
   resetAll() {
