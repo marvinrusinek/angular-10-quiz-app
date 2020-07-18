@@ -4,6 +4,7 @@ import { MatAccordion } from '@angular/material/expansion';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
 import { Result } from '../../shared/models/Result.model';
@@ -31,7 +32,7 @@ export class ResultsComponent implements OnInit {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
-
+  questions: QuizQuestion[];
   quizName = '';
   quizId: string;
   indexOfQuizId: number;
@@ -64,6 +65,7 @@ export class ResultsComponent implements OnInit {
       this.quizName = segments[1].toString();
     });
     this.correctAnswers = this.quizService.correctAnswers;
+    this.questions = this.quizService.questions;
   }
 
   calculateElapsedTime(): void {

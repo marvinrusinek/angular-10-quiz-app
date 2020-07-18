@@ -94,6 +94,10 @@ export class QuizService {
     this.question = question;
   }
 
+  setQuestions(questions: QuizQuestion[]): void {
+    this.questions = questions;
+  }
+
   setTotalQuestions(totalQuestions: number): void {
     this.totalQuestions = totalQuestions;
   }

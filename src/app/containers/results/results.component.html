@@ -36,13 +36,13 @@
                   i18n-title title="Try Again">
               <h3 i18n>Try again!</h3>
               <p i18n>Brush up your knowledge of {{ quiz?.milestone }} with these valuable resources:</p>
-              <ul class="resources" *ngFor="let resource of quizResources[quiz.quizId]?.resources">
+              <!-- <ul class="resources" *ngFor="let resource of quizResources[quiz.quizId]?.resources">
                 <li i18n>
                   <a href={{resource?.url}} target="_blank">
                     <em>{{ resource?.title }}</em>
                   </a>, {{ resource?.host }}
                 </li>
-              </ul>
+              </ul> -->
             </div>
           </div>
 
@@ -69,7 +69,7 @@
             <mat-accordion [multi]="true" #accordion="matAccordion">
               <mat-expansion-panel
                 class="quiz-summary-question"
-                *ngFor="let question of quizData[quiz.quizId]?.questions; let i = index"
+                *ngFor="let question of questions; let i = index"
                 (opened)="panelOpenState = true" (closed)="panelOpenState = false" hideToggle="true">
 
                 <mat-expansion-panel-header>

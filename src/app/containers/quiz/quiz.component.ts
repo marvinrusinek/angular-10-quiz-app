@@ -32,6 +32,7 @@ export class QuizComponent implements OnInit {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   quizName = '';
   question: QuizQuestion;
+  questions: QuizQuestion[];
   answers: number[] = [];
   questionIndex: number;
   totalQuestions: number;
@@ -96,6 +97,10 @@ export class QuizComponent implements OnInit {
   private getQuestion() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
+
+    this.questions = this.quizData[this.indexOfQuizId].questions;
+    this.quizService.setQuestions(this.questions);
+    
     this.quizService.setQuizId(this.quizId);
   }
 
