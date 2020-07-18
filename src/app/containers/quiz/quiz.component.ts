@@ -94,6 +94,7 @@ export class QuizComponent implements OnInit {
 
   private getQuestion() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
+    this.quizService.setQuestion(this.question);
   }
 
   selectedAnswer(data) {

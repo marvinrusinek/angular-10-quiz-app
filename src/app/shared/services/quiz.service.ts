@@ -53,10 +53,6 @@ export class QuizService {
     this.hasAnswer = true;
   }
 
-  setTotalQuestions(value: number): void {
-    this.totalQuestions = value;
-  }
-
   getCorrectAnswers(question: QuizQuestion) {
     const identifiedCorrectAnswers = question.options.filter(item => item.correct);
     this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
@@ -69,8 +65,6 @@ export class QuizService {
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
-    this.question = this.quizData[this.indexOfQuizId].questions[this.currentQuestionIndex - 1];
-    this.hasAnswer = true;
     if (correctAnswers[0][0]) {
       this.explanation = ' was correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0];
@@ -95,24 +89,16 @@ export class QuizService {
     }
   }
 
-  /*
-   * public API
-   */
-/*  getQuestions() {
-    return { ...this.quizData };
+  setQuestion(value: QuizQuestion): void {
+    this.question = value;
   }
 
-  numberOfQuestions(): number {
-    return (this.quizData && this.getQuestions()[this.indexOfQuizId].questions) ? this.getQuestions()[this.indexOfQuizId].questions.length : 0;
-    // return (this.quizData && this.quizData[this.indexOfQuizId].questions) ? this.quizData[this.indexOfQuizId].questions.length : 0;
-  } */ 
+  setTotalQuestions(value: number): void {
+    this.totalQuestions = value;
+  }
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
-  }
-
-  sendTotalQuestionsToScore(value: number): void {
-    this.totalQuestionsSubject.next(value);
   }
 
   navigateToNextQuestion() {
