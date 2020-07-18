@@ -40,6 +40,7 @@ export class QuizComponent implements OnInit {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
+  quizId: string;
   indexOfQuizId: number;
 
   paging = {
@@ -56,8 +57,8 @@ export class QuizComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === quizId);
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
 
     this.activatedRoute.url.subscribe(segments => {
       this.quizName = segments[1].toString();
@@ -95,6 +96,7 @@ export class QuizComponent implements OnInit {
   private getQuestion() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
+    this.quizService.setQuizId(this.quizId);
   }
 
   selectedAnswer(data) {

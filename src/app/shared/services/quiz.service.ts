@@ -44,11 +44,9 @@ export class QuizService {
 
   constructor(
     private timerService: TimerService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex((el) => el.quizId === this.quizId);
     this.hasAnswer = true;
   }
 
@@ -86,6 +84,10 @@ export class QuizService {
       this.explanationText = 'All were correct!';
       this.correctMessage = 'All were correct!';
     }
+  }
+
+  setQuizId(value: string): void {
+    this.quizId = value;
   }
 
   setQuestion(value: QuizQuestion): void {
