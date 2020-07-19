@@ -45,23 +45,23 @@
           </summary>
 
           <div class="status-icon">
-            <span *ngIf="!quizCompleted"
-                  [routerLink]="['/intro/', quiz.quizId]"
-                  class="icon" matTooltip="Start">
+            <span class="icon" matTooltip="Start"
+                  *ngIf="!quizCompleted"
+                  [routerLink]="['/intro/', quiz.quizId]">
               <svg viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.start" />
               </svg>
             </span>
-            <span *ngIf="currentQuestionIndex > 0 && currentQuestionIndex < totalQue"
-                  [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]"
-                  class="icon" matTooltip="Continue">
+            <span class="icon" matTooltip="Continue" 
+                  *ngIf="currentQuestionIndex > 0 && currentQuestionIndex < totalQue"
+                  [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
               <svg viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.continue" />
               </svg>
             </span>
-            <span *ngIf="quizCompleted"
-                  [routerLink]="['/results/', quiz.quizId]"
-                  class="icon" matTooltip="Results">
+            <span class="icon" matTooltip="Results"
+                  *ngIf="quizCompleted"
+                  [routerLink]="['/results/', quiz.quizId]">
               <svg viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.results" />
               </svg>
