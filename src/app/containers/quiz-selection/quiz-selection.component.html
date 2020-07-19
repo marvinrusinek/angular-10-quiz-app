@@ -34,7 +34,7 @@
         <mat-grid-tile
           (click)="onClick()"
           *ngFor="let quiz of quizData"
-          [routerLink]="['/quiz/intro/', quiz.quizId]"
+          [routerLink]="['/intro/', quiz.quizId]"
           [ngClass]="{ 'done': currentQuestionIndex === POSITIVE_INFINITY }"
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }">
