@@ -12,10 +12,11 @@ import { QuizService } from '../../shared/services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit {
+  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   currentQuestionIndex: number;
   totalQuestions: number;
-  quizData: Quiz[] = QUIZ_DATA;
   quizId: string;
+  quizCompleted: boolean;
   POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
 
   quizStatus = {
@@ -35,6 +36,7 @@ export class QuizSelectionComponent implements OnInit {
   ngOnInit(): void {
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
+    this.quizCompleted = this.quizService.quizCompleted;
   }
 
   onClick() {

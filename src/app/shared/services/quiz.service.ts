@@ -113,7 +113,7 @@ export class QuizService {
   }
 
   navigateToNextQuestion() {
-      this.quizCompleted = false;
+    this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question', this.quizId, questionIndex]).then();

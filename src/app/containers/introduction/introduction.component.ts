@@ -12,7 +12,7 @@ import { Quiz } from '../../shared/models/Quiz.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IntroductionComponent implements OnInit {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   quizName: String = '';
 
   constructor(private route: ActivatedRoute) { }
