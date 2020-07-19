@@ -12,7 +12,7 @@
         </div>
         <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 info">
           <a href="https://github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun" target="_blank">
-            <mat-icon class="info">info</mat-icon>
+            <i class="material-icons">info</i>
           </a>
         </div>
       </div>
@@ -24,7 +24,7 @@
         <mat-menu #menu="matMenu">
           <div *ngFor="let quiz of quizData">
             <button mat-menu-item
-                    [routerLink]="['/intro/', quiz.quizId]"
+                    [routerLink]="['/quiz/intro/', quiz.quizId]"
                     data-i18n="quiz.milestone">{{ quiz.milestone }}</button>
           </div>
         </mat-menu>
@@ -32,35 +32,36 @@
 
       <mat-grid-list cols="3" rowHeight="370px">
         <mat-grid-tile
-          *ngFor="let quiz of quizData"
-          [routerLink]="['/intro/', quiz.quizId]"
           (click)="onClick()"
+          *ngFor="let quiz of quizData"
+          [routerLink]="['/quiz/intro/', quiz.quizId]"
           [ngClass]="{ 'done': currentQuestionIndex === POSITIVE_INFINITY }"
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }">
-
-          <!-- display quiz status icon in top right corner -->
-          <span *ngIf="currentQuestionIndex === 0" class="icon" matTooltip="Start">
-            <svg viewBox="0 0 24 24">
-              <path [attr.d]="quizStatus.start" />
-            </svg>
-          </span>
-          <span *ngIf="currentQuestionIndex > 0 && currentQuestionIndex < POSITIVE_INFINITY" class="icon"
-                matTooltip="Continue">
-            <svg viewBox="0 0 24 24">
-              <path [attr.d]="quizStatus.continue" />
-            </svg>
-          </span>
-          <span *ngIf="currentQuestionIndex === POSITIVE_INFINITY" class="icon" matTooltip="Evaluation">
-            <svg viewBox="0 0 24 24">
-              <path [attr.d]="quizStatus.evaluation" />
-            </svg>
-          </span>
-
           <summary class="quiz-info">
             <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
-            <h6 class="quiz-subtitle" i18n>{{ quiz.summary }}</h6>
+            <h6 class="quiz-subtitle text-justify" i18n>{{ quiz.summary }}</h6>
           </summary>
+
+          <!-- display quiz status icon in top right corner -->
+          <div class="status-icon">
+            <span *ngIf="currentQuestionIndex === 0" class="icon" matTooltip="Start">
+              <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+                <path [attr.d]="quizStatus.start" />
+              </svg>
+            </span>
+            <span *ngIf="currentQuestionIndex > 0 && currentQuestionIndex < POSITIVE_INFINITY" class="icon"
+                  matTooltip="Continue">
+              <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+                <path [attr.d]="quizStatus.continue" />
+              </svg>
+            </span>
+            <span *ngIf="currentQuestionIndex === totalQuestions" class="icon" matTooltip="Evaluation">
+              <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+                <path [attr.d]="quizStatus.evaluation" />
+              </svg>
+            </span>
+          </div>
         </mat-grid-tile>
       </mat-grid-list>
     </mat-card-content>

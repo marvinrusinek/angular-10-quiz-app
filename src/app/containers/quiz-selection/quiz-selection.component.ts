@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
+import { QUIZ_DATA } from '../.shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QUIZ_DATA } from '../../shared/quiz';
+import { QuizService } from "../../shared/services/quiz.service";
 
 @Component({
   selector: 'codelab-quiz-selection',
@@ -12,8 +13,10 @@ import { QUIZ_DATA } from '../../shared/quiz';
 })
 export class QuizSelectionComponent implements OnInit {
   @Input() quiz: Quiz;
-  @Input() currentQuestionIndex: number;
+  currentQuestionIndex: number;
+  totalQuestions: number;
   quizData: Quiz[] = QUIZ_DATA;
+  quizId: string;
   POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
 
   quizStatus = {
@@ -22,16 +25,26 @@ export class QuizSelectionComponent implements OnInit {
     evaluation: 'M0.41,13.41L6,19L7.41,17.58L1.83,12M22.24,5.58L11.66,16.17L7.5,12L6.07,13.41L11.66,19L23.66,7M18,7L16.59,5.58L10.24,11.93L11.66,13.34L18,7Z'
   };
 
-  constructor(private router: Router) { }
-  ngOnInit(): void { }
+  constructor(
+    private quizService: QuizService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router
+  ) {
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+  }
 
-  onClick(): void {
+  ngOnInit(): void {
+    this.currentQuestionIndex = this.quizService.currentQuestionIndex;
+    this.totalQuestions = this.quizService.totalQuestions;
+  }
+
+  onClick() {
     if (this.currentQuestionIndex < Number.POSITIVE_INFINITY) {
       // start or continue
-      this.router.navigate(['/question/', this.quiz.quizId, this.currentQuestionIndex]).then();
+      this.router.navigate(['/quiz/question/', this.quiz.quizId, this.currentQuestionIndex]).then();
     } else if (this.currentQuestionIndex === Number.POSITIVE_INFINITY) {
       // evaluation
-      this.router.navigate(['/question/', this.quiz.quizId, 'evaluation']).then();
+      this.router.navigate(['/quiz/question/', this.quiz.quizId, 'evaluation']).then();
     }
   }
 }
