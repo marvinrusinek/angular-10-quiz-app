@@ -30,6 +30,7 @@ export class QuizService {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   quizId: string;
   indexOfQuizId: number;
+  quizCompleted: boolean;
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -112,6 +113,7 @@ export class QuizService {
   }
 
   navigateToNextQuestion() {
+      this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question', this.quizId, questionIndex]).then();
@@ -120,11 +122,13 @@ export class QuizService {
   }
 
   navigateToPreviousQuestion() {
+    this.quizCompleted = false;
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex - 1]).then();
     this.resetAll();
   }
 
   navigateToResults() {
+    this.quizCompleted = true;
     this.router.navigate(['/results', this.quizId]).then();
   }
 
