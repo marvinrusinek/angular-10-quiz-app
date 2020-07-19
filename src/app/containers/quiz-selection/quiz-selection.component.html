@@ -59,7 +59,7 @@
                 <path [attr.d]="quizStatus.continue" />
               </svg>
             </span>
-            <span *ngIf="currentQuestionIndex === totalQuestions"
+            <span *ngIf="quizCompleted"
                   [routerLink]="['/results/', quiz.quizId]"
                   class="icon" matTooltip="Results">
               <svg viewBox="0 0 24 24">
