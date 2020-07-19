@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -27,13 +27,11 @@ export class QuizSelectionComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-  }
+  ) { }
 
   ngOnInit(): void {
+    this.quizId = this.quizService.quizId;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
     this.quizCompleted = this.quizService.quizCompleted;
