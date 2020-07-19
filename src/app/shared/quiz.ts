@@ -110,9 +110,9 @@ export const QUIZ_DATA: Quiz[] = [
         questionText: 'What characters are used for text interpolation?',
         options: [
           { text: 'backticks: ``', correct: true },
-          { text: 'double curlies {{ }}' },
-          { text: 'double ampersand &&' },
-          { text: 'double pipes ||' }
+          { text: 'double curlies: {{ }}' },
+          { text: 'double ampersand: &&' },
+          { text: 'double pipes: ||' }
         ],
         explanation: 'backticks are used in Angular for insertion of text'
       },
