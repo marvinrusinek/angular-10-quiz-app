@@ -5,7 +5,7 @@ export const QUIZ_DATA: Quiz[] = [
   {
     quizId: 'typescript',
     milestone: 'TypeScript',
-    summary: 'TypeScript makies it easier to read and debug JavaScript code.',
+    summary: 'TypeScript makes it easier to read and debug JavaScript code.',
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/ts.png',
     questions: [
       {
