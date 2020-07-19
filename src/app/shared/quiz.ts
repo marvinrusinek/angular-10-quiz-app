@@ -5,7 +5,7 @@ export const QUIZ_DATA: Quiz[] = [
   {
     quizId: 'typescript',
     milestone: 'TypeScript',
-    summary: 'TypeScript simplifies JavaScript code, making it easier to read and debug.',
+    summary: 'TypeScript makies it easier to read and debug JavaScript code.',
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/ts.png',
     questions: [
       {
@@ -107,14 +107,104 @@ export const QUIZ_DATA: Quiz[] = [
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/template.png',
     questions: [
       {
-        questionText: '',
+        questionText: 'What characters are used for text interpolation?',
         options: [
-          { text: 'Option1', correct: true },
-          { text: 'Option2' },
-          { text: 'Option3' },
-          { text: 'Option4' }
+          { text: 'backticks: ``', correct: true },
+          { text: 'double curlies {{ }}' },
+          { text: 'double ampersand &&' },
+          { text: 'double pipes ||' }
         ],
-        explanation: 'Option1 and Option2 are correct'
+        explanation: 'backticks are used in Angular for insertion of text'
+      },
+      {
+        questionText: 'Which characters are used to include a property value? {{}}',
+        options: [
+          { text: 'backticks: ``' },
+          { text: 'double curlies {{ }}', correct: true },
+          { text: 'double ampersand &&' },
+          { text: 'double pipes ||' }
+        ],
+        explanation: 'double curlies are used to insert a property value inside a template'
+      },
+      {
+        questionText: 'How can you pass a value to a child element\'s attribute?',
+        options: [
+          { text: 'Use string interpolation {{ property }}', correct: true },
+          { text: 'call a function' },
+          { text: 'using the export keyword' },
+          { text: '[attribute]="property"', correct: true }
+        ],
+        explanation: 'properties can be based to a child element using string interpolation or [attribute]="property" syntax'
+      },
+      {
+        questionText: 'Which is a shortcut for applying a class name based on value of property?',
+        options: [
+          { text: '{{ property }}' },
+          { text: '``property``' },
+          { text: '[class.property]="isProperty"', correct: true },
+          { text: 'property$' }
+        ],
+        explanation: 'we use the [class.property] syntax to assign a class name based on a value of property.'
+      },
+      {
+        questionText: 'What is the proper way to bind styles to a button in Angular?',
+        options: [
+          { text: '<button {{style}}></button>' },
+          { text: '<button style="color: blue"' },
+          { text: '<button [style.color]="blue">', correct: true },
+          { text: '<button>insert style ligature</button>' }
+        ],
+        explanation: '[style.styleProperty] is the way of binding a style to an element in Angular'
+      },
+      {
+        questionText: 'Which of the following are examples of event bindings in Angular?',
+        options: [
+          { text: '[click]' },
+          { text: '@click' },
+          { text: '(click)', correct: true },
+          { text: 'on-click', correct: true }
+        ],
+        explanation: '(click) and its HTML equivalent \'on-click\' are examples of event bindings'
+      },
+      {
+        questionText: 'How do we provide access to an HTML element or Angular component from the template?',
+        options: [
+          { text: 'Use attribute binding [attr]="name"' },
+          { text: 'Use backticks' },
+          { text: 'Use double curlies' },
+          { text: 'Mark it with #name', correct: true }
+        ],
+        explanation: 'marking it with #name is the way to access the HTML element from an Angular template'
+      },
+      {
+        questionText: 'What mechanism does Angular provide for handling keyboard shortcuts?',
+        options: [
+          { text: 'event binding' },
+          { text: 'data binding' },
+          { text: 'text interpolation' },
+          { text: '(keydown.control.enter)', correct: true }
+        ],
+        explanation: '(keydown.control.enter) is Angular\'s syntax for handling keyboard shortcuts'
+      },
+      {
+        questionText: 'Which directive adds or removes an element from the DOM?',
+        options: [
+          { text: '*ngFor' },
+          { text: '*ngIf', correct: true },
+          { text: '*ngSwitch' },
+          { text: '[ngStyle]' }
+        ],
+        explanation: 'ngIf is used to conditionally add or remove an element from the DOM'
+      },
+      {
+        questionText: 'Which directive can be used to display an array of cat images?',
+        options: [
+          { text: '*ngFor', correct: true },
+          { text: '*ngIf' },
+          { text: '*ngSwitch' },
+          { text: '[ngStyle]' }
+        ],
+        explanation: 'the ngFor directive is used to display entire arrays or objects'
       }
     ]
   },
