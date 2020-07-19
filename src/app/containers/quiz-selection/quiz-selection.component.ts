@@ -44,7 +44,7 @@ export class QuizSelectionComponent implements OnInit {
       this.router.navigate(['/quiz/question/', this.quiz.quizId, this.currentQuestionIndex]).then();
     } else if (this.currentQuestionIndex === Number.POSITIVE_INFINITY) {
       // evaluation
-      this.router.navigate(['/quiz/question/', this.quiz.quizId, 'evaluation']).then();
+      this.router.navigate(['/quiz/results/', this.quiz.quizId]).then();
     }
   }
 }

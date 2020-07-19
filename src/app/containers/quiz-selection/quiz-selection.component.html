@@ -35,29 +35,34 @@
           (click)="onClick()"
           *ngFor="let quiz of quizData"
           [routerLink]="['/intro/', quiz.quizId]"
-          [ngClass]="{ 'done': currentQuestionIndex === POSITIVE_INFINITY }"
+          [ngClass]="{ 'completed': currentQuestionIndex === totalQuestions }"
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }">
+
           <summary class="quiz-info">
             <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
             <h6 class="quiz-subtitle text-justify" i18n>{{ quiz.summary }}</h6>
           </summary>
 
-          <!-- display quiz status icon in top right corner -->
           <div class="status-icon">
-            <span *ngIf="currentQuestionIndex === 0" class="icon" matTooltip="Start">
-              <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+            <span *ngIf="currentQuestionIndex === 0"
+                  [routerLink]="['/intro', quiz.quizId]"
+                  class="icon" matTooltip="Start">
+              <svg style="width: 24px; height: 24px" viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.start" />
               </svg>
             </span>
-            <span *ngIf="currentQuestionIndex > 0 && currentQuestionIndex < POSITIVE_INFINITY" class="icon"
-                  matTooltip="Continue">
-              <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+            <span *ngIf="currentQuestionIndex > 0 && currentQuestionIndex < POSITIVE_INFINITY"
+                  [routerLink]="['/questions/', quiz.quizId, currentQuestionIndex]"
+                  class="icon" matTooltip="Continue">
+              <svg style="width: 24px; height: 24px" viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.continue" />
               </svg>
             </span>
-            <span *ngIf="currentQuestionIndex === totalQuestions" class="icon" matTooltip="Evaluation">
-              <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+            <span *ngIf="currentQuestionIndex === totalQuestions"
+                  [routerLink]="['/results/', quiz.quizId]"
+                  class="icon" matTooltip="Evaluation">
+              <svg style="width: 24px; height: 24px" viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.evaluation" />
               </svg>
             </span>
