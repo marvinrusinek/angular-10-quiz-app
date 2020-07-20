@@ -289,7 +289,6 @@ export const QUIZ_DATA: Quiz[] = [
           { text: 'if they are passed to each other' },
           { text: 'using export' },
           { text: 'using property binding' }
-  
         ],
         explanation: 'components can only know about each other if they are declared in the same module'
       },
@@ -301,7 +300,7 @@ export const QUIZ_DATA: Quiz[] = [
           { text: 'Using @Component' },
           { text: 'Using @Injectable' }
         ],
-        explanation: 'properties must be decorated with @Input() in a child to pass data to its parent'
+        explanation: 'properties must be decorated with @Input() in a child in order to pass data to its parent'
       }
     ]
   },
