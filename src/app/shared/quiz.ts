@@ -285,10 +285,11 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'How do components know about each other?',
         options: [
-          { text: 'If they are declared in the same module.', correct: true },
+          { text: 'if they are declared in the same module.', correct: true },
+          { text: 'if they are passed to each other' },
           { text: 'using export' },
-          { text: 'using property binding' },
-          { text: 'if they are passed to each other' }
+          { text: 'using property binding' }
+  
         ],
         explanation: 'components can only know about each other if they are declared in the same module'
       },
