@@ -297,8 +297,8 @@ export const QUIZ_DATA: Quiz[] = [
         options: [
           { text: 'Using the @Input() decorator', correct: true },
           { text: 'Using the @Output() decorator' },
-          { text: 'Using @Component' },
-          { text: 'Using @Injectable' }
+          { text: 'Using the @Injectable decorator' },
+          { text: 'Using the @Component decorator' }
         ],
         explanation: 'properties must be decorated with @Input() in a child in order to pass data to its parent'
       }
