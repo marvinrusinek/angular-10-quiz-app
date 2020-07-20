@@ -1,5 +1,5 @@
 <ng-container *ngIf="quizData.length > 0">
-  <mat-card>
+  <mat-card class="container row col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
     <mat-card-header>
       <div class="container">
         <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 logo">
@@ -30,7 +30,7 @@
         </mat-menu>
       </mat-toolbar>
 
-      <mat-grid-list cols="3" rowHeight="370px" class="container row">
+      <mat-grid-list cols="3" rowHeight="370px">
         <mat-grid-tile
           (click)="onClick()"
           *ngFor="let quiz of quizData"
@@ -38,7 +38,7 @@
           [ngClass]="{ 'completed': currentQuestionIndex === totalQuestions }"
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }"
-          class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+          class="container row col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
 
           <summary class="quiz-info">
             <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
