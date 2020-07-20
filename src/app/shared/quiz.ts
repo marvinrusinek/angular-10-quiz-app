@@ -263,14 +263,44 @@ export const QUIZ_DATA: Quiz[] = [
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/tree.png',
     questions: [
       {
-        questionText: '',
+        questionText: 'How does a parent component pass data to its child component?',
         options: [
-          { text: 'Option1', correct: true },
-          { text: 'Option2' },
-          { text: 'Option3' },
-          { text: 'Option4' }
+          { text: 'Using data binding' },
+          { text: 'Using functions' },
+          { text: 'Using properties', correct: true },
+          { text: 'Using DOM manipulation' }
         ],
-        explanation: ''
+        explanation: 'a parent component can pass data to its child via properties'
+      },
+      {
+        questionText: 'How can one component render another one?',
+        options: [
+          { text: 'using an HTML element that matches selector of other component', correct: true },
+          { text: 'using data binding' },
+          { text: 'using properties' },
+          { text: 'passing components via functions' }
+        ],
+        explanation: 'a component can display another component by matching the selector of the other component'
+      },
+      {
+        questionText: 'How do components know about each other?',
+        options: [
+          { text: 'If they are declared in the same module.', correct: true },
+          { text: 'using export' },
+          { text: 'using property binding' },
+          { text: 'if they are passed to each other' }
+        ],
+        explanation: 'components can only know about each other if they are declared in the same module'
+      },
+      {
+        questionText: 'How must a child decorate its properties to pass data?',
+        options: [
+          { text: 'Using the @Input() decorator', correct: true },
+          { text: 'Using the @Output() decorator' },
+          { text: 'Using @Component' },
+          { text: 'Using @Injectable' }
+        ],
+        explanation: 'properties must be decorated with @Input() in a child to pass data to its parent'
       }
     ]
   },
