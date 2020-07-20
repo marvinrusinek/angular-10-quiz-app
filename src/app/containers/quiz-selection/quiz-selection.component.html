@@ -37,7 +37,8 @@
           [routerLink]="['/intro/', quiz.quizId]"
           [ngClass]="{ 'completed': currentQuestionIndex === totalQuestions }"
           [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
-                       'background-size': '300px 210px' }">
+                       'background-size': '300px 210px' }"
+          class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
 
           <summary class="quiz-info">
             <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
