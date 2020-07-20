@@ -275,7 +275,7 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'How can one component render another one?',
         options: [
-          { text: 'using HTML element that matches selector', correct: true },
+          { text: 'using an HTML element that matches selector of other component', correct: true },
           { text: 'using data binding' },
           { text: 'using properties' },
           { text: 'passing components via functions' }

@@ -43,6 +43,10 @@ ol li {
     }
   }
 
+  mat-radio-label, mat-checkbox-label {
+    white-space: normal;
+  }
+
   .feedback-icon {
     position: absolute;
     right: 0;

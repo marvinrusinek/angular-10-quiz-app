@@ -9,7 +9,9 @@
         [class.is-correct]="option.selected && option.correct"
         [class.is-incorrect]="option.selected && !option.correct">
 
-        <li i18n>{{ option.text }}</li>
+        <mat-radio-label>
+          <li i18n>{{ option.text }}</li>
+        </mat-radio-label>
 
         <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrectAnswerSelected">done</mat-icon>
         <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear</mat-icon>
@@ -39,7 +41,9 @@
         [class.is-correct]="option.selected && option.correct"
         [class.is-incorrect]="option.selected && !option.correct">
 
-        <li i18n>{{ option.text }}</li>
+        <mat-checkbox-label>
+          <li i18n>{{ option.text }}</li>
+        </mat-checkbox-label>
 
         <mat-icon class="feedback-icon" *ngIf="option.selected && option.correct && isCorrectAnswerSelected">done</mat-icon>
         <mat-icon class="feedback-icon" *ngIf="option.selected && !option.correct">clear</mat-icon>
