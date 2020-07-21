@@ -53,14 +53,16 @@ export class QuizService {
   }
 
   getCorrectAnswers(question: QuizQuestion) {
-    const identifiedCorrectAnswers = question.options.filter(item => item.correct);
-    this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
-    this.correctAnswerOptions = question.options.filter(option => option.correct).map(option => question.options.indexOf(option) + 1);
-    this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
-    this.correctAnswers.push(this.correctAnswersForEachQuestion);
-    this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
+    if (this.question) {
+      const identifiedCorrectAnswers = question.options.filter(item => item.correct);
+      this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
+      this.correctAnswerOptions = question.options.filter(option => option.correct).map(option => question.options.indexOf(option) + 1);
+      this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
+      this.correctAnswers.push(this.correctAnswersForEachQuestion);
+      this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
 
-    return identifiedCorrectAnswers;
+      return identifiedCorrectAnswers;
+    }
   }
 
   setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
