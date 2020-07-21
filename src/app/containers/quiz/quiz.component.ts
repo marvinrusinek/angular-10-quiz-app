@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 // import { Resource } from '../../shared/models/Resource.model';
@@ -62,8 +63,8 @@ export class QuizComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
-    this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
+    this.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
+    this.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
@@ -99,6 +100,22 @@ export class QuizComponent implements OnInit {
 
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
+  }
+
+  // randomize questions array in-place using Durstenfeld shuffle algorithm
+  shuffledQuestions(questions: QuizQuestion[]): void {
+    for (let i = questions.length - 1; i >= 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
+  }
+
+  // randomize answers array in-place using Durstenfeld shuffle algorithm
+  shuffledAnswers(answers: Option[]): void {
+    for (let i = answers.length - 1; i >= 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
   }
 
   animationDoneHandler(): void {
