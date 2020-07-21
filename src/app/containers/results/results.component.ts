@@ -5,8 +5,8 @@ import { MatAccordion } from '@angular/material/expansion';
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { QuizResource } from '../../shared/models/QuizResource.model';
-import { Resource } from '@codelab-quiz/shared/models/Resource.model';
+// import { QuizResource } from '../../shared/models/QuizResource.model';
+// import { Resource } from '@codelab-quiz/shared/models/Resource.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
 import { Result } from '../../shared/models/Result.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -98,10 +98,10 @@ export class ResultsComponent implements OnInit {
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.router.navigate(['/quiz/question', this.quizId, 1]).then();
+    this.router.navigate(['/question/', this.quizId, 1]).then();
   }
 
   selectQuiz() {
-    this.router.navigate(['/select']).then();
+    this.router.navigate(['/select/']).then();
   }
 }
