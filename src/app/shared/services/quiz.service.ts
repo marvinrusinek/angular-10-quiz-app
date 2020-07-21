@@ -4,8 +4,10 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../quiz';
+import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
+// import { Resource } from '../models/Resource.model';
 import { TimerService } from './timer.service';
 
 
@@ -87,6 +89,22 @@ export class QuizService {
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2] && correctAnswers[0][3]) {
       this.explanationText = 'All were correct!';
       this.correctMessage = 'All were correct!';
+    }
+  }
+
+  // randomize questions array in-place using Durstenfeld shuffle algorithm
+  shuffledQuestions(questions: QuizQuestion[]): void {
+    for (let i = questions.length - 1; i >= 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
+  }
+
+  // randomize answers array in-place using Durstenfeld shuffle algorithm
+  shuffledAnswers(answers: Option[]): void {
+    for (let i = answers.length - 1; i >= 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [answers[i], answers[j]] = [answers[j], answers[i]];
     }
   }
 

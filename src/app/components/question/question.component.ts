@@ -72,7 +72,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
     this.currentQuestion.options[optionIndex].selected = true;
 
-
     if (
       optionIndex >= 0 &&
       this.currentQuestion &&
