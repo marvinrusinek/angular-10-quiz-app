@@ -71,7 +71,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options.forEach((option: Option) => option.selected = false);
     }
     this.currentQuestion.options[optionIndex].selected = true;
-    this.correctMessage = this.quizService.correctMessage;
+
 
     if (
       optionIndex >= 0 &&
