@@ -6,8 +6,8 @@ import { BehaviorSubject } from 'rxjs';
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { Resource } from '@codelab-quiz/shared/models/Resource.model';
-import { QuizResource } from '@codelab-quiz/shared/models/QuizResource.model';
+// import { Resource } from '../../shared/models/Resource.model';
+/import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
