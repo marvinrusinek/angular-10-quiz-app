@@ -311,14 +311,64 @@ export const QUIZ_DATA: Quiz[] = [
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/router.png',
     questions: [
       {
-        questionText: '',
+        questionText: 'Which is used to assign URLs to different parts of your app?',
         options: [
-          { text: 'Option1', correct: true },
-          { text: 'Option2' },
-          { text: 'Option3' },
-          { text: 'Option4' }
+          { text: 'Router', correct: true },
+          { text: 'Forms' },
+          { text: 'Templates' },
+          { text: 'Material' }
         ],
-        explanation: ''
+        explanation: 'Router is used to provide URLs to the different parts of your app.'
+      },
+      {
+        questionText: 'How are routes configured in Angular?',
+        options: [
+          { text: 'In a routing module.' },
+          { text: 'By defining an array of mapping between URL path and a component.', correct: true },
+          { text: 'When the app is being bootstrapped.' },
+          { text: 'in tsconfig.json' }
+        ],
+        explanation: 'routes are configured by defining an array of mapping between URL path and a component'
+      },
+      {
+        questionText: 'How does Angular know about the routing configuration?',
+        options: [
+          { text: 'We have to pass the config to our module.', correct: true },
+          { text: 'When the app is being bootstrapped.' },
+          { text: 'It is specified in tsconfig.json' },
+          { text: 'It looks for the config in router-outlet.' }
+        ],
+        explanation: 'routes are configured by defining an array of mapping between URL path and a component'
+      },
+      {
+        questionText: 'Which of the following creates an Angular module from our configuration?',
+        options: [
+          { text: 'RouterModule.forRoot', correct: true },
+          { text: 'router-outlet' },
+          { text: 'routerLink' },
+          { text: 'navigateByUrl' }
+        ],
+        explanation: 'RouterModule.forRoot establishes an Angular module from the routing configuration'
+      },
+      {
+        questionText: 'What tag is used to tell the router where to display a selected component?',
+        options: [
+          { text: 'routerLink' },
+          { text: '<router-outlet> tag ', correct: true },
+          { text: 'navigate' },
+          { text: 'navigateByUrl' }
+        ],
+        explanation: 'the router-outlet tag tells the router to display selected component(s)'
+      },
+      {
+        questionText: 'Which directive is used to provide a URL in creating a route?',
+        options: [
+          { text: 'routerLink', correct: true },
+          { text: '<router-outlet> tag' },
+          { text: 'navigate' },
+          { text: 'navigateByUrl' }
+        ],
+        explanation: 'the routerLink directive is used to provide the URL necessary for routing'
       }
     ]
   },
@@ -329,14 +379,64 @@ export const QUIZ_DATA: Quiz[] = [
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/material.png',
     questions: [
       {
-        questionText: '',
+        questionText: 'What is the official website for Angular Material?',
         options: [
-          { text: 'Option1', correct: true },
-          { text: 'Option2' },
-          { text: 'Option3' },
-          { text: 'Option4' }
+          { text: 'https://www.angular.io' },
+          { text: 'https://www.material.io' },
+          { text: 'https://material.angular.io', correct: true },
+          { text: 'https://www.github.com/angular/material' }
         ],
-        explanation: ''
+        explanation: 'the official website for Angular Material is material.angular.io'
+      },
+      {
+        questionText: 'Where are Angular Material modules declared in NgModule?',
+        options: [
+          { text: 'imports', correct: true },
+          { text: 'declarations' },
+          { text: 'providers' },
+          { text: 'schemas' }
+        ],
+        explanation: 'the imports section of NgModule is where Angular Material modules are declared'
+      },
+      {
+        questionText: 'Which of the following is true about Angular Material Design components?',
+        options: [
+          { text: 'They are fast and consistent.' },
+          { text: 'They look great on mobile.' },
+          { text: 'They can be themed.' },
+          { text: 'All of the above.', correct: true }
+        ],
+        explanation: 'all of these are true about Angular Material components.'
+      },
+      {
+        questionText: 'Where are Angular Material components used?',
+        options: [
+          { text: 'In the template file', correct: true },
+          { text: 'In the TypeScript file' },
+          { text: 'In the CSS file' },
+          { text: 'All of the above.' }
+        ],
+        explanation: 'Angular Material components are utilized in the template file'
+      },
+      {
+        questionText: 'Which tag can be used to display a card header in Angular Material?',
+        options: [
+          { text: 'mat-card' },
+          { text: 'mat-card-avatar' },
+          { text: 'mat-card-header', correct: true },
+          { text: 'mat-card-image' }
+        ],
+        explanation: 'the mat-card-header is used to display the header information inside an Angular mat-card'
+      },
+      {
+        questionText: 'Which tag can be used to display actions in Angular Material?',
+        options: [
+          { text: 'mat-button' },
+          { text: 'mat-raised-button' },
+          { text: 'mat-card-content' },
+          { text: 'mat-card-actions', correct: true }
+        ],
+        explanation: 'the mat-card-actions tag is used to display actions inside an Angular Material template'
       }
     ]
   },
@@ -347,14 +447,94 @@ export const QUIZ_DATA: Quiz[] = [
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/forms.png',
     questions: [
       {
-        questionText: '',
+        questionText: 'What is the first step in using Angular Forms?',
         options: [
-          { text: 'Option1', correct: true },
-          { text: 'Option2' },
-          { text: 'Option3' },
-          { text: 'Option4' }
+          { text: 'Add FormsModule/ReactiveFormsModule in NgModule', correct: true },
+          { text: 'Add form tag to the template' },
+          { text: 'Add form fields in the template' },
+          { text: 'Add form validation fields to the TypeScript file' }
         ],
-        explanation: ''
+        explanation: 'we must first add FormsModule to the imports section of NgModule'
+      },
+      {
+        questionText: 'What syntax is used to bind inputs to fields on the component?',
+        options: [
+          { text: '{{ngModel}}' },
+          { text: '[(ngModel)]', correct: true },
+          { text: '[ngModel]' },
+          { text: '*ngModel' }
+        ],
+        explanation: 'the "banana-in-a-box" syntax [(ngModel]] is used for binding inputs to fields'
+      },
+      {
+        questionText: 'How do you provide validation for your inputs?',
+        options: [
+          { text: 'Using required keyword', correct: true },
+          { text: 'Using valid keyword' },
+          { text: 'Using matInput' },
+          { text: 'Using mat-error' }
+        ],
+        explanation: 'by placing the "required" keyword on an input field, it marks the field for validation'
+      },
+      {
+        questionText: 'Which of the following are steps to display a validation error?',
+        options: [
+          { text: 'Use #name="ngModel" binding', correct: true },
+          { text: 'Use usernameModel\'s errors property', correct: true },
+          { text: 'Use mat-error' },
+          { text: 'Use required keyword' }
+        ],
+        explanation: 'using #name="ngModel" and using usernameModel\'s error property are the two steps to display a validation error'
+      },
+      {
+        questionText: 'Which is NOT a built-in validator that Angular provides?',
+        options: [
+          { text: 'min' },
+          { text: 'minLength' },
+          { text: 'required' },
+          { text: 'password', correct: true }
+        ],
+        explanation: 'password is not a built-in validator which Angular provides'
+      },
+      {
+        questionText: 'Which is true if the user changed the value of the input?',
+        options: [
+          { text: 'dirty', correct: true },
+          { text: 'touched' },
+          { text: 'untouched' },
+          { text: 'pristine' }
+        ],
+        explanation: 'dirty is true when the user changes the value of the input '
+      },
+      {
+        questionText: 'Which is true if the user focused on the input and then blurred without changing the value?',
+        options: [
+          { text: 'dirty' },
+          { text: 'touched', correct: true },
+          { text: 'untouched' },
+          { text: 'pristine' }
+        ],
+        explanation: 'touched is true when the user focuses on input and then blurred'
+      },
+      {
+        questionText: 'Which of the following wraps the input in an Angular Material form?',
+        options: [
+          { text: 'mat-form-field', correct: true },
+          { text: 'matInput' },
+          { text: 'mat-error' },
+          { text: 'mat-card' }
+        ],
+        explanation: 'mat-form-field surrounds the input in an Angular Material form'
+      },
+      {
+        questionText: 'How is an error shown in an Angular Material form?',
+        options: [
+          { text: 'mat-form-field' },
+          { text: 'matInput' },
+          { text: 'mat-error', correct: true },
+          { text: 'mat-card' }
+        ],
+        explanation: 'the mat-error tag is used to show an error in an Angular Material form'
       }
     ]
   },
