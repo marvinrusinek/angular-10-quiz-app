@@ -32,7 +32,7 @@ type AnimationState = 'animationStarted' | 'none';
   ]
 })
 export class QuizComponent implements OnInit {
-  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
+  quizData: Quiz[] = QUIZ_DATA);
   quizName = '';
   // quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
   question: QuizQuestion;
