@@ -32,7 +32,7 @@ type AnimationState = 'animationStarted' | 'none';
   ]
 })
 export class QuizComponent implements OnInit {
-  quizData: Quiz[] = QUIZ_DATA);
+  quizData: Quiz[] = QUIZ_DATA;
   quizName = '';
   // quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
   question: QuizQuestion;
@@ -63,9 +63,6 @@ export class QuizComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
-    this.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
-
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
 
@@ -100,22 +97,6 @@ export class QuizComponent implements OnInit {
 
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
-  }
-
-  // randomize questions array in-place using Durstenfeld shuffle algorithm
-  shuffledQuestions(questions: QuizQuestion[]): void {
-    for (let i = questions.length - 1; i >= 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [questions[i], questions[j]] = [questions[j], questions[i]];
-    }
-  }
-
-  // randomize answers array in-place using Durstenfeld shuffle algorithm
-  shuffledAnswers(answers: Option[]): void {
-    for (let i = answers.length - 1; i >= 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [answers[i], answers[j]] = [answers[j], answers[i]];
-    }
   }
 
   animationDoneHandler(): void {
