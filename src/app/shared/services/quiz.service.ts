@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../quiz';
+import { Option } from '../models/Option.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 // import { Resource } from '../models/Resource.model';
