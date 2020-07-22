@@ -101,6 +101,114 @@ export const QUIZ_DATA: Quiz[] = [
     ]
   },
   {
+    quizId: 'create-first-app',
+    milestone: 'Create first app',
+    summary: 'You will learn how to create your first Angular component, put it in a module, and bootstrap the app.',
+    imageUrl: '  https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/first_app.png',
+    questions: [
+      {
+        questionText: 'Which of the following are true statements about Angular?',
+        options: [
+          { text: 'Angular is a development platform.' },
+          { text: 'Angular minimizes much of the code you would have to write.' },
+          { text: 'Angular extends HTML\'s syntax to define your HTML components.' },
+          { text: 'All of the above.', correct: true }
+        ],
+        explanation: 'all of the above are true statements about Angular'
+      },
+      {
+        questionText: 'Which of the following can be added to an Angular class?',
+        options: [
+          { text: 'Properties and methods', correct: true },
+          { text: 'Imports and exports' },
+          { text: 'Template variables' },
+          { text: 'Styles' }
+        ],
+        explanation: 'properties and methods can be added to a class in Angular'
+      },
+      {
+        questionText: 'How is a class adorned in Angular?',
+        options: [
+          { text: 'Using the @Component decorator', correct: true },
+          { text: 'Using the @Injectable decorator' },
+          { text: 'Using the @Input decorator' },
+          { text: 'Using the @Output decorator' }
+        ],
+        explanation: 'a class is adorned with the @Component decorator in Angular'
+      },
+      {
+        questionText: 'What is the purpose of a decorator in TypeScript?',
+        options: [
+          { text: 'To attach metadata to a class, function, property or variable', correct: true },
+          { text: 'To add properties and methods to the class' },
+          { text: 'To minimize the amount of code you will write' },
+          { text: 'To perform databinding' }
+        ],
+        explanation: 'a decorator attaches metadata to a class, function, property or variable'
+      },
+      {
+        questionText: 'Which defines the location of a component?',
+        options: [
+          { text: 'decorator' },
+          { text: 'selector', correct: true },
+          { text: 'template' },
+          { text: 'templateUrl' }
+        ],
+        explanation: 'a selector defines the location of a component in Angular'
+      },
+      {
+        questionText: 'Which defines the HTML code that the component generates?',
+        options: [
+          { text: 'decorator' },
+          { text: 'selector' },
+          { text: 'template', correct: true },
+          { text: 'templateUrl' }
+        ],
+        explanation: 'a template contains the HTML code that a component generates'
+      },
+      {
+        questionText: 'Which is used for grouping Angular building blocks together?',
+        options: [
+          { text: 'NgModule', correct: true },
+          { text: 'template' },
+          { text: 'selector' },
+          { text: 'decorator' }
+        ],
+        explanation: 'the NgModule is used to group Angular components and modules together'
+      },
+      {
+        questionText: 'How is an Angular module adorned?',
+        options: [
+          { text: '@NgModule', correct: true },
+          { text: '@Component' },
+          { text: '@Injectable' },
+          { text: '@Output' }
+        ],
+        explanation: '@NgModule is used to decorate an Angular module'
+      },
+      {
+        questionText: 'Which array specifies components belonging to AppModule?',
+        options: [
+          { text: 'imports' },
+          { text: 'declarations', correct: true },
+          { text: 'bootstrap' },
+          { text: 'providers' }
+        ],
+        explanation: 'the declarations array contains all the components that belong to AppModule'
+      },
+      {
+        questionText: 'Which of the following code is used for bootstrapping an app?',
+        options: [
+          { text: '<app-module #bootstrap></app-module>' },
+          { text: '<bootstrap>AppModule</bootstrap>' },
+          { text: 'bootstrap: [AppModule]' },
+          { text: 'platformBrowserDynamic().bootstrapModule(AppModule);', correct: true }
+        ],
+        explanation: 'passing AppModule into the platformBrowserDynamic() is the method used for bootstrapping an Angular app'
+      }
+    ]
+  },
+  {
     quizId: 'templates',
     milestone: 'Templates',
     summary: 'Angular has a very expressive template system, which takes HTML as a base, and extends it with custom elements.',
