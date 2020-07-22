@@ -545,14 +545,64 @@ export const QUIZ_DATA: Quiz[] = [
     imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/angular-cli.png',
     questions: [
       {
-        questionText: '',
+        questionText: 'Which is a prerequisite for using Angular-CLI?',
         options: [
-          { text: 'Option1', correct: true },
-          { text: 'Option2' },
-          { text: 'Option3' },
-          { text: 'Option4' }
+          { text: 'NodeJS', correct: true },
+          { text: 'JavaScript' },
+          { text: 'Github' },
+          { text: 'WebStorm' }
         ],
-        explanation: ''
+        explanation: 'NodeJS needs to be installed on your machine before setting up Angular-CLI'
+      },
+      {
+        questionText: 'How is Angular-CLI installed?',
+        options: [
+          { text: 'npm install -g @angular/cli', correct: true },
+          { text: 'ng new "my-app-name' },
+          { text: 'cd my-app-name' },
+          { text: 'ng serve command' }
+        ],
+        explanation: 'Angular-CLI is installed using the "npm install -g @angular/cli" command'
+      },
+      {
+        questionText: 'How can you run an app that is built with Angular-CLI?',
+        options: [
+          { text: 'ng serve', correct: true },
+          { text: 'ng new "my-app-name"' },
+          { text: 'npm start' },
+          { text: 'node -v' }
+        ],
+        explanation: 'ng serve is the command that is required to run an app built with Angular-CLI'
+      },
+      {
+        questionText: 'What URL should be viewed in the browser to see the app running?',
+        options: [
+          { text: 'http://www.google.com' },
+          { text: 'http://angular.io' },
+          { text: 'http://localhost' },
+          { text: 'http://localhost:4200/', correct: true  }
+        ],
+        explanation: 'viewing http://localhost:4200/ allows us to view the app in the browser'
+      },
+      {
+        questionText: 'What command is used to create a new service using the Angular-CLI?',
+        options: [
+          { text: 'ng g c my-component' },
+          { text: 'ng g m my-module' },
+          { text: 'ng g s my-service', correct: true },
+          { text: 'ng g p my-pipe' }
+        ],
+        explanation: 'a service is created using the ng g s shortcut command'
+      },
+      {
+        questionText: 'Which is a true statement about the Angular CLI?',
+        options: [
+          { text: 'It is a command-line tool that makes it easy to generate new components.' },
+          { text: 'It allows for fast scaffolding of an application that works easily.' },
+          { text: 'It takes care of the build system for you.' },
+          { text: 'All of the above.', correct: true }
+        ],
+        explanation: 'all of the above are true statements about the Angular-CLI'
       }
     ]
   }
