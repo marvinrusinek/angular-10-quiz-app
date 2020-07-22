@@ -744,7 +744,44 @@ export const QUIZ_RESOURCES: QuizResource[] = [
     ]
   },
   {
-    quizId: 'DI_Quiz',
+    quizId: 'create-first-app',
+    milestone: 'Creating your first app',
+    resources: [
+      {
+        title: 'Getting started with a basic Angular app',
+        url: 'https://angular.io/start',
+        host: 'angular.io'
+      },
+      {
+        title: 'Creating Your First Angular App: Basics',
+        url: 'https://code.tutsplus.com/tutorials/creating-your-first-angular-app-basics--cms-30092',
+        host: 'envatotuts+'
+      },
+    ]
+  },
+  {
+    quizId: 'templates',
+    milestone: 'Templates',
+    resources: [
+      {
+        title: 'Introduction to components and templates',
+        url: 'https://angular.io/guide/architecture-components#:~:text=Angular%20templates%20are%20dynamic.,component%20is%20technically%20a%20directive.',
+        host: 'angular.io'
+      },
+      {
+        title: 'Angular 4 - Templates',
+        url: 'https://www.tutorialspoint.com/angular4/angular4_templates.htm',
+        host: 'tutorialspoint'
+      },
+      {
+        title: 'Angular templates and views',
+        url: 'https://howtodoinjava.com/angular/angular-templates-and-views/#:~:text=A%20template%20is%20an%20HTML,component%20defines%20that%20component\'s%20view.',
+        host: 'HowToDoInJava'
+      }
+    ]
+  },
+  {
+    quizId: 'dependency-injection',
     milestone: 'Dependency Injection',
     resources: [
       {
@@ -766,6 +803,121 @@ export const QUIZ_RESOURCES: QuizResource[] = [
         title: 'Total Guide To Angular 6+ Dependency Injection...',
         url: 'https://medium.com/@tomastrajan/total-guide-to-angular-6-dependency-injection-providedin-vs-providers-85b7a347b59f',
         host: 'medium.com'
+      }
+    ]
+  },
+  {
+    quizId: 'component-tree',
+    milestone: 'Component Tree',
+    resources: [
+      {
+        title: 'Introduction to Angular concepts',
+        url: 'https://angular.io/guide/architecture',
+        host: 'angular.io'
+      },
+      {
+        title: 'The Core Concepts of Angular',
+        url: 'https://vsavkin.com/the-core-concepts-of-angular-2-c3d6cbe04d04',
+        host: 'vsavkin.com'
+      }
+    ]
+  },
+  {
+    quizId: 'router',
+    milestone: 'Angular Router',
+    resources: [
+      {
+        title: 'In-app navigation: routing to views',
+        url: 'https://angular.io/guide/router',
+        host: 'angular.io'
+      },
+      {
+        title: 'API: @angular/router',
+        url: 'https://angular.io/api/router',
+        host: 'angular.io'
+      },
+      {
+        title: 'A Complete Guide To Routing In Angular',
+        url: 'https://www.smashingmagazine.com/2018/11/a-complete-guide-to-routing-in-angular/',
+        host: 'Smashing Magazine'
+      },
+      {
+        title: 'Using Route Parameters',
+        url: 'https://angular-2-training-book.rangle.io/routing/routeparams',
+        host: 'Rangle.io'
+      }
+    ]
+  },
+  {
+    quizId: 'material',
+    milestone: 'Angular Material',
+    resources: [
+      {
+        title: 'Getting Started with Angular Material',
+        url: 'https://material.angular.io/guide/getting-started',
+        host: 'Angular Material official website'
+      },
+      {
+        title: 'Angular Material UI component library',
+        url: 'https://material.angular.io',
+        host: 'Angular Material official website'
+      },
+      {
+        title: 'Material Design',
+        url: 'https://www.material.io',
+        host: 'material.io'
+      },
+      {
+        title: 'Angular Material 7 Tutorial',
+        url: 'https://www.tutorialspoint.com/angular_material7/index.htm',
+        host: 'tutorialspoint'
+      }
+    ]
+  },
+  {
+    quizId: 'forms',
+    milestone: 'Forms',
+    resources: [
+      {
+        title: 'Introduction to forms in Angular',
+        url: 'https://angular.io/guide/forms-overview',
+        host: 'angular.io'
+      },
+      {
+        title: 'Angular Forms Guide - Template Driven and Reactive Forms',
+        url: 'https://blog.angular-university.io/introduction-to-angular-2-forms-template-driven-vs-model-driven/',
+        host: 'Angular University'
+      },
+      {
+        title: 'Template-Driven Form Validation In Angular',
+        url: 'https://ankitsharmablogs.com/template-driven-form-validation-in-angular/',
+        host: 'Ankit Sharma\'s Blog',
+      },
+      {
+        title: 'How to validate Angular Reactive Forms',
+        url: 'https://www.freecodecamp.org/news/how-to-validate-angular-reactive-forms/',
+        host: 'freecodecamp.org'
+      }
+    ]
+  },
+  {
+    quizId: 'angular-cli',
+    milestone: 'Angular-CLI',
+    resources: [
+      {
+        title: 'CLI Overview and Command Reference',
+        url: 'https://angular.io/cli',
+        host: 'angular.io'
+      },
+      {
+        title: 'Angular 8 Tutorial: Build your First Angular App',
+        url: 'https://www.techiediaries.com/angular-8-tutorial-build-first-angular-calculator-app/',
+        host: 'TechieDiaries'
+      },
+      {
+        title: 'Starting an Angular app with the Angular CLI',
+        url: 'https://scotch.io/courses/build-your-first-angular-website/starting-an-angular-app-with-the-angular-cli',
+        host: 'Scotch'
       }
     ]
   }
