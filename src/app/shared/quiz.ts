@@ -102,7 +102,7 @@ export const QUIZ_DATA: Quiz[] = [
   },
   {
     quizId: 'create-first-app',
-    milestone: 'Create first app',
+    milestone: 'Create y first app',
     summary: 'You will learn how to create your first Angular component, put it in a module, and bootstrap the app.',
     imageUrl: '  https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/first_app.png',
     questions: [
