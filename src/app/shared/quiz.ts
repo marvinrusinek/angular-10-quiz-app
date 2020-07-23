@@ -225,7 +225,7 @@ export const QUIZ_DATA: Quiz[] = [
         explanation: 'backticks are used in Angular for insertion of text'
       },
       {
-        questionText: 'Which characters are used to include a property value? {{}}',
+        questionText: 'Which characters are used to include a property value? ',
         options: [
           { text: 'backticks: ``' },
           { text: 'double curlies {{ }}', correct: true },
