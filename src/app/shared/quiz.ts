@@ -1,5 +1,5 @@
-import { Quiz } from '@codelab-quiz/shared/models/Quiz.';
-import { QuizResource } from '@codelab-quiz/shared/models/QuizResource.model';
+import { Quiz } from '../shared/models/Quiz.model';
+import { QuizResource } from '../shared/models/QuizResource.model';
 
 export const QUIZ_DATA: Quiz[] = [
   {
