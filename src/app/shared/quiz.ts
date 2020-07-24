@@ -98,7 +98,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'this.propertyName is the way to access a specific property within a class'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'create-first-app',
@@ -206,7 +207,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'passing AppModule into the platformBrowserDynamic() is the method used for bootstrapping an Angular app'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'templates',
@@ -314,7 +316,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the ngFor directive is used to display entire arrays or objects'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'dependency-injection',
@@ -362,7 +365,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the first step is marking the class as @Injectable()'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'component-tree',
@@ -410,7 +414,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'properties must be decorated with @Input() in a child in order to pass data to its parent'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'router',
@@ -478,7 +483,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the routerLink directive is used to provide the URL necessary for routing'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'material',
@@ -546,7 +552,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the mat-card-actions tag is used to display actions inside an Angular Material template'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'forms',
@@ -644,7 +651,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the mat-error tag is used to show an error in an Angular Material form'
       }
-    ]
+    ],
+    status: ''
   },
   {
     quizId: 'angular-cli',
@@ -712,7 +720,8 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'all of the above are true statements about the Angular-CLI'
       }
-    ]
+    ],
+    status: ''
   }
 ];
 
