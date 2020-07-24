@@ -46,7 +46,7 @@
 
           <div class="status-icon">
             <span class="icon" matTooltip="Start"
-                  *ngIf="status === 'started'"
+                  *ngIf="!quizCompleted"
                   [routerLink]="['/intro/', quiz.quizId]">
               <svg viewBox="0 0 24 24">
                 <path [attr.d]="quizStatus.start" />
