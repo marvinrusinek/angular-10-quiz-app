@@ -60,11 +60,9 @@ export class ResultsComponent implements OnInit {
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
-    
     this.quizData[this.indexOfQuizId].status = 'completed';
-    
-    this.calculateElapsedTime();
     this.getQuizStatus();
+    this.calculateElapsedTime();
   }
 
   ngOnInit() {
