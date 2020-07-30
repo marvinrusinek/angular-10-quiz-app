@@ -11,7 +11,9 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { TimerService } from './timer.service';
 
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ 
+  providedIn: 'root' 
+})
 export class QuizService {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   question: QuizQuestion;
