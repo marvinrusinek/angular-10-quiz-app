@@ -1,29 +1,8 @@
 @import "../../../_variables.scss";
 
-ol {
-  margin: 15px 0 0 -40px;
-}
-ol li {
-  margin-left: 40px;
-  width: 34.6rem;
-}
-
 .options {
   margin: 0 0 -5px 0.4rem;
   padding: 5px;
-
-  mat-checkbox:first-child {
-    margin-top: 10px;
-    padding-top: 30px;
-  }
-
-  mat-checkbox {
-    margin-top: -10px !important;
-
-    li {
-      height: 47px;
-    }
-  }
 
   mat-radio-button, mat-checkbox {
     cursor: pointer;
@@ -34,7 +13,7 @@ ol li {
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
-    padding: 5px 5px 0 30px;
+    padding: 10px 5px 0 30px;
     margin-left: -5px;
     vertical-align: middle;
 
@@ -45,13 +24,13 @@ ol li {
 
   mat-radio-label, mat-checkbox-label {
     white-space: normal;
-  }
 
-  .feedback-icon {
-    position: absolute;
-    right: 0;
-    margin-right: 40px;
-    margin-top: -25px;
+    .feedback-icon {
+      position: absolute;
+      right: 0;
+      margin-right: 40px;
+      margin-top: -25px;
+    }
   }
 
   mat-checkbox .feedback-icon {
