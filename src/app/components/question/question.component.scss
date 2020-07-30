@@ -147,3 +147,10 @@ ol li {
 ::ng-deep .mat-checkbox .mat-checkbox-inner-container {
   display: none;
 }
+
+// set width and height of mat-checkbox
+::ng-deep .mat-checkbox .mat-checkbox-layout {
+  width: 37rem;
+  height: auto;
+}
+
