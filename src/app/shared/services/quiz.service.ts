@@ -29,6 +29,7 @@ export class QuizService {
   correctAnswerOptions: number[] = [];
   userAnswers = [];
   numberOfCorrectAnswers: number;
+  numberOfCorrectAnswersArray = [];
   
   explanation: string;
   explanationText: string;
@@ -63,13 +64,16 @@ export class QuizService {
 
   getCorrectAnswers(question: QuizQuestion) {
     if (this.question) {
-      const identifiedCorrectAnswers = question.options.filter(item => item.correct);
+      const identifiedCorrectAnswers = question.options.filter((option) => option.correct);
+      this.correctAnswerOptions = identifiedCorrectAnswers.map((option) => question.options.indexOf(option) + 1);
+
       this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
-      this.correctAnswerOptions = question.options.filter(option => option.correct).map(option => question.options.indexOf(option) + 1);
+      this.numberOfCorrectAnswersArray.push(this.numberOfCorrectAnswers);
+
       this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
       this.correctAnswers.push(this.correctAnswersForEachQuestion);
-      this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
 
+      this.setExplanationAndCorrectAnswerMessages(this.correctAnswersForEachQuestion.sort());
       return identifiedCorrectAnswers;
     }
   }
