@@ -49,21 +49,21 @@
                   *ngIf="!quizCompleted"
                   [routerLink]="['/intro/', quiz.quizId]">
               <svg viewBox="0 0 24 24">
-                <path [attr.d]="quizStatus.start" />
+                <path [attr.d]="quizStatusIcon.start" />
               </svg>
             </span>
             <span class="icon" matTooltip="Continue" 
                   *ngIf="status === 'continue'"
                   [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
               <svg viewBox="0 0 24 24">
-                <path [attr.d]="quizStatus.continue" />
+                <path [attr.d]="quizStatusIcon.continue" />
               </svg>
             </span>
             <span class="icon" matTooltip="Results"
                   *ngIf="status === 'completed'"
                   [routerLink]="['/results/', quiz.quizId]">
               <svg viewBox="0 0 24 24">
-                <path [attr.d]="quizStatus.results" />
+                <path [attr.d]="quizStatusI.results" />
               </svg>
             </span>
           </div>
