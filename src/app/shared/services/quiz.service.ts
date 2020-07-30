@@ -33,7 +33,7 @@ export class QuizService {
   quizId: string;
   indexOfQuizId: number;
   quizCompleted: boolean;
-  status = '';
+  status: s;
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -121,9 +121,9 @@ export class QuizService {
     this.quizId = quizId;
   }
 
-  /* setResources(resources: Resource[]): void {
-    this.resources = resources;
-  } */
+  setQuizStatus(status: string): void {
+    this.status = status;
+  }
 
   setTotalQuestions(totalQuestions: number): void {
     this.totalQuestions = totalQuestions;
@@ -135,8 +135,6 @@ export class QuizService {
 
   navigateToNextQuestion() {
     this.quizCompleted = false;
-    // this.quizData[this.indexOfQuizId].status = 'started';
-    this.status = 'started';
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question/', this.quizId, questionIndex]).then();
@@ -146,16 +144,12 @@ export class QuizService {
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
-    // this.quizData[this.indexOfQuizId].status = 'started';
-    this.status = 'started';
     this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex - 1]).then();
     this.resetAll();
   }
 
   navigateToResults() {
     this.quizCompleted = true;
-    // this.quizData[this.indexOfQuizId].status = 'completed';
-    this.status = 'completed';
     this.router.navigate(['/results/', this.quizId]).then();
   }
 

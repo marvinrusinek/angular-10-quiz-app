@@ -43,11 +43,12 @@ export class QuizComponent implements OnInit {
   totalQuestions: number;
   progressValue: number;
   correctCount: number;
+  quizId: string;
+  indexOfQuizId: number;
+  status: string;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
-  quizId: string;
-  indexOfQuizId: number;
 
   paging = {
     previousButtonPoints: "298.052,24 266.052,0 112.206,205.129 266.052,410.258 298.052,386.258 162.206,205.129 ",
@@ -85,10 +86,13 @@ export class QuizComponent implements OnInit {
         this.getQuestion();
         this.getQuestions();
         this.getQuizId();
+        this.getQuizStatus();
         // this.getResources();
 
         if (this.questionIndex === 1) {
           this.progressValue = 0;
+          this.quizData[this.indexOfQuizId].status = 'started';
+          this.status = this.quizData[this.indexOfQuizId].status;
         } else {
           this.progressValue = ((this.questionIndex - 1) / this.totalQuestions) * 100;
         }
@@ -119,6 +123,11 @@ export class QuizComponent implements OnInit {
 
   private getQuizId() {
     this.quizService.setQuizId(this.quizId);
+  }
+
+  private getQuizStatus(): void {
+    this.status = this.quizData[this.indexOfQuizId].status;
+    this.quizService.setQuizStatus(this.status);
   }
 
   /* private getResources() {
