@@ -35,7 +35,7 @@
           (click)="onClick()"
           *ngFor="let quiz of quizData"
           [routerLink]="['/intro/', quiz.quizId]"
-          [ngClass]="{ 'completed': quizCompleted }"
+          [ngClass]="{ 'completed': status === 'completed' }"
           [ngStyle]="{ 'background': 'url(' + quiz?.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }">
 
