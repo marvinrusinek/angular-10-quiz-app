@@ -33,7 +33,7 @@ export class QuizService {
   quizId: string;
   indexOfQuizId: number;
   quizCompleted: boolean;
-  status: s;
+  status: string;
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
