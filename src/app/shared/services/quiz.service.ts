@@ -160,6 +160,7 @@ export class QuizService {
     this.correctAnswerOptions = [];
     this.correctMessage = '';
     this.explanationText = '';
+    this.currentQuestionIndex = 0;
     this.timerService.stopTimer();
     this.timerService.resetTimer();
   }
