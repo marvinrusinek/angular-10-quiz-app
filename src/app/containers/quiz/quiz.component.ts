@@ -162,6 +162,7 @@ export class QuizComponent implements OnInit {
   }
 
   advanceToResults() {
+    
     this.quizService.resetAll();
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
