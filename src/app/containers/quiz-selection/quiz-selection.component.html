@@ -25,7 +25,7 @@
           <div *ngFor="let quiz of quizData">
             <button mat-menu-item
                     [routerLink]="['/quiz/intro/', quiz.quizId]"
-                    data-i18n="quiz.milestone">{{ quiz.milestone }}</button>
+                    data-i18n="quiz.milestone">{{ quiz?.milestone }}</button>
           </div>
         </mat-menu>
       </mat-toolbar>
@@ -36,7 +36,7 @@
           *ngFor="let quiz of quizData"
           [routerLink]="['/intro/', quiz.quizId]"
           [ngClass]="{ 'completed': quizCompleted }"
-          [ngStyle]="{ 'background': 'url(' + quiz.imageUrl + ') no-repeat center 10px',
+          [ngStyle]="{ 'background': 'url(' + quiz?.imageUrl + ') no-repeat center 10px',
                        'background-size': '300px 210px' }">
 
           <summary class="quiz-info">
