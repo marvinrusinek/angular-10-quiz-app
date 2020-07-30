@@ -62,7 +62,6 @@ export class ResultsComponent implements OnInit {
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
     
     this.quizData[this.indexOfQuizId].status = 'completed';
-    this.status = this.quizData[this.indexOfQuizId].status;
     
     this.calculateElapsedTime();
     this.getQuizStatus();
