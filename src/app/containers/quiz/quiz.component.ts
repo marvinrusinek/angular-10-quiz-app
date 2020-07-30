@@ -146,6 +146,8 @@ export class QuizComponent implements OnInit {
 
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
+    this.quizData[this.indexOfQuizId].status = 'continue';
+    this.status = this.quizData[this.indexOfQuizId].status;
     this.answers = [];
     this.animationState$.next('animationStarted');
     this.quizService.navigateToNextQuestion();
@@ -153,6 +155,8 @@ export class QuizComponent implements OnInit {
 
   advanceToPreviousQuestion() {
     this.answers = null;
+    this.quizData[this.indexOfQuizId].status = 'continue';
+    this.status = this.quizData[this.indexOfQuizId].status;
     this.animationState$.next('animationStarted');
     this.quizService.navigateToPreviousQuestion();
   }
