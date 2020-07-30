@@ -41,6 +41,7 @@ export class ResultsComponent implements OnInit {
   status: string;
   
   correctAnswers: number[] = [];
+  numberOfCorrectAnswers = [];
   elapsedMinutes: number;
   elapsedSeconds: number;
 
