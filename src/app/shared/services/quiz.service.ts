@@ -21,21 +21,25 @@ export class QuizService {
   answers: number[];
   totalQuestions: number;
   currentQuestionIndex = 1;
-  correctAnswersForEachQuestion = [];
-  correctAnswers = [];
-  userAnswers = [];
-  numberOfCorrectAnswers: number;
-  correctAnswerOptions: number[] = [];
-  correctOptions: string;
-  explanation: string;
-  explanationText: string;
-  correctMessage: string;
-  hasAnswer: boolean;
-  correctAnswersCountSubject = new BehaviorSubject<number>(0);
   quizId: string;
   indexOfQuizId: number;
+
+  correctAnswers = [];
+  correctAnswersForEachQuestion = [];
+  correctAnswerOptions: number[] = [];
+  userAnswers = [];
+  numberOfCorrectAnswers: number;
+  
+  explanation: string;
+  explanationText: string;
+  correctOptions: string;
+  correctMessage: string;
+  
   quizCompleted: boolean;
   status: string;
+
+  hasAnswer: boolean;
+  correctAnswersCountSubject = new BehaviorSubject<number>(0);
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
