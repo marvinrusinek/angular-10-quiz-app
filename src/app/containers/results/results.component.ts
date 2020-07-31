@@ -61,8 +61,12 @@ export class ResultsComponent implements OnInit {
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
+    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswersArray;
+    
     this.quizData[this.indexOfQuizId].status = 'completed';
+    this.getCompletedQuizId(this.quizId);
     this.getQuizStatus();
+    
     this.calculateElapsedTime();
   }
 
@@ -73,6 +77,10 @@ export class ResultsComponent implements OnInit {
     this.correctAnswers = this.quizService.correctAnswers;
     this.questions = this.quizService.questions;
     // this.resources = this.quizService.resources;
+  }
+
+  private getCompletedQuizId(quizId): void {
+    this.quizService.setCompletedQuizId(quizId);
   }
 
   private getQuizStatus(): void {

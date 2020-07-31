@@ -21,7 +21,11 @@ export class QuizService {
   answers: number[];
   totalQuestions: number;
   currentQuestionIndex = 1;
+
   quizId: string;
+  startedQuizId: string;
+  continueQuizId: string;
+  completedQuizId: string;
   indexOfQuizId: number;
 
   correctAnswers = [];
@@ -119,16 +123,28 @@ export class QuizService {
     }
   }
 
+  setQuizId(quizId: string): void {
+    this.quizId = quizId;
+  }
+
+  setStartedQuizId(quizId: string) {
+    this.startedQuizId = quizId;
+  }
+
+  setContinueQuizId(quizId: string) {
+    this.continueQuizId = quizId;
+  }
+
+  setCompletedQuizId(quizId: string) {
+    this.completedQuizId = quizId;
+  }
+
   setQuestion(question: QuizQuestion): void {
     this.question = question;
   }
 
   setQuestions(questions: QuizQuestion[]): void {
     this.questions = questions;
-  }
-
-  setQuizId(quizId: string): void {
-    this.quizId = quizId;
   }
 
   setQuizStatus(status: string): void {
@@ -170,7 +186,7 @@ export class QuizService {
     this.correctAnswerOptions = [];
     this.correctMessage = '';
     this.explanationText = '';
-    this.currentQuestionIndex = 0;
+    this.currentQuestionIndex = 1;
     this.timerService.stopTimer();
     this.timerService.resetTimer();
   }

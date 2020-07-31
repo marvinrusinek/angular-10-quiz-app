@@ -16,6 +16,9 @@ export class QuizSelectionComponent implements OnInit {
   currentQuestionIndex: number;
   totalQuestions: number;
   quizId: string;
+  startedQuizId: string;
+  continueQuizId: string;
+  completedQuizId: string;
   quizCompleted: boolean;
   status: string;
 
@@ -32,6 +35,9 @@ export class QuizSelectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizId = this.quizService.quizId;
+    this.startedQuizId = this.quizService.startedQuizId;
+    this.continueQuizId = this.quizService.continueQuizId;
+    this.completedQuizId = this.quizService.completedQuizId;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
     this.quizCompleted = this.quizService.quizCompleted;
