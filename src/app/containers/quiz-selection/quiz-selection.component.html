@@ -32,7 +32,7 @@
 
       <mat-grid-list cols="3" rowHeight="370px">
         <mat-grid-tile
-          (click)="onClick()"
+
           *ngFor="let quiz of quizData"
           [routerLink]="['/intro/', quiz.quizId]"
           [ngClass]="{ 'started': status === 'started' && quiz.quizId === startedQuizId,

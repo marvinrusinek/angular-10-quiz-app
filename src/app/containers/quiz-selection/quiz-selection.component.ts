@@ -43,14 +43,4 @@ export class QuizSelectionComponent implements OnInit {
     this.quizCompleted = this.quizService.quizCompleted;
     this.status = this.quizService.status;
   }
-
-  onClick() {
-    if (this.currentQuestionIndex < this.totalQuestions) {
-      // start or continue
-      this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex]).then();
-    } else if (this.currentQuestionIndex === this.totalQuestions) {
-      // results
-      this.router.navigate(['/results/', this.quizId]).then();
-    }
-  }
 }
