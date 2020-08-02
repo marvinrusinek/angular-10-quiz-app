@@ -39,6 +39,7 @@ export class ResultsComponent implements OnInit {
   quizId: string;
   indexOfQuizId: number;
   status: string;
+  previousUserAnswers: any;
   
   correctAnswers: number[] = [];
   numberOfCorrectAnswers = [];
@@ -64,10 +65,13 @@ export class ResultsComponent implements OnInit {
     this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswersArray;
     
     this.quizData[this.indexOfQuizId].status = 'completed';
+
+    this.calculateElapsedTime();
     this.getCompletedQuizId(this.quizId);
     this.getQuizStatus();
     
-    this.calculateElapsedTime();
+    this.previousUserAnswers = this.quizService.userAnswers;
+    this.getUserAnswers(this.previousUserAnswers);
   }
 
   ngOnInit() {
@@ -86,6 +90,10 @@ export class ResultsComponent implements OnInit {
   private getQuizStatus(): void {
     this.status = this.quizData[this.indexOfQuizId].status;
     this.quizService.setQuizStatus(this.status);
+  }
+
+  private getUserAnswers(previousAnswers: []): void {
+    this.quizService.setUserAnswers(previousAnswers);
   }
 
   calculateElapsedTime(): void {
