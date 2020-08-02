@@ -139,6 +139,10 @@
     margin-bottom: 20px;
   }
 
+  .message .wrong-message {
+    margin-top: 10px !important;
+  }
+
   .feedback-icon {
     margin-top: 5px !important;
   }
@@ -146,9 +150,6 @@
   .sentiment-icon {
     margin-top: 40px;
     margin-left: 15px;
-  }
-  .message .wrong-message {
-    margin-top: 10px !important;
   }
 }
 
