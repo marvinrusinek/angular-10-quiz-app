@@ -28,6 +28,7 @@ import { TimeComponent } from './containers/scoreboard/time/time.component';
 import { QuizService } from './shared/services/quiz.service';
 import { TimerService } from './shared/services/timer.service';
 import { JoinPipe } from './pipes/join.pipe';
+import { Animations } from './animations';
 
 @NgModule({
   declarations: [

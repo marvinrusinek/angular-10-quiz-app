@@ -11,6 +11,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 // import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { Animations } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
 
@@ -18,18 +19,8 @@ type AnimationState = 'animationStarted' | 'none';
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
   styleUrls: ['./quiz.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('changeRoute', [
-      transition('* => animationStarted', [
-        animate('1s', keyframes([
-          style({ transform: 'scale(1.0)' }),
-          style({ transform: 'scale(1.3)' }),
-          style({ transform: 'scale(1.0)' })
-        ]))
-      ]),
-    ])
-  ]
+  animations: [Animations.changeRoute],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizComponent implements OnInit {
   quizData: Quiz[] = QUIZ_DATA;
