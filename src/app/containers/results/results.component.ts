@@ -127,6 +127,10 @@ export class ResultsComponent implements OnInit {
   }
 
   selectQuiz() {
+    this.quizService.resetAll();
+    this.quizService.resetQuestions();
+    this.quizId = '';
+    this.indexOfQuizId = 0;
     this.router.navigate(['/select/']).then();
   }
 }
