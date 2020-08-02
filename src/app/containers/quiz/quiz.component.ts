@@ -142,8 +142,8 @@ export class QuizComponent implements OnInit {
   }
 
   private getPreviousUserAnswersText(previousAnswers): void {
-    const questions = this.quizData[this.indexOfQuizId].questions;
-    this.quizService.setPreviousUserAnswersText(previousAnswers, questions);
+    this.questions = this.quizData[this.indexOfQuizId].questions;
+    this.quizService.setPreviousUserAnswersText(previousAnswers, this.questions);
   }
 
   /* private getResources() {
