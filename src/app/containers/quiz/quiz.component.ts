@@ -67,8 +67,8 @@ export class QuizComponent implements OnInit {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
 
-    this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
-    this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
+    // this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
+    // this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
 
 
     this.activatedRoute.url.subscribe(segments => {
