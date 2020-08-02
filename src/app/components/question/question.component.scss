@@ -95,6 +95,17 @@
   }
 }
 
+.previous-answer-text {
+  clear: both;
+
+  span {
+    font-family: $font-stack;
+    font-weight: $font-weight-max;
+    font-size: 16px;
+    text-align: center;
+  }
+}
+
 .single-answer {
   mat-radio-button {
     height: 57.6px;

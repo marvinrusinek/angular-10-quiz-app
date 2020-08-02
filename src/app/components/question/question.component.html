@@ -19,6 +19,10 @@
         </mat-radio-label>
       </mat-radio-button>
 
+      <div *ngIf="previousUserAnswersText[i] && option.selected" class="previous-answer-text">
+        <span>&ldquo;{{ previousUserAnswersText[i] }}&rdquo; was selected in your previous quiz.</span>
+      </div>
+
       <section class="messages">
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
           <span>
@@ -50,6 +54,10 @@
                     *ngIf="option.selected && !option.correct">clear</mat-icon>
         </mat-checkbox-label>
       </mat-checkbox>
+
+      <div *ngIf="previousUserAnswersText[i] && option.selected" class="previous-answer-text">
+        <span>&ldquo;{{ previousUserAnswersText[i] }}&rdquo; were selected in your previous quiz.</span>
+      </div>
 
       <section class="messages">
         <div *ngIf="option.selected && option.correct && isCorrectAnswerSelected">
