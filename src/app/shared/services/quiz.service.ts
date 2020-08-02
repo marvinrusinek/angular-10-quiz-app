@@ -32,6 +32,9 @@ export class QuizService {
   correctAnswersForEachQuestion = [];
   correctAnswerOptions: number[] = [];
   userAnswers = [];
+  previousUserAnswers = [];
+  previousUserAnswersText = [];
+  previousUserAnswersInnerText = [];
   numberOfCorrectAnswers: number;
   numberOfCorrectAnswersArray = [];
   
@@ -121,6 +124,28 @@ export class QuizService {
       const j = Math.floor(Math.random() * (i + 1));
       [answers[i], answers[j]] = [answers[j], answers[i]];
     }
+  }
+
+  setUserAnswers(previousAnswers: []): void {
+    this.previousUserAnswers = previousAnswers;
+  }
+
+  setPreviousUserAnswersText(previousAnswers, questions: QuizQuestion[]): void {
+    for (let i = 0; i < previousAnswers.length; i++) {
+      if (previousAnswers[i].length === 1) {
+        const previousAnswersString = questions[i].options[previousAnswers[i] - 1].text;
+        this.previousUserAnswersText.push(previousAnswersString);
+      }
+      if (previousAnswers[i].length > 1) {
+        const previousAnswerOptionsInner = previousAnswers[i].slice();
+        for (let j = 0; j < previousAnswerOptionsInner.length; j++) {
+          const previousAnswersInnerString = questions[i].options[previousAnswerOptionsInner[j] - 1].text;
+          this.previousUserAnswersInnerText.push(previousAnswersInnerString);
+        }
+        this.previousUserAnswersText.push(this.previousUserAnswersInnerText);
+      }
+    }
+    console.log('PUAText: ', this.previousUserAnswersText);
   }
 
   setQuizId(quizId: string): void {
