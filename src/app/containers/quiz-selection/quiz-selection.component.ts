@@ -40,5 +40,8 @@ export class QuizSelectionComponent implements OnInit {
     this.totalQuestions = this.quizService.totalQuestions;
     this.quizCompleted = this.quizService.quizCompleted;
     this.status = this.quizService.status;
+
+    this.quizService.resetAll();
+    this.quizService.resetQuestions();
   }
 }
