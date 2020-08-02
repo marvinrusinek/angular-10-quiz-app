@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -29,8 +28,7 @@ export class QuizSelectionComponent implements OnInit {
   };
 
   constructor(
-    private quizService: QuizService,
-    private router: Router
+    private quizService: QuizService
   ) { }
 
   ngOnInit(): void {
