@@ -49,6 +49,7 @@ export class QuizComponent implements OnInit {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
+  previousUserAnswers: any;
 
   paging = {
     previousButtonPoints: "298.052,24 266.052,0 112.206,205.129 266.052,410.258 298.052,386.258 162.206,205.129 ",
@@ -61,15 +62,16 @@ export class QuizComponent implements OnInit {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId); 
+    
+    this.getPreviousUserAnswersText(this.quizService.previousUserAnswers);
+  }
 
   ngOnInit() {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
-
     // this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
     // this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
-
 
     this.activatedRoute.url.subscribe(segments => {
       this.quizName = segments[1].toString();
@@ -137,6 +139,11 @@ export class QuizComponent implements OnInit {
   private getQuizStatus(): void {
     this.status = this.quizData[this.indexOfQuizId].status;
     this.quizService.setQuizStatus(this.status);
+  }
+
+  private getPreviousUserAnswersText(previousAnswers): void {
+    const questions = this.quizData[this.indexOfQuizId].questions;
+    this.quizService.setPreviousUserAnswersText(previousAnswers, questions);
   }
 
   /* private getResources() {
