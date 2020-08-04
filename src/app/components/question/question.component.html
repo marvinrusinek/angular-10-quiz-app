@@ -74,5 +74,11 @@
         </div>
       </section>
     </div>
+
+    <div *ngFor="let previousText of previousUserAnswersText[i]" class="previous-answer-text">
+      <div *ngIf="previousUserAnswersText[i].length > 1 && option.selected">
+        <span>{{ previousText }}</span>&nbsp;was selected in your previous quiz.
+      </div>
+    </div>
   </div>
 </form>
