@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizService } from '../../shared/services/quiz-service';
 
 
 @Component({
@@ -21,5 +22,11 @@ export class IntroductionComponent implements OnInit {
     this.route.url.subscribe(segments => {
       this.quizName = segments[1].toString();
     });
+  }
+
+  onChange($event) {
+    if ($event.checked === true) {
+      this.quizService.setChecked($event.checked);
+    }
   }
 }

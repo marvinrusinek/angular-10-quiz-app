@@ -180,6 +180,10 @@ export class QuizService {
     this.totalQuestions = totalQuestions;
   }
 
+  setChecked(checked: boolean): void {
+    this.checked = checked;
+  }
+
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
   }

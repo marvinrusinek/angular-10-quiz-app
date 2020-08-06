@@ -61,8 +61,10 @@ export class QuizComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
-    // this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
+    if (this.quizService.checked) {
+      this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
+      this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
+    }
 
     this.activatedRoute.url.subscribe(segments => {
       this.quizName = segments[1].toString();

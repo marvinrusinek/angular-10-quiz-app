@@ -19,6 +19,10 @@
     </mat-card-content>
 
     <mat-card-actions>
+      <mat-checkbox [checked]="false" (change)="onChange($event)">
+        <mat-checkbox-label>Shuffle Questions and Answers</mat-checkbox-label>
+      </mat-checkbox>
+
       <button
         type="button"
         mat-raised-button
