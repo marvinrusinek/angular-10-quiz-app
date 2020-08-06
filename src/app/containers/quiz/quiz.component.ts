@@ -87,8 +87,6 @@ export class QuizComponent implements OnInit {
         if (this.questionIndex === 1) {
           this.progressValue = 0;
           this.quizData[this.indexOfQuizId].status = 'started';
-          this.status = this.quizData[this.indexOfQuizId].status;
-          this.getStartedQuizId(this.status);
         } else {
           this.progressValue = ((this.questionIndex - 1) / this.totalQuestions) * 100;
         }
@@ -101,14 +99,6 @@ export class QuizComponent implements OnInit {
 
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
-  }
-
-  getStartedQuizId(quizId: string): void {
-    this.quizService.setStartedQuizId(quizId);
-  }
-
-  getContinueQuizId(quizId: string): void {
-    this.quizService.setContinueQuizId(quizId);
   }
 
   animationDoneHandler(): void {
@@ -155,9 +145,8 @@ export class QuizComponent implements OnInit {
 
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
-    this.quizData[this.indexOfQuizId].status = 'continue';
-    this.getContinueQuizId(this.quizData[this.indexOfQuizId].status);
     this.answers = [];
+    this.quizData[this.indexOfQuizId].status = 'continue';
     this.animationState$.next('animationStarted');
     this.quizService.navigateToNextQuestion();
   }
@@ -165,7 +154,6 @@ export class QuizComponent implements OnInit {
   advanceToPreviousQuestion() {
     this.answers = null;
     this.quizData[this.indexOfQuizId].status = 'continue';
-    this.getContinueQuizId(this.quizData[this.indexOfQuizId].status);
     this.animationState$.next('animationStarted');
     this.quizService.navigateToPreviousQuestion();
   }
