@@ -37,7 +37,8 @@ export class QuizService {
   previousUserAnswersInnerText = [];
   numberOfCorrectAnswers: number;
   numberOfCorrectAnswersArray = [];
-  
+  correctAnswersCountSubject = new BehaviorSubject<number>(0);
+
   explanation: string;
   explanationText: string;
   correctOptions: string;
@@ -47,7 +48,7 @@ export class QuizService {
   status: string;
 
   hasAnswer: boolean;
-  correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  checked: boolean;
 
   correctSound = new Howl({
     src: '../../assets/audio/sound-correct.mp3',
