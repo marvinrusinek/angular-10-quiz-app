@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizService } from '../../shared/services/quiz-service';
+import { QuizService } from '../../shared/services/quiz.service';
 
 
 @Component({
