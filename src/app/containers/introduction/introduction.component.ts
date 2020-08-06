@@ -16,7 +16,9 @@ export class IntroductionComponent implements OnInit {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   quizName: String = '';
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(
+    private quizService: QuizService,
+    private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.route.url.subscribe(segments => {
