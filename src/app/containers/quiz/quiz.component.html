@@ -5,7 +5,10 @@
     *ngIf="quiz.quizId === quizName && question && questionIndex <= totalQuestions">
 
     <mat-card-header>
-      <div mat-card-avatar class="header-image"></div>
+      <div mat-card-avatar class="header-image"
+           [routerLink]="['/quiz/select']"
+           matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left">
+      </div>
       <mat-card-title i18n>{{ quiz?.milestone }} Quiz</mat-card-title>
       <mat-card-subtitle i18n>Assess your knowledge of {{ quiz?.milestone }}</mat-card-subtitle>
     </mat-card-header>
