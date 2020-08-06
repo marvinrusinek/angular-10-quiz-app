@@ -50,12 +50,12 @@ export class QuizService {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
 
   correctSound = new Howl({
-    src: 'http://www.marvinrusinek.com/sound-correct.mp3',
+    src: '../../assets/audio/sound-correct.mp3',
     html5: true,
     format: ['mp3', 'aac']
   });
   incorrectSound = new Howl({
-    src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
+    src: '../../assets/audio/sound-incorrect.mp3',
     html5: true,
     format: ['mp3', 'aac']
   });
