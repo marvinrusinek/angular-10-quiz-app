@@ -18,7 +18,8 @@ export class IntroductionComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     this.route.url.subscribe(segments => {
