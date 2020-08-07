@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { animate, style, transition, trigger, keyframes } from '@angular/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
@@ -61,14 +60,8 @@ export class QuizComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.quizService.checked) {
-      this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
-      this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
-    }
-
-    this.activatedRoute.url.subscribe(segments => {
-      this.quizName = segments[1].toString();
-    });
+    this.getQuizNameFromUrl();
+    this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params.subscribe(params => {
       this.totalQuestions = this.quizData[this.indexOfQuizId].questions.length;
@@ -105,6 +98,28 @@ export class QuizComponent implements OnInit {
     this.animationState$.next('none');
   }
 
+  selectedAnswer(data) {
+    const correctAnswers = this.question.options.filter((options) => options.correct);
+    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
+      this.answers.push(data);
+    } else {
+      this.answers[0] = data;
+    }
+  }
+
+  shuffleQuestionsAndAnswers(): void {
+    if (this.quizService.checked) {
+      this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
+      this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
+    }
+  }
+
+  getQuizNameFromUrl(): void {
+    this.activatedRoute.url.subscribe(segments => {
+      this.quizName = segments[1].toString();
+    });
+  }
+
   private getQuestion() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
@@ -133,15 +148,6 @@ export class QuizComponent implements OnInit {
     this.resources = this.quizResources[this.indexOfQuizId].resources;
     this.quizService.setResources(this.resources);
   } */
-
-  selectedAnswer(data) {
-    const correctAnswers = this.question.options.filter((options) => options.correct);
-    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
-      this.answers.push(data);
-    } else {
-      this.answers[0] = data;
-    }
-  }
 
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
