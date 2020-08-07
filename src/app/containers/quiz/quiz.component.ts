@@ -107,6 +107,22 @@ export class QuizComponent implements OnInit {
     }
   }
 
+  checkIfAnsweredCorrectly() {
+    if (this.question) {
+      const correctAnswerFound = this.answers.find((answer) => {
+        return this.question.options &&
+          this.question.options[answer] &&
+          this.question.options[answer]['selected'] &&
+          this.question.options[answer]['correct'];
+      });
+      if (correctAnswerFound > -1) {
+        this.sendCorrectCountToQuizService(this.correctCount + 1);
+      }
+      const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
+      this.quizService.userAnswers.push(this.answers && this.answers.length > 0 ? answers : this.answers);
+    }
+  }
+
   shuffleQuestionsAndAnswers(): void {
     if (this.quizService.checked) {
       this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
@@ -120,14 +136,14 @@ export class QuizComponent implements OnInit {
     });
   }
 
-  private getQuestion() {
-    this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
-    this.quizService.setQuestion(this.question);
-  }
-
   private getQuestions() {
     this.questions = this.quizData[this.indexOfQuizId].questions;
     this.quizService.setQuestions(this.questions);
+  }
+
+  private getQuestion() {
+    this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
+    this.quizService.setQuestion(this.question);
   }
 
   private getQuizId() {
@@ -149,6 +165,8 @@ export class QuizComponent implements OnInit {
     this.quizService.setResources(this.resources);
   } */
 
+
+  /* navigation/paging functions */
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
     this.answers = [];
@@ -177,22 +195,6 @@ export class QuizComponent implements OnInit {
     this.timerService.completionTime = 0;
     this.answers = null;
     this.router.navigate(['/question/', this.quizId, 1]).then();
-  }
-
-  checkIfAnsweredCorrectly() {
-    if (this.question) {
-      const correctAnswerFound = this.answers.find((answer) => {
-        return this.question.options &&
-          this.question.options[answer] &&
-          this.question.options[answer]['selected'] &&
-          this.question.options[answer]['correct'];
-      });
-      if (correctAnswerFound > -1) {
-        this.sendCorrectCountToQuizService(this.correctCount + 1);
-      }
-      const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
-      this.quizService.userAnswers.push(this.answers && this.answers.length > 0 ? answers : this.answers);
-    }
   }
 
   sendCorrectCountToQuizService(value: number): void {
