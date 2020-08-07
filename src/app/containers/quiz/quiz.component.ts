@@ -60,7 +60,7 @@ export class QuizComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getQuizNameFromUrl();
+    this.getQuizNameFromRoute();
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params.subscribe(params => {
@@ -114,7 +114,7 @@ export class QuizComponent implements OnInit {
     }
   }
 
-  getQuizNameFromUrl(): void {
+  getQuizNameFromRoute(): void {
     this.activatedRoute.url.subscribe(segments => {
       this.quizName = segments[1].toString();
     });
