@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit {
   }
 
   shuffleQuestionsAndAnswers(): void {
-    if (this.quizService.checked) {
+    if (this.quizService.checkedShuffle) {
       this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
       this.quizService.shuffledAnswers(this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options);
     }

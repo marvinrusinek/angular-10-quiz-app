@@ -48,7 +48,7 @@ export class QuizService {
   status: string;
 
   hasAnswer: boolean;
-  checked: boolean;
+  checkedShuffle: boolean;
 
   correctSound = new Howl({
     src: '../../assets/audio/sound-correct.mp3',
@@ -182,7 +182,7 @@ export class QuizService {
   }
 
   setChecked(checked: boolean): void {
-    this.checked = checked;
+    this.checkedShuffle = checked;
   }
 
   sendCorrectCountToResults(value: number): void {
