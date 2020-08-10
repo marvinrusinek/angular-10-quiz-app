@@ -71,7 +71,7 @@ mat-card {
         justify-content: center;
         width: 320px !important;
         height: 350px !important;
-        background-color: #fafafa;
+        background-color: $off-white;
         border: 1px solid black;
         border-radius: 10px;
         cursor: pointer;
@@ -94,7 +94,7 @@ mat-card {
             font-weight: $font-weight-max;
             text-align: center;
             margin-top: 20px;
-            
+            color: $fire-red;
           }
 
           .quiz-subtitle {
