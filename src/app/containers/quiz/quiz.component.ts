@@ -115,11 +115,13 @@ export class QuizComponent implements OnInit {
           this.question.options[answer]['selected'] &&
           this.question.options[answer]['correct'];
       });
-      if (correctAnswerFound > -1) {
-        this.sendCorrectCountToQuizService(this.correctCount + 1);
-      }
+
       const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
       this.quizService.userAnswers.push(this.answers && this.answers.length > 0 ? answers : this.answers);
+
+      if (correctAnswerFound > -1 && this.answers.length === this.quizService.numberOfCorrectAnswers) {
+        this.sendCorrectCountToQuizService(this.correctCount + 1);
+      }
     }
   }
 
