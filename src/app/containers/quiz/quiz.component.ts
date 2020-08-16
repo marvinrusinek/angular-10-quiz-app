@@ -38,6 +38,7 @@ export class QuizComponent implements OnInit {
   status: string;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   get explanationText(): string { return this.quizService.explanationText; }
+  get correctOptions(): string { return this.quizService.correctOptions; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
   previousUserAnswers: any;
 

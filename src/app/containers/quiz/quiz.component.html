@@ -22,7 +22,11 @@
             <em>({{ numberOfCorrectAnswers }} answers are correct.)</em>
           </span>
         </span>
-        <span *ngIf="answers && answers.length > 0" i18n>{{ explanationText }}</span>
+        <span *ngIf="answers && answers.length > 0" i18n>
+          {{ numberOfCorrectAnswers === 1 ? 'Option ' + correctOptions + ' was correct because ' :
+                                            'Options ' + correctOptions + ' were correct because ' }}
+          {{ explanationText }}.
+        </span>
       </section>
 
       <codelab-quiz-question
