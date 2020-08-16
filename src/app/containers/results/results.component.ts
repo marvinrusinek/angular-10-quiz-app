@@ -46,6 +46,8 @@ export class ResultsComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
 
+  checkedShuffle: boolean;
+
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
 
@@ -80,6 +82,8 @@ export class ResultsComponent implements OnInit {
     });
     this.correctAnswers = this.quizService.correctAnswers;
     this.questions = this.quizService.questions;
+    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswersArray;
+    this.checkedShuffle = this.quizService.checkedShuffle;
     // this.resources = this.quizService.resources;
   }
 
