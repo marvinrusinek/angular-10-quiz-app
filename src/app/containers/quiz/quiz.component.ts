@@ -31,7 +31,7 @@ export class QuizComponent implements OnInit {
   answers: number[] = [];
   questionIndex: number;
   totalQuestions: number;
-  totalQuestionsAttempted 
+  totalQuestionsAttempted = 
   progressValue: number;
   correctCount: number;
   quizId: string;
