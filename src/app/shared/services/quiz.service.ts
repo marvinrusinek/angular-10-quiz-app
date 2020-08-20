@@ -88,29 +88,24 @@ export class QuizService {
     }
   }
 
-  setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
+  setCorrectAnswerMessagesAndExplanationText(correctAnswers: number[]): void {
     if (correctAnswers[0][0]) {
-      this.explanation = ' was correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0];
-      this.explanationText = 'Option ' + correctAnswers + this.explanation;
       this.correctMessage = 'The correct answer was Option ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1]) {
-      this.explanation = ' were correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
-      this.explanationText = 'Options ' + this.correctOptions + this.explanation;
       this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2]) {
-      this.explanation = ' were correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
-      this.explanationText = 'Options ' + this.correctOptions + this.explanation;
       this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2] && correctAnswers[0][3]) {
       this.explanationText = 'All were correct!';
       this.correctMessage = 'All were correct!';
     }
+    this.explanationText = this.question.explanation;
   }
 
     // randomize questions array in-place using Durstenfeld shuffle algorithm
