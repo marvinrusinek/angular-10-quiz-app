@@ -1,7 +1,8 @@
-@import "../../../_variables.scss";
+@import "variables";
 
 mat-card-header {
   display: block;
+  margin-top: 20px !important;
 
   .header-image {
     margin-left: 10px;
@@ -13,6 +14,7 @@ mat-card-header {
     font-style: italic;
     font-weight: 900;
     color: $green-angular-leaf;
+    text-shadow: 1px 0 0 $black, 0 -1px 0 $black, 0 1px 0 $black, -1px 0 0 $black;
   }
 }
 
@@ -21,6 +23,9 @@ mat-card-header {
   clear: both;
 
   h3 {
+    font-family: $congratulations-font;
+    font-size: 32px;
+    font-style: italic;
     text-align: center;
   }
   img {
@@ -44,6 +49,12 @@ mat-card-header {
     .your-score, .elapsed-time {
       font-size: 18px;
       font-weight: bold;
+    }
+
+    .result {
+      font-family: $font-stack;
+      font-size: 26px;
+      display: inline;
     }
 
     .percent-sign {
@@ -94,14 +105,52 @@ mat-card-header {
         text-align: center;
       }
 
-      .quiz-note {
-        font-family: $font-stack;
-        font-size: 16px;
-        display: flex;
-        justify-content: center;
+      .printout {
+        float: right;
+        margin-right: 15px;
+
+        a {
+          text-decoration: none !important;
+        }
+      }
+
+      .summary-report {
+        margin: 0 auto;
+        border: 2px double $black;
+        width: 32.5rem;
+        clear: both;
+        padding: 5px;
+        margin-bottom: 25px;
+
+        .summary-report-header {
+          text-align: center;
+          font-weight: $font-weight-max;
+        }
+
+        ul li {
+          list-style-type: none;
+        }
+
+        .summary-stats-leader {
+          font-weight: $font-weight-max;
+          font-color: $green-angular-leaf;
+          font-size: 16px;
+        }
+
+        .result {
+          font-size: 20px;
+        }
+
+        .quiz-note {
+          font-family: $font-stack;
+          font-size: 16px;
+          display: flex;
+          justify-content: center;
+        }
       }
 
       mat-accordion {
+        clear: both;
         padding-bottom: 20px;
 
         mat-expansion-panel {
@@ -113,14 +162,13 @@ mat-card-header {
         }
 
         mat-panel-title {
-          background-color: $light-gray !important;
-          color: $black !important;
+          background-color: $light-gray;
+          color: $black;
 
           .question-leader {
             font-weight: $font-weight-max;
             color: $darker-blue;
             white-space: nowrap;
-
           }
           .question-text {
             font-weight: 700;
@@ -132,8 +180,6 @@ mat-card-header {
         .accordion-icon {
           position: absolute;
           left: 0;
-          margin: 0 0 0 25px;
-          margin-left: -5px;
           color: $gray;
           font-weight: $font-weight-max;
           font-size: 20px;
@@ -215,6 +261,7 @@ mat-card-header {
 
 .challenge-social {
   text-align: center;
+  padding-bottom: 15px;
 
   .social-buttons {
     display: block;
@@ -228,13 +275,13 @@ mat-card-header {
       color: $white;
     }
 
-    /* a.btn.facebook {
+    a.btn.facebook {
       background-color: $dark-blue;
       background-image: url($facebook-path);
       top: 10px !important;
-    } */
+    }
 
-    a.btn.twitter {
+    a.btn.twitter-share-button {
       background-color: $soft-blue;
       background-image: url($twitter-path);
       top: 10px !important;
