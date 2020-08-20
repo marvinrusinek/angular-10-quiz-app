@@ -77,6 +77,7 @@ export class QuizComponent implements OnInit {
         this.getQuestions();
         this.getQuizId();
         this.getQuizStatus();
+        this.getTotalQuestionsAttempted()
         // this.getResources();
 
         if (this.questionIndex === 1) {
@@ -158,6 +159,10 @@ export class QuizComponent implements OnInit {
   private getQuizStatus(): void {
     this.status = this.quizData[this.indexOfQuizId].status;
     this.quizService.setQuizStatus(this.status);
+  }
+
+  private getTotalQuestionsAttempted(): void {
+    this.quizService.setTotalQuestionsAttempted(this.totalQuestionsAttempted);
   }
 
   private getPreviousUserAnswersText(previousAnswers): void {

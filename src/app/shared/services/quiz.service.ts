@@ -179,7 +179,7 @@ export class QuizService {
   }
 
   setTotalQuestionsAttempted(totalQuestionsAttempted: number): void {
-    this.totalQuestionsAttempted = totalQuestionsAtte;
+    this.totalQuestionsAttempted = totalQuestionsAttempted;
   }
 
   setChecked(checked: boolean): void {
