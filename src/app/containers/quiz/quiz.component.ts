@@ -77,7 +77,7 @@ export class QuizComponent implements OnInit {
         this.getQuestions();
         this.getQuizId();
         this.getQuizStatus();
-        this.getTotalQuestionsAttempted()
+        this.getTotalQuestionsAttempted();
         // this.getResources();
 
         if (this.questionIndex === 1) {
