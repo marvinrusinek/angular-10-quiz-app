@@ -98,13 +98,16 @@
 .previous-answer-text {
   clear: both;
 
-  span {
+  div {
     font-family: $font-stack;
-    font-weight: $font-weight-max;
     font-size: 16px;
-    margin-top: 15px;
-    margin: 0 auto;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+
+    span {
+      font-weight: $font-weight-max;
+      font-style: italic;
+    }
   }
 }
 

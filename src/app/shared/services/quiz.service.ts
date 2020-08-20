@@ -31,10 +31,12 @@ export class QuizService {
   correctAnswers = [];
   correctAnswersForEachQuestion = [];
   correctAnswerOptions: number[] = [];
+  
   userAnswers = [];
   previousUserAnswers = [];
-  previousUserAnswersText = [];
-  previousUserAnswersInnerText = [];
+  previousUserAnswersTextSingleAnswer = [];
+  previousUserAnswersTextMultipleAnswer = [];
+
   numberOfCorrectAnswers: number;
   numberOfCorrectAnswersArray = [];
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
@@ -86,24 +88,29 @@ export class QuizService {
     }
   }
 
-  setCorrectAnswerMessagesAndExplanationText(correctAnswers: number[]): void {
+  setExplanationAndCorrectAnswerMessages(correctAnswers: number[]): void {
     if (correctAnswers[0][0]) {
+      this.explanation = ' was correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0];
+      this.explanationText = 'Option ' + correctAnswers + this.explanation;
       this.correctMessage = 'The correct answer was Option ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1]) {
+      this.explanation = ' were correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][1]);
+      this.explanationText = 'Options ' + this.correctOptions + this.explanation;
       this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2]) {
+      this.explanation = ' were correct because ' + this.question.explanation + '.';
       this.correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
+      this.explanationText = 'Options ' + this.correctOptions + this.explanation;
       this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
     }
     if (correctAnswers[0][0] && correctAnswers[0][1] && correctAnswers[0][2] && correctAnswers[0][3]) {
       this.explanationText = 'All were correct!';
       this.correctMessage = 'All were correct!';
     }
-    this.explanationText = this.question.explanation;
   }
 
     // randomize questions array in-place using Durstenfeld shuffle algorithm
@@ -126,22 +133,21 @@ export class QuizService {
     this.previousUserAnswers = previousAnswers;
   }
 
+  // set the text of the previous answers in an array to show in the following quiz
   setPreviousUserAnswersText(previousAnswers, questions: QuizQuestion[]): void {
     for (let i = 0; i < previousAnswers.length; i++) {
       if (previousAnswers[i].length === 1) {
         const previousAnswersString = questions[i].options[previousAnswers[i] - 1].text;
-        this.previousUserAnswersText.push(previousAnswersString);
+        this.previousUserAnswersTextSingleAnswer.push(previousAnswersString);
       }
       if (previousAnswers[i].length > 1) {
-        const previousAnswerOptionsInner = previousAnswers[i].slice();
-        for (let j = 0; j < previousAnswerOptionsInner.length; j++) {
-          const previousAnswersInnerString = questions[i].options[previousAnswerOptionsInner[j] - 1].text;
-          this.previousUserAnswersInnerText.push(previousAnswersInnerString);
+        const previousAnswerOptionsInnerArray = previousAnswers[i].slice();
+        for (let j = 0; j < previousAnswerOptionsInnerArray.length; j++) {
+          const previousAnswersInnerString = questions[i].options[previousAnswerOptionsInnerArray[j] - 1].text;
+          this.previousUserAnswersTextMultipleAnswer.push(previousAnswersInnerString);
         }
-        this.previousUserAnswersText.push(this.previousUserAnswersInnerText);
       }
     }
-    console.log('PUAText: ', this.previousUserAnswersText);
   }
 
   setQuizId(quizId: string): void {

@@ -33,6 +33,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctMessage = '';
   isCorrectAnswerSelected = false;
   previousUserAnswersText = [];
+  previousUserAnswersTextSingleAnswer = [];
+  previousUserAnswersTextMultipleAnswer = [];
 
   constructor(
     private quizService: QuizService, 
@@ -44,7 +46,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       answer: new FormControl(['', Validators.required])
     });
 
-    this.previousUserAnswersText = this.quizService.previousUserAnswersText;
+    this.previousUserAnswersTextSingleAnswer = this.quizService.previousUserAnswersTextSingleAnswer;
+    this.previousUserAnswersTextMultipleAnswer = this.quizService.previousUserAnswersTextMultipleAnswer;
   }
 
   ngOnChanges(changes: SimpleChanges) {
