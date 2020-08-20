@@ -31,6 +31,7 @@ export class QuizComponent implements OnInit {
   answers: number[] = [];
   questionIndex: number;
   totalQuestions: number;
+  totalQuestionsAttempted 
   progressValue: number;
   correctCount: number;
   quizId: string;
@@ -122,6 +123,7 @@ export class QuizComponent implements OnInit {
 
       if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
+        this.totalQuestionsAttempted++;
       }
     }
   }
