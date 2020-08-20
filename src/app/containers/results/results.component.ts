@@ -34,6 +34,7 @@ export class ResultsComponent implements OnInit {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
+  highScores: Score[] = [];
   questions: QuizQuestion[];
   // resources: Resource[];
   quizName = '';
@@ -65,16 +66,14 @@ export class ResultsComponent implements OnInit {
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
-    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswersArray;
-    
     this.quizData[this.indexOfQuizId].status = 'completed';
 
-    this.calculateElapsedTime();
     this.getCompletedQuizId(this.quizId);
     this.getQuizStatus();
-    
     this.previousUserAnswers = this.quizService.userAnswers;
     this.getUserAnswers(this.previousUserAnswers);
+    this.calculateElapsedTime();
+    this.saveHighScores();
   }
 
   ngOnInit() {
@@ -114,6 +113,18 @@ export class ResultsComponent implements OnInit {
     return !(!userAnswers[index] || 
              userAnswers[index].length === 0 || 
              userAnswers[index].find((answer) => correctAnswers[index][0].indexOf(answer) === -1));
+  }
+
+  saveHighScores(): void {
+    const score: Score = {
+      quizId: this.quizId,
+      score: this.quizMetadata.correctAnswersCount$,
+      time: new Date()
+    };
+    
+    // TODO: set a max of 5 high scores per quizId
+    this.highScores.push(score);
+    console.log('scores:', this.highScores);
   }
 
   openAllPanels() {
