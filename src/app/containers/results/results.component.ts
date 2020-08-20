@@ -9,7 +9,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 // import { Resource } from '@codelab-quiz/shared/models/Resource.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
 import { Result } from '../../shared/models/Result.model';
-import { Score } from '../..//shared/models/Score.model';
+import { Score } from '../../shared/models/Score.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
