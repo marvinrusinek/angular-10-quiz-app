@@ -20,6 +20,7 @@ export class QuizService {
   questions: QuizQuestion[];
   answers: number[];
   totalQuestions: number;
+  totalQuestionsAttempted: number;
   currentQuestionIndex = 1;
 
   quizId: string;
@@ -175,6 +176,10 @@ export class QuizService {
 
   setTotalQuestions(totalQuestions: number): void {
     this.totalQuestions = totalQuestions;
+  }
+
+  setTotalQuestionsAttempted(totalQuestionsAttempted: number): void {
+    this.totalQuestionsAttempted = totalQuestionsAtte;
   }
 
   setChecked(checked: boolean): void {
