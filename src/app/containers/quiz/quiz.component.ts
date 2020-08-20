@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit {
 
       if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
-        this.totalQuestionsAttempted++;
+        this.totalQuestionsAttempted += 1;
       }
     }
   }
