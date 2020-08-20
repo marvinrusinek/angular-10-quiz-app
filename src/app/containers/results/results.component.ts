@@ -35,6 +35,11 @@ export class ResultsComponent implements OnInit {
     elapsedTimes: this.timerService.elapsedTimes
   };
   highScores: Score[] = [];
+  score: Score = {
+    quizId: '',
+    score: this.quizMetadata.correctAnswersCount$,
+    time: new Date()
+  };
   questions: QuizQuestion[];
   // resources: Resource[];
   quizName = '';
@@ -116,15 +121,13 @@ export class ResultsComponent implements OnInit {
   }
 
   saveHighScores(): void {
-    const score: Score = {
-      quizId: this.quizId,
-      score: this.quizMetadata.correctAnswersCount$,
-      time: new Date()
-    };
-    
-    // TODO: set a max of 5 high scores per quizId
-    this.highScores.push(score);
-    console.log('scores:', this.highScores);
+    // TODO: set a max of 5 high scores per quizId, is the code below sufficient?
+    const MAX_LENGTH = 5;
+    if (this.quizId === this.quizName) {
+      this.highScores = new Array(MAX_LENGTH);
+    }
+    this.highScores.push(this.score);
+    console.log('High Scores:', this.highScores);
   }
 
   openAllPanels() {
