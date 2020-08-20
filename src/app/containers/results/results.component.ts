@@ -26,6 +26,7 @@ export class ResultsComponent implements OnInit {
 
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
+    totalQuestionsAttempted: this.quizService.totalQuestionsAttempted,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
     percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
     completionTime: this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes)
