@@ -39,7 +39,7 @@ export class ResultsComponent implements OnInit {
   score: Score = {
     quizId: '',
     score: this.quizMetadata.correctAnswersCount$,
-    time: new Date()
+    datetime: new Date()
   };
   questions: QuizQuestion[];
   // resources: Resource[];

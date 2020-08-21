@@ -78,15 +78,14 @@
           <details>
             <summary i18n>Click to view a more detailed summary of your quiz&hellip;</summary>
 
-            <div class="printout">
-              <a href="javascript:window.print()">
-                <mat-icon>printer</mat-icon><br /><strong>Print</strong>
-              </a>
-            </div>
-
             <div class="summary-report">
               <h2 class="summary-report-header">Summary Report</h2>
-              <ul>
+              <div class="printout">
+                <a href="javascript:window.print()">
+                  <mat-icon>printer</mat-icon><br /><strong>Print</strong>
+                </a>
+              </div>
+              <ul class="summary-stats">
                 <li><span class="summary-stats-leader">
                   Your Score: </span> <span class="result">{{ quizMetadata?.correctAnswersCount$ | async }}</span></li>
                 <li><span class="summary-stats-leader">
@@ -104,7 +103,7 @@
                   Time Elapsed: </span> <span class="result">{{ elapsedMinutes }} minutes and {{ elapsedSeconds }}
                   seconds</span></li>
                 <li><span class="summary-stats-leader">
-                  Date/Time Completed: </span> <span class="result">{{ score.time }}</span></li>
+                  Date/Time Completed: </span> <span class="result">{{ score.datetime | date: 'medium' }}</span></li>
               </ul><br />
 
               <span *ngIf="checkedShuffle" class="quiz-note">
