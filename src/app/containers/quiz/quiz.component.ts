@@ -31,7 +31,7 @@ export class QuizComponent implements OnInit {
   answers: number[] = [];
   questionIndex: number;
   totalQuestions: number;
-  totalQuestionsAttempted = 0;
+  totalQuestionsAttempted: number;
   progressValue: number;
   correctCount: number;
   quizId: string;
@@ -95,6 +95,7 @@ export class QuizComponent implements OnInit {
 
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
+    this.totalQuestionsAttempted 
   }
 
   animationDoneHandler(): void {
