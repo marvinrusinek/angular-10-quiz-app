@@ -73,19 +73,20 @@ export class QuizComponent implements OnInit {
         this.questionIndex = parseInt(params.questionIndex, 0);
         this.quizService.currentQuestionIndex = this.questionIndex;
 
-        this.getQuestion();
-        this.getQuestions();
-        this.getQuizId();
-        this.getQuizStatus();
-        this.getTotalQuestionsAttempted();
-        // this.getResources();
-
         if (this.questionIndex === 1) {
           this.progressValue = 0;
           this.quizData[this.indexOfQuizId].status = 'started';
         } else {
           this.progressValue = ((this.questionIndex - 1) / this.totalQuestions) * 100;
         }
+
+        this.sendQuestionToQuizService();
+        this.sendQuestionsToQuizService();
+        this.sendQuizIdToQuizService();
+        this.sendQuizStatusToQuizService();
+        this.sendTotalQuestionsAttemptedToQuizService();
+        this.sendPreviousUserAnswersToQuizService(this.quizService.previousUserAnswers);
+        // this.sendResourcesToQuizService();
       }
     });
 
@@ -125,7 +126,7 @@ export class QuizComponent implements OnInit {
 
       if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
-        this.totalQuestionsAttempted+;
+        this.totalQuestionsAttempted++;
       }
     }
   }
@@ -143,35 +144,35 @@ export class QuizComponent implements OnInit {
     });
   }
 
-  private getQuestions() {
+  private sendQuestionsToQuizService() {
     this.questions = this.quizData[this.indexOfQuizId].questions;
     this.quizService.setQuestions(this.questions);
   }
 
-  private getQuestion() {
+  private sendQuestionToQuizService() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
   }
 
-  private getQuizId() {
+  private sendQuizIdToQuizService() {
     this.quizService.setQuizId(this.quizId);
   }
 
-  private getQuizStatus(): void {
+  private sendQuizStatusToQuizService(): void {
     this.status = this.quizData[this.indexOfQuizId].status;
     this.quizService.setQuizStatus(this.status);
   }
 
-  private getTotalQuestionsAttempted(): void {
+  private sendTotalQuestionsAttemptedToQuizService(): void {
     this.quizService.setTotalQuestionsAttempted(this.totalQuestionsAttempted);
   }
 
-  private getPreviousUserAnswersText(previousAnswers): void {
+  private sendPreviousUserAnswersToQuizService(previousAnswers): void {
     this.questions = this.quizData[this.indexOfQuizId].questions;
     this.quizService.setPreviousUserAnswersText(previousAnswers, this.questions);
   }
 
-  /* private getResources() {
+  /* private sendResourcesToQuizService() {
     this.resources = this.quizResources[this.indexOfQuizId].resources;
     this.quizService.setResources(this.resources);
   } */
