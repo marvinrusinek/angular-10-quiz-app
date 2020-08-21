@@ -95,7 +95,7 @@ export class QuizComponent implements OnInit {
 
     this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
     this.sendCorrectCountToQuizService(this.correctCount);
-    this.totalQuestionsAttempted 
+    this.totalQuestionsAttempted = 1;
   }
 
   animationDoneHandler(): void {
@@ -125,7 +125,7 @@ export class QuizComponent implements OnInit {
 
       if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
         this.sendCorrectCountToQuizService(this.correctCount + 1);
-        this.totalQuestionsAttempted += 1;
+        this.totalQuestionsAttempted+;
       }
     }
   }
