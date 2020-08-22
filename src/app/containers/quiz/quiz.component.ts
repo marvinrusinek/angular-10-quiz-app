@@ -103,6 +103,10 @@ export class QuizComponent implements OnInit {
     this.animationState$.next('none');
   }
 
+  isAnswered(): boolean {
+    return this.answers && this.answers.length > 0;
+  }
+
   selectedAnswer(data) {
     const correctAnswers = this.question.options.filter((options) => options.correct);
     if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
@@ -142,10 +146,6 @@ export class QuizComponent implements OnInit {
     this.activatedRoute.url.subscribe(segments => {
       this.quizName = segments[1].toString();
     });
-  }
-
-  isAnswered(): boolean {
-    return this.answers && this.answers.length > 0;
   }
 
   private sendQuestionToQuizService() {
