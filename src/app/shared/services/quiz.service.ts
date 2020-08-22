@@ -187,7 +187,9 @@ export class QuizService {
     this.checkedShuffle = checked;
   }
 
-  
+  setMultipleAnswer(multipleAnswer: boolean): void {
+    this.multipleAnswer = multipleAnswer;
+  }
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
