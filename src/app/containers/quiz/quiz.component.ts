@@ -125,13 +125,17 @@ export class QuizComponent implements OnInit {
           this.question.options[answer]['correct'];
       });
 
-      const answers = this.answers && this.answers.length > 0 ? this.answers.map((answer) => answer + 1) : [];
-      this.quizService.userAnswers.push(this.answers && this.answers.length > 0 ? answers : this.answers);
+      const answers = this.isAnswered() ? this.answers.map((answer) => answer + 1) : [];
+      this.quizService.userAnswers.push(this.isAnswered() ? answers : this.answers);
 
-      if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
-        this.sendCorrectCountToQuizService(this.correctCount + 1);
-        this.totalQuestionsAttempted++;
-      }
+      this.addUpScores(answers, correctAnswerFound);
+    }
+  }
+
+  addUpScores(answers: number[], correctAnswerFound: number): void {
+    // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
+    if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
+      this.sendCorrectCountToQuizService(this.correctCount + 1);
     }
   }
 
