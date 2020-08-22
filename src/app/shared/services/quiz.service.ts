@@ -19,6 +19,7 @@ export class QuizService {
   question: QuizQuestion;
   questions: QuizQuestion[];
   answers: number[];
+  multipleAnswer: boolean;
   totalQuestions: number;
   totalQuestionsAttempted: number;
   currentQuestionIndex = 1;
@@ -185,6 +186,8 @@ export class QuizService {
   setChecked(checked: boolean): void {
     this.checkedShuffle = checked;
   }
+
+  
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);

@@ -139,6 +139,18 @@ export class QuizComponent implements OnInit {
     }
   }
 
+  setTotalQuestionsAttempted(): void {
+    if (this.quizService.multipleAnswer === true &&
+      this.isAnswered() &&
+      this.answers.length === this.quizService.numberOfCorrectAnswers) {
+      this.totalQuestionsAttempted += 1;  // or is it ++?
+    } else {
+      this.totalQuestionsAttempted++;
+    }
+    console.log('TQA: ', this.totalQuestionsAttempted); // check in console
+    this.sendTotalQuestionsAttemptedToQuizService();
+  }
+
   shuffleQuestionsAndAnswers(): void {
     if (this.quizService.checkedShuffle) {
       this.quizService.shuffledQuestions(this.quizData[this.indexOfQuizId].questions);
@@ -189,6 +201,7 @@ export class QuizComponent implements OnInit {
   /* navigation/paging functions */
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
+    this.setTotalQuestionsAttempted();
     this.answers = [];
     this.quizData[this.indexOfQuizId].status = 'continue';
     this.animationState$.next('animationStarted');
