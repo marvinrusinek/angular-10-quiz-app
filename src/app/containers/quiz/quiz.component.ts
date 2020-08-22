@@ -144,14 +144,18 @@ export class QuizComponent implements OnInit {
     });
   }
 
-  private sendQuestionsToQuizService() {
-    this.questions = this.quizData[this.indexOfQuizId].questions;
-    this.quizService.setQuestions(this.questions);
+  isAnswered(): boolean {
+    return this.answers && this.answers.length > 0;
   }
 
   private sendQuestionToQuizService() {
     this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
+  }
+
+  private sendQuestionsToQuizService() {
+    this.questions = this.quizData[this.indexOfQuizId].questions;
+    this.quizService.setQuestions(this.questions);
   }
 
   private sendQuizIdToQuizService() {

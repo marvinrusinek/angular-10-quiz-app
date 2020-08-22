@@ -64,7 +64,7 @@
                       (click)="advanceToNextQuestion()"
                       (window:keydown.ArrowRight)="advanceToNextQuestion()"
                       (window:keydown.Enter)="advanceToNextQuestion()"
-                      matTooltip="Next Question &raquo;" matTooltipPosition="above" [disabled]="true">
+                      matTooltip="Next Question &raquo;" matTooltipPosition="above" [disabled]="isAnswered">
                 <svg viewBox="0 0 410.258 410.258">
                   <polygon [attr.points]="paging.nextButtonPoints"/>
                 </svg>
