@@ -143,11 +143,11 @@ export class QuizComponent implements OnInit {
     if (this.quizService.multipleAnswer === true &&
       this.isAnswered() &&
       this.answers.length === this.quizService.numberOfCorrectAnswers) {
-      this.totalQuestionsAttempted += 1;  
+      this.totalQuestionsAttempted += 1;
     } else {
       this.totalQuestionsAttempted++;
     }
-    console.log('TQA: ', this.totalQuestionsAttempted); // check in console
+    console.log('TQA: ', this.totalQuestionsAttempted);
     this.sendTotalQuestionsAttemptedToQuizService();
   }
 
