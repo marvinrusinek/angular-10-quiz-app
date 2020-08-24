@@ -39,7 +39,6 @@ export class ResultsComponent implements OnInit {
   highScores: Score[] = [];
   score: Score;
 
-
   questions: QuizQuestion[];
   // resources: Resource[];
   quizName = '';
