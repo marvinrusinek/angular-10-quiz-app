@@ -111,7 +111,7 @@ export class ResultsComponent implements OnInit {
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(100 * this.quizService.correctAnswersCountSubject.getValue() / this.quizMetadata.totalQuestions);
+    return Math.ceil(100 * this.quizService.correctAnswersCountSubject.getValue() / this.quizService.totalQuestions);
   }
 
   checkIfAnswersAreCorrect(correctAnswers: any, userAnswers: any, index: number): boolean {
