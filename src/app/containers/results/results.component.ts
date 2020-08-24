@@ -75,8 +75,8 @@ export class ResultsComponent implements OnInit {
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
     this.quizData[this.indexOfQuizId].status = 'completed';
 
-    this.getCompletedQuizId(this.quizId);
     this.getQuizStatus();
+    this.getCompletedQuizId(this.quizId);
     this.getUserAnswers(this.previousUserAnswers);
     this.calculateElapsedTime();
     this.saveHighScores();
@@ -103,7 +103,7 @@ export class ResultsComponent implements OnInit {
     this.quizService.setQuizStatus(this.status);
   }
 
-  private getUserAnswers(previousAnswers: []): void {
+  private getUserAnswers(previousAnswers: any): void {
     this.quizService.setUserAnswers(previousAnswers);
   }
 
@@ -113,10 +113,10 @@ export class ResultsComponent implements OnInit {
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(100 * this.quizService.correctAnswersCountSubject.value / this.quizService.totalQuestions);
+    return Math.ceil(100 * this.quizService.correctAnswersCountSubject.getValue() / this.quizMetadata.totalQuestions);
   }
 
-  checkIfAnswersAreCorrect(correctAnswers, userAnswers, index: number): boolean {
+  checkIfAnswersAreCorrect(correctAnswers: any, userAnswers: any, index: number): boolean {
     return !(!userAnswers[index] || 
              userAnswers[index].length === 0 || 
              userAnswers[index].find((answer) => correctAnswers[index][0].indexOf(answer) === -1));
