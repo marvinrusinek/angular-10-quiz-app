@@ -47,10 +47,11 @@ export class ResultsComponent implements OnInit {
   quizId: string;
   indexOfQuizId: number;
   status: string;
-  previousUserAnswers: any;
   
   correctAnswers: number[] = [];
-  numberOfCorrectAnswers = [];
+  previousUserAnswers: any[] = [];
+  numberOfCorrectAnswers: number[] = [];
+
   elapsedMinutes: number;
   elapsedSeconds: number;
 
@@ -76,7 +77,6 @@ export class ResultsComponent implements OnInit {
 
     this.getCompletedQuizId(this.quizId);
     this.getQuizStatus();
-    this.previousUserAnswers = this.quizService.userAnswers;
     this.getUserAnswers(this.previousUserAnswers);
     this.calculateElapsedTime();
     this.saveHighScores();
@@ -90,10 +90,11 @@ export class ResultsComponent implements OnInit {
     this.questions = this.quizService.questions;
     this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswersArray;
     this.checkedShuffle = this.quizService.checkedShuffle;
+    this.previousUserAnswers = this.quizService.userAnswers;
     // this.resources = this.quizService.resources;
   }
 
-  private getCompletedQuizId(quizId): void {
+  private getCompletedQuizId(quizId: string): void {
     this.quizService.setCompletedQuizId(quizId);
   }
 
