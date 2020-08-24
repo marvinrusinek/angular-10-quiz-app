@@ -35,12 +35,11 @@ export class ResultsComponent implements OnInit {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
+  
   highScores: Score[] = [];
-  score: Score = {
-    quizId: '',
-    score: this.quizMetadata.correctAnswersCount$,
-    datetime: new Date()
-  };
+  score: Score;
+
+
   questions: QuizQuestion[];
   // resources: Resource[];
   quizName = '';
@@ -123,10 +122,20 @@ export class ResultsComponent implements OnInit {
   }
 
   saveHighScores(): void {
-    // TODO: set a max of 5 high scores per quizId, is the code below sufficient?
-    const MAX_LENGTH = 5;
+    this.score = {
+      quizId: this.quizId,
+      score: this.quizService.correctAnswersCountSubject.getValue(),
+      datetime: new Date()
+    };
+
+    const MAX_LENGTH = 2;
     if (this.quizId === this.quizName) {
       this.highScores = new Array(MAX_LENGTH);
+    }
+
+    // TODO: checked, error doesn't get thrown if quiz is taken more than 2 times; maybe need to use localstorage
+    if (this.quizId && this.highScores.length > MAX_LENGTH) {
+      console.log('ERROR: ' + this.quizData[this.indexOfQuizId].milestone + ' can only be taken ' + MAX_LENGTH + ' times');
     }
     this.highScores.push(this.score);
     console.log('High Scores:', this.highScores);
