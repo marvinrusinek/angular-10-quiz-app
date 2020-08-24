@@ -32,7 +32,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
   correctMessage = '';
   isCorrectAnswerSelected = false;
-  previousUserAnswersText = [];
   previousUserAnswersTextSingleAnswer = [];
   previousUserAnswersTextMultipleAnswer = [];
 
