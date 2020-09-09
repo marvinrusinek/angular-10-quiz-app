@@ -201,19 +201,19 @@ export class QuizService {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/quiz/question/', this.quizId, questionIndex]).then();
+    this.router.navigate(['/question/', this.quizId, questionIndex]).then();
     this.resetAll();
   }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
-    this.router.navigate(['/quiz/question/', this.quizId, this.currentQuestionIndex - 1]).then();
+    this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex - 1]).then();
     this.resetAll();
   }
 
   navigateToResults() {
     this.quizCompleted = true;
-    this.router.navigate(['/quiz/results/', this.quizId]).then();
+    this.router.navigate(['/results/', this.quizId]).then();
   }
 
   /********* reset functions ***********/
