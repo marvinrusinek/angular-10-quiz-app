@@ -28,6 +28,8 @@ import { TimeComponent } from './containers/scoreboard/time/time.component';
 import { QuizService } from './shared/services/quiz.service';
 import { TimerService } from './shared/services/timer.service';
 import { JoinPipe } from './pipes/join.pipe';
+import { MultipleAnswerComponent } from './components/question/multiple-answer/multiple-answer.component';
+import { SingleAnswerComponent } from './components/question/single-answer/single-answer.component';
 
 
 @NgModule({
@@ -41,7 +43,9 @@ import { JoinPipe } from './pipes/join.pipe';
     ScoreboardComponent,
     ScoreComponent,
     TimeComponent,
-    JoinPipe
+    JoinPipe,
+    MultipleAnswerComponent,
+    SingleAnswerComponent
   ],
   imports: [
     CommonModule,

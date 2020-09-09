@@ -1,0 +1,43 @@
+<div class="options" *ngFor="let option of currentQuestion.options; index as i">
+  <div class="multiple-answer" *ngIf="multipleAnswer">
+    <div *ngIf="hasOptions">
+      <mat-checkbox id="mat-checkbox"
+        [class.is-correct]="option.selected && option.correct"
+        [class.is-incorrect]="option.selected && !option.correct">
+
+      <mat-checkbox-label>
+        <span>{{ i + 1 }}. {{ option.text }}</span>
+
+        <ng-container *ngIf="option.selected">
+          <mat-icon class="feedback-icon"
+                    *ngIf="option.correct && isCorrectAnswerSelected">done</mat-icon>
+          <mat-icon class="feedback-icon"
+                    *ngIf="!option.correct">clear</mat-icon>
+        </ng-container>
+      </mat-checkbox-label>
+    </mat-checkbox>
+
+    <ng-container *ngIf="option.selected">
+      <div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
+        <span>
+          <mat-icon class="sentiment-icon">sentiment_very_satisfied</mat-icon>
+          <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
+        </span>
+      </div>
+      <div *ngIf="!option.correct" class="messages">
+        <span>
+          <mat-icon class="sentiment-icon">sentiment_very_dissatisfied</mat-icon>
+          <span class="message wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
+        </span>
+      </div>
+    </ng-container>
+
+    <!-- TODO: get this working, except with previousUserAnswersText -->
+    <!-- <div *ngFor="let previousOption of previousUserAnswers[i]" class="previous-answer-text">
+          <span *ngIf="option.selected && previousUserAnswers[i].length > 1">
+            Options {{ previousOption | join }} were selected in your previous quiz.
+          </span>
+    </div> -->
+    </div>
+  </div>
+</div>
