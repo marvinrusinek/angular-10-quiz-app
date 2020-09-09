@@ -13,7 +13,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
   providedIn: 'root'
 })
 export class QuizService {
-  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
+  quizData: Quiz[] = QUIZ_D;
   currentQuestion: QuizQuestion;
   question: QuizQuestion;
   questions: QuizQuestion[];
