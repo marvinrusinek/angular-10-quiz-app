@@ -11,10 +11,11 @@ import { TimerService } from '../../../shared/services/timer.service';
 })
 export class MultipleAnswerComponent implements OnInit {
   @Output() answer = new EventEmitter<number>();
-  @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
+  @Input() question: QuizQuestion;
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
   currentQuestion: QuizQuestion;
+
   hasOptions: boolean;
 
   quizStarted: boolean;
@@ -23,9 +24,13 @@ export class MultipleAnswerComponent implements OnInit {
   isAnswered: boolean;
   isCorrectAnswerSelected: boolean;
 
-  constructor(private quizService: QuizService, private timerService: TimerService) {}
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService
+  ) { }
 
   ngOnInit(): void {
+    this.question = this.currentQuestion;
     this.multipleAnswer = this.quizService.multipleAnswer;
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
@@ -33,7 +38,7 @@ export class MultipleAnswerComponent implements OnInit {
 
     if (this.currentQuestion.options.length >= 1) {
       this.hasOptions = true;
-      document.getElementById("mat-checkbox").style.visibility = "hidden";
+      // document.getElementById("mat-checkbox").style.visibility = "hidden";
     } else {
       this.hasOptions = false;
     }

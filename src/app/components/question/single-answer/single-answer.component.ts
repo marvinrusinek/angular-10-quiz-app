@@ -4,7 +4,6 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
 
-
 @Component({
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
@@ -12,7 +11,7 @@ import { TimerService } from '../../../shared/services/timer.service';
 })
 export class SingleAnswerComponent implements OnInit {
   @Output() answer = new EventEmitter<number>();
-  @Input() set question(value: QuizQuestion) { this.currentQuestion = value; }
+  @Input() question: QuizQuestion;
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
   currentQuestion: QuizQuestion;
@@ -26,6 +25,7 @@ export class SingleAnswerComponent implements OnInit {
   constructor(private quizService: QuizService, private timerService: TimerService) {}
 
   ngOnInit(): void {
+    this.question = this.currentQuestion;
     this.multipleAnswer = this.quizService.multipleAnswer;
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
