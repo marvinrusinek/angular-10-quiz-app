@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -13,21 +15,22 @@ import { QuizService } from '../../shared/services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IntroductionComponent implements OnInit {
-  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
-  quizName: String = '';
+  quizData: Quiz[] = QUIZ_DATA;
+  quizName$: Observable<string>;
+  imagePath = '../../../assets/images/milestones/';
 
   constructor(
     private quizService: QuizService,
-    private route: ActivatedRoute
+    private activatedRoute: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.route.url.subscribe(segments => {
-      this.quizName = segments[1].toString();
-    });
+    this.quizName$ = this.activatedRoute.url.pipe(
+      map(segments => segments[1].toString())
+    );
   }
 
-  onChange($event) {
+  onChange($event): void {
     if ($event.checked === true) {
       this.quizService.setChecked($event.checked);
     }
