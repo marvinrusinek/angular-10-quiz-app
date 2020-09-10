@@ -47,6 +47,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.previousUserAnswersTextSingleAnswer = this.quizService.previousUserAnswersTextSingleAnswer;
     this.previousUserAnswersTextMultipleAnswer = this.quizService.previousUserAnswersTextMultipleAnswer;
+
+    this.question = this.currentQuestion;
+    this.previousUserAnswers = this.quizService.userAnswers;
+    this.isAnswered = this.quizService.isAnswered;
+    this.sendCurrentQuestionToQuizService();
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -91,5 +97,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
 
     this.alreadyAnswered = true;
+  }
+
+  private sendMultipleAnswerToQuizService(): void {
+    this.quizService.setMultipleAnswer(this.multipleAnswer);
+  }
+
+  private sendAlreadyAnsweredToQuizService(): void {
+    this.quizService.setAlreadyAnswered(this.alreadyAnswered);
+  }
+
+  private sendCurrentQuestionToQuizService(): void {
+    this.quizService.setCurrentQuestion(this.currentQuestion);
   }
 }
