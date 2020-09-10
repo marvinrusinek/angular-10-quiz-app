@@ -52,7 +52,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.previousUserAnswers = this.quizService.userAnswers;
     this.isAnswered = this.quizService.isAnswered;
     this.sendCurrentQuestionToQuizService();
-
   }
 
   ngOnChanges(changes: SimpleChanges) {

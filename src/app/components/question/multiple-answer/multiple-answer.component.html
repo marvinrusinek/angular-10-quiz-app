@@ -1,7 +1,7 @@
 <div class="options" *ngFor="let option of currentQuestion.options; index as i">
   <div class="multiple-answer" *ngIf="multipleAnswer">
     <div *ngIf="hasOptions">
-      <mat-checkbox id="mat-checkbox"
+      <mat-checkbox 
         (change)="setSelected(i)"
         [class.is-correct]="option.selected && option.correct"
         [class.is-incorrect]="option.selected && !option.correct">
