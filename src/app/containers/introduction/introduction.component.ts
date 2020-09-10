@@ -16,7 +16,6 @@ import { QuizService } from '../../shared/services/quiz.service';
 export class IntroductionComponent implements OnInit {
   quizData: Quiz[] = QUIZ_DATA;
   quizName$: Observable<string>;
-  imagePath = '../../../assets/images/';
 
   constructor(
     private quizService: QuizService,
