@@ -14,9 +14,12 @@ import { TimerService } from '../../../shared/services/timer.service';
 export class TimeComponent implements OnChanges {
   @Input() set selectedAnswer(value) { this.answer = value; }
   answer;
-  timeLeft$: Observable<number>;
   timePerQuestion = 20;
-  
+  timeLeft$: Observable<number>;
+  start$: Observable<number>;
+  reset$: Observable<number>;
+  stop$: Observable<number>;
+
   constructor(
     private quizService: QuizService,
     private timerService: TimerService
@@ -33,21 +36,23 @@ export class TimeComponent implements OnChanges {
     }
   }
 
-  countdownClock() {
-    const start$ = this.timerService.isStart.asObservable().pipe(shareReplay(1));
-    const reset$ = this.timerService.isReset.asObservable();
-    const stop$ = this.timerService.isStop.asObservable();
-    this.timeLeft$ = concat(start$.pipe(first()), reset$).pipe(
+  countdownClock(): void {
+    this.start$ = this.timerService.start$;
+    this.reset$ = this.timerService.reset$;
+    this.stop$ = this.timerService.stop$;
+
+    this.timeLeft$ = concat(this.start$.pipe(first()), this.reset$).pipe(
       switchMapTo(
         timer(0, 1000).pipe(
-          scan((acc: number) => acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc, this.timePerQuestion)
+          scan((acc) => acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`)
+                                                  : acc, this.timePerQuestion)
         )
       ),
-      takeUntil(stop$.pipe(skip(1))),
+      takeUntil(this.stop$.pipe(skip(1))),
       repeatWhen(completeSubj =>
         completeSubj.pipe(
           switchMapTo(
-            start$.pipe(
+            this.start$.pipe(
               skip(1),
               first()
             )
