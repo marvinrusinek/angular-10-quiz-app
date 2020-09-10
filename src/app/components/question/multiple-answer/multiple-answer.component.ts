@@ -44,6 +44,19 @@ export class MultipleAnswerComponent implements OnInit {
     }
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
+      this.currentQuestion = changes.question.currentValue;
+      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.multipleAnswer = this.correctAnswers.length > 1;
+
+      if (this.formGroup) {
+        this.formGroup.patchValue({answer: ''});
+        this.alreadyAnswered = false;
+      }
+    }
+  }
+
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
     this.correctMessage = this.quizService.correctMessage;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -9,7 +9,7 @@ import { TimerService } from '../../../shared/services/timer.service';
   templateUrl: './single-answer.component.html',
   styleUrls: ['./single-answer.component.scss']
 })
-export class SingleAnswerComponent implements OnInit {
+export class SingleAnswerComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   multipleAnswer: boolean;
@@ -30,6 +30,19 @@ export class SingleAnswerComponent implements OnInit {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
+      this.currentQuestion = changes.question.currentValue;
+      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.multipleAnswer = this.correctAnswers.length > 1;
+
+      if (this.formGroup) {
+        this.formGroup.patchValue({answer: ''});
+        this.alreadyAnswered = false;
+      }
+    }
   }
 
   setSelected(optionIndex: number): void {
