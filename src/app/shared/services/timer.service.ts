@@ -50,7 +50,7 @@ export class TimerService {
   }
 
   calculateTotalElapsedTime(elapsedTimes: number[]): number {
-    if (elapsedTimes?.length > 0) {
+    if (elapsedTimes.length > 0) {
       this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
       return this.completionTime;
     }
