@@ -42,7 +42,7 @@
         <mat-grid-tile *ngFor="let quiz of quizData"
                        [@slideLeftToRight]="animationState$ | async"
                        (@slideLeftToRight.done)="animationDoneHandler()"
-                       [routerLink]="['/quiz/intro/', quiz.quizId]"
+                       [routerLink]="['/intro/', quiz.quizId]"
                        [ngStyle]="{ 'background': 'url(' + imagePath + quiz.image + ') no-repeat center 10px',
                                     'background-size': '300px 210px' }"
                        [ngClass]="{ 'started': status === 'started' && quiz.quizId === selectionParams.startedQuizId,
