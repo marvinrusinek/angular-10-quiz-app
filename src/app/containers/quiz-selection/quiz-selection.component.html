@@ -62,12 +62,12 @@
             </span>
             <span name="continue" matTooltip="Continue"
                   *ngIf="status === 'continue' || quiz.quizId === selectionParams.continueQuizId"
-                  [routerLink]="['/quiz/question/', quiz.quizId, currentQuestionIndex]">
+                  [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
               <i class="material-icons">play_arrow</i>
             </span>
             <span name="completed" matTooltip="Completed"
                   *ngIf="status === 'completed' && quiz.quizId === selectionParams.completedQuizId"
-                  [routerLink]="['/quiz/results/', quiz.quizId]">
+                  [routerLink]="['/results/', quiz.quizId]">
               <i class="material-icons">done_all</i>
             </span>
           </div>
