@@ -1,4 +1,4 @@
-@import "../../../../_variables";
+@import "variables";
 
 .options {
   margin: 0 0 10px 0.4rem;
@@ -48,11 +48,24 @@
     .messages {
       .sentiment-icon {
         display: inline;
-        margin-top: 30px;
+        margin: 30px -50px 0 25px;
       }
 
       .message {
         margin-top: 20px;
+      }
+
+      .correct-message {
+        margin-left: 10px;
+      }
+
+      .wrong-message {
+        margin-top: -10px;
+
+        .sentiment-icon {
+          float: left;
+          margin-top: -40px;
+        }
       }
     }
 
@@ -62,25 +75,6 @@
 
     .is-incorrect {
       background-color: $red;
-    }
-  }
-}
-
-.messages {
-  .sentiment-icon {
-    margin: 30px -50px 0 25px;
-  }
-
-  .correct-message {
-    margin-left: 10px;
-  }
-
-  .wrong-message {
-    margin-top: -10px;
-
-    .sentiment-icon {
-      float: left;
-      margin-top: -40px;
     }
   }
 }

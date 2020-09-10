@@ -1,14 +1,17 @@
-@import "../../../../_variables";
+@import "../../../../variables";
 
 .options {
   margin: 0 0 10px 6.5px;
+  margin-bottom: 40px;
   padding: 5px;
-  width: 630px;
+  width: 39.5rem !important;
 
-  .multiple-answer {
+  .multipleAnswer {
+    width: 39.5rem !important;
+
     mat-checkbox {
       cursor: pointer;
-      width: 630px !important;
+      width: 39.5rem !important;
       height: auto !important;
       font-family: $font-stack;
       font-size: 20px !important;
@@ -24,14 +27,6 @@
       }
     }
 
-    mat-checkbox {
-      height: 55px;
-    }
-
-    mat-checkbox:first-child {
-      margin-top: -20px !important;
-    }
-
     mat-checkbox-label {
       white-space: normal;
       margin-top: 5px;
@@ -39,14 +34,24 @@
       .feedback-icon {
         position: absolute;
         right: 0;
-        margin: -45px 40px 0 0 !important;
+        margin: -5px 40px 0 0 !important;
       }
     }
 
     .messages {
+      margin-bottom: -20px;
+
       .sentiment-icon {
-        margin-top: 40px;
-        margin-left: 15px;
+        margin: 30px -50px 0 20px;
+      }
+
+      .wrong-message {
+        margin-top: 20px;
+
+        .sentiment-icon {
+          float: left;
+          margin-bottom: 90px;
+        }
       }
     }
 
@@ -60,15 +65,6 @@
   }
 }
 
-.messages {
-  .sentiment-icon {
-    margin: 30px -50px 0 20px;
-  }
-
-  .wrong-message {
-    .sentiment-icon {
-      float: left;
-      margin-top: -80px;
-    }
-  }
+::ng-deep .mat-checkbox {
+  width: 630px !important;
 }
