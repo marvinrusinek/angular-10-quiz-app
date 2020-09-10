@@ -57,7 +57,7 @@
           <div class="status-icon">
             <span name="start" matTooltip="Start"
                   *ngIf="!quizCompleted || status === 'started' || quiz.quizId === selectionParams.startedQuizId"
-                  [routerLink]="['/quiz/intro/', quiz.quizId]">
+                  [routerLink]="['/intro/', quiz.quizId]">
               <i class="material-icons">launch</i>
             </span>
             <span name="continue" matTooltip="Continue"
