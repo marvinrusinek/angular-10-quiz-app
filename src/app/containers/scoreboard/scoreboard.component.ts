@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -10,11 +11,12 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './scoreboard.component.html',
   styleUrls: ['./scoreboard.component.scss']
 })
-export class ScoreboardComponent implements OnInit, OnChanges {
-  @Input() set selectedAnswer(value) { this.answer = value; }
-  answer;
+export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
+  @Input() selectedAnswer: number;
+  answer: number;
   totalQuestions: number;
   badgeQuestionNumber: number;
+  unsubscribe$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
@@ -22,15 +24,23 @@ export class ScoreboardComponent implements OnInit, OnChanges {
     private activatedRoute: ActivatedRoute
   ) { }
 
-  ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
-      if (params.questionIndex) {
-        this.badgeQuestionNumber = params.questionIndex;
-        this.timerService.resetTimer();
-      }
-    });
+  ngOnInit(): void {
+    this.selectedAnswer = this.answer;
+    this.totalQuestions = this.quizService.totalQuestions;
 
-    this.totalQuestions = this.quizService.totalQuestions
+    this.activatedRoute.params
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe((params) => {
+          if (params.questionIndex) {
+            this.badgeQuestionNumber = params.questionIndex;
+            this.timerService.resetTimer();
+          }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   ngOnChanges(changes: SimpleChanges) {
