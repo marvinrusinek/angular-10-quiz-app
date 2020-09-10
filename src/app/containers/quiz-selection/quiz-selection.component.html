@@ -1,18 +1,23 @@
-<ng-container *ngIf="quizData.length > 0">
+<ng-container>
   <mat-card>
     <mat-card-header>
       <div class="container">
         <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 logo">
-          <a href="https://www.codelab.fun" target="_blank">
-            <div mat-card-avatar class="header-image"></div>
+          <a href="https://www.codelab.fun" title="Angular Codelab" target="_blank">
+            <img mat-card-avatar class="header-image">
           </a>
         </div>
         <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
-          <h1 i18n>Angular Codelab Quiz App</h1>
+          <mat-card-title i18n>
+            <h1>Angular Codelab Quiz App</h1>
+          </mat-card-title>
+          <mat-card-subtitle i18n>
+            <span>How well do you know Angular? Find out!</span>
+          </mat-card-subtitle>
         </div>
         <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 info">
-          <a href="https://github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun" target="_blank">
-            <i class="material-icons">info</i>
+          <a href="https://www.github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun" target="_blank">
+            <i class="material-icons" matTooltip="Angular Codelab info" matTooltipPosition="right">info</i>
           </a>
         </div>
       </div>
@@ -20,53 +25,50 @@
 
     <mat-card-content>
       <mat-toolbar>
-        <button mat-button [matMenuTriggerFor]="menu"><span i18n>Milestones &#x25BC;</span></button>
-        <mat-menu #menu="matMenu">
+        <button mat-button [matMenuTriggerFor]="menu" aria-label="Milestones Menu">
+          <span i18n>Milestones &#x25BC;</span>
+        </button>
+        <mat-menu #menu="matMenu" xPosition="before">
           <div *ngFor="let quiz of quizData">
-            <button mat-menu-item
-                    [routerLink]="['/quiz/intro/', quiz?.quizId]"
-                    data-i18n="quiz.milestone">{{ quiz?.milestone }}</button>
+            <button mat-menu-item name="milestone"
+                    [routerLink]="['/quiz/intro/', quiz.quizId]"
+                    data-i18n="quiz.milestone">{{ quiz.milestone }}
+            </button>
           </div>
         </mat-menu>
       </mat-toolbar>
 
-      <mat-grid-list cols="3" rowHeight="370px">
-        <mat-grid-tile
-
-          *ngFor="let quiz of quizData"
-          [routerLink]="['/intro/', quiz?.quizId]"
-          [ngClass]="{ 'started': status === 'started' && quiz?.quizId === startedQuizId,
-                       'continue': status === 'continue' && quiz?.quizId === continueQuizId,
-                       'completed': status === 'completed' && quiz?.quizId === completedQuizId }"
-          [ngStyle]="{ 'background': 'url(' + quiz?.imageUrl + ') no-repeat center 10px',
-                       'background-size': '300px 210px' }">
+      <mat-grid-list cols="3" rowHeight="370px" gutterSize="5px">
+        <mat-grid-tile *ngFor="let quiz of quizData"
+                       [@slideLeftToRight]="animationState$ | async"
+                       (@slideLeftToRight.done)="animationDoneHandler()"
+                       [routerLink]="['/quiz/intro/', quiz.quizId]"
+                       [ngStyle]="{ 'background': 'url(' + imagePath + quiz.image + ') no-repeat center 10px',
+                                    'background-size': '300px 210px' }"
+                       [ngClass]="{ 'started': status === 'started' && quiz.quizId === selectionParams.startedQuizId,
+                                    'continue': status === 'continue' && quiz.quizId === selectionParams.continueQuizId,
+                                    'completed': status === 'completed' && quiz.quizId === selectionParams.completedQuizId }">
 
           <summary class="quiz-info">
-            <h5 class="quiz-title" i18n>{{ quiz?.milestone }}</h5>
-            <h6 class="quiz-subtitle text-justify" i18n>{{ quiz?.summary }}</h6>
+            <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
+            <h6 class="quiz-subtitle text-justify" i18n>{{ quiz.summary }}</h6>
           </summary>
 
           <div class="status-icon">
-            <span class="icon" matTooltip="Start"
-                  *ngIf="!quizCompleted || status === 'started' || quiz?.quizId === startedQuizId"
-                  [routerLink]="['/intro/', quiz?.quizId]">
-              <svg viewBox="0 0 24 24">
-                <path [attr.d]="quizStatusIcon.start" />
-              </svg>
+            <span name="start" matTooltip="Start"
+                  *ngIf="!quizCompleted || status === 'started' || quiz.quizId === selectionParams.startedQuizId"
+                  [routerLink]="['/quiz/intro/', quiz.quizId]">
+              <i class="material-icons">launch</i>
             </span>
-            <span class="icon" matTooltip="Continue" 
-                  *ngIf="status === 'continue' || quiz?.quizId === continueQuizId"
-                  [routerLink]="['/question/', quiz?.quizId, currentQuestionIndex]">
-              <svg viewBox="0 0 24 24">
-                <path [attr.d]="quizStatusIcon.continue" />
-              </svg>
+            <span name="continue" matTooltip="Continue"
+                  *ngIf="status === 'continue' || quiz.quizId === selectionParams.continueQuizId"
+                  [routerLink]="['/quiz/question/', quiz.quizId, currentQuestionIndex]">
+              <i class="material-icons">play_arrow</i>
             </span>
-            <span class="icon" matTooltip="Completed"
-                  *ngIf="status === 'completed' && quiz?.quizId === completedQuizId"
-                  [routerLink]="['/results/', quiz?.quizId]">
-              <svg viewBox="0 0 24 24">
-                <path [attr.d]="quizStatusIcon.completed" />
-              </svg>
+            <span name="completed" matTooltip="Completed"
+                  *ngIf="status === 'completed' && quiz.quizId === selectionParams.completedQuizId"
+                  [routerLink]="['/quiz/results/', quiz.quizId]">
+              <i class="material-icons">done_all</i>
             </span>
           </div>
         </mat-grid-tile>
@@ -74,7 +76,7 @@
     </mat-card-content>
 
     <mat-card-footer>
-      <h3 class="text-center" i18n>Copyright &copy; 2020 codelab.fun</h3>
+      <h3 i18n>Copyright &copy; 2020 <a target="_blank" href="https://www.codelab.fun">codelab.fun</a></h3>
     </mat-card-footer>
   </mat-card>
 </ng-container>

@@ -4,31 +4,32 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { Howl } from 'howler';
 
-import { QUIZ_DATA } from '../quiz';
-import { Option } from '../models/Option.model';
-import { Quiz } from '../models/Quiz.model';
-import { QuizQuestion } from '../models/QuizQuestion.model';
+import { QUIZ_DATA } from '../../shared/quiz';
+import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuizService {
-  quizData: Quiz[] = QUIZ_D;
+  quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
   currentQuestion: QuizQuestion;
   question: QuizQuestion;
   questions: QuizQuestion[];
   answers: number[];
   multipleAnswer: boolean;
   totalQuestions: number;
+  indexOfQuizId: number;
   currentQuestionIndex = 1;
 
-  quizId: string;
-  startedQuizId: string;
-  continueQuizId: string;
-  completedQuizId: string;
-  indexOfQuizId: number;
-  quizCompleted: boolean;
-  status: string;
+  paramsQuizSelection: Object;
+  quizId = '';
+  startedQuizId = '';
+  continueQuizId = '';
+  completedQuizId = '';
+  quizCompleted = false;
+  status = '';
 
   correctAnswers = [];
   correctAnswersForEachQuestion = [];
@@ -63,13 +64,13 @@ export class QuizService {
     format: ['mp3']
   });
 
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(element => element.quizId === this.quizId);
+    this.setParamsQuizSelection();
   }
 
   getCorrectAnswers(question: QuizQuestion) {
@@ -87,18 +88,10 @@ export class QuizService {
   }
 
   // shuffle questions array in-place using Durstenfeld's shuffling algorithm
-  shuffleQuestions(questions: QuizQuestion[]): void {
-    for (let i = questions.length - 1; i >= 0; i--) {
+  shuffle<T>(arg: Array<T>): void {
+    for (let i = arg.length - 1; i >= 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [questions[i], questions[j]] = [questions[j], questions[i]];
-    }
-  }
-
-  // shuffle answers array in-place using Durstenfeld's shuffling algorithm
-  shuffleAnswers(answers: Option[]): void {
-    for (let i = answers.length - 1; i >= 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [answers[i], answers[j]] = [answers[j], answers[i]];
+      [arg[i], arg[j]] = [arg[j], arg[i]];
     }
   }
 
@@ -109,15 +102,16 @@ export class QuizService {
         this.correctOptions = correctAnswers[0][j];
         this.correctMessage = 'The correct answer was Option ' + this.correctOptions + '.';
       }
-      if (correctAnswers[i][j] && correctAnswers[0][j + 1]) {
-        this.correctOptions = correctAnswers[0][0].toString().concat(' and ', correctAnswers[0][j + 1]);
+      if (correctAnswers[i][j] && correctAnswers[i][j + 1]) {
+        this.correctOptions = correctAnswers[i][j].toString().concat(' and ', correctAnswers[0][j + 1]);
         this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
       }
-      if (correctAnswers[i][j] && correctAnswers[0][j + 1] && correctAnswers[0][j + 2]) {
-        this.correctOptions = correctAnswers[0][0].toString().concat(', ', correctAnswers[0][1], ' and ', correctAnswers[0][2]);
+      if (correctAnswers[i][j] && correctAnswers[i][j + 1] && correctAnswers[i][j + 2]) {
+        this.correctOptions = correctAnswers[i][j].toString().concat(', ', correctAnswers[i][j + 1], ' and ',
+                                                                           correctAnswers[i][j + 2]);
         this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
       }
-      if (correctAnswers[i][j] && correctAnswers[0][j + 1] && correctAnswers[0][j + 2] && correctAnswers[0][j + 3]) {
+      if (correctAnswers[i][j] && correctAnswers[i][j + 1] && correctAnswers[i][j + 2] && correctAnswers[i][j + 3]) {
         this.explanationText = 'All were correct!';
         this.correctMessage = 'All were correct!';
       }
@@ -192,6 +186,19 @@ export class QuizService {
     this.currentQuestion = value;
   }
 
+  setParamsQuizSelection(): Object {
+    return this.paramsQuizSelection = {
+      quizId: this.quizId,
+      startedQuizId: this.startedQuizId,
+      continueQuizId: this.continueQuizId,
+      completedQuizId: this.completedQuizId,
+      currentQuestionIndex: this.currentQuestionIndex,
+      totalQuestions: this.totalQuestions,
+      quizCompleted: this.quizCompleted,
+      status: this.status
+    };
+  }
+
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
   }
@@ -201,19 +208,19 @@ export class QuizService {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question/', this.quizId, questionIndex]).then();
+    this.router.navigate(['/quiz/question/', this.quizId, questionIndex]).then();
     this.resetAll();
   }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
-    this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex - 1]).then();
+    this.router.navigate(['/quiz/question/', this.quizId, this.currentQuestionIndex - 1]).then();
     this.resetAll();
   }
 
   navigateToResults() {
     this.quizCompleted = true;
-    this.router.navigate(['/results/', this.quizId]).then();
+    this.router.navigate(['/quiz/results/', this.quizId]).then();
   }
 
   /********* reset functions ***********/
