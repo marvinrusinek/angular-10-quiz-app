@@ -24,7 +24,7 @@ export class QuizSelectionComponent implements OnInit {
   status: string;
   selectionParams;
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  imagePath = '../../../assets/images/milestones/';
+  imagePath = '../../../assets/images/';
 
   constructor(private quizService: QuizService) { }
 

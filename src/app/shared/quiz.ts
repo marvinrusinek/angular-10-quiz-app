@@ -1,15 +1,15 @@
 import { Quiz } from '../shared/models/Quiz.model';
-import { QuizResource } from '../shared/models/QuizResource.model';
+import { QuizResource } from '../shared/models/Resource.model';
 
 export const QUIZ_DATA: Quiz[] = [
   {
     quizId: 'typescript',
     milestone: 'TypeScript',
     summary: 'TypeScript makes it easier to read and debug JavaScript code.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/ts.png',
+    image: 'ts.png',
     questions: [
       {
-        questionText: 'Which of the following does TypeScript use to specify the type information?',
+        questionText: 'Which of the following does TypeScript use to specify types?',
         options: [
           { text: ':', correct: true },
           { text: ';' },
@@ -31,10 +31,10 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'How can we specify properties and methods for an object in TypeScript?',
         options: [
-          { text: 'Use classes' },
-          { text: 'Use interfaces', correct: true },
-          { text: 'Use enums' },
-          { text: 'Use async/await' }
+          { text: 'Use classes.' },
+          { text: 'Use interfaces.', correct: true },
+          { text: 'Use enums.' },
+          { text: 'Use async/await.' }
         ],
         explanation: 'interfaces are typically used to list the properties and methods for an object'
       },
@@ -91,21 +91,20 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'How is a property accessible within a class?',
         options: [
-          { text: 'using this.propertyName', correct: true },
-          { text: 'accessors' },
-          { text: 'destructuring' },
-          { text: 'arrow function' }
+          { text: 'Using this.propertyName', correct: true },
+          { text: 'Accessors' },
+          { text: 'Destructuring' },
+          { text: 'Arrow function' }
         ],
         explanation: 'this.propertyName is the way to access a specific property within a class'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'create-first-app',
     milestone: 'Creating your first app',
     summary: 'Angular allows us to create an app that contains components and modules as well as a system for bootstrapping the app.',
-    imageUrl: '  https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/first_app.png',
+    image: 'first_app.png',
     questions: [
       {
         questionText: 'Which of the following are true statements about Angular?',
@@ -130,20 +129,20 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'How is a class adorned in Angular?',
         options: [
-          { text: 'Using the @Component decorator', correct: true },
-          { text: 'Using the @Injectable decorator' },
-          { text: 'Using the @Input decorator' },
-          { text: 'Using the @Output decorator' }
+          { text: 'Using the @Component decorator.', correct: true },
+          { text: 'Using the @Injectable decorator.' },
+          { text: 'Using the @Input decorator.' },
+          { text: 'Using the @Output decorator.' }
         ],
         explanation: 'a class is adorned with the @Component decorator in Angular'
       },
       {
         questionText: 'What is the purpose of a decorator in TypeScript?',
         options: [
-          { text: 'To attach metadata to a class, function, property or variable', correct: true },
-          { text: 'To add properties and methods to the class' },
-          { text: 'To minimize the amount of code you will write' },
-          { text: 'To perform databinding' }
+          { text: 'To attach metadata to a class, function, property or variable.', correct: true },
+          { text: 'To add properties and methods to the class.' },
+          { text: 'To minimize the amount of code you will write.' },
+          { text: 'To perform databinding.' }
         ],
         explanation: 'a decorator attaches metadata to a class, function, property or variable'
       },
@@ -207,32 +206,31 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'passing AppModule into the platformBrowserDynamic() is the method used for bootstrapping an Angular app'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'templates',
     milestone: 'Templates',
     summary: 'Angular has a very expressive template system, which takes HTML as a base, and extends it with custom elements.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/template.png',
+    image: 'template.png',
     questions: [
       {
         questionText: 'What characters are used for text interpolation?',
         options: [
           { text: 'backticks: ``', correct: true },
-          { text: 'double curlies: {{ }}' },
-          { text: 'double ampersand: &&' },
-          { text: 'double pipes: ||' }
+          { text: 'double curlies {{ }}' },
+          { text: 'double ampersand &&' },
+          { text: 'double pipes ||' }
         ],
         explanation: 'backticks are used in Angular for insertion of text'
       },
       {
-        questionText: 'Which characters are used to include a property value? ',
+        questionText: 'Which characters are used to include a property value?',
         options: [
           { text: 'backticks: ``' },
-          { text: 'double curlies {{ }}', correct: true },
-          { text: 'double ampersand &&' },
-          { text: 'double pipes ||' }
+          { text: 'double curlies: {{ }}', correct: true },
+          { text: 'double ampersand: &&' },
+          { text: 'double pipes: ||' }
         ],
         explanation: 'double curlies are used to insert a property value inside a template'
       },
@@ -240,9 +238,9 @@ export const QUIZ_DATA: Quiz[] = [
         questionText: 'How can you pass a value to a child element\'s attribute?',
         options: [
           { text: 'Use string interpolation {{ property }}', correct: true },
-          { text: 'call a function' },
-          { text: 'using the export keyword' },
-          { text: '[attribute]="property"', correct: true }
+          { text: 'Call a function' },
+          { text: 'Using the export keyword' },
+          { text: 'Use [attribute]="property"', correct: true }
         ],
         explanation: 'properties can be based to a child element using string interpolation or [attribute]="property" syntax'
       },
@@ -316,22 +314,21 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the ngFor directive is used to display entire arrays or objects'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'dependency-injection',
     milestone: 'Dependency Injection',
     summary: 'Dependency Injection is a way of providing dependencies in your code instead of hard-coding them.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/DIDiagram.png',
+    image: 'DIDiagram.png',
     questions: [
       {
         questionText: 'What is the objective of dependency injection?',
         options: [
-          { text: 'Pass the service to the client', correct: true },
-          { text: 'Allow the client to find service', correct: true },
-          { text: 'Allow the client to build service' },
-          { text: 'Give the client part service' }
+          { text: 'Pass the service to the client.', correct: true },
+          { text: 'Allow the client to find service.', correct: true },
+          { text: 'Allow the client to build service.' },
+          { text: 'Give the client part service.' }
         ],
         explanation: 'a service gets passed to the client during DI'
       },
@@ -358,70 +355,68 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'What is the first step in setting up dependency injection?',
         options: [
-          { text: 'Require in the component' },
-          { text: 'Provide in the module' },
-          { text: 'Mark dependency as @Injectable()', correct: true },
-          { text: 'Declare an object' }
+          { text: 'Require in the component.' },
+          { text: 'Provide in the module.' },
+          { text: 'Mark dependency as @Injectable().', correct: true },
+          { text: 'Declare an object.' }
         ],
         explanation: 'the first step is marking the class as @Injectable()'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'component-tree',
-    milestone: 'Component Tree',
+    milestone: 'Component Trees',
     summary: 'An Angular application can be thought of as a tree of reusable components.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/tree.png',
+    image: 'tree.png',
     questions: [
       {
         questionText: 'How does a parent component pass data to its child component?',
         options: [
-          { text: 'Using data binding' },
-          { text: 'Using functions' },
-          { text: 'Using properties', correct: true },
-          { text: 'Using DOM manipulation' }
+          { text: 'Using data binding.' },
+          { text: 'Using functions.' },
+          { text: 'Using properties.', correct: true },
+          { text: 'Using DOM manipulation.' }
         ],
         explanation: 'a parent component can pass data to its child via properties'
       },
       {
         questionText: 'How can one component render another one?',
         options: [
-          { text: 'using an HTML element that matches selector of other component', correct: true },
-          { text: 'using data binding' },
-          { text: 'using properties' },
-          { text: 'passing components via functions' }
+          { text: 'Using an HTML element that matches selector of other component.', correct: true },
+          { text: 'Using data binding.' },
+          { text: 'Using properties.' },
+          { text: 'Passing components via functions.' }
         ],
         explanation: 'a component can display another component by matching the selector of the other component'
       },
       {
         questionText: 'How do components know about each other?',
         options: [
-          { text: 'if they are declared in the same module', correct: true },
-          { text: 'if they are passed to each other' },
-          { text: 'using export' },
-          { text: 'using property binding' }
+          { text: 'If they are declared in the same module.', correct: true },
+          { text: 'If they are passed to each other.' },
+          { text: 'Using export.' },
+          { text: 'Using property binding.' }
         ],
         explanation: 'components can only know about each other if they are declared in the same module'
       },
       {
         questionText: 'How must a child decorate its properties to pass data?',
         options: [
-          { text: 'Using the @Input() decorator', correct: true },
-          { text: 'Using the @Output() decorator' },
-          { text: 'Using the @Injectable decorator' },
-          { text: 'Using the @Component decorator' }
+          { text: 'Using the @Input() decorator.', correct: true },
+          { text: 'Using the @Output() decorator.' },
+          { text: 'Using the @Injectable decorator.' },
+          { text: 'Using the @Component decorator.' }
         ],
         explanation: 'properties must be decorated with @Input() in a child in order to pass data to its parent'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'router',
     milestone: 'Angular Router',
-    summary: 'The Angular router helps developers build Single Page Applications with multiple views and allow navigation between those views.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/router.png',
+    summary: 'Angular Router helps developers build Single Page Applications with multiple views and allow navigation between those views.',
+    image: 'router.png',
     questions: [
       {
         questionText: 'Which is used to assign URLs to different parts of your app?',
@@ -439,7 +434,7 @@ export const QUIZ_DATA: Quiz[] = [
           { text: 'In a routing module.' },
           { text: 'By defining an array of mapping between URL path and a component.', correct: true },
           { text: 'When the app is being bootstrapped.' },
-          { text: 'in tsconfig.json' }
+          { text: 'In tsconfig.json' }
         ],
         explanation: 'routes are configured by defining an array of mapping between URL path and a component'
       },
@@ -483,17 +478,16 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the routerLink directive is used to provide the URL necessary for routing'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'material',
     milestone: 'Angular Material',
     summary: 'Angular Material provides a set of Material Design components that are consistent, versatile and look great on mobile devices.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/material.png',
+    image: 'material.png',
     questions: [
       {
-        questionText: 'What is the official website for Angular Material?',
+        questionText: 'Which of the following is the official website for Angular Material?',
         options: [
           { text: 'https://www.angular.io' },
           { text: 'https://www.material.io' },
@@ -525,9 +519,9 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'Where are Angular Material components used?',
         options: [
-          { text: 'In the template file', correct: true },
-          { text: 'In the TypeScript file' },
-          { text: 'In the CSS file' },
+          { text: 'In the template file.', correct: true },
+          { text: 'In the TypeScript file.' },
+          { text: 'In the CSS file.' },
           { text: 'All of the above.' }
         ],
         explanation: 'Angular Material components are utilized in the template file'
@@ -552,22 +546,21 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the mat-card-actions tag is used to display actions inside an Angular Material template'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'forms',
-    milestone: 'Forms',
+    milestone: 'Angular Forms',
     summary: 'Angular forms build upon standard HTML forms to help create custom form controls and support easy validation.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/forms.png',
+    image: 'forms.png',
     questions: [
       {
         questionText: 'What is the first step in using Angular Forms?',
         options: [
-          { text: 'Add FormsModule/ReactiveFormsModule in NgModule', correct: true },
-          { text: 'Add form tag to the template' },
-          { text: 'Add form fields in the template' },
-          { text: 'Add form validation fields to the TypeScript file' }
+          { text: 'Add FormsModule/ReactiveFormsModule in NgModule.', correct: true },
+          { text: 'Add form tag to the template.' },
+          { text: 'Add form fields in the template.' },
+          { text: 'Add form validation fields to the TypeScript file.' }
         ],
         explanation: 'we must first add FormsModule to the imports section of NgModule'
       },
@@ -594,10 +587,10 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'Which of the following are steps to display a validation error?',
         options: [
-          { text: 'Use #name="ngModel" binding', correct: true },
-          { text: 'Use usernameModel\'s errors property', correct: true },
-          { text: 'Use mat-error' },
-          { text: 'Use required keyword' }
+          { text: 'Use #name="ngModel" binding.', correct: true },
+          { text: 'Use usernameModel\'s errors property.', correct: true },
+          { text: 'Use mat-error.' },
+          { text: 'Use required keyword.' }
         ],
         explanation: 'using #name="ngModel" and using usernameModel\'s error property are the two steps to display a validation error'
       },
@@ -651,14 +644,13 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'the mat-error tag is used to show an error in an Angular Material form'
       }
-    ],
-    status: ''
+    ]
   },
   {
     quizId: 'angular-cli',
     milestone: 'Angular-CLI',
     summary: 'The Angular CLI is a command-line interface tool used for initializing, developing, scaffolding and maintaining Angular applications.',
-    imageUrl: 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/angular-cli.png',
+    image: 'angular-cli.png',
     questions: [
       {
         questionText: 'Which is a prerequisite for using Angular-CLI?',
@@ -691,7 +683,7 @@ export const QUIZ_DATA: Quiz[] = [
         explanation: 'ng serve is the command that is required to run an app built with Angular-CLI'
       },
       {
-        questionText: 'What URL should be viewed in the browser to see the app running?',
+        questionText: 'Which URL should be viewed in the browser to see the app running?',
         options: [
           { text: 'http://www.google.com' },
           { text: 'http://angular.io' },
@@ -720,8 +712,7 @@ export const QUIZ_DATA: Quiz[] = [
         ],
         explanation: 'all of the above are true statements about the Angular-CLI'
       }
-    ],
-    status: ''
+    ]
   }
 ];
 
@@ -817,7 +808,7 @@ export const QUIZ_RESOURCES: QuizResource[] = [
   },
   {
     quizId: 'component-tree',
-    milestone: 'Component Tree',
+    milestone: 'Component Trees',
     resources: [
       {
         title: 'Introduction to Angular concepts',
@@ -885,7 +876,7 @@ export const QUIZ_RESOURCES: QuizResource[] = [
   },
   {
     quizId: 'forms',
-    milestone: 'Forms',
+    milestone: 'Angular Forms',
     resources: [
       {
         title: 'Introduction to forms in Angular',
