@@ -1,22 +1,24 @@
 <ng-container *ngFor="let quiz of quizData">
-  <mat-card
-    [@changeRoute]="animationState$ | async"
-    (@changeRoute.done)="animationDoneHandler()"
-    *ngIf="quiz.quizId === quizName && question && questionIndex <= totalQuestions">
+  <mat-card *ngIf="quiz.quizId === quizName &&
+                   question && questionIndex <= totalQuestions"
+            [@changeRoute]="animationState$ | async"
+            (@changeRoute.done)="animationDoneHandler()">
 
     <mat-card-header>
       <div mat-card-avatar class="header-image"
-           [routerLink]="['/select']"
+           [routerLink]="['/quiz/select']"
            matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left">
       </div>
-      <mat-card-title i18n>{{ quiz?.milestone }} Quiz</mat-card-title>
-      <mat-card-subtitle i18n>Assess your knowledge of {{ quiz?.milestone }}</mat-card-subtitle>
+      <mat-card-title i18n>{{ quiz.milestone }} Quiz</mat-card-title>
+      <mat-card-subtitle i18n>Assess your knowledge of {{ quiz.milestone }}</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
+      <!-- the scoreboard area -->
       <codelab-scoreboard></codelab-scoreboard>
 
-        <section id="question" [ngClass]="!isAnswered() ? 'unanswered': 'answered'">
+      <!-- the question/explanation area -->
+      <section id="question" [ngClass]="!isAnswered() ? 'unanswered': 'answered'">
         <span *ngIf="!isAnswered()" i18n>{{ question?.questionText }}&nbsp;
           <span class="number-correct" *ngIf="numberOfCorrectAnswers > 1">
             <em>({{ numberOfCorrectAnswers }} answers are correct.)</em>
@@ -30,6 +32,7 @@
         </span>
       </section>
 
+      <!-- the options -->
       <codelab-quiz-question
         [question]="question"
         (answer)="selectedAnswer($event)">
@@ -37,43 +40,45 @@
     </mat-card-content>
 
     <mat-card-footer>
+      <!-- selection message -->
+      <span *ngIf="!isAnswered()" class="selection-message">
+        Please select an option to continue&hellip;
+      </span>
+
+      <!-- paging -->
       <section class="paging">
         <mat-card-actions>
           <mat-nav-list>
             <div class="prev-question-nav" *ngIf="question && questionIndex > 1">
               <button type="button"
-                      mat-flat-button
+                      mat-icon-button
                       (click)="advanceToPreviousQuestion()"
                       (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
-                      matTooltip="&laquo; Previous Question" matTooltipPosition="above">
-                <svg viewBox="0 0 410.258 410.258">
-                  <polygon [attr.points]="paging.previousButtonPoints"/>
-                </svg>
+                      matTooltip="&laquo; Previous Question"
+                      matTooltipPosition="above">
+                <mat-icon>navigate_before</mat-icon>
               </button>
             </div>
 
             <div class="restart-nav" *ngIf="question && questionIndex > 1 && questionIndex < totalQuestions">
-              <button type="button" 
-                      mat-flat-button 
+              <button type="button"
+                      mat-icon-button
                       (click)="restartQuiz()"
-                      matTooltip="Restart Quiz" 
+                      matTooltip="Restart Quiz"
                       matTooltipPosition="above">
-                <svg viewBox="0 0 305.836 305.836">
-                  <path [attr.d]="paging.restartButtonPath"/>
-                </svg>
+                <mat-icon>replay</mat-icon>
               </button>
             </div>
 
-            <div class="next-question-nav" 
-                 *ngIf="question && questionIndex !== totalQuestions"
-                 matTooltip="Next Question &raquo;" matTooltipPosition="above" [matTooltipDisabled]="false">
+            <div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions"
+                 matTooltip="Next Question &raquo;" matTooltipPosition="below" [matTooltipDisabled]="false">
               <button type="button"
-                      mat-flat-button
+                      mat-icon-button
                       [disabled]="!isAnswered()"
-                      (click)="advanceToNextQuestion()">
-                <svg viewBox="0 0 410.258 410.258">
-                  <polygon [attr.points]="paging.nextButtonPoints"/>
-                </svg>
+                      (click)="advanceToNextQuestion()"
+                      (window:keydown.ArrowRight)="advanceToNextQuestion()"
+                      (window:keydown.Enter)="advanceToNextQuestion()">
+                <mat-icon>navigate_next</mat-icon>
               </button>
             </div>
 
@@ -93,6 +98,7 @@
         </mat-card-actions>
       </section>
 
+      <!-- progress bar -->
       <section class="progress-bar" *ngIf="question && questionIndex > 1">
         <ngb-progressbar
           max="100"
@@ -101,7 +107,7 @@
           [animated]="true"
           [value]="progressValue"
           class="progress-bar bg-info">
-            <strong>{{ progressValue.toFixed(0) }}%</strong>
+          <strong>{{ progressValue.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
