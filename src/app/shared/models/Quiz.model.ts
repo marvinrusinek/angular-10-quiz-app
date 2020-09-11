@@ -4,7 +4,7 @@ export interface Quiz {
   quizId: string;
   milestone: string;
   summary: string;
-  imageUrl: string;
+  imageUr: string;
   questions: QuizQuestion[];
   status: 'started' | 'continue' | 'completed' | '';
 }
