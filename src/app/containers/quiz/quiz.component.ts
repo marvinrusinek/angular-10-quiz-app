@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -38,7 +38,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   progressValue: number;
   correctCount: number;
   quizId: string;
-  quizName = '';
+  quizName$: Observable<string>;
   indexOfQuizId: number;
   status: Status;
   previousUserAnswers: any;
@@ -182,9 +182,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuizNameFromActivatedRoute(): void {
-    this.activatedRoute.url.subscribe(segments => {
-      this.quizName = segments[1].toString();
-    });
+    this.quizName$ = this.activatedRoute.url.pipe(
+      map(segments => segments[1].toString())
+    );
   }
 
   sendValuesToQuizService(): void {
