@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -12,6 +13,7 @@ import { TimerService } from '../../../shared/services/timer.service';
 export class MultipleAnswerComponent implements OnInit {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
+  formGroup: FormGroup;
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
   currentQuestion: QuizQuestion;

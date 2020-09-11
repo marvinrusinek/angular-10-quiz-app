@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -12,6 +13,7 @@ import { TimerService } from '../../../shared/services/timer.service';
 export class SingleAnswerComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
+  formGroup: FormGroup;
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
   currentQuestion: QuizQuestion;
