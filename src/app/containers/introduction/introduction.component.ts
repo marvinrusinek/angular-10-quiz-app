@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { QUIZ_DATA } from '../../shared/quiz';
+import { getQuizzes$ } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
@@ -14,7 +14,7 @@ import { QuizService } from '../../shared/services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IntroductionComponent implements OnInit {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
 
   constructor(
@@ -23,6 +23,7 @@ export class IntroductionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.quizzes$ = getQuizzes$;
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );

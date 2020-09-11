@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
-import { QUIZ_DATA } from '../../shared/quiz';
+
+import { getQuizzes$ } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
@@ -16,7 +17,7 @@ type AnimationState = 'animationStarted' | 'none';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizzes$: Observable<Quiz[]>;
   currentQuestionIndex: number;
   totalQuestions: number;
   quizId: string;
@@ -28,6 +29,7 @@ export class QuizSelectionComponent implements OnInit {
   constructor(private quizService: QuizService) { }
 
   ngOnInit(): void {
+    this.quizzes$ = getQuizzes$;
     this.selectionParams = this.quizService.paramsQuizSelection;
   }
 

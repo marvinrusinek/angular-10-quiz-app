@@ -225,7 +225,7 @@ export class QuizService {
 
   /********* reset functions ***********/
   resetQuestions(): void {
-    //this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
+    // this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
   }
 
   resetAll(): void {

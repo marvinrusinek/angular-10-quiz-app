@@ -1,4 +1,4 @@
-<ng-container *ngFor="let quiz of quizData">
+<ng-container *ngFor="let quiz of quizzes$ | async">
   <mat-card *ngIf="quiz.quizId === (quizName$ | async)">
     <mat-card-header>
       <div mat-card-avatar class="header-image"></div>

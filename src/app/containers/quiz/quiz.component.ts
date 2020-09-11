@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
-import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { getQuizzes$ } from '../../shared/quiz';
+// import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 // import { Resource } from '../../shared/models/Resource.model';
@@ -11,7 +12,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
-
 
 type AnimationState = 'animationStarted' | 'none';
 
@@ -21,6 +21,7 @@ enum Status {
   Completed = 'Completed'
 }
 
+
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
@@ -29,7 +30,7 @@ enum Status {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizComponent implements OnInit, OnDestroy {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
   answers: number[] = [];
@@ -39,7 +40,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctCount: number;
   quizId: string;
   quizName$: Observable<string>;
-  indexOfQuizId: number;
+  indexOfQuizId$: Observable<number>;
   status: Status;
   previousUserAnswers: any;
   checkedShuffle: boolean;
@@ -56,17 +57,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex(element => element.quizId === this.quizId);
+    this.indexOfQuizId$ = this.quizzes$.findIndex(element => element.quizId === this.quizId);
   }
 
   ngOnInit(): void {
+    this.quizzes$ = getQuizzes$;
     this.getQuizNameFromActivatedRoute();
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => {
-          this.totalQuestions = this.quizData[this.indexOfQuizId].questions.length;
+          this.totalQuestions = this.quizzes$[this.indexOfQuizId$].questions.length;
           this.quizService.setTotalQuestions(this.totalQuestions);
 
         if (params.questionIndex) {
@@ -116,9 +118,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shuffleQuestionsAndAnswers(): void {
     if (this.quizService.checkedShuffle) {
-      this.quizService.shuffle(this.quizData[this.indexOfQuizId].questions);
+      this.quizService.shuffle(this.quizzes$[this.indexOfQuizId$].questions);
       this.quizService.shuffle(
-        this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options
+        this.quizzes$[this.indexOfQuizId$].questions[this.quizService.currentQuestionIndex].options
       );
     }
   }
@@ -197,12 +199,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendQuestionToQuizService(): void {
-    this.question = this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
+    this.question = this.quizzes$[this.indexOfQuizId$].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
   }
 
   private sendQuestionsToQuizService(): void {
-    this.questions = this.quizData[this.indexOfQuizId].questions;
+    this.questions = this.quizzes$[this.indexOfQuizId$].questions;
     this.quizService.setQuestions(this.questions);
   }
 
@@ -215,7 +217,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendPreviousUserAnswersToQuizService(): void {
-    this.questions = this.quizData[this.indexOfQuizId].questions;
+    this.questions = this.quizzes$[this.indexOfQuizId$].questions;
     this.quizService.setPreviousUserAnswersText(this.quizService.previousUserAnswers, this.questions);
   }
 
