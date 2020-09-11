@@ -4,15 +4,12 @@
   margin: 0 0 10px 6.5px;
   margin-bottom: 40px;
   padding: 5px;
-  width: 39.5rem !important;
 
   .multipleAnswer {
-    width: 39.5rem !important;
-
     mat-checkbox {
       cursor: pointer;
-      width: 39.5rem !important;
-      height: auto !important;
+      width: auto !important;
+      height: 55px !important;
       font-family: $font-stack;
       font-size: 20px !important;
       color: $dark-brown;
