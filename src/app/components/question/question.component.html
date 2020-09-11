@@ -1,10 +1,6 @@
 <ng-content></ng-content>
 
 <form [formGroup]="formGroup">
-  <div *ngIf="!multipleAnswer">
   <codelab-question-single-answer></codelab-question-single-answer>
-  </div>
-  <div *ngIf="multipleAnswer">
   <codelab-question-multiple-answer></codelab-question-multiple-answer>
-  </div>
 </form>

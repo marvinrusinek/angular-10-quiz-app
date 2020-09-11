@@ -1,8 +1,7 @@
 @import "../../../../variables";
 
 .options {
-  margin: 0 0 10px 6.5px;
-  margin-bottom: 40px;
+  margin: 0 0 25px 6.5px;
   padding: 5px;
 
   .multipleAnswer {
@@ -15,9 +14,8 @@
       color: $dark-brown;
       background-color: $light-gray;
       border: 2px solid $medium-gray;
-      padding: 25px 5px 20px 30px;
+      padding: 15px 5px 20px 30px;
       margin-left: -5px;
-      vertical-align: middle;
 
       &:hover {
         border: 2px solid $vivid-blue;

@@ -71,10 +71,11 @@
             </div>
 
             <div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions"
-                 matTooltip="Next Question &raquo;" matTooltipPosition="below" [matTooltipDisabled]="false">
+                 matTooltip="Next Question &raquo;"
+                matTooltipPosition="below">
               <button type="button"
                       mat-icon-button
-                      [disabled]="!isAnswered()"
+      
                       (click)="advanceToNextQuestion()"
                       (window:keydown.ArrowRight)="advanceToNextQuestion()"
                       (window:keydown.Enter)="advanceToNextQuestion()">
