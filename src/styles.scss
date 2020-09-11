@@ -59,13 +59,12 @@ mat-card {
   }
 }
 
-messages {
+.messages {
   display: flex;
   justify-content: center;
+  margin-top: 5px;
   margin-bottom: 10px;
   height: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
 
   span {
     font-size: 17px;
