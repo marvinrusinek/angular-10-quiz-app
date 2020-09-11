@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
+import { Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -13,20 +15,23 @@ import { Score } from '../../shared/models/Score.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
+enum Status {
+  Started = 'Started',
+  Continue = 'Continue',
+  Completed = 'Completed'
+}
 
 @Component({
   selector: 'codelab-quiz-results',
   templateUrl: './results.component.html',
-  styleUrls: ['./results.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./results.component.scss']
 })
-export class ResultsComponent implements OnInit {
+export class ResultsComponent implements OnInit, OnDestroy {
   quizData: Quiz[] = JSON.parse(JSON.stringify(QUIZ_DATA));
-  // quizResources: QuizResource[] = JSON.parse(JSON.stringify(QUIZ_RESOURCES));
-
+  // quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
-    totalQuestionsAttempted: this.quizService.totalQuestionsAttempted,
+    totalQuestionsAttempted: this.quizService.totalQuestions, // same as totalQuestions since next button is disabled
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
     percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
     completionTime: this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes)
@@ -35,32 +40,26 @@ export class ResultsComponent implements OnInit {
     userAnswers: this.quizService.userAnswers,
     elapsedTimes: this.timerService.elapsedTimes
   };
-  
-  highScores: Score[] = [];
-  score: Score;
-
   questions: QuizQuestion[];
-  // resources: Resource[];
-  quizName = '';
+  quizName$: Observable<string>;
   quizId: string;
   indexOfQuizId: number;
-  status: string;
-  
+  status: Status;
   correctAnswers: number[] = [];
   previousUserAnswers: any[] = [];
-  numberOfCorrectAnswers: number[] = [];
-
   elapsedMinutes: number;
   elapsedSeconds: number;
-
   checkedShuffle: boolean;
+  highScores: Score[] = [];
+  score: Score;
+  unsubscribe$ = new Subject<void>();
 
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
 
-  CONGRATULATIONS = 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/congratulations.jpg';
-  NOT_BAD = 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/not-bad.jpg';
-  TRY_AGAIN = 'https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/try-again.jpeg';
+  CONGRATULATIONS = '../../assets/images/congrats.gif';
+  NOT_BAD = '../../assets/images/not-bad.jpg';
+  TRY_AGAIN = '../../assets/images/try-again.jpeg';
   codelabUrl = 'https://www.codelab.fun';
 
   constructor(
@@ -70,39 +69,42 @@ export class ResultsComponent implements OnInit {
     private router: Router
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
-    this.quizData[this.indexOfQuizId].status = 'completed';
+    this.indexOfQuizId = this.quizData.findIndex(element => element.quizId === this.quizId);
+    this.status = Status.Completed;
 
-    this.getQuizStatus();
-    this.getCompletedQuizId(this.quizId);
-    this.getUserAnswers(this.previousUserAnswers);
+    this.sendQuizStatusToQuizService();
+    this.sendCompletedQuizIdToQuizService();
+    this.sendPreviousUserAnswersToQuizService();
     this.calculateElapsedTime();
     this.saveHighScores();
   }
 
-  ngOnInit() {
-    this.activatedRoute.url.subscribe(segments => {
-      this.quizName = segments[1].toString();
-    });
-    this.correctAnswers = this.quizService.correctAnswers;
+  ngOnInit(): void {
+    this.quizName$ = this.activatedRoute.url.pipe(
+      map(segments => segments[1].toString())
+    );
+
     this.questions = this.quizService.questions;
-    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswersArray;
+    this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;
     this.previousUserAnswers = this.quizService.userAnswers;
-    // this.resources = this.quizService.resources;
   }
 
-  private getCompletedQuizId(quizId: string): void {
-    this.quizService.setCompletedQuizId(quizId);
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
-  private getQuizStatus(): void {
-    this.status = this.quizData[this.indexOfQuizId].status;
+  private sendQuizStatusToQuizService(): void {
     this.quizService.setQuizStatus(this.status);
   }
 
-  private getUserAnswers(previousAnswers: any): void {
-    this.quizService.setUserAnswers(previousAnswers);
+  private sendCompletedQuizIdToQuizService(): void {
+    this.quizService.setCompletedQuizId(this.quizId);
+  }
+
+  private sendPreviousUserAnswersToQuizService(): void {
+    this.quizService.setPreviousUserAnswers(this.previousUserAnswers);
   }
 
   calculateElapsedTime(): void {
@@ -115,8 +117,8 @@ export class ResultsComponent implements OnInit {
   }
 
   checkIfAnswersAreCorrect(correctAnswers: any, userAnswers: any, index: number): boolean {
-    return !(!userAnswers[index] || 
-             userAnswers[index].length === 0 || 
+    return !(!userAnswers[index] ||
+             userAnswers[index].length === 0 ||
              userAnswers[index].find((answer) => correctAnswers[index][0].indexOf(answer) === -1));
   }
 
@@ -128,11 +130,11 @@ export class ResultsComponent implements OnInit {
     };
 
     const MAX_LENGTH = 2;
-    if (this.quizId === this.quizName) {
+    // if (this.quizId === this.quizName$) {
       this.highScores = new Array(MAX_LENGTH);
-    }
+    // }
 
-    // TODO: checked, error doesn't get thrown if quiz is taken more than 2 times; maybe need to use localstorage
+    // TODO: checked, error doesn't get thrown if quiz is taken more than 2 times; perhaps need to use localstorage
     if (this.quizId && this.highScores.length > MAX_LENGTH) {
       console.log('ERROR: ' + this.quizData[this.indexOfQuizId].milestone + ' can only be taken ' + MAX_LENGTH + ' times');
     }
@@ -140,26 +142,26 @@ export class ResultsComponent implements OnInit {
     console.log('High Scores:', this.highScores);
   }
 
-  openAllPanels() {
+  openAllPanels(): void {
     this.accordion.openAll();
   }
-  closeAllPanels() {
+  closeAllPanels(): void {
     this.accordion.closeAll();
   }
 
-  restartQuiz() {
+  restartQuiz(): void {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.router.navigate(['/question/', this.quizId, 1]).then();
+    this.router.navigate(['/quiz/intro/', this.quizId]).then();
   }
 
-  selectQuiz() {
+  selectQuiz(): void {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.quizId = '';
     this.indexOfQuizId = 0;
-    this.router.navigate(['/select/']).then();
+    this.router.navigate(['/quiz/select/']).then();
   }
 }
