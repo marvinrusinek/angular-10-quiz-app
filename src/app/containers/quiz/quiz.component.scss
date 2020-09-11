@@ -65,12 +65,17 @@ mat-card-header {
   mat-card-actions {
     margin: 10px 0 45px 0;
 
-    button {
-      width: 50px;
-      height: 60px;
-
+    .next-question-nav button,
+    .prev-question-nav button {
       mat-icon {
         font-size: 80px;
+        color: $dodger-blue;
+      }
+    }
+
+    .restart-nav button {
+      mat-icon {
+        font-size: 60px;
         color: $dodger-blue;
       }
     }
@@ -82,17 +87,17 @@ mat-card-header {
 
     .prev-question-nav {
       float: left;
-      margin-left: 0.7rem;
+      margin-left: 0rem;
     }
 
     .restart-nav {
       float: left;
-      margin-left: 14rem;
+      margin-left: 16rem;
     }
 
     .next-question-nav {
       float: right;
-      margin-right: -1.7rem;
+      margin-right: -1rem;
     }
 
     .prev-question-nav,
