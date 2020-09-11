@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { findIndex } from 'rxjs/operators';
 import { Howl } from 'howler';
 
-import { QUIZ_DATA } from '../../shared/quiz';
+import { getQuizzes$ } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
@@ -11,14 +12,14 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root'
 })
 export class QuizService {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizzes$: Observable<Quiz[]>;
   currentQuestion: QuizQuestion;
   question: QuizQuestion;
   questions: QuizQuestion[];
   answers: number[];
   multipleAnswer: boolean;
   totalQuestions: number;
-  indexOfQuizId: number;
+  indexOfQuizId$: Observable<number>;
   currentQuestionIndex = 1;
 
   paramsQuizSelection: Object;
@@ -66,8 +67,9 @@ export class QuizService {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    this.quizzes$ = getQuizzes$;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId = this.quizData.findIndex(element => element.quizId === this.quizId);
+    this.indexOfQuizId$ = this.quizzes$.findIndex(element => element.quizId === this.quizId);
     this.setParamsQuizSelection();
   }
 
@@ -223,7 +225,7 @@ export class QuizService {
 
   /********* reset functions ***********/
   resetQuestions(): void {
-    this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
+    //this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
   }
 
   resetAll(): void {
