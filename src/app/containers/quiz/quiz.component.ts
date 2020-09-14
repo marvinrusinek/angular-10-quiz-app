@@ -61,7 +61,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizzes$ = getQuizzes$;
     this.quizName$ = this.quizService.quizName$;
     this.quizId = this.quizService.quizId;
-    
+    this.indexOfQuizId = this.quizService.indexOfQuizId;
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params
@@ -75,9 +75,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.currentQuestionIndex = this.questionIndex;
 
           if (this.questionIndex === 1) {
-            this.progressValue = 0;
             this.status = Status.Started;
+            this.progressValue = 0;
           } else {
+            this.status = Status.Continue
             this.progressValue = Math.ceil((this.questionIndex - 1) / this.totalQuestions * 100);
           }
 
