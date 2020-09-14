@@ -40,7 +40,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctCount: number;
   quizId: string;
   quizName$: Observable<string>;
-  indexOfQuizId$: Observable<number>;
+  indexOfQuizId: number;
   status: Status;
   previousUserAnswers: any;
   checkedShuffle: boolean;
@@ -56,19 +56,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId$ = this.quizzes$.findIndex(element => element.quizId === this.quizId);
+    this.indexOfQuizId = this.quizService.indexOfQuizId;
   }
 
   ngOnInit(): void {
     this.quizzes$ = getQuizzes$;
-    this.getQuizNameFromActivatedRoute();
+    this.quizId = this.quizService.quizId;
+    
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => {
-          this.totalQuestions = this.quizzes$[this.indexOfQuizId$].questions.length;
+          this.totalQuestions = this.quizzes$[this.indexOfQuizId].questions.length;
           this.quizService.setTotalQuestions(this.totalQuestions);
 
         if (params.questionIndex) {
@@ -118,9 +118,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shuffleQuestionsAndAnswers(): void {
     if (this.quizService.checkedShuffle) {
-      this.quizService.shuffle(this.quizzes$[this.indexOfQuizId$].questions);
+      this.quizService.shuffle(this.quizzes$[this.indexOfQuizId].questions);
       this.quizService.shuffle(
-        this.quizzes$[this.indexOfQuizId$].questions[this.quizService.currentQuestionIndex].options
+        this.quizzes$[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex].options
       );
     }
   }
@@ -199,12 +199,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendQuestionToQuizService(): void {
-    this.question = this.quizzes$[this.indexOfQuizId$].questions[this.questionIndex - 1];
+    this.question = this.quizzes$[this.indexOfQuizId].questions[this.questionIndex - 1];
     this.quizService.setQuestion(this.question);
   }
 
   private sendQuestionsToQuizService(): void {
-    this.questions = this.quizzes$[this.indexOfQuizId$].questions;
+    this.questions = this.quizzes$[this.indexOfQuizId].questions;
     this.quizService.setQuestions(this.questions);
   }
 
@@ -217,7 +217,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendPreviousUserAnswersToQuizService(): void {
-    this.questions = this.quizzes$[this.indexOfQuizId$].questions;
+    this.questions = this.quizzes$[this.indexOfQuizId].questions;
     this.quizService.setPreviousUserAnswersText(this.quizService.previousUserAnswers, this.questions);
   }
 

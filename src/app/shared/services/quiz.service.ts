@@ -19,7 +19,7 @@ export class QuizService {
   answers: number[];
   multipleAnswer: boolean;
   totalQuestions: number;
-  indexOfQuizId$: Observable<number>;
+  indexOfQuizId: number;
   currentQuestionIndex = 1;
 
   paramsQuizSelection: Object;
