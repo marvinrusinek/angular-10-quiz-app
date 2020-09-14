@@ -55,12 +55,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {
-    this.indexOfQuizId = this.quizService.indexOfQuizId;
-  }
+  ) { }
 
   ngOnInit(): void {
     this.quizzes$ = getQuizzes$;
+    this.quizName$ = this.quizService.quizName$;
     this.quizId = this.quizService.quizId;
     
     this.shuffleQuestionsAndAnswers();

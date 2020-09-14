@@ -86,18 +86,6 @@ export class ResultsComponent implements OnInit {
     this.previousUserAnswers = this.quizService.userAnswers;
   }
 
-  private sendQuizStatusToQuizService(): void {
-    this.quizService.setQuizStatus(this.status);
-  }
-
-  private sendCompletedQuizIdToQuizService(): void {
-    this.quizService.setCompletedQuizId(this.quizId);
-  }
-
-  private sendPreviousUserAnswersToQuizService(): void {
-    this.quizService.setPreviousUserAnswers(this.previousUserAnswers);
-  }
-
   calculateElapsedTime(): void {
     this.elapsedMinutes = Math.floor(this.quizMetadata.completionTime / 60);
     this.elapsedSeconds = this.quizMetadata.completionTime % 60;
@@ -155,4 +143,17 @@ export class ResultsComponent implements OnInit {
     this.indexOfQuizId = 0;
     this.router.navigate(['/quiz/select/']).then();
   }
+
+  private sendQuizStatusToQuizService(): void {
+    this.quizService.setQuizStatus(this.status);
+  }
+
+  private sendCompletedQuizIdToQuizService(): void {
+    this.quizService.setCompletedQuizId(this.quizId);
+  }
+
+  private sendPreviousUserAnswersToQuizService(): void {
+    this.quizService.setPreviousUserAnswers(this.previousUserAnswers);
+  }
+
 }
