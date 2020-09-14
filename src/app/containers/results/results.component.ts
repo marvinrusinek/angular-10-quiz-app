@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 import { Observable, Subject } from 'rxjs';
@@ -27,7 +27,7 @@ enum Status {
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss']
 })
-export class ResultsComponent implements OnInit, OnDestroy {
+export class ResultsComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   // quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
@@ -53,7 +53,6 @@ export class ResultsComponent implements OnInit, OnDestroy {
   checkedShuffle: boolean;
   highScores: Score[] = [];
   score: Score;
-  unsubscribe$ = new Subject<void>();
 
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
@@ -68,7 +67,6 @@ export class ResultsComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private router: Router
   ) {
-    this.indexOfQuizId$ = this.quizzes$.pipe(findIndex(element => element.quizId === this.quizId));
     this.status = Status.Completed;
 
     this.sendQuizStatusToQuizService();
@@ -80,19 +78,12 @@ export class ResultsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.quizzes$ = getQuizzes$;
-    this.quizName$ = this.activatedRoute.url.pipe(
-      map(segments => segments[1].toString())
-    );
+    this.quizName$ = this.quizService.quizName$;
     this.quizId = this.quizService.quizId;
     this.questions = this.quizService.questions;
     this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;
     this.previousUserAnswers = this.quizService.userAnswers;
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
   }
 
   private sendQuizStatusToQuizService(): void {
