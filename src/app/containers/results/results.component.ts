@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -66,10 +66,8 @@ export class ResultsComponent implements OnInit, OnDestroy {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId$ = this.quizzes$.pipe(findIndex(element => element.quizId === this.quizId));
     this.status = Status.Completed;
 
@@ -85,7 +83,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );
-
+    this.quizId = this.quizService.quizId;
     this.questions = this.quizService.questions;
     this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;

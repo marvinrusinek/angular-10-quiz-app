@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { findIndex } from 'rxjs/operators';
+import { findIndex, map } from 'rxjs/operators';
 import { Howl } from 'howler';
 
 import { getQuizzes$ } from '../../shared/quiz';
@@ -29,6 +29,8 @@ export class QuizService {
   completedQuizId = '';
   quizCompleted = false;
   status = '';
+  
+  quizName$: Observable<string>;
 
   correctAnswers = [];
   correctAnswersForEachQuestion = [];
@@ -69,8 +71,24 @@ export class QuizService {
   ) {
     this.quizzes$ = getQuizzes$;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.indexOfQuizId$ = this.quizzes$.findIndex(element => element.quizId === this.quizId);
+    this.getIndexOfQuizId();
     this.setParamsQuizSelection();
+
+    this.quizName$ = this.activatedRoute.url.pipe(
+      map(segments => segments[1] + '')
+    );
+  }
+
+  getQuizzes(): Observable<Quiz[]> {
+    return this.quizzes$;
+  }
+
+  getIndexOfQuizId() {
+    return this.getQuizzes().pipe(map(quizzes => {
+      this.indexOfQuizId = quizzes.findIndex(elem => elem.quizId === this.quizId);
+      console.log('Number: ', this.indexOfQuizId);
+    }));
+    // this.indexOfQuizId$.subscribe(x => console.log(x));
   }
 
   getCorrectAnswers(question: QuizQuestion) {
