@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { of } from 'rxjs/observable/of'
+import { of } from 'rxjs/observable/of';
 
 import { Quiz } from '../shared/models/Quiz.model';
 import { QuizResource } from '../shared/models/Resource.model';
