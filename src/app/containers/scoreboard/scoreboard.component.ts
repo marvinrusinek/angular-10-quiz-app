@@ -38,15 +38,15 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     if (changes.selectedAnswer &&
         changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange) {
       this.answer = changes.selectedAnswer.currentValue;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }
