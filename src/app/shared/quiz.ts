@@ -719,7 +719,7 @@ export const getQuizzes$: Observable<Quiz[]> = of([
   }
 ]);
 
-export const getResources: Observable<QuizResource[]> = of([
+export const getResources$: Observable<QuizResource[]> = of([
   {
     quizId: 'TS_Quiz',
     milestone: 'TypeScript',
