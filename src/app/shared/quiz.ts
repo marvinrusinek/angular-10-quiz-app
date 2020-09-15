@@ -107,7 +107,7 @@ export const getQuizzes$: Observable<Quiz[]> = of([
     quizId: 'create-first-app',
     milestone: 'Creating your first app',
     summary: 'Angular allows us to create an app that contains components and modules as well as a system for bootstrapping the app.',
-    image: 'https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/first_app.pngfirst_app.png',
+    image: 'https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/first_app.png',
     questions: [
       {
         questionText: 'Which of the following are true statements about Angular?',
