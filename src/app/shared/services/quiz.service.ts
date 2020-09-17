@@ -70,13 +70,12 @@ export class QuizService {
     private router: Router
   ) {
     this.quizzes$ = getQuizzes$;
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.getIndexOfQuizId();
-    this.setParamsQuizSelection();
-
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1] + '')
     );
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.getIndexOfQuizId();
+    this.setParamsQuizSelection();
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -86,9 +85,8 @@ export class QuizService {
   getIndexOfQuizId() {
     return this.getQuizzes().pipe(map(quizzes => {
       this.indexOfQuizId = quizzes.findIndex(elem => elem.quizId === this.quizId);
-      console.log('Number: ', this.indexOfQuizId);
+      console.log('Index: ', this.indexOfQuizId);
     }));
-    // this.indexOfQuizId$.subscribe(x => console.log(x));
   }
 
   getCorrectAnswers(question: QuizQuestion) {
