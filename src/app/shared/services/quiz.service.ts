@@ -81,10 +81,12 @@ export class QuizService {
   }
 
   getIndexOfQuizId() {
-    return this.getQuizzes().pipe(map(quizzes => {
-      this.indexOfQuizId = quizzes.findIndex(elem => elem.quizId === this.quizId);
-      console.log('Index: ', this.indexOfQuizId);
-    }));
+    const index = this.getQuizzes().pipe(map(quizzes => {
+        this.indexOfQuizId = quizzes.findIndex((elem) => elem => elem.quizId === this.quizId );
+      })).subscribe(x => {
+        console.log(x);
+        console.log('IOQID: ', this.indexOfQuizId);
+      });
   }
 
   getCorrectAnswers(question: QuizQuestion) {
