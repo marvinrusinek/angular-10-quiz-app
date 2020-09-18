@@ -71,6 +71,7 @@ export class QuizService {
   ) {
     this.quizzes$ = getQuizzes$;
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
+    
     this.quizId = this.activatedRoute.snapshot.params['questionIndex'];
     this.getIndexOfQuizId();
     this.setParamsQuizSelection();
