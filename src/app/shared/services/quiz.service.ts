@@ -71,7 +71,7 @@ export class QuizService {
   ) {
     this.quizzes$ = getQuizzes$;
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizId = this.activatedRoute.snapshot.params['questionIndex'];
     this.getIndexOfQuizId();
     this.setParamsQuizSelection();
   }
@@ -82,7 +82,7 @@ export class QuizService {
 
   getIndexOfQuizId() {
     const index = this.getQuizzes().pipe(map(quizzes => {
-        this.indexOfQuizId = quizzes.findIndex((elem) => elem => elem.quizId === this.quizId );
+        this.indexOfQuizId = quizzes.findIndex((elem) =>  elem.quizId === this.quizId );
       })).subscribe(x => {
         console.log(x);
         console.log('IOQID: ', this.indexOfQuizId);
