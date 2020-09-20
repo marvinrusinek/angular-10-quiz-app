@@ -1,7 +1,7 @@
-<ng-container *ngFor="let quiz of quizzes$ | async">
+<ng-container *ngFor="let quiz of quizData">
   <mat-card *ngIf="quiz.quizId === (quizName$ | async)">
     <mat-card-header>
-      <div mat-card-avatar class="header-image"></div>
+      <img mat-card-avatar class="header-image" loading="lazy" />
       <mat-card-title i18n>{{ quiz?.milestone }} Quiz</mat-card-title>
       <mat-card-subtitle i18n>
         <span>How well versed are you in {{ quiz?.milestone }}?</span>
@@ -9,7 +9,7 @@
       </mat-card-subtitle>
     </mat-card-header>
 
-    <img mat-card-image class="quiz-topic-image" [src]="quiz.image">
+    <img mat-card-image class="quiz-topic-image" [src]="imagePath + quiz.image" loading="lazy" />
 
     <mat-card-content>
       <span i18n><strong>{{ quiz.summary }}</strong>  This quiz is composed of
@@ -29,7 +29,7 @@
         disableRipple="true"
         name="start quiz"
         class="btn btn-outline-primary"
-        [routerLink]="['/question/', quiz.quizId, 1]">
+        [routerLink]="['/quiz/question/', quiz.quizId, 1]">
         <span i18n><strong>Start the Quiz!</strong>&nbsp;<mat-icon inline="true">play_arrow</mat-icon></span>
       </button>
     </mat-card-actions>
