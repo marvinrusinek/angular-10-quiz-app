@@ -3,8 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
-import { getQuizzes$ } from '../../shared/quiz';
-// import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 // import { Resource } from '../../shared/models/Resource.model';

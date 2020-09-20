@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { findIndex, map } from 'rxjs/operators';
 import { Howl } from 'howler';
 
-import { getQuizzes$ } from '../../shared/quiz';
+import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 

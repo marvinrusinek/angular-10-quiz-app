@@ -4,7 +4,7 @@
       <div class="container">
         <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 logo">
           <a href="https://www.codelab.fun" title="Angular Codelab" target="_blank">
-            <img mat-card-avatar class="header-image">
+            <img mat-card-avatar class="header-image" loading="lazy" />
           </a>
         </div>
         <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
@@ -29,7 +29,7 @@
           <span i18n>Milestones &#x25BC;</span>
         </button>
         <mat-menu #menu="matMenu" xPosition="before">
-          <div *ngFor="let quiz of quizzes$ | async">
+          <div *ngFor="let quiz of quizData">
             <button mat-menu-item name="milestone"
                     [routerLink]="['/quiz/intro/', quiz.quizId]"
                     data-i18n="quiz.milestone">{{ quiz.milestone }}
@@ -39,15 +39,15 @@
       </mat-toolbar>
 
       <mat-grid-list cols="3" rowHeight="370px" gutterSize="5px">
-        <mat-grid-tile *ngFor="let quiz of quizzes$ | async"
+        <mat-grid-tile *ngFor="let quiz of quizData"
                        [@slideLeftToRight]="animationState$ | async"
                        (@slideLeftToRight.done)="animationDoneHandler()"
-                       [routerLink]="['/intro/', quiz.quizId]"
-                       [ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
+                       [routerLink]="['/quiz/intro/', quiz.quizId]"
+                       [ngStyle]="{ 'background': 'url(' + imagePath + quiz.image + ') no-repeat center 10px',
                                     'background-size': '300px 210px' }"
-                       [ngClass]="{ 'started': status === 'started' && quiz.quizId === selectionParams.startedQuizId,
-                                    'continue': status === 'continue' && quiz.quizId === selectionParams.continueQuizId,
-                                    'completed': status === 'completed' && quiz.quizId === selectionParams.completedQuizId }">
+                       [ngClass]="{ 'started': status === 'started' && quiz.quizId === startedQuizId,
+                                    'continue': status === 'continue' && quiz.quizId === continueQuizId,
+                                    'completed': status === 'completed' && quiz.quizId === completedQuizId }">
 
           <summary class="quiz-info">
             <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
@@ -56,18 +56,22 @@
 
           <div class="status-icon">
             <span name="start" matTooltip="Start"
-                  *ngIf="!quizCompleted || status === 'started' || quiz.quizId === selectionParams.startedQuizId"
-                  [routerLink]="['/intro/', quiz.quizId]">
+                  *ngIf="!quizCompleted ||
+                         status === 'started' ||
+                         quiz.quizId === startedQuizId"
+                  [routerLink]="['/quiz/intro/', quiz.quizId]">
               <i class="material-icons">launch</i>
             </span>
             <span name="continue" matTooltip="Continue"
-                  *ngIf="status === 'continue' || quiz.quizId === selectionParams.continueQuizId"
-                  [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
+                  *ngIf="status === 'continue' ||
+                         quiz.quizId === continueQuizId"
+                  [routerLink]="['/quiz/question/', quiz.quizId, currentQuestionIndex]">
               <i class="material-icons">play_arrow</i>
             </span>
             <span name="completed" matTooltip="Completed"
-                  *ngIf="status === 'completed' && quiz.quizId === selectionParams.completedQuizId"
-                  [routerLink]="['/results/', quiz.quizId]">
+                  *ngIf="status === 'completed' &&
+                         quiz.quizId === completedQuizId"
+                  [routerLink]="['/quiz/results/', quiz.quizId]">
               <i class="material-icons">done_all</i>
             </span>
           </div>
