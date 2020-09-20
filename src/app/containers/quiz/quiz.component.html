@@ -1,14 +1,13 @@
-<ng-container *ngFor="let quiz of quizzes$ | async">
+<ng-container *ngFor="let quiz of quizData">
   <mat-card *ngIf="quiz.quizId === (quizName$ | async) &&
                    question && questionIndex <= totalQuestions"
             [@changeRoute]="animationState$ | async"
             (@changeRoute.done)="animationDoneHandler()">
 
     <mat-card-header>
-      <div mat-card-avatar class="header-image"
+      <img mat-card-avatar class="header-image" loading="lazy"
            [routerLink]="['/quiz/select']"
-           matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left">
-      </div>
+           matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left" />
       <mat-card-title i18n>{{ quiz.milestone }} Quiz</mat-card-title>
       <mat-card-subtitle i18n>Assess your knowledge of {{ quiz.milestone }}</mat-card-subtitle>
     </mat-card-header>
@@ -26,8 +25,8 @@
         </span>
         <span *ngIf="isAnswered()" i18n>
           {{ numberOfCorrectAnswers === 1 ?
-            'Option ' + correctOptions + ' was correct because ' :
-            'Options ' + correctOptions + ' were correct because ' }}
+          'Option ' + correctOptions + ' was correct because ' :
+          'Options ' + correctOptions + ' were correct because ' }}
           {{ explanationText }}.
         </span>
       </section>
@@ -55,7 +54,8 @@
                       (click)="advanceToPreviousQuestion()"
                       (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
                       matTooltip="&laquo; Previous Question"
-                      matTooltipPosition="above">
+                      matTooltipPosition="above"
+                      aria-label="Previous Question">
                 <mat-icon>navigate_before</mat-icon>
               </button>
             </div>
@@ -65,19 +65,20 @@
                       mat-icon-button
                       (click)="restartQuiz()"
                       matTooltip="Restart Quiz"
-                      matTooltipPosition="above">
+                      matTooltipPosition="above"
+                      aria-label="Restart Quiz">
                 <mat-icon>replay</mat-icon>
               </button>
             </div>
 
             <div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions"
-                 matTooltip="Next Question &raquo;"
-                matTooltipPosition="below">
+                 matTooltip="Next Question &raquo;" matTooltipPosition="below">
               <button type="button"
                       mat-icon-button
                       (click)="advanceToNextQuestion()"
                       (window:keydown.ArrowRight)="advanceToNextQuestion()"
-                      (window:keydown.Enter)="advanceToNextQuestion()">
+                      (window:keydown.Enter)="advanceToNextQuestion()"
+                      aria-label="Next Question">
                 <mat-icon>navigate_next</mat-icon>
               </button>
             </div>
@@ -86,12 +87,12 @@
               <button type="submit"
                       mat-raised-button
                       disableRipple="true"
-                      [disabled]="!isAnswered()"
                       (click)="advanceToResults()"
                       (window:keydown.Enter)="advanceToResults()"
                       (window:keydown.ArrowRight)="advanceToResults()"
-                      class="btn btn-outline-primary">
-                <strong>Show Your Score</strong>
+                      class="btn btn-outline-primary"
+                      aria-label="Show Your Score">
+                <mat-icon>score</mat-icon>&nbsp;&nbsp;<strong>Show Your Score</strong>
               </button>
             </div>
           </mat-nav-list>

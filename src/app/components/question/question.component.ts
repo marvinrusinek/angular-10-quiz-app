@@ -32,11 +32,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
   correctMessage = '';
   isCorrectAnswerSelected = false;
+  isAnswered: boolean;
+  previousUserAnswers: string[] = [];
   previousUserAnswersTextSingleAnswer = [];
   previousUserAnswersTextMultipleAnswer = [];
 
   constructor(
-    private quizService: QuizService, 
+    private quizService: QuizService,
     private timerService: TimerService
   ) { }
 
@@ -96,14 +98,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
 
     this.alreadyAnswered = true;
-  }
-
-  private sendMultipleAnswerToQuizService(): void {
-    this.quizService.setMultipleAnswer(this.multipleAnswer);
-  }
-
-  private sendAlreadyAnsweredToQuizService(): void {
-    this.quizService.setAlreadyAnswered(this.alreadyAnswered);
   }
 
   private sendCurrentQuestionToQuizService(): void {

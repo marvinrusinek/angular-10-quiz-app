@@ -2,7 +2,6 @@
   <div class="single-answer" *ngIf="!multipleAnswer">
     <mat-radio-button
       (change)="setSelected(i)"
-      [disabled]="alreadyAnswered"
       [class.is-correct]="option.selected && option.correct"
       [class.is-incorrect]="option.selected && !option.correct">
 
@@ -11,9 +10,9 @@
 
         <ng-container>
           <mat-icon class="feedback-icon"
-                   *ngIf="option.selected && option.correct && isCorrectAnswerSelected">done</mat-icon>
+                    *ngIf="option.selected && option.correct && isCorrectAnswerSelected">done</mat-icon>
           <mat-icon class="feedback-icon"
-                   *ngIf="option.selected && !option.correct">clear</mat-icon>
+                    *ngIf="option.selected && !option.correct">clear</mat-icon>
         </ng-container>
       </mat-radio-label>
     </mat-radio-button>

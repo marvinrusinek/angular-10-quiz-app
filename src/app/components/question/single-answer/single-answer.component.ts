@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -8,7 +8,8 @@ import { TimerService } from '../../../shared/services/timer.service';
 @Component({
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
-  styleUrls: ['./single-answer.component.scss']
+  styleUrls: ['./single-answer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SingleAnswerComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
@@ -23,6 +24,8 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   correctMessage = '';
   isAnswered: boolean;
   isCorrectAnswerSelected: boolean;
+  isCorrectOption: string;
+  isIncorrectOption: string;
 
   constructor(private quizService: QuizService, private timerService: TimerService) {}
 
@@ -32,6 +35,8 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
+    this.isCorrectOption = this.quizService.isCorrectOption;
+    this.isIncorrectOption = this.quizService.isIncorrectOption;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -75,17 +80,5 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
-  }
-
-  private sendMultipleAnswerToQuizService(): void {
-    this.quizService.setMultipleAnswer(this.multipleAnswer);
-  }
-
-  private sendAlreadyAnsweredToQuizService(): void {
-    this.quizService.setAlreadyAnswered(this.alreadyAnswered);
-  }
-
-  private sendCurrentQuestionToQuizService(): void {
-    this.quizService.setCurrentQuestion(this.currentQuestion);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -8,9 +8,10 @@ import { TimerService } from '../../../shared/services/timer.service';
 @Component({
   selector: 'codelab-question-multiple-answer',
   templateUrl: './multiple-answer.component.html',
-  styleUrls: ['./multiple-answer.component.scss']
+  styleUrls: ['./multiple-answer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MultipleAnswerComponent implements OnInit {
+export class MultipleAnswerComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   formGroup: FormGroup;
@@ -25,6 +26,8 @@ export class MultipleAnswerComponent implements OnInit {
   correctMessage = '';
   isAnswered: boolean;
   isCorrectAnswerSelected: boolean;
+  isCorrectOption: string;
+  isIncorrectOption: string;
 
   constructor(
     private quizService: QuizService,
@@ -37,13 +40,8 @@ export class MultipleAnswerComponent implements OnInit {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
-
-    if (this.currentQuestion.options.length >= 1) {
-      this.hasOptions = true;
-      // document.getElementById("mat-checkbox").style.visibility = "hidden";
-    } else {
-      this.hasOptions = false;
-    }
+    this.isCorrectOption = this.quizService.isCorrectOption;
+    this.isIncorrectOption = this.quizService.isIncorrectOption;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -87,17 +85,5 @@ export class MultipleAnswerComponent implements OnInit {
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
-  }
-
-  private sendMultipleAnswerToQuizService(): void {
-    this.quizService.setMultipleAnswer(this.multipleAnswer);
-  }
-
-  private sendAlreadyAnsweredToQuizService(): void {
-    this.quizService.setAlreadyAnswered(this.alreadyAnswered);
-  }
-
-  private sendCurrentQuestionToQuizService(): void {
-    this.quizService.setCurrentQuestion(this.currentQuestion);
   }
 }

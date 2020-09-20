@@ -30,7 +30,6 @@ import { TimerService } from './shared/services/timer.service';
 import { JoinPipe } from './pipes/join.pipe';
 import { MultipleAnswerComponent } from './components/question/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/single-answer/single-answer.component';
-import { QuestionService } from './components/question/question.service';
 
 
 @NgModule({
@@ -68,7 +67,7 @@ import { QuestionService } from './components/question/question.service';
   ],
   exports: [MatExpansionModule],
   bootstrap: [AppComponent],
-  providers: [QuizService, TimerService, QuestionService],
+  providers: [QuizService, TimerService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }

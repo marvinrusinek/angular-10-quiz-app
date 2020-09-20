@@ -70,8 +70,8 @@ export class QuizService {
     private router: Router
   ) {
     this.quizzes$ = getQuizzes$;
-    this.quizName$ = activatedRoute.url.pipe(map(segments => segments[1] + ''));
-    this.quizId = activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     console.log('quizId: ', this.quizId);
     this.getIndexOfQuizId();
     this.setParamsQuizSelection();

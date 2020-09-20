@@ -1,10 +1,7 @@
-import { Observable } from 'rxjs';
-import { of } from 'rxjs/observable/of';
-
 import { Quiz } from '../shared/models/Quiz.model';
 import { QuizResource } from '../shared/models/Resource.model';
 
-export const getQuizzes$: Observable<Quiz[]> = of([
+export const QUIZ_DATA: Quiz[] = [
   {
     quizId: 'typescript',
     milestone: 'TypeScript',
@@ -717,9 +714,9 @@ export const getQuizzes$: Observable<Quiz[]> = of([
       }
     ]
   }
-]);
+];
 
-export const getResources$: Observable<QuizResource[]> = of([
+export const QUIZ_RESOURCES: QuizResource[] = [
   {
     quizId: 'TS_Quiz',
     milestone: 'TypeScript',
@@ -924,4 +921,4 @@ export const getResources$: Observable<QuizResource[]> = of([
       }
     ]
   }
-]);
+];

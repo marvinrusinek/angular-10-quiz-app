@@ -4,62 +4,65 @@
   margin: 0 0 25px 6.5px;
   padding: 5px;
 
-  .multipleAnswer {
-    mat-checkbox {
-      cursor: pointer;
-      width: auto !important;
-      height: 55px !important;
-      font-family: $font-stack;
-      font-size: 20px !important;
-      color: $dark-brown;
-      background-color: $light-gray;
-      border: 2px solid $medium-gray;
-      padding: 15px 5px 20px 30px;
-      margin-left: -5px;
+  mat-checkbox {
+    cursor: pointer;
+    width: auto !important;
+    height: 55px !important;
+    font-family: $font-stack;
+    font-size: 20px !important;
+    color: $dark-brown;
+    background-color: $light-gray;
+    border: 2px solid $medium-gray;
+    padding: 15px 5px 20px 30px;
+    margin-left: -5px;
 
-      &:hover {
-        border: 2px solid $vivid-blue;
-      }
+    &:hover {
+      border: 2px solid $vivid-blue;
+    }
+  }
+
+  mat-checkbox:first-child {
+    margin-top: -25px;
+  }
+
+  mat-checkbox-label {
+    white-space: normal;
+    margin-top: 5px;
+
+    .feedback-icon {
+      position: absolute;
+      right: 0;
+      margin: -5px 40px 0 0 !important;
+    }
+  }
+
+  .messages {
+    margin-bottom: -20px;
+
+    .sentiment-icon {
+      margin: 30px -50px -20px -5px !important;
     }
 
-    mat-checkbox-label {
-      white-space: normal;
-      margin-top: 5px;
-
-      .feedback-icon {
-        position: absolute;
-        right: 0;
-        margin: -5px 40px 0 0 !important;
-      }
-    }
-
-    .messages {
-      margin-bottom: -20px;
+    .wrong-message {
+      margin-top: 20px;
 
       .sentiment-icon {
-        margin: 30px -50px 0 20px;
-      }
-
-      .wrong-message {
-        margin-top: 20px;
-
-        .sentiment-icon {
-          float: left;
-          margin-bottom: 90px;
-        }
+        float: top;
+        margin-bottom: 40px !important;  // not moving up
       }
     }
+  }
 
-    .is-correct {
-      background-color: $green;
-    }
+  .is-correct {
+    background-color: $green;
+  }
 
-    .is-incorrect {
-      background-color: $red;
-    }
+  .is-incorrect {
+    background-color: $red;
   }
 }
 
 ::ng-deep .mat-checkbox {
-  width: 630px !important;
+  display: inline-block;
+  min-width: 630px;
 }

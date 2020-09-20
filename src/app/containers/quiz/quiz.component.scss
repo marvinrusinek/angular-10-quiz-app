@@ -56,11 +56,12 @@ mat-card-header {
   font-style: italic;
   display: flex;
   justify-content: center;
-  clear: both;
+  margin-top: -200px;
 }
 
 .paging {
   width: 40rem;
+  margin-bottom: 20px;
 
   mat-card-actions {
     margin: 10px 0 45px 0;
@@ -87,7 +88,7 @@ mat-card-header {
 
     .prev-question-nav {
       float: left;
-      margin-left: 0rem;
+      margin-left: 0;
     }
 
     .restart-nav {
@@ -120,13 +121,13 @@ mat-card-header {
   }
 }
 
-section.progress-bar {
-  margin: 40px 0 10px 1.5rem;
-  width: 620px;
-  height: auto;
+.progress-bar {
+  width: 630px;
   border-radius: 10px;
+  margin: 0 0 10px 15px;
+  background: $white;
 
   ngb-progressbar {
-    height: 20px;
+    height: 20px !important;
   }
 }
