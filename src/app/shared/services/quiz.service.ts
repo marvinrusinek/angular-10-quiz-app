@@ -215,7 +215,7 @@ export class QuizService {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/quizquestion/', this.quizId, questionIndex]).then();
+    this.router.navigate(['/question/', this.quizId, questionIndex]).then();
     this.resetAll();
   }
 
