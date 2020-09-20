@@ -12,7 +12,7 @@ import { TimerService } from '../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SingleAnswerComponent implements OnInit, OnChanges {
-  @Output() answer = new EventEmitter<number>();
+  @Output() answer: EventEmitter<number> = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   formGroup: FormGroup;
   multipleAnswer: boolean;
