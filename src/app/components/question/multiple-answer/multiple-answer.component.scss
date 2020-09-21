@@ -66,3 +66,8 @@
   display: inline-block;
   min-width: 630px;
 }
+
+// TODO: hide using *ngIf
+::ng-deep .mat-checkbox .mat-checkbox-inner-container {
+  display: none;
+}

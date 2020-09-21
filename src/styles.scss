@@ -187,11 +187,3 @@ mat-card {
     transform: translate(0, 160%);
   }
 }
-
-// hide mat-radio-buttons/mat-checkboxes next to answer choices -- TODO: hide using *ngIf
-::ng-deep .mat-radio-button .mat-radio-container {
-  display: none;
-}
-::ng-deep .mat-checkbox .mat-checkbox-inner-container {
-  display: none;
-}
