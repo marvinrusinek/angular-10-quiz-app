@@ -15,7 +15,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 })
 export class IntroductionComponent implements OnInit {
   quizData: Quiz[] = QUIZ_DATA;
-  // quizzes$: Observable<Quiz[]>;
+  quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
   imagePath = '../../../assets/images/milestones/';
 
@@ -25,7 +25,7 @@ export class IntroductionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // this.quizzes$ = getQuizzes$;
+    this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );
