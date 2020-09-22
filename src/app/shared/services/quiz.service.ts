@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { findIndex, map } from 'rxjs/operators';
+import 'rxjs/add/observable/of';
+import { map } from 'rxjs/operators';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../../shared/quiz';
@@ -77,7 +78,7 @@ export class QuizService {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return of(this.quizData);
+    return Observable.of(this.quizData);
   }
 
   getCorrectAnswers(question: QuizQuestion) {
