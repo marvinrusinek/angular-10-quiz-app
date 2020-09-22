@@ -134,12 +134,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   checkIfAnsweredCorrectly(): void {
     if (this.question) {
+      if(this.answers.hasOwnProperty("find")) {
       const correctAnswerFound = this.answers.find((answer) => {
         return this.question.options &&
           this.question.options[answer] &&
           this.question.options[answer]['selected'] &&
           this.question.options[answer]['correct'];
       });
+      }
 
       const answers = this.isAnswered() ? this.answers.map((answer) => answer + 1) : [];
       this.quizService.userAnswers.push(this.isAnswered() ? answers : this.answers);
