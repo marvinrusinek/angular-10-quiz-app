@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -26,7 +26,7 @@ enum Status {
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss']
 })
-export class ResultsComponent implements OnInit {
+export class ResultsComponent implements OnInit, OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
   quizzes$: Observable<Quiz[]>;
   // quizResources: QuizResource[] = QUIZ_RESOURCES;
@@ -53,6 +53,7 @@ export class ResultsComponent implements OnInit {
   checkedShuffle: boolean;
   highScores: Score[] = [];
   score: Score;
+  unsubscribe$ = new Subject<void>();
 
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
@@ -69,7 +70,9 @@ export class ResultsComponent implements OnInit {
     private router: Router
   ) {
     this.status = Status.Completed;
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
 
     this.sendQuizStatusToQuizService();
@@ -86,6 +89,11 @@ export class ResultsComponent implements OnInit {
     this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;
     this.previousUserAnswers = this.quizService.userAnswers;
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   calculateElapsedTime(): void {
