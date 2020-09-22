@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -65,10 +65,11 @@ export class ResultsComponent implements OnInit {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
+    private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
     this.status = Status.Completed;
-      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
 
     this.sendQuizStatusToQuizService();
