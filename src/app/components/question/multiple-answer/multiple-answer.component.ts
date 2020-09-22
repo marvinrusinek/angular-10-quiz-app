@@ -19,7 +19,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   alreadyAnswered: boolean;
   currentQuestion: QuizQuestion;
 
-  hasOptions: boolean;
 
   quizStarted: boolean;
   correctAnswers = [];
