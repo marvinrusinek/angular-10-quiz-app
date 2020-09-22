@@ -81,8 +81,7 @@ export class ResultsComponent implements OnInit {
 
   ngOnInit(): void {
     // this.quizzes$ = getQuizzes$;
-    this.quizName$ = this.quizService.quizName$;
-    this.quizId = this.quizService.quizId;
+    
     this.questions = this.quizService.questions;
     this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;
