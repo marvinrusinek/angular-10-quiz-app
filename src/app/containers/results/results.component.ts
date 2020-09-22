@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatAccordion } from '@angular/material/expansion';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
@@ -28,11 +28,11 @@ enum Status {
 })
 export class ResultsComponent implements OnInit {
   quizData: Quiz[] = QUIZ_DATA;
-  // quizzes$: Observable<Quiz[]>;
+  quizzes$: Observable<Quiz[]>;
   // quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
-    totalQuestionsAttempted: this.quizService.totalQuestions, // same as totalQuestions since next button is disabled
+    totalQuestionsAttempted: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
     percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
     completionTime: this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes)
@@ -80,7 +80,7 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.quizzes$ = getQuizzes$;
+    this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.questions = this.quizService.questions;
     this.correctAnswers = this.quizService.correctAnswers;
