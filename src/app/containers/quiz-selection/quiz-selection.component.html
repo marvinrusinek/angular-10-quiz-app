@@ -29,7 +29,7 @@
           <span i18n>Milestones &#x25BC;</span>
         </button>
         <mat-menu #menu="matMenu" xPosition="before">
-          <div *ngFor="let quiz of quizData">
+          <div *ngFor="let quiz of quizzes$ | async">
             <button mat-menu-item name="milestone"
                     [routerLink]="['/intro/', quiz.quizId]"
                     data-i18n="quiz.milestone">{{ quiz.milestone }}
@@ -39,7 +39,7 @@
       </mat-toolbar>
 
       <mat-grid-list cols="3" rowHeight="370px" gutterSize="5px">
-        <mat-grid-tile *ngFor="let quiz of quizData"
+        <mat-grid-tile *ngFor="let quiz of quizzes$ | async"
                        [@slideLeftToRight]="animationState$ | async"
                        (@slideLeftToRight.done)="animationDoneHandler()"
                        [routerLink]="['/intro/', quiz.quizId]"
