@@ -32,7 +32,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   // quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
-  answers: number[] = ;
+  answers: number[] =;
   multipleAnswer: boolean;
   questionIndex: number;
   totalQuestions: number;
