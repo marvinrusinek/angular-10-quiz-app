@@ -4,7 +4,7 @@ import { MatAccordion } from '@angular/material/expansion';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { getQuizzes$ } from '../../shared/quiz';
+import { QUIZ_DATA } from '../../shared/quiz';
 // import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -28,7 +28,8 @@ enum Status {
   styleUrls: ['./results.component.scss']
 })
 export class ResultsComponent implements OnInit {
-  quizzes$: Observable<Quiz[]>;
+  quizData: Quiz[] = QUIZ_DATA;
+  // quizzes$: Observable<Quiz[]>;
   // quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
@@ -77,7 +78,7 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.quizzes$ = getQuizzes$;
+    // this.quizzes$ = getQuizzes$;
     this.quizName$ = this.quizService.quizName$;
     this.quizId = this.quizService.quizId;
     this.questions = this.quizService.questions;
@@ -115,7 +116,7 @@ export class ResultsComponent implements OnInit {
 
     // TODO: checked, error doesn't get thrown if quiz is taken more than 2 times; perhaps need to use localstorage
     if (this.quizId && this.highScores.length > MAX_LENGTH) {
-      console.log('ERROR: ' + this.quizzes$[this.indexOfQuizId].milestone + ' can only be taken ' + MAX_LENGTH + ' times');
+      console.log('ERROR: ' + this.quizData[this.indexOfQuizId].milestone + ' can only be taken ' + MAX_LENGTH + ' times');
     }
     this.highScores.push(this.score);
     console.log('High Scores:', this.highScores);
