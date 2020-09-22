@@ -4,8 +4,7 @@ import { MatAccordion } from '@angular/material/expansion';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { QUIZ_DATA } from '../../shared/quiz';
-// import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 // import { QuizResource } from '../../shared/models/QuizResource.model';
@@ -69,6 +68,8 @@ export class ResultsComponent implements OnInit {
     private router: Router
   ) {
     this.status = Status.Completed;
+      this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
 
     this.sendQuizStatusToQuizService();
     this.sendCompletedQuizIdToQuizService();
