@@ -62,8 +62,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
 
-    this.explanationText = this.quizData[this.indexOfQuizId]
-                               .questions[this.quizService.currentQuestionIndex - 1].explanation;
+    this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
   }
 
   ngOnInit(): void {
@@ -116,7 +115,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   selectedAnswer(data): void {
-    this.answers = this.quizService.answers;
     const correctAnswers = this.question.options.filter((options) => options.correct);
     if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
       this.answers.push(data);
