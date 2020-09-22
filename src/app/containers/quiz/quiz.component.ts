@@ -29,7 +29,7 @@ enum Status {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
-  // quizzes$: Observable<Quiz[]>;
+  quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
   answers: number[] = [];
@@ -66,7 +66,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // this.quizzes$ = this.quizService.getQuizzes();
+    this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shuffleQuestionsAndAnswers();
