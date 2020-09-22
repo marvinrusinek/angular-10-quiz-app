@@ -81,7 +81,7 @@ export class ResultsComponent implements OnInit {
 
   ngOnInit(): void {
     // this.quizzes$ = getQuizzes$;
-    
+    this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.questions = this.quizService.questions;
     this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;
