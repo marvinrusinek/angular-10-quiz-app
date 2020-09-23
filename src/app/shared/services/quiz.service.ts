@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import 'rxjs/add/observable/of';
 import { map } from 'rxjs/operators';
+import 'rxjs/add/observable/of';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../../shared/quiz';
