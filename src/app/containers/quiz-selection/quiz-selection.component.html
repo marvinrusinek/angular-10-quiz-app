@@ -31,7 +31,7 @@
         <mat-menu #menu="matMenu" xPosition="before">
           <div *ngFor="let quiz of quizzes$ | async">
             <button mat-menu-item name="milestone"
-                    [routerLink]="['/quiz/intro/', quiz.quizId]"
+                    [routerLink]="['/intro/', quiz.quizId]"
                     data-i18n="quiz.milestone">{{ quiz.milestone }}
             </button>
           </div>
@@ -43,7 +43,7 @@
           *ngFor="let quiz of quizzes$ | async"
           [@slideLeftToRight]="animationState$ | async"
           (@slideLeftToRight.done)="animationDoneHandler()"
-          [routerLink]="['/quiz/intro/', quiz.quizId]"
+          [routerLink]="['/intro/', quiz.quizId]"
           [ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
                        'background-size': '300px 210px' }"
           [ngClass]="{ 'started': statusParams.status === 'Started' && quiz.quizId === statusParams.startedQuizId,
@@ -60,19 +60,19 @@
                   *ngIf="!statusParams.quizCompleted ||
                          statusParams.status === 'Started' ||
                          quiz.quizId === statusParams.startedQuizId"
-                  [routerLink]="['/quiz/intro/', quiz.quizId]">
+                  [routerLink]="['/intro/', quiz.quizId]">
               <i class="material-icons">launch</i>
             </span>
             <span name="continue" matTooltip="Continue"
                   *ngIf="statusParams.status === 'Continue' ||
                          quiz.quizId === statusParams.continueQuizId"
-                  [routerLink]="['/quiz/question/', quiz.quizId, currentQuestionIndex]">
+                  [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
               <i class="material-icons">play_arrow</i>
             </span>
             <span name="completed" matTooltip="Completed"
                   *ngIf="statusParams.status === 'Completed' &&
                          quiz.quizId === statusParams.completedQuizId"
-                  [routerLink]="['/quiz/results/', quiz.quizId]">
+                  [routerLink]="['/results/', quiz.quizId]">
               <i class="material-icons">done_all</i>
             </span>
           </div>
