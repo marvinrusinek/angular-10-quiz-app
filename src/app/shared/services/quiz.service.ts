@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 import 'rxjs/add/observable/of';
 import { Howl } from 'howler';
 
@@ -12,7 +12,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({
   providedIn: 'root'
 })
-export class QuizService {
+export class QuizService implements OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -52,6 +52,7 @@ export class QuizService {
   isAnswered: boolean;
   alreadyAnswered: boolean;
   checkedShuffle: boolean;
+  unsubscribe$ = new Subject<void>();
 
   isCorrectOption = 'option.selected && option.correct';
   isIncorrectOption = 'option.selected && !option.correct';
@@ -73,8 +74,15 @@ export class QuizService {
     private router: Router
   ) {
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   getQuizzes(): Observable<Quiz[]> {

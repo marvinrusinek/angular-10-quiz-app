@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { QUIZ_DATA } from '../../shared/quiz';
@@ -15,37 +17,42 @@ type AnimationState = 'animationStarted' | 'none';
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizSelectionComponent implements OnInit {
+export class QuizSelectionComponent implements OnInit, OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
   quizzes$: Observable<Quiz[]>;
+  quizId: string;
   currentQuestionIndex: number;
   totalQuestions: number;
-  quizId: string;
-  quizCompleted: boolean;
-  status: string;
-  selectionParams;
-  startedQuizId: string;
-  continueQuizId: string;
-  completedQuizId: string;
+
+  statusParams = {
+    startedQuizId: this.quizService.startedQuizId,
+    continueQuizId: this.quizService.continueQuizId,
+    completedQuizId: this.quizService.completedQuizId,
+    quizCompleted: this.quizService.quizCompleted,
+    status: this.quizService.status
+  };
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
+  unsubscribe$ = new Subject<void>();
   imagePath = '../../../assets/images/milestones/';
 
-  constructor(private quizService: QuizService) {
-    // this.quizService.setParamsQuizSelection();
-  }
+  constructor(
+    private quizService: QuizService,
+    private activatedRoute: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    this.quizId = this.quizService.quizId;
-    this.startedQuizId = this.quizService.startedQuizId;
-    this.continueQuizId = this.quizService.continueQuizId;
-    this.completedQuizId = this.quizService.completedQuizId;
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe(params => this.quizId = params.get('quizId'));
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
-    this.quizCompleted = this.quizService.quizCompleted;
-    this.status = this.quizService.status;
-    // this.selectionParams = this.quizService.paramsQuizSelection;
-    // console.log('SELECTION PARAMS: ', this.selectionParams);
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   animationDoneHandler(): void {
