@@ -126,6 +126,8 @@ mat-card {
   }
 
   mat-card-footer {
+    margin-bottom: 5px;
+    
     h3 {
       font-weight: $font-weight-max;
       color: $fire-red;
