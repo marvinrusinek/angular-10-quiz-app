@@ -44,7 +44,7 @@
           [@slideLeftToRight]="animationState$ | async"
           (@slideLeftToRight.done)="animationDoneHandler()"
           [routerLink]="['/quiz/intro/', quiz.quizId]"
-          [ngStyle]="{ 'background': 'url(' + imagePath + quiz.image + ') no-repeat center 10px',
+          [ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
                        'background-size': '300px 210px' }"
           [ngClass]="{ 'started': statusParams.status === 'Started' && quiz.quizId === statusParams.startedQuizId,
                        'continue': statusParams.status === 'Continue' && quiz.quizId === statusParams.continueQuizId,

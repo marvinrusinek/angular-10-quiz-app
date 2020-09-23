@@ -34,7 +34,6 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-  imagePath = '../../../assets/images/milestones/';
 
   constructor(
     private quizService: QuizService,
