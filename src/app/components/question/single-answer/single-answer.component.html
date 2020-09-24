@@ -8,11 +8,11 @@
       <mat-radio-label>
         <span>{{ i + 1 }}. {{ option.text }}</span>
 
-        <ng-container>
+        <ng-container *ngIf="option.selected">
           <mat-icon class="feedback-icon"
-                    *ngIf="option.selected && option.correct && isCorrectAnswerSelected">done</mat-icon>
+                    *ngIf="option.correct && isCorrectAnswerSelected">done</mat-icon>
           <mat-icon class="feedback-icon"
-                    *ngIf="option.selected && !option.correct">clear</mat-icon>
+                    *ngIf="!option.correct">clear</mat-icon>
         </ng-container>
       </mat-radio-label>
     </mat-radio-button>
