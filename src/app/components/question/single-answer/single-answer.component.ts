@@ -81,4 +81,8 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
+
+  private sendAnswerToQuizService(): void {
+    this.quizService.setAnswer(this.answer);
+  }
 }
