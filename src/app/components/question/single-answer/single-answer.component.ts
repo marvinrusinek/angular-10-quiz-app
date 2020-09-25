@@ -27,7 +27,10 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   isCorrectOption: string;
   isIncorrectOption: string;
 
-  constructor(private quizService: QuizService, private timerService: TimerService) {}
+  constructor(
+    private quizService: QuizService, 
+    private timerService: TimerService
+  ) {}
 
   ngOnInit(): void {
     this.question = this.currentQuestion;
