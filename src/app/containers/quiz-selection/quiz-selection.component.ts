@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
