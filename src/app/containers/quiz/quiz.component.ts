@@ -45,9 +45,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   status: Status;
   previousUserAnswers: any;
   checkedShuffle: boolean;
+  explanationText: string;
 
   get correctOptions(): string { return this.quizService.correctOptions; }
-  get explanationText(): string { return this.quizService.explanationText; }
+  // get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -63,8 +64,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
-
-    // this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
+    this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
   }
 
   ngOnInit(): void {
@@ -137,6 +137,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   checkIfAnsweredCorrectly(): void {
+    console.log('ANSWERS: ', this.answers);
     if (this.question) {
       const correctAnswerFound = this.answers.find((answer) => {
         return this.question.options &&
