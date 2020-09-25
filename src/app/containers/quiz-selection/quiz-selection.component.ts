@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizSelection } from '../../shared/models/QuizSelection.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
 type AnimationState = 'animationStarted' | 'none';
