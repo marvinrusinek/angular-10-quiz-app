@@ -26,7 +26,7 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
-  statusParams = {
+  statusParams: Partial<QuizSelection> = {
     startedQuizId: this.quizService.startedQuizId,
     continueQuizId: this.quizService.continueQuizId,
     completedQuizId: this.quizService.completedQuizId,
