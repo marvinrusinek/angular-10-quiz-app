@@ -58,13 +58,13 @@
           <div class="status-icon">
             <span name="start" matTooltip="Start"
                   *ngIf="!statusParams.quizCompleted ||
-                         statusParams.status === 'Started' ||
+                         statusParams.status === 'Started' &&
                          quiz.quizId === statusParams.startedQuizId"
                   [routerLink]="['/intro/', quiz.quizId]">
               <i class="material-icons">launch</i>
             </span>
             <span name="continue" matTooltip="Continue"
-                  *ngIf="statusParams.status === 'Continue' ||
+                  *ngIf="statusParams.status === 'Continue' &&
                          quiz.quizId === statusParams.continueQuizId"
                   [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
               <i class="material-icons">play_arrow</i>
