@@ -46,6 +46,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousUserAnswers: any;
   checkedShuffle: boolean;
   explanationText: string;
+  answer: number;
 
   get correctOptions(): string { return this.quizService.correctOptions; }
   // get explanationText(): string { return this.quizService.explanationText; }
@@ -71,6 +72,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.answer = this.quizService.answer;
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params

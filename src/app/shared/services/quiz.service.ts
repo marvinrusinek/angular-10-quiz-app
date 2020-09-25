@@ -53,6 +53,7 @@ export class QuizService implements OnDestroy {
   alreadyAnswered: boolean;
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
+  answer: number;
 
   isCorrectOption = 'option.selected && option.correct';
   isIncorrectOption = 'option.selected && !option.correct';
@@ -113,7 +114,7 @@ export class QuizService implements OnDestroy {
 
   /********* setter functions ***********/
   setCorrectMessages(correctAnswers: number[], question: QuizQuestion): void {
-    this.explanationText = question.explanation;
+    // this.explanationText = question.explanation;
     for (let i = 0; i < question.options.length; i++) {
       if (correctAnswers[i] &&
           correctAnswers.length === 1) {
@@ -209,6 +210,10 @@ export class QuizService implements OnDestroy {
 
   setCurrentQuestion(value: QuizQuestion): void {
     this.currentQuestion = value;
+  }
+
+  setAnswer(data): void {
+    this.answer = data;
   }
 
   /* setParamsQuizSelection(): Object {
