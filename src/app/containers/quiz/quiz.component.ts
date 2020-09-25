@@ -46,8 +46,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousUserAnswers: any;
   checkedShuffle: boolean;
 
-  explanationText: string;
   get correctOptions(): string { return this.quizService.correctOptions; }
+  get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -64,7 +64,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
 
-    this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
+    // this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
   }
 
   ngOnInit(): void {
@@ -85,9 +85,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
             if (this.questionIndex === 1) {
               this.status = Status.Started;
+              this.sendStartedQuizIdToQuizService(this.quizId);
               this.progressValue = 0;
             } else {
               this.status = Status.Continue;
+              this.sendContinueQuizIdToQuizService(this.quizId);
               this.progressValue = Math.ceil((this.questionIndex - 1) / this.totalQuestions * 100);
             }
 
@@ -189,7 +191,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answers = null;
-    this.router.navigate(['/quizintro/', this.quizId]).then();
+    this.router.navigate(['/intro/', this.quizId]).then();
   }
 
   sendValuesToQuizService(): void {
@@ -217,6 +219,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private sendQuizStatusToQuizService(): void {
     this.quizService.setQuizStatus(this.status);
+  }
+
+  private sendStartedQuizIdToQuizService(quizId): void {
+    this.quizService.setStartedQuizId(quizId);
+  }
+
+  private sendContinueQuizIdToQuizService(quizId): void {
+    this.quizService.setContinueQuizId(quizId);
   }
 
   private sendPreviousUserAnswersToQuizService(): void {

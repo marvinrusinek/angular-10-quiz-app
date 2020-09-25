@@ -113,6 +113,7 @@ export class QuizService implements OnDestroy {
 
   /********* setter functions ***********/
   setCorrectMessages(correctAnswers: number[], question: QuizQuestion): void {
+    this.explanationText = question.explanation;
     for (let i = 0; i < question.options.length; i++) {
       if (correctAnswers[i] &&
           correctAnswers.length === 1) {
@@ -160,6 +161,14 @@ export class QuizService implements OnDestroy {
 
   setQuizId(value: string): void {
     this.quizId = value;
+  }
+
+  setStartedQuizId(value: string) {
+    this.startedQuizId = value;
+  }
+
+  setContinueQuizId(value: string) {
+    this.continueQuizId = value;
   }
 
   setCompletedQuizId(value: string) {

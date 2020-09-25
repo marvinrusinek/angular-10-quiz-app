@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { QUIZ_DATA } from '../../shared/quiz';
@@ -24,6 +23,9 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   currentQuestionIndex: number;
   totalQuestions: number;
 
+  animationState$ = new BehaviorSubject<AnimationState>('none');
+  unsubscribe$ = new Subject<void>();
+
   statusParams = {
     startedQuizId: this.quizService.startedQuizId,
     continueQuizId: this.quizService.continueQuizId,
@@ -32,19 +34,13 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
     status: this.quizService.status
   };
 
-  animationState$ = new BehaviorSubject<AnimationState>('none');
-  unsubscribe$ = new Subject<void>();
-
   constructor(
-    private quizService: QuizService,
-    private activatedRoute: ActivatedRoute
+    private quizService: QuizService
   ) { }
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-        .subscribe(params => this.quizId = params.get('quizId'));
+    this.quizId = this.quizService.quizId;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
   }
