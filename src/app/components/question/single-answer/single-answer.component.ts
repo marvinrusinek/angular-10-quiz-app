@@ -38,6 +38,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
+    this.correctMessage = this.quizService.correctMessage;
     this.isCorrectOption = this.quizService.isCorrectOption;
     this.isIncorrectOption = this.quizService.isIncorrectOption;
   }
@@ -57,7 +58,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    this.correctMessage = this.quizService.correctMessage;
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.answer.emit(optionIndex);
 

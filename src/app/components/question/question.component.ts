@@ -51,6 +51,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.previousUserAnswersTextMultipleAnswer = this.quizService.previousUserAnswersTextMultipleAnswer;
 
     this.question = this.currentQuestion;
+    this.correctMessage = this.quizService.correctMessage;
     this.previousUserAnswers = this.quizService.userAnswers;
     this.isAnswered = this.quizService.isAnswered;
     this.sendCurrentQuestionToQuizService();
@@ -75,7 +76,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    this.correctMessage = this.quizService.correctMessage;
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.answer.emit(optionIndex);
 
