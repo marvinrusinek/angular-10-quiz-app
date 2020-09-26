@@ -46,10 +46,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   previousUserAnswers: any;
   checkedShuffle: boolean;
   answer: number;
-  explanationText: string;
+  // explanationText: string;
 
   get correctOptions(): string { return this.quizService.correctOptions; }
-  // get explanationText(): string { return this.quizService.explanationText; }
+  get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -65,15 +65,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
-    this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
+    // this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
   }
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.answer = this.quizService.answer;
-    console.log('answer: ', this.answer);
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params

@@ -114,7 +114,7 @@ export class QuizService implements OnDestroy {
 
   /********* setter functions ***********/
   setCorrectMessages(correctAnswers: number[], question: QuizQuestion): void {
-    // this.explanationText = question.explanation;
+    this.explanationText = question.explanation;
     for (let i = 0; i < question.options.length; i++) {
       if (correctAnswers[i] &&
           correctAnswers.length === 1) {
