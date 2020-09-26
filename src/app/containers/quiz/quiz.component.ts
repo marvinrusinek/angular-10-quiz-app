@@ -47,7 +47,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   checkedShuffle: boolean;
   answer: number;
 
-
   get correctOptions(): string { return this.quizService.correctOptions; }
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }

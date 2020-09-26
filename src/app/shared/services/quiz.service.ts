@@ -99,7 +99,7 @@ export class QuizService implements OnDestroy {
       this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
       this.correctAnswers.push(this.correctAnswersForEachQuestion.sort());
 
-      this.setCorrectMessagesAndExplanationText(this.correctAnswerOptions.sort(), this.question);
+      this.setExplanationTextAndCorrectMessages(this.correctAnswerOptions.sort(), this.question);
       return identifiedCorrectAnswers;
     }
   }
@@ -113,7 +113,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
-  setCorrectMessagesAndExplanationText(correctAnswers: number[], question: QuizQuestion): void {
+  setExplanationTextAndCorrectMessages(correctAnswers: number[], question: QuizQuestion): void {
     this.explanationText = question.explanation;
     for (let i = 0; i < question.options.length; i++) {
       if (correctAnswers[i] &&
