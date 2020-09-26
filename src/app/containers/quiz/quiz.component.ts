@@ -116,7 +116,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   isAnswered(): boolean {
     return this.answers && this.answers.length > 0;
-
   }
 
   selectedAnswer(data): void {
@@ -163,7 +162,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************************ paging functions *********************/
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
-
     this.status = Status.Continue;
     this.animationState$.next('animationStarted');
     this.quizService.navigateToNextQuestion();
