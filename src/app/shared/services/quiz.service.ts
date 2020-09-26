@@ -21,7 +21,7 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean;
   totalQuestions: number;
   currentQuestionIndex = 1;
-  
+  quizName$: Observable<string>;
 
   paramsQuizSelection: Object;
   quizId: string;
@@ -210,10 +210,6 @@ export class QuizService implements OnDestroy {
 
   setCurrentQuestion(value: QuizQuestion): void {
     this.currentQuestion = value;
-  }
-
-  setAnswer(data): void {
-    this.answer = data;
   }
 
   sendCorrectCountToResults(value: number): void {
