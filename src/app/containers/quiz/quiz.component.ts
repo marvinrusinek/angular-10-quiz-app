@@ -138,7 +138,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   checkIfAnsweredCorrectly(): void {
-
     if (this.question) {
       const correctAnswerFound = this.answers.find((answer) => {
         return this.question.options &&
