@@ -20,8 +20,8 @@ export class QuizService implements OnDestroy {
   answers: number[];
   multipleAnswer: boolean;
   totalQuestions: number;
-  quizName$: Observable<string>;
   currentQuestionIndex = 1;
+  
 
   paramsQuizSelection: Object;
   quizId: string;
@@ -215,19 +215,6 @@ export class QuizService implements OnDestroy {
   setAnswer(data): void {
     this.answer = data;
   }
-
-  /* setParamsQuizSelection(): Object {
-    return this.paramsQuizSelection = {
-      quizId: this.quizId,
-      startedQuizId: this.startedQuizId,
-      continueQuizId: this.continueQuizId,
-      completedQuizId: this.completedQuizId,
-      currentQuestionIndex: this.currentQuestionIndex,
-      totalQuestions: this.totalQuestions,
-      quizCompleted: this.quizCompleted,
-      status: this.status
-    };
-  } */
 
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);

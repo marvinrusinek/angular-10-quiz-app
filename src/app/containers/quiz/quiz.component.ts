@@ -64,7 +64,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
-    // this.explanationText = this.quizData[this.indexOfQuizId].questions[this.quizService.currentQuestionIndex - 1].explanation;
   }
 
   ngOnInit(): void {
@@ -194,12 +193,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   sendValuesToQuizService(): void {
+    this.sendIsAnsweredToQuizService();
     this.sendQuestionToQuizService();
     this.sendQuestionsToQuizService();
     this.sendQuizIdToQuizService();
     this.sendQuizStatusToQuizService();
     this.sendPreviousUserAnswersToQuizService();
-    this.sendIsAnsweredToQuizService();
   }
 
   private sendQuestionToQuizService(): void {
