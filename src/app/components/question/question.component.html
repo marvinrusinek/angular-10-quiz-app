@@ -1,6 +1,12 @@
 <ng-content></ng-content>
 
 <form [formGroup]="formGroup">
-  <codelab-question-single-answer [question]="question" (answer)="setSelected($event)"></codelab-question-single-answer>
-  <codelab-question-multiple-answer [question]="question" (answer)="setSelected($event)"></codelab-question-multiple-answer>
+  <codelab-question-single-answer 
+    [question]="question" 
+    (answer)="setSelected($event)">
+  </codelab-question-single-answer>
+  <codelab-question-multiple-answer 
+    [question]="question" 
+    (answer)="setSelected($event)">
+  </codelab-question-multiple-answer>
 </form>
