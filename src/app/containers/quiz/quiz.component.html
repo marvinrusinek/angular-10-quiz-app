@@ -18,7 +18,7 @@
 
       <!-- the question/explanation area -->
       <section id="question" [ngClass]="!isAnswered() ? 'unanswered': 'answered'">
-        <span *ngIf="!isAnswered()" i18n>{{ question?.questionText }}&nbsp;
+        <span *ngIf="!isAnswered()" i18n>{{ question.questionText }}&nbsp;
           <span class="number-correct" *ngIf="numberOfCorrectAnswers > 1">
             <em>({{ numberOfCorrectAnswers }} answers are correct.)</em>
           </span>
