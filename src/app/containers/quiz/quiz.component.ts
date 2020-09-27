@@ -161,6 +161,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************************ paging functions *********************/
   advanceToNextQuestion() {
     this.checkIfAnsweredCorrectly();
+    this.answers = null;
     this.status = Status.Continue;
     this.animationState$.next('animationStarted');
     this.quizService.navigateToNextQuestion();
@@ -168,6 +169,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   advanceToPreviousQuestion() {
+    this.answers = null;
     this.status = Status.Continue;
     this.animationState$.next('animationStarted');
     this.quizService.navigateToPreviousQuestion();
