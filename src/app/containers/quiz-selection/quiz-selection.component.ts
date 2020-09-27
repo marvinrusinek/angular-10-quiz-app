@@ -5,7 +5,6 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizSelection } from '../../shared/models/QuizSelection.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
 type AnimationState = 'animationStarted' | 'none';
@@ -24,16 +23,9 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   currentQuestionIndex: number;
   totalQuestions: number;
 
+  selectionParams: object;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-
-  statusParams: Partial<QuizSelection> = {
-    startedQuizId: this.quizService.startedQuizId,
-    continueQuizId: this.quizService.continueQuizId,
-    completedQuizId: this.quizService.completedQuizId,
-    quizCompleted: this.quizService.quizCompleted,
-    status: this.quizService.status
-  };
 
   constructor(
     private quizService: QuizService
@@ -44,6 +36,7 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
     this.quizId = this.quizService.quizId;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
+    this.selectionParams = this.quizService.returnQuizSelectionParams();
   }
 
   ngOnDestroy(): void {

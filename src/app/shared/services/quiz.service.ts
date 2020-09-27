@@ -21,14 +21,14 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean;
   totalQuestions: number;
   currentQuestionIndex = 1;
-  quizName$: Observable<string>;
 
-  paramsQuizSelection: Object;
+  quizName$: Observable<string>;
   quizId: string;
+  indexOfQuizId: number;
+
   startedQuizId: string;
   continueQuizId: string;
   completedQuizId: string;
-  indexOfQuizId: number;
   quizCompleted: boolean;
   status: string;
 
@@ -79,6 +79,7 @@ export class QuizService implements OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => this.quizId = params.get('quizId'));
     this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
+    this.returnQuizSelectionParams();
   }
 
   ngOnDestroy(): void {
@@ -110,6 +111,16 @@ export class QuizService implements OnDestroy {
       const j = Math.floor(Math.random() * (i + 1));
       [arg[i], arg[j]] = [arg[j], arg[i]];
     }
+  }
+
+  returnQuizSelectionParams(): object {
+    return new Object({
+      startedQuizId: this.startedQuizId,
+      continueQuizId: this.continueQuizId,
+      completedQuizId: this.completedQuizId,
+      quizCompleted: this.quizCompleted,
+      status: this.status
+    });
   }
 
   /********* setter functions ***********/
