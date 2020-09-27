@@ -1,7 +1,8 @@
 <ng-container *ngFor="let quiz of quizzes$ | async">
   <mat-card *ngIf="quiz.quizId === (quizName$ | async)">
     <mat-card-header>
-      <img mat-card-avatar class="header-image" alt="header image" loading="lazy" (click)="selectQuiz()"
+      <img mat-card-avatar class="header-image" loading="lazy"
+           alt="logo" title="logo" (click)="selectQuiz()"
            matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left" />
       <mat-card-title i18n>Results</mat-card-title>
     </mat-card-header>
@@ -76,17 +77,17 @@
               <div class="summary-icons">
                 <div class="printout">
                   <a matTooltip="Print" href="javascript:window.print()">
-                    <mat-icon>printer</mat-icon>
+                    <i class="material-icons">print</i>
                   </a>
                 </div>
                 <div class="email">
                   <a target="_blank" matTooltip="E-mail" href="mailto:?subject=Try to beat my quiz score!&amp;body=I scored {{ quizMetadata.percentage }}% on this awesome quiz about Angular {{quiz.milestone}}. Try to beat my score at {{ codelabUrl }}">
-                    <mat-icon>email</mat-icon>
+                    <i class="material-icons">email</i>
                   </a>
                 </div>
                 <div class="share">
                   <a target="_blank" matTooltip="Share on Twitter" href="https://twitter.com/intent/tweet?text=I%20scored%20{{quizMetadata.percentage}}/100%20on%20this%20awesome%20quiz%20about%20Angular%20{{quiz.milestone}}.%20Try%20to%20beat%20my%20score%20at%20&amp;hashtag=quiz&amp;url={{codelabUrl}}!">
-                    <mat-icon>share</mat-icon>
+                    <i class="material-icons">share</i>
                   </a>
                 </div>
               </div>
@@ -128,8 +129,8 @@
 
                 <mat-expansion-panel-header>
                   <mat-panel-description>
-                    <mat-icon class="accordion-icon" *ngIf="!panelOpenState">add</mat-icon>
-                    <mat-icon class="accordion-icon" *ngIf="panelOpenState">remove</mat-icon>
+                    <i class="material-icons accordion-icon" *ngIf="!panelOpenState">add</i>
+                    <i class="material-icons accordion-icon" *ngIf="panelOpenState">remove</i>
                   </mat-panel-description>
 
                   <mat-panel-title>
@@ -194,14 +195,14 @@
                  title="expand all"
                  class="btn hvr-radial-out"
                  (click)="openAllPanels()">
-                <strong>Expand All</strong>&nbsp;&nbsp;<mat-icon>unfold_more</mat-icon>
+                <strong>Expand All</strong>&nbsp;&nbsp;<i class="material-icons">expand_more</i>
               </a> &nbsp;
               <a mat-raised-button
                  color="primary"
                  title="collapse all"
                  class="btn hvr-radial-out"
                  (click)="closeAllPanels()">
-                <strong>Collapse All</strong>&nbsp;&nbsp;<mat-icon>unfold_less</mat-icon>
+                <strong>Collapse All</strong>&nbsp;&nbsp;<i class="material-icons">expand_less</i>
               </a>
             </mat-action-row>
           </details>
@@ -211,14 +212,20 @@
       <section class="return">
         <mat-card-actions>
           <mat-nav-list>
-            <a class="btn hvr-radial-out" title="restart" (click)="restartQuiz()">
-              <i class="fas fa-power-off"></i>&nbsp;&nbsp;Restart Quiz
+            <a class="btn hvr-radial-out mdc-button mdc-button--outlined" title="restart" (click)="restartQuiz()">
+              <div class="mdc-button__ripple"></div>
+              <i class="material-icons mdc-button__icon" aria-hidden="true">power_settings_new</i>&nbsp;&nbsp;
+              <span class="mdc-button__label"><strong>Restart Quiz</strong></span>
             </a>
-            <a class="btn hvr-radial-out" title="select quiz" (click)="selectQuiz()">
-              <i class="fas fa-mouse-pointer"></i>&nbsp;&nbsp;Select Quiz
+            <a class="btn hvr-radial-out mdc-button mdc-button--outlined" title="select quiz" (click)="selectQuiz()">
+              <div class="mdc-button__ripple"></div>
+              <i class="material-icons mdc-button__icon" aria-hidden="true">select_all</i>&nbsp;&nbsp;
+              <span class="mdc-button__label"><strong>Select Quiz</strong></span>
             </a>
-            <a class="btn hvr-radial-out" title="back to Codelab" [href]="codelabUrl">
-              <i class="fas fa-laptop"></i>&nbsp;&nbsp;Back to Codelab
+            <a class="btn hvr-radial-out mdc-button mdc-button--outlined" title="back to Codelab" [href]="codelabUrl">
+              <div class="mdc-button__ripple"></div>
+              <i class="material-icons mdc-button__icon" aria-hidden="true">laptop</i>&nbsp;&nbsp;
+              <span class="mdc-button__label"><strong>Back to Codelab</strong></span>
             </a>
           </mat-nav-list>
         </mat-card-actions>
@@ -230,13 +237,13 @@
         <h4>Challenge your friends!</h4>
         <div class="social-buttons">
           <!--<div class="fb-share-button" data-href="https://www.codelab.fun" data-layout="button" data-size="large">
-            <a class="btn facebook hvr-shutter-out-horizontal" title="Facebook" target="_blank"
+            <a class="btn facebook hvr-shutter-out-horizontal mdc-button mdc-button--outlined" title="Facebook" target="_blank"
              href="https://www.facebook.com/sharer/sharer.php?u=I scored {{quizMetadata.percentage}}/100 on this awesome quiz about Angular {{quiz.milestone}}. Try to beat my score at &amp;hashtag=quiz&amp;url={{codelabUrl}}!%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share your score</a>
           </div>-->
-          <a class="btn twitter-share-button hvr-shutter-out-horizontal" title="Twitter" data-size="large" target="_blank"
-             href="https://twitter.com/intent/tweet?text=I%20scored%20{{quizMetadata.percentage}}/100%20on%20this%20awesome%20quiz%20about%20Angular%20{{quiz.milestone}}.%20Try%20to%20beat%20my%20score%20at%20&amp;hashtag=quiz&amp;url={{codelabUrl}}!">Tweet your score</a>
-          <a class="btn email hvr-shutter-out-horizontal" title="e-mail" data-size="large" target="_blank"
-             href="mailto:?subject=Try to beat my quiz score!&amp;body=I scored {{ quizMetadata.percentage }}% on this awesome quiz about Angular {{quiz.milestone}}. Try to beat my score at {{ codelabUrl }}">Email a friend</a>
+          <a class="btn twitter-share-button hvr-shutter-out-horizontal mdc-button mdc-button--outlined" title="Twitter" data-size="large" target="_blank"
+             href="https://twitter.com/intent/tweet?text=I%20scored%20{{quizMetadata.percentage}}/100%20on%20this%20awesome%20quiz%20about%20Angular%20{{quiz.milestone}}.%20Try%20to%20beat%20my%20score%20at%20&amp;hashtag=quiz&amp;url={{codelabUrl}}!"><strong>Tweet your score</strong></a>
+          <a class="btn email hvr-shutter-out-horizontal mdc-button mdc-button--outlined" title="e-mail" data-size="large" target="_blank"
+             href="mailto:?subject=Try to beat my quiz score!&amp;body=I scored {{ quizMetadata.percentage }}% on this awesome quiz about Angular {{quiz.milestone}}. Try to beat my score at {{ codelabUrl }}"><strong>Email a friend</strong></a>
         </div>
       </section>
     </mat-card-content>

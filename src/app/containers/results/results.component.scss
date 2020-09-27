@@ -325,6 +325,11 @@ a.btn:focus:not(:active)::after {
   display: block;
 }
 
+.mdc-button {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
 @keyframes ripple {
   from {
     opacity: 1;
