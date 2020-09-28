@@ -159,13 +159,13 @@
                       </li>
                       <li i18n>
                         <span class="leader">Correct Answer(s):</span>
-                        {{ correctAnswers[i][0].length === 1 ? 'Option' : 'Options' }}
+                        {{ correctAnswers[i].answers[0].length === 1 ? 'Option' : 'Options' }}
                         <span *ngIf="correctAnswers.length === 1">
                           {{ correctAnswers[i] }} &mdash; {{ question.options[i].text }}
                         </span>
                         <span *ngIf="correctAnswers.length > 1">
-                          {{ correctAnswers[i][0] | join }} &mdash;
-                          <ng-container *ngFor="let item of correctAnswers[i][0]; let isLast = last">
+                          {{ correctAnswers[i].answers[0] | join }} &mdash;
+                          <ng-container *ngFor="let item of correctAnswers[i].answers[0]; let isLast = last">
                             {{ question.options[item - 1].text }} <span *ngIf="!isLast"> AND </span>
                           </ng-container>
                         </span>
