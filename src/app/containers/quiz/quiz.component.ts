@@ -6,8 +6,8 @@ import { map, takeUntil } from 'rxjs/operators';
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-// import { Resource } from '../../shared/models/Resource.model';
-// import { QuizResource } from '../../shared/models/QuizResource.model';
+import { QuizResource } from '../../shared/models/QuizResource.model';
+import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
@@ -29,9 +29,11 @@ enum Status {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
+  quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
+  resources: Resource[];
   answers: number[] = [];
   multipleAnswer: boolean;
   questionIndex: number;
@@ -201,6 +203,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.sendQuizIdToQuizService();
     this.sendQuizStatusToQuizService();
     this.sendPreviousUserAnswersToQuizService();
+    this.sendResourcesToQuizService();
   }
 
   private sendQuestionToQuizService(): void {
@@ -238,6 +241,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setIsAnswered(this.isAnswered());
   }
 
+  private sendResourcesToQuizService(): void {
+    this.resources = this.quizResources[this.indexOfQuizId].resources;
+    this.quizService.setResources(this.resources);
+  }
   private sendCorrectCountToQuizService(value: number): void {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
