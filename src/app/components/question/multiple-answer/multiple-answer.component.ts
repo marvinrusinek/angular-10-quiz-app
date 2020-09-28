@@ -38,7 +38,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
-    this.correctMessage = this.quizService.correctMessage;
     this.isCorrectOption = this.quizService.isCorrectOption;
     this.isIncorrectOption = this.quizService.isIncorrectOption;
   }
@@ -47,8 +46,9 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
       this.currentQuestion = changes.question.currentValue;
       this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.correctMessage = this.quizService.correctMessage;
       this.multipleAnswer = this.correctAnswers.length > 1;
-
+      
       if (this.formGroup) {
         this.formGroup.patchValue({answer: ''});
         this.alreadyAnswered = false;
