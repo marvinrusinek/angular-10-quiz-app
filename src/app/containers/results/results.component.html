@@ -1,8 +1,7 @@
 <ng-container *ngFor="let quiz of quizzes$ | async">
   <mat-card *ngIf="quiz.quizId === (quizName$ | async)">
     <mat-card-header>
-      <img mat-card-avatar class="header-image" loading="lazy"
-           alt="logo" title="logo" (click)="selectQuiz()"
+      <img mat-card-avatar class="header-image" loading="lazy" (click)="selectQuiz()"
            matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left" />
       <mat-card-title i18n>Results</mat-card-title>
     </mat-card-header>
