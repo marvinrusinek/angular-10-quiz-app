@@ -87,6 +87,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.questions = this.quizService.questions;
+    this.resources = this.quizService.resources;
     this.correctAnswers = this.quizService.correctAnswers;
     this.checkedShuffle = this.quizService.checkedShuffle;
     this.previousUserAnswers = this.quizService.userAnswers;
