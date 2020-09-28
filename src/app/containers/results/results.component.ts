@@ -119,14 +119,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     };
 
     const MAX_LENGTH = 2;
-    // if (this.quizId === this.quizName$) {
-      this.highScores = new Array(MAX_LENGTH);
-    // }
-
-    // TODO: checked, error doesn't get thrown if quiz is taken more than 2 times; perhaps need to use localstorage
-    if (this.quizId && this.highScores.length > MAX_LENGTH) {
-      console.log('ERROR: ' + this.quizData[this.indexOfQuizId].milestone + ' can only be taken ' + MAX_LENGTH + ' times');
-    }
+    this.highScores = new Array(MAX_LENGTH);
     this.highScores.push(this.score);
     console.log('High Scores:', this.highScores);
   }
@@ -143,7 +136,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.router.navigate(['/quiz/intro/', this.quizId]).then();
+    this.router.navigate(['/intro/', this.quizId]).then();
   }
 
   selectQuiz(): void {
@@ -151,7 +144,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.quizService.resetQuestions();
     this.quizId = '';
     this.indexOfQuizId = 0;
-    this.router.navigate(['/quiz/select/']).then();
+    this.router.navigate(['/select/']).then();
   }
 
   private sendQuizStatusToQuizService(): void {
