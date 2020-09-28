@@ -7,8 +7,8 @@ import { map, takeUntil } from 'rxjs/operators';
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-// import { QuizResource } from '../../shared/models/QuizResource.model';
-// import { Resource } from '@codelab-quiz/shared/models/Resource.model';
+import { QuizResource } from '../../shared/models/QuizResource.model';
+import { Resource } from '../../shared/models/Resource.model';
 import { QuizMetadata } from '../../shared/models/QuizMetadata.model';
 import { Result } from '../../shared/models/Result.model';
 import { Score } from '../../shared/models/Score.model';
@@ -29,7 +29,7 @@ enum Status {
 export class ResultsComponent implements OnInit, OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
   quizzes$: Observable<Quiz[]>;
-  // quizResources: QuizResource[] = QUIZ_RESOURCES;
+  quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizMetadata: Partial<QuizMetadata> = {
     totalQuestions: this.quizService.totalQuestions,
     totalQuestionsAttempted: this.quizService.totalQuestions,
@@ -158,5 +158,4 @@ export class ResultsComponent implements OnInit, OnDestroy {
   private sendPreviousUserAnswersToQuizService(): void {
     this.quizService.setPreviousUserAnswers(this.previousUserAnswers);
   }
-
 }
