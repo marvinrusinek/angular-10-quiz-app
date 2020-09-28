@@ -14,7 +14,10 @@ mat-card-header {
     font-style: italic;
     font-weight: 900;
     color: $green-angular-leaf;
-    text-shadow: 1px 0 0 $black, 0 -1px 0 $black, 0 1px 0 $black, -1px 0 0 $black;
+    text-shadow: 1px 0 0 $black,
+                 0 -1px 0 $black,
+                 0 1px 0 $black,
+                 -1px 0 0 $black;
   }
 }
 
@@ -100,18 +103,35 @@ mat-card-header {
         font-size: 16px;
         color: $vivid-blue;
         font-weight: $font-weight-max;
-        margin-bottom: 20px;
         outline: none;
         text-align: center;
       }
 
-      .printout {
+      .summary-icons {
+        display: inline;
         float: right;
-        margin-right: 15px;
-        margin-top: -40px;
 
         a {
-          text-decoration: none !important;
+          color: $gray;
+          text-decoration: none;
+        }
+
+        .printout {
+          float: right;
+          margin-top: -40px;
+          margin-right: 60px;
+        }
+
+        .email {
+          float: right;
+          margin-top: -40px;
+          margin-right: 35px;
+        }
+
+        .share {
+          float: right;
+          margin-top: -40px;
+          margin-right: 10px;
         }
       }
 
@@ -121,6 +141,7 @@ mat-card-header {
         width: 32.5rem;
         clear: both;
         padding: 5px;
+        margin-top: 15px;
         margin-bottom: 25px;
 
         .summary-report-header {
@@ -139,6 +160,7 @@ mat-card-header {
         }
 
         .result {
+          font-family: $font-stack;
           font-size: 20px;
         }
 
@@ -147,6 +169,8 @@ mat-card-header {
           font-size: 16px;
           display: flex;
           justify-content: center;
+          word-wrap: break-word;
+          margin-left: 10px;
         }
       }
 
@@ -156,10 +180,10 @@ mat-card-header {
 
         mat-expansion-panel {
           border: 2px solid $dark-blue;
-        }
 
-        mat-expansion-panel:hover {
-          border: 2px solid $vivid-blue;
+          &:hover {
+            border: 2px solid $vivid-blue;
+          }
         }
 
         mat-panel-title {
@@ -181,6 +205,7 @@ mat-card-header {
         .accordion-icon {
           position: absolute;
           left: 0;
+          margin-left: 25px;
           color: $gray;
           font-weight: $font-weight-max;
           font-size: 20px;
