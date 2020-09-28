@@ -112,7 +112,6 @@ export class ResultsComponent implements OnInit, OnDestroy {
              userAnswers[index].find((answer) => correctAnswers[index].answers[0].indexOf(answer) === -1));
   }
 
-
   saveHighScores(): void {
     this.score = {
       quizId: this.quizId,
