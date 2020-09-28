@@ -245,6 +245,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.resources = this.quizResources[this.indexOfQuizId].resources;
     this.quizService.setResources(this.resources);
   }
+  
   private sendCorrectCountToQuizService(value: number): void {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
