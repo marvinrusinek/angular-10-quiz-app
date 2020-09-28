@@ -96,9 +96,15 @@ export class QuizService implements OnDestroy {
       const identifiedCorrectAnswers = question.options.filter((option) => option.correct);
       this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
       this.correctAnswerOptions = identifiedCorrectAnswers.map((option) => question.options.indexOf(option) + 1);
-
-      this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
-      this.correctAnswers.push(this.correctAnswersForEachQuestion.sort());
+      
+      const correctAnswerAdded = this.correctAnswers.find(q => q.questionId === question.explanation) !== undefined;
+      if (correctAnswerAdded === false) {
+        this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
+        this.correctAnswers.push({
+          questionId: this.question.explanation, 
+          answers: this.correctAnswersForEachQuestion.sort()
+        });
+      }
 
       this.setExplanationTextAndCorrectMessages(this.correctAnswerOptions.sort(), this.question);
       return identifiedCorrectAnswers;
