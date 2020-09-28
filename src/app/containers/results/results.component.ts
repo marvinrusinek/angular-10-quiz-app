@@ -42,6 +42,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     elapsedTimes: this.timerService.elapsedTimes
   };
   questions: QuizQuestion[];
+  resources: Resource[];
   quizName$: Observable<string>;
   quizId: string;
   indexOfQuizId: number;
