@@ -96,7 +96,7 @@ export class QuizService implements OnDestroy {
   }
 
   getCorrectAnswers(question: QuizQuestion) {
-    if (this.question) {
+    if (question) {
       const identifiedCorrectAnswers = question.options.filter((option) => option.correct);
       this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
       this.correctAnswerOptions = identifiedCorrectAnswers.map((option) => question.options.indexOf(option) + 1);
@@ -105,12 +105,12 @@ export class QuizService implements OnDestroy {
       if (correctAnswerAdded === false) {
         this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
         this.correctAnswers.push({
-          questionId: this.question.explanation, 
+          questionId: question.explanation, 
           answers: this.correctAnswersForEachQuestion.sort()
         });
       }
 
-      this.setExplanationTextAndCorrectMessages(this.correctAnswerOptions.sort(), this.question);
+      this.setExplanationTextAndCorrectMessages(this.correctAnswerOptions.sort(), question);
       return identifiedCorrectAnswers;
     }
   }
