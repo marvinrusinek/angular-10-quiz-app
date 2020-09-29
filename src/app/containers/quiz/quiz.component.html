@@ -75,6 +75,7 @@
                  matTooltip="Next Question &raquo;" matTooltipPosition="below">
               <button type="button"
                       mat-icon-button
+                      [disabled]="!isAnswered()"
                       (click)="advanceToNextQuestion()"
                       (window:keydown.ArrowRight)="advanceToNextQuestion()"
                       (window:keydown.Enter)="advanceToNextQuestion()"
