@@ -42,8 +42,9 @@
               <ul class="resources" *ngFor="let resource of resources">
                 <li i18n>
                   <a href='{{resource.url}}' target="_blank">
-                    <em>{{ resource.title }}</em>
-                  </a>, {{ resource.host }}
+                    <span class="resource-title">{{ resource.title }}</span>
+                  </a>,
+                  <span class="resource-host">{{ resource.host }}</span>
                 </li>
               </ul>
             </div>
