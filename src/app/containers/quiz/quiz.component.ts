@@ -35,7 +35,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions: QuizQuestion[];
   resources: Resource[];
   answers: number[] = [];
-  multipleAnswer: boolean;
+  // multipleAnswer: boolean;
   questionIndex: number;
   totalQuestions: number;
   progressValue: number;
@@ -49,6 +49,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   checkedShuffle: boolean;
   answer: number;
 
+  get multipleAnswer(): boolean { return this.quizService.multipleAnswer; }
   get correctOptions(): string { return this.quizService.correctOptions; }
   get explanationText(): string { return this.quizService.explanationText; }
   get numberOfCorrectAnswers(): number { return this.quizService.numberOfCorrectAnswers; }
@@ -72,7 +73,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.multipleAnswer = this.quizService.multipleAnswer;
+    // this.multipleAnswer = this.quizService.multipleAnswer;
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params
