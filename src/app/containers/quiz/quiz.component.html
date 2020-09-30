@@ -38,7 +38,7 @@
       </codelab-quiz-question>
     </mat-card-content>
 
-    <mat-card-footer>
+    <mat-card-footer [class.answered-footer]="isAnswered()">
       <!-- selection message -->
       <span *ngIf="!isAnswered()" class="selection-message">
         Please select an option to continue&hellip;

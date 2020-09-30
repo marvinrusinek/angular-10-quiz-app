@@ -29,6 +29,10 @@ mat-card-header {
   border: 2px solid $medium-gray !important;
 }
 
+.answered-footer {
+  margin-top: -200px;
+}
+
 .number-correct {
   color: $dark-green;
 }
