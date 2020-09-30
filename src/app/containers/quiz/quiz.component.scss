@@ -29,10 +29,6 @@ mat-card-header {
   border: 2px solid $medium-gray !important;
 }
 
-.answered-footer {
-  margin-top: -200px;
-}
-
 .number-correct {
   color: $dark-green;
 }
@@ -51,6 +47,14 @@ mat-card-header {
   width: 630px !important;
   height: auto;
   vertical-align: middle;
+}
+
+
+.footer {
+  margin-top: -200px;
+}
+.footer-multiple-answer {
+  margin-top: 200px !important;
 }
 
 mat-card-footer {

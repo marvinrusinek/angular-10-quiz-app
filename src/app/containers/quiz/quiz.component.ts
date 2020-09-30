@@ -72,6 +72,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.multipleAnswer = this.quizService.multipleAnswer;
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params
