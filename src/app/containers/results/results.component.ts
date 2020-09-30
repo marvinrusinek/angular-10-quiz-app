@@ -59,9 +59,9 @@ export class ResultsComponent implements OnInit, OnDestroy {
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
 
-  CONGRATULATIONS = '../../assets/images/congrats.gif';
-  NOT_BAD = '../../assets/images/not-bad.jpg';
-  TRY_AGAIN = '../../assets/images/try-again.jpeg';
+  CONGRATULATIONS = 'https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/congrats.gif';
+  NOT_BAD = 'https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/not-bad.jpg';
+  TRY_AGAIN = 'https://raw.githubusercontent.com/marvinrusinek/codelab-angular-10-quiz-app/quiz/codelab-master/apps/playground/src/assets/images/try-again.jpeg';
   codelabUrl = 'https://www.codelab.fun';
 
   constructor(
