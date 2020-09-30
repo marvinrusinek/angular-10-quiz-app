@@ -1,7 +1,7 @@
 <ng-container *ngFor="let quiz of quizzes$ | async">
   <mat-card *ngIf="quiz.quizId === (quizName$ | async) &&
                    question && questionIndex <= totalQuestions"
-            [class.mat-card-multiple-answer] = "multipleAnswer && this.isAnswered()"
+            [class.mat-card] = "multipleAnswer && this.isAnswered()"
             [@changeRoute]="animationState$ | async"
             (@changeRoute.done)="animationDoneHandler()">
 
