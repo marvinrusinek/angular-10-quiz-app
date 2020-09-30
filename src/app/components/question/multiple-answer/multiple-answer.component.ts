@@ -31,6 +31,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
+    this.multipleAnswer = true;
     this.sendMultipleAnswerToQuizService();
    }
 
