@@ -38,32 +38,32 @@
     }
   }
 
-  .messages {
-    .sentiment-icon {
-      display: inline;
-      margin: 30px -50px 0 25px;
-    }
-
-    .message {
-      margin-top: 20px;
-    }
-
-    .wrong-message {
-      margin-top: -10px;
-
-      .sentiment-icon {
-        float: left;
-        margin-bottom: 55px !important;
-      }
-    }
-  }
-
   .is-correct {
     background-color: $green;
   }
 
   .is-incorrect {
     background-color: $red;
+  }
+}
+
+.messages {
+  .sentiment-icon {
+    display: inline;
+    margin: 30px -50px 0 25px;
+  }
+
+ .message {
+   margin-top: 20px;
+  }
+
+  .wrong-message {
+    margin-top: -10px;
+
+    .sentiment-icon {
+      float: left;
+      margin-bottom: 55px !important;
+    }
   }
 }
 
