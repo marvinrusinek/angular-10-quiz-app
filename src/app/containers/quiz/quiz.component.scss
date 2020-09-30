@@ -50,6 +50,8 @@ mat-card-header {
 }
 
 mat-card-footer {
+  display: block;
+  
   .selection-message {
     font-family: $font-stack;
     font-size: 16px;
