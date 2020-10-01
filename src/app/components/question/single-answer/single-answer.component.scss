@@ -1,9 +1,4 @@
-@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 @import "../../../../variables";
-
-div.mat-radio-container {
-  display: none;
-}
 
 .options {
   margin: 0 0 30px 6px;
@@ -70,6 +65,26 @@ div.mat-radio-container {
       margin-bottom: 55px !important;
     }
   }
+}
+
+div.mat-radio-container {
+  display: none;
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -moz-font-feature-settings: 'liga';
+  -moz-osx-font-smoothing: grayscale;
 }
 
 // hide mat-radio-buttons/mat-checkboxes next to answer choices -- TODO: hide using *ngIf

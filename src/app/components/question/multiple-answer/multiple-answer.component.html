@@ -20,13 +20,13 @@
     <ng-container *ngIf="option.selected">
       <div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
         <span>
-          <mat-icon class="sentiment-icon">sentiment_very_satisfied</mat-icon>
+          <i class="material-icons sentiment-icon">sentiment_very_satisfied</i>
           <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
         </span>
       </div>
       <div *ngIf="!option.correct" class="messages">
         <span>
-          <mat-icon class="sentiment-icon">sentiment_very_dissatisfied</mat-icon>
+          <i class="material-icons sentiment-icon">sentiment_very_dissatisfied</i>
           <span class="message wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
         </span>
       </div>
