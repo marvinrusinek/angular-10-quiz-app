@@ -1,3 +1,4 @@
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 @import "../../../../variables";
 
 div.mat-radio-container {
@@ -5,7 +6,7 @@ div.mat-radio-container {
 }
 
 .options {
-  margin: 0 0 0px 6px;
+  margin: 0 0 30px 6px;
   padding: 5px;
   width: 630px;
 
