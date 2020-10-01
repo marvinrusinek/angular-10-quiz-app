@@ -50,7 +50,7 @@
 .messages {
   display: flex;
   justify-content: center;
-  margin-top: -20px;
+  margin-top: -40px;
   margin-bottom: 5px;
   height: auto;
 
@@ -64,12 +64,12 @@
     color: $light-yellow;
     vertical-align: top;
     float: left;
-    margin-top: 20px ;
-    margin-left: 30px;
   }
 
   .message {
     font-family: $font-stack;
+    font-style: italic;
+    font-weight: bold;
     margin: 20px auto;
     margin-left: 20px;
     margin-top: -5px !important;
