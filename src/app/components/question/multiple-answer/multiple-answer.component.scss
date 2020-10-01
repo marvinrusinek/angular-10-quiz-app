@@ -1,13 +1,19 @@
 @import "../../../../variables";
 
+div.mat-checkbox-inner-container {
+  display: none;
+}
+
 .options {
-  margin: 0 0 10px 6.5px;
+  margin: 0 0 30px 6.5px;
   padding: 5px;
 
   mat-checkbox {
+    display: inline-block;
+    min-width: 590px;
     cursor: pointer;
     width: auto !important;
-    height: 55px !important;
+    height: 30px !important;
     font-family: $font-stack;
     font-size: 20px !important;
     color: $dark-brown;
@@ -62,10 +68,10 @@
   }
 }
 
-::ng-deep .mat-checkbox {
-  display: inline-block;
-  min-width: 630px;
-}
+// ::ng-deep .mat-checkbox {
+//  display: inline-block;
+//  min-width: 630px;
+//}
 
 // TODO: hide using *ngIf
 // ::ng-deep .mat-checkbox .mat-checkbox-inner-container {

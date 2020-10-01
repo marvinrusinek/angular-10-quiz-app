@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -9,7 +9,8 @@ import { TimerService } from '../../../shared/services/timer.service';
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
   styleUrls: ['./single-answer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class SingleAnswerComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();

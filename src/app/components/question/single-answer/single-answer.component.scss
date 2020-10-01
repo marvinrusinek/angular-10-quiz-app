@@ -1,5 +1,9 @@
 @import "../../../../variables";
 
+div.mat-radio-button-inner-container {
+  display: none;
+}
+
 .options {
   margin: 0 0 10px 6px;
   padding: 5px;
