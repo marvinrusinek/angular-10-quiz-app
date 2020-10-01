@@ -9,10 +9,8 @@
         <span>{{ i + 1 }}. {{ option.text }}</span>
 
         <ng-container *ngIf="option.selected">
-          <mat-icon class="feedback-icon"
-                    *ngIf="option.correct && isCorrectAnswerSelected">done</mat-icon>
-          <mat-icon class="feedback-icon"
-                    *ngIf="!option.correct">clear</mat-icon>
+          <i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
+          <i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
         </ng-container>
       </mat-checkbox-label>
     </mat-checkbox>

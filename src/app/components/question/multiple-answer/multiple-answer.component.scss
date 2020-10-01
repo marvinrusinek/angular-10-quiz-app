@@ -1,13 +1,13 @@
 @import "../../../../variables";
 
 .options {
-  margin: 0 0 30px 6.5px;
+  margin: 0 0 25px 6.5px;
   padding: 5px;
 
   mat-checkbox {
+    cursor: pointer;
     display: inline-block;
     min-width: 590px;
-    cursor: pointer;
     width: auto !important;
     height: 30px !important;
     font-family: $font-stack;
@@ -33,8 +33,7 @@
 
     .feedback-icon {
       position: absolute;
-      left: 40;
-      margin-right: -40px;
+      right: 40px;
     }
   }
 
@@ -50,8 +49,9 @@
 .messages {
   display: flex;
   justify-content: center;
-  margin-top: -40px;
-  margin-bottom: 5px;
+  margin-top: -30px !important;
+  margin-left: -10px !important;
+  margin-bottom: 5px !important;
   height: auto;
 
   span {
@@ -62,8 +62,9 @@
   .sentiment-icon {
     font-size: 30px;
     color: $light-yellow;
-    vertical-align: top;
-    float: left;
+    position: relative;
+    top: 40px !important;
+    left: 30px;
   }
 
   .message {
@@ -84,7 +85,7 @@
     border: 2px solid $vivid-blue;
     border-radius: 10px;
     color: $dark-green !important;
-    margin-top: -15px;
+    margin-top: -25px;
     margin-bottom: -5px;
     margin-left: 20px !important;
   }

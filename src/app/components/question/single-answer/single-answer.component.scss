@@ -1,14 +1,15 @@
 @import "../../../../variables";
 
 .options {
-  margin: 0 0 30px 6px;
+  margin: 0 0 25px 6.5px;
   padding: 5px;
-  width: 630px;
 
   mat-radio-button {
     cursor: pointer;
-    width: 630px !important;
-    height: 55px !important;
+    display: inline-block;
+    min-width: 590px;
+    width: auto !important;
+    height: 30px !important;
     font-family: $font-stack;
     font-size: 20px !important;
     color: $dark-brown;
@@ -48,21 +49,58 @@
 }
 
 .messages {
-  .sentiment-icon {
-    display: inline;
-    margin: 30px -50px 0 25px;
+  display: flex;
+  justify-content: center;
+  margin-top: -30px !important;
+  margin-left: -10px !important;
+  margin-bottom: 5px !important;
+  height: auto;
+
+  span {
+    font-size: 17px;
+    margin-top: 10px;
   }
 
- .message {
-   margin-top: 20px;
+  .sentiment-icon {
+    font-size: 30px;
+    color: $light-yellow;
+    position: relative;
+    top: 40px !important;
+    left: 30px;
+  }
+
+  .message {
+    font-family: $font-stack;
+    font-style: italic;
+    font-weight: bold;
+    margin: 20px auto;
+    margin-left: 20px;
+    margin-top: -5px !important;
+    padding: 10px;
+    width: 580px;
+    display: inline-flex;
+    justify-content: center;
+    vertical-align: middle;
+  }
+
+  .correct-message {
+    border: 2px solid $vivid-blue;
+    border-radius: 10px;
+    color: $dark-green !important;
+    margin-top: -25px;
+    margin-bottom: -5px;
+    margin-left: 20px !important;
   }
 
   .wrong-message {
-    margin-top: -10px;
+    border: 2px solid $red !important;
+    border-radius: 10px;
+    color: $red;
+    margin-top: -5px;
+    margin-bottom: -5px;
 
     .sentiment-icon {
-      float: left;
-      margin-bottom: 55px !important;
+      top: 20px !important;
     }
   }
 }
@@ -86,8 +124,3 @@ div.mat-radio-container {
   -moz-font-feature-settings: 'liga';
   -moz-osx-font-smoothing: grayscale;
 }
-
-// hide mat-radio-buttons/mat-checkboxes next to answer choices -- TODO: hide using *ngIf
-// ::ng-deep .mat-radio-button .mat-radio-container {
-//  display: none;
-// }
