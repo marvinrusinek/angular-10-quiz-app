@@ -1,58 +1,5 @@
 @import "../../../../variables";
 
-.messages {
-  display: flex;
-  justify-content: center;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  height: auto;
-
-  span {
-    font-size: 17px;
-    margin-top: 10px;
-  }
-
-  .sentiment-icon {
-    font-size: 30px;
-    color: $light-yellow;
-    vertical-align: top;
-    float: left;
-    margin-top: 25px !important;
-  }
-
-  .message {
-    font-family: $font-stack;
-    margin: 20px auto;
-    margin-left: 20px;
-    margin-top: -5px !important;
-    padding: 10px;
-    width: 580px;
-    display: inline-flex;
-    justify-content: center;
-    vertical-align: middle;
-  }
-
-  .correct-message {
-    border: 2px solid $vivid-blue !important;
-    color: $dark-green !important;
-    margin-top: -15px;
-    margin-bottom: -5px;
-    margin-left: 20px !important;
-  }
-
-  .wrong-message {
-    border: 2px solid $red !important;
-    color: $red;
-    margin-top: -5px;
-    margin-bottom: -5px;
-    margin-left: 20px !important;
-
-    .sentiment-icon {
-      top: 20px !important;
-    }
-  }
-}
-
 .options {
   margin: 0 0 30px 6.5px;
   padding: 5px;
@@ -101,19 +48,57 @@
 }
 
 .messages {
-  margin-top: 5px;
-  margin-right: 40px;
-  margin-bottom: 5px;
   display: flex;
   justify-content: center;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  height: auto;
+
+  span {
+    font-size: 17px;
+    margin-top: 10px;
+  }
 
   .sentiment-icon {
-    margin: 5px -50px -20px 20px !important;
-    padding-left: 5px;
+    font-size: 30px;
+    color: $light-yellow;
+    vertical-align: top;
+    float: left;
+    margin-top: 5px !important;
+    margin-left: 40px;
+  }
+
+  .message {
+    font-family: $font-stack;
+    margin: 20px auto;
+    margin-left: 20px;
+    margin-top: -5px !important;
+    padding: 10px;
+    width: 580px;
+    display: inline-flex;
+    justify-content: center;
+    vertical-align: middle;
+  }
+
+  .correct-message {
+    border: 2px solid $vivid-blue;
+    border-radius: 10px;
+    color: $dark-green !important;
+    margin-top: -15px;
+    margin-bottom: -5px;
+    margin-left: 20px !important;
   }
 
   .wrong-message {
-    margin-top: 20px;
+    border: 2px solid $red !important;
+    border-radius: 10px;
+    color: $red;
+    margin-top: -5px;
+    margin-bottom: -5px;
+
+    .sentiment-icon {
+      top: 20px !important;
+    }
   }
 }
 
