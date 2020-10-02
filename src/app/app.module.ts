@@ -30,6 +30,11 @@ import { TimerService } from './shared/services/timer.service';
 import { JoinPipe } from './pipes/join.pipe';
 import { MultipleAnswerComponent } from './components/question/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/single-answer/single-answer.component';
+import { AccordionComponent } from './containers/results/accordion/accordion.component';
+import { ReturnComponent } from './containers/results/return/return.component';
+import { StatisticsComponent } from './containers/results/statistics/statistics.component';
+import { SummaryReportComponent } from './containers/results/summary-report/summary-report.component';
+import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 
 
 @NgModule({
@@ -45,7 +50,12 @@ import { SingleAnswerComponent } from './components/question/single-answer/singl
     TimeComponent,
     JoinPipe,
     MultipleAnswerComponent,
-    SingleAnswerComponent
+    SingleAnswerComponent,
+    AccordionComponent,
+    ReturnComponent,
+    StatisticsComponent,
+    SummaryReportComponent,
+    ChallengeComponent
   ],
   imports: [
     CommonModule,
