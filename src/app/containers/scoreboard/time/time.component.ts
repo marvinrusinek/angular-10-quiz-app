@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { concat, Observable, timer } from 'rxjs';
 import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap } from 'rxjs/operators';
 
-import { QuizService } from '../../../shared/services/quiz.service';
+
 import { TimerService } from '../../../shared/services/timer.service';
 
 
@@ -21,7 +21,6 @@ export class TimeComponent implements OnChanges {
   stop$: Observable<number>;
 
   constructor(
-    private quizService: QuizService,
     private timerService: TimerService
   ) {
     this.selectedAnswer = this.answer;
