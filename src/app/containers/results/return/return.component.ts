@@ -1,15 +1,53 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+import { QuizService } from '../../../shared/services/quiz.service';
+import { TimerService } from '../../../shared/services/timer.service';
+
 
 @Component({
-  selector: 'app-return',
+  selector: 'codelab-results-return',
   templateUrl: './return.component.html',
-  styleUrls: ['./return.component.css']
+  styleUrls: ['./return.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReturnComponent implements OnInit {
+export class ReturnComponent implements OnDestroy {
+  quizId: string;
+  indexOfQuizId: number;
+  codelabUrl = 'https://www.codelab.fun';
+  unsubscribe$ = new Subject<void>();
 
-  constructor() { }
-
-  ngOnInit() {
+  constructor(
+    private quizService: QuizService,
+    private timerService: TimerService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router
+  ) {
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe(params => this.quizId = params.get('quizId'));
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
+  restartQuiz(): void {
+    this.quizService.resetAll();
+    this.quizService.resetQuestions();
+    this.timerService.elapsedTimes = [];
+    this.timerService.completionTime = 0;
+    this.router.navigate(['/quiz/intro/', this.quizId]).then();
+  }
+
+  selectQuiz(): void {
+    this.quizService.resetAll();
+    this.quizService.resetQuestions();
+    this.quizId = '';
+    this.indexOfQuizId = 0;
+    this.router.navigate(['/quiz/select/']).then();
+  }
 }

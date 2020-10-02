@@ -1,0 +1,68 @@
+@import "../../../../variables";
+
+.summary-report {
+  margin: 0 auto;
+  border: 2px double $black;
+  width: 32.5rem;
+  clear: both;
+  padding: 5px;
+  margin-top: 15px;
+  margin-bottom: 25px;
+
+  .summary-report-header {
+    text-align: center;
+    font-weight: $font-weight-max;
+  }
+
+  .summary-icons {
+    display: inline;
+    float: right;
+
+    a {
+      color: $gray;
+      text-decoration: none;
+    }
+
+    .printout {
+      float: right;
+      margin-top: -40px;
+      margin-right: 60px;
+    }
+
+    .email {
+      float: right;
+      margin-top: -40px;
+      margin-right: 35px;
+    }
+
+    .share {
+      float: right;
+      margin-top: -40px;
+      margin-right: 10px;
+    }
+  }
+
+  ul li {
+    list-style-type: none;
+  }
+
+  .summary-stats-leader {
+    font-weight: $font-weight-max;
+    font-color: $green-angular-leaf;
+    font-size: 16px;
+  }
+
+  .result {
+    font-family: $font-stack;
+    font-size: 20px;
+  }
+
+  .quiz-note {
+    font-family: $font-stack;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    word-wrap: break-word;
+    margin-left: 10px;
+  }
+}

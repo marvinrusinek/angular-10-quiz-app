@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { MatAccordion } from '@angular/material/expansion';
 
-import { QuizQuestion } from '../../shared/models/QuizQuestion';
-import { Result } from '../../shared/models/QuizQuestion';
-import { QuizService } from '../../shared/services/*';
-import { TimerService } from '../../shared/services/*';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { Result } from '../../../shared/models/Result.model';
+import { QuizService } from '../../../shared/services/quiz.service';
+import { TimerService } from '../../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-results-accordion',
