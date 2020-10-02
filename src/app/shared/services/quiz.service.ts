@@ -263,7 +263,7 @@ export class QuizService implements OnDestroy {
 
   /********* reset functions ***********/
   resetQuestions(): void {
-    // this.quizData = QUIZ_DATA;
+    this.quizData = QUIZ_DATA;
     // this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
   }
 
