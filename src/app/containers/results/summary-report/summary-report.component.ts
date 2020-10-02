@@ -48,7 +48,7 @@ export class SummaryReportComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1] + ''));
+    this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.checkedShuffle = this.quizService.checkedShuffle;
   }
 
