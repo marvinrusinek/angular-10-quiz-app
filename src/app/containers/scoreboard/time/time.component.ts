@@ -2,7 +2,6 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { concat, Observable, timer } from 'rxjs';
 import { first, repeatWhen, scan, shareReplay, skip, switchMapTo, takeUntil, tap } from 'rxjs/operators';
 
-
 import { TimerService } from '../../../shared/services/timer.service';
 
 
