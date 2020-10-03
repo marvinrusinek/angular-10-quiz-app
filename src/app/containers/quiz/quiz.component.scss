@@ -54,13 +54,6 @@ mat-card-header {
 }
 
 
-/* .footer {
-  margin-top: -200px;
-}
-.footer-multiple-answer {
-  margin-top: 200px !important;
-} */
-
 .multiple-footer-unanswered { margin-top: 200px !important;}
 .multiple-footer-answered { margin-top: 0 !important;}
 .single-footer-unanswered { margin-top: -200px !important;}
@@ -82,7 +75,7 @@ mat-card-footer {
 
   .paging {
     width: 40rem;
-    margin-top: -0px;
+    margin-top: -10px;
     margin-bottom: 20px;
 
     mat-card-actions {
