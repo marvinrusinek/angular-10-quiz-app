@@ -1,5 +1,5 @@
 import { Quiz } from '../shared/models/Quiz.model';
-import { QuizResource } from '../shared/models/Resource.model';
+import { QuizResource } from '../shared/models/QResource.model';
 
 export const QUIZ_DATA: Quiz[] = [
   {
