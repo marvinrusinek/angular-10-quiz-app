@@ -2,8 +2,8 @@
   <div class="single-answer" *ngIf="!multipleAnswer">
     <mat-radio-button
       (change)="setSelected(i)"
-      [class.is-correct]="option.selected && option.correct"
-      [class.is-incorrect]="option.selected && !option.correct">
+      [class.is-correct]="isCorrectOption"
+      [class.is-incorrect]="isIncorrectOption">
 
       <mat-radio-label>
         <span>{{ i + 1 }}. {{ option.text }}</span>
