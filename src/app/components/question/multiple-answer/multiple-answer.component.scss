@@ -36,6 +36,14 @@
       right: 40px;
     }
   }
+
+  .is-correct {
+    background-color: $green;
+  }
+
+  .is-incorrect {
+    background-color: $red;
+  }
 }
 
 .messages {
@@ -114,11 +122,3 @@ div.mat-checkbox-inner-container {
   -moz-font-feature-settings: 'liga';
   -moz-osx-font-smoothing: grayscale;
 }
-
-  .is-correct {
-    background-color: $green !important;
-  }
-
-  .is-incorrect {
-    background-color: $red !important;
-  }
