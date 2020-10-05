@@ -42,7 +42,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
     this.isCorrectOption = this.quizService.isCorrectOption;
-    //this.isIncorrectOption = this.quizService.isIncorrectOption;
+    this.isIncorrectOption = this.quizService.isIncorrectOption;
   }
 
   ngOnChanges(changes: SimpleChanges) {
