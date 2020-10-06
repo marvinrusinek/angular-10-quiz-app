@@ -9,10 +9,8 @@
         <span>{{ i + 1 }}. {{ option.text }}</span>
 
         <ng-container *ngIf="option.selected">
-          <i class="material-icons feedback-icon"
-                    *ngIf="option.correct && isCorrectAnswerSelected">done</i>
-          <i class="material-icons feedback-icon"
-                    *ngIf="!option.correct">clear</i>
+          <i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
+          <i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
         </ng-container>
       </label>
     </mat-radio-button>
