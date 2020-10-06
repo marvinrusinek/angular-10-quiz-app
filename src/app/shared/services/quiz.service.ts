@@ -58,7 +58,7 @@ export class QuizService implements OnDestroy {
   answer: number;
 
   isCorrectOption = 'option.selected && option.correct';
-  isIncorrectOption = 'option.selected && !option.correct';
+  constisIncorrectOption = 'option.selected && !option.correct';
 
   correctSound = new Howl({
     src: '../../../assets/audio/sound-correct.mp3',
