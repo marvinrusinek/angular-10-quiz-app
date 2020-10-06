@@ -5,14 +5,14 @@
       [class.is-correct]="isCorrectOption"
       [class.is-incorrect]="isIncorrectOption">
 
-      <label>
+      <mat-radio-label>
         <span>{{ i + 1 }}. {{ option.text }}</span>
 
         <ng-container *ngIf="option.selected">
           <i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
           <i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
         </ng-container>
-      </label>
+      </mat-radio-label>
     </mat-radio-button>
 
     <ng-container *ngIf="option.selected">
