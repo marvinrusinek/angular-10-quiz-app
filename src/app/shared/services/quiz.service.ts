@@ -5,10 +5,9 @@ import { map, takeUntil } from 'rxjs/operators';
 import 'rxjs/add/observable/of';
 import { Howl } from 'howler';
 
-import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { QUIZ_DATA } from '../../shared/quiz';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 
 @Injectable({
@@ -16,7 +15,6 @@ import { Resource } from '../../shared/models/Resource.model';
 })
 export class QuizService implements OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
-  quizResources: QuizResource[] = QUIZ_RESOURCES;
   question: QuizQuestion;
   questions: QuizQuestion[];
   resources: Resource[];
