@@ -65,6 +65,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.quizStarted = true;
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.option = this.currentQuestion.options[optionIndex];
+    console.log('option: ', this.option);
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
