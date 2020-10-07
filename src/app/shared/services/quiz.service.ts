@@ -6,6 +6,7 @@ import 'rxjs/add/observable/of';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../../shared/quiz';
+import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { Resource } from '../../shared/models/Resource.model';
@@ -56,9 +57,9 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
   answer: number;
-
-  isCorrectOption = 'option.selected && option.correct';
-  constisIncorrectOption = 'option.selected && !option.correct';
+  option: Option;
+  isCorrectOption: boolean;
+  isIncorrectOption: boolean;
 
   correctSound = new Howl({
     src: '../../../assets/audio/sound-correct.mp3',
@@ -76,6 +77,9 @@ export class QuizService implements OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    this.isCorrectOption = this.option.selected && this.option.correct;
+    tisIncorrectOption = this.option.selected && !this.option.correct;
+
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
@@ -233,6 +237,10 @@ export class QuizService implements OnDestroy {
 
   setResources(value: Resource[]): void {
     this.resources = value;
+  }
+
+  setOption(value: Option): void {
+    this.option = value;
   }
 
   sendCorrectCountToResults(value: number): void {
