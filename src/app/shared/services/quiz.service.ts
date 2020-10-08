@@ -80,7 +80,9 @@ export class QuizService implements OnDestroy {
     private router: Router
   ) {
     this.isCorrectOption = this.optionSelected && this.optionCorrect;
+    console.log('isCO', this.isCorrectOption);
     this.isIncorrectOption = this.optionSelected && !this.optionCorrect;
+    console.log('isIncO', this.isCorrectOption);
 
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.activatedRoute.paramMap
