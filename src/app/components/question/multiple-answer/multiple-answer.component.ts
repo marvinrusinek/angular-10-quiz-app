@@ -35,8 +35,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     private timerService: TimerService
   ) {
     this.sendMultipleAnswerToQuizService();
-    this.sendOptionSelectedToQuizService(this.optionSelected);
-    this.sendOptionCorrectToQuizService(this.optionCorrect);
+
    }
 
   ngOnInit(): void {
@@ -72,6 +71,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     console.log(this.optionSelected);
     this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
     console.log(this.optionCorrect);
+    this.sendOptionSelectedToQuizService(this.optionSelected);
+    this.sendOptionCorrectToQuizService(this.optionCorrect);
 
     if (this.correctAnswers.length === 1) {
       this.currentQuestion.options.forEach((option) => option.selected = false);
