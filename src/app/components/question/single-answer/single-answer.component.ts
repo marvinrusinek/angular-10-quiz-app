@@ -33,7 +33,9 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   constructor(
     private quizService: QuizService, 
     private timerService: TimerService
-  ) {}
+  ) {
+    this.sendOptionToQuizService();
+  }
 
   ngOnInit(): void {
     this.question = this.currentQuestion;
