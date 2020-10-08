@@ -65,9 +65,10 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
+    this.answer.emit(optionIndex);
+
     this.optionSelected = this.currentQuestion.options[optionIndex].selected;
     this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
-    this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
       this.currentQuestion.options.forEach((option) => option.selected = false);

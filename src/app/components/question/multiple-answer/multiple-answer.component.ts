@@ -68,7 +68,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.answer.emit(optionIndex);
 
-      this.optionSelected = this.currentQuestion.options[optionIndex].selected;
+    this.optionSelected = this.currentQuestion.options[optionIndex].selected;
     this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
 
     if (this.correctAnswers.length === 1) {
