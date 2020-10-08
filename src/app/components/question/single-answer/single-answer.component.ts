@@ -33,10 +33,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   constructor(
     private quizService: QuizService, 
     private timerService: TimerService
-  ) {
-    this.sendOptionSelectedToQuizService();
-    this.sendOptionCorrectToQuizService();
-  }
+  ) { }
 
   ngOnInit(): void {
     this.question = this.currentQuestion;
@@ -71,6 +68,9 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     console.log(this.optionSelected);
     this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
     console.log(this.optionCorrect);
+    this.sendOptionSelectedToQuizService(this.optionSelected);
+    this.sendOptionCorrectToQuizService(this.optionCorrect);
+
 
     if (this.correctAnswers.length === 1) {
       this.currentQuestion.options.forEach((option) => option.selected = false);
@@ -96,11 +96,11 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
-  private sendOptionSelectedToQuizService(): void {
-    this.quizService.setOptionSelected(this.optionSelected);
+  private sendOptionSelectedToQuizService(optionSelected: boolean): void {
+    this.quizService.setOptionSelected(optionSelected);
   }
 
-  private sendOptionCorrectToQuizService(): void {
-    this.quizService.setOptionCorrect(this.optionCorrect);
+  private sendOptionCorrectToQuizService(optionCorrect: boolean): void {
+    this.quizService.setOptionCorrect(optionCorrect);
   }
 }
