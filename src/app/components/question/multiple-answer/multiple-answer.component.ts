@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
@@ -26,9 +25,10 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   correctMessage = '';
   isAnswered: boolean;
   isCorrectAnswerSelected: boolean;
-  option: Option;
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
+  optionSelected: boolean;
+  optionCorrect: boolean;
 
   constructor(
     private quizService: QuizService,
@@ -65,8 +65,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
-    this.option = this.currentQuestion.options[optionIndex];
-    console.log('option: ', this.option);
+    this.optionSelected = this.currentQuestion.options[optionIndex].selected;
+    this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
@@ -97,7 +97,11 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.quizService.setMultipleAnswer(true);
   }
 
-  private sendOptionToQuizService(): void {
-    this.quizService.setOption(this.option);
+  private sendOptionSelectedToQuizService(): void {
+    this.quizService.setOptionSelected(this.optionSelected);
+  }
+
+  private sendOptionCorrectToQuizService(): void {
+    this.quizService.setOptionCorrect(this.optionCorrect);
   }
 }

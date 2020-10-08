@@ -60,6 +60,8 @@ export class QuizService implements OnDestroy {
   option: Option;
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
+  optionSelected: boolean;
+  optionCorrect: boolean;
 
   correctSound = new Howl({
     src: '../../../assets/audio/sound-correct.mp3',
@@ -77,8 +79,8 @@ export class QuizService implements OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.isCorrectOption = this.option.selected && this.option.correct;
-    this.isIncorrectOption = this.option.selected && !this.option.correct;
+    this.isCorrectOption = this.optionSelected && this.optionCorrect;
+    this.isIncorrectOption = this.optionSelected && !this.optionCorrect;
 
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.activatedRoute.paramMap
@@ -239,8 +241,12 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  setOption(value: Option): void {
-    this.option = value;
+  setOptionSelected(value: boolean): void {
+    this.optionSelected = value;
+  }
+
+  setOptionCorrect(value: boolean): void {
+    this.optionCorrect = value;
   }
 
   sendCorrectCountToResults(value: number): void {
