@@ -35,7 +35,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     private timerService: TimerService
   ) {
     this.sendMultipleAnswerToQuizService();
-    this.sendOptionToQuizService();
+    this.sendOptionSelectedToQuizService();
+    this.sendOptionCorrectToQuizService();
    }
 
   ngOnInit(): void {
