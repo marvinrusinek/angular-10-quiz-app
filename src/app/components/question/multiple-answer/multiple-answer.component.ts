@@ -91,6 +91,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
+    this.optionSelected = this.currentQuestion.options[optionIndex].selected;
+    this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
 

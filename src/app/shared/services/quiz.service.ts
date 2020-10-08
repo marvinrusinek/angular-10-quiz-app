@@ -243,10 +243,12 @@ export class QuizService implements OnDestroy {
 
   setOptionSelected(value: boolean): void {
     this.optionSelected = value;
+    console.log('OS', this.optionSelected);
   }
 
   setOptionCorrect(value: boolean): void {
     this.optionCorrect = value;
+    console.log('OC', this.optionCorrect);
   }
 
   sendCorrectCountToResults(value: number): void {
