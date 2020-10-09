@@ -57,11 +57,11 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
 
-  option: Option;
-  isCorrectOption: boolean;
-  isIncorrectOption: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
+
+  isCorrectOption = this.optionSelected && this.optionCorrect;
+  isIncorrectOption = this.optionSelected && !this.optionCorrect;
 
   correctSound = new Howl({
     src: '../../../assets/audio/sound-correct.mp3',
@@ -79,11 +79,6 @@ export class QuizService implements OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.isCorrectOption = this.optionSelected && this.optionCorrect;
-    console.log('isCO', this.isCorrectOption);
-    this.isIncorrectOption = this.optionSelected && !this.optionCorrect;
-    console.log('isIncO', this.isCorrectOption);
-
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
