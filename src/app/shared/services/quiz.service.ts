@@ -6,7 +6,6 @@ import 'rxjs/add/observable/of';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../../shared/quiz';
-
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { Resource } from '../../shared/models/Resource.model';
@@ -57,8 +56,8 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
 
-  optionSelected: boolean;
-  optionCorrect: boolean;
+  optionSelected = false;
+  optionCorrect = fals;
 
   isCorrectOption = this.optionSelected && this.optionCorrect;
   isIncorrectOption = this.optionSelected && !this.optionCorrect;
