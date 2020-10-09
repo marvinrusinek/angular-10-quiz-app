@@ -41,7 +41,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
-      this.isCorrectOption = this.quizService.isCorrectOption;
+    this.isCorrectOption = this.quizService.isCorrectOption;
     console.log('IsCorrectOption: ', this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
     console.log('IsIncorrectOption: ', this.isCorrectOption);
@@ -66,12 +66,12 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
     this.answer.emit(optionIndex);
 
-    this.optionSelected = this.currentQuestion.options[optionIndex].selected;
+    /* this.optionSelected = this.currentQuestion.options[optionIndex].selected;
     console.log(this.optionSelected);
     this.optionCorrect = this.currentQuestion.options[optionIndex].correct;
     console.log(this.optionCorrect);
     this.sendOptionSelectedToQuizService(this.optionSelected);
-    this.sendOptionCorrectToQuizService(this.optionCorrect);
+    this.sendOptionCorrectToQuizService(this.optionCorrect); */
 
 
     if (this.correctAnswers.length === 1) {
@@ -85,10 +85,20 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]['correct']
     ) {
+        this.optionSelected = true;
+        this.optionCorrect = true;
+        this.sendOptionSelectedToQuizService(this.optionSelected);
+        this.sendOptionCorrectToQuizService(this.optionCorrect);
+
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
       optionIndex = null;
     } else {
+        this.optionSelected = true;
+        this.optionCorrect = false;
+        this.sendOptionSelectedToQuizService(this.optionSelected);
+        this.sendOptionCorrectToQuizService(this.optionCorrect);
+
       this.quizService.incorrectSound.play();
     }
     this.alreadyAnswered = true;
