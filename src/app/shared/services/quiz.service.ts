@@ -57,7 +57,7 @@ export class QuizService implements OnDestroy {
   unsubscribe$ = new Subject<void>();
 
   optionSelected = false;
-  optionCorrect = fals;
+  optionCorrect = false;
 
   isCorrectOption = this.optionSelected && this.optionCorrect;
   isIncorrectOption = this.optionSelected && !this.optionCorrect;
@@ -78,6 +78,8 @@ export class QuizService implements OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    console.log('ICO', this.isCorrectOption);
+    console.log('IICO', this.isIncorrectOption);
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
