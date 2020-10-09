@@ -6,7 +6,7 @@ import 'rxjs/add/observable/of';
 import { Howl } from 'howler';
 
 import { QUIZ_DATA } from '../../shared/quiz';
-import { Option } from '../../shared/models/Option.model';
+
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { Resource } from '../../shared/models/Resource.model';
