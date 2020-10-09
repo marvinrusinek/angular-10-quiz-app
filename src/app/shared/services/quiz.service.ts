@@ -56,11 +56,11 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
 
-  optionSelected = false;
-  optionCorrect = false;
+  optionSelected = true;
+  optionCorrect = true;
 
-  isCorrectOption = this.optionSelected && this.optionCorrect;
-  isIncorrectOption = this.optionSelected && !this.optionCorrect;
+  isCorrectOption: boolean = this.optionSelected && this.optionCorrect;
+  isIncorrectOption: boolean = this.optionSelected && !this.optionCorrect;
 
   correctSound = new Howl({
     src: '../../../assets/audio/sound-correct.mp3',
