@@ -84,7 +84,7 @@ export class QuizService implements OnDestroy {
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => this.quizId = params.get('quizId'));
-    this.indexOfQuizId = this.quizData.findIndex(el => el.quizId === this.quizId);
+    this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
     this.returnQuizSelectionParams();
   }
 
