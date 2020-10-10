@@ -9,7 +9,6 @@ import { Resource } from '../../../shared/models/Resource.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
 
-
 enum Status {
   Started = 'Started',
   Continue = 'Continue',
@@ -51,10 +50,6 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute
   ) {
     this.status = Status.Completed;
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-        .subscribe(params => this.quizId = params.get('quizId'));
-
     this.calculateElapsedTime();
     this.sendQuizStatusToQuizService();
     this.sendCompletedQuizIdToQuizService(this.quizId);
@@ -63,6 +58,9 @@ export class StatisticsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
+      this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe(params => this.quizId = params.get('quizId'));
     this.resources = this.quizService.resources;
   }
 
