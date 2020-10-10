@@ -35,7 +35,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions: QuizQuestion[];
   resources: Resource[];
   answers: number[] = [];
-  // multipleAnswer: boolean;
+
   questionIndex: number;
   totalQuestions: number;
   progressValue: number;
@@ -73,7 +73,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    // this.multipleAnswer = this.quizService.multipleAnswer;
     this.shuffleQuestionsAndAnswers();
 
     this.activatedRoute.params
