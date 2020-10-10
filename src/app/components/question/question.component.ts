@@ -112,4 +112,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   private sendCurrentQuestionToQuizService(): void {
     this.quizService.setCurrentQuestion(this.currentQuestion);
   }
+
+  private sendOptionSelectedToQuizService(optionSelected: boolean): void {
+    this.quizService.setOptionSelected(optionSelected);
+  }
+
+  private sendOptionCorrectToQuizService(optionCorrect: boolean ): void {
+    this.quizService.setOptionCorrect(optionCorrect);
+  }
 }
