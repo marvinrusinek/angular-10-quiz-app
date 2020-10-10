@@ -78,8 +78,6 @@ export class QuizService implements OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    console.log('ICO', this.isCorrectOption);
-    console.log('IICO', this.isIncorrectOption);
     this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
