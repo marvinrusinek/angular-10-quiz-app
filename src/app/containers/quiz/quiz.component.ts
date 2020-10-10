@@ -150,11 +150,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       const answers = this.isAnswered() ? this.answers.map((answer) => answer + 1) : [];
       this.quizService.userAnswers.push(this.isAnswered() ? answers : this.answers);
 
-      this.addUpScores(answers, correctAnswerFound);
+      this.incrementScore(answers, correctAnswerFound);
     }
   }
 
-  addUpScores(answers: number[], correctAnswerFound: number): void {
+  incrementScore(answers: number[], correctAnswerFound: number): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
     if (correctAnswerFound > -1 && answers.length === this.quizService.numberOfCorrectAnswers) {
       this.sendCorrectCountToQuizService(this.correctCount + 1);
