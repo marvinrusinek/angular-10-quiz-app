@@ -25,14 +25,14 @@ export class ResultsComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-        .subscribe(params => this.quizId = params.get('quizId'));
-    this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
     // this.sendPreviousUserAnswersToQuizService();
   }
 
   ngOnInit(): void {
+      this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+        .subscribe(params => this.quizId = params.get('quizId'));
+    this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
     // this.previousUserAnswers = this.quizService.userAnswers;
   }
 
