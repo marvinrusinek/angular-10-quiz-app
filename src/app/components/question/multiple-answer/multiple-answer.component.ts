@@ -43,7 +43,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
-    
+
     this.isCorrectOption = this.quizService.isCorrectOption;
     console.log('IsCorrectOption: ', this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
@@ -80,19 +80,17 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]['correct']
     ) {
-      this.optionSelected = true;
-      this.optionCorrect = true;
+      this.sendOptionSelectedToQuizService(true);
+      this.sendOptionCorrectToQuizService(true);
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
       optionIndex = null;
     } else {
-      this.optionSelected = true;
-      this.optionCorrect = false;
+      this.sendOptionSelectedToQuizService(true);
+      this.sendOptionCorrectToQuizService(false);
       this.quizService.incorrectSound.play();
     }
 
-    this.sendOptionSelectedToQuizService(this.optionSelected);
-    this.sendOptionCorrectToQuizService(this.optionCorrect);
     this.alreadyAnswered = true;
   }
 
