@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { O } from '../../shared/models/Option.model';
+import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -94,11 +94,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]['correct']
     ) {
+      optionIndex = null;
       this.sendOptionSelectedToQuizService(true);
       this.sendOptionCorrectToQuizService(true);
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
-      optionIndex = null;
     } else {
       this.sendOptionSelectedToQuizService(true);
       this.sendOptionCorrectToQuizService(false);
