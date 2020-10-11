@@ -101,13 +101,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizService.correctSound.play();
     } else {
       this.optionSelected = true;
-      this.optionCorrect = false;;
+      this.optionCorrect = false;
       this.quizService.incorrectSound.play();
     }
 
     this.sendOptionSelectedToQuizService(this.optionSelected);
     this.sendOptionCorrectToQuizService(this.optionCorrect);
-
     this.alreadyAnswered = true;
   }
 
