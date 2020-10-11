@@ -160,7 +160,7 @@ export class QuizService implements OnDestroy {
   }
 
   // set the text of the previous user answers in an array to show in the following quiz
-  setPreviousUserAnswersText(previousAnswers, questions: QuizQuestion[]): void {
+  /* setPreviousUserAnswersText(previousAnswers, questions: QuizQuestion[]): void {
     for (let i = 0; i < previousAnswers.length; i++) {
       if (previousAnswers[i].length === 1) {
         const previousAnswersString = questions[i].options[previousAnswers[i] - 1].text;
@@ -175,7 +175,7 @@ export class QuizService implements OnDestroy {
         this.previousUserAnswersText.push(this.previousUserAnswersInnerText);
       }
     }
-  }
+  } */
 
   setQuizStatus(value: string): void {
     this.status = value;
@@ -273,7 +273,7 @@ export class QuizService implements OnDestroy {
 
   /********* reset functions ***********/
   resetQuestions(): void {
-    this.quizData = [...this.quizData];
+    this.quizData = [...this.quizData]; // not working
     // this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
   }
 
