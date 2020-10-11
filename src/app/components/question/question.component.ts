@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { O } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -103,7 +104,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.sendOptionCorrectToQuizService(false);
       this.quizService.incorrectSound.play();
     }
-
 
     this.alreadyAnswered = true;
   }
