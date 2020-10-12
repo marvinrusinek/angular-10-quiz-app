@@ -94,6 +94,7 @@
               <button type="submit"
                       mat-raised-button
                       disableRipple="true"
+                      [disabled]="!isAnswered()"
                       (click)="advanceToResults()"
                       (window:keydown.Enter)="advanceToResults()"
                       (window:keydown.ArrowRight)="advanceToResults()"
