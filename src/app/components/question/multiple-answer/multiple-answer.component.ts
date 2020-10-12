@@ -15,20 +15,22 @@ import { TimerService } from '../../../shared/services/timer.service';
 export class MultipleAnswerComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
-  formGroup: FormGroup;
-  multipleAnswer: boolean;
-  alreadyAnswered: boolean;
   currentQuestion: QuizQuestion;
-
-  quizStarted: boolean;
+  formGroup: FormGroup;
   correctAnswers = [];
   correctMessage = '';
+
+  multipleAnswer: boolean;
+  alreadyAnswered: boolean;
+  quizStarted: boolean;
   isAnswered: boolean;
   isCorrectAnswerSelected: boolean;
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
+  
+  previousUserAnswersText: string[] = [];
 
   constructor(
     private quizService: QuizService,
@@ -48,6 +50,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     console.log('IsCorrectOption: ', this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
     console.log('IsIncorrectOption: ', this.isCorrectOption);
+
+    this.previousUserAnswersText = this.quizService.previousUserAnswersText;
   }
 
   ngOnChanges(changes: SimpleChanges) {

@@ -104,6 +104,18 @@
   }
 }
 
+.previous-answer-text {
+  clear: both;
+
+  span {
+    font-family: $font-stack;
+    font-size: 16px;
+    font-weight: $font-weight-max;
+    font-style: italic;
+    text-align: center;
+  }
+}
+
 div.mat-checkbox-inner-container {
   display: none;
 }
