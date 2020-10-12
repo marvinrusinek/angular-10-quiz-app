@@ -52,7 +52,6 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     this.status = Status.Completed;
     this.calculateElapsedTime();
     this.sendQuizStatusToQuizService();
-    this.sendCompletedQuizIdToQuizService(this.quizId);
   }
 
   ngOnInit(): void {
@@ -80,9 +79,5 @@ export class StatisticsComponent implements OnInit, OnDestroy {
 
   private sendQuizStatusToQuizService(): void {
     this.quizService.setQuizStatus(this.status);
-  }
-
-  private sendCompletedQuizIdToQuizService(quizId: string): void {
-    this.quizService.setCompletedQuizId(quizId);
   }
 }

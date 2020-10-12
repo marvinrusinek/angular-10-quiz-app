@@ -29,9 +29,10 @@ export class ResultsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-      this.activatedRoute.paramMap
+    this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
         .subscribe(params => this.quizId = params.get('quizId'));
+    this.sendCompletedQuizIdToQuizService(this.quizId);
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
     // this.previousUserAnswers = this.quizService.userAnswers;
   }
@@ -47,6 +48,10 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.quizId = '';
     this.indexOfQuizId = 0;
     this.router.navigate(['/select/']).then();
+  }
+
+  private sendCompletedQuizIdToQuizService(quizId: string): void {
+    this.quizService.setCompletedQuizId(quizId);
   }
 
   /* private sendPreviousUserAnswersToQuizService(): void {
