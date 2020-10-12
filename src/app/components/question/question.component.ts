@@ -37,9 +37,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   optionSelected: boolean;
   optionCorrect: boolean;
 
-  previousUserAnswers: string[] = [];
-  previousUserAnswersTextSingleAnswer = [];
-  previousUserAnswersTextMultipleAnswer = [];
 
   constructor(
     private quizService: QuizService,
@@ -51,12 +48,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       answer: new FormControl(['', Validators.required])
     });
 
-    this.previousUserAnswersTextSingleAnswer = this.quizService.previousUserAnswersTextSingleAnswer;
-    this.previousUserAnswersTextMultipleAnswer = this.quizService.previousUserAnswersTextMultipleAnswer;
-
     this.question = this.currentQuestion;
     this.correctMessage = this.quizService.correctMessage;
-    this.previousUserAnswers = this.quizService.userAnswers;
     this.isAnswered = this.quizService.isAnswered;
     this.sendCurrentQuestionToQuizService();
   }
