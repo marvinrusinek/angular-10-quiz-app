@@ -41,11 +41,8 @@ export class QuizService implements OnDestroy {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
 
   userAnswers = [];
-  previousUserAnswers: any[] = [];
-  previousUserAnswersText: any[] = [];
-  previousUserAnswersInnerText = [];
-  previousUserAnswersTextSingleAnswer: string[] = [];
-  previousUserAnswersTextMultipleAnswer: string[] = [];
+  previousUserAnswersText = [];
+  previousUserAnswersInnerText: string[] = [];
 
   explanationText: string;
   correctOptions: string;
@@ -160,14 +157,14 @@ export class QuizService implements OnDestroy {
   }
 
   // set the text of the previous user answers in an array to show in the following quiz
-  /* setPreviousUserAnswersText(previousAnswers, questions: QuizQuestion[]): void {
-    for (let i = 0; i < previousAnswers.length; i++) {
-      if (previousAnswers[i].length === 1) {
-        const previousAnswersString = questions[i].options[previousAnswers[i] - 1].text;
+  setPreviousUserAnswersText(questions: QuizQuestion[], previousUserAnswers): void {
+    for (let i = 0; i < previousUserAnswers.length; i++) {
+      if (previousUserAnswers[i].length === 1) {
+        const previousAnswersString = questions[i].options[previousUserAnswers[i] - 1].text;
         this.previousUserAnswersText.push(previousAnswersString);
       }
-      if (previousAnswers[i].length > 1) {
-        const previousAnswerOptionsInner = previousAnswers[i].slice();
+      if (previousUserAnswers[i].length > 1) {
+        const previousAnswerOptionsInner = previousUserAnswers[i].slice();
         for (let j = 0; j < previousAnswerOptionsInner.length; j++) {
           const previousAnswersInnerString = questions[i].options[previousAnswerOptionsInner[j] - 1].text;
           this.previousUserAnswersInnerText.push(previousAnswersInnerString);
@@ -175,7 +172,7 @@ export class QuizService implements OnDestroy {
         this.previousUserAnswersText.push(this.previousUserAnswersInnerText);
       }
     }
-  } */
+  }
 
   setQuizStatus(value: string): void {
     this.status = value;
@@ -207,10 +204,6 @@ export class QuizService implements OnDestroy {
 
   setTotalQuestions(value: number): void {
     this.totalQuestions = value;
-  }
-
-  setPreviousUserAnswers(value: any) {
-    this.previousUserAnswers = value;
   }
 
   setChecked(value: boolean): void {

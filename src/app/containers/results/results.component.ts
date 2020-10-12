@@ -25,7 +25,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    // this.sendPreviousUserAnswersToQuizService();
+    this.quizService.setPreviousUserAnswersText(this.quizService.questions, this.quizService.userAnswers);
   }
 
   ngOnInit(): void {
@@ -34,7 +34,6 @@ export class ResultsComponent implements OnInit, OnDestroy {
         .subscribe(params => this.quizId = params.get('quizId'));
     this.sendCompletedQuizIdToQuizService(this.quizId);
     this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
-    // this.previousUserAnswers = this.quizService.userAnswers;
   }
 
   ngOnDestroy(): void {
@@ -53,8 +52,4 @@ export class ResultsComponent implements OnInit, OnDestroy {
   private sendCompletedQuizIdToQuizService(quizId: string): void {
     this.quizService.setCompletedQuizId(quizId);
   }
-
-  /* private sendPreviousUserAnswersToQuizService(): void {
-    this.quizService.setPreviousUserAnswers(this.previousUserAnswers);
-  } */
 }
