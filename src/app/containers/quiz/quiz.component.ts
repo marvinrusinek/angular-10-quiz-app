@@ -45,9 +45,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizName$: Observable<string>;
   indexOfQuizId: number;
   status: Status;
-  previousUserAnswers: any;
   checkedShuffle: boolean;
-  answer: number;
+
 
   get multipleAnswer(): boolean { return this.quizService.multipleAnswer; }
   get correctOptions(): string { return this.quizService.correctOptions; }
@@ -201,7 +200,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.sendQuestionsToQuizService();
     this.sendQuizIdToQuizService();
     this.sendQuizStatusToQuizService();
-    this.sendPreviousUserAnswersToQuizService();
     this.sendResourcesToQuizService();
   }
 
@@ -229,11 +227,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private sendContinueQuizIdToQuizService(quizId): void {
     this.quizService.setContinueQuizId(quizId);
-  }
-
-  private sendPreviousUserAnswersToQuizService(): void {
-    this.questions = this.quizData[this.indexOfQuizId].questions;
-    this.quizService.setPreviousUserAnswersText(this.quizService.previousUserAnswers, this.questions);
   }
 
   private sendIsAnsweredToQuizService(): void {
