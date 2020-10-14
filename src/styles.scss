@@ -3,23 +3,22 @@
 @import "_mixins";
 
 @font-face {
-  font-family: 'DjbUpOnTheScoreboard';
-  src: url($scoreboard-font) format('truetype');
+  font-family: "DjbUpOnTheScoreboard";
+  src: url($scoreboard-font) format("truetype");
   font-display: swap;
 }
 @font-face {
-  font-family: 'LucidaUnicodeCalligraphy';
-  src: url($congratulations-font) format('truetype');
+  font-family: "LucidaUnicodeCalligraphy";
+  src: url($congratulations-font) format("truetype");
   font-display: swap;
 }
-
 
 mat-card {
   margin: 2% 0 20px 25%;
   width: 42.5rem;
   height: auto;
   padding: 20px;
-  border: 1px solid $black;
+  border: 1.5px solid $black;
   border-radius: 10px !important;
   box-shadow: 10px 10px 5px $gray !important;
 
