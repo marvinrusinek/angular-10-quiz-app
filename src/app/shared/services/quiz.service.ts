@@ -1,17 +1,17 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
-import 'rxjs/add/observable/of';
-import { Howl } from 'howler';
+import { Injectable, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { map, takeUntil } from "rxjs/operators";
+import "rxjs/add/observable/of";
+import { Howl } from "howler";
 
-import { QUIZ_DATA } from '../../shared/quiz';
-import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { Resource } from '../../shared/models/Resource.model';
+import { QUIZ_DATA } from "../../shared/quiz";
+import { Quiz } from "../../shared/models/Quiz.model";
+import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
+import { Resource } from "../../shared/models/Resource.model";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class QuizService implements OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
@@ -56,30 +56,30 @@ export class QuizService implements OnDestroy {
   optionSelected = true;
   optionCorrect = true;
 
-  isCorrectOption: boolean = this.optionSelected && this.optionCorrect;
-  isIncorrectOption: boolean = this.optionSelected && !this.optionCorrect;
+  isCorrectOption = this.optionSelected && this.optionCorrect;
+  isIncorrectOption = this.optionSelected && !this.optionCorrect;
 
   correctSound = new Howl({
-    src: '../../../assets/audio/sound-correct.mp3',
+    src: "../../../assets/audio/sound-correct.mp3",
     html5: true,
-    format: ['mp3']
+    format: ["mp3"]
   });
   incorrectSound = new Howl({
-    src: '../../../assets/audio/sound-incorrect.mp3',
+    src: "../../../assets/audio/sound-incorrect.mp3",
     html5: true,
-    format: ['mp3']
+    format: ["mp3"]
   });
 
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private router: Router
-  ) {
-    this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
+  constructor(private activatedRoute: ActivatedRoute, private router: Router) {
+    this.quizName$ = this.activatedRoute.url.pipe(
+      map(segments => segments[1].toString())
+    );
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
-        .subscribe(params => this.quizId = params.get('quizId'));
-    this.indexOfQuizId = this.quizData.findIndex(elem => elem.quizId === this.quizId);
+      .subscribe(params => (this.quizId = params.get("quizId")));
+    this.indexOfQuizId = this.quizData.findIndex(
+      elem => elem.quizId === this.quizId
+    );
     this.returnQuizSelectionParams();
   }
 
@@ -94,20 +94,29 @@ export class QuizService implements OnDestroy {
 
   getCorrectAnswers(question: QuizQuestion) {
     if (question) {
-      const identifiedCorrectAnswers = question.options.filter((option) => option.correct);
+      const identifiedCorrectAnswers = question.options.filter(
+        option => option.correct
+      );
       this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
-      this.correctAnswerOptions = identifiedCorrectAnswers.map((option) => question.options.indexOf(option) + 1);
-      
-      const correctAnswerAdded = this.correctAnswers.find(q => q.questionId === question.explanation) !== undefined;
+      this.correctAnswerOptions = identifiedCorrectAnswers.map(
+        option => question.options.indexOf(option) + 1
+      );
+
+      const correctAnswerAdded =
+        this.correctAnswers.find(q => q.questionId === question.explanation) !==
+        undefined;
       if (correctAnswerAdded === false) {
         this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
         this.correctAnswers.push({
-          questionId: question.explanation, 
+          questionId: question.explanation,
           answers: this.correctAnswersForEachQuestion.sort()
         });
       }
 
-      this.setExplanationTextAndCorrectMessages(this.correctAnswerOptions.sort(), question);
+      this.setExplanationTextAndCorrectMessages(
+        this.correctAnswerOptions.sort(),
+        question
+      );
       return identifiedCorrectAnswers;
     }
   }
@@ -131,42 +140,66 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
-  setExplanationTextAndCorrectMessages(correctAnswers: number[], question: QuizQuestion): void {
+  setExplanationTextAndCorrectMessages(
+    correctAnswers: number[],
+    question: QuizQuestion
+  ): void {
     this.explanationText = question.explanation;
     for (let i = 0; i < question.options.length; i++) {
-      if (correctAnswers[i] &&
-          correctAnswers.length === 1) {
-        this.correctOptions = correctAnswers[i].toString().concat('');
-        this.correctMessage = 'The correct answer was Option ' + this.correctOptions + '.';
+      if (correctAnswers[i] && correctAnswers.length === 1) {
+        this.correctOptions = correctAnswers[i].toString().concat("");
+        this.correctMessage =
+          "The correct answer was Option " + this.correctOptions + ".";
       }
-      if (correctAnswers[i] && correctAnswers[i + 1] &&
-          correctAnswers.length > 1) {
-        this.correctOptions = correctAnswers[i].toString().concat(' and ' + correctAnswers[i + 1]);
-        this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
+      if (
+        correctAnswers[i] &&
+        correctAnswers[i + 1] &&
+        correctAnswers.length > 1
+      ) {
+        this.correctOptions = correctAnswers[i]
+          .toString()
+          .concat(" and " + correctAnswers[i + 1]);
+        this.correctMessage =
+          "The correct answers were Options " + this.correctOptions + ".";
       }
-      if (correctAnswers[i] && correctAnswers[i + 1] && correctAnswers[i + 2] &&
-          correctAnswers.length > 1) {
-        this.correctOptions = correctAnswers[i].toString().concat(', ', + correctAnswers[i + 1] + ' and ' + correctAnswers[i + 2]);
-        this.correctMessage = 'The correct answers were Options ' + this.correctOptions + '.';
+      if (
+        correctAnswers[i] &&
+        correctAnswers[i + 1] &&
+        correctAnswers[i + 2] &&
+        correctAnswers.length > 1
+      ) {
+        this.correctOptions = correctAnswers[i]
+          .toString()
+          .concat(
+            ", ",
+            +correctAnswers[i + 1] + " and " + correctAnswers[i + 2]
+          );
+        this.correctMessage =
+          "The correct answers were Options " + this.correctOptions + ".";
       }
       if (correctAnswers.length === question.options.length) {
-        this.correctOptions = 'ALL were correct!';
-        this.correctMessage = 'ALL were correct!';
+        this.correctOptions = "ALL were correct!";
+        this.correctMessage = "ALL were correct!";
       }
     }
   }
 
   // set the text of the previous user answers in an array to show in the following quiz
-  setPreviousUserAnswersText(questions: QuizQuestion[], previousUserAnswers): void {
+  setPreviousUserAnswersText(
+    questions: QuizQuestion[],
+    previousUserAnswers
+  ): void {
     for (let i = 0; i < previousUserAnswers.length; i++) {
       if (previousUserAnswers[i].length === 1) {
-        const previousAnswersString = questions[i].options[previousUserAnswers[i] - 1].text;
+        const previousAnswersString =
+          questions[i].options[previousUserAnswers[i] - 1].text;
         this.previousUserAnswersText.push(previousAnswersString);
       }
       if (previousUserAnswers[i].length > 1) {
         const previousAnswerOptionsInner = previousUserAnswers[i].slice();
         for (let j = 0; j < previousAnswerOptionsInner.length; j++) {
-          const previousAnswersInnerString = questions[i].options[previousAnswerOptionsInner[j] - 1].text;
+          const previousAnswersInnerString =
+            questions[i].options[previousAnswerOptionsInner[j] - 1].text;
           this.previousUserAnswersInnerText.push(previousAnswersInnerString);
         }
         this.previousUserAnswersText.push(this.previousUserAnswersInnerText);
@@ -232,12 +265,12 @@ export class QuizService implements OnDestroy {
 
   setOptionSelected(value: boolean): void {
     this.optionSelected = value;
-    console.log('OptionSelected:', this.optionSelected);
+    console.log("OptionSelected:", this.optionSelected);
   }
 
   setOptionCorrect(value: boolean): void {
     this.optionCorrect = value;
-    console.log('OptionCorrect: ', this.optionCorrect);
+    console.log("OptionCorrect: ", this.optionCorrect);
   }
 
   sendCorrectCountToResults(value: number): void {
@@ -249,19 +282,21 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question/', this.quizId, questionIndex]).then();
+    this.router.navigate(["/question/", this.quizId, questionIndex]).then();
     this.resetAll();
   }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
-    this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex - 1]).then();
+    this.router
+      .navigate(["/question/", this.quizId, this.currentQuestionIndex - 1])
+      .then();
     this.resetAll();
   }
 
   navigateToResults() {
     this.quizCompleted = true;
-    this.router.navigate(['/results/', this.quizId]).then();
+    this.router.navigate(["/results/", this.quizId]).then();
   }
 
   /********* reset functions ***********/
@@ -274,9 +309,9 @@ export class QuizService implements OnDestroy {
     this.answers = null;
     this.correctAnswersForEachQuestion = [];
     this.correctAnswerOptions = [];
-    this.correctOptions = '';
-    this.correctMessage = '';
-    this.explanationText = '';
+    this.correctOptions = "";
+    this.correctMessage = "";
+    this.explanationText = "";
     this.currentQuestionIndex = 0;
   }
 }
