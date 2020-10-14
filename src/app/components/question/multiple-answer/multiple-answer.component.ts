@@ -1,14 +1,24 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewEncapsulation } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewEncapsulation
+} from "@angular/core";
+import { FormGroup } from "@angular/forms";
 
-import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
-import { QuizService } from '../../../shared/services/quiz.service';
-import { TimerService } from '../../../shared/services/timer.service';
+import { QuizQuestion } from "../../../shared/models/QuizQuestion.model";
+import { QuizService } from "../../../shared/services/quiz.service";
+import { TimerService } from "../../../shared/services/timer.service";
 
 @Component({
-  selector: 'codelab-question-multiple-answer',
-  templateUrl: './multiple-answer.component.html',
-  styleUrls: ['./multiple-answer.component.scss'],
+  selector: "codelab-question-multiple-answer",
+  templateUrl: "./multiple-answer.component.html",
+  styleUrls: ["./multiple-answer.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
@@ -18,7 +28,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   formGroup: FormGroup;
   correctAnswers = [];
-  correctMessage = '';
+  correctMessage = "";
 
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
@@ -29,7 +39,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   isIncorrectOption: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
-  
+
   previousUserAnswersText: string[] = [];
 
   constructor(
@@ -37,7 +47,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     private timerService: TimerService
   ) {
     this.sendMultipleAnswerToQuizService();
-   }
+  }
 
   ngOnInit(): void {
     this.question = this.currentQuestion;
@@ -47,22 +57,27 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.currentQuestion = this.quizService.currentQuestion;
 
     this.isCorrectOption = this.quizService.isCorrectOption;
-    console.log('IsCorrectOption: ', this.isCorrectOption);
+    console.log("IsCorrectOption: ", this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
-    console.log('IsIncorrectOption: ', this.isCorrectOption);
+    console.log("IsIncorrectOption: ", this.isCorrectOption);
 
     this.previousUserAnswersText = this.quizService.previousUserAnswersText;
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes.question &&
+      changes.question.currentValue !== changes.question.firstChange
+    ) {
       this.currentQuestion = changes.question.currentValue;
-      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.correctAnswers = this.quizService.getCorrectAnswers(
+        this.currentQuestion
+      );
       this.correctMessage = this.quizService.correctMessage;
       this.multipleAnswer = this.correctAnswers.length > 1;
-      
+
       if (this.formGroup) {
-        this.formGroup.patchValue({answer: ''});
+        this.formGroup.patchValue({ answer: "" });
         this.alreadyAnswered = false;
       }
     }
@@ -70,11 +85,14 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
+    this.isCorrectAnswerSelected = this.isCorrect(
+      this.currentQuestion.options[optionIndex].correct,
+      optionIndex
+    );
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
-      this.currentQuestion.options.forEach((option) => option.selected = false);
+      this.currentQuestion.options.forEach(option => (option.selected = false));
     }
     this.currentQuestion.options[optionIndex].selected = true;
 
@@ -82,7 +100,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       optionIndex >= 0 &&
       this.currentQuestion &&
       this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex]['correct']
+      this.currentQuestion.options[optionIndex]["correct"]
     ) {
       this.sendOptionSelectedToQuizService(true);
       this.sendOptionCorrectToQuizService(true);
@@ -110,7 +128,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.quizService.setOptionSelected(optionSelected);
   }
 
-  private sendOptionCorrectToQuizService(optionCorrect: boolean ): void {
+  private sendOptionCorrectToQuizService(optionCorrect: boolean): void {
     this.quizService.setOptionCorrect(optionCorrect);
   }
 }
