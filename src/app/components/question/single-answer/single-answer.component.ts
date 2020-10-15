@@ -45,9 +45,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService
-  ) {
-    this.sendMultipleAnswerToQuizService();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.question = this.currentQuestion;
@@ -111,16 +109,11 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.optionCorrect
     );
     this.isCorrectOption = this.quizService.isCorrectOption;
-
     this.isIncorrectOption = this.quizService.isIncorrectOption;
     this.alreadyAnswered = true;
   }
 
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
-  }
-
-  private sendMultipleAnswerToQuizService(): void {
-    this.quizService.setMultipleAnswer(false);
   }
 }
