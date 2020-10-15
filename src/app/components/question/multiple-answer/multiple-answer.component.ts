@@ -116,4 +116,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
+
+  private sendMultipleAnswerToQuizService(): void {
+    this.quizService.setMultipleAnswer(this.multipleAnswe);
+  }
 }
