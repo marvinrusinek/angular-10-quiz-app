@@ -269,10 +269,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setContinueQuizId(quizId);
   }
 
-  private sendIsAnsweredToQuizService(): void {
-    this.quizService.setIsAnswered(this.isAnswered());
-  }
-
   private sendCorrectCountToQuizService(value: number): void {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
