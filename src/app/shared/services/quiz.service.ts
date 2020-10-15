@@ -211,9 +211,7 @@ export class QuizService implements OnDestroy {
     optionCorrect: boolean
   ): void {
     this.isCorrectOption = optionSelected && optionCorrect;
-    console.log("qs ico", this.isCorrectOption);
     this.isIncorrectOption = optionSelected && optionCorrect;
-    console.log("qs iico", this.isIncorrectOption);
   }
 
   setQuizStatus(value: string): void {
@@ -270,16 +268,6 @@ export class QuizService implements OnDestroy {
 
   setResources(value: Resource[]): void {
     this.resources = value;
-  }
-
-  setOptionSelected(value: boolean): void {
-    this.optionSelected = value;
-    console.log("OptionSelected:", this.optionSelected);
-  }
-
-  setOptionCorrect(value: boolean): void {
-    this.optionCorrect = value;
-    console.log("OptionCorrect: ", this.optionCorrect);
   }
 
   sendCorrectCountToResults(value: number): void {
