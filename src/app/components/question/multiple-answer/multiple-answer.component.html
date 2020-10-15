@@ -1,7 +1,7 @@
 <div class="options" *ngFor="let option of currentQuestion.options; index as i">
 	<div *ngIf="multipleAnswer">
-		<mat-checkbox (change)="setSelected(i)" [class.is-correct]=isCorrectOption
-			[class.is-incorrect]=isIncorrectOption>
+		<mat-checkbox (change)="setSelected(i)" [class.is-correct]="isCorrectOption"
+			[class.is-incorrect]="isIncorrectOption">
 
 			<mat-checkbox-label>
 				<span>{{ i + 1 }}. {{ option.text }}</span>
