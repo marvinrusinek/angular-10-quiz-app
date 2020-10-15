@@ -76,7 +76,7 @@ mat-card-footer {
   }
 
   .paging {
-    width: 640;
+    width: 640px;
     margin-bottom: 20px;
 
     mat-card-actions {
@@ -109,12 +109,12 @@ mat-card-footer {
 
       .restart-nav {
         float: left;
-        margin-left: 16rem;
+        margin-left: 255px;
       }
 
       .next-question-nav {
         float: right;
-        margin-right: -1rem;
+        margin-right: -1;
       }
 
       .prev-question-nav,
