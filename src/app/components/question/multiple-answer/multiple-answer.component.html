@@ -4,7 +4,7 @@
 			[class.is-incorrect]="isIncorrectOption">
 
 			<mat-checkbox-label>
-				<span>{{ i + 1 }}. {{ option.text }}</span>
+				{{ i + 1 }}. {{ option.text }}
 
 				<ng-container *ngIf="option.selected">
 					<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
