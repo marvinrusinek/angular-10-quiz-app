@@ -98,13 +98,11 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       optionIndex = null;
       this.optionSelected = true;
       this.optionCorrect = true;
-      
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
     } else {
       this.optionSelected = true;
       this.optionCorrect = false;
-      this.isIncorrectOption = this.quizService.isIncorrectOption;
       this.quizService.incorrectSound.play();
     }
 
@@ -112,6 +110,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected,
       this.optionCorrect
     );
+    this.isCorrectOption = this.quizService.isCorrectOption;
+    this.isIncorrectOption = this.quizService.isIncorrectOption;
     this.alreadyAnswered = true;
   }
 
