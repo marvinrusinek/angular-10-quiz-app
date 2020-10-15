@@ -30,7 +30,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   correctAnswers = [];
   correctMessage: string;
 
-  multipleAnswer: boolean;
+  multipleAnswer = false;
   alreadyAnswered: boolean;
   quizStarted: boolean;
   isAnswered: boolean;
@@ -73,7 +73,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
         this.currentQuestion
       );
       this.correctMessage = this.quizService.correctMessage;
-      this.multipleAnswer = this.correctAnswers.length > 1;
 
       if (this.formGroup) {
         this.formGroup.patchValue({ answer: "" });
