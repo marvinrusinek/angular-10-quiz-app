@@ -33,7 +33,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   multipleAnswer = true;
   alreadyAnswered: boolean;
   quizStarted: boolean;
-  isAnswered: boolean;
   isCorrectAnswerSelected: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
@@ -50,11 +49,10 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.currentQuestion = this.quizService.currentQuestion;
     this.question = this.currentQuestion;
     this.multipleAnswer = this.quizService.multipleAnswer;
     this.alreadyAnswered = this.quizService.alreadyAnswered;
-    this.isAnswered = this.quizService.isAnswered;
-    this.currentQuestion = this.quizService.currentQuestion;
     this.previousUserAnswersText = this.quizService.previousUserAnswersText;
   }
 
