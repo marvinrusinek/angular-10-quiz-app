@@ -46,7 +46,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
-    this.sendMultipleAnswerToQuizService()
+    this.sendMultipleAnswerToQuizService();
   }
 
   ngOnInit(): void {
