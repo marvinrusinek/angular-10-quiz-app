@@ -123,9 +123,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected,
       this.optionCorrect
     );
-    // this.sendOptionSelectedToQuizService(this.optionSelected);
-    // this.sendOptionCorrectToQuizService(this.optionCorrect);
-
     this.alreadyAnswered = true;
   }
 
@@ -135,13 +132,5 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
 
   private sendMultipleAnswerToQuizService(): void {
     this.quizService.setMultipleAnswer(true);
-  }
-
-  private sendOptionSelectedToQuizService(optionSelected: boolean): void {
-    this.quizService.setOptionSelected(optionSelected);
-  }
-
-  private sendOptionCorrectToQuizService(optionCorrect: boolean): void {
-    this.quizService.setOptionCorrect(optionCorrect);
   }
 }

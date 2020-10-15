@@ -106,17 +106,21 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]["correct"]
     ) {
-      this.sendOptionSelectedToQuizService(true);
-      this.sendOptionCorrectToQuizService(true);
+      optionIndex = null;
+      this.optionSelected = true;
+      this.optionCorrect = true;
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
-      optionIndex = null;
     } else {
-      this.sendOptionSelectedToQuizService(true);
-      this.sendOptionCorrectToQuizService(false);
+      this.optionSelected = true;
+      this.optionCorrect = false;
       this.quizService.incorrectSound.play();
     }
 
+    this.quizService.setIsCorrectAndIsIncorrectOption(
+      this.optionSelected,
+      this.optionCorrect
+    );
     this.alreadyAnswered = true;
   }
 
@@ -126,13 +130,5 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
 
   private sendMultipleAnswerToQuizService(): void {
     this.quizService.setMultipleAnswer(false);
-  }
-
-  private sendOptionSelectedToQuizService(optionSelected: boolean): void {
-    this.quizService.setOptionSelected(optionSelected);
-  }
-
-  private sendOptionCorrectToQuizService(optionCorrect: boolean): void {
-    this.quizService.setOptionCorrect(optionCorrect);
   }
 }
