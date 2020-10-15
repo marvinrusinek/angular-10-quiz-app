@@ -232,7 +232,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.sendQuizQuestionsToQuizService();
     this.sendQuizIdToQuizService();
     this.sendQuizStatusToQuizService();
-    this.sendResourcesToQuizService();
+    this.sendQuizResourcesToQuizService();
   }
 
   private sendQuizQuestionToQuizService(): void {
@@ -247,7 +247,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setQuestions(this.questions);
   }
 
-  private sendResourcesToQuizService(): void {
+  private sendQuizResourcesToQuizService(): void {
     this.resources = this.quizResources[this.indexOfQuizId].resources;
     this.quizService.setResources(this.resources);
   }
