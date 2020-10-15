@@ -228,22 +228,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   sendValuesToQuizService(): void {
-
-    this.sendQuestionToQuizService();
-    this.sendQuestionsToQuizService();
+    this.sendQuizQuestionToQuizService();
+    this.sendQuizQuestionsToQuizService();
     this.sendQuizIdToQuizService();
     this.sendQuizStatusToQuizService();
     this.sendResourcesToQuizService();
   }
 
-  private sendQuestionToQuizService(): void {
+  private sendQuizQuestionToQuizService(): void {
     this.question = this.quizData[this.indexOfQuizId].questions[
       this.questionIndex - 1
     ];
     this.quizService.setQuestion(this.question);
   }
 
-  private sendQuestionsToQuizService(): void {
+  private sendQuizQuestionsToQuizService(): void {
     this.questions = this.quizData[this.indexOfQuizId].questions;
     this.quizService.setQuestions(this.questions);
   }
