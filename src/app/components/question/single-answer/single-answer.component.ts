@@ -37,13 +37,8 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   isCorrectAnswerSelected: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
-
-  get isCorrectOption(): boolean {
-    return this.quizService.isCorrectOption;
-  }
-  get isIncorrectOption(): boolean {
-    return this.quizService.isIncorrectOption;
-  }
+  isCorrectOption: boolean;
+  isIncorrectOption: boolean;
 
   previousUserAnswersText: string[] = [];
 
@@ -60,12 +55,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
-
-    /* this.isCorrectOption = this.quizService.isCorrectOption;
-    console.log("IsCorrectOption: ", this.isCorrectOption);
-    this.isIncorrectOption = this.quizService.isIncorrectOption;
-    console.log("IsIncorrectOption: ", this.isCorrectOption); */
-
     this.previousUserAnswersText = this.quizService.previousUserAnswersText;
   }
 
@@ -121,6 +110,10 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected,
       this.optionCorrect
     );
+    this.isCorrectOption = this.quizService.isCorrectOption;
+    console.log("IsCorrectOption: ", this.isCorrectOption);
+    this.isIncorrectOption = this.quizService.isIncorrectOption;
+    console.log("IsIncorrectOption: ", this.isCorrectOption);
     this.alreadyAnswered = true;
   }
 
