@@ -1,38 +1,36 @@
 <div class="options" *ngFor="let option of currentQuestion.options; index as i">
-  <div *ngIf="multipleAnswer">
-    <mat-checkbox
-      (change)="setSelected(i)"
-      [class.is-correct]="isCorrectOption"
-      [class.is-incorrect]="isIncorrectOption">
+	<div *ngIf="multipleAnswer">
+		<mat-checkbox (change)="setSelected(i)" [class.is-correct]=isCorrectOption
+			[class.is-incorrect]=isIncorrectOption>
 
-      <mat-checkbox-label>
-        <span>{{ i + 1 }}. {{ option.text }}</span>
+			<mat-checkbox-label>
+				<span>{{ i + 1 }}. {{ option.text }}</span>
 
-        <ng-container *ngIf="option.selected">
-          <i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
-          <i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
-        </ng-container>
-      </mat-checkbox-label>
-    </mat-checkbox>
+				<ng-container *ngIf="option.selected">
+					<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
+					<i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
+				</ng-container>
+			</mat-checkbox-label>
+		</mat-checkbox>
 
-    <ng-container *ngIf="option.selected">
-      <div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
-        <span>
+		<ng-container *ngIf="option.selected">
+			<div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
+				<span>
           <i class="material-icons sentiment-icon">sentiment_very_satisfied</i>
           <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
-        </span>
-      </div>
-      <div *ngIf="!option.correct" class="messages">
-        <span>
+				</span>
+			</div>
+			<div *ngIf="!option.correct" class="messages">
+				<span>
           <i class="material-icons sentiment-icon">sentiment_very_dissatisfied</i>
           <span class="message wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
-        </span>
-      </div>
-      <div *ngFor="let previousUserAnswer of previousUserAnswersText; index as i" class="previous-answer-text">
-        <span *ngIf="previousUserAnswersText[i].length > 1">
+				</span>
+			</div>
+			<div *ngFor="let previousUserAnswer of previousUserAnswersText; index as i" class="previous-answer-text">
+				<span *ngIf="previousUserAnswersText[i].length > 1">
           {{ previousUserAnswer | join }} were selected in your previous quiz.
         </span>
-      </div>
-    </ng-container>
-  </div>
+			</div>
+		</ng-container>
+	</div>
 </div>
