@@ -250,10 +250,6 @@ export class QuizService implements OnDestroy {
     this.checkedShuffle = value;
   }
 
-  setIsAnswered(value: boolean): void {
-    this.isAnswered = value;
-  }
-
   setAlreadyAnswered(value: boolean): void {
     this.alreadyAnswered = value;
   }
