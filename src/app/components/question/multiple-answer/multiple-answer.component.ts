@@ -28,7 +28,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   formGroup: FormGroup;
   correctAnswers = [];
-  correctMessage: string;
+  correctMessage = "";
 
   multipleAnswer = true;
   alreadyAnswered: boolean;
