@@ -53,15 +53,17 @@ mat-card-header {
   vertical-align: middle;
 }
 
+.multiple-footer-unanswered {
+  margin-top: 200px;
+}
 
-.multiple-footer-unanswered { margin-top: 200px !important;}
-.multiple-footer-answered { margin-top: 0 !important;}
-.single-footer-unanswered { margin-top: -200px !important;}
-.single-footer-answered { margin-top: 0 !important;}
+.single-footer-unanswered {
+  margin-top: -200px;
+}
 
 mat-card-footer {
   display: block;
-  
+
   .selection-message {
     font-family: $font-stack;
     font-size: 16px;
@@ -120,7 +122,7 @@ mat-card-footer {
       .next-question-nav,
       .restart-nav {
         transform: scale(1);
-        transition: .3s ease-in-out;
+        transition: 0.3s ease-in-out;
       }
 
       .prev-question-nav:hover,

@@ -41,9 +41,7 @@
 
     <mat-card-footer
       [class.multiple-footer-unanswered]="multipleAnswer && !isAnswered()"
-      [class.multiple-footer-answered]="multipleAnswer && isAnswered()"
-      [class.single-footer-unanswered]="!multipleAnswer && !isAnswered()"
-      [class.single-footer-answered]="!multipleAnswer && isAnswered()">
+      [class.single-footer-unanswered]="!multipleAnswer && !isAnswered()">
       
       <!-- selection message -->
       <span *ngIf="!isAnswered()" class="selection-message">
