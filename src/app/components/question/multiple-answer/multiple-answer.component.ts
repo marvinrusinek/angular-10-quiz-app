@@ -37,17 +37,17 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   isCorrectAnswerSelected: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
-  isCorrectOption: boolean;
-  isIncorrectOption: boolean;
+  // isCorrectOption: boolean;
+  // isIncorrectOption: boolean;
 
-  /* get isCorrectOption(): boolean {
+  get isCorrectOption(): boolean {
     return this.quizService.isCorrectOption;
-    console.log('MA ICO', this.quizService.isCorrectOption);
+    // console.log("MA ICO", this.quizService.isCorrectOption);
   }
   get isIncorrectOption(): boolean {
     return this.quizService.isIncorrectOption;
-    console.log('MA IICO', this.quizService.isIncorrectOption);
-  } */
+    /console.log("MA IICO", this.quizService.isIncorrectOption);
+  }
 
   previousUserAnswersText: string[] = [];
 
@@ -65,10 +65,10 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.isAnswered = this.quizService.isAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
 
-    this.isCorrectOption = this.quizService.isCorrectOption;
+    /* this.isCorrectOption = this.quizService.isCorrectOption;
     console.log("IsCorrectOption: ", this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
-    console.log("IsIncorrectOption: ", this.isCorrectOption);
+    console.log("IsIncorrectOption: ", this.isCorrectOption); */
 
     this.previousUserAnswersText = this.quizService.previousUserAnswersText;
   }
