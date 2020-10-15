@@ -13,7 +13,7 @@
     font-family: $font-stack;
     font-size: 20px !important;
     color: $dark-brown;
-    background-color: $light-gray;
+    background-color: $light-gray !important;
     border: 2px solid $medium-gray;
     padding: 10px 5px 5px 30px;
     margin-left: -5px;
@@ -122,7 +122,7 @@ div.mat-radio-container {
 }
 
 .material-icons {
-  font-family: 'Material Icons';
+  font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -133,6 +133,6 @@ div.mat-radio-container {
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  -moz-font-feature-settings: 'liga';
+  -moz-font-feature-settings: "liga";
   -moz-osx-font-smoothing: grayscale;
 }
