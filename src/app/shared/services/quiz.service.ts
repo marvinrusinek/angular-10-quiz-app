@@ -207,6 +207,16 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  setIsCorrectAndIsIncorrectOption(
+    optionSelected: boolean,
+    optionCorrect: boolean
+  ): void {
+    this.isCorrectOption = optionSelected && optionCorrect;
+    console.log("qs ico", this.isCorrectOption);
+    this.isIncorrectOption = optionSelected && optionCorrect;
+    console.log("qs iico", this.isIncorrectOption);
+  }
+
   setQuizStatus(value: string): void {
     this.status = value;
   }

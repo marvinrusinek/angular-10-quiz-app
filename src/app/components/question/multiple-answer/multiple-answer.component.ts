@@ -84,11 +84,14 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    this.isCorrectAnswerSelected = this.isCorrect(this.currentQuestion.options[optionIndex].correct, optionIndex);
+    this.isCorrectAnswerSelected = this.isCorrect(
+      this.currentQuestion.options[optionIndex].correct,
+      optionIndex
+    );
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
-      this.currentQuestion.options.forEach((option) => option.selected = false);
+      this.currentQuestion.options.forEach(option => (option.selected = false));
     }
     this.currentQuestion.options[optionIndex].selected = true;
 
@@ -96,7 +99,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       optionIndex >= 0 &&
       this.currentQuestion &&
       this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex]['correct']
+      this.currentQuestion.options[optionIndex]["correct"]
     ) {
       optionIndex = null;
       this.optionSelected = true;
@@ -109,7 +112,10 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.quizService.incorrectSound.play();
     }
 
-    this.quizService.setIsCorrectAndIsIncorrectOption(this.optionSelected, this.optionCorrect);
+    this.quizService.setIsCorrectAndIsIncorrectOption(
+      this.optionSelected,
+      this.optionCorrect
+    );
     // this.sendOptionSelectedToQuizService(this.optionSelected);
     // this.sendOptionCorrectToQuizService(this.optionCorrect);
 
