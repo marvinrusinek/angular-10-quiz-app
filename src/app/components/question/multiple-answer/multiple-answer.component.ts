@@ -42,9 +42,11 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
 
   /* get isCorrectOption(): boolean {
     return this.quizService.isCorrectOption;
+    console.log('MA ICO', this.quizService.isCorrectOption);
   }
   get isIncorrectOption(): boolean {
     return this.quizService.isIncorrectOption;
+    console.log('MA IICO', this.quizService.isIncorrectOption);
   } */
 
   previousUserAnswersText: string[] = [];
