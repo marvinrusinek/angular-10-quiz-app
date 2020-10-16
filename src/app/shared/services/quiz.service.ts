@@ -57,12 +57,12 @@ export class QuizService implements OnDestroy {
   isIncorrectOption: boolean;
 
   correctSound = new Howl({
-    src: "../../../assets/audio/sound-correct.mp3",
+    src: "http://www.marvinrusinek.com/sound-correct.mp3",
     html5: true,
     format: ["mp3"]
   });
   incorrectSound = new Howl({
-    src: "../../../assets/audio/sound-incorrect.mp3",
+    src: "http://www.marvinrusinek.com/sound-icorrect.mp3",
     html5: true,
     format: ["mp3"]
   });
