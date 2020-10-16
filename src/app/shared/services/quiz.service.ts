@@ -53,8 +53,7 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
 
-  optionSelected = true;
-  optionCorrect = true;
+
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
 
