@@ -204,10 +204,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setIsCorrectAndIsIncorrectOption(
-    optionSelected: boolean,
-    optionCorrect: boolean
-  ): void {
+  setOptions(optionSelected: boolean, optionCorrect: boolean): void {
     this.isCorrectOption = optionSelected && optionCorrect;
     this.isIncorrectOption = optionSelected && !optionCorrect;
   }
