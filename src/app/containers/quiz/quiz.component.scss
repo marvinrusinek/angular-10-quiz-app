@@ -64,15 +64,18 @@ mat-card-header {
 mat-card-footer {
   display: block;
 
-  .selection-message {
+  .selection-message,
+  .next-message {
     font-family: $font-stack;
     font-size: 16px;
     font-weight: bold;
     font-style: italic;
     display: flex;
     justify-content: center;
-    margin-top: -200px;
-    margin-bottom: 20px;
+  }
+  .selection-message {
+    margin-top: -200px !important;
+    margin-bottom: 20px !important;
   }
 
   .paging {
