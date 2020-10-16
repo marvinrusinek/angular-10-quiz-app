@@ -52,7 +52,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.question = this.currentQuestion;
     this.multipleAnswer = this.quizService.multipleAnswer;
     this.alreadyAnswered = this.quizService.alreadyAnswered;
-
     this.currentQuestion = this.quizService.currentQuestion;
     this.previousUserAnswersText = this.quizService.previousUserAnswersText;
   }
@@ -105,10 +104,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.quizService.incorrectSound.play();
     }
 
-    this.quizService.setIsCorrectAndIsIncorrectOption(
-      this.optionSelected,
-      this.optionCorrect
-    );
+    this.quizService.setOptions(this.optionSelected, this.optionCorrect);
     this.isCorrectOption = this.quizService.isCorrectOption;
     this.isIncorrectOption = this.quizService.isIncorrectOption;
     this.alreadyAnswered = true;
