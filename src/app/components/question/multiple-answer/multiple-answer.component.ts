@@ -110,7 +110,8 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     );
     this.isCorrectOption = this.quizService.isCorrectOption;
     this.isIncorrectOption = this.quizService.isIncorrectOption;
-    
+    console.log("ico", this.isCorrectOption);
+    console.log("iico", this.isIncorrectOption);
     this.alreadyAnswered = true;
   }
 
