@@ -30,14 +30,14 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   correctAnswers = [];
   correctMessage = "";
 
-  multipleAnswer = true;
-  alreadyAnswered: boolean;
   quizStarted: boolean;
+  alreadyAnswered: boolean;
   isCorrectAnswerSelected: boolean;
-  optionSelected: boolean;
-  optionCorrect: boolean;
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
+  optionSelected = false;
+  optionCorrect = false;
+  multipleAnswer = true;
 
   previousUserAnswersText: string[] = [];
 
