@@ -39,7 +39,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   optionCorrect = false;
   multipleAnswer = true;
 
-  previousUserAnswersText: string[] = [];
+  previousAnswers: string[] = [];
 
   constructor(
     private quizService: QuizService,
@@ -53,7 +53,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.question = this.currentQuestion;
     this.multipleAnswer = this.quizService.multipleAnswer;
     this.alreadyAnswered = this.quizService.alreadyAnswered;
-    this.previousUserAnswersText = this.quizService.previousUserAnswersText;
+    this.previousAnswers = this.quizService.previousUserAnswersText;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

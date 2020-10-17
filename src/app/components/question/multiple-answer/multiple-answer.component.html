@@ -26,9 +26,9 @@
           <span class="message wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
 				</span>
 			</div>
-			<div *ngFor="let previousUserAnswer of previousUserAnswersText; index as j" class="previous-answer-text">
-				<span *ngIf="previousUserAnswersText[j].length > 1">
-          {{ previousUserAnswer | join }} were selected in your previous quiz.
+			<div *ngFor="let previousAnswer of previousAnswers; index as j" class="previous-answer-text">
+				<span *ngIf="previousAnswers[j].length > 1">
+          {{ previousAnswer | join }} were selected in your previous quiz.
         </span>
 			</div>
 		</ng-container>
