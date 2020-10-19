@@ -3,15 +3,29 @@
 
 .score {
   float: left;
-  margin-left: 1rem;
+  margin-left: 2rem;
 
-  .leader {
-    margin-left: 15px;
-    margin-top: 5px;
-  }
+  .mat-menu {
+    margin-left: -40px;
 
-  span.scoreboard {
-    margin: 5px 0 0 0px;
-    margin-left: 20px;
+    .leader,
+    span.scoreboard {
+      margin: 0 0 0 40px;
+    }
   }
+}
+
+.scoreboard-score {
+  margin-left: 5px;
+  margin-top: -10px;
+}
+
+mat-toolbar {
+  background: $white;
+}
+mat-toolbar:hover {
+  background-color: $white !important;
+}
+mat-toolbar .leader {
+  margin-left: -35px !important;
 }

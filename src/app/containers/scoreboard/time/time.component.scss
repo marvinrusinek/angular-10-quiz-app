@@ -3,14 +3,29 @@
 
 .time-left {
   float: right;
-  margin-right: 1.5rem;
+  width: 150px;
 
-  .leader {
-    margin-top: 5px;
-    margin-left: 35px;
-  }
+  .mat-menu {
+    margin-left: -60px;
 
-  span.scoreboard {
-    margin: 0px 0 0 35px;
+    .leader,
+    span.scoreboard {
+      margin: 0 0 0 -40px !important;
+    }
   }
+}
+
+.scoreboard-timer {
+  margin-left: -10px;
+  margin-top: -10px;
+}
+
+mat-toolbar {
+  background-color: $white;
+}
+mat-toolbar:hover {
+  background-color: $white !important;
+}
+mat-toolbar .leader {
+  margin-left: -40px !important;
 }

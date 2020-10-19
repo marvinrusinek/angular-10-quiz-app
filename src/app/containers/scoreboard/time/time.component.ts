@@ -74,4 +74,31 @@ export class TimeComponent implements OnChanges {
         )
       );
   }
+
+  stopwatch(): void {
+    this.start$ = this.timerService.start$;
+    this.reset$ = this.timerService.reset$;
+    this.stop$ = this.timerService.stop$;
+
+    this.timeLeft$ = concat(this.start$.pipe(first()))
+      .pipe(
+        switchMapTo(
+          timer(0, 1000).pipe(
+            scan(acc => (acc < 10 ? `0${acc + 1}` : acc + 1), 0)
+          )
+        ),
+        takeUntil(this.stop$.pipe(skip(1))),
+        repeatWhen(completeSubj =>
+          completeSubj.pipe(
+            switchMapTo(
+              this.start$.pipe(
+                skip(1),
+                first()
+              )
+            )
+          )
+        )
+      )
+      .pipe(tap((value: number) => this.timerService.setElapsed(value)));
+  }
 }
