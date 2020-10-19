@@ -16,7 +16,7 @@
 	</div>
 	<section class="scoreboard-timer">
 		<span class="scoreboard" i18n>
-      0:{{ timeLeft$ | async }}
+      0:{{ timeLeft$ | async | number: '2.0-0' }}
     </span>
 	</section>
 </ng-container>
