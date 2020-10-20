@@ -1,10 +1,10 @@
 <ng-container class="time-left">
 	<div class="mat-menu">
 		<mat-toolbar>
-			<button mat-button [matMenuTriggerFor]="menu" aria-label="timer menu">
+			<button mat-button [matMenuTriggerFor]="timerMenu" aria-label="timer menu">
         <span class="leader "i18n>Timer &#x25BC;</span>
       </button>
-			<mat-menu #menu="matMenu" xPosition="before">
+			<mat-menu #timerMenu="matMenu" xPosition="before">
 				<button mat-menu-item name="countdown" data-i18n="countdown" (click)="countdown()">
           Countdown
         </button>

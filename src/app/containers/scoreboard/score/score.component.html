@@ -1,10 +1,10 @@
 <ng-container class="score">
 	<div class="mat-menu">
 		<mat-toolbar>
-			<button mat-button [matMenuTriggerFor]="menu" aria-label="score menu">
+			<button mat-button [matMenuTriggerFor]="scoreMenu" aria-label="score menu">
         <span class="leader" i18n>Score &#x25BC;</span>
       </button>
-			<mat-menu #menu="matMenu" xPosition="before">
+			<mat-menu #scoreMenu="matMenu" xPosition="before">
 				<button mat-menu-item name="numerical" data-i18n="numerical" (click)="numericalScore">
           Numerical
         </button>
