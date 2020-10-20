@@ -1,5 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Observable, of, Subscription } from "rxjs";
+import { Observable, Subject, Subscription } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import "rxjs/add/observable/of";
 
 import { QuizService } from "../../../shared/services/quiz.service";
 
@@ -15,39 +17,39 @@ export class ScoreComponent implements OnInit {
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
   correctAnswersCount: number;
+  unsubscribe$ = new Subject<void>();
 
-  constructor(private quizService: QuizService) {
-      this.numericalScore();
-  }
+  constructor(private quizService: QuizService) {}
 
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
     this.totalQuestions = this.quizService.totalQuestions;
+    this.numericalScore();
   }
 
   numericalScore(): void {
-    this.correctAnswersCountSubscription = this.correctAnswersCount$.subscribe(
-      (correctAnswersCount: number) => {
+    this.correctAnswersCountSubscription = this.correctAnswersCount$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-      }
-    );
-    this.score =
-      this.correctAnswersCount.toString() +
-      "/" +
-      this.totalQuestions.toString();
-    this.score$ = of(this.score); // numerical score not showing
+        this.score =
+          this.correctAnswersCount.toString() +
+          "/" +
+          this.totalQuestions.toString();
+        this.score$ = Observable.of(this.score);
+      });
   }
 
   percentageScore(): void {
-    this.correctAnswersCountSubscription = this.correctAnswersCount$.subscribe(
-      (correctAnswersCount: number) => {
+    this.correctAnswersCountSubscription = this.correctAnswersCount$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-      }
-    );
-    this.score =
-      Math.ceil(
-        (this.correctAnswersCount / this.totalQuestions) * 100
-      ).toString() + "%";
-    this.score$ = of(this.score); // doesn't seem to increase when question is answered correctly
+        this.score =
+          Math.ceil(
+            (this.correctAnswersCount / this.totalQuestions) * 100
+          ).toString() + "%";
+        this.score$ = Observable.of(this.score);
+      });
   }
 }
