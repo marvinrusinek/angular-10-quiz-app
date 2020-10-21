@@ -41,8 +41,8 @@ export class QuizService implements OnDestroy {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
 
   userAnswers = [];
-  previousUserAnswersText = [];
-  previousUserAnswersInnerText: string[] = [];
+  previousAnswers = [];
+  previousAnswersMultipleTextArray: string[] = [];
 
   explanationText: string;
   correctOptions: string;
@@ -182,24 +182,23 @@ export class QuizService implements OnDestroy {
   }
 
   // set the text of the previous user answers in an array to show in the following quiz
-  setPreviousUserAnswersText(
-    questions: QuizQuestion[],
-    previousUserAnswers
-  ): void {
-    for (let i = 0; i < previousUserAnswers.length; i++) {
-      if (previousUserAnswers[i].length === 1) {
-        const previousAnswersString =
-          questions[i].options[previousUserAnswers[i] - 1].text;
-        this.previousUserAnswersText.push(previousAnswersString);
+  setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {
+    for (let i = 0; i < previousAnswers.length; i++) {
+      if (previousAnswers[i].length === 1) {
+        const previousAnswersSingleText =
+          questions[i].options[previousAnswers[i] - 1].text;
+        this.previousAnswers.push(previousAnswersSingleText);
       }
-      if (previousUserAnswers[i].length > 1) {
-        const previousAnswerOptionsInner = previousUserAnswers[i].slice();
-        for (let j = 0; j < previousAnswerOptionsInner.length; j++) {
-          const previousAnswersInnerString =
-            questions[i].options[previousAnswerOptionsInner[j] - 1].text;
-          this.previousUserAnswersInnerText.push(previousAnswersInnerString);
+      if (previousAnswers[i].length > 1) {
+        const previousAnswerMultiple = previousAnswers[i].slice();
+        for (let j = 0; j < previousAnswerMultiple.length; j++) {
+          const previousAnswersMultipleText =
+            questions[i].options[previousAnswerMultiple[j] - 1].text;
+          this.previousAnswersMultipleTextArray.push(
+            previousAnswersMultipleText
+          );
         }
-        this.previousUserAnswersText.push(this.previousUserAnswersInnerText);
+        this.previousAnswers.push(this.previousAnswersMultipleTextArray);
       }
     }
   }
