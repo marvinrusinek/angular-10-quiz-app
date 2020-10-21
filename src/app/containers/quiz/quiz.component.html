@@ -37,7 +37,7 @@
 
 		<mat-card-footer [class.multiple-unanswered]="multipleAnswer && !isAnswered()"
 			[class.single-unanswered]="!multipleAnswer && !isAnswered()">
-      
+
 			<!-- selection message/next message -->
 			<ng-container *ngIf="!isAnswered(); else answered">
 				<span i18n class="selection-message">
@@ -46,7 +46,7 @@
 			</ng-container>
 			<ng-template #answered>
 				<span i18 class="next-message" *ngIf="question && questionIndex !== totalQuestions">
-          Please click &ldquo;Next&rdquo; to continue&hellip;
+          Please click the next button to continue&hellip;
         </span>
 			</ng-template>
 
