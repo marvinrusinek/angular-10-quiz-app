@@ -39,6 +39,13 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   optionCorrect = false;
   multipleAnswer = true;
 
+  /* get isCorrectOption(): boolean {
+    return this.quizService.isCorrectOption;
+  }
+  get isIncorrectOption(): boolean {
+    return this.quizService.isCorrectOption;
+  } */
+
   previousAnswers: string[] = [];
 
   constructor(
@@ -105,9 +112,9 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     }
 
     this.quizService.setOptions(this.optionSelected, this.optionCorrect);
-    this.isCorrectOption = this.quizService.isCorrectOption;
+    // this.isCorrectOption = this.quizService.isCorrectOption;
     console.log("isCorrectOption:", this.isCorrectOption);
-    this.isIncorrectOption = this.quizService.isIncorrectOption;
+    // this.isIncorrectOption = this.quizService.isIncorrectOption;
     console.log("isIncorrectOption:", this.isIncorrectOption);
     this.alreadyAnswered = true;
   }
