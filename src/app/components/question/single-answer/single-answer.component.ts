@@ -39,7 +39,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   optionCorrect = false;
   multipleAnswer = true;
 
-  previousUserAnswersText: string[] = [];
+  previousAnswers: string[] = [];
 
   constructor(
     private quizService: QuizService,
@@ -53,7 +53,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.multipleAnswer = this.quizService.multipleAnswer;
     this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.currentQuestion = this.quizService.currentQuestion;
-    this.previousUserAnswersText = this.quizService.previousUserAnswersText;
+    this.previousAnswers = this.quizService.previousAnswers;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
