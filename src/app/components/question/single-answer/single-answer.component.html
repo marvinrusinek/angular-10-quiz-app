@@ -27,8 +27,8 @@
 				</span>
 			</div>
 			<!-- TODO: get this working! RESOLVE THIS TODO -->
-			<div *ngFor="let previousAnswer of previousAnswers; index as i" class="previous-answer-text">
-				<span *ngIf="previousAnswers[i].length === 1">
+			<div *ngFor="let previousAnswer of previousAnswers; index as j" class="previous-answer-text">
+				<span *ngIf="previousAnswers[j].length === 1">
           &ldquo;{{ previousAnswer }}&rdquo; was selected in your previous quiz.
         </span>
 			</div>
