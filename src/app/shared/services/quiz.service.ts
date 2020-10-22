@@ -6,7 +6,7 @@ import "rxjs/add/observable/of";
 import { Howl } from "howler";
 
 import { QUIZ_DATA } from "../../shared/quiz";
-import { Option } from "../../shared/models/Option.model";
+
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
 import { Resource } from "../../shared/models/Resource.model";
@@ -53,7 +53,6 @@ export class QuizService implements OnDestroy {
   alreadyAnswered: boolean;
   checkedShuffle: boolean;
   unsubscribe$ = new Subject<void>();
-  option: Option;
 
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
@@ -80,12 +79,6 @@ export class QuizService implements OnDestroy {
       elem => elem.quizId === this.quizId
     );
     this.returnQuizSelectionParams();
-  }
-
-  setOption(value: Option) {
-    this.option = value;
-    this.isCorrectOption = this.option.selected && this.option.correct;
-    this.isIncorrectOption = this.option.selected && !this.option.correct;
   }
 
   ngOnDestroy(): void {
@@ -211,10 +204,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* setOptions(optionSelected: boolean, optionCorrect: boolean): void {
+  setOptions(optionSelected: boolean, optionCorrect: boolean): void {
     this.isCorrectOption = optionSelected && optionCorrect;
     this.isIncorrectOption = optionSelected && !optionCorrect;
-  } */
+  }
 
   setQuizStatus(value: string): void {
     this.status = value;
