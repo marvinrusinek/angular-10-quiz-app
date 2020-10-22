@@ -32,7 +32,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
   correctMessage = "";
   isCorrectAnswerSelected = false;
-  isAnswered: boolean;
   optionSelected: boolean;
   optionCorrect: boolean;
 
@@ -48,7 +47,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.question = this.currentQuestion;
     this.correctMessage = this.quizService.correctMessage;
-    this.isAnswered = this.quizService.isAnswered;
     this.sendCurrentQuestionToQuizService();
   }
 
