@@ -39,13 +39,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   optionCorrect = false;
   multipleAnswer = true;
 
-  /* get isCorrectOption(): boolean {
-    return this.quizService.isCorrectOption;
-  }
-  get isIncorrectOption(): boolean {
-    return this.quizService.isCorrectOption;
-  } */
-
   previousAnswers: string[] = [];
 
   constructor(
