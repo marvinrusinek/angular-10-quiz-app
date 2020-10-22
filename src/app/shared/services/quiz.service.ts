@@ -18,10 +18,9 @@ export class QuizService implements OnDestroy {
   quizData: Quiz[] = QUIZ_DATA;
   question: QuizQuestion;
   questions: QuizQuestion[];
-  resources: Resource[];
   currentQuestion: QuizQuestion;
+  resources: Resource[];
   answers: number[];
-  multipleAnswer: boolean;
   totalQuestions: number;
   currentQuestionIndex = 1;
 
@@ -49,13 +48,13 @@ export class QuizService implements OnDestroy {
   correctOptions: string;
   correctMessage: string;
 
-  isAnswered: boolean;
+  multipleAnswer: boolean;
   alreadyAnswered: boolean;
   checkedShuffle: boolean;
-  unsubscribe$ = new Subject<void>();
-
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
+
+  unsubscribe$ = new Subject<void>();
 
   correctSound = new Howl({
     src: "http://www.marvinrusinek.com/sound-correct.mp3",
