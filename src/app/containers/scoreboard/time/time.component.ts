@@ -6,6 +6,7 @@ import {
   scan,
   skip,
   switchMapTo,
+  take,
   takeUntil,
   tap
 } from "rxjs/operators";
@@ -82,7 +83,11 @@ export class TimeComponent implements OnChanges {
 
     this.timeLeft$ = concat(this.start$.pipe(first()))
       .pipe(
-        switchMapTo(timer(0, 1000).pipe(scan(acc => acc + 1, 0))),
+        switchMapTo(
+          timer(0, 1000).pipe(
+            scan(acc => acc + 1, 0).take(this.timePerQuestion)
+          )
+        ),
         takeUntil(this.stop$.pipe(skip(1))),
         repeatWhen(completeSubj =>
           completeSubj.pipe(
