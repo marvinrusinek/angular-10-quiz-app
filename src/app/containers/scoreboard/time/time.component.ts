@@ -85,7 +85,8 @@ export class TimeComponent implements OnChanges {
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
-            scan(acc => acc + 1, 0).take(this.timePerQuestion)
+            scan(acc => acc + 1, 0),
+            take(this.timePerQuestion)
           )
         ),
         takeUntil(this.stop$.pipe(skip(1))),
