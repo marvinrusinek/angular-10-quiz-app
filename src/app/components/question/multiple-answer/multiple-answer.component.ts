@@ -94,11 +94,17 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.currentQuestion.options[optionIndex]["correct"]
     ) {
       optionIndex = null;
-      this.optionCorrect = true;
+      this.optionSelected = this.currentQuestion.options[optionIndex].selected;
+      this.optionCorrect = this.currentQuestion.options[
+        optionIndex
+      ].correct = true;
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
     } else {
-      this.optionCorrect = false;
+      this.optionSelected = this.currentQuestion.options[optionIndex].selected;
+      this.optionCorrect = this.currentQuestion.options[
+        optionIndex
+      ].correct = false;
       this.quizService.incorrectSound.play();
     }
 
