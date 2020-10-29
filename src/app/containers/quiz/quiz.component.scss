@@ -39,16 +39,15 @@ mat-card-header {
 
 #question {
   font-family: $font-stack;
+  font-size: 30px;
   font-weight: 700;
-  font-size: 30px !important;
-  margin: 0 0 10px 0.4rem;
-  margin-bottom: 35px !important;
+  margin: 0 0 1px 6.5px;
   float: left;
   padding: 5px 10px 15px 20px;
   background-color: $light-gray;
   border: 2px solid $vivid-blue;
   color: $dark-brown;
-  width: 630px !important;
+  width: 630px;
   height: auto;
   vertical-align: middle;
 }
