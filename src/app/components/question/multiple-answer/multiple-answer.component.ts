@@ -30,6 +30,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   formGroup: FormGroup;
   correctAnswers = [];
   correctMessage = "";
+  previousAnswers: string[] = [];
 
   quizStarted: boolean;
   alreadyAnswered: boolean;
@@ -38,8 +39,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   isIncorrectOption: boolean;
   optionSelected: Option;
   multipleAnswer = true;
-
-  previousAnswers: string[] = [];
 
   constructor(
     private quizService: QuizService,
@@ -83,7 +82,10 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
-      this.currentQuestion.options.forEach(option => (option.selected = false));
+      this.currentQuestion.options.forEach(option => {
+        option.selected = false;
+        option.className = "";
+      });
     }
     this.currentQuestion.options[optionIndex].selected = true;
 
@@ -96,6 +98,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected = this.currentQuestion.options[optionIndex];
       this.optionSelected.selected = true;
       this.optionSelected.correct = true;
+      this.optionSelected.className = "is-correct";
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
       optionIndex = null;
@@ -103,6 +106,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected = this.currentQuestion.options[optionIndex];
       this.optionSelected.selected = true;
       this.optionSelected.correct = false;
+      this.optionSelected.className = "is-incorrect";
       this.quizService.incorrectSound.play();
     }
 
