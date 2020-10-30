@@ -111,7 +111,9 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected.correct
     );
     this.isCorrectOption = this.quizService.isCorrectOption;
+    console.log(this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
+    console.log(this.isIncorrectOption);
     this.alreadyAnswered = true;
   }
 
