@@ -16,9 +16,9 @@ import { QuizService } from "../../../shared/services/quiz.service";
 import { TimerService } from "../../../shared/services/timer.service";
 
 @Component({
-  selector: 'codelab-question-single-answer',
-  templateUrl: './single-answer.component.html',
-  styleUrls: ['./single-answer.component.scss'],
+  selector: "codelab-question-single-answer",
+  templateUrl: "./single-answer.component.html",
+  styleUrls: ["./single-answer.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom
 })
@@ -28,7 +28,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   formGroup: FormGroup;
   correctAnswers = [];
-  correctMessage = '';
+  correctMessage = "";
   previousAnswers: string[] = [];
 
   alreadyAnswered: boolean;
@@ -55,13 +55,18 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.question && changes.question.currentValue !== changes.question.firstChange) {
+    if (
+      changes.question &&
+      changes.question.currentValue !== changes.question.firstChange
+    ) {
       this.currentQuestion = changes.question.currentValue;
-      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.correctAnswers = this.quizService.getCorrectAnswers(
+        this.currentQuestion
+      );
       this.correctMessage = this.quizService.correctMessage;
 
       if (this.formGroup) {
-        this.formGroup.patchValue({answer: ''});
+        this.formGroup.patchValue({ answer: "" });
         this.alreadyAnswered = false;
       }
     }
@@ -104,7 +109,10 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.quizService.incorrectSound.play();
     }
 
-    this.quizService.setOptions(this.optionSelected.selected, this.optionSelected.correct);
+    this.quizService.setOptions(
+      this.optionSelected.selected,
+      this.optionSelected.correct
+    );
     this.isCorrectOption = this.quizService.isCorrectOption;
     console.log(this.isCorrectOption);
     this.isIncorrectOption = this.quizService.isIncorrectOption;
