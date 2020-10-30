@@ -11,6 +11,7 @@ import {
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 
+import { Option } from "../../../shared/models/Option.model";
 import { QuizQuestion } from "../../../shared/models/QuizQuestion.model";
 import { QuizService } from "../../../shared/services/quiz.service";
 import { TimerService } from "../../../shared/services/timer.service";
@@ -35,8 +36,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   isCorrectAnswerSelected: boolean;
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
-  optionSelected = false;
-  optionCorrect = false;
+  optionSelected: Option;
   multipleAnswer = true;
 
   previousAnswers: string[] = [];
@@ -93,26 +93,23 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]["correct"]
     ) {
-      this.optionSelected = this.currentQuestion.options[
-        optionIndex
-      ].selected = true;
-      this.optionCorrect = this.currentQuestion.options[
-        optionIndex
-      ].correct = true;
+      this.optionSelected = this.currentQuestion.options[optionIndex];
+      this.optionSelected.selected = true;
+      this.optionSelected.correct = true;
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
       optionIndex = null;
     } else {
-      this.optionSelected = this.currentQuestion.options[
-        optionIndex
-      ].selected = true;
-      this.optionCorrect = this.currentQuestion.options[
-        optionIndex
-      ].correct = false;
+      this.optionSelected = this.currentQuestion.options[optionIndex];
+      this.optionSelected.selected = true;
+      this.optionSelected.correct = false;
       this.quizService.incorrectSound.play();
     }
 
-    this.quizService.setOptions(this.optionSelected, this.optionCorrect);
+    this.quizService.setOptions(
+      this.optionSelected.selected,
+      this.optionSelected.correct
+    );
     this.isCorrectOption = this.quizService.isCorrectOption;
     this.isIncorrectOption = this.quizService.isIncorrectOption;
     this.alreadyAnswered = true;
