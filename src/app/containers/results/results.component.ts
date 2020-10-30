@@ -18,7 +18,6 @@ export class ResultsComponent implements OnInit, OnDestroy {
   quizId: string;
   indexOfQuizId: number;
   unsubscribe$ = new Subject<void>();
-  // previousUserAnswers: any[] = [];
 
   constructor(
     private quizService: QuizService,
