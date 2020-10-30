@@ -102,7 +102,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.quizService.correctSound.play();
       optionIndex = null;
     } else {
-
       this.optionSelected.selected = true;
       this.optionSelected.correct = false;
       this.optionSelected.className = "is-incorrect";

@@ -88,6 +88,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       });
     }
     this.currentQuestion.options[optionIndex].selected = true;
+    this.optionSelected = this.currentQuestion.options[optionIndex];
 
     if (
       optionIndex >= 0 &&
@@ -95,7 +96,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]["correct"]
     ) {
-      this.optionSelected = this.currentQuestion.options[optionIndex];
       this.optionSelected.selected = true;
       this.optionSelected.correct = true;
       this.optionSelected.className = "is-correct";
@@ -103,7 +103,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.quizService.correctSound.play();
       optionIndex = null;
     } else {
-      this.optionSelected = this.currentQuestion.options[optionIndex];
+
       this.optionSelected.selected = true;
       this.optionSelected.correct = false;
       this.optionSelected.className = "is-incorrect";
