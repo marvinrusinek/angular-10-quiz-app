@@ -21,17 +21,9 @@
     &:hover {
       border: 2px solid $vivid-blue;
     }
-  }
-
-  mat-radio-button:first-child {
-    margin-top: -25px;
-  }
-
-  mat-radio-label {
-    white-space: normal;
-    margin-top: 5px;
-
-    
+    &:first-child {
+      margin-top: -25px;
+    }
   }
 
   .is-correct {
@@ -40,6 +32,11 @@
 
   .is-incorrect {
     background-color: $red;
+  }
+
+  span {
+    white-space: normal;
+    margin-top: 5px;
   }
 }
 
