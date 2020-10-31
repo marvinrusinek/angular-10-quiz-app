@@ -32,8 +32,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctAnswers = [];
   correctMessage = "";
   isCorrectAnswerSelected = false;
-  optionSelected: boolean;
-  optionCorrect: boolean;
+  optionSelected: Option;
+
 
   constructor(
     private quizService: QuizService,
@@ -68,10 +68,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  isCorrect(correct: boolean, optionIndex: number): boolean {
-    return correct === this.currentQuestion.options[optionIndex].correct;
-  }
-
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
     this.isCorrectAnswerSelected = this.isCorrect(
@@ -81,11 +77,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
-      this.currentQuestion.options.forEach(
-        (option: Option) => (option.selected = false)
-      );
+      this.currentQuestion.options.forEach(option => {
+        option.selected = false;
+        option.className = "";
+      });
     }
     this.currentQuestion.options[optionIndex].selected = true;
+    this.optionSelected = this.currentQuestion.options[optionIndex];
 
     if (
       optionIndex >= 0 &&
@@ -93,18 +91,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]["correct"]
     ) {
-      optionIndex = null;
-      this.optionSelected = true;
-      this.optionCorrect = true;
+      this.optionSelected.className = "is-correct";
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
+      optionIndex = null;
     } else {
-      this.optionSelected = true;
-      this.optionCorrect = false;
+      this.optionSelected.className = "is-incorrect";
       this.quizService.incorrectSound.play();
     }
 
     this.alreadyAnswered = true;
+  }
+
+  isCorrect(correct: boolean, optionIndex: number): boolean {
+    return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
   private sendCurrentQuestionToQuizService(): void {
