@@ -51,8 +51,7 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
   checkedShuffle: boolean;
-  isCorrectOption: boolean;
-  isIncorrectOption: boolean;
+
 
   unsubscribe$ = new Subject<void>();
 

@@ -26,14 +26,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   formGroup: FormGroup;
+  optionSelected: Option;
+
   quizStarted: boolean;
   multipleAnswer: boolean;
   alreadyAnswered = false;
   correctAnswers = [];
   correctMessage = "";
   isCorrectAnswerSelected = false;
-  optionSelected: Option;
-
 
   constructor(
     private quizService: QuizService,
