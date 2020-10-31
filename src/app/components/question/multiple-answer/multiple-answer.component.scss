@@ -21,13 +21,21 @@
     &:hover {
       border: 2px solid $vivid-blue;
     }
+
+    &:first-child {
+      margin-top: -25px;
+    }
   }
 
-  mat-checkbox:first-child {
-    margin-top: -25px;
+  .correct {
+    background-color: $green;
   }
 
-  mat-checkbox-label {
+  .incorrect {
+    background-color: $red;
+  }
+
+  span {
     white-space: normal;
     margin-top: 5px;
 
@@ -36,14 +44,6 @@
       right: 40px;
       margin-top: -30px;
     }
-  }
-
-  .is-correct {
-    background-color: $green;
-  }
-
-  .is-incorrect {
-    background-color: $red;
   }
 }
 
