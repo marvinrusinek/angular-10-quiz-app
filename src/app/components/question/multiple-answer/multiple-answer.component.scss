@@ -21,10 +21,6 @@
     &:hover {
       border: 2px solid $vivid-blue;
     }
-
-    &:first-child {
-      margin-top: -25px;
-    }
   }
 
   .correct {
@@ -33,6 +29,10 @@
 
   .incorrect {
     background-color: $red;
+  }
+
+  mat-checkbox:first-child {
+    margin-top: -25px;
   }
 
   span {
@@ -80,6 +80,7 @@
     display: inline-flex;
     justify-content: center;
     vertical-align: middle;
+    background-color: transparentize($light-gray, 0.5);
   }
 
   .correct-message {
