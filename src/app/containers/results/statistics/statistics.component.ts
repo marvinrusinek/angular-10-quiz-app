@@ -1,24 +1,29 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit
+} from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Observable, Subject } from "rxjs";
+import { map, takeUntil } from "rxjs/operators";
 
-import { Quiz } from '../../../shared/models/Quiz.model';
-import { QuizMetadata } from '../../../shared/models/QuizMetadata.model';
-import { Resource } from '../../../shared/models/Resource.model';
-import { QuizService } from '../../../shared/services/quiz.service';
-import { TimerService } from '../../../shared/services/timer.service';
+import { Quiz } from "../../../shared/models/Quiz.model";
+import { QuizMetadata } from "../../../shared/models/QuizMetadata.model";
+import { Resource } from "../../../shared/models/Resource.model";
+import { QuizService } from "../../../shared/services/quiz.service";
+import { TimerService } from "../../../shared/services/timer.service";
 
 enum Status {
-  Started = 'Started',
-  Continue = 'Continue',
-  Completed = 'Completed'
+  Started = "Started",
+  Continue = "Continue",
+  Completed = "Completed"
 }
 
 @Component({
-  selector: 'codelab-results-statistics',
-  templateUrl: './statistics.component.html',
-  styleUrls: ['./statistics.component.scss'],
+  selector: "codelab-results-statistics",
+  templateUrl: "./statistics.component.html",
+  styleUrls: ["./statistics.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatisticsComponent implements OnInit, OnDestroy {
@@ -30,17 +35,21 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     totalQuestionsAttempted: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
     percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
-    completionTime: this.timerService.calculateTotalElapsedTime(this.timerService.elapsedTimes)
+    completionTime: this.timerService.calculateTotalElapsedTime(
+      this.timerService.elapsedTimes
+    )
   };
   resources: Resource[];
   status: Status;
   elapsedMinutes: number;
   elapsedSeconds: number;
 
-  imagePath = '../../assets/images/results/';
-  CONGRATULATIONS = this.imagePath.concat('congrats.gif');
-  NOT_BAD = this.imagePath.concat('not-bad.jpg');
-  TRY_AGAIN = this.imagePath.concat('try-again.jpeg');
+  CONGRATULATIONS =
+    "https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/congratulations.jpg";
+  NOT_BAD =
+    "https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/not-bad.jpg";
+  TRY_AGAIN =
+    "https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/try-again.jpeg";
 
   unsubscribe$ = new Subject<void>();
 
@@ -56,10 +65,12 @@ export class StatisticsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    this.quizName$ = this.activatedRoute.url.pipe(map(segments => segments[1].toString()));
+    this.quizName$ = this.activatedRoute.url.pipe(
+      map(segments => segments[1].toString())
+    );
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
-        .subscribe(params => this.quizId = params.get('quizId'));
+      .subscribe(params => (this.quizId = params.get("quizId")));
     this.resources = this.quizService.resources;
   }
 
@@ -74,7 +85,10 @@ export class StatisticsComponent implements OnInit, OnDestroy {
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(100 * this.quizService.correctAnswersCountSubject.getValue() / this.quizService.totalQuestions);
+    return Math.ceil(
+      (100 * this.quizService.correctAnswersCountSubject.getValue()) /
+        this.quizService.totalQuestions
+    );
   }
 
   private sendQuizStatusToQuizService(): void {
