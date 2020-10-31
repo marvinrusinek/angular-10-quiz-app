@@ -29,4 +29,8 @@ mat-toolbar:hover {
 mat-toolbar .leader {
   margin-left: -40px !important;
 }
-
+button {
+  outline: none;
+  text-transform: uppercase;
+  font-family: $font-stack;
+}
