@@ -21,7 +21,7 @@ import { TimerService } from "../../../shared/services/timer.service";
 export class TimeComponent implements OnChanges {
   @Input() selectedAnswer: number;
   answer: number;
-  timePerQuestion = 20;
+  timePerQuestion = 0;
   timeLeft$: Observable<number>;
   start$: Observable<number>;
   reset$: Observable<number>;
