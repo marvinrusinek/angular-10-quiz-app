@@ -52,9 +52,7 @@
 .messages {
   display: flex;
   justify-content: center;
-  margin-top: -30px;
-  margin-left: -20px;
-  margin-bottom: 5px;
+  margin: -30px 0 5px -20px;
   height: auto;
 
   span {
