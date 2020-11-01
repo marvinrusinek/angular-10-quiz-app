@@ -33,7 +33,7 @@ enum Status {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizComponent implements OnInit, OnDestroy {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizData: Quiz[];
   quizResources: QuizResource[] = QUIZ_RESOURCES;
   quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
@@ -76,6 +76,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.quizData = this.quizService.getQuiz();
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
