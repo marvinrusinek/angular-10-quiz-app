@@ -4,9 +4,9 @@ import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { map, takeUntil } from "rxjs/operators";
 import "rxjs/add/observable/of";
 import { Howl } from "howler";
+import * as _ from "lodash";
 
 import { QUIZ_DATA } from "../../shared/quiz";
-
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
 import { Resource } from "../../shared/models/Resource.model";
@@ -51,7 +51,6 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean;
   alreadyAnswered: boolean;
   checkedShuffle: boolean;
-
 
   unsubscribe$ = new Subject<void>();
 
@@ -282,8 +281,9 @@ export class QuizService implements OnDestroy {
 
   /********* reset functions ***********/
   resetQuestions(): void {
-    this.quizData = [...this.quizData]; // not working
     // this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
+    // this.quizData = [...this.quizData];
+    this.quizData = _.cloneDeep(QUIZ_DATA);
   }
 
   resetAll(): void {
