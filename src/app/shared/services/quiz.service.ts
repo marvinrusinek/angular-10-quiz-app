@@ -15,7 +15,7 @@ import { Resource } from "../../shared/models/Resource.model";
   providedIn: "root"
 })
 export class QuizService implements OnDestroy {
-  quizData: Quiz[] = QUIZ_DATA;
+  quizData: Quiz[];
   question: QuizQuestion;
   questions: QuizQuestion[];
   currentQuestion: QuizQuestion;
@@ -66,6 +66,7 @@ export class QuizService implements OnDestroy {
   });
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router) {
+    this.quizData = QUIZ_DATA;
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );
