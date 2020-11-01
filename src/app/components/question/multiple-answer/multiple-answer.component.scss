@@ -14,7 +14,7 @@
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
-    padding: 5px 5px 10px 30px;
+    padding: 10px 5px 10px 30px;
     margin-left: -5px;
 
     &:hover {
@@ -44,9 +44,15 @@
     .feedback-icon {
       position: absolute;
       right: 40px;
-      margin-top: -30px;
     }
   }
+}
+
+.mat-checkbox-layout {
+  display: block !important;
+}
+div.mat-checkbox-inner-container {
+  display: none;
 }
 
 .messages {
@@ -115,10 +121,6 @@
     font-style: italic;
     text-align: center;
   }
-}
-
-div.mat-checkbox-inner-container {
-  display: none;
 }
 
 .material-icons {
