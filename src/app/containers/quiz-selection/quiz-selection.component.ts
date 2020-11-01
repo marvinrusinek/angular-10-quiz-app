@@ -1,18 +1,23 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit
+} from "@angular/core";
 
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 
-import { SlideLeftToRightAnimation } from '../../animations/animations';
-import { QUIZ_DATA } from '../../shared/quiz';
-import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizService } from '../../shared/services/quiz.service';
+import { SlideLeftToRightAnimation } from "../../animations/animations";
+import { QUIZ_DATA } from "../../shared/quiz";
+import { Quiz } from "../../shared/models/Quiz.model";
+import { QuizService } from "../../shared/services/quiz.service";
 
-type AnimationState = 'animationStarted' | 'none';
+type AnimationState = "animationStarted" | "none";
 
 @Component({
-  selector: 'codelab-quiz-selection',
-  templateUrl: './quiz-selection.component.html',
-  styleUrls: ['./quiz-selection.component.scss'],
+  selector: "codelab-quiz-selection",
+  templateUrl: "./quiz-selection.component.html",
+  styleUrls: ["./quiz-selection.component.scss"],
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -24,15 +29,13 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   totalQuestions: number;
 
   selectionParams: object;
-  animationState$ = new BehaviorSubject<AnimationState>('none');
+  animationState$ = new BehaviorSubject<AnimationState>("none");
   unsubscribe$ = new Subject<void>();
 
-  constructor(
-    private quizService: QuizService
-  ) { }
+  constructor(private quizService: QuizService) {}
 
   ngOnInit(): void {
-    
+    this.quizData = this.quizService.getQuiz();
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizId = this.quizService.quizId;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
@@ -46,6 +49,6 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   }
 
   animationDoneHandler(): void {
-    this.animationState$.next('none');
+    this.animationState$.next("none");
   }
 }
