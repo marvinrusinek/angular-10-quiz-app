@@ -54,7 +54,6 @@ export class QuizService implements OnDestroy {
 
   unsubscribe$ = new Subject<void>();
   INITIAL: any;
-
   correctSound = new Howl({
     src: "http://www.marvinrusinek.com/sound-correct.mp3",
     html5: true,
@@ -87,7 +86,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuiz() {
-    return QUIZ_DATA;
+    return this.quizData;
   }
 
   getResources() {
@@ -295,6 +294,8 @@ export class QuizService implements OnDestroy {
     // this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
     // this.quizData = [...this.quizData];
     this.quizData = _.cloneDeep(this.INITIAL);
+    console.log(this.quizData);
+    console.log("RESET");
   }
 
   resetAll(): void {
