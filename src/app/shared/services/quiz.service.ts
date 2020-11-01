@@ -53,6 +53,7 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
 
   unsubscribe$ = new Subject<void>();
+  INITIAL: any;
 
   correctSound = new Howl({
     src: "http://www.marvinrusinek.com/sound-correct.mp3",
@@ -66,6 +67,7 @@ export class QuizService implements OnDestroy {
   });
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router) {
+    this.INITIAL = _.cloneDeep(QUIZ_DATA);
     this.quizData = QUIZ_DATA;
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
@@ -292,7 +294,7 @@ export class QuizService implements OnDestroy {
   resetQuestions(): void {
     // this.quizData = JSON.parse(JSON.stringify(QUIZ_DATA));
     // this.quizData = [...this.quizData];
-    this.quizData = _.cloneDeep(QUIZ_DATA);
+    this.quizData = _.cloneDeep(this.INITIAL);
   }
 
   resetAll(): void {
