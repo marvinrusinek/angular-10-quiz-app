@@ -61,7 +61,7 @@ export class QuizService implements OnDestroy {
     format: ["mp3"]
   });
   incorrectSound = new Howl({
-    src: "http://www.marvinrusinek.com/sound-icorrect.mp3",
+    src: "http://www.marvinrusinek.com/sound-incorrect.mp3",
     html5: true,
     format: ["mp3"]
   });
