@@ -14,8 +14,9 @@
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
+    margin: 5px 0 0 -5px;
     padding: 10px 5px 10px 30px;
-    margin-left: -5px;
+    white-space: normal;
 
     &:hover {
       border: 2px solid $vivid-blue;
@@ -36,15 +37,9 @@
     border: 2px solid $vivid-blue;
   }
 
-  span {
-    white-space: normal;
-    margin-top: 5px;
-    margin-left: 5px;
-
-    .feedback-icon {
-      position: absolute;
-      right: 40px;
-    }
+  .feedback-icon {
+    position: absolute;
+    right: 40px;
   }
 }
 
