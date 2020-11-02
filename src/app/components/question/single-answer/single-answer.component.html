@@ -1,15 +1,12 @@
 <div class="options" *ngFor="let option of currentQuestion.options; index as i">
 	<div *ngIf="!multipleAnswer">
 		<mat-radio-button (change)="setSelected(i)" [class]="option.className" [disabled]="alreadyAnswered">
+			<mat-label i18n>{{ i + 1 }}. {{ option.text }}</mat-label>
 
-			<mat-radio-label>
-				{{ i + 1 }}. {{ option.text }}
-
-				<ng-container *ngIf="option.selected">
-					<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
-					<i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
-				</ng-container>
-			</mat-radio-label>
+			<ng-container *ngIf="option.selected">
+				<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
+				<i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
+			</ng-container>
 		</mat-radio-button>
 
 		<ng-container *ngIf="option.selected">
