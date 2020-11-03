@@ -66,6 +66,11 @@
   }
 }
 
+.high-scores-heading {
+  font-family: $font-stack;
+  font-weight: $font-weight-max;
+  text-align: center !important;
+}
 
 .high-scores {
   display: flex;
