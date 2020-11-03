@@ -11,6 +11,7 @@ import {
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 
+import { Option } from "../../../shared/models/Option.model";
 import { QuizQuestion } from "../../../shared/models/QuizQuestion.model";
 import { QuizService } from "../../../shared/services/quiz.service";
 import { TimerService } from "../../../shared/services/timer.service";
@@ -31,7 +32,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   correctMessage = "";
   previousAnswers: string[] = [];
 
-  alreadyAnswered: boolean;
+  alreadyAnswered = false;
   quizStarted: boolean;
   isCorrectAnswerSelected: boolean;
   isCorrectOption: boolean;
