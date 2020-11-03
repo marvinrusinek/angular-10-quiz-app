@@ -1,5 +1,6 @@
 export interface Score {
   quizId: string;
   score: number;
-  datetime: Date;
+  attemptDateTime: Date;
+  totalQuestions: number;
 }
