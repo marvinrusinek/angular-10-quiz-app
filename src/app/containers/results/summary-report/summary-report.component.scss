@@ -47,7 +47,7 @@
 
   .summary-stats-leader {
     font-weight: $font-weight-max;
-    font-color: $green-angular-leaf;
+    color: $green-angular-leaf;
     font-size: 16px;
   }
 
@@ -63,5 +63,47 @@
     justify-content: center;
     word-wrap: break-word;
     margin-left: 10px;
+  }
+}
+
+.high-scores {
+  display: flex;
+  justify-content: center;
+
+  h2,
+  tr th {
+    text-align: center;
+    font-weight: $font-weight-max;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    margin-left: 15%;
+    margin-bottom: 15px;
+    border-collapse: collapse;
+
+    tr:nth-child(even) {
+      background-color: $white-smoke;
+    }
+    tr:hover {
+      background-color: $green;
+    }
+    tr th {
+      text-transform: uppercase;
+      border-bottom: 1px solid $black;
+      background-color: $dark-green;
+      color: white;
+    }
+
+    th,
+    td {
+      padding-right: 20px;
+    }
+  }
+  table,
+  tr th,
+  tr td {
+    font-family: $font-stack;
   }
 }
