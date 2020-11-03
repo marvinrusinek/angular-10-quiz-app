@@ -39,7 +39,7 @@
           Time Elapsed: </span> <span class="result">{{ elapsedMinutes }} minutes and
           {{ elapsedSeconds }} seconds</span></li>
 				<li><span class="summary-stats-leader">
-          Date/Time Completed: </span> <span class="result">{{ score.datetime | date:'medium' }}</span></li>
+          Date/Time Completed: </span> <span class="result">{{ score.attemptDateTime | date:'medium' }}</span></li>
 			</ul><br />
 
 			<span *ngIf="checkedShuffle" class="quiz-note">
