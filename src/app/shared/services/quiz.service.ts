@@ -9,6 +9,7 @@ import * as _ from "lodash";
 import { QUIZ_DATA, QUIZ_RESOURCES } from "../../shared/quiz";
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
+import { QuizResource } from "../../shared/models/QuizResourc.model";
 import { Resource } from "../../shared/models/Resource.model";
 
 @Injectable({
@@ -16,6 +17,7 @@ import { Resource } from "../../shared/models/Resource.model";
 })
 export class QuizService implements OnDestroy {
   quizData: Quiz[];
+  quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
   currentQuestion: QuizQuestion;
@@ -69,6 +71,7 @@ export class QuizService implements OnDestroy {
   constructor(private activatedRoute: ActivatedRoute, private router: Router) {
     this.quizInitialState = _.cloneDeep(QUIZ_DATA);
     this.quizData = QUIZ_DATA;
+    this.quizResources = QUIZ_RESOURCES;
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );
@@ -91,7 +94,7 @@ export class QuizService implements OnDestroy {
   }
 
   getResources() {
-    return QUIZ_RESOURCES;
+    return this.quizResources;
   }
 
   getQuizzes(): Observable<Quiz[]> {
