@@ -36,8 +36,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   alreadyAnswered = false;
   quizStarted: boolean;
   isCorrectAnswerSelected: boolean;
-  isCorrectOption: boolean;
-  isIncorrectOption: boolean;
+
   optionSelected: Option;
 
   constructor(
