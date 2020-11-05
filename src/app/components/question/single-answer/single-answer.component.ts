@@ -76,7 +76,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    
+
     this.isCorrectAnswerSelected = this.isCorrect(
       this.currentQuestion.options[optionIndex].correct,
       optionIndex
