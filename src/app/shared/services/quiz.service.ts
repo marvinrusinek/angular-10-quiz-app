@@ -7,6 +7,7 @@ import { Howl } from "howler";
 import * as _ from "lodash";
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from "../../shared/quiz";
+import { Option } from "../../shared/models/Option.model";
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
 import { QuizResource } from "../../shared/models/QuizResource.model";
@@ -88,11 +89,11 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  getQuiz() {
+  getQuiz(): Quiz[] {
     return this.quizData;
   }
 
-  getResources() {
+  getResources(): QuizResource[] {
     return this.quizResources;
   }
 
@@ -100,7 +101,7 @@ export class QuizService implements OnDestroy {
     return Observable.of(this.quizData);
   }
 
-  getCorrectAnswers(question: QuizQuestion) {
+  getCorrectAnswers(question: QuizQuestion): Option[] {
     if (question) {
       const identifiedCorrectAnswers = question.options.filter(
         option => option.correct
@@ -110,17 +111,7 @@ export class QuizService implements OnDestroy {
         option => question.options.indexOf(option) + 1
       );
 
-      const correctAnswerAdded =
-        this.correctAnswers.find(q => q.questionId === question.explanation) !==
-        undefined;
-      if (correctAnswerAdded === false) {
-        this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
-        this.correctAnswers.push({
-          questionId: question.explanation,
-          answers: this.correctAnswersForEachQuestion.sort()
-        });
-      }
-
+      this.setCorrectAnswers(question);
       this.setExplanationTextAndCorrectMessages(
         this.correctAnswerOptions.sort(),
         question
@@ -137,7 +128,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  returnQuizSelectionParams(): object {
+  returnQuizSelectionParams(): bject {
     return new Object({
       startedQuizId: this.startedQuizId,
       continueQuizId: this.continueQuizId,
@@ -148,6 +139,20 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
+  setCorrectAnswers(question: QuizQuestion): void {
+    const correctAnswerAdded =
+      this.correctAnswers.find(q => q.questionId === question.explanation) !==
+      undefined;
+
+    if (correctAnswerAdded === false) {
+      this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
+      this.correctAnswers.push({
+        questionId: question.explanation,
+        answers: this.correctAnswersForEachQuestion.sort()
+      });
+    }
+  }
+
   setExplanationTextAndCorrectMessages(
     correctAnswers: number[],
     question: QuizQuestion
