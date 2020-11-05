@@ -32,13 +32,13 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   correctMessage = "";
   previousAnswers: string[] = [];
 
+  multipleAnswer = true;
+  alreadyAnswered: false;
   quizStarted: boolean;
-  alreadyAnswered: boolean;
   isCorrectAnswerSelected: boolean;
   isCorrectOption: boolean;
   isIncorrectOption: boolean;
   optionSelected: Option;
-  multipleAnswer = true;
 
   constructor(
     private quizService: QuizService,
