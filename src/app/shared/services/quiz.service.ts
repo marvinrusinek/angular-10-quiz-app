@@ -128,7 +128,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  returnQuizSelectionParams(): bject {
+  returnQuizSelectionParams(): Object {
     return new Object({
       startedQuizId: this.startedQuizId,
       continueQuizId: this.continueQuizId,

@@ -1,13 +1,15 @@
 <div *ngIf="!multipleAnswer">
 	<div *ngFor="let option of currentQuestion.options; index as i" class="options">
-		<mat-radio-button (change)="setSelected(i)" [class]="option.className" [disabled]="alreadyAnswered">
-			<span i18n>{{ i + 1 }}. {{ option.text }}</span>
+		<mat-radio-group (change)="setSelected(i)" [disabled]="alreadyAnswered">
+			<mat-radio-button [class]="option.className">
+				<span i18n>{{ i + 1 }}. {{ option.text }}</span>
 
-			<ng-container>
-				<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
-				<i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
-			</ng-container>
-		</mat-radio-button>
+				<ng-container>
+					<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
+					<i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
+				</ng-container>
+			</mat-radio-button>
+		</mat-radio-group>
 
 		<ng-container>
 			<div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
