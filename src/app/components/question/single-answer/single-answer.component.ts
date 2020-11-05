@@ -70,6 +70,10 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     }
   }
 
+  onChange() {
+    this.alreadyAnswered = true;
+  }
+
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
     this.isCorrectAnswerSelected = this.isCorrect(
@@ -101,8 +105,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected.className = "incorrect";
       this.quizService.incorrectSound.play();
     }
-
-    this.alreadyAnswered = true;
   }
 
   private isCorrect(correct: boolean, optionIndex: number): boolean {

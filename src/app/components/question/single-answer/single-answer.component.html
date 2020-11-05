@@ -1,7 +1,7 @@
 <div *ngIf="!multipleAnswer">
 	<div *ngFor="let option of currentQuestion.options; index as i" class="options">
-		<mat-radio-group (change)="setSelected(i)" [disabled]="alreadyAnswered">
-			<mat-radio-button [class]="option.className">
+		<mat-radio-group [disabled]="alreadyAnswered" (change)="onChange()">
+			<mat-radio-button (change)="setSelected(i)" [class]="option.className">
 				<span i18n>{{ i + 1 }}. {{ option.text }}</span>
 
 				<ng-container>
