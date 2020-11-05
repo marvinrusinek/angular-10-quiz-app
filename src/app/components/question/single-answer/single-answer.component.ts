@@ -49,7 +49,6 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
     this.question = this.currentQuestion;
     this.currentQuestion = this.quizService.currentQuestion;
     this.multipleAnswer = this.quizService.multipleAnswer;
-    this.alreadyAnswered = this.quizService.alreadyAnswered;
     this.previousAnswers = this.quizService.previousAnswers;
   }
 

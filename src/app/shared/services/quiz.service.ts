@@ -51,7 +51,6 @@ export class QuizService implements OnDestroy {
   correctMessage: string;
 
   multipleAnswer: boolean;
-  alreadyAnswered: boolean;
   checkedShuffle: boolean;
 
   unsubscribe$ = new Subject<void>();
@@ -253,10 +252,6 @@ export class QuizService implements OnDestroy {
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswer = value;
-  }
-
-  setAlreadyAnswered(value: boolean): void {
-    this.alreadyAnswered = value;
   }
 
   setCurrentQuestion(value: QuizQuestion): void {
