@@ -103,7 +103,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = true;
   }
 
-  isCorrect(correct: boolean, optionIndex: number): boolean {
+  private isCorrect(correct: boolean, optionIndex: number): boolean {
     return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
