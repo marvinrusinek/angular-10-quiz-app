@@ -1,4 +1,4 @@
-<div *ngIf="multipleAnswer">
+<ng-container *ngIf="multipleAnswer">
 	<div *ngFor="let option of currentQuestion.options; index as i" class="options">
 		<mat-checkbox (change)="setSelected(i)" [class]="option.className">
 			<span i18n>{{ i + 1 }}. {{ option.text }}</span>
@@ -29,4 +29,4 @@
 			</div>
 		</ng-container>
 	</div>
-</div>
+</ng-container>

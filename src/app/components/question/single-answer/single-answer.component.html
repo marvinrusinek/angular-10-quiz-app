@@ -1,4 +1,4 @@
-<div *ngIf="!multipleAnswer">
+<ng-container *ngIf="!multipleAnswer">
 	<mat-radio-group [disabled]="alreadyAnswered" (change)="onChange()">
 		<div *ngFor="let option of currentQuestion.options; index as i" class="options">
 			<mat-radio-button (change)="setSelected(i)" [class]="option.className">
@@ -32,4 +32,4 @@
 			</ng-container>
 		</div>
 	</mat-radio-group>
-</div>
+</ng-container>
