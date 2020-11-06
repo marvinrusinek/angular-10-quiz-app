@@ -47,7 +47,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.question = this.currentQuestion;
     this.correctMessage = this.quizService.correctMessage;
-    
+    this.multipleAnswer = this.quizService.multipleAnswer;
     this.sendCurrentQuestionToQuizService();
   }
 
