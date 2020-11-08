@@ -12,10 +12,10 @@
 		</mat-card-header>
 
 		<mat-card-content>
-			<!-- the scoreboard area -->
+			<!-- the scoreboard -->
 			<codelab-scoreboard></codelab-scoreboard>
 
-			<!-- the question/explanation area -->
+			<!-- the question/explanation section -->
 			<section id="question" [ngClass]="!isAnswered() ? 'unanswered': 'answered'">
 				<span *ngIf="!isAnswered()" i18n>{{ question.questionText }}&nbsp;
           <span class="number-correct" *ngIf="numberOfCorrectAnswers > 1">
@@ -54,58 +54,55 @@
 			<!-- paging -->
 			<section class="paging">
 				<mat-card-actions>
-					<mat-nav-list>
-						<div class="prev-question-nav" *ngIf="question && questionIndex > 1">
-							<button type="button"
-                      mat-icon-button
-                      (click)="advanceToPreviousQuestion()"
-                      (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
-                      matTooltip="&laquo; Previous Question"
-                      matTooltipPosition="above"
-                      aria-label="Previous Question">
-                <i class="material-icons">navigate_before</i>
-              </button>
-						</div>
+					<div class="prev-question-nav" *ngIf="question && questionIndex > 1">
+						<button type="button"
+                    mat-icon-button
+                    (click)="advanceToPreviousQuestion()"
+                    (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
+                    matTooltip="&laquo; Previous Question"
+                    matTooltipPosition="above"
+                    aria-label="Previous Question">
+              <i class="material-icons">navigate_before<</i>
+            </button>
+					</div>
 
-						<div class="restart-nav"
-							*ngIf="question && questionIndex > 1 && questionIndex < totalQuestions">
-							<button type="button"
-                      mat-icon-button
-                      (click)="restartQuiz()"
-                      matTooltip="Restart Quiz"
-                      matTooltipPosition="above"
-                      aria-label="Restart Quiz">
-                <i class="material-icons">replay</i>
-              </button>
-						</div>
+					<div class="restart-nav" *ngIf="question && questionIndex > 1 && questionIndex < totalQuestions">
+						<button type="button"
+                    mat-icon-button
+                    (click)="restartQuiz()"
+                    matTooltip="Restart Quiz"
+                    matTooltipPosition="above"
+                    aria-label="Restart Quiz">
+              <i class="material-icons">replay</i>
+            </button>
+					</div>
 
-						<div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions"
-							matTooltip="Next Question &raquo;" matTooltipPosition="below">
-							<button type="button"
-                      mat-icon-button
-                      [disabled]="!isAnswered()"
-                      (click)="advanceToNextQuestion()"
-                      (window:keydown.ArrowRight)="advanceToNextQuestion()"
-                      (window:keydown.Enter)="advanceToNextQuestion()"
-                      aria-label="Next Question">
-                <i class="material-icons">navigate_next</i>
+					<div class="next-question-nav" *ngIf="question && questionIndex !== totalQuestions"
+						matTooltip="Next Question &raquo;" matTooltipPosition="below">
+						<button type="button"
+                    mat-icon-button
+                    [disabled]="!isAnswered()"
+                    (click)="advanceToNextQuestion()"
+                    (window:keydown.ArrowRight)="advanceToNextQuestion()"
+                    (window:keydown.Enter)="advanceToNextQuestion()"
+                    aria-label="Next Question">
+              <i class="material-icons">navigate_next</i>
               </button>
-						</div>
+					</div>
 
-						<div class="show-score-nav" *ngIf="question && questionIndex === totalQuestions">
-							<button type="submit"
-                      mat-raised-button
-                      disableRipple="true"
-                      [disabled]="!isAnswered()"
-                      (click)="advanceToResults()"
-                      (window:keydown.Enter)="advanceToResults()"
-                      (window:keydown.ArrowRight)="advanceToResults()"
-                      class="btn btn-outline-primary"
-                      aria-label="Show Your Score">
+					<div class="show-score-nav" *ngIf="question && questionIndex === totalQuestions">
+						<button type="submit"
+                    mat-raised-button
+                    disableRipple="true"
+                    [disabled]="!isAnswered()"
+                    (click)="advanceToResults()"
+                    (window:keydown.Enter)="advanceToResults()"
+                    (window:keydown.ArrowRight)="advanceToResults()"
+                    class="btn btn-outline-primary"
+                    aria-label="Show Your Score">
                 <i class="material-icons">score</i>&nbsp;&nbsp;<strong>Show Your Score</strong>
-              </button>
-						</div>
-					</mat-nav-list>
+             </button>
+					</div>
 				</mat-card-actions>
 			</section>
 
