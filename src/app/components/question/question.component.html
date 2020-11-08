@@ -1,13 +1,13 @@
 <ng-content></ng-content>
 
 <form [formGroup]="formGroup">
-  <question-single-answer 
-    [question]="question" 
-    (answer)="setSelected($event)">
-  </question-single-answer>
-  
-  <question-multiple-answer 
-    [question]="question" 
-    (answer)="setSelected($event)">
-  </question-multiple-answer>
+	<div [ngSwitch]="multipleAnswer">
+		<codelab-question-single-answer *ngSwitchCase="!multipleAnswer" [question]="question"
+			(answer)="setSelected($event)">
+		</codelab-question-single-answer>
+
+		<codelab-question-multiple-answer *ngSwitchCase="multipleAnswer" [question]="question"
+			(answer)="setSelected($event)">
+		</codelab-question-multiple-answer>
+	</div>
 </form>

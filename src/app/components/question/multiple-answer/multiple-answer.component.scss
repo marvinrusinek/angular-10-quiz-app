@@ -14,9 +14,8 @@
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
-    margin: 5px 0 0 -5px;
     padding: 10px 5px 10px 30px;
-    white-space: normal;
+    margin-left: -5px;
 
     &:hover {
       border: 2px solid $vivid-blue;
@@ -37,9 +36,15 @@
     border: 2px solid $vivid-blue;
   }
 
-  .feedback-icon {
-    position: absolute;
-    right: 40px;
+  span {
+    white-space: normal;
+    margin-top: 5px;
+    margin-left: 5px;
+
+    .feedback-icon {
+      position: absolute;
+      right: 40px;
+    }
   }
 }
 
@@ -53,7 +58,7 @@ div.mat-checkbox-inner-container {
 .messages {
   display: flex;
   justify-content: center;
-  margin: -30px 0 5px -20px;
+  margin: -10px 0 5px -20px;
   height: auto;
 
   span {
@@ -65,8 +70,8 @@ div.mat-checkbox-inner-container {
     font-size: 30px;
     color: $light-yellow;
     position: relative;
-    top: 40px !important;
-    left: 30px;
+    top: 15px;
+    left: 10px;
   }
 
   .message {
@@ -74,8 +79,8 @@ div.mat-checkbox-inner-container {
     font-style: italic;
     font-weight: bold;
     margin: 20px auto;
-    margin-left: 20px;
-    margin-top: -5px !important;
+    margin-top: 5px !important;
+    margin-left: -30px !important;
     padding: 10px;
     width: 580px;
     display: inline-flex;
@@ -87,22 +92,15 @@ div.mat-checkbox-inner-container {
   .correct-message {
     border: 2px solid $vivid-blue;
     border-radius: 10px;
-    color: $dark-green !important;
-    margin-top: -25px;
-    margin-bottom: -5px;
-    margin-left: 20px !important;
+    color: $dark-green;
+    margin: -25px 0 -5px 20px;
   }
 
   .wrong-message {
-    border: 2px solid $red !important;
+    border: 2px solid $red;
     border-radius: 10px;
     color: $red;
-    margin-top: -5px;
-    margin-bottom: -5px;
-
-    .sentiment-icon {
-      top: 20px !important;
-    }
+    margin: -5px 0 -5px -25px;
   }
 }
 
