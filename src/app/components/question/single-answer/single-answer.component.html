@@ -1,35 +1,28 @@
-<ng-container *ngIf="!multipleAnswer">
-	<mat-radio-group [disabled]="alreadyAnswered" (change)="onChange()">
-		<div *ngFor="let option of currentQuestion.options; index as i" class="options">
-			<mat-radio-button (change)="setSelected(i)" [class]="option.className">
-				<span i18n>{{ i + 1 }}. {{ option.text }}</span>
+<mat-radio-group [disabled]="alreadyAnswered" (change)="onChange()">
+  <div *ngFor="let option of currentQuestion.options; index as i" class="options">
+    <mat-radio-button (change)="setSelected(i)" [class]="option.className">
+      <span i18n>{{ i + 1 }}. {{ option.text }}</span>
+      <ng-container>
+        <i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
+        <i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
+      </ng-container>
+    </mat-radio-button>
 
-				<ng-container>
-					<i class="material-icons feedback-icon" *ngIf="option.correct && isCorrectAnswerSelected">done</i>
-					<i class="material-icons feedback-icon" *ngIf="!option.correct">clear</i>
-				</ng-container>
-			</mat-radio-button>
-
-			<ng-container>
-				<div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
-					<span>
-            <i class="material-icons sentiment-icon">sentiment_very_satisfied</i>
-            <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
-					</span>
-				</div>
-				<div *ngIf="!option.correct" class="messages">
-					<span>
-            <i class="material-icons sentiment-icon">sentiment_very_dissatisfied</i>
-            <span class="message wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
-					</span>
-				</div>
-				<!-- TODO: get this working! RESOLVE THIS TODO -->
-				<div *ngFor="let previousAnswer of previousAnswers; index as j" class="previous-answer-text">
-					<span *ngIf="previousAnswers[j].length === 1">
-            &ldquo;{{ previousAnswer }}&rdquo; was selected in your previous quiz.
-          </span>
-				</div>
-			</ng-container>
-		</div>
-	</mat-radio-group>
-</ng-container>
+    <ng-container *ngIf="option.selected">
+      <span *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
+        <i class="material-icons sentiment-icon">sentiment_very_satisfied</i>
+        <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
+      </span>
+      <span *ngIf="!option.correct" class="messages">
+        <i class="material-icons sentiment-icon">sentiment_very_dissatisfied</i>
+        <span class="message wrong-messge" i18n>That&apos;s wrong. {{ correctMessage }}</span>
+      </span>
+      <!-- TODO: get this working! RESOLVE THIS TODO -->
+			<div *ngFor="let previousAnswer of previousAnswers; index as j" class="previous-answer-text">
+				<span *ngIf="previousAnswers[j].length === 1">
+          &ldquo;{{ previousAnswer }}&rdquo; was selected in your previous quiz.
+        </span>
+			</div>
+    </ng-container>
+  </div>
+</mat-radio-group>

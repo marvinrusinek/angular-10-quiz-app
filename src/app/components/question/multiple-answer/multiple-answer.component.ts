@@ -17,7 +17,7 @@ import { QuizService } from "../../../shared/services/quiz.service";
 import { TimerService } from "../../../shared/services/timer.service";
 
 @Component({
-  selector: "question-multiple-answer",
+  selector: "codelab-question-multiple-answer",
   templateUrl: "./multiple-answer.component.html",
   styleUrls: ["./multiple-answer.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,

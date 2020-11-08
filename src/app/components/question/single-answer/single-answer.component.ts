@@ -17,7 +17,7 @@ import { QuizService } from "../../../shared/services/quiz.service";
 import { TimerService } from "../../../shared/services/timer.service";
 
 @Component({
-  selector: "question-single-answer",
+  selector: "codelab-question-single-answer",
   templateUrl: "./single-answer.component.html",
   styleUrls: ["./single-answer.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
