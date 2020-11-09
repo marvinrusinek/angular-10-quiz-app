@@ -80,16 +80,10 @@
   }
 
   .high-scores {
-    h2,
-    tr th {
-      text-align: center;
-      font-weight: $font-weight-max;
-    }
-
     table {
       display: block;
       width: 100%;
-      margin-left: 10%;
+      margin-left: %;
       margin-bottom: 15px;
       border-collapse: collapse;
       font-family: $font-stack;
@@ -106,6 +100,8 @@
         border-bottom: 1px solid $black;
         background-color: $dark-green;
         color: $white;
+        text-align: center;
+        font-weight: $font-weight-max;
       }
 
       th,
