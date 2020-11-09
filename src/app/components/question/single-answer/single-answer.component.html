@@ -9,14 +9,14 @@
 		</mat-radio-button>
 
 		<ng-container *ngIf="option.selected">
-			<span *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
-        <i class="material-icons sentiment-icon">sentiment_very_satisfied</i>
-        <span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
-			</span>
-			<span *ngIf="!option.correct" class="messages">
-        <i class="material-icons sentiment-icon">sentiment_very_dissatisfied</i>
-        <span class="message wrong-messge" i18n>That&apos;s wrong. {{ correctMessage }}</span>
-			</span>
+			<div *ngIf="option.correct && isCorrectAnswerSelected" class="messages">
+				<i class="material-icons sentiment-icon">sentiment_very_satisfied</i>
+				<span class="message correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
+			</div>
+			<div *ngIf="!option.correct" class="messages">
+				<i class="material-icons sentiment-icon">sentiment_very_dissatisfied</i>
+				<span class="message wrong-messge" i18n>That&apos;s wrong. {{ correctMessage }}</span>
+			</div>
 			<!-- TODO: get this working! RESOLVE THIS TODO -->
 			<div *ngFor="let previousAnswer of previousAnswers; index as j" class="previous-answer-text">
 				<span *ngIf="previousAnswers[j].length === 1">
