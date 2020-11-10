@@ -40,7 +40,7 @@
     white-space: normal;
     margin-top: 5px;
 
-    .feedback-icon {
+    i {
       position: absolute;
       right: 40px;
     }
@@ -60,17 +60,17 @@ div.mat-radio-inner-container {
   margin: 5px 0 5px -15px !important;
   height: auto;
 
-  span {
-    font-size: 17px;
-    margin-top: 10px;
-  }
-
-  .sentiment-icon {
+  i {
     font-size: 30px;
     color: $light-yellow;
     position: relative;
     top: 15px;
     left: 10px;
+  }
+
+  span {
+    font-size: 17px;
+    margin-top: 10px;
   }
 
   .message {
