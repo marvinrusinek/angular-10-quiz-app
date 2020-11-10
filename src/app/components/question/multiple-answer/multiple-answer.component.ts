@@ -35,7 +35,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
   multipleAnswer = true;
   alreadyAnswered = false;
   quizStarted: boolean;
-  isCorrectAnswerSelected: boolean;
   optionSelected: Option;
 
   constructor(
@@ -72,10 +71,7 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    this.isCorrectAnswerSelected = this.isCorrect(
-      this.currentQuestion.options[optionIndex].correct,
-      optionIndex
-    );
+    this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
@@ -101,12 +97,6 @@ export class MultipleAnswerComponent implements OnInit, OnChanges {
       this.optionSelected.className = "incorrect";
       this.quizService.incorrectSound.play();
     }
-
-    this.alreadyAnswered = true;
-  }
-
-  private isCorrect(correct: boolean, optionIndex: number): boolean {
-    return correct === this.currentQuestion.options[optionIndex].correct;
   }
 
   private sendMultipleAnswerToQuizService(): void {
