@@ -33,10 +33,6 @@ mat-card-header {
   border: 2px solid $medium-gray !important;
 }
 
-.number-correct {
-  color: $dark-green;
-}
-
 #question {
   float: left;
   font-family: $font-stack;
@@ -50,6 +46,10 @@ mat-card-header {
   width: 630px;
   height: auto;
   vertical-align: middle;
+
+  .number-correct {
+    color: $dark-green;
+  }
 }
 
 .multiple-unanswered {
