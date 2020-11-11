@@ -112,10 +112,11 @@ export class QuizService implements OnDestroy {
       );
 
       this.setCorrectAnswers(question);
-      this.setExplanationTextAndCorrectMessages(
+      this.setCorrectMessages(
         this.correctAnswersForEachQuestion.sort(),
         question
       );
+      this.setExplanationText(question);
       return identifiedCorrectAnswers;
     }
   }
@@ -153,11 +154,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setExplanationTextAndCorrectMessages(
+  setCorrectMessages(
     correctAnswersArray: number[],
     question: QuizQuestion
   ): void {
-    this.explanationText = question.explanation;
     const correctAnswers = correctAnswersArray.flat();
 
     for (let i = 0; i < correctAnswersArray.length; i++) {
@@ -190,6 +190,10 @@ export class QuizService implements OnDestroy {
         this.correctMessage = "ALL are correct!";
       }
     }
+  }
+
+  setExplanationText(question: QuizQuestion): void {
+    this.explanationText = question.explanation;
   }
 
   // set the text of the previous user answers in an array to show in the following quiz
