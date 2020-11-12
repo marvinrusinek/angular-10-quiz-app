@@ -1,4 +1,4 @@
-<div *ngFor="let option of currentQuestion.options; index as i" class="options">
+<div class="options" *ngFor="let option of currentQuestion.options; index as i">
 	<mat-checkbox (change)="setSelected(i)" [class]="option.className">
 		<span i18n>{{ i + 1 }}. {{ option.text }}</span>
 		<ng-container *ngIf="option.selected">
@@ -7,21 +7,19 @@
 		</ng-container>
 	</mat-checkbox>
 
-	<ng-container *ngIf="option.selected">
-		<div class="messages">
-			<div *ngIf="option.correct">
-				<i class="material-icons">sentiment_very_satisfied</i>
-				<span class="correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
-			</div>
-			<div *ngIf="!option.correct">
-				<i class="material-icons">sentiment_very_dissatisfied</i>
-				<span class="wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
-			</div>
+	<section class="message" *ngIf="option.selected">
+		<div *ngIf="option.correct">
+			<i class="material-icons">sentiment_very_satisfied</i>
+			<span class="correct-message" i18n>You&apos;re right! {{ correctMessage }}</span>
+		</div>
+		<div *ngIf="!option.correct">
+			<i class="material-icons">sentiment_very_dissatisfied</i>
+			<span class="wrong-message" i18n>That&apos;s wrong. {{ correctMessage }}</span>
 		</div>
 		<div *ngFor="let previousAnswer of previousAnswers; index as j" class="previous-answer-text">
 			<span *ngIf="previousAnswers[j].length > 1">
         {{ previousAnswer | join }} were selected in your previous quiz.
       </span>
 		</div>
-	</ng-container>
+	</section>
 </div>

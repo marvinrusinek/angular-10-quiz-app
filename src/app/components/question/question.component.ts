@@ -93,7 +93,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizService.correctSound.play();
       optionIndex = null;
     } else {
-      this.optionSelected.className = "isincorrect";
+      this.optionSelected.className = "incorrect";
       this.quizService.incorrectSound.play();
     }
   }
