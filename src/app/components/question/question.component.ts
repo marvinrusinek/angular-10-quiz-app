@@ -18,7 +18,6 @@ import { TimerService } from "../../shared/services/timer.service";
 @Component({
   selector: "codelab-quiz-question",
   templateUrl: "./question.component.html",
-  styleUrls: ["./question.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
@@ -71,10 +70,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   setSelected(optionIndex: number): void {
     this.quizStarted = true;
-    this.isCorrectAnswerSelected = this.isCorrect(
-      this.currentQuestion.options[optionIndex].correct,
-      optionIndex
-    );
+    this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
 
     if (this.correctAnswers.length === 1) {
@@ -100,13 +96,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.optionSelected.className = "is-incorrect";
       this.quizService.incorrectSound.play();
     }
-
-    this.alreadyAnswered = true;
   }
 
-  private isCorrect(correct: boolean, optionIndex: number): boolean {
-    return correct === this.currentQuestion.options[optionIndex].correct;
-  }
+
 
   private sendCurrentQuestionToQuizService(): void {
     this.quizService.setCurrentQuestion(this.currentQuestion);
