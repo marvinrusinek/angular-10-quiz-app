@@ -112,7 +112,7 @@ export class QuizService implements OnDestroy {
       );
 
       this.setCorrectAnswers(question);
-      this.setCorrectMessages(
+      this.setCorrectMessage(
         this.correctAnswersForEachQuestion.sort(),
         question
       );
@@ -154,7 +154,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setCorrectMessages(
+  setCorrectMessage(
     correctAnswersArray: number[],
     question: QuizQuestion
   ): void {
