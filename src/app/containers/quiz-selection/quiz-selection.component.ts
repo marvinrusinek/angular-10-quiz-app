@@ -4,11 +4,10 @@ import {
   OnDestroy,
   OnInit
 } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 
 import { SlideLeftToRightAnimation } from "../../animations/animations";
-import { QUIZ_DATA } from "../../shared/quiz";
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizService } from "../../shared/services/quiz.service";
 
@@ -31,16 +30,12 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   selectionParams: object;
   animationState$ = new BehaviorSubject<AnimationState>("none");
   unsubscribe$ = new Subject<void>();
-  private url = "../../../assets/data/quiz.json";
 
-  constructor(
-    private quizService: QuizService,
-    private httpClient: HttpClient
-  ) {}
+  constructor(private quizService: QuizService) {}
 
   ngOnInit(): void {
     this.quizData = this.quizService.getQuiz();
-    this.quizzes$ = this.httpClient.get<Quiz[]>(`${this.url}`);
+    this.quizzes$ = this.quizService.getQuizzes();
     this.quizId = this.quizService.quizId;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.totalQuestions = this.quizService.totalQuestions;
