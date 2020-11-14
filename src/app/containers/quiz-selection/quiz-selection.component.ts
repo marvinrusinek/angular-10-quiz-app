@@ -4,7 +4,6 @@ import {
   OnDestroy,
   OnInit
 } from "@angular/core";
-
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 
 import { SlideLeftToRightAnimation } from "../../animations/animations";
