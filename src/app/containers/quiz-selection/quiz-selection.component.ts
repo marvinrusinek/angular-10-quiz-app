@@ -21,7 +21,7 @@ type AnimationState = "animationStarted" | "none";
 })
 export class QuizSelectionComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
-  selectionParams: object;
+  selectionParams: Object;
   animationState$ = new BehaviorSubject<AnimationState>("none");
   unsubscribe$ = new Subject<void>();
 
