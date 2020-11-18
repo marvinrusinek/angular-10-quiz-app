@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  OnInit
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 
 import { SlideLeftToRightAnimation } from "../../animations/animations";
@@ -19,7 +14,7 @@ type AnimationState = "animationStarted" | "none";
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizSelectionComponent implements OnInit, OnDestroy {
+export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   selectionParams: Object;
   animationState$ = new BehaviorSubject<AnimationState>("none");
@@ -30,11 +25,6 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
     this.selectionParams = this.quizService.returnQuizSelectionParams();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
   }
 
   animationDoneHandler(): void {
