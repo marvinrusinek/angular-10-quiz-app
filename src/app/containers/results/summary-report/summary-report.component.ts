@@ -46,10 +46,7 @@ export class SummaryReportComponent implements OnInit {
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
-  ) {
-    this.calculateElapsedTime();
-    this.saveHighScores();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -58,6 +55,8 @@ export class SummaryReportComponent implements OnInit {
     );
     this.quizId = this.quizService.quizId;
     this.checkedShuffle = this.quizService.checkedShuffle;
+    this.calculateElapsedTime();
+    this.saveHighScores();
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {

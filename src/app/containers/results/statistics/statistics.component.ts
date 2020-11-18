@@ -50,11 +50,7 @@ export class StatisticsComponent implements OnInit {
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
-  ) {
-    this.status = Status.Completed;
-    this.calculateElapsedTime();
-    this.sendQuizStatusToQuizService();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -63,6 +59,9 @@ export class StatisticsComponent implements OnInit {
     );
     this.quizId = this.quizService.quizId;
     this.resources = this.quizService.resources;
+    this.status = Status.Completed;
+    this.calculateElapsedTime();
+    this.sendQuizStatusToQuizService();
   }
 
   calculateElapsedTime(): void {
