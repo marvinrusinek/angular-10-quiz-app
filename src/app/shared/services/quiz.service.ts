@@ -56,7 +56,7 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
 
   unsubscribe$ = new Subject<void>();
-  
+  private url = "assets/data/quiz.json";
   quizInitialState: any;
 
   correctSound = new Howl({

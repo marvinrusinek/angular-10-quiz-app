@@ -20,12 +20,7 @@ type AnimationState = "animationStarted" | "none";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit, OnDestroy {
-  quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
-  quizId: string;
-  currentQuestionIndex: number;
-  totalQuestions: number;
-
   selectionParams: object;
   animationState$ = new BehaviorSubject<AnimationState>("none");
   unsubscribe$ = new Subject<void>();
@@ -33,11 +28,7 @@ export class QuizSelectionComponent implements OnInit, OnDestroy {
   constructor(private quizService: QuizService) {}
 
   ngOnInit(): void {
-    this.quizData = this.quizService.getQuiz();
     this.quizzes$ = this.quizService.getQuizzes();
-    this.quizId = this.quizService.quizId;
-    this.currentQuestionIndex = this.quizService.currentQuestionIndex;
-    this.totalQuestions = this.quizService.totalQuestions;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
   }
 
