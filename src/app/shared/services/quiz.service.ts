@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { map, takeUntil } from "rxjs/operators";
 import "rxjs/add/observable/of";
@@ -55,20 +56,21 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
 
   unsubscribe$ = new Subject<void>();
+  
   quizInitialState: any;
 
   correctSound = new Howl({
-    src: "http://www.marvinrusinek.com/sound-correct.mp3",
-    html5: true,
-    format: ["mp3"]
+    src: "http://www.marvinrusinek.com/sound-correct.mp3"
   });
   incorrectSound = new Howl({
-    src: "http://www.marvinrusinek.com/sound-incorrect.mp3",
-    html5: true,
-    format: ["mp3"]
+    src: "http://www.marvinrusinek.com/sound-incorrect.mp3"
   });
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
+  ) {
     this.quizInitialState = _.cloneDeep(QUIZ_DATA);
     this.quizData = QUIZ_DATA;
     this.quizResources = QUIZ_RESOURCES;
@@ -98,7 +100,8 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return Observable.of(this.quizData);
+    // return Observable.of(this.quizData);
+    return this.http.get<Quiz[]>(`${this.url}`);
   }
 
   getCorrectAnswers(question: QuizQuestion): Option[] {
