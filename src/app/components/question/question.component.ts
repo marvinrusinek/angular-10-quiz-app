@@ -26,13 +26,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
   formGroup: FormGroup;
   optionSelected: Option;
-
+  correctAnswers: Option[] = [];
   quizStarted: boolean;
-  multipleAnswer: boolean;
   alreadyAnswered = false;
-  correctAnswers = [];
-  correctMessage = "";
-  isCorrectAnswerSelected = false;
+  multipleAnswer: boolean;
 
   constructor(
     private quizService: QuizService,
@@ -45,8 +42,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     });
 
     this.question = this.currentQuestion;
-    this.correctMessage = this.quizService.correctMessage;
-    this.multipleAnswer = this.quizService.multipleAnswer;
     this.sendCurrentQuestionToQuizService();
   }
 
