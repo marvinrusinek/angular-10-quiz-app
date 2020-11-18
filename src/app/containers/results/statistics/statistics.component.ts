@@ -1,12 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  OnInit
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject } from "rxjs";
-import { map, takeUntil } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 import { Quiz } from "../../../shared/models/Quiz.model";
 import { QuizMetadata } from "../../../shared/models/QuizMetadata.model";
@@ -26,7 +21,7 @@ enum Status {
   styleUrls: ["./statistics.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StatisticsComponent implements OnInit, OnDestroy {
+export class StatisticsComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
   quizId: string;
@@ -51,8 +46,6 @@ export class StatisticsComponent implements OnInit, OnDestroy {
   TRY_AGAIN =
     "https://raw.githubusercontent.com/marvinrusinek/angular-9-quiz-app/master/src/assets/images/try-again.jpeg";
 
-  unsubscribe$ = new Subject<void>();
-
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
@@ -68,15 +61,8 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(params => (this.quizId = params.get("quizId")));
+    this.quizId = this.quizService.quizId;
     this.resources = this.quizService.resources;
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
   }
 
   calculateElapsedTime(): void {

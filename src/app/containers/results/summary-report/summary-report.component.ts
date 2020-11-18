@@ -5,8 +5,8 @@ import {
   OnDestroy
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject } from "rxjs";
-import { map, takeUntil } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 import { Quiz } from "../../../shared/models/Quiz.model";
 import { QuizMetadata } from "../../../shared/models/QuizMetadata.model";
@@ -20,7 +20,7 @@ import { TimerService } from "../../../shared/services/timer.service";
   styleUrls: ["./summary-report.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SummaryReportComponent implements OnInit, OnDestroy {
+export class SummaryReportComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
   quizId: string;
@@ -40,7 +40,6 @@ export class SummaryReportComponent implements OnInit, OnDestroy {
   score: Score;
   highScores = JSON.parse(localStorage.getItem("highScores")) || [];
 
-  unsubscribe$ = new Subject<void>();
   codelabUrl = "https://www.codelab.fun";
 
   constructor(
@@ -57,15 +56,8 @@ export class SummaryReportComponent implements OnInit, OnDestroy {
     this.quizName$ = this.activatedRoute.url.pipe(
       map(segments => segments[1].toString())
     );
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(params => (this.quizId = params.get("quizId")));
+    this.quizId = this.quizService.quizId;
     this.checkedShuffle = this.quizService.checkedShuffle;
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
