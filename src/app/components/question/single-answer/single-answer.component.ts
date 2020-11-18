@@ -29,7 +29,7 @@ export class SingleAnswerComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   formGroup: FormGroup;
   optionSelected: Option;
-  correctAnswers = [];
+  correctAnswers: Option[] = [];
   correctMessage = "";
   multipleAnswer = false;
   alreadyAnswered = false;
