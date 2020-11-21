@@ -1,4 +1,4 @@
-import { Option } from './Option.model';
+import { Option } from "./Option.model";
 
 export interface QuizQuestion {
   questionText: string;

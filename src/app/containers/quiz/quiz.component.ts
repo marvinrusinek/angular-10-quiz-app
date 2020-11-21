@@ -8,7 +8,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { map, takeUntil } from "rxjs/operators";
 
-import { QUIZ_DATA, QUIZ_RESOURCES } from "../../shared/quiz";
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
 import { QuizResource } from "../../shared/models/QuizResource.model";
@@ -104,11 +103,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           if (this.questionIndex === 1) {
             this.status = Status.Started;
-            this.sendStartedQuizIdToQuizService(this.quizId);
+            this.sendStartedQuizIdToQuizService();
             this.progressValue = 0;
           } else {
             this.status = Status.Continue;
-            this.sendContinueQuizIdToQuizService(this.quizId);
+            this.sendContinueQuizIdToQuizService(t);
             this.progressValue = Math.ceil(
               ((this.questionIndex - 1) / this.totalQuestions) * 100
             );
@@ -141,7 +140,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   selectedAnswer(data): void {
     const correctAnswers = this.question.options.filter(
-      options => options.correct
+      option => option.correct
     );
     if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
       this.answers.push(data);
@@ -262,12 +261,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setQuizStatus(this.status);
   }
 
-  private sendStartedQuizIdToQuizService(quizId): void {
-    this.quizService.setStartedQuizId(quizId);
+  private sendStartedQuizIdToQuizService(): void {
+    this.quizService.setStartedQuizId(this.quizId);
   }
 
-  private sendContinueQuizIdToQuizService(quizId): void {
-    this.quizService.setContinueQuizId(quizId);
+  private sendContinueQuizIdToQuizService(): void {
+    this.quizService.setContinueQuizId(this.quizId);
   }
 
   private sendCorrectCountToQuizService(value: number): void {
