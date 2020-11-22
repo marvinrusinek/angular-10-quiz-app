@@ -1,8 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
-  OnDestroy
+  OnInit
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable } from "rxjs";

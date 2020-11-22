@@ -107,7 +107,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             this.progressValue = 0;
           } else {
             this.status = Status.Continue;
-            this.sendContinueQuizIdToQuizService(t);
+            this.sendContinueQuizIdToQuizService();
             this.progressValue = Math.ceil(
               ((this.questionIndex - 1) / this.totalQuestions) * 100
             );
