@@ -30,11 +30,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   quizStarted: boolean;
   alreadyAnswered = false;
   multipleAnswer: boolean;
+  correctMessage = "";
 
   constructor(
-    private quizService: QuizService,
-    private timerService: TimerService
-  ) {}
+    public quizService: QuizService,
+    public timerService: TimerService
+  ) { }
 
   ngOnInit(): void {
     this.formGroup = new FormGroup({
@@ -51,10 +52,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       changes.question.currentValue !== changes.question.firstChange
     ) {
       this.currentQuestion = changes.question.currentValue;
-      this.correctAnswers = this.quizService.getCorrectAnswers(
-        this.currentQuestion
-      );
+      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.correctMessage = this.quizService.correctMessage;
       this.multipleAnswer = this.correctAnswers.length > 1;
+
 
       if (this.formGroup) {
         this.formGroup.patchValue({ answer: "" });
@@ -93,7 +94,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  private sendCurrentQuestionToQuizService(): void {
+  sendCurrentQuestionToQuizService(): void {
     this.quizService.setCurrentQuestion(this.currentQuestion);
+  }
+
+  sendMultipleAnswerToQuizService(multipleAnswer: boolean): void {
+    this.quizService.setMultipleAnswer(multipleAnswer);
   }
 }
