@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
@@ -38,6 +34,7 @@ export class SummaryReportComponent implements OnInit {
 
   score: Score;
   highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+  highScoresArray: Score[];
 
   codelabUrl = "https://www.codelab.fun";
 
@@ -80,8 +77,10 @@ export class SummaryReportComponent implements OnInit {
 
     const MAX_HIGH_SCORES = 10; // show results of the last 10 quizzes
     this.highScores.push(this.score);
+    this.highScores.sort((a, b) => b.attemptDateTime - a.attemptDateTime);
     this.highScores.reverse(); // show high scores from most recent to latest
     this.highScores.splice(MAX_HIGH_SCORES);
     localStorage.setItem("highScores", JSON.stringify(this.highScores));
+    this.highScoresArray = this.highScores;
   }
 }
