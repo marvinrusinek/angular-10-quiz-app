@@ -1,17 +1,17 @@
 <ng-container *ngFor="let quiz of quizzes$ | async">
 	<mat-card *ngIf="quiz.quizId === (quizName$ | async) &&
-                   question && questionIndex <= totalQuestions" [class.mat-card]="multipleAnswer"
+                   question && questionIndex <= totalQuestions"
 		[@changeRoute]="animationState$ | async" (@changeRoute.done)="animationDoneHandler()">
 
-    <mat-card-header>
-      <img mat-card-avatar class="header-image" loading="lazy"
+		<mat-card-header>
+			<img mat-card-avatar class="header-image" loading="lazy"
            [routerLink]="['/quiz/select']"
            matTooltip="back to Codelab Quiz Selection" matTooltipPosition="left" />
-      <div class="header-titles">
-        <mat-card-title i18n>{{ quiz.milestone }} Quiz</mat-card-title>
-        <mat-card-subtitle i18n>Assess your knowledge of {{ quiz.milestone }}</mat-card-subtitle>
-      </div>
-    </mat-card-header>
+			<div class="header-titles">
+				<mat-card-title i18n>{{ quiz.milestone }} Quiz</mat-card-title>
+				<mat-card-subtitle i18n>Assess your knowledge of {{ quiz.milestone }}</mat-card-subtitle>
+			</div>
+		</mat-card-header>
 
 		<mat-card-content>
 			<!-- the scoreboard -->
