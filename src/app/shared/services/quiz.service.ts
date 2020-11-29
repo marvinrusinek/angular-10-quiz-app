@@ -13,6 +13,7 @@ import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
 import { QuizResource } from "../../shared/models/QuizResource.model";
 import { Resource } from "../../shared/models/Resource.model";
+import { Score } from "../../shared/models/Score.model";
 
 @Injectable({
   providedIn: "root"
@@ -54,6 +55,10 @@ export class QuizService implements OnDestroy {
 
   multipleAnswer: boolean;
   checkedShuffle: boolean;
+
+  score: Score;
+  highScores: Score[];
+  highScoresLocal = JSON.parse(localStorage.getItem("highScoresLocal")) || [];
 
   unsubscribe$ = new Subject<void>();
   private url = "assets/data/quiz.json";
@@ -119,6 +124,32 @@ export class QuizService implements OnDestroy {
       this.setExplanationText(question);
       return identifiedCorrectAnswers;
     }
+  }
+
+  calculatePercentageOfCorrectlyAnsweredQuestions(): number {
+    return Math.ceil(
+      (this.correctAnswersCountSubject.getValue() / this.totalQuestions) * 100
+    );
+  }
+
+  saveHighScores(): void {
+    this.score = {
+      quizId: this.quizId,
+      attemptDateTime: new Date(),
+      score: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
+      totalQuestions: this.totalQuestions
+    };
+
+    const MAX_HIGH_SCORES = 10; // show results of the last 10 quizzes
+    this.highScoresLocal.push(this.score);
+    this.highScoresLocal.sort((a, b) => b.attemptDateTime - a.attemptDateTime);
+    this.highScoresLocal.reverse(); // show high scores from most recent to latest
+    this.highScoresLocal.splice(MAX_HIGH_SCORES);
+    localStorage.setItem(
+      "highScoresLocal",
+      JSON.stringify(this.highScoresLocal)
+    );
+    this.highScores = this.highScoresLocal;
   }
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm

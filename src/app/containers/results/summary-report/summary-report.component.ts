@@ -23,7 +23,7 @@ export class SummaryReportComponent implements OnInit {
     totalQuestions: this.quizService.totalQuestions,
     totalQuestionsAttempted: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
-    percentage: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
+    percentage: this.quizService.calculatePercentageOfCorrectlyAnsweredQuestions(),
     completionTime: this.timerService.calculateTotalElapsedTime(
       this.timerService.elapsedTimes
     )
@@ -31,11 +31,7 @@ export class SummaryReportComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
   checkedShuffle: boolean;
-
-  score: Score;
-  highScores = JSON.parse(localStorage.getItem("highScores")) || [];
-  highScoresArray: Score[];
-
+  highScores: Score[];
   codelabUrl = "https://www.codelab.fun";
 
   constructor(
@@ -52,35 +48,12 @@ export class SummaryReportComponent implements OnInit {
     this.quizId = this.quizService.quizId;
     this.checkedShuffle = this.quizService.checkedShuffle;
     this.calculateElapsedTime();
-    this.saveHighScores();
-  }
-
-  calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(
-      (100 * this.quizService.correctAnswersCountSubject.getValue()) /
-        this.quizService.totalQuestions
-    );
+    this.quizService.saveHighScores();
+    this.highScores = this.quizService.highScores;
   }
 
   calculateElapsedTime(): void {
     this.elapsedMinutes = Math.floor(this.quizMetadata.completionTime / 60);
     this.elapsedSeconds = this.quizMetadata.completionTime % 60;
-  }
-
-  saveHighScores(): void {
-    this.score = {
-      quizId: this.quizService.quizId,
-      attemptDateTime: new Date(),
-      score: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
-      totalQuestions: this.quizService.totalQuestions
-    };
-
-    const MAX_HIGH_SCORES = 10; // show results of the last 10 quizzes
-    this.highScores.push(this.score);
-    this.highScores.sort((a, b) => b.attemptDateTime - a.attemptDateTime);
-    this.highScores.reverse(); // show high scores from most recent to latest
-    this.highScores.splice(MAX_HIGH_SCORES);
-    localStorage.setItem("highScores", JSON.stringify(this.highScores));
-    this.highScoresArray = this.highScores;
   }
 }
