@@ -50,7 +50,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   indexOfQuizId: number;
   status: Status;
 
-
   get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
   }

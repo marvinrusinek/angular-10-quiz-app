@@ -28,10 +28,11 @@ export class TimeComponent implements OnInit, OnChanges {
   @Input() selectedAnswer: number;
   answer: number;
   timePerQuestion = 30;
-  timeLeft$: Observable<number>;
+  time$: Observable<number>;
   start$: Observable<number>;
   reset$: Observable<number>;
   stop$: Observable<number>;
+  concat$: Observable<number>;
 
   constructor(private timerService: TimerService) {}
 
@@ -40,7 +41,8 @@ export class TimeComponent implements OnInit, OnChanges {
     this.start$ = this.timerService.start$;
     this.reset$ = this.timerService.reset$;
     this.stop$ = this.timerService.stop$;
-    this.countdownClock();
+    this.concat$ = concat(this.start$.pipe(first()), this.reset$);
+    this.countdown();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -52,13 +54,13 @@ export class TimeComponent implements OnInit, OnChanges {
     }
   }
 
-  countdownClock(): void {
-    this.timeLeft$ = concat(this.start$.pipe(first()), this.reset$)
+  countdown(): void {
+    this.time$ = this.concat$
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
             scan(
-              (acc: number) =>
+              acc =>
                 acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc,
               this.timePerQuestion
             )
@@ -84,7 +86,7 @@ export class TimeComponent implements OnInit, OnChanges {
   }
 
   stopwatch(): void {
-    this.timeLeft$ = concat(this.start$.pipe(first()))
+    this.time$ = this.concat$
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
@@ -104,6 +106,6 @@ export class TimeComponent implements OnInit, OnChanges {
           )
         )
       )
-      .pipe(tap((value: number) => this.timerService.setElapsed(value)));
+      .pipe(tap(value => this.timerService.setElapsed(value)));
   }
 }
