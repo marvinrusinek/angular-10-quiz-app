@@ -13,10 +13,10 @@ import { QuizService } from "../../../shared/services/quiz.service";
 export class ScoreComponent implements OnInit {
   score: string;
   score$: Observable<string>;
-  totalQuestions: number;
+  correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
-  correctAnswersCount: number;
+  totalQuestions: number;
   unsubscribe$ = new Subject<void>();
 
   constructor(private quizService: QuizService) {}
