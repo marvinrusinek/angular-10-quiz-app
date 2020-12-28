@@ -1,4 +1,10 @@
-import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges
+} from "@angular/core";
 import { concat, Observable, timer } from "rxjs";
 import {
   first,
@@ -18,7 +24,7 @@ import { TimerService } from "../../../shared/services/timer.service";
   templateUrl: "./time.component.html",
   styleUrls: ["./time.component.scss"]
 })
-export class TimeComponent implements OnChanges {
+export class TimeComponent implements OnInit, OnChanges {
   @Input() selectedAnswer: number;
   answer: number;
   timePerQuestion = 30;
@@ -27,8 +33,13 @@ export class TimeComponent implements OnChanges {
   reset$: Observable<number>;
   stop$: Observable<number>;
 
-  constructor(private timerService: TimerService) {
+  constructor(private timerService: TimerService) {}
+
+  ngOnInit(): void {
     this.selectedAnswer = this.answer;
+    this.start$ = this.timerService.start$;
+    this.reset$ = this.timerService.reset$;
+    this.stop$ = this.timerService.stop$;
     this.countdownClock();
   }
 
@@ -42,10 +53,6 @@ export class TimeComponent implements OnChanges {
   }
 
   countdownClock(): void {
-    this.start$ = this.timerService.start$;
-    this.reset$ = this.timerService.reset$;
-    this.stop$ = this.timerService.stop$;
-
     this.timeLeft$ = concat(this.start$.pipe(first()), this.reset$)
       .pipe(
         switchMapTo(
@@ -77,10 +84,6 @@ export class TimeComponent implements OnChanges {
   }
 
   stopwatch(): void {
-    this.start$ = this.timerService.start$;
-    this.reset$ = this.timerService.reset$;
-    this.stop$ = this.timerService.stop$;
-
     this.timeLeft$ = concat(this.start$.pipe(first()))
       .pipe(
         switchMapTo(
