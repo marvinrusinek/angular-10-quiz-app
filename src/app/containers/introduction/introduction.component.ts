@@ -3,7 +3,6 @@ import { ActivatedRoute } from "@angular/router";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
-
 import { Quiz } from "../../shared/models/Quiz.model";
 import { QuizService } from "../../shared/services/quiz.service";
 
