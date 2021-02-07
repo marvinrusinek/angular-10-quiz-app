@@ -38,7 +38,7 @@
 			</mat-menu>
 		</mat-toolbar>
 
-		<mat-grid-list [cols]="breakpoint" (window:resize)="onResize($event)" rowHeight="370px" gutterSize="5px">
+		<mat-grid-list [gridCols] rowHeight="370px" gutterSize="5px">
 			<mat-grid-tile *ngFor="let quiz of quizzes$ | async" [@slideLeftToRight]="animationState$ | async"
 				(@slideLeftToRight.done)="animationDoneHandler()" [routerLink]="['/intro/', quiz.quizId]" [ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
                      'background-size': '300px 210px' }">

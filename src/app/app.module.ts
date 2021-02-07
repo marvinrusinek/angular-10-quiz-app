@@ -36,6 +36,7 @@ import { ReturnComponent } from "./containers/results/return/return.component";
 import { StatisticsComponent } from "./containers/results/statistics/statistics.component";
 import { SummaryReportComponent } from "./containers/results/summary-report/summary-report.component";
 import { ChallengeComponent } from "./containers/results/challenge/challenge.component";
+import { GridColsDirective } from './grid-cols.directive';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { ChallengeComponent } from "./containers/results/challenge/challenge.com
     ReturnComponent,
     StatisticsComponent,
     SummaryReportComponent,
-    ChallengeComponent
+    ChallengeComponent,
+    GridColsDirective
   ],
   imports: [
     CommonModule,
