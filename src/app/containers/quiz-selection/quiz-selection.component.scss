@@ -143,3 +143,40 @@ mat-card {
     }
   }
 }
+
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 576px) {
+  mat-card { width: 440px !important; height: 100vh !important; }
+  .logo { width: 50px !important; height: 50px !important; margin-left: -5px !important; }
+  mat-card-title { margin-left: -70px !important; }
+  mat-card-subtitle { margin-left: -120px !important; }
+  mat-toolbar { margin-top: 100px !important; }
+  mat-grid-list { width: 410px !important; height: auto !important; padding-bottom: 20px; }
+  mat-grid-tile {
+    margin-left: -10px !important;
+    width: 380px !important;
+    height: 370px !important;
+    display: block !important;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 768px) {
+
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 992px) {
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1200px) {
+
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+
+}
