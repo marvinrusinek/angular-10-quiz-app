@@ -20,15 +20,22 @@ export class QuizSelectionComponent implements OnInit {
   selectionParams: Object;
   animationState$ = new BehaviorSubject<AnimationState>("none");
   unsubscribe$ = new Subject<void>();
+  breakpoint: number;
 
   constructor(private quizService: QuizService) {}
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
+    this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
+    this.breakpoint = window.innerWidth <= 440 ? 1 : 3;
   }
 
   animationDoneHandler(): void {
     this.animationState$.next("none");
+  }
+
+  onResize(event) {
+    this.breakpoint = event.target.innerWidth <= 440 ? 1 : 3;
   }
 }
