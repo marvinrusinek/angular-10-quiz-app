@@ -148,7 +148,7 @@ mat-card {
 @media (max-width: 576px) {
   mat-card {
     width: 420px !important;
-    height: auto !important;
+    height: 100vh !important;
   }
   .logo {
     width: 50px !important;
