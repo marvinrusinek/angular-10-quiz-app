@@ -36,7 +36,8 @@ import { ReturnComponent } from "./containers/results/return/return.component";
 import { StatisticsComponent } from "./containers/results/statistics/statistics.component";
 import { SummaryReportComponent } from "./containers/results/summary-report/summary-report.component";
 import { ChallengeComponent } from "./containers/results/challenge/challenge.component";
-import { GridColsDirective } from './grid-cols.directive';
+import { GridColsDirective } from "./grid-cols.directive";
+import { FlexLayoutModule } from "@angular/flex-layout";
 
 @NgModule({
   declarations: [
@@ -76,7 +77,8 @@ import { GridColsDirective } from './grid-cols.directive';
     MatMenuModule,
     MatToolbarModule,
     NgbModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    FlexLayoutModule
   ],
   exports: [MatExpansionModule],
   bootstrap: [AppComponent],
