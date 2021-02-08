@@ -1,6 +1,6 @@
 @import "../../../variables";
 
-mat-card {
+div.containe {
   // margin: 1% 0 20px 17%;
   margin-top: 1%;
   margin-bottom: 20px;
@@ -146,7 +146,7 @@ mat-card {
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 576px) {
-  mat-card {
+  div.container {
     width: 420px !important;
     height: 100vh !important;
   }
