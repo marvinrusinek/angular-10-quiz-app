@@ -147,8 +147,8 @@ mat-card {
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 576px) {
   mat-card {
-    width: 440px !important;
-    height: 100vh !important;
+    width: 420px !important;
+    height: 100% !important;
   }
   .logo {
     width: 50px !important;
@@ -165,7 +165,7 @@ mat-card {
     margin-top: 100px !important;
   }
   mat-grid-list {
-    width: 410px !important;
+    width: 400px !important;
     height: auto !important;
     padding-bottom: 20px;
   }
