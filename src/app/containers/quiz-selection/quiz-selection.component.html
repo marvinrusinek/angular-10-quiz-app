@@ -34,7 +34,7 @@
 	<div class="quiz-grid">
 		<div class="quiz-tile" *ngFor="let quiz of quizzes$ | async" [@slideLeftToRight]="animationState$ | async"
 			(@slideLeftToRight.done)="animationDoneHandler()" [routerLink]="['/quiz/intro/', quiz.quizId]" loading="lazy"
-			[ngStyle]="{ 'background': 'url(' +  +quiz.image + ') no-repeat center 10px',
+			[ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
                      'background-size': '300px 210px' }">
 			<summary class="quiz-info">
 				<h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
