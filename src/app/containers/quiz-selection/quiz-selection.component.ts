@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
-import { SlideLeftToRightAnimation } from "../../animations/animations";
-import { Quiz } from "../../shared/models/Quiz.model";
-import { QuizService } from "../../shared/services/quiz.service";
+import { SlideLeftToRightAnimation } from '../../animations/animations';
+import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizService } from '../../shared/services/quiz.service';
 
-type AnimationState = "animationStarted" | "none";
+type AnimationState = 'animationStarted' | 'none';
 
 @Component({
   selector: 'codelab-quiz-selection',
@@ -17,11 +17,12 @@ type AnimationState = "animationStarted" | "none";
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   currentQuestionIndex: number;
-  selectionParams: Object = {};
+  selectionParams: Object;
   animationState$ = new BehaviorSubject<AnimationState>('none');
-  imagePath = "assets/images/milestones/";
+  unsubscribe$ = new Subject<void>();
 
-  constructor(private quizService: QuizService) { }
+
+  constructor(private quizService: QuizService) {}
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -33,4 +34,3 @@ export class QuizSelectionComponent implements OnInit {
     this.animationState$.next('none');
   }
 }
-
