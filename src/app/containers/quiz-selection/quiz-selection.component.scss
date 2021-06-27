@@ -22,7 +22,8 @@
         width: 160px;
         height: 80px;
         cursor: pointer;
-        background: url('../../../assets/images/codelab_logo.jpeg');
+        background: url('../../../assets/images/codelab_logo.jpeg') no-repeat;
+        background-size: 300px 210px;
       }
     }
 
