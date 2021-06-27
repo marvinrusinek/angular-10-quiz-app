@@ -17,11 +17,12 @@
       padding-top: 20px;
       padding-left: 30px;
 
-      img {
+      .header-img {
         text-align: center;
         width: 160px;
         height: 80px;
         cursor: pointer;
+        background: url('../../../assets/images/codelab_logo.jpeg');
       }
     }
 
