@@ -24,7 +24,7 @@
 		<mat-menu #menu="matMenu" xPosition="before">
 			<div *ngFor="let quiz of quizzes$ | async">
 				<button mat-menu-item name="milestone"
-                [routerLink]="['/quiz/intro/', quiz.quizId]"
+                [routerLink]="['/intro/', quiz.quizId]"
                 data-i18n="quiz.milestone">{{ quiz.milestone }}
         </button>
 			</div>
@@ -33,7 +33,7 @@
 
 	<div class="quiz-grid">
 		<div class="quiz-tile" *ngFor="let quiz of quizzes$ | async" [@slideLeftToRight]="animationState$ | async"
-			(@slideLeftToRight.done)="animationDoneHandler()" [routerLink]="['/quiz/intro/', quiz.quizId]" loading="lazy"
+			(@slideLeftToRight.done)="animationDoneHandler()" [routerLink]="['/intro/', quiz.quizId]" loading="lazy"
 			[ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
                      'background-size': '300px 210px' }">
 			<summary class="quiz-info">
@@ -46,19 +46,19 @@
                 *ngIf="!selectionParams.quizCompleted ||
                         selectionParams.status === 'Started' &&
                         quiz.quizId === selectionParams.startedQuizId"
-                [routerLink]="['/quiz/intro/', quiz.quizId]">
+                [routerLink]="['/intro/', quiz.quizId]">
                 <i class="material-icons">launch</i>
           </span>
 				<span name="continue" matTooltip="Continue"
                 *ngIf="selectionParams.status === 'Continue' &&
                        quiz.quizId === selectionParams.continueQuizId"
-                [routerLink]="['/quiz/question/', quiz.quizId, currentQuestionIndex]">
+                [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
                 <i class="material-icons">play_arrow</i>
           </span>
 				<span name="completed" matTooltip="Completed"
                 *ngIf="selectionParams.status === 'Completed' &&
                        quiz.quizId === selectionParams.completedQuizId"
-                [routerLink]="['/quiz/results/', quiz.quizId]">
+                [routerLink]="['/results/', quiz.quizId]">
             <i class="material-icons">done_all</i>
           </span>
 			</div>
