@@ -1,4 +1,4 @@
-@import "../../../../variables";
+@import '../../../../variables';
 
 .statistics {
   h3,
@@ -35,11 +35,12 @@
     img {
       width: 180px;
       height: 180px;
-      border-radius: 10px;
+      border-radius: 50%;
       margin: 0 auto;
       display: flex;
       justify-content: center;
       text-align: center;
+      padding-bottom: 10px;
     }
 
     ul {
