@@ -1,0 +1,12 @@
+<ng-container *ngIf="option.selected">
+  <section class="message">
+    <div *ngIf="option.correct" class="correct-message">
+      <i class="material-icons">sentiment_very_satisfied</i>
+      You&apos;re right! {{ correctMessage }}
+    </div>
+    <div *ngIf="!option.correct" class="wrong-message">
+      <i class="material-icons">sentiment_very_dissatisfied</i>
+      That&apos;s wrong. {{ correctMessage }}
+    </div>
+  </section>
+</ng-container>
