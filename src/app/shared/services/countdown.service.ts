@@ -29,6 +29,7 @@ export class CountdownService implements OnInit {
   stop$: Observable<number>;
   concat$: Observable<number>;
   timeLeft$: Observable<number>;
+  timeLeft = 0;
   elapsedTime = 0;
 
   timer: Observable<number>;
