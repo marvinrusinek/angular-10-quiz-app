@@ -48,7 +48,7 @@ export class QuizService implements OnDestroy {
   previousAnswersMultipleTextArray: string[] = [];
 
   explanationText: string;
-  correctOptions: string;
+  correctOptions: string[] = [];
   correctMessage: string;
 
   multipleAnswer: boolean;
