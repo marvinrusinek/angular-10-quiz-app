@@ -19,7 +19,7 @@ import {
   take,
   takeUntil,
   takeWhile,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 @Injectable({

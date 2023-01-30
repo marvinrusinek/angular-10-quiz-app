@@ -18,7 +18,7 @@ import {
   switchMapTo,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 @Injectable({
