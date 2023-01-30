@@ -44,24 +44,16 @@ export class CountdownService {
   }
 
   startCountdown(duration: number = 30): Observable<number> {
-    this.concat$ = concat(
-      interval(1000).pipe(
-        take(duration),
-        map((value) => duration - value - 1),
-        startWith(duration)
-      ),
-      timer(duration)
-    );
-
     return this.concat$
       .pipe(
         switchMapTo(
           timer(0, 1000).pipe(
-            scan(
-              (acc) =>
-                acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc,
-              duration
-            )
+            scan((acc) => {
+              if (acc > 0) {
+                return acc - 1;
+              }
+              return acc;
+            }, this.timePerQuestion)
           )
         ),
         takeUntil(this.stop$.pipe(skip(1))),
@@ -69,7 +61,9 @@ export class CountdownService {
           completeSubj.pipe(switchMapTo(this.start$.pipe(skip(1), first())))
         )
       )
-      .pipe(tap((value: number) => this.setElapsed(duration - value)));
+      .pipe(
+        tap((value: number) => this.setElapsed(this.timePerQuestion - value))
+      );
   }
 
   setElapsed(time: number): void {
