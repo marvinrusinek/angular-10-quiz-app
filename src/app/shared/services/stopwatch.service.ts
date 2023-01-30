@@ -4,12 +4,12 @@ import {
   BehaviorSubject,
   interval,
   Observable,
-  pipe,
-  timer,
+  timer
 } from 'rxjs';
 import {
   first,
   map,
+  pipe,
   repeatWhen,
   scan,
   shareReplay,
