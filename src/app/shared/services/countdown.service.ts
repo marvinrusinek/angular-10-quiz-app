@@ -29,7 +29,6 @@ export class CountdownService implements OnInit {
   stop$: Observable<number>;
   concat$: Observable<number>;
   timeLeft$: Observable<number>;
-  timeLeft = 0;
   elapsedTime = 0;
 
   timer: Observable<number>;
@@ -42,12 +41,6 @@ export class CountdownService implements OnInit {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
-  }
-
-  ngOnInit() {
-    this.countdownService.timeLeft$.subscribe((timeLeft) => {
-      this.timeLeft = timeLeft;
-    });
   }
 
   startCountdown(duration: number = 30): Observable<number> {
