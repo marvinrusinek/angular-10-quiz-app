@@ -1,4 +1,4 @@
-import { Injectable, Input, OnInit } from '@angular/core';
+import { Injectable, Input } from '@angular/core';
 import { concat, BehaviorSubject, interval, Observable, timer } from 'rxjs';
 import {
   first,
@@ -19,7 +19,7 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class CountdownService implements OnInit {
+export class CountdownService {
   @Input() selectedAnswer: number;
   answer: number;
   timePerQuestion = 30;
