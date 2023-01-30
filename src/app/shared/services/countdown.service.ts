@@ -1,4 +1,4 @@
-import { Injectable, Input } from '@angular/core';
+import { Injectable, Input, NgOnInit } from '@angular/core';
 import { concat, BehaviorSubject, interval, Observable, timer } from 'rxjs';
 import {
   first,
@@ -19,7 +19,7 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class CountdownService {
+export class CountdownService implements OnInit {
   @Input() selectedAnswer: number;
   answer: number;
   timePerQuestion = 30;
@@ -41,6 +41,12 @@ export class CountdownService {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
+  }
+
+  ngOnInit() {
+    this.countdownService.timeLeft$.subscribe((timeLeft) => {
+      this.timeLeft = timeLeft;
+    });
   }
 
   startCountdown(duration: number = 30): Observable<number> {
