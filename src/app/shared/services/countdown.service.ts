@@ -13,7 +13,7 @@ import {
   take,
   takeUntil,
   takeWhile,
-  tap
+  tap,
 } from 'rxjs/operators';
 
 @Injectable({
@@ -44,6 +44,15 @@ export class CountdownService {
   }
 
   startCountdown(duration: number = 30): Observable<number> {
+    this.concat$ = concat(
+      interval(1000).pipe(
+        take(duration),
+        map((value) => duration - value - 1),
+        startWith(duration)
+      ),
+      timer(duration)
+    );
+
     return this.concat$
       .pipe(
         switchMapTo(
@@ -51,7 +60,7 @@ export class CountdownService {
             scan(
               (acc) =>
                 acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc,
-              this.timePerQuestion
+              duration
             )
           )
         ),
@@ -60,9 +69,7 @@ export class CountdownService {
           completeSubj.pipe(switchMapTo(this.start$.pipe(skip(1), first())))
         )
       )
-      .pipe(
-        tap((value: number) => this.setElapsed(this.timePerQuestion - value))
-      );
+      .pipe(tap((value: number) => this.setElapsed(duration - value)));
   }
 
   setElapsed(time: number): void {
