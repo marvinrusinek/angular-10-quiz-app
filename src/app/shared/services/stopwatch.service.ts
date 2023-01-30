@@ -42,7 +42,12 @@ export class StopwatchService {
   isReset = new BehaviorSubject<number>(1);
   isTimerStart = false;
 
-  constructor() {}
+  constructor() {
+    this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
+    this.reset$ = this.isReset.asObservable();
+    this.stop$ = this.isStop.asObservable();
+    this.concat$ = of(null);
+  }
 
   startStopwatch(): Observable<number> {
     return this.concat$
