@@ -1,7 +1,44 @@
-@import "../../../../_variables.scss";
-@import "../../../../_mixins.scss";
+@import '../../../../_variables.scss';
+@import '../../../../_mixins.scss';
 
-.time-left {
+.timer-container {
+  float: right;
+  margin-right: 2rem;
+
+  .mat-menu {
+    margin-left: -40px;
+
+    .timer-menu-button-text,
+    span.scoreboard-timer-text {
+      margin: 0 0 0 40px;
+    }
+  }
+}
+
+.scoreboard-timer {
+  margin-left: 5px;
+  margin-top: -10px;
+}
+
+mat-toolbar {
+  background: $white;
+}
+mat-toolbar:hover {
+  background-color: $white !important;
+}
+mat-toolbar .timer-menu-button-text {
+  margin-left: -35px !important;
+  text-transform: uppercase;
+  font-family: $font-stack;
+  outline: none;
+}
+button {
+  outline: none;
+  text-transform: uppercase;
+  font-family: $font-stack;
+}
+
+/* .time-left {
   float: right;
   width: 150px;
 
@@ -33,4 +70,4 @@ button {
   outline: none;
   text-transform: uppercase;
   font-family: $font-stack;
-}
+} */
