@@ -1,4 +1,4 @@
-import { Injectable, Input, NgOnInit } from '@angular/core';
+import { Injectable, Input, OnInit } from '@angular/core';
 import { concat, BehaviorSubject, interval, Observable, timer } from 'rxjs';
 import {
   first,
