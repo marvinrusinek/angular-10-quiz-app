@@ -27,7 +27,7 @@ export class TimerService implements OnInit {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
-    this.countdownService.startCountdown();
+    // this.countdownService.startCountdown();
   }
 
   ngOnInit() {
