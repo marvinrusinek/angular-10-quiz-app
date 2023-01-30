@@ -200,7 +200,7 @@ export class QuizService implements OnDestroy {
         break;
       default:
         this.correctOptions = correctAnswers.map((ans) => `${ans}`);
-        this.correctMessage = `The correct answers are ${this.correctOptions.join(
+        this.correctMessage = `The correct answers are ${this.correctOptions.concat(
           ' and '
         )}.`;
         break;
