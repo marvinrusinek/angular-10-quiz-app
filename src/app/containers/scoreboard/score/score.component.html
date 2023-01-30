@@ -1,22 +1,36 @@
-<ng-container class="score">
-	<div class="mat-menu">
-		<mat-toolbar>
-			<button mat-button [matMenuTriggerFor]="scoreMenu" aria-label="score menu">
+<ng-container class="score-toolbar">
+  <div class="mat-menu">
+    <mat-toolbar>
+      <button
+        mat-button
+        [matMenuTriggerFor]="displayScoreMenu"
+        aria-label="score display menu"
+      >
         <span class="leader" i18n>Score &#x25BC;</span>
       </button>
-			<mat-menu #scoreMenu="matMenu" xPosition="before">
-				<button mat-menu-item name="numerical" data-i18n="numerical" (click)="numericalScore()">
+      <mat-menu #displayScoreMenu="matMenu" xPosition="before">
+        <button
+          mat-menu-item
+          name="numerical"
+          data-i18n="numerical"
+          (click)="displayNumericalScore()"
+        >
           Numerical
         </button>
-				<button mat-menu-item name="percentage" data-i18n="percentage" (click)="percentageScore()">
+        <button
+          mat-menu-item
+          name="percentage"
+          data-i18n="percentage"
+          (click)="displayPercentageScore()"
+        >
           Percentage
         </button>
-			</mat-menu>
-		</mat-toolbar>
-	</div>
-	<section class="scoreboard-score">
-		<span class="scoreboard" i18n>
-      {{ score$ | async }}
+      </mat-menu>
+    </mat-toolbar>
+  </div>
+  <section class="scoreboard-score">
+    <span class="scoreboard" i18n>
+      {{ currentScore$ | async }}
     </span>
-	</section>
+  </section>
 </ng-container>

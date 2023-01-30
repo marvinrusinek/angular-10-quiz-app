@@ -1,18 +1,18 @@
-import { Component, OnInit } from "@angular/core";
-import { Observable, Subject, Subscription } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import "rxjs/add/observable/of";
+import { Component, OnInit } from '@angular/core';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import 'rxjs/add/observable/of';
 
-import { QuizService } from "../../../shared/services/quiz.service";
+import { QuizService } from '../../../shared/services/quiz.service';
 
 @Component({
-  selector: "codelab-scoreboard-score",
-  templateUrl: "./score.component.html",
-  styleUrls: ["./score.component.scss"]
+  selector: 'codelab-scoreboard-score',
+  templateUrl: './score.component.html',
+  styleUrls: ['./score.component.scss'],
 })
 export class ScoreComponent implements OnInit {
   score: string;
-  score$: Observable<string>;
+  currentScore$: Observable<string>;
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
@@ -24,23 +24,23 @@ export class ScoreComponent implements OnInit {
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
     this.totalQuestions = this.quizService.totalQuestions;
-    this.numericalScore();
+    this.displayNumericalScore();
   }
 
-  numericalScore(): void {
+  displayNumericalScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
         this.score =
           this.correctAnswersCount.toString() +
-          "/" +
+          '/' +
           this.totalQuestions.toString();
-        this.score$ = Observable.of(this.score);
+        this.currentScore$ = Observable.of(this.score);
       });
   }
 
-  percentageScore(): void {
+  displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((correctAnswersCount: number) => {
@@ -48,8 +48,8 @@ export class ScoreComponent implements OnInit {
         this.score =
           Math.ceil(
             (this.correctAnswersCount / this.totalQuestions) * 100
-          ).toString() + "%";
-        this.score$ = Observable.of(this.score);
+          ).toString() + '%';
+        this.currentScore$ = Observable.of(this.score);
       });
   }
 }
