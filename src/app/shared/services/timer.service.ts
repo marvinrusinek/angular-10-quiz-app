@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
+import { CountdownService } from './countdown.service';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -15,15 +17,16 @@ export class TimerService {
   reset$: Observable<number>;
   stop$: Observable<number>;
   timer: Observable<number>;
-  isStart = new BehaviorSubject<number>(1);
+  isStart = new BehaviorSubject<number>(0);
   isStop = new BehaviorSubject<number>(1);
   isReset = new BehaviorSubject<number>(1);
   isTimerStart = false;
 
-  constructor() {
+  constructor(private countdownService: CountdownService) {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
+    this.countdownService.startCountdown();
   }
 
   stopTimer(): void {
