@@ -28,6 +28,8 @@ import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimeComponent } from './containers/scoreboard/time/time.component';
 import { QuizService } from './shared/services/quiz.service';
 import { TimerService } from './shared/services/timer.service';
+import { CountdownService } from './shared/services/countdown.service';
+import { StopwatchService } from './shared/services/stopwatch.service';
 import { JoinPipe } from './pipes/join.pipe';
 import { MultipleAnswerComponent } from './components/question/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/single-answer/single-answer.component';
@@ -55,7 +57,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     ReturnComponent,
     StatisticsComponent,
     SummaryReportComponent,
-    ChallengeComponent
+    ChallengeComponent,
   ],
   imports: [
     CommonModule,
@@ -74,11 +76,11 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     MatMenuModule,
     MatToolbarModule,
     NgbModule,
-    FontAwesomeModule
+    FontAwesomeModule,
   ],
   exports: [MatExpansionModule],
   bootstrap: [AppComponent],
-  providers: [QuizService, TimerService],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  providers: [QuizService, TimerService, CountdownService, StopwatchService],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}
