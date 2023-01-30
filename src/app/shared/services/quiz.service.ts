@@ -198,16 +198,10 @@ export class QuizService implements OnDestroy {
         this.correctMessage = 'ALL are correct!';
         break;
       default:
-        this.correctOptions = correctAnswers.map((ans) => `${ans}`);
-        if (this.correctOptions.length === 2) {
-          this.correctMessage = `The correct answers are ${this.correctOptions.join(
-            ' and '
-          )}.`;
-        } else {
-          this.correctMessage = `The correct answers are ${this.correctOptions
-            .slice(0, -1)
-            .join(' and ')} and ${this.correctOptions.slice(-1)}.`;
-        }
+        this.correctOptions = correctAnswers.map((ans) => `Option ${ans}`);
+        this.correctMessage = `The correct answers are ${this.correctOptions
+          .slice(0, -1)
+          .join(', ')} and ${this.correctOptions.slice(-1)}.`;
         break;
     }
   }
