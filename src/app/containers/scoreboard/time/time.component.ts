@@ -56,7 +56,7 @@ export class TimeComponent implements OnInit, OnChanges {
     this.reset$ = this.timerService.reset$;
     this.stop$ = this.timerService.stop$;
     this.concat$ = concat(this.start$.pipe(first()), this.reset$);
-    this.timeLeft$ = this.countdownService.startCountdown();
+    this.timeLeft$ = this.countdownService.startCountdown(30);
   }
 
   setTimerType(type: TimerType) {
