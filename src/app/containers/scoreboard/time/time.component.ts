@@ -3,9 +3,9 @@ import {
   Input,
   OnChanges,
   OnInit,
-  SimpleChanges
-} from "@angular/core";
-import { concat, Observable, timer } from "rxjs";
+  SimpleChanges,
+} from '@angular/core';
+import { concat, Observable, timer } from 'rxjs';
 import {
   first,
   repeatWhen,
@@ -14,17 +14,27 @@ import {
   switchMapTo,
   take,
   takeUntil,
-  tap
-} from "rxjs/operators";
+  tap,
+} from 'rxjs/operators';
 
-import { TimerService } from "../../../shared/services/timer.service";
+import { TimerService } from '../../../shared/services/timer.service';
+import { CountdownService } from '../../../shared/services/countdown.service';
+import { StopwatchService } from '../../../shared/services/stopwatch.service';
+
+enum TimerType {
+  Countdown = 'countdown',
+  Stopwatch = 'stopwatch',
+}
 
 @Component({
-  selector: "codelab-scoreboard-time",
-  templateUrl: "./time.component.html",
-  styleUrls: ["./time.component.scss"]
+  selector: 'codelab-scoreboard-time',
+  templateUrl: './time.component.html',
+  styleUrls: ['./time.component.scss'],
 })
 export class TimeComponent implements OnInit, OnChanges {
+  timerType = TimerType;
+  timeLeft$: Observable<number>;
+
   @Input() selectedAnswer: number;
   answer: number;
   timePerQuestion = 30;
@@ -34,7 +44,11 @@ export class TimeComponent implements OnInit, OnChanges {
   stop$: Observable<number>;
   concat$: Observable<number>;
 
-  constructor(private timerService: TimerService) {}
+  constructor(
+    private timerService: TimerService,
+    private countdownService: CountdownService,
+    private stopwatchService: StopwatchService
+  ) {}
 
   ngOnInit(): void {
     this.selectedAnswer = this.answer;
@@ -45,6 +59,21 @@ export class TimeComponent implements OnInit, OnChanges {
     this.countdown();
   }
 
+  setTimerType(type: TimerType) {
+    switch (type) {
+      case TimerType.Countdown:
+        // logic for setting countdown timer
+        this.timeLeft$ = this.countdownService.startCountdown();
+        break;
+      case TimerType.Stopwatch:
+        // logic for setting stopwatch timer
+        this.timeLeft$ = this.stopwatchService.startStopwatch();
+        break;
+      default:
+        console.error(`Invalid timer type: ${type}`);
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (
       changes.selectedAnswer &&
@@ -52,60 +81,5 @@ export class TimeComponent implements OnInit, OnChanges {
     ) {
       this.answer = changes.selectedAnswer.currentValue;
     }
-  }
-
-  countdown(): void {
-    this.time$ = this.concat$
-      .pipe(
-        switchMapTo(
-          timer(0, 1000).pipe(
-            scan(
-              acc =>
-                acc > 0 ? (acc - 1 >= 10 ? acc - 1 : `0${acc - 1}`) : acc,
-              this.timePerQuestion
-            )
-          )
-        ),
-        takeUntil(this.stop$.pipe(skip(1))),
-        repeatWhen(completeSubj =>
-          completeSubj.pipe(
-            switchMapTo(
-              this.start$.pipe(
-                skip(1),
-                first()
-              )
-            )
-          )
-        )
-      )
-      .pipe(
-        tap((value: number) =>
-          this.timerService.setElapsed(this.timePerQuestion - value)
-        )
-      );
-  }
-
-  stopwatch(): void {
-    this.time$ = this.concat$
-      .pipe(
-        switchMapTo(
-          timer(0, 1000).pipe(
-            scan(acc => acc + 1, 0),
-            take(this.timePerQuestion)
-          )
-        ),
-        takeUntil(this.stop$.pipe(skip(1))),
-        repeatWhen(completeSubj =>
-          completeSubj.pipe(
-            switchMapTo(
-              this.start$.pipe(
-                skip(1),
-                first()
-              )
-            )
-          )
-        )
-      )
-      .pipe(tap(value => this.timerService.setElapsed(value)));
   }
 }

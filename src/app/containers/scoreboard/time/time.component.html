@@ -1,22 +1,28 @@
-<ng-container class="time-left">
-	<div class="mat-menu">
-		<mat-toolbar>
-			<button mat-button [matMenuTriggerFor]="timerMenu" aria-label="timer menu">
-        <span class="leader "i18n>Timer &#x25BC;</span>
+<ng-container class="timer-container">
+  <div class="timer-menu-container">
+    <button mat-button [matMenuTriggerFor]="timerMenu" aria-label="timer menu">
+      <span class="timer-menu-button-text" i18n>Timer &#x25BC;</span>
+    </button>
+    <mat-menu #timerMenu="matMenu">
+      <button
+        mat-menu-item
+        (click)="setTimerType(timerType.Countdown)"
+        i18n="countdown"
+      >
+        Countdown
       </button>
-			<mat-menu #timerMenu="matMenu" xPosition="before">
-				<button mat-menu-item name="countdown" data-i18n="countdown" (click)="countdown()">
-          Countdown
-        </button>
-				<button mat-menu-item name="stopwatch" data-i18n="stopwatch" (click)="stopwatch()">
-          Stopwatch
-        </button>
-			</mat-menu>
-		</mat-toolbar>
-	</div>
-	<section class="scoreboard-timer">
-		<span class="scoreboard" i18n>
-      0:{{ timeLeft$ | async | number: '2.0-0' }}
-    </span>
-	</section>
+      <button
+        mat-menu-item
+        (click)="setTimerType(timerType.Stopwatch)"
+        i18n="stopwatch"
+      >
+        Stopwatch
+      </button>
+    </mat-menu>
+  </div>
+  <section class="scoreboard-timer">
+    <span class="scoreboard-timer-text" i18n>{{
+      timeLeft$ | async | number: '2.0-0'
+    }}</span>
+  </section>
 </ng-container>
