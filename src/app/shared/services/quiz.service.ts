@@ -190,6 +190,27 @@ export class QuizService implements OnDestroy {
     const correctAnswers = correctAnswersArray.flat();
 
     if (correctAnswers.length === 0) {
+      this.correctOptions = [];
+      this.correctMessage = 'There are no correct answers.';
+      return;
+    }
+
+    if (correctAnswers.length === this.question.options.length) {
+      this.correctOptions = this.question.options;
+      this.correctMessage = 'ALL are correct!';
+      return;
+    }
+
+    this.correctOptions = correctAnswers.map((ans) => `${ans}`);
+    this.correctMessage = `The correct answers are ${this.correctOptions.join(
+      ', '
+    )}.`;
+  }
+
+  /* setCorrectMessage(correctAnswersArray: number[]): void {
+    const correctAnswers = correctAnswersArray.flat();
+
+    if (correctAnswers.length === 0) {
       this.correctMessage = 'There are no correct answers.';
       return;
     }
@@ -201,7 +222,7 @@ export class QuizService implements OnDestroy {
 
     this.correctOptions = correctAnswers.map((ans) => `${ans}`).join(' and ');
     this.correctMessage = `The correct answers are ${this.correctOptions}.`;
-  }
+  } */
 
   /* setCorrectMessage(correctAnswersArray: number[]): void {
     const correctAnswers = correctAnswersArray.flat();
