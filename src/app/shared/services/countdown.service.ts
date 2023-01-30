@@ -1,5 +1,5 @@
 import { Injectable, Input } from '@angular/core';
-import { concat, BehaviorSubject, interval, Observable, timer } from 'rxjs';
+import { concat, BehaviorSubject, interval, Observable, of, timer } from 'rxjs';
 import {
   first,
   map,
@@ -41,6 +41,7 @@ export class CountdownService {
     this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
+    this.concat$ = of(null);
   }
 
   startCountdown(duration: number = 30): Observable<number> {
