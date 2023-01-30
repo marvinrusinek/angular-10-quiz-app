@@ -1,11 +1,5 @@
 import { Injectable, Input } from '@angular/core';
-import {
-  concat,
-  BehaviorSubject,
-  interval,
-  Observable,
-  timer
-} from 'rxjs';
+import { concat, BehaviorSubject, interval, Observable, of, timer } from 'rxjs';
 import {
   first,
   map,
@@ -18,7 +12,7 @@ import {
   switchMapTo,
   take,
   takeUntil,
-  tap
+  tap,
 } from 'rxjs/operators';
 
 @Injectable({
