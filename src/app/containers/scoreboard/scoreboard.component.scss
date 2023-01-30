@@ -1,4 +1,18 @@
-@import "../../../variables";
+@import '../../../variables';
+
+.timer-container {
+  float: left;
+  margin-left: 2rem;
+}
+
+.timer-menu-container .mat-menu {
+  margin-left: -40px;
+}
+
+.scoreboard-timer {
+  margin-left: 5px;
+  margin-top: -10px;
+}
 
 .scoreboard {
   display: flex;
