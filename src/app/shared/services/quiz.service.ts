@@ -201,7 +201,7 @@ export class QuizService implements OnDestroy {
         this.correctOptions = correctAnswers.map((ans) => `${ans}`);
         this.correctMessage = `The correct answers are ${this.correctOptions
           .slice(0, -1)
-          .join(' and ')} and ${this.correctOptions.slice(-1)}.`;
+          .concat(' and ')} and ${this.correctOptions.slice(-1)}.`;
         break;
     }
   }
