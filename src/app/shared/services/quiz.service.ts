@@ -69,10 +69,6 @@ export class QuizService implements OnDestroy {
     src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
   });
 
-  const ROUTES = {
-    QUESTION: '/question/'
-  };
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
