@@ -48,7 +48,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     if (
       changes.question &&
       changes.question.currentValue !== changes.question.firstChange
@@ -65,6 +65,45 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         this.alreadyAnswered = false;
       }
     }
+  } */
+
+  ngOnChanges({ question }: SimpleChanges): void {
+    if (!question) {
+      return;
+    }
+
+    this.updateCurrentQuestion(question.currentValue);
+    this.updateCorrectAnswers();
+    this.updateCorrectMessage();
+    this.updateMultipleAnswer();
+    this.resetForm();
+  }
+
+  private updateCurrentQuestion(question: Question): void {
+    this.currentQuestion = question;
+  }
+
+  private updateCorrectAnswers(): void {
+    this.correctAnswers = this.quizService.getCorrectAnswers(
+      this.currentQuestion
+    );
+  }
+
+  private updateCorrectMessage(): void {
+    this.correctMessage = this.quizService.correctMessage;
+  }
+
+  private updateMultipleAnswer(): void {
+    this.multipleAnswer = this.correctAnswers.length > 1;
+  }
+
+  private resetForm(): void {
+    if (!this.formGroup) {
+      return;
+    }
+
+    this.formGroup.patchValue({ answer: '' });
+    this.alreadyAnswered = false;
   }
 
   setSelected(optionIndex: number): void {
