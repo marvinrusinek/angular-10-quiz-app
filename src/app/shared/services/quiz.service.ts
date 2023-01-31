@@ -107,20 +107,24 @@ export class QuizService implements OnDestroy {
   }
 
   getCorrectAnswers(question: QuizQuestion): Option[] {
-    if (question) {
-      const identifiedCorrectAnswers = question.options.filter(
-        (option) => option.correct
-      );
-      this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
-      this.correctAnswerOptions = identifiedCorrectAnswers.map(
-        (option) => question.options.indexOf(option) + 1
-      );
-
-      this.setCorrectAnswers(question);
-      this.setCorrectMessage(this.correctAnswersForEachQuestion.sort());
-      this.setExplanationText(question);
-      return identifiedCorrectAnswers;
+    if (!question) {
+      return [];
     }
+
+    const identifiedCorrectAnswers = question.options.filter(
+      (option) => option.correct
+    );
+    this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
+
+    this.correctAnswerOptions = identifiedCorrectAnswers.map(
+      (option) => question.options.indexOf(option) + 1
+    );
+
+    this.setCorrectAnswers(question);
+    this.setCorrectMessage(this.correctAnswersForEachQuestion.sort());
+    this.setExplanationText(question);
+
+    return identifiedCorrectAnswers;
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
