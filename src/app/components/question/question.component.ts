@@ -48,25 +48,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes.question &&
-      changes.question.currentValue !== changes.question.firstChange
-    ) {
-      this.currentQuestion = changes.question.currentValue;
-      this.correctAnswers = this.quizService.getCorrectAnswers(
-        this.currentQuestion
-      );
-      this.correctMessage = this.quizService.correctMessage;
-      this.multipleAnswer = this.correctAnswers.length > 1;
-
-      if (this.formGroup) {
-        this.formGroup.patchValue({ answer: '' });
-        this.alreadyAnswered = false;
-      }
-    }
-  } */
-
   ngOnChanges({ question }: SimpleChanges): void {
     if (!question) {
       return;
