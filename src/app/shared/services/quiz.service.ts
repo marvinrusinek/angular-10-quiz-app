@@ -82,7 +82,7 @@ export class QuizService implements OnDestroy {
     );
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => (this.quizId = params.get('quizId')));
+      .subscribe(({ get }) => (this.quizId = get('quizId')));
     this.indexOfQuizId = this.quizData.findIndex(
       (elem) => elem.quizId === this.quizId
     );
@@ -190,7 +190,7 @@ export class QuizService implements OnDestroy {
     let correctOptions: string;
     let correctMessage: string;
 
-    switch(correctAnswers.length) {
+    switch (correctAnswers.length) {
       case 1:
         correctOptions = correctAnswers[0].toString();
         correctMessage = `The correct answer is Option ${correctOptions}.`;
@@ -204,8 +204,8 @@ export class QuizService implements OnDestroy {
         correctMessage = `The correct answers are Options ${correctOptions}.`;
         break;
       case this.question.options.length:
-        correctOptions = "ALL are correct!";
-        correctMessage = "ALL are correct!";
+        correctOptions = 'ALL are correct!';
+        correctMessage = 'ALL are correct!';
         break;
       default:
         break;
