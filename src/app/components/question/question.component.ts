@@ -102,35 +102,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* setSelected(optionIndex: number): void {
-    this.alreadyAnswered = true;
-    this.answer.emit(optionIndex);
-
-    if (this.correctAnswers.length === 1) {
-      this.currentQuestion.options.forEach(option => {
-        option.selected = false;
-        option.className = "";
-      });
-    }
-    this.currentQuestion.options[optionIndex].selected = true;
-    this.optionSelected = this.currentQuestion.options[optionIndex];
-
-    if (
-      optionIndex >= 0 &&
-      this.currentQuestion &&
-      this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex]["correct"]
-    ) {
-      this.optionSelected.className = "correct";
-      this.timerService.stopTimer();
-      this.quizService.correctSound.play();
-      optionIndex = null;
-    } else {
-      this.optionSelected.className = "incorrect";
-      this.quizService.incorrectSound.play();
-    }
-  } */
-
   sendMultipleAnswerToQuizService(multipleAnswer: boolean): void {
     this.quizService.setMultipleAnswer(multipleAnswer);
   }
