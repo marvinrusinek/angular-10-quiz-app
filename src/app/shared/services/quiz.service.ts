@@ -293,21 +293,23 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question/', this.quizId, questionIndex]).then();
+    this.router.navigate(['/question/', this.quizId, questionIndex]);
     this.resetAll();
   }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
-    this.router
-      .navigate(['/question/', this.quizId, this.currentQuestionIndex - 1])
-      .then();
+    this.router.navigate([
+      '/question/',
+      this.quizId,
+      this.currentQuestionIndex - 1,
+    ]);
     this.resetAll();
   }
 
   navigateToResults() {
     this.quizCompleted = true;
-    this.router.navigate(['/results/', this.quizId]).then();
+    this.router.navigate(['/results/', this.quizId]);
   }
 
   /********* reset functions ***********/
