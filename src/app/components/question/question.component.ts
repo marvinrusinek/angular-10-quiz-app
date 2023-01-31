@@ -15,7 +15,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
-interface QuizService {
+interface QuizSounds {
   correctSound: HTMLAudioElement;
   incorrectSound: HTMLAudioElement;
 }
