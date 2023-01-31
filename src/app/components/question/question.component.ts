@@ -66,6 +66,46 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
 
+    this.clearSelection();
+    this.updateSelection(optionIndex);
+    this.updateClassName(optionIndex);
+    this.playSound(optionIndex);
+  }
+
+  private clearSelection(): void {
+    if (this.correctAnswers.length === 1) {
+      this.currentQuestion.options.forEach(option => {
+        option.selected = false;
+        option.className = "";
+      });
+    }
+  }
+
+  private updateSelection(optionIndex: number): void {
+    this.currentQuestion.options[optionIndex].selected = true;
+    this.optionSelected = this.currentQuestion.options[optionIndex];
+  }
+
+  private updateClassName(optionIndex: number): void {
+    this.optionSelected.className =
+      this.currentQuestion.options[optionIndex]["correct"]
+        ? "correct"
+        : "incorrect";
+  }
+
+  private playSound(optionIndex: number): void {
+    if (this.currentQuestion.options[optionIndex]["correct"]) {
+      this.timerService.stopTimer();
+      this.quizService.correctSound.play();
+    } else {
+      this.quizService.incorrectSound.play();
+    }
+  }
+
+  /* setSelected(optionIndex: number): void {
+    this.alreadyAnswered = true;
+    this.answer.emit(optionIndex);
+
     if (this.correctAnswers.length === 1) {
       this.currentQuestion.options.forEach(option => {
         option.selected = false;
@@ -89,7 +129,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.optionSelected.className = "incorrect";
       this.quizService.incorrectSound.play();
     }
-  }
+  } */
 
   sendMultipleAnswerToQuizService(multipleAnswer: boolean): void {
     this.quizService.setMultipleAnswer(multipleAnswer);
