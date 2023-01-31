@@ -6,19 +6,24 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges
-} from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+  SimpleChanges,
+} from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { Option } from "../../shared/models/Option.model";
-import { QuizQuestion } from "../../shared/models/QuizQuestion.model";
-import { QuizService } from "../../shared/services/quiz.service";
-import { TimerService } from "../../shared/services/timer.service";
+import { Option } from '../../shared/models/Option.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
+
+interface QuizService {
+  correctSound: HTMLAudioElement;
+  incorrectSound: HTMLAudioElement;
+}
 
 @Component({
-  selector: "codelab-quiz-question",
-  templateUrl: "./question.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'codelab-quiz-question',
+  templateUrl: './question.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
@@ -27,7 +32,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   formGroup: FormGroup;
   optionSelected: Option;
   correctAnswers: Option[] = [];
-  correctMessage = "";
+  correctMessage = '';
   multipleAnswer: boolean;
   alreadyAnswered = false;
 
@@ -38,7 +43,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.formGroup = new FormGroup({
-      answer: new FormControl(["", Validators.required])
+      answer: new FormControl(['', Validators.required]),
     });
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
@@ -56,7 +61,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.multipleAnswer = this.correctAnswers.length > 1;
 
       if (this.formGroup) {
-        this.formGroup.patchValue({ answer: "" });
+        this.formGroup.patchValue({ answer: '' });
         this.alreadyAnswered = false;
       }
     }
@@ -74,9 +79,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   private clearSelection(): void {
     if (this.correctAnswers.length === 1) {
-      this.currentQuestion.options.forEach(option => {
+      this.currentQuestion.options.forEach((option) => {
         option.selected = false;
-        option.className = "";
+        option.className = '';
       });
     }
   }
@@ -87,14 +92,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateClassName(optionIndex: number): void {
-    this.optionSelected.className =
-      this.currentQuestion.options[optionIndex]["correct"]
-        ? "correct"
-        : "incorrect";
+    this.optionSelected.className = this.currentQuestion.options[optionIndex][
+      'correct'
+    ]
+      ? 'correct'
+      : 'incorrect';
   }
 
   private playSound(optionIndex: number): void {
-    if (this.currentQuestion.options[optionIndex]["correct"]) {
+    if (this.currentQuestion.options[optionIndex]['correct']) {
       this.timerService.stopTimer();
       this.quizService.correctSound.play();
     } else {
