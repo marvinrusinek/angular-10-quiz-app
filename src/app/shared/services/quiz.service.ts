@@ -185,104 +185,34 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* setCorrectMessage(correctAnswersArray: number[]): void {
-    const correctAnswers = correctAnswersArray.flat();
-
-    switch (correctAnswers.length) {
-      case 0:
-        this.correctOptions = [];
-        this.correctMessage = 'There are no correct answers.';
-        break;
-      case this.question.options.length:
-        this.correctOptions = this.question.options;
-        this.correctMessage = 'ALL are correct!';
-        break;
-      default:
-        this.correctOptions = correctAnswers.map((ans) => `${ans}`);
-        if (this.correctOptions.length === 2) {
-          this.correctMessage = `The correct answers are ${this.correctOptions.join(
-            ' and '
-          )}.`;
-        } else {
-          this.correctMessage = `The correct answers are ${this.correctOptions
-            .slice(0, -1)
-            .join(', ')} and ${this.correctOptions.slice(-1)}.`;
-        }
-        break;
-    }
-  } */
-
-  /* setCorrectMessage(correctAnswersArray: number[]): void {
-    const correctAnswers = correctAnswersArray.flat();
-
-    if (correctAnswers.length === 0) {
-      this.correctOptions = [];
-      this.correctMessage = 'There are no correct answers.';
-      return;
-    }
-
-    if (correctAnswers.length === this.question.options.length) {
-      this.correctOptions = this.question.options;
-      this.correctMessage = 'ALL are correct!';
-      return;
-    }
-
-    this.correctOptions = correctAnswers.map((ans) => `${ans}`);
-    this.correctMessage = `The correct answers are ${this.correctOptions.join(
-      ' and '
-    )}.`;
-  } */
-
-  /* setCorrectMessage(correctAnswersArray: number[]): void {
-    const correctAnswers = correctAnswersArray.flat();
-
-    if (correctAnswers.length === 0) {
-      this.correctMessage = 'There are no correct answers.';
-      return;
-    }
-
-    if (correctAnswers.length === this.question.options.length) {
-      this.correctMessage = 'ALL are correct!';
-      return;
-    }
-
-    this.correctOptions = correctAnswers.map((ans) => `${ans}`).join(' and ');
-    this.correctMessage = `The correct answers are ${this.correctOptions}.`;
-  } */
-
   setCorrectMessage(correctAnswersArray: number[]): void {
     const correctAnswers = correctAnswersArray.flat();
+    let correctOptions: string;
+    let correctMessage: string;
 
-    for (let i = 0; i < correctAnswersArray.length; i++) {
-      if (correctAnswers[i]) {
-        this.correctOptions = correctAnswers[i].toString().concat('');
-        this.correctMessage =
-          'The correct answer is Option ' + this.correctOptions + '.';
-      }
-
-      if (correctAnswers[i] && correctAnswers[i + 1]) {
-        this.correctOptions = correctAnswers[i]
-          .toString()
-          .concat(' and ' + correctAnswers[i + 1]);
-        this.correctMessage =
-          'The correct answers are Options ' + this.correctOptions + '.';
-      }
-
-      if (correctAnswers[i] && correctAnswers[i + 1] && correctAnswers[i + 2]) {
-        this.correctOptions = correctAnswers[i]
-          .toString()
-          .concat(
-            ', ',
-            correctAnswers[i + 1] + ' and ' + correctAnswers[i + 2]
-          );
-        this.correctMessage =
-          'The correct answers are Options ' + this.correctOptions + '.';
-      }
-      if (correctAnswers.length === this.question.options.length) {
-        this.correctOptions = 'ALL are correct!';
-        this.correctMessage = 'ALL are correct!';
-      }
+    switch(correctAnswers.length) {
+      case 1:
+        correctOptions = correctAnswers[0].toString();
+        correctMessage = `The correct answer is Option ${correctOptions}.`;
+        break;
+      case 2:
+        correctOptions = `${correctAnswers[0]} and ${correctAnswers[1]}`;
+        correctMessage = `The correct answers are Options ${correctOptions}.`;
+        break;
+      case 3:
+        correctOptions = `${correctAnswers[0]}, ${correctAnswers[1]} and ${correctAnswers[2]}`;
+        correctMessage = `The correct answers are Options ${correctOptions}.`;
+        break;
+      case this.question.options.length:
+        correctOptions = "ALL are correct!";
+        correctMessage = "ALL are correct!";
+        break;
+      default:
+        break;
     }
+
+    this.correctOptions = correctOptions;
+    this.correctMessage = correctMessage;
   }
 
   setExplanationText(question: QuizQuestion): void {
