@@ -295,15 +295,10 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion() {
     this.quizCompleted = false;
-    
-    if (this.currentQuestionIndex >= this.totalQuestions - 1) {
-      return;
-    }
-
     this.currentQuestionIndex++;
-    this.resetAll();
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question/', this.quizId, questionIndex]);
+    this.resetAll();
   }
 
   navigateToPreviousQuestion() {
