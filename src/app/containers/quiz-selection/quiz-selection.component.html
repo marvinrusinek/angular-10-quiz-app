@@ -42,25 +42,31 @@
 			</summary>
 
 			<div class="status-icon">
-				<span name="start" matTooltip="Start"
-                *ngIf="!selectionParams.quizCompleted ||
-                        selectionParams.status === 'Started' &&
-                        quiz.quizId === selectionParams.startedQuizId"
-                [routerLink]="['/intro/', quiz.quizId]">
-                <i class="material-icons">launch</i>
-          </span>
-				<span name="continue" matTooltip="Continue"
-                *ngIf="selectionParams.status === 'Continue' &&
-                       quiz.quizId === selectionParams.continueQuizId"
-                [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
-                <i class="material-icons">play_arrow</i>
-          </span>
-				<span name="completed" matTooltip="Completed"
-                *ngIf="selectionParams.status === 'Completed' &&
-                       quiz.quizId === selectionParams.completedQuizId"
-                [routerLink]="['/results/', quiz.quizId]">
-            <i class="material-icons">done_all</i>
-          </span>
+				<ng-container [ngSwitch]="selectionParams.status">
+					<span *ngSwitchCase="'Started'" 
+						name="start" matTooltip="Start"
+						[routerLink]="['/intro/', quiz.quizId]"
+						*ngIf="!selectionParams.quizCompleted || quiz.quizId === selectionParams.startedQuizId">
+						<i class="material-icons">launch</i>
+					</span>
+					<span *ngSwitchCase="'Continue'"
+						name="continue" matTooltip="Continue"
+						[routerLink]="['/question/', quiz.quizId, currentQuestionIndex]"
+						*ngIf="quiz.quizId === selectionParams.continueQuizId">
+						<i class="material-icons">play_arrow</i>
+					</span>
+					<span *ngSwitchCase="'Completed'"
+						name="completed" matTooltip="Completed"
+						[routerLink]="['/results/', quiz.quizId]"
+						*ngIf="quiz.quizId === selectionParams.completedQuizId">
+						<i class="material-icons">done_all</i>
+					</span>
+					<ng-container *ngSwitchDefault>
+						<span name="not-available" matTooltip="Not available">
+							<i class="material-icons">not_interested</i>
+						</span>
+					</ng-container>
+				</ng-container>
 			</div>
 		</div>
 	</div>
