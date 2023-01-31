@@ -158,14 +158,14 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  returnQuizSelectionParams(): Object {
-    return new Object({
+  returnQuizSelectionParams(): object {
+    return {
       startedQuizId: this.startedQuizId,
       continueQuizId: this.continueQuizId,
       completedQuizId: this.completedQuizId,
       quizCompleted: this.quizCompleted,
       status: this.status,
-    });
+    };
   }
 
   /********* setter functions ***********/
