@@ -57,23 +57,19 @@ export class TimeComponent implements OnInit, OnChanges {
     this.stop$ = this.timerService.stop$;
     this.concat$ = concat(this.start$.pipe(first()), this.reset$);
     this.timeLeft$ = this.countdownService.startCountdown(30);
-    console.log(this.timeLeft$);
   }
 
   setTimerType(type: TimerType) {
     switch (type) {
       case TimerType.Countdown:
-        // logic for setting countdown timer
         this.timeLeft$ = this.countdownService.startCountdown();
         break;
       case TimerType.Stopwatch:
-        // logic for setting stopwatch timer
         this.timeLeft$ = this.stopwatchService.startStopwatch();
         break;
       default:
         console.error(`Invalid timer type: ${type}`);
     }
-    console.log(this.timeLeft$);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
