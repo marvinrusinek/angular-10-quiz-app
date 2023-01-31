@@ -86,6 +86,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.formGroup.patchValue({ answer: '' });
     this.alreadyAnswered = false;
   }
+  
 
   setSelected(optionIndex: number): void {
     this.alreadyAnswered = true;
