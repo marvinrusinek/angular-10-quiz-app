@@ -33,6 +33,8 @@ import { StopwatchService } from './shared/services/stopwatch.service';
 import { JoinPipe } from './pipes/join.pipe';
 import { MultipleAnswerComponent } from './components/question/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/single-answer/single-answer.component';
+import { FeedbackComponent } from './components/question/feedback/feedback.component';
+import { OptionFeedbackComponent } from './components/question/option-feedback/option-feedback.component';
 import { AccordionComponent } from './containers/results/accordion/accordion.component';
 import { ReturnComponent } from './containers/results/return/return.component';
 import { StatisticsComponent } from './containers/results/statistics/statistics.component';
@@ -53,6 +55,8 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     JoinPipe,
     MultipleAnswerComponent,
     SingleAnswerComponent,
+    FeedbackComponent,
+    OptionFeedbackComponent,
     AccordionComponent,
     ReturnComponent,
     StatisticsComponent,
