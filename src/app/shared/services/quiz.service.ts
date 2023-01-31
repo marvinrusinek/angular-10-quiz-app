@@ -128,7 +128,7 @@ export class QuizService implements OnDestroy {
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(
+    return Math.round(
       (this.correctAnswersCountSubject.getValue() / this.totalQuestions) * 100
     );
   }
