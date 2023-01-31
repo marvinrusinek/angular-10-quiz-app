@@ -79,7 +79,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.resetForm();
   }
 
-  private updateCurrentQuestion(question: Question): void {
+  private updateCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
   }
 
