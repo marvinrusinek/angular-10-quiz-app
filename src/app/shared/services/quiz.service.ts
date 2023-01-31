@@ -185,7 +185,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setCorrectMessage(correctAnswersArray: number[]): void {
+  /* setCorrectMessage(correctAnswersArray: number[]): void {
     const correctAnswers = correctAnswersArray.flat();
 
     switch (correctAnswers.length) {
@@ -210,7 +210,7 @@ export class QuizService implements OnDestroy {
         }
         break;
     }
-  }
+  } */
 
   /* setCorrectMessage(correctAnswersArray: number[]): void {
     const correctAnswers = correctAnswersArray.flat();
@@ -250,7 +250,7 @@ export class QuizService implements OnDestroy {
     this.correctMessage = `The correct answers are ${this.correctOptions}.`;
   } */
 
-  /* setCorrectMessage(correctAnswersArray: number[]): void {
+  setCorrectMessage(correctAnswersArray: number[]): void {
     const correctAnswers = correctAnswersArray.flat();
 
     for (let i = 0; i < correctAnswersArray.length; i++) {
@@ -283,7 +283,7 @@ export class QuizService implements OnDestroy {
         this.correctMessage = 'ALL are correct!';
       }
     }
-  } */
+  }
 
   setExplanationText(question: QuizQuestion): void {
     this.explanationText = question.explanation;
