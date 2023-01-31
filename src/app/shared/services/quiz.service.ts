@@ -69,6 +69,10 @@ export class QuizService implements OnDestroy {
     src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
   });
 
+  const ROUTES = {
+    QUESTION: '/question/'
+  };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -291,11 +295,23 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion() {
     this.quizCompleted = false;
+
+    if (this.currentQuestionIndex >= this.totalQuestions - 1) {
+      return;
+    }
+
     this.currentQuestionIndex++;
-    const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question/', this.quizId, questionIndex]);
     this.resetAll();
+    this.navigateToQuestion(this.currentQuestionIndex);
+    // const questionIndex = this.currentQuestionIndex;
+    // this.router.navigate(['/question/', this.quizId, questionIndex]);
   }
+
+  navigateToQuestion(questionIndex: number): void {
+    this.router.navigate([this.ROUTES.QUESTION, this.quizId, questionIndex]);
+  }
+
+  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
