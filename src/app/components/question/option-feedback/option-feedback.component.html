@@ -1,4 +1,3 @@
 <ng-container *ngIf="selected">
-  <i class="material-icons" *ngIf="correct">done</i>
-  <i class="material-icons" *ngIf="!correct">clear</i>
+  <i class="material-icons">{{ selected === 'correct' ? 'done' : 'clear' }}</i>
 </ng-container>
