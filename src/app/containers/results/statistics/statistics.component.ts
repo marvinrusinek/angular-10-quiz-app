@@ -56,7 +56,7 @@ export class StatisticsComponent implements OnInit {
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
-      map((segments) => segments[1].toString())
+      map((segments) => this.quizService.getQuizName(segments))
     );
     this.quizId = this.quizService.quizId;
     this.resources = this.quizService.resources;
