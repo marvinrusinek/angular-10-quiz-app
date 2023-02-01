@@ -151,7 +151,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   isAnswered(): boolean {
-    return this.answers && this.answers.length > 0;
+    return !!(this.answers && this.answers.length > 0);
   }
 
   selectedAnswer(data): void {
