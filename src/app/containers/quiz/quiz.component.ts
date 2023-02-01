@@ -86,7 +86,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizResources = this.quizService.getResources();
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
-      map((segments) => segments[1].toString())
+      map((segments) => this.quizService.getQuizName(segments))
     );
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.indexOfQuizId = this.quizData.findIndex(
@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private updateProgressValue(): void {
     if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
-      this.progressValue = Math.ceil(
+      this.progressValue = Math.round(
         ((this.questionIndex - 1) / this.totalQuestions) * 100
       );
     }
