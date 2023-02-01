@@ -27,12 +27,8 @@ export class IntroductionComponent implements OnInit {
     this.quizData = this.quizService.getQuiz();
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
-      map((segments) => this.getQuizName(segments))
+      map((segments) => this.quizService.getQuizName(segments))
     );
-  }
-
-  getQuizName(segments: any[]): string {
-    return segments[1].toString();
   }
 
   onChange($event): void {
