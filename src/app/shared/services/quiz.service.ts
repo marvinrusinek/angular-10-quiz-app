@@ -319,6 +319,7 @@ export class QuizService implements OnDestroy {
   /********* reset functions ***********/
   resetQuestions(): void {
     this.quizData = _.cloneDeep(this.quizInitialState);
+    // or try using this.quizData = Object.assign({}, this.quizInitialState);
   }
 
   resetAll(): void {
