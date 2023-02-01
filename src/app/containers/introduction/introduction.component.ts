@@ -1,22 +1,22 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { Quiz } from "../../shared/models/Quiz.model";
-import { QuizService } from "../../shared/services/quiz.service";
+import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizService } from '../../shared/services/quiz.service';
 
 @Component({
-  selector: "codelab-quiz-intro",
-  templateUrl: "./introduction.component.html",
-  styleUrls: ["./introduction.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'codelab-quiz-intro',
+  templateUrl: './introduction.component.html',
+  styleUrls: ['./introduction.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
-  imagePath = "../../../assets/images/milestones/";
+  imagePath = '../../../assets/images/milestones/';
 
   constructor(
     private quizService: QuizService,
@@ -27,8 +27,12 @@ export class IntroductionComponent implements OnInit {
     this.quizData = this.quizService.getQuiz();
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
-      map(segments => segments[1].toString())
+      map((segments) => this.getQuizName(segments))
     );
+  }
+
+  getQuizName(segments: any[]): string {
+    return segments[1].toString();
   }
 
   onChange($event): void {
