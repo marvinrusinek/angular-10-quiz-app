@@ -43,7 +43,7 @@ export class ScoreComponent implements OnInit {
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
         this.score =
-          Math.ceil(
+          Math.round(
             (this.correctAnswersCount / this.totalQuestions) * 100
           ).toString() + '%';
         this.currentScore$ = Observable.of(this.score);
