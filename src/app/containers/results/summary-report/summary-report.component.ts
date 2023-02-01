@@ -1,19 +1,19 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { Quiz } from "../../../shared/models/Quiz.model";
-import { QuizMetadata } from "../../../shared/models/QuizMetadata.model";
-import { Score } from "../../../shared/models/Score.model";
-import { QuizService } from "../../../shared/services/quiz.service";
-import { TimerService } from "../../../shared/services/timer.service";
+import { Quiz } from '../../../shared/models/Quiz.model';
+import { QuizMetadata } from '../../../shared/models/QuizMetadata.model';
+import { Score } from '../../../shared/models/Score.model';
+import { QuizService } from '../../../shared/services/quiz.service';
+import { TimerService } from '../../../shared/services/timer.service';
 
 @Component({
-  selector: "codelab-results-summary",
-  templateUrl: "./summary-report.component.html",
-  styleUrls: ["./summary-report.component.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'codelab-results-summary',
+  templateUrl: './summary-report.component.html',
+  styleUrls: ['./summary-report.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SummaryReportComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
@@ -23,16 +23,17 @@ export class SummaryReportComponent implements OnInit {
     totalQuestions: this.quizService.totalQuestions,
     totalQuestionsAttempted: this.quizService.totalQuestions,
     correctAnswersCount$: this.quizService.correctAnswersCountSubject,
-    percentage: this.quizService.calculatePercentageOfCorrectlyAnsweredQuestions(),
+    percentage:
+      this.quizService.calculatePercentageOfCorrectlyAnsweredQuestions(),
     completionTime: this.timerService.calculateTotalElapsedTime(
       this.timerService.elapsedTimes
-    )
+    ),
   };
   elapsedMinutes: number;
   elapsedSeconds: number;
   checkedShuffle: boolean;
   highScores: Score[];
-  codelabUrl = "https://www.codelab.fun";
+  codelabUrl = 'https://www.codelab.fun';
 
   constructor(
     private quizService: QuizService,
@@ -43,7 +44,7 @@ export class SummaryReportComponent implements OnInit {
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
-      map(segments => segments[1].toString())
+      map((segments) => this.quizService.getQuizName(segments))
     );
     this.quizId = this.quizService.quizId;
     this.checkedShuffle = this.quizService.checkedShuffle;
