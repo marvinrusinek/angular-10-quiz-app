@@ -78,7 +78,7 @@ export class QuizService implements OnDestroy {
     this.quizData = QUIZ_DATA;
     this.quizResources = QUIZ_RESOURCES;
     this.quizName$ = this.activatedRoute.url.pipe(
-      map((segments) => segments[1].toString())
+      map((segments) => this.getQuizName(segments))
     );
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
@@ -96,6 +96,10 @@ export class QuizService implements OnDestroy {
 
   getQuiz(): Quiz[] {
     return this.quizData;
+  }
+
+  getQuizName(segments: any[]): string {
+    return segments[1].toString();
   }
 
   getResources(): QuizResource[] {
