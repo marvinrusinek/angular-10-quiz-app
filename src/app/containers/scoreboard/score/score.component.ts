@@ -17,7 +17,7 @@ export class ScoreComponent implements OnInit {
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
   totalQuestions: number;
-  unsubscribe$ = new Subject<void>();
+  unsubscribeTrigger$ = new Subject<void>();
 
   constructor(private quizService: QuizService) {}
 
@@ -29,20 +29,17 @@ export class ScoreComponent implements OnInit {
 
   displayNumericalScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribe$))
+      .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.score =
-          this.correctAnswersCount.toString() +
-          '/' +
-          this.totalQuestions.toString();
+        this.score = `${this.correctAnswersCount}/${this.totalQuestions}`;
         this.currentScore$ = Observable.of(this.score);
       });
   }
 
   displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribe$))
+      .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
         this.score =
