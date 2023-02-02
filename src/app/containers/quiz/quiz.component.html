@@ -90,7 +90,7 @@
         <mat-card-actions
           [class.last-question]="questionIndex === totalQuestions"
         >
-          <div class="prev-question-nav" *ngIf="question && questionIndex > 1">
+          <div class="prev-question-nav" [hidden]="questionIndex <= 1">
             <button
               type="button"
               mat-icon-button
@@ -106,9 +106,7 @@
 
           <div
             class="restart-nav"
-            *ngIf="
-              question && questionIndex > 1 && questionIndex < totalQuestions
-            "
+            [hidden]="questionIndex <= 1 || questionIndex >= totalQuestions"
           >
             <button
               type="button"
@@ -124,7 +122,7 @@
 
           <div
             class="next-question-nav"
-            *ngIf="question && questionIndex !== totalQuestions"
+            [hidden]="questionIndex >= totalQuestions"
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
@@ -141,10 +139,7 @@
             </button>
           </div>
 
-          <div
-            class="show-score-nav"
-            *ngIf="question && questionIndex === totalQuestions"
-          >
+          <div class="show-score-nav" *ngIf="questionIndex === totalQuestions">
             <button
               type="submit"
               mat-raised-button
