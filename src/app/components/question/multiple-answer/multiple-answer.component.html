@@ -1,13 +1,25 @@
 <ng-container>
-  <div class="options" *ngFor="let option of currentQuestion.options; index as i">
+  <div
+    class="options"
+    *ngFor="
+      let option of currentQuestion.options;
+      index as i;
+      trackBy: trackByFn
+    "
+  >
     <mat-checkbox (change)="setSelected(i)" [class]="option.className">
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
       <codelab-quiz-option-feedback
-        [correct]="option.correct" [selected]="option.selected">
+        [correct]="option.correct"
+        [selected]="option.selected"
+      >
       </codelab-quiz-option-feedback>
     </mat-checkbox>
 
-    <codelab-quiz-feedback [option]="option" [correctMessage]="correctMessage"></codelab-quiz-feedback>
+    <codelab-quiz-feedback
+      [option]="option"
+      [correctMessage]="correctMessage"
+    ></codelab-quiz-feedback>
   </div>
 </ng-container>
