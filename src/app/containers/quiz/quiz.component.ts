@@ -183,6 +183,33 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   checkIfAnsweredCorrectly(): void {
+    if (!this.question) {
+      return;
+    }
+
+    const correctAnswerFound = this.answers.find((answer) => {
+        return (
+          this.question.options &&
+          this.question.options[answer] &&
+          this.question.options[answer]['selected'] &&
+          this.question.options[answer]['correct']
+        );
+      });
+
+    let answers;
+    if (this.isAnswered()) {
+      answers = this.answers.map((answer) => answer + 1);
+      this.quizService.userAnswers.push(answers);
+    } else {
+      answers = this.answers;
+      this.quizService.userAnswers.push(this.answers);
+    }
+
+    this.incrementScore(answers, correctAnswerFound);
+  }
+
+
+  /* checkIfAnsweredCorrectly(): void {
     if (this.question) {
       const correctAnswerFound = this.answers.find((answer) => {
         return (
@@ -202,7 +229,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.incrementScore(answers, correctAnswerFound);
     }
-  }
+  } */
 
   incrementScore(answers: number[], correctAnswerFound: number): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
