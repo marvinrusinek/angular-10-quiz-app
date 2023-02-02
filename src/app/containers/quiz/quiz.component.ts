@@ -251,7 +251,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answers = null;
-    this.router.navigate(['/intro/', this.quizId]).then();
+    this.router.navigate(['/intro/', this.quizId]);
   }
 
   sendValuesToQuizService(): void {
