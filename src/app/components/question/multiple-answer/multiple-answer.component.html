@@ -23,6 +23,7 @@
     </mat-checkbox>
 
     <codelab-quiz-feedback
+      *ngIf="option.selected"
       [option]="option"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>
