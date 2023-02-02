@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container i18n>
   <div
     class="options"
     *ngFor="
@@ -9,12 +9,13 @@
   >
     <mat-checkbox
       (change)="updateSelectedOption(i)"
-      [class]="option.className"
+      [class]="option.styleClass"
       aria-label="Select option {{ i + 1 }}"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
       <codelab-quiz-option-feedback
+        #feedback
         [correct]="option.correct"
         [selected]="option.selected"
       >
