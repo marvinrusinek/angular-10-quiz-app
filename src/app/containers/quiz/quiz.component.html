@@ -30,24 +30,14 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <!-- the question/explanation section -->
-      <section
-        id="question"
-        [ngClass]="!isAnswered() ? 'unanswered' : 'answered'"
-      >
-        <div *ngIf="!isAnswered()" i18n>
-          {{ question.questionText }}&nbsp;
-          <span class="number-correct" *ngIf="numberOfCorrectAnswers > 1">
-            <em>({{ numberOfCorrectAnswers }} answers are correct.)</em>
-          </span>
-        </div>
-        <div *ngIf="isAnswered()" i18n>
-          {{
-            numberOfCorrectAnswers === 1
-              ? 'Option ' + correctOptions + ' was correct because '
-              : 'Options ' + correctOptions + ' were correct because '
-          }}
-          {{ explanationText }}.
-        </div>
+      <section id="question">
+        <app-question-state
+          [isAnswered]="isAnswered()"
+          [questionText]="question.questionText"
+          [numberOfCorrectAnswers]="numberOfCorrectAnswers"
+          [correctOptions]="correctOptions"
+          [explanationText]="explanationText"
+        ></app-question-state>
       </section>
 
       <!-- the options -->
