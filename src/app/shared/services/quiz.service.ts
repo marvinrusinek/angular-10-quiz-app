@@ -200,7 +200,7 @@ export class QuizService implements OnDestroy {
 
     switch (correctAnswers.length) {
       case 1:
-        correctOptions = correctAnswers[0].toString();
+        correctOptions = `${correctAnswers[0]}`;
         correctMessage = `The correct answer is Option ${correctOptions}.`;
         break;
       case 2:
