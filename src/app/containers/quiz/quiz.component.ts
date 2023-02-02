@@ -92,7 +92,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.indexOfQuizId = this.quizData.findIndex(
       (elem) => elem.quizId === this.quizId
     );
-    this.shuffleQuestionsAndAnswers();
+    this.shuffleQuestions();
+    this.shuffleAnswers();
   }
 
   private subscribeToQuizParams(): void {
@@ -165,9 +166,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  shuffleQuestionsAndAnswers(): void {
+  shuffleQuestions(): void {
     if (this.quizService.checkedShuffle) {
       this.quizService.shuffle(this.quizData[this.indexOfQuizId].questions);
+    }
+  }
+
+  shuffleAnswers(): void {
+    if (this.quizService.checkedShuffle) {
       this.quizService.shuffle(
         this.quizData[this.indexOfQuizId].questions[
           this.quizService.currentQuestionIndex
