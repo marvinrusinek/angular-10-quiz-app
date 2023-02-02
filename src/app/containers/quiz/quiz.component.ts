@@ -159,13 +159,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
     );
-    const isDataInOptions = this.question.options.some(
-      (option) => option === data
-    );
-
-    if (!isDataInOptions) {
-      throw new Error(`${data} is not found in this.question.options`);
-    }
 
     if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
       this.answers.push(data);
