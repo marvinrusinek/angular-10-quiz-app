@@ -155,7 +155,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!(this.answers && this.answers.length > 0);
   }
 
-  updateAnswer(data) {
+  selectedAnswer(data): void {
+    const correctAnswers = this.question.options.filter(
+      (option) => option.correct
+    );
+    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
+      this.answers.push(data);
+    } else {
+      this.answers[0] = data;
+    }
+  }
+
+  /* updateAnswer(data) {
     if (!this.question || !this.question.options) {
       throw new Error('this.question or this.question.options is not defined');
     }
@@ -176,7 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.answers[0] = data;
     }
-  }
+  } */
 
   shuffleQuestions(): void {
     if (this.quizService.checkedShuffle) {
