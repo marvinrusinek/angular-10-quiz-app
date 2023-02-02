@@ -49,8 +49,10 @@
     </mat-card-content>
 
     <mat-card-footer
-      [class.multiple-unanswered]="multipleAnswer && !isAnswered()"
-      [class.single-unanswered]="!multipleAnswer && !isAnswered()"
+      [ngClass]="{
+        'multiple-unanswered': multipleAnswer && !isAnswered(),
+        'single-unanswered': !multipleAnswer && !isAnswered()
+      }"
     >
       <!-- selection message/next message -->
       <ng-container *ngIf="!isAnswered(); else answered">
