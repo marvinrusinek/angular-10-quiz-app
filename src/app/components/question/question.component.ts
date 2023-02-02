@@ -29,7 +29,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   currentQuestion: QuizQuestion;
-  formGroup: FormGroup;
+  questionForm: FormGroup;
   optionSelected: Option;
   correctAnswers: Option[] = [];
   correctMessage = '';
@@ -42,7 +42,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    this.formGroup = new FormGroup({
+    this.questionForm = new FormGroup({
       answer: new FormControl(['', Validators.required]),
     });
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
@@ -79,11 +79,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private resetForm(): void {
-    if (!this.formGroup) {
+    if (!this.questionForm) {
       return;
     }
 
-    this.formGroup.patchValue({ answer: '' });
+    this.questionForm.patchValue({ answer: '' });
     this.alreadyAnswered = false;
   }
   
