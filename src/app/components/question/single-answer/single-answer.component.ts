@@ -14,7 +14,4 @@ import { QuizQuestionComponent } from '../question.component';
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class SingleAnswerComponent extends QuizQuestionComponent {
-  trackByFn(index: number, option: any) {
-    return option.id; // or any unique identifier for each option
-  }
 }

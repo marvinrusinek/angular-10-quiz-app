@@ -13,8 +13,4 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent {
-  trackByFn(index: number, option: any) {
-    return option.id; // or any unique identifier for each option
-  }
-}
+export class MultipleAnswerComponent extends QuizQuestionComponent {}

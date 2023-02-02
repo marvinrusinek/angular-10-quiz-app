@@ -60,6 +60,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.resetForm();
   }
 
+  trackByFn(index: number, option: any) {
+    return option.id;
+  }
+
   private updateCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
   }
@@ -86,7 +90,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm.patchValue({ answer: '' });
     this.alreadyAnswered = false;
   }
-  
 
   setSelected(optionIndex: number): void {
     this.alreadyAnswered = true;
