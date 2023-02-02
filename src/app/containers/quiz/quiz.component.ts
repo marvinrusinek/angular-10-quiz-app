@@ -225,7 +225,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ) {
       this.sendCorrectCountToQuizService(this.correctCount + 1);
     }
-  } 
+  }
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
@@ -304,7 +304,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendCorrectCountToQuizService(value: number): void {
-    this.correctCount = value;
+    this.correctCount += value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
   }
 }
