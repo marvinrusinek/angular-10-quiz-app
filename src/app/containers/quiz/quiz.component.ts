@@ -101,10 +101,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
         if (params.questionIndex) {
+          this.updateCorrectCount();
+          this.updateProgressValue();
           this.updateQuestionIndex();
           this.updateTotalQuestions();
-          this.updateProgressValue();
-          this.updateCorrectCount();
           this.updateStatus();
           this.sendValuesToQuizService();
         }
@@ -155,10 +155,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!(this.answers && this.answers.length > 0);
   }
 
-  selectedAnswer(data): void {
+  updateAnswer(data) {
+    if (!this.question || !this.question.options) {
+      throw new Error('this.question or this.question.options is not defined');
+    }
+
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
     );
+    const isDataInOptions = this.question.options.some(
+      (option) => option === data
+    );
+
+    if (!isDataInOptions) {
+      throw new Error(`${data} is not found in this.question.options`);
+    }
+
     if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
       this.answers.push(data);
     } else {
