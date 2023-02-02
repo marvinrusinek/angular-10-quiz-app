@@ -55,7 +55,7 @@
       }"
     >
       <!-- selection message/next message -->
-      <ng-container *ngIf="!isAnswered(); else answered">
+      <!-- <ng-container *ngIf="!isAnswered(); else answered">
         <span i18n class="selection-message">
           Please select an option to continue&hellip;
         </span>
@@ -68,7 +68,22 @@
         >
           Please click the next button to continue&hellip;
         </span>
-      </ng-template>
+      </ng-template> -->
+
+      <!-- selection message/next message -->
+      <ng-container [ngSwitch]="isAnswered()">
+        <span *ngSwitchCase="false" i18n class="selection-message">
+          Please select an option to continue&hellip;
+        </span>
+        <span
+          *ngSwitchCase="true"
+          i18n
+          class="next-message"
+          [hidden]="questionIndex === totalQuestions"
+        >
+          Please click the next button to continue&hellip;
+        </span>
+      </ng-container>
 
       <!-- paging -->
       <section class="paging">
