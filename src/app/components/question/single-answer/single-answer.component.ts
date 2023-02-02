@@ -13,5 +13,4 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent {
-}
+export class SingleAnswerComponent extends QuizQuestionComponent {}
