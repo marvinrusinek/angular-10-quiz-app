@@ -208,16 +208,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.incrementScore(answers, correctAnswerFound);
   }
 
-  /* incrementScore(answers: number[], correctAnswerFound: number[]): void {
+  incrementScore(answers: number[], correctAnswerFound: number[]): void {
     if (
       correctAnswerFound.length === answers.length &&
       answers.every((answer) => correctAnswerFound.includes(answer))
     ) {
-      this.sendCorrectCountToQuizService(this.correctCount + 1);
+      this.correctCount += 1;
+      this.sendCorrectCountToQuizService(this.correctCount);
     }
-  } */
+  }
 
-  incrementScore(answers: number[], correctAnswerFound: number): void {
+  /* incrementScore(answers: number[], correctAnswerFound: number): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
     if (
       correctAnswerFound > -1 &&
@@ -225,7 +226,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ) {
       this.sendCorrectCountToQuizService(this.correctCount + 1);
     }
-  }
+  } */
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
