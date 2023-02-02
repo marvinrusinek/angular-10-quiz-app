@@ -42,7 +42,7 @@ export class ChallengeComponent implements OnInit {
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.ceil(
+    return Math.round(
       (100 * this.quizService.correctAnswersCountSubject.getValue()) /
         this.quizService.totalQuestions
     );
