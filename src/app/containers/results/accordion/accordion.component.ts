@@ -22,6 +22,7 @@ export class AccordionComponent implements OnInit {
 
   @ViewChild('accordion', { static: false }) accordion: MatAccordion;
   panelOpenState = false;
+  isOpen = false;
 
   constructor(
     private quizService: QuizService,
@@ -40,9 +41,11 @@ export class AccordionComponent implements OnInit {
   }
 
   openAllPanels(): void {
+    this.isOpen = true;
     this.accordion.openAll();
   }
   closeAllPanels(): void {
+    this.isOpen = false;
     this.accordion.closeAll();
   }
 }

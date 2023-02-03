@@ -179,6 +179,20 @@
     mat-raised-button
     class="btn"
     color="primary"
+    title="{{isOpen ? 'collapse all' : 'expand all'}}"
+    (click)="isOpen ? closeAllPanels() : openAllPanels()"
+  >
+    <strong>{{isOpen ? 'Collapse All' : 'Expand All'}}</strong>&nbsp;&nbsp;<i class="material-icons"
+      >{{isOpen ? 'expand_less' : 'expand_more'}}</i
+    >
+  </a>
+</mat-action-row>
+
+<!-- <mat-action-row class="mat-accordion-buttons">
+  <a
+    mat-raised-button
+    class="btn"
+    color="primary"
     title="expand all"
     (click)="openAllPanels()"
   >
@@ -198,4 +212,4 @@
       >expand_less</i
     >
   </a>
-</mat-action-row>
+</mat-action-row> -->
