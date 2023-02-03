@@ -14,33 +14,6 @@
     font-weight: $font-weight-max;
   }
 
-  .summary-icons {
-    float: right;
-
-    a {
-      color: $gray;
-      text-decoration: none;
-    }
-
-    .print {
-      float: right;
-      margin-top: -40px;
-      margin-right: 60px;
-    }
-
-    .email {
-      float: right;
-      margin-top: -40px;
-      margin-right: 35px;
-    }
-
-    .share {
-      float: right;
-      margin-top: -40px;
-      margin-right: 10px;
-    }
-  }
-
   ul {
     margin-left: -15px;
 
@@ -52,7 +25,6 @@
         font-weight: $font-weight-max;
         color: $green-angular-leaf;
       }
-
       .result {
         font-family: $font-stack;
         font-size: 20px;
