@@ -17,7 +17,7 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   currentQuestionIndex: number;
-  selectionParams: Object;
+  selectionParams: object;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
