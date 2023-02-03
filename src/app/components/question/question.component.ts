@@ -111,7 +111,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateSelection(optionIndex: number): void {
-    this.currentQuestion.options[optionIndex].selected = true;
+    if (!this.currentQuestion) {
+      console.error('this.currentQuestion is undefined');
+      return;
+    }
+    // this.currentQuestion.options[optionIndex].selected = true;
     this.optionSelected = this.currentQuestion.options[optionIndex];
   }
 
