@@ -12,7 +12,7 @@ type AnimationState = 'animationStarted' | 'none';
   templateUrl: './quiz-selection.component.html',
   styleUrls: ['./quiz-selection.component.scss'],
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;

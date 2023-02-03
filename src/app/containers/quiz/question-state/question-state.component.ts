@@ -11,8 +11,4 @@ export class QuestionStateComponent implements OnChanges {
   @Input() numberOfCorrectAnswers: number;
   @Input() correctOptions: string;
   @Input() explanationText: string;
-
-  ngOnChanges() {
-    // Perform any necessary updates when input properties change
-  }
 }
