@@ -8,8 +8,11 @@
     "
   >
     <mat-checkbox
+      id="option{{ i }}"
       (change)="updateSelectedOption(i)"
       [class]="option.styleClass"
+      aria-label="Select option {{ i + 1 }}"
+      [aria-describedby]="'feedback' + i"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
