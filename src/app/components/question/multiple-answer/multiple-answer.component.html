@@ -1,13 +1,10 @@
 <ng-container i18n>
   <div
     class="options"
-    *ngFor="
-      let option of currentQuestion.options;
-      index as i
-    "
+    *ngFor="let option of currentQuestion.options; index as i"
   >
     <mat-checkbox
-      (change)="updateSelectedOption(i, option)"
+      (change)="updateSelectedOption(option, i)"
       [class]="option.styleClass"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
@@ -20,7 +17,6 @@
     </mat-checkbox>
 
     <codelab-quiz-feedback
-
       [option]="option"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>
