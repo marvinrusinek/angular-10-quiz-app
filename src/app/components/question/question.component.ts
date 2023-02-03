@@ -105,7 +105,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     if (this.correctAnswers.length === 1) {
       this.currentQuestion.options.forEach((option) => {
         option.selected = false;
-        option.className = '';
+        option.classStyle = '';
       });
     }
   }
@@ -116,7 +116,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateClassName(optionIndex: number): void {
-    this.optionSelected.className = this.currentQuestion.options[optionIndex][
+    this.optionSelected.classStyle = this.currentQuestion.options[optionIndex][
       'correct'
     ]
       ? 'correct'
