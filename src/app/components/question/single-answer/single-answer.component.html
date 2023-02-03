@@ -9,7 +9,7 @@
   >
     <mat-radio-button
       id="option{{ i }}"
-      (change)="updateSelectedOption(i, option)"
+      (change)="updateSelectedOption(option, i)"
       [class]="option.styleClass"
       aria-label="Select option {{ i + 1 }}"
       [aria-describedby]="'feedback' + i"
