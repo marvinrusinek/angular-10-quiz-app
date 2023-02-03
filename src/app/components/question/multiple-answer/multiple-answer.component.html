@@ -3,8 +3,7 @@
     class="options"
     *ngFor="
       let option of currentQuestion.options;
-      index as i;
-      trackBy: trackByFn
+      index as i
     "
   >
     <mat-checkbox
@@ -17,7 +16,6 @@
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
       <codelab-quiz-option-feedback
-        #feedback
         [correct]="option.correct"
         [selected]="option.selected"
       >
@@ -25,7 +23,7 @@
     </mat-checkbox>
 
     <codelab-quiz-feedback
-      *ngIf="option.selected"
+
       [option]="option"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>
