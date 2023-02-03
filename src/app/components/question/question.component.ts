@@ -111,13 +111,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateSelection(optionIndex: number): void {
+    const option = this.currentQuestion.options[optionIndex];
+    if (option) {
+      option.selected = true;
+      this.optionSelected = option;
+    }
+  }
+
+  /* private updateSelection(optionIndex: number): void {
     if (!this.currentQuestion) {
       console.error('this.currentQuestion is undefined');
       return;
     }
-    // this.currentQuestion.options[optionIndex].selected = true;
+    this.currentQuestion.options[optionIndex].selected = true;
     this.optionSelected = this.currentQuestion.options[optionIndex];
-  }
+  } */
 
   private updateClassName(optionIndex: number): void {
     this.optionSelected.styleClass = this.currentQuestion.options[optionIndex][
