@@ -111,6 +111,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateSelection(optionIndex: number): void {
+    console.log(this.currentQuestion.options);
     const option = this.currentQuestion.options[optionIndex];
     if (option) {
       option.selected = true;
