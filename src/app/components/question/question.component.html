@@ -4,14 +4,14 @@
   <codelab-question-single-answer
     *ngSwitchCase="!multipleAnswer"
     [question]="question"
-    (answer)="updateSelectedOption($event)"
+    (answer)="updateSelectedOption($event, i)"
   >
   </codelab-question-single-answer>
 
   <codelab-question-multiple-answer
     *ngSwitchCase="multipleAnswer"
     [question]="question"
-    (answer)="updateSelectedOption($event)"
+    (answer)="updateSelectedOption($event, i)"
   >
   </codelab-question-multiple-answer>
 </form>
