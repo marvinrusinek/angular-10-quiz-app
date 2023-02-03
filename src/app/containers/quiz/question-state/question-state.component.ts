@@ -1,11 +1,11 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-question-state',
   templateUrl: './question-state.component.html',
   styleUrls: ['./question-state.component.scss'],
 })
-export class QuestionStateComponent implements OnChanges {
+export class QuestionStateComponent {
   @Input() isAnswered: boolean;
   @Input() questionText: string;
   @Input() numberOfCorrectAnswers: number;
