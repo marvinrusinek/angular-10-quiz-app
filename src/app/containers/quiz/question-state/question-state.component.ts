@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   selector: 'app-question-state',
   templateUrl: './question-state.component.html',
   styleUrls: ['./question-state.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionStateComponent {
   @Input() isAnswered: boolean;
