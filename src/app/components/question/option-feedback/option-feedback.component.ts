@@ -8,5 +8,4 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 })
 export class OptionFeedbackComponent {
   @Input() correct: boolean;
-  @Input() selected: boolean;
 }

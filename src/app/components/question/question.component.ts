@@ -26,11 +26,7 @@ interface QuizAudio {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
-  // @Output() answer = new EventEmitter<number>();
-  @Output() answer = new EventEmitter<{
-    selectedOption: Option;
-    optionIndex: number;
-  }>();
+  @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   currentQuestion: QuizQuestion;
   questionForm: FormGroup;
@@ -96,15 +92,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = false;
   }
 
-  updateSelectedOption(option: Option, optionIndex: number): void {
+  updateSelectedOption(option: any, optionIndex: number): void {
     this.alreadyAnswered = true;
-    this.currentQuestion.options.forEach((o, i) => o.selected = i === optionIndex);
-    this.answer.emit({
-      selectedOption: option,
-      optionIndex: optionIndex
-    });
-
-    // this.answer.emit(optionIndex);
+    this.answer.emit(optionIndex);
 
     this.clearSelection();
     this.updateSelection(optionIndex);
