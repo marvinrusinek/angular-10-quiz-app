@@ -4,8 +4,9 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   selector: 'codelab-quiz-option-feedback',
   templateUrl: './option-feedback.component.html',
   styleUrls: ['./option-feedback.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OptionFeedbackComponent {
   @Input() correct: boolean;
+  @Input() selectedAnswer: string;
 }
