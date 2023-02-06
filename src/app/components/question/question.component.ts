@@ -15,10 +15,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
-interface QuizAudio {
-  correctSound: HTMLAudioElement;
-  incorrectSound: HTMLAudioElement;
-}
 
 @Component({
   selector: 'codelab-quiz-question',
