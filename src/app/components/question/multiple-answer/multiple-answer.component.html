@@ -6,18 +6,15 @@
     <mat-checkbox [class]="option.styleClass">
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
-      <codelab-quiz-option-feedback
-        [correct]="option.correct"
-        [selected]="option.selected"
-      >
+      <codelab-quiz-option-feedback [correct]="option.correct">
       </codelab-quiz-option-feedback>
     </mat-checkbox>
 
     <codelab-quiz-feedback
-      *ngIf="option.selected"
       [option]="option"
+      (click)="updateSelection(i)"
+      *ngIf="option.selected"
       [correctMessage]="correctMessage"
-      (change)="updateSelectedOption(option, i)"
     ></codelab-quiz-feedback>
   </div>
 </ng-container>
