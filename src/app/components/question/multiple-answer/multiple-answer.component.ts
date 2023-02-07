@@ -1,10 +1,11 @@
 import {
   ChangeDetectionStrategy,
-  Component,
+  Component, Input,
   ViewEncapsulation,
 } from '@angular/core';
 
 import { QuizQuestionComponent } from '../question.component';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -13,4 +14,14 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent {}
+export class MultipleAnswerComponent extends QuizQuestionComponent {
+  @Input() question: QuizQuestion;
+  @Input() options: string[];
+  @Input() correctAnswer: string;
+
+  selectedAnswer: string;
+
+  onOptionClick(option: string) {
+    this.selectedAnswer = option;
+  }
+}
