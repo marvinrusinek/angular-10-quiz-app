@@ -128,6 +128,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   selectedOption: Option;
 
   onOptionSelected(selectedOption: Option) {
+    this.selectedOption = selectedOption;
     this.answer.emit(selectedOption.value);
   } 
 }
