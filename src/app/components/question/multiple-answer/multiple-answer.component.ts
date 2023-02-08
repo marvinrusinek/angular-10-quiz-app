@@ -1,6 +1,7 @@
-import {
+/* import {
   ChangeDetectionStrategy,
-  Component, Input,
+  Component,
+  Input,
   ViewEncapsulation,
 } from '@angular/core';
 
@@ -22,17 +23,103 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
 
   selectedOption: Option = {
     text: '',
-    correct: false
+    correct: false,
   };
 
-  /* onOptionClick(option: string) {
+  onOptionClick(option: string) {
     this.selected = option;
     const selectedIndex = this.question.options.findIndex(o => o.text === option);
     this.selectedOption = selectedIndex;
     this.answer.emit(this.selectedOption);
-  } */
-
-  onOptionClick(option: Option) {
-    this.selectedOption = option.value;
   }
-} 
+
+  onOptionClick(event: MouseEvent) {
+    const target = event.target as HTMLOptionElement;
+    const option = options.find((option) => option.text === target.text);
+
+    if (option) {
+      this.selectedOption = Number(target.value);
+    }
+  }
+}
+*/
+
+/* 
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  ViewEncapsulation,
+} from '@angular/core';
+
+import { QuizQuestionComponent } from '../question.component';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { Option } from '../../../shared/models/Option.model';
+
+@Component({
+  selector: 'codelab-question-multiple-answer',
+  templateUrl: './multiple-answer.component.html',
+  styleUrls: ['./multiple-answer.component.scss', '../question.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.ShadowDom,
+})
+export class MultipleAnswerComponent extends QuizQuestionComponent {
+  @Input() question: QuizQuestion;
+  @Input() correctMessage: string;
+  @Input() selected: string;
+
+  selectedOption: Option = {
+    text: '',
+    correct: false,
+  };
+
+  onOptionClick(event: MouseEvent) {
+    const target = event.target as HTMLOptionElement;
+    const option = this.question.options.find((option) => option.text === target.text);
+
+    if (option) {
+      this.selectedOption = Number(target.value);
+    }
+  }
+}
+ */
+
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  ViewEncapsulation,
+} from '@angular/core';
+
+import { QuizQuestionComponent } from '../question.component';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { Option } from '../../../shared/models/Option.model';
+
+@Component({
+  selector: 'codelab-question-multiple-answer',
+  templateUrl: './multiple-answer.component.html',
+  styleUrls: ['./multiple-answer.component.scss', '../question.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.ShadowDom,
+})
+export class MultipleAnswerComponent extends QuizQuestionComponent {
+  @Input() question: QuizQuestion;
+  @Input() correctMessage: string;
+  @Input() selected: string;
+
+  selectedOption: Option = {
+    text: '',
+    correct: false,
+  };
+
+  onOptionClick(event: MouseEvent) {
+    const target = event.target as HTMLOptionElement;
+    const option = this.question.options.find((o) => o.text === target.text);
+
+    if (option) {
+      this.selectedOption = option;
+    }
+  }
+}
+
+
