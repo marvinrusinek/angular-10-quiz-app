@@ -83,13 +83,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = false;
   }
 
-  updateSelectedOption(option: any, optionIndex: number): void {
+  private updateSelectedOption(optionIndex: number, selectedOption: Option): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
-
+    this.selectedOption = selectedOption;
+   
     this.clearSelection();
     this.updateSelection(optionIndex);
-    this.updateClassName(optionIndex);
+    this.updateClassName(optionIndex, this.selectedOption);
     this.playSound(optionIndex);
   }
 
@@ -103,7 +104,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateSelection(optionIndex: number): void {
-    // console.log(this.currentQuestion.options);
     const option = this.currentQuestion.options[optionIndex];
     if (option) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
@@ -112,25 +112,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  /* private updateSelection(optionIndex: number): void {
-    console.log(this.currentQuestion.options);
-    const option = this.currentQuestion.options[optionIndex];
-    if (option) {
-      option.selected = true;
-      this.optionSelected = option;
-    }
-  } */
-
-  /* private updateSelection(optionIndex: number): void {
-    if (!this.currentQuestion) {
-      console.error('this.currentQuestion is undefined');
-      return;
-    }
-    this.currentQuestion.options[optionIndex].selected = true;
-    this.optionSelected = this.currentQuestion.options[optionIndex];
-  } */
-
-  updateClassName(selectedOption: Option, optionIndex: number) {
+  private updateClassName(optionIndex: number, selectedOption: Option): void {
     if (selectedOption) {
       this.optionSelected.styleClass = this.currentQuestion.options[
         optionIndex
