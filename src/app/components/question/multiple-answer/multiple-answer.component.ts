@@ -23,7 +23,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() correctMessage: string;
   @Input() selected: string;
   @Output() answer = new EventEmitter<number>();
-  selectedOption: Option;
+  selectedOption: Option = {} as Option;
 
   onOptionSelected(selectedOption: Option) {
     if (selectedOption) {
