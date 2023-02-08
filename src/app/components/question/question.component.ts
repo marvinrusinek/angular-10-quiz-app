@@ -83,14 +83,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = false;
   }
 
-  private updateSelectedOption(optionIndex: number, selectedOption: Option): void {
+  private updateSelectedOption(
+    selectedOption: Option,
+    optionIndex: number
+  ): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
     this.selectedOption = selectedOption;
-   
+
     this.clearSelection();
     this.updateSelection(optionIndex);
-    this.updateClassName(optionIndex, this.selectedOption);
+    this.updateClassName(this.selectedOption, optionIndex);
     this.playSound(optionIndex);
   }
 
@@ -112,7 +115,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  private updateClassName(optionIndex: number, selectedOption: Option): void {
+  private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (selectedOption) {
       this.optionSelected.styleClass = this.currentQuestion.options[
         optionIndex
