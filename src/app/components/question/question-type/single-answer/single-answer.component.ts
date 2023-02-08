@@ -5,9 +5,9 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { QuizQuestionComponent } from '../question.component';
-import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
-import { Option } from '../../../shared/models/Option.model';
+import { QuizQuestionComponent } from '../../question.component';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { Option } from '../../../../shared/models/Option.model';
 
 @Component({
   selector: 'codelab-question-single-answer',
