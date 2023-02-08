@@ -109,13 +109,13 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
 
   selectedOption: Option = {
     text: '',
-    correct: false,
+    correct: false
   };
 
   onOptionClick(event: MouseEvent) {
     const target = event.target as HTMLOptionElement;
-    const option = this.question.options.find((o) => o.text === target.text);
-
+    const option = this.question.options.find((option) => option.text === target.text);
+  
     if (option) {
       this.selectedOption = option;
     }
