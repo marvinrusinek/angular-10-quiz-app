@@ -7,6 +7,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OptionFeedbackComponent {
-  @Input() correct: boolean;
+  @Input() correctMessage: boolean;
   @Input() selected: string;
 }
