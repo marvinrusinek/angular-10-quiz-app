@@ -26,7 +26,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
 
   onOptionSelected(selectedOption: Option) {
-    console.log(selectedOption);
     if (selectedOption) {
       this.selectedOption = selectedOption;
       this.answer.emit(this.selectedOption.correct ? 1 : 0);
