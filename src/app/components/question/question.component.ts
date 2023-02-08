@@ -15,7 +15,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
 
-
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -107,7 +106,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     console.log(this.currentQuestion.options);
     const option = this.currentQuestion.options[optionIndex];
     if (option) {
-      this.currentQuestion.options.forEach(o => o.selected = false);
+      this.currentQuestion.options.forEach((o) => (o.selected = false));
       option.selected = true;
       this.optionSelected = option;
     }

@@ -17,7 +17,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
   @Input() options: string[];
-  @Input() correctAnswer: string;
+  @Input() correctMessage: string;
   @Input() selected: string;
 
   onOptionClick(option: string) {

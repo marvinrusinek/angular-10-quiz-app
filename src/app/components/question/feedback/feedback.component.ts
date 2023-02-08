@@ -11,11 +11,11 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 export class FeedbackComponent {
   @Input() question: QuizQuestion;
   @Input() options: string[];
-  @Input() correctAnswer: string;
+  @Input() correctMessage: string;
 
   selected: string;
 
   onOptionClick(option: string) {
-    this.selectedOption = option;
+    this.selected = option;
   }
 }
