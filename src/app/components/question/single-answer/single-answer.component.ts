@@ -13,4 +13,13 @@ import { QuizQuestionComponent } from '../question.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent {}
+export class SingleAnswerComponent extends QuizQuestionComponent {
+  @Input() question: QuizQuestion;
+  @Input() correctMessage: string;
+  @Input() selected: string;
+  selectedOption: Option;
+
+  onOptionSelected(selectedOption: Option) {
+    this.selectedOption = selectedOption;
+  }
+}

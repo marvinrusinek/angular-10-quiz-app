@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  ViewEncapsulation
+  ViewEncapsulation,
 } from '@angular/core';
 
 import { QuizQuestionComponent } from '../question.component';
@@ -20,7 +20,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selected: string;
-
   selectedOption: Option;
 
   onOptionSelected(selectedOption: Option) {

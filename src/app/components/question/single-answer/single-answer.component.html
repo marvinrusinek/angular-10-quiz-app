@@ -25,8 +25,9 @@
     </mat-radio-button>
 
     <codelab-quiz-feedback
-      *ngIf="option.selected"
-      [option]="option"
+      *ngIf="selectedOption?.text === option.text"
+      [question]="question"
+      [selectedOption]="selectedOption"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>
   </div>
