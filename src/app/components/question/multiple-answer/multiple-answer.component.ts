@@ -20,17 +20,15 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() correctMessage: string;
   @Input() selected: string;
 
-  selectedOption: Option;
+  selectedOption: Option = {
+    text: '',
+    correct: false
+  };
 
   onOptionClick(option: string) {
     this.selected = option;
-    const selectedOption = {
-      correct: this.question.options.find(o => o.text === option).correct
-    };
-    this.selectedOption = {
-      text: option,
-      correct: selectedOption.correct
-    };
+    const selectedIndex = this.question.options.findIndex(o => o.text === option);
+    this.selectedOption = selectedIndex;
     this.answer.emit(this.selectedOption);
   }
-}
+} 
