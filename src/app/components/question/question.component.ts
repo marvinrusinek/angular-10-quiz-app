@@ -83,7 +83,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = false;
   }
 
-  updateSelectedOption(selectedOption: Option, optionIndex: number): void {
+  private updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
     this.selectedOption = selectedOption;
