@@ -132,4 +132,3 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   } 
 }
 
-
