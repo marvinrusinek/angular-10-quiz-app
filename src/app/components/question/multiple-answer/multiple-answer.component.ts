@@ -18,10 +18,9 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
   @Input() options: string[];
   @Input() correctAnswer: string;
-
-  selectedAnswer: string;
+  @Input() selected: string;
 
   onOptionClick(option: string) {
-    this.selectedAnswer = option;
+    this.selected = option;
   }
 }

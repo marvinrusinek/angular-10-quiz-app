@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+
 @Component({
   selector: 'codelab-quiz-feedback',
   templateUrl: './feedback.component.html',
@@ -7,6 +9,13 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeedbackComponent {
-  @Input() option: any;
-  @Input() correctMessage: string;
+  @Input() question: QuizQuestion;
+  @Input() options: string[];
+  @Input() correctAnswer: string;
+
+  selected: string;
+
+  onOptionClick(option: string) {
+    this.selectedOption = option;
+  }
 }
