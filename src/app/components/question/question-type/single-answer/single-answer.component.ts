@@ -7,12 +7,15 @@ import {
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
-import { Option } from '../../../../shared/models/Option.model';
+import { Option } from '../../../../../shared/models/Option.model';
 
 @Component({
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
-  styleUrls: ['./single-answer.component.scss', '../question.component.scss'],
+  styleUrls: [
+    '../../single-answer.component.scss',
+    '../../question.component.scss',
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })

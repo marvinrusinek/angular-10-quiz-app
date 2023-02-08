@@ -14,7 +14,10 @@ import { Option } from '../../../../shared/models/Option.model';
 @Component({
   selector: 'codelab-question-multiple-answer',
   templateUrl: './multiple-answer.component.html',
-  styleUrls: ['./multiple-answer.component.scss', '../question.component.scss'],
+  styleUrls: [
+    './multiple-answer.component.scss',
+    '../../question.component.scss',
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
