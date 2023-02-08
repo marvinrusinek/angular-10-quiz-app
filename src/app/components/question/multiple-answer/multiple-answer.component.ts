@@ -1,10 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
-  Output,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 
 import { QuizQuestionComponent } from '../question.component';
@@ -22,12 +20,10 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selected: string;
-  // @Output() answer = new EventEmitter<number>();
 
   selectedOption: Option;
 
   onOptionSelected(selectedOption: Option) {
     this.selectedOption = selectedOption;
-    // this.answer.emit(selectedOption.value);
   }
 }
