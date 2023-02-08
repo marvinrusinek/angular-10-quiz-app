@@ -25,10 +25,15 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = {} as Option;
 
-  onOptionSelected(selectedOption: Option) {
+  /* onOptionSelected(selectedOption: Option) {
     if (selectedOption && selectedOption.hasOwnProperty('correct')) {
       this.selectedOption = selectedOption;
       this.answer.emit(this.selectedOption.correct ? 1 : 0);
     }
+  } */
+
+  onOptionSelected(selectedOption: Option) {
+    this.selectedOption = selectedOption;
+    this.answer.emit(this.selectedOption ? this.selectedOption.correct ? 1 : 0 : null);
   }
 }
