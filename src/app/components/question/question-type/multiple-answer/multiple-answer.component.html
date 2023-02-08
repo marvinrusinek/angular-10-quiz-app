@@ -9,11 +9,14 @@
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
-      <codelab-quiz-option-feedback
+      <ng-container *ngIf="option.selected">
+        <i class="material-icons">{{ option.correct ? 'done' : 'clear' }}</i>
+      </ng-container>
+      <!--<codelab-quiz-option-feedback
         [selected]="selected"
         [selectedOption]="selectedOption"
       >
-      </codelab-quiz-option-feedback>
+      </codelab-quiz-option-feedback>-->
     </mat-checkbox>
 
     <codelab-quiz-feedback
