@@ -7,6 +7,7 @@
       [class]="option.styleClass"
       (click)="onOptionSelected(option)"
       (change)="onSelectionChange(question, option)"
+      [checked]="option.selected"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
