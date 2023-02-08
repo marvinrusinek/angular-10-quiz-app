@@ -23,7 +23,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() correctMessage: string;
   @Input() selected: string;
   @Output() answer = new EventEmitter<number>();
-  selectedOption: Option = {} as Option;
+  selectedOption: Option = { text: '', correct: false, value: 0 } as Option;
 
   /* onOptionSelected(selectedOption: Option) {
     if (selectedOption && selectedOption.hasOwnProperty('correct')) {
@@ -32,8 +32,15 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     }
   } */
 
+  /* onOptionSelected(selectedOption: Option) {
+    this.selectedOption = selectedOption;
+    this.answer.emit(
+      this.selectedOption ? (this.selectedOption.correct ? 1 : 0) : null
+    );
+  } */
+
   onOptionSelected(selectedOption: Option) {
     this.selectedOption = selectedOption;
-    this.answer.emit(this.selectedOption ? this.selectedOption.correct ? 1 : 0 : null);
+    this.answer.emit(selectedOption ? (selectedOption.correct ? 1 : 0) : null);
   }
 }
