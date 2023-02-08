@@ -13,7 +13,7 @@ import { Option } from '../../../../shared/models/Option.model';
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
   styleUrls: [
-    '../../single-answer.component.scss',
+    './single-answer.component.scss',
     '../../question.component.scss',
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
