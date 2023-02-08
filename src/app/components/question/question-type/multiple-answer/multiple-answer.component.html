@@ -11,7 +11,9 @@
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
       <ng-container *ngIf="option.selected">
-        <i class="material-icons">{{ option.correct ? 'done' : 'clear' }}</i>
+        <i class="fas material-icons">{{
+          option.correct ? 'done' : 'clear'
+        }}</i>
       </ng-container>
       <!--<codelab-quiz-option-feedback
         [selected]="selected"
