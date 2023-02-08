@@ -23,7 +23,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() correctMessage: string;
   @Input() selected: string;
   @Output() answer = new EventEmitter<number>();
-  selectedOption: Option = { correct: false } as Option;
+  selectedOption: Option = { text: '', correct: false, value: 0 } as Option;
 
   /* onOptionSelected(selectedOption: Option) {
     if (selectedOption && selectedOption.hasOwnProperty('correct')) {
