@@ -130,8 +130,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.optionSelected = this.currentQuestion.options[optionIndex];
   } */
 
-  private updateClassName(optionIndex: number): void {
-    if (this.selectedOption) {
+  updateClassName(selectedOption: Option, optionIndex: number) {
+    if (selectedOption) {
       this.optionSelected.styleClass = this.currentQuestion.options[
         optionIndex
       ]['correct']
