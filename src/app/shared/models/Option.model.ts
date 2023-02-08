@@ -3,5 +3,6 @@ export interface Option {
   correct?: boolean;
   selected?: boolean;
   styleClass?: string;
+  value: number;
 }
 type Options = Option[];

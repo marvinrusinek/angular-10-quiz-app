@@ -102,7 +102,7 @@ import { Option } from '../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent {
+/* export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selected: string;
@@ -112,10 +112,23 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   onOptionClick(event: MouseEvent) {
     const target = event.target as HTMLOptionElement;
     const option = this.question.options.find((option) => option.text === target.text);
-
+  
     if (option) {
       this.selectedOption = option;
+      this.answer.emit(this.selectedOption);
     }
+  }
+}*/
+export class MultipleAnswerComponent extends QuizQuestionComponent {
+  @Input() question: QuizQuestion;
+  @Input() correctMessage: string;
+  @Input() selected: string;
+
+  selectedOption: number;
+
+  onOptionClick(option: Option) {
+    this.selectedOption = option.value;
+    this.answer.emit(this.selectedOption);
   }
 }
 
