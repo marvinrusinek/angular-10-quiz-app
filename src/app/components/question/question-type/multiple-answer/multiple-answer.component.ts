@@ -36,4 +36,10 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
       this.answer.emit(null);
     }
   }
+
+  onSelectionChange(question, selectedOption) {
+    question.options.forEach(
+      (option) => (option.selected = option === selectedOption)
+    );
+  }
 }

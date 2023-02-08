@@ -6,12 +6,13 @@
     <mat-checkbox
       [class]="option.styleClass"
       (click)="onOptionSelected(option)"
+      (change)="onSelectionChange(question, option)"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
-      <ng-container *ngIf="option.selected">
+      <!--<ng-container *ngIf="option.selected">
         <i class="material-icons">{{ option.correct ? 'done' : 'clear' }}</i>
-      </ng-container>
+      </ng-container>-->
       <!--<codelab-quiz-option-feedback
         [selected]="selected"
         [selectedOption]="selectedOption"
