@@ -131,11 +131,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   } */
 
   private updateClassName(optionIndex: number): void {
-    this.optionSelected.styleClass = this.currentQuestion.options[optionIndex][
-      'correct'
-    ]
-      ? 'correct'
-      : 'incorrect';
+    if (this.selectedOption) {
+      this.optionSelected.styleClass = this.currentQuestion.options[
+        optionIndex
+      ]['correct']
+        ? 'correct'
+        : 'incorrect';
+    }
   }
 
   private playSound(optionIndex: number): void {
