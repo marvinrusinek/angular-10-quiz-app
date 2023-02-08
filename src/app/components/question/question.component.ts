@@ -30,7 +30,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctMessage = '';
   multipleAnswer: boolean;
   alreadyAnswered = false;
-  selectedOption: string = '';
+  selectedOption: Option;
 
   constructor(
     private quizService: QuizService,
@@ -108,7 +108,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     if (option) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
       option.selected = true;
-      this.optionSelected = option;
+      this.selectedOption = option;
     }
   }
 

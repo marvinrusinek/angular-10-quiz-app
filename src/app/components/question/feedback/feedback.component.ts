@@ -10,12 +10,8 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 })
 export class FeedbackComponent {
   @Input() question: QuizQuestion;
-  @Input() options: string[];
+  @Input() selectedOption: {correct: boolean};
   @Input() correctMessage: string;
 
-  selected: string;
-
-  onOptionClick(option: string) {
-    this.selected = option;
-  }
+  constructor() {}
 }

@@ -12,7 +12,7 @@
     *ngSwitchCase="multipleAnswer"
     [question]="question"
     (answer)="updateSelectedOption($event, i)"
-    [selected]="selected"
+    [selectedOption]="selectedOption"
     [correctMessage]="correctMessage"
   >
   </codelab-question-multiple-answer>

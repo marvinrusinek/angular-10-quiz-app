@@ -6,6 +6,7 @@ import {
 
 import { QuizQuestionComponent } from '../question.component';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { Option } from '../../../shared/models/Option.model';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -16,11 +17,20 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 })
 export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
-  @Input() options: string[];
   @Input() correctMessage: string;
   @Input() selected: string;
 
+  selectedOption: Option;
+
   onOptionClick(option: string) {
     this.selected = option;
+    const selectedOption = {
+      correct: this.question.options.find(o => o.text === option).correct
+    };
+    this.selectedOption = {
+      text: option,
+      correct: selectedOption.correct
+    };
+    this.answer.emit(this.selectedOption);
   }
 }

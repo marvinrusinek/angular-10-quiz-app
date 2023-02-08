@@ -14,11 +14,9 @@
     </mat-checkbox>
 
     <codelab-quiz-feedback
-      [option]="option"
-      (click)="updateSelection(i)"
-      *ngIf="option.selected"
+      [question]="question"
+      [selectedOption]="selectedOption"
       [correctMessage]="correctMessage"
-      [selected]="selected"
     ></codelab-quiz-feedback>
   </div>
 </ng-container>
