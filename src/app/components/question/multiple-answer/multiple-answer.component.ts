@@ -29,9 +29,15 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     // this.selectedOption = selectedOption;
     // this.answer.emit(selectedOption.value);
 
-    if (selectedOption) {
+    /* if (selectedOption) {
       this.selectedOption = selectedOption;
       this.answer.emit(this.selectedOption.correct ? 1 : 0);
+    } */
+
+    let value;
+    if (selectedOption.correct !== undefined) {
+      value = selectedOption.correct ? 1 : 0;
     }
+    this.answer.emit(value);
   }
 }
