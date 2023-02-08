@@ -25,10 +25,14 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     correct: false
   };
 
-  onOptionClick(option: string) {
+  /* onOptionClick(option: string) {
     this.selected = option;
     const selectedIndex = this.question.options.findIndex(o => o.text === option);
     this.selectedOption = selectedIndex;
     this.answer.emit(this.selectedOption);
+  } */
+
+  onOptionClick(option: Option) {
+    this.selectedOption = option.value;
   }
 } 
