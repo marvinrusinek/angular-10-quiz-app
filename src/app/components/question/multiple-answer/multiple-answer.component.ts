@@ -44,10 +44,19 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     this.answer.emit(selectedOption ? (selectedOption.correct ? 1 : 0) : null);
   } */
 
-  onOptionSelected(selectedOption: Option) {
+  /* onOptionSelected(selectedOption: Option) {
     this.selectedOption = selectedOption;
     this.answer.emit(
       this.selectedOption && this.selectedOption.correct ? 1 : 0
     );
+  } */
+
+  onOptionSelected(selectedOption: Option) {
+    if (selectedOption) {
+      this.selectedOption = selectedOption;
+      this.answer.emit(this.selectedOption.correct ? 1 : 0);
+    } else {
+      this.answer.emit(null);
+    }
   }
 }
