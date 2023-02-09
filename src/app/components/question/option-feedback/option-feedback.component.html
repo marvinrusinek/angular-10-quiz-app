@@ -13,6 +13,18 @@
   <mat-icon fontSet="material-icons" *ngIf="!correct">clear</mat-icon>
 </ng-container>-->
 
-<mat-icon *ngIf="selected === true || correct === true">{{
+<!--<mat-icon *ngIf="selected === true || correct === true">{{
   correct ? 'done' : 'clear'
-}}</mat-icon>
+}}</mat-icon>-->
+
+<!--<mat-icon
+  style="font-size: 36px; height: 36px; width: 36px; line-height: 36px;"
+  *ngIf="selected === true || correct === true"
+  >{{ correct ? 'done' : 'clear' }}</mat-icon
+>-->
+
+<ng-container *ngIf="selected !== undefined">
+  <mat-icon *ngIf="selected" class="feedback-icon" fontSet="material-icons">{{
+    correct ? 'done' : 'clear'
+  }}</mat-icon>
+</ng-container>

@@ -11,8 +11,8 @@
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
       <codelab-quiz-option-feedback
-        [correct]="correct"
-        [selected]="selected"        
+        [correct]="option.correct"
+        [selected]="selectedOption === option"
       >
       </codelab-quiz-option-feedback>
     </mat-checkbox>
