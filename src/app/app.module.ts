@@ -1,5 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizRoutingModule } from './router/quiz-routing.module';
@@ -69,6 +70,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
   ],
   imports: [
     CommonModule,
+    BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
     QuizRoutingModule,
