@@ -13,7 +13,7 @@
     "@angular/flex-layout": "^11.0.0-beta.33",
     "@angular/forms": "10.1.6",
     "@angular/localize": "10.1.6",
-    "@angular/material": "10.2.5",
+    "@angular/material": "^10.2.5",
     "@angular/platform-browser": "10.1.6",
     "@angular/platform-browser-dynamic": "10.1.6",
     "@angular/router": "10.1.6",
