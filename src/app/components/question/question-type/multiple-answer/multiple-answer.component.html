@@ -2,7 +2,10 @@
   <div
     class="options"
     *ngFor="let option of currentQuestion.options; index as i"
-    [ngClass]="{'correct': selectedOption === option && option.correct, 'incorrect': selectedOption === option && !option.correct}"
+    [ngClass]="{
+      correct: selectedOption === option && option.correct,
+      incorrect: selectedOption === option && !option.correct
+    }"
   >
     <mat-checkbox
       [class]="option.styleClass"

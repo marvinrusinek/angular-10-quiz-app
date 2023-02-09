@@ -1,6 +1,56 @@
+@import '../../../../../variables';
+
 .mat-checkbox-layout {
   display: block !important;
 }
 div.mat-checkbox-inner-container {
   display: none;
+}
+
+.options {
+  margin: 0 0 17.5px 6.5px;
+  padding: 5px;
+
+  mat-checkbox,
+  mat-radio-button {
+    cursor: pointer;
+    display: inline-block;
+    width: 590px;
+    height: auto;
+    font-family: $font-stack;
+    font-size: 20px;
+    color: $dark-brown;
+    background-color: $light-gray;
+    border: 2px solid $medium-gray;
+    padding: 10px 5px 10px 30px;
+    margin-left: -5px;
+
+    &:hover {
+      border: 2px solid $vivid-blue;
+    }
+
+    &:first-child {
+      margin-top: -25px;
+    }
+  }
+
+  .correct {
+    background-color: $green;
+    border: 2px solid $vivid-blue;
+  }
+
+  .incorrect {
+    background-color: $red;
+    border: 2px solid $vivid-blue;
+  }
+
+  span {
+    white-space: normal;
+    margin-top: 5px;
+  }
+
+  i {
+    position: absolute;
+    right: 40px;
+  }
 }
