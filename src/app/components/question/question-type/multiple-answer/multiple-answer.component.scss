@@ -34,16 +34,6 @@ div.mat-checkbox-inner-container {
     }
   }
 
-  .correct {
-    background-color: $green;
-    border: 2px solid $vivid-blue;
-  }
-
-  .incorrect {
-    background-color: $red;
-    border: 2px solid $vivid-blue;
-  }
-
   span {
     white-space: normal;
     margin-top: 5px;
@@ -53,4 +43,14 @@ div.mat-checkbox-inner-container {
     position: absolute;
     right: 40px;
   }
+}
+
+.correct {
+  background-color: $green;
+  border: 2px solid $vivid-blue;
+}
+
+.incorrect {
+  background-color: $red;
+  border: 2px solid $vivid-blue;
 }
