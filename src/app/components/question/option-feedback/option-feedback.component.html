@@ -24,7 +24,5 @@
 >-->
 
 <ng-container *ngIf="selected !== undefined">
-  <mat-icon *ngIf="selected" fontSet="material-icons">{{
-    correct ? 'done' : 'clear'
-  }}</mat-icon>
+  <mat-icon *ngIf="selected">{{ correct ? 'done' : 'clear' }}</mat-icon>
 </ng-container>
