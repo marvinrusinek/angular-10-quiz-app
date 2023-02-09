@@ -1,3 +1,8 @@
+<!--<ng-container [ngSwitch]="correct">
+  <i class="material-icons" *ngSwitchCase="true">done</i>
+  <i class="material-icons" *ngSwitchCase="false">clear</i>
+</ng-container>-->
+
 <ng-container *ngIf="correct !== undefined && selected !== undefined">
-  <i class="material-icons">{{ correct ? 'done' : 'clear' }}</i>
+  <mat-icon fontSet="material-icons">{{ correct ? 'done' : 'clear' }}</mat-icon>
 </ng-container>
