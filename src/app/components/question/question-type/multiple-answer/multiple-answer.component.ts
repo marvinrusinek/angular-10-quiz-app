@@ -10,6 +10,7 @@ import {
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
+import { QuizService } from '../../../../shared/services/quiz.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -28,6 +29,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
 
+  constructor(private quizService: QuizService) {}
+
   onOptionSelected(selectedOption: Option): void {
     if (selectedOption) {
       this.selectedOption = selectedOption;
@@ -43,7 +46,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     );
   } */
 
-  onSelectionChange(question, option) {
+  onSelectionChange(question: QuizQuestion, option: Option) {
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
@@ -58,7 +61,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
       question.selectedOptions.sort().join(',') ===
       question.answer.sort().join(',')
     ) {
-      this.score++;
+      this.quizService.score++;
     }
   }
 }
