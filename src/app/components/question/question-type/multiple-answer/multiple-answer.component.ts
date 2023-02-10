@@ -10,7 +10,7 @@ import {
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
-import { QuizService } from '../../../../shared/services/quiz.service';
+// import { QuizService } from '../../../../shared/services/quiz.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -29,7 +29,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
 
-  constructor(private quizService: QuizService) {}
+  // constructor(private quizService: QuizService) {}
 
   onOptionSelected(selectedOption: Option): void {
     if (selectedOption) {
