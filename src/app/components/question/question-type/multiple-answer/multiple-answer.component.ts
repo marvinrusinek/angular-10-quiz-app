@@ -28,7 +28,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
 
-  onOptionSelected(selectedOption: Option) {
+  onOptionSelected(selectedOption: Option): void {
     if (selectedOption) {
       this.selectedOption = selectedOption;
       this.answer.emit(this.selectedOption.correct ? 1 : 0);
@@ -37,7 +37,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     }
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOption: Option) {
+  onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
     question.options.forEach(
       (option) => (option.selected = option === selectedOption)
     );
