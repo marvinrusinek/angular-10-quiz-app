@@ -1,0 +1,42 @@
+<ul class="summary-stats">
+  <li>
+    <span class="summary-stats-leader"> Your Score: </span>
+    <span class="result">{{ quizMetadata.correctAnswersCount$ | async }}</span>
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Total Questions: </span>
+    <span class="result">{{ quizMetadata.totalQuestions }}</span>
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Total Questions Attempted: </span>
+    <span class="result">{{ quizMetadata.totalQuestionsAttempted }}</span>
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Your Score (percentage): </span>
+    <span class="result">{{ quizMetadata.percentage }}%</span>
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Passing Score: </span>
+    <span class="result">60%</span>
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Test Status: </span>
+    <span class="result">{{
+      quizMetadata.percentage > 60 ? 'Passed' : 'Failed'
+    }}</span>
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Time Elapsed: </span>
+    <span class="result"
+      >{{ elapsedMinutes }}
+      {{ elapsedMinutes === 1 ? 'minute' : 'minutes' }} and
+      {{ elapsedSeconds }} seconds</span
+    >
+  </li>
+  <li>
+    <span class="summary-stats-leader"> Date/Time Completed: </span>
+    <span class="result" *ngIf="score">{{
+      score.attemptDateTime | date: 'medium'
+    }}</span>
+  </li>
+</ul>
