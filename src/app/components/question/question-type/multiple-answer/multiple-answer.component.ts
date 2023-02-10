@@ -37,9 +37,28 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     }
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
+  /* onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
     question.options.forEach(
       (option) => (option.selected = option === selectedOption)
     );
+  } */
+
+  onSelectionChange(question, option) {
+    if (!question.selectedOptions) {
+      question.selectedOptions = [];
+    }
+    const index = question.selectedOptions.indexOf(option);
+    if (index === -1) {
+      question.selectedOptions.push(option);
+    } else {
+      question.selectedOptions.splice(index, 1);
+    }
+
+    if (
+      question.selectedOptions.sort().join(',') ===
+      question.answer.sort().join(',')
+    ) {
+      this.score++;
+    }
   }
 }
