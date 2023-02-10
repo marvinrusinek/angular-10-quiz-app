@@ -37,7 +37,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent {
     }
   }
 
-  onSelectionChange(question, selectedOption) {
+  onSelectionChange(question: QuizQuestion, selectedOption: Option) {
     question.options.forEach(
       (option) => (option.selected = option === selectedOption)
     );

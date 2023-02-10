@@ -4,7 +4,6 @@
     *ngFor="let option of currentQuestion.options; index as i"
   >
     <mat-checkbox
-      [class]="option.styleClass"
       (click)="onOptionSelected(option)"
       (change)="onSelectionChange(question, option)"
       [ngClass]="{
