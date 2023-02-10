@@ -323,13 +323,4 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
   }
-  
-  onSelectionChange(event: MatRadioChange) {
-    this.selectedOption = event.value;
-    if (this.selectedOption === this.questions[this.currentQuestion].answer) {
-      this.score++;
-      this.correctAnswers++;
-    }
-    this.currentQuestion++;
-  }
-  
+}
