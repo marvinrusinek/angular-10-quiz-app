@@ -25,7 +25,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent {
   @Input() selected: string;
   selectedOption: Option;
 
-  onOptionSelected(selectedOption: Option) {
+  onOptionSelected(selectedOption: Option): void {
     this.selectedOption = selectedOption;
   }
 }
