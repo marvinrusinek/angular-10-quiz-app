@@ -244,6 +244,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
+    console.log('Next button clicked!');
     this.checkIfAnsweredCorrectly();
     this.answers = [];
     this.status = Status.Continue;

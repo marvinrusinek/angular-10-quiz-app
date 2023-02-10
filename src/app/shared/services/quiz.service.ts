@@ -299,9 +299,9 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion() {
     this.quizCompleted = false;
+    console.log(this.currentQuestionIndex);
     this.currentQuestionIndex++;
     const questionIndex = this.currentQuestionIndex;
-    console.log(`/question/${this.quizId}/${questionIndex}`);
     this.router.navigate(['/question/', this.quizId, questionIndex]);
     this.resetAll();
   }
