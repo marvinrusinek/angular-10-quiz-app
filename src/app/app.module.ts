@@ -42,6 +42,7 @@ import { ReturnComponent } from './containers/results/return/return.component';
 import { StatisticsComponent } from './containers/results/statistics/statistics.component';
 import { SummaryReportComponent } from './containers/results/summary-report/summary-report.component';
 import { SummaryIconsComponent } from './containers/results/summary-report/summary-icons/summary-icons.component';
+import { SummaryStatsComponent } from './containers/results/summary-report/summary-stats/summary-stats.component';
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 
 @NgModule({
@@ -66,6 +67,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     StatisticsComponent,
     SummaryReportComponent,
     SummaryIconsComponent,
+    SummaryStatsComponent,
     ChallengeComponent,
   ],
   imports: [
