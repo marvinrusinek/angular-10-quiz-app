@@ -249,6 +249,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers = [];
     this.status = Status.Continue;
     this.animationState$.next('animationStarted');
+    console.log('Calling navigateToNextQuestion...');
     this.quizService.navigateToNextQuestion();
     this.timerService.resetTimer();
   }
