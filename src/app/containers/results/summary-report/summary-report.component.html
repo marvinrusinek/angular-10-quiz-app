@@ -44,7 +44,9 @@
       </li>
       <li>
         <span class="summary-stats-leader"> Date/Time Completed: </span>
-        <span class="result">{{ score.attemptDateTime | date: 'medium' }}</span>
+        <span class="result" *ngIf="score">{{
+          score.attemptDateTime | date: 'medium'
+        }}</span>
       </li>
     </ul>
     <br />

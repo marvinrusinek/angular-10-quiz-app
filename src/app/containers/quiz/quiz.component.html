@@ -113,7 +113,6 @@
             <button
               type="button"
               mat-icon-button
-              [disabled]="!isAnswered()"
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
@@ -128,7 +127,6 @@
               type="submit"
               mat-raised-button
               disableRipple="true"
-              [disabled]="!isAnswered()"
               (click)="advanceToResults()"
               (window:keydown.Enter)="advanceToResults()"
               (window:keydown.ArrowRight)="advanceToResults()"
