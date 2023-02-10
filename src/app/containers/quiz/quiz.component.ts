@@ -244,13 +244,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
-    console.log('Next button clicked!');
+    console.log('advanceToNextQuestion function called');
     this.checkIfAnsweredCorrectly();
     this.answers = [];
     this.status = Status.Continue;
     this.animationState$.next('animationStarted');
-
-    console.log('About to navigate to next question');
     this.quizService.navigateToNextQuestion();
     this.timerService.resetTimer();
   }
