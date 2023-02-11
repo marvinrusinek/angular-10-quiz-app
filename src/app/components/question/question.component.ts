@@ -22,6 +22,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
+  @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
   currentQuestion: QuizQuestion;
   questionForm: FormGroup;
@@ -31,11 +32,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   multipleAnswer: boolean;
   alreadyAnswered = false;
   selectedOption: Option;
+  hasSelectedOptions = false;
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService
-  ) {}
+  ) {
+    this.questionForm.valueChanges.subscribe(value => {
+      this.formValue.emit(value);
+    });
+  }
 
   ngOnInit(): void {
     this.questionForm = new FormGroup({

@@ -47,6 +47,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers = [];
   isDisabled = true;
   selectedAnswerField: number;
+  hasSelectedOptions = false;
 
   questionIndex: number;
   totalQuestions: number;
@@ -87,6 +88,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuizData();
     this.subscribeToQuizParams();
     this.updateQuestionIndex();
+  }
+
+  onFormValue(formValue: any) {
+    this.hasSelectedOptions = formValue.selectedOptions.length > 0;
   }
 
   private getQuizData(): void {

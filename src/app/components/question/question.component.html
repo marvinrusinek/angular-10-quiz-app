@@ -13,6 +13,6 @@
     [question]="currentQuestion"
     [selectedOption]="selectedOption"
     [correctMessage]="correctMessage"
-    (answer)="updateClassName(selectedOption, i)"
+    (answer)="updateClassName(selectedOption, i)" formControlName="selectedOptions" [value]="option"
   ></codelab-question-multiple-answer>
 </form>

@@ -46,6 +46,7 @@
         (answer)="selectedAnswer($event)"
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"
+        (formValue)="onFormValue($event)"
       >
       </codelab-quiz-question>
     </mat-card-content>
@@ -114,8 +115,8 @@
           >
             <button
               type="button"
-              mat-icon-button
-              [disabled]="!isAnswered()"
+              mat-icon-button              
+              [disabled]="!hasSelectedOptions"
               (click)="onSelect();advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
