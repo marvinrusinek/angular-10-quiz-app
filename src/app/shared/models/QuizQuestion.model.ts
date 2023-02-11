@@ -6,7 +6,8 @@ export interface QuizQuestion {
   explanation: string;
 
   question: string;
-  answer: string[];
+  // answer: string[];
   selectedOptions: string[];
+  answer: Option = {};
 }
 // type Questions = QuizQuestion[];

@@ -44,7 +44,8 @@
       <codelab-quiz-question
         [question]="question"
         (answer)="selectedAnswer($event)"
-        [answers]="answers" (onOptionSelected)="onOptionSelected($event)"
+        [answers]="answers"
+        (onOptionSelected)="onOptionSelected($event)"
       >
       </codelab-quiz-question>
     </mat-card-content>
@@ -114,8 +115,8 @@
             <button
               type="button"
               mat-icon-button
-              [disabled]="true"
-              (click)="advanceToNextQuestion()"
+              [disabled]="!isAnswered()"
+              (click)="onSelect();advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
               aria-label="Next Question"

@@ -44,6 +44,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   answers: number[] = [];
   @Output() optionSelected = new EventEmitter<Option>();
   selectedOption: any;
+  selectedAnswers = [];
+  isDisabled = true;
+  selectedAnswerField: number;
 
   questionIndex: number;
   totalQuestions: number;
@@ -156,13 +159,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('none');
   }
 
-  /* isAnswered(): boolean {
-    return !!(this.answers && this.answers.length > 0);
-  } */
-
   isAnswered(): boolean {
-    return this.question.options.some((option) => option.selected);
+    return !!(this.answers && this.answers.length > 0);
   }
+
+  /* isAnswered(): boolean {
+    return this.question.options.some((option) => option.selected);
+  } */
 
   /* onOptionSelected(option: Option) {
     console.log("onOptionSelected called with option:", option);
@@ -174,8 +177,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers = [index];
   }
 
+  onSelect(option) {
+    this.selectedOption = option;
+  }
+
   updateSelectedOption(selectedOption: Option) {
     this.selectedOption = selectedOption;
+  }
+
+  selectAnswer(id: number) {
+    this.selectedAnswerField = id;
+  }
+
+  isNextDisabled(): boolean {
+    return typeof this.selectedAnswerField === 'undefined';
   }
 
   selectedAnswer(data): void {
@@ -267,6 +282,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
+    this.isDisabled = true;
+
     console.log('advanceToNextQuestion method called');
 
     if (!this.selectedOption) {

@@ -4,7 +4,7 @@
     *ngFor="let option of currentQuestion.options; index as i"
   >
     <mat-checkbox
-      (click)="onOptionSelected(option)"
+      (click)="selectedOption=option;onOptionSelected(option)"
       (change)="onSelectionChange(question, option)"
       [ngClass]="{
         correct: selectedOption === option && option.correct,
