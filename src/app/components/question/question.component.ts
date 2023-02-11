@@ -41,6 +41,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl(['', Validators.required]),
     });
+
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
@@ -83,7 +84,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = false;
   }
 
-  private updateSelectedOption(selectedOption: Option, optionIndex: number): void {
+  private updateSelectedOption(
+    selectedOption: Option,
+    optionIndex: number
+  ): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
     this.selectedOption = selectedOption;
@@ -110,6 +114,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       option.selected = true;
       this.selectedOption = option;
     }
+  }
+
+  onOptionSelected(option) {
+    this.selectedOption = option;
+    this.answers = [option.index];
   }
 
   private updateClassName(selectedOption: Option, optionIndex: number): void {

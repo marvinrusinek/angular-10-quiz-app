@@ -1,13 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   OnDestroy,
   OnInit,
+  Output,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
+import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
@@ -39,6 +42,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions: QuizQuestion[];
   resources: Resource[];
   answers: number[] = [];
+  @Output() optionSelected = new EventEmitter<Option>();
+  selectedOption: any;
 
   questionIndex: number;
   totalQuestions: number;
@@ -151,8 +156,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('none');
   }
 
-  isAnswered(): boolean {
+  /* isAnswered(): boolean {
     return !!(this.answers && this.answers.length > 0);
+  } */
+
+  isAnswered(): boolean {
+    return this.question.options.some((option) => option.selected);
+  }
+
+  /* onOptionSelected(option: Option) {
+    console.log("onOptionSelected called with option:", option);
+
+    this.optionSelected.emit(option);
+  } */
+
+  onOptionSelected(index: number) {
+    this.answers = [index];
+  }
+
+  updateSelectedOption(selectedOption: Option) {
+    this.selectedOption = selectedOption;
   }
 
   selectedAnswer(data): void {
@@ -244,7 +267,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
-    console.log('advanceToNextQuestion function called');
+    console.log('advanceToNextQuestion method called');
+
+    if (!this.selectedOption) {
+      return;
+    }
+
     this.checkIfAnsweredCorrectly();
     this.answers = [];
     this.status = Status.Continue;
