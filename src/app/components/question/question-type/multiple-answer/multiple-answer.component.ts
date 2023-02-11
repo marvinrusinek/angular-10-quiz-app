@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
+  EventEmitter, FormControl,
+  Input, OnInit,
   Output,
   ViewEncapsulation,
 } from '@angular/core';
@@ -22,13 +22,19 @@ import { Option } from '../../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent {
+export class MultipleAnswerComponent extends QuizQuestionComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selected: string;
-  @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
+  answerControl = new FormControl();
+
+  ngOnInit() {
+    this.answerControl.valueChanges.subscribe(value => {
+      console.log(value);
+    });
+  }
 
   onOptionSelected(selectedOption: Option): void {
     if (selectedOption) {

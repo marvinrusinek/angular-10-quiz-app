@@ -38,16 +38,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
-    this.questionForm.valueChanges.subscribe(value => {
+    /* this.questionForm.valueChanges.subscribe(value => {
       this.formValue.emit(value);
     });
+    this.questionForm = new FormGroup({
+      selectedOptions: new FormControl([])
+    }); */
+    /* this.questionForm = new FormGroup({
+      answer: new FormControl('', Validators.required),
+    });
+    this.questionForm.get('answer').valueChanges.subscribe((value) => {
+      this.selectedOption = value;
+    }); */
   }
 
   ngOnInit(): void {
-    this.questionForm = new FormGroup({
-      answer: new FormControl(['', Validators.required]),
-    });
-
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 

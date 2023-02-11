@@ -4,7 +4,7 @@
     *ngFor="let option of currentQuestion.options; index as i"
   >
     <mat-checkbox
-      (click)="selectedOption=option;onOptionSelected(option)"
+      (click)="selectedOption = option; onOptionSelected(option)"
       (change)="onSelectionChange(question, option)"
       [ngClass]="{
         correct: selectedOption === option && option.correct,
@@ -14,7 +14,6 @@
         question.selectedOptions &&
         question.selectedOptions.indexOf(option) !== -1
       "
-      formControlName="selectedOptions" [value]="option"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
