@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter, FormControl,
-  Input, OnInit,
+  EventEmitter, Input, OnInit,
   Output,
   ViewEncapsulation,
 } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -24,16 +25,21 @@ import { Option } from '../../../../shared/models/Option.model';
 })
 export class MultipleAnswerComponent extends QuizQuestionComponent implements OnInit {
   @Input() question: QuizQuestion;
+  @Input() options: any[];
   @Input() correctMessage: string;
   @Input() selected: string;
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
-  answerControl = new FormControl();
+  form: FormGroup;
+  @Output() formReady = new EventEmitter<FormGroup>();
+
+  constructor(private formBuilder: FormBuilder) { super(); }
 
   ngOnInit() {
-    this.answerControl.valueChanges.subscribe(value => {
-      console.log(value);
+    this.form = this.formBuilder.group({
+      answer: [null, Validators.required]
     });
+    this.formReady.emit(this.form);
   }
 
   onOptionSelected(selectedOption: Option): void {

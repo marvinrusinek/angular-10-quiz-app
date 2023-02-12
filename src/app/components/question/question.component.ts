@@ -28,7 +28,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   questionForm: FormGroup;
   optionSelected: Option;
   correctAnswers: Option[] = [];
-  correctMessage = '';
+  correctMessage: string;
   multipleAnswer: boolean;
   alreadyAnswered = false;
   selectedOption: Option;
@@ -38,21 +38,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
-    /* this.questionForm.valueChanges.subscribe(value => {
-      this.formValue.emit(value);
-    });
-    this.questionForm = new FormGroup({
-      selectedOptions: new FormControl([])
-    }); */
-    /* this.questionForm = new FormGroup({
-      answer: new FormControl('', Validators.required),
-    });
-    this.questionForm.get('answer').valueChanges.subscribe((value) => {
-      this.selectedOption = value;
-    }); */
+    console.log("QS", quizService);
+    this.correctMessage = '';
+    console.log('CORR MSG: ' + this.correctMessage);
+    console.log('question: ' + this.question);
+    console.log('currentQuestion: ' + this.currentQuestion);
   }
 
   ngOnInit(): void {
+    this.questionForm = new FormGroup({
+      answer: new FormControl('', Validators.required),
+    });
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
@@ -63,7 +59,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.updateCurrentQuestion(question.currentValue);
     this.updateCorrectAnswers();
-    this.updateCorrectMessage();
+
+    if (question && question.currentValue) {
+      this.updateCorrectMessage();
+    }
+
     this.updateMultipleAnswer();
     this.resetForm();
   }
@@ -72,14 +72,35 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.currentQuestion = question;
   }
 
-  private updateCorrectAnswers(): void {
+  /* private updateCorrectAnswers(): void {
+    if (!this.currentQuestion) {
+      return;
+    }
+    console.log(this.currentQuestion);
     this.correctAnswers = this.quizService.getCorrectAnswers(
       this.currentQuestion
     );
+    console.log(this.correctAnswers);
+  } */
+
+  private updateCorrectAnswers(): void {
+    if (this.quizService && this.question) {
+      this.correctAnswers = this.quizService.getCorrectAnswers(
+        this.currentQuestion
+      );
+    }
   }
 
   private updateCorrectMessage(): void {
-    this.correctMessage = this.quizService.correctMessage;
+    console.log('question: ' + this.question);
+    console.log('currentQuestion: ' + this.currentQuestion);
+    if (this.question && this.currentQuestion) {
+      // this.correctMessage = this.quizService.setCorrectMessage(this.currentQuestion);
+      // this.correctMessage = this.quizService.setCorrectMessage(
+      //  this.question, this.currentQuestion
+      //);
+      this.correctMessage = this.quizService.setCorrectMessage.bind(this);
+    }
   }
 
   private updateMultipleAnswer(): void {
@@ -129,7 +150,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   onOptionSelected(option) {
     this.selectedOption = option;
-    this.answers = [option.index];
   }
 
   private updateClassName(selectedOption: Option, optionIndex: number): void {

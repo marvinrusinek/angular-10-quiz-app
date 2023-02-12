@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  EventEmitter, FormGroup, Input,
   OnDestroy,
   OnInit,
   Output,
@@ -47,7 +47,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers = [];
   isDisabled = true;
   selectedAnswerField: number;
-  hasSelectedOptions = false;
+  @Input() form: FormGroup;
 
   questionIndex: number;
   totalQuestions: number;
@@ -88,10 +88,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuizData();
     this.subscribeToQuizParams();
     this.updateQuestionIndex();
-  }
-
-  onFormValue(formValue: any) {
-    this.hasSelectedOptions = formValue.selectedOptions.length > 0;
   }
 
   private getQuizData(): void {
@@ -287,20 +283,22 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
-    this.isDisabled = true;
+    if (this.form.valid) {
+      this.isDisabled = true;
 
-    console.log('advanceToNextQuestion method called');
+      console.log('advanceToNextQuestion method called');
 
-    if (!this.selectedOption) {
-      return;
+      if (!this.selectedOption) {
+        return;
+      }
+
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = Status.Continue;
+      this.animationState$.next('animationStarted');
+      this.quizService.navigateToNextQuestion();
+      this.timerService.resetTimer();
     }
-
-    this.checkIfAnsweredCorrectly();
-    this.answers = [];
-    this.status = Status.Continue;
-    this.animationState$.next('animationStarted');
-    this.quizService.navigateToNextQuestion();
-    this.timerService.resetTimer();
   }
 
   advanceToPreviousQuestion() {
