@@ -41,6 +41,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ) {
     console.log('question:::', this.question);
     console.log('QS', quizService);
+    this.currentQuestion = {};
     this.correctMessage = '';
     console.log('CORR MSG: ' + this.correctMessage);
     console.log('question: ' + this.question);
