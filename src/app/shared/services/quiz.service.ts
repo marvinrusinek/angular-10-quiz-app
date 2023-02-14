@@ -125,7 +125,7 @@ export class QuizService implements OnDestroy {
     );
 
     this.setCorrectAnswers(question);
-    this.setCorrectMessage(this.correctAnswersForEachQuestion.sort());
+    this.setCorrectMessage(question, this.correctAnswersForEachQuestion.sort());
     this.setExplanationText(question);
 
     return identifiedCorrectAnswers;
