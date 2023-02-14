@@ -88,6 +88,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateCorrectMessage(): string {
+    console.log("TESTING");
     if (this.question && this.currentQuestion) {
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
