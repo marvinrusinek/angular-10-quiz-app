@@ -83,10 +83,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   } */
 
   ngOnChanges(changes: SimpleChanges) {
+    if (!this.question) {
+      return;
+    }
+
+    this.updateCurrentQuestion(this.question.currentValue);
+    this.updateCorrectAnswers();
+
     if (changes.currentQuestion) {
       this.question = this.currentQuestion;
+      this.updateCorrectMessage();
     }
-    this.updateCorrectMessage();
+    this.updateMultipleAnswer();
+    this.resetForm();
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
