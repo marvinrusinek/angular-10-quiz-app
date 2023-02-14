@@ -39,12 +39,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
-    console.log('QS', quizService);
     // this.currentQuestion = {};
     this.correctMessage = '';
   }
 
   ngOnInit(): void {
+    console.log('QSTEST', this.quizService.quizData);
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
