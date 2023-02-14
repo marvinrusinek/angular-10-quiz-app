@@ -63,7 +63,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.updateCorrectMessage();
     }
   } */
-  
+
   /* ngOnChanges(changes: SimpleChanges): void {
     if (!question) {
       return;
@@ -99,7 +99,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
-      this.currentQuestion = question;
+    this.currentQuestion = question;
   }
 
   /* private updateCorrectAnswers(): void {
@@ -129,7 +129,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  private updateCorrectMessage(): void {
+  private updateCorrectMessage(): string {
     if (this.question && this.currentQuestion) {
       console.log('question: ', this.question);
       console.log('currentQuestion: ', this.currentQuestion);
@@ -138,6 +138,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         this.question,
         this.correctAnswers
       );
+    } else {
+      return 'The correct answers are not available yet.';
     }
   }
 
