@@ -56,38 +56,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  /* ngOnChanges(changes: {[propKey: string]: SimpleChanges}) {
-    console.log('correctAnswers onChanges: ', this.correctAnswers);
-    if (changes.correctAnswers) {
-      this.correctAnswersUCM = changes.correctAnswers.currentValue;
-      this.updateCorrectMessage();
-    }
-  } */
-
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (!question) {
-      return;
-    }
-
-    this.updateCurrentQuestion(question.currentValue);
-    this.updateCorrectAnswers();
-
-    console.log('changes: ', changes);
-    console.log('correctAnswers onChanges: ', this.correctAnswers);
-    if (changes.question && !changes.question.firstChange) {
-      this.updateCorrectMessage();
-    }
-
-    this.updateMultipleAnswer();
-    this.resetForm();
-  } */
-
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
     }
 
-    this.updateCurrentQuestion(this.question.currentValue);
+    this.updateCurrentQuestion(this.question);
     this.updateCorrectAnswers();
 
     if (changes.currentQuestion) {
