@@ -2,7 +2,7 @@
   <div
     class="options"
     *ngFor="
-      let option of currentQuestion.options;
+      let option of currentQuestion?.options;
       index as i;
       trackBy: trackByFn
     "
