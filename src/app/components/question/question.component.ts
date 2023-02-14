@@ -29,7 +29,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   optionSelected: Option;
   // correctAnswers: Option[] = [];
   correctAnswers: number[] = [];
-  correctMessage: string;
+  correctMessage: string = '';
   multipleAnswer: boolean;
   alreadyAnswered = false;
   selectedOption: Option;
