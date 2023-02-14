@@ -303,10 +303,15 @@ export class QuizService implements OnDestroy {
   } */
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    console.log("CAA: ", correctAnswersArray);
+    console.log('CAA: ', correctAnswersArray);
     let correctMessage = 'Correct answers are not available yet.';
 
-    if (correctAnswersArray && correctAnswersArray.length) {
+    if (
+      question &&
+      question.options &&
+      correctAnswersArray &&
+      correctAnswersArray.length
+    ) {
       let correctOptions: string;
 
       switch (correctAnswersArray.length) {
@@ -315,11 +320,15 @@ export class QuizService implements OnDestroy {
           correctMessage = `The correct answer is Option ${correctOptions}.`;
           break;
         case 2:
-          correctOptions = `${question.options[correctAnswersArray[0] - 1]} and ${question.options[correctAnswersArray[1] - 1]}`;
+          correctOptions = `${
+            question.options[correctAnswersArray[0] - 1]
+          } and ${question.options[correctAnswersArray[1] - 1]}`;
           correctMessage = `The correct answers are Options ${correctOptions}.`;
           break;
         case 3:
-          correctOptions = `${question.options[correctAnswersArray[0] - 1]}, ${question.options[correctAnswersArray[1] - 1]} and ${question.options[correctAnswersArray[2] - 1]}`;
+          correctOptions = `${question.options[correctAnswersArray[0] - 1]}, ${
+            question.options[correctAnswersArray[1] - 1]
+          } and ${question.options[correctAnswersArray[2] - 1]}`;
           correctMessage = `The correct answers are Options ${correctOptions}.`;
           break;
         case question.options.length:
@@ -333,9 +342,6 @@ export class QuizService implements OnDestroy {
 
     return correctMessage;
   }
-
-  
-
 
   setExplanationText(question: QuizQuestion): void {
     this.explanationText = question.explanation;
