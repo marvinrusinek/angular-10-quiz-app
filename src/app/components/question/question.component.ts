@@ -63,6 +63,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     if (changes.currentQuestion) {
       this.question = this.currentQuestion;
+      console.log("myq", this.question);
+      console.log("MY cq:",   this.currentQuestion);
       console.log("CORRMSG1: ", this.correctMessage);
       this.updateCorrectMessage();
     }
