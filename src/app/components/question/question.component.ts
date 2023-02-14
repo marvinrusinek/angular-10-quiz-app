@@ -61,7 +61,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.updateCurrentQuestion(this.question);
+    this.updateCurrentQuestion(this.question.currentValue);
+    this.updateCorrectAnswers();
+    this.updateCorrectMessage();
+    this.updateMultipleAnswer();
+    this.resetForm();
+
+    /* this.updateCurrentQuestion(this.question);
     this.updateCorrectAnswers();
 
     if (changes.currentQuestion) {
@@ -69,7 +75,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.updateCorrectMessage();
     }
     this.updateMultipleAnswer();
-    this.resetForm();
+    this.resetForm(); */
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
