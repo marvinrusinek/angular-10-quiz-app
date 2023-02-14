@@ -99,6 +99,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     } else {
       return 'The correct answers are not available yet.';
     }
+    console.log('this.correctMessage:::', this.correctMessage);
   }
 
   private updateMultipleAnswer(): void {
