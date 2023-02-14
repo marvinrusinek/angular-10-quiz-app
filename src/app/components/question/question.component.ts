@@ -58,6 +58,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('changes.question', changes.question);
     console.log('question:::::::', this.question);
     console.log('this.currentQuestion:::::::', this.currentQuestion);
     if (!this.question || !this.question.options) {
@@ -96,7 +97,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     console.log('this.question::', this.question);
     console.log('this.currentQuestion::', this.currentQuestion);
     if (this.question && this.currentQuestion) {
-      console.log("qs-scm:", this.quizService.setCorrectMessage);
+      console.log('qs-scm:', this.quizService.setCorrectMessage);
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
         this.correctAnswers
