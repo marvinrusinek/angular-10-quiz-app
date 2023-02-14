@@ -303,7 +303,7 @@ export class QuizService implements OnDestroy {
   } */
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    console.log("MYTESTHERE");
+    console.log('MYTESTHERE');
     console.log('this.question:::::5 ', this.question);
     console.log('this.currentQuestion:::::5 ', this.currentQuestion);
     console.log('CAA: ', correctAnswersArray);

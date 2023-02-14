@@ -58,28 +58,39 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('changes.question', changes.question);
-    console.log('question:::::::', this.question);
-    console.log('this.currentQuestion:::::::', this.currentQuestion);
+  /* ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
     }
 
     if (changes.question) {
       this.currentQuestion = changes.question.currentValue;
-      console.log('this.currentQuestion CHANGES', this.currentQuestion);
-      console.log('myq', this.question);
-      console.log('MY cq:', this.currentQuestion);
-      console.log('CORRMSG1: ', this.correctMessage);
       this.updateCorrectMessage();
-      console.log('this.correctMessage:::: ', this.correctMessage);
     }
 
     this.updateCurrentQuestion(this.question);
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
+  } */
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.question && !changes.question.firstChange) {
+      this.question = changes.question.currentValue;
+      this.currentQuestion = this.quizService.updateCurrentQuestion(
+        this.question,
+        this.quiz
+      );
+      setTimeout(() => {
+        this.correctAnswers =
+          this.quizService.updateCorrectAnswersForEachQuestion(
+            this.question,
+            this.quiz
+          );
+        console.log('this.correctAnswers:', this.correctAnswers);
+        this.updateCorrectMessage();
+      });
+    }
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
