@@ -39,6 +39,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
+    console.log('question:::', this.question);
     console.log('QS', quizService);
     this.correctMessage = '';
     console.log('CORR MSG: ' + this.correctMessage);
@@ -57,6 +58,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('question:::::::', this.question);
+    console.log('this.currentQuestion:::::::', this.currentQuestion);
     if (!this.question || !this.question.options) {
       return;
     }
