@@ -63,6 +63,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     if (changes.currentQuestion) {
       this.question = this.currentQuestion;
+      console.log("CORRMSG1: ", this.correctMessage);
       this.updateCorrectMessage();
     }
 
@@ -85,7 +86,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateCorrectMessage(): string {
-    console.log("UCM: ", this.correctMessage);
     if (this.question && this.currentQuestion) {
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
