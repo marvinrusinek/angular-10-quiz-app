@@ -61,7 +61,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.updateCurrentQuestion(this.question.currentValue);
+    this.updateCurrentQuestion(this.question);
     this.updateCorrectAnswers();
     this.updateCorrectMessage();
     this.updateMultipleAnswer();
