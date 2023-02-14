@@ -67,6 +67,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       console.log('MY cq:', this.currentQuestion);
       console.log('CORRMSG1: ', this.correctMessage);
       this.updateCorrectMessage();
+      console.log('this.correctMessage:::: ', this.correctMessage);
     }
 
     this.updateCurrentQuestion(this.question);
@@ -87,7 +88,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  private updateCorrectMessage(): string {
+  private updateCorrectMessage(): void {
     console.log('TESTING');
     console.log('this.question::', this.question);
     console.log('this.currentQuestion::', this.currentQuestion);
