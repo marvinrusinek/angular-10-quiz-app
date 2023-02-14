@@ -92,6 +92,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     console.log('this.question::', this.question);
     console.log('this.currentQuestion::', this.currentQuestion);
     if (this.question && this.currentQuestion) {
+      console.log("qs-scm:", this.quizService.setCorrectMessage);
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
         this.correctAnswers
