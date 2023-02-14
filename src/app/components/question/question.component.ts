@@ -39,6 +39,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
+    console.log('QS', quizService);
     // this.currentQuestion = {};
     this.correctMessage = '';
   }
