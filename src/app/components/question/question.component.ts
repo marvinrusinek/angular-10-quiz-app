@@ -83,7 +83,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   } */
 
   ngOnChanges(changes: SimpleChanges) {
-    if (!this.question) {
+    if (!this.question || !this.question.options) {
       return;
     }
 
