@@ -58,7 +58,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  /* ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
     }
@@ -72,28 +72,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
-  } */
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.question && !changes.question.firstChange) {
-      this.question = changes.question.currentValue;
-      this.currentQuestion = this.quizService.updateCurrentQuestion(
-        this.question,
-        this.quiz
-      );
-      setTimeout(() => {
-        this.correctAnswers =
-          this.quizService.updateCorrectAnswersForEachQuestion(
-            this.question,
-            this.quiz
-          );
-        console.log('this.correctAnswers:', this.correctAnswers);
-        this.updateCorrectMessage();
-      });
-    }
   }
 
-  private updateCurrentQuestion(question: QuizQuestion): void {
+  private updateCurrentQuestion(question: QuizQuestion) {
     this.currentQuestion = question;
     console.log('CURRQUEST: ', this.currentQuestion);
   }
@@ -107,11 +88,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateCorrectMessage(): void {
-    console.log('TESTING');
-    console.log('this.question::', this.question);
-    console.log('this.currentQuestion::', this.currentQuestion);
     if (this.question && this.currentQuestion) {
-      console.log('qs-scm:', this.quizService.setCorrectMessage);
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
         this.correctAnswers
@@ -119,7 +96,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     } else {
       return 'The correct answers are not available yet.';
     }
-    console.log('this.correctMessage:::', this.correctMessage);
   }
 
   private updateMultipleAnswer(): void {
