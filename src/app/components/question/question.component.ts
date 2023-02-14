@@ -76,25 +76,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.currentQuestion = question;
   }
 
-  /* private updateCorrectAnswers(): void {
-    if (!this.currentQuestion) {
-      return;
-    }
-    console.log(this.currentQuestion);
-    this.correctAnswers = this.quizService.getCorrectAnswers(
-      this.currentQuestion
-    );
-    console.log(this.correctAnswers);
-  } */
-
-  /* private updateCorrectAnswers(): void {
-    if (this.quizService && this.question) {
-      this.correctAnswers = this.quizService.getCorrectAnswers(
-        this.currentQuestion
-      );
-    }
-  } */
-
   private updateCorrectAnswers(): void {
     if (this.question && this.question.options) {
       this.correctAnswers = this.question.options
