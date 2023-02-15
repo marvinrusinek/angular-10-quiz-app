@@ -82,10 +82,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   private async updateCorrectMessage(): Promise<void> {
     if (this.question && this.currentQuestion) {
-      this.correctMessage = await this.quizService.setCorrectMessage(
-        this.question,
-        this.correctAnswers
-      );
+      try {
+        this.correctMessage = await this.quizService.setCorrectMessage(this.question, this.correctAnswers);
+      } catch (error) {
+        console.error('An error occurred while updating the correct message:', error);
+      }
     } else {
       this.correctMessage = 'The correct answers are not available yet.';
     }
