@@ -85,8 +85,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   private async updateCorrectMessage(): Promise<void> {
     if (this.question && this.currentQuestion) {
       try {
-        console.log('TQ:', this.question);
-        console.log('TCA:', this.correctAnswers);
         console.log('QSSCM::', await this.quizService.setCorrectMessage(this.question, this.correctAnswers));
         this.correctMessage = await this.quizService.setCorrectMessage(this.question, this.correctAnswers);
       } catch (error) {
