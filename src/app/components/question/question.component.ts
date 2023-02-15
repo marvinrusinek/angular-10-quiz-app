@@ -48,6 +48,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
+    this.currentQuestion = this.quizService.getCurrentQuestion();
     this.correctAnswers = this.quizService.getCorrectAnswers(
       this.currentQuestion
     );
