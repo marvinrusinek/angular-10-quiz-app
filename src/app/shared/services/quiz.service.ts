@@ -217,7 +217,7 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    const correctOptionNumbers = this.correctAnswers.map(
+    const correctOptionNumbers = correctAnswersArray.map(
       (answer) => answer + 1
     );
     const correctOptions = correctOptionNumbers
