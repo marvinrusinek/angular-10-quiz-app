@@ -72,8 +72,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     ) {
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
-        this.correctAnswers,
-        this.selectedOptions
+        this.correctAnswers
       );
     }
 
