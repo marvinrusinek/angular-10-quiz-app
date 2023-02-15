@@ -18,4 +18,6 @@
     (answer)="updateClassName(selectedOption, i)"
     [form]="questionForm"
   ></codelab-question-multiple-answer>
+  {{ correctAnswers | json }}
+  <!-- Add this line -->
 </form>
