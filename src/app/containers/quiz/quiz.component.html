@@ -42,13 +42,27 @@
 
       <!-- the options -->
       <codelab-quiz-question
+        [question]="quizData[currentQuestion]"
+        [currentQuestionIndex]="currentQuestion"
+        (updateCorrectAnswers)="updateCorrectAnswers($event)"
+        (answer)="selectedAnswer($event)"
+        [answers]="answers"
+        (onOptionSelected)="onOptionSelected($event)"
+        (formReady)="form = $event"
+      >
+      </codelab-quiz-question>
+      <!-- <codelab-quiz-question
+        [question]="quizData[currentQuestion]"
+        [currentQuestionIndex]="currentQuestion"
+        (updateCorrectAnswers)="updateCorrectAnswers($event)"
+
         [question]="question"
         (answer)="selectedAnswer($event)"
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"
-        (formReady)="form=$event"
+        (formReady)="form = $event"
       >
-      </codelab-quiz-question>
+      </codelab-quiz-question>-->
     </mat-card-content>
 
     <mat-card-footer
