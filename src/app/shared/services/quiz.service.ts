@@ -194,6 +194,8 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
+    console.log('setCorrectMessage called with question', question, 'and correctAnswers', correctAnswersArray);
+
     let correctMessage = 'Correct answers are not available yet.';
 
     if (
