@@ -80,7 +80,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  async private updateCorrectMessage(): void {
+  private async updateCorrectMessage(): Promise<void> {
     if (this.question && this.currentQuestion) {
       this.correctMessage = await this.quizService.setCorrectMessage(
         this.question,
