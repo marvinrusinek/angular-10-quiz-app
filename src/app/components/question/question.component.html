@@ -10,9 +10,10 @@
 
   <codelab-question-multiple-answer
     *ngSwitchCase="multipleAnswer"
-    [question]="currentQuestion" 
+    [question]="currentQuestion"
     [options]="options"
     [selectedOption]="selectedOption"
+    [correctAnswers]="correctAnswers"
     [correctMessage]="correctMessage"
     (answer)="updateClassName(selectedOption, i)"
     [form]="questionForm"
