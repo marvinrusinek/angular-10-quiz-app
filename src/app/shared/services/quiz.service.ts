@@ -142,6 +142,7 @@ export class QuizService implements OnDestroy {
     this.setExplanationText(question);
 
     return identifiedCorrectAnswers;
+    console.log('ICA', identifiedCorrectAnswers);
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
@@ -207,7 +208,12 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    console.log('setCorrectMessage called with question', question, 'and correctAnswers', correctAnswersArray);
+    console.log(
+      'setCorrectMessage called with question',
+      question,
+      'and correctAnswers',
+      correctAnswersArray
+    );
 
     let correctMessage = 'Correct answers are not available yet.';
 

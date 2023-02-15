@@ -45,7 +45,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log('QSSCM::', this.quizService.setCorrectMessage(this.question, this.correctAnswers));
+    console.log(
+      'QSSCM::',
+      this.quizService.setCorrectMessage(this.question, this.correctAnswers)
+    );
     console.log('QSTEST', this.quizService.quizData);
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
@@ -61,6 +64,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     if (changes.question) {
       this.currentQuestion = changes.question.currentValue;
       this.updateCorrectMessage();
+    }
+
+    if (
+      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
+      (changes.selectedOptions && !changes.selectedOptions.firstChange)
+    ) {
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.question,
+        this.correctAnswers,
+        this.selectedOptions
+      );
     }
 
     this.updateCurrentQuestion(this.question);
@@ -79,22 +93,35 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.correctAnswers = this.question.options
         .filter((option) => option.correct)
         .map((option) => option.value);
+      console.log('CA:::', this.correctAnswers);
     }
   }
 
   private async updateCorrectMessage(): Promise<void> {
     if (this.question && this.currentQuestion) {
       try {
-        console.log('QSSCM::', await this.quizService.setCorrectMessage(this.question, this.correctAnswers));
-        this.correctMessage = await this.quizService.setCorrectMessage(this.question, this.correctAnswers);
+        console.log(
+          'QSSCM::',
+          await this.quizService.setCorrectMessage(
+            this.question,
+            this.correctAnswers
+          )
+        );
+        this.correctMessage = await this.quizService.setCorrectMessage(
+          this.question,
+          this.correctAnswers
+        );
       } catch (error) {
-        console.error('An error occurred while updating the correct message:', error);
+        console.error(
+          'An error occurred while updating the correct message:',
+          error
+        );
       }
     } else {
       this.correctMessage = 'The correct answers are not available yet.';
     }
   }
-  
+
   private updateMultipleAnswer(): void {
     this.multipleAnswer = this.correctAnswers.length > 1;
   }
