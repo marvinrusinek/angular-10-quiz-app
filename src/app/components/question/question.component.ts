@@ -82,7 +82,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   async private updateCorrectMessage(): void {
     if (this.question && this.currentQuestion) {
-      console.log('qs-scm:', this.quizService.setCorrectMessage);
       this.correctMessage = await this.quizService.setCorrectMessage(
         this.question,
         this.correctAnswers
