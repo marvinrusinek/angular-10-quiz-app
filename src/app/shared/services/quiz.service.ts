@@ -26,7 +26,8 @@ export class QuizService implements OnDestroy {
   resources: Resource[];
   answers: number[];
   totalQuestions: number;
-  currentQuestionIndex = 1;
+  currentQuizIndex: number = 0;
+  currentQuestionIndex: number = 1;
 
   quizName$: Observable<string>;
   quizId: string;
@@ -108,6 +109,18 @@ export class QuizService implements OnDestroy {
 
   getQuizzes(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(`${this.url}`);
+  }
+
+  getCurrentQuiz(): Quiz {
+    return this.quizData[this.currentQuizIndex];
+  }
+
+  getCurrentQuestion(): QuizQuestion {
+    const currentQuiz = this.getCurrentQuiz();
+    if (currentQuiz && currentQuiz.questions) {
+      return currentQuiz.questions[this.currentQuestionIndex];
+    }
+    return null;
   }
 
   getCorrectAnswers(question: QuizQuestion): Option[] {
