@@ -24,6 +24,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
+  @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
   questionForm: FormGroup;
   optionSelected: Option;
@@ -48,11 +49,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-    
-    this.currentQuestion = this.quizService.getCurrentQuestion();
-    console.log("current question index: ", this.currentQuestion);
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-    console.log("correct answers: ", this.correctAnswers);
+    this.question = this.quizData[this.currentQuestionIndex];
+    // this.currentQuestion = this.quizService.getCurrentQuestion();
+    console.log('current question index: ', this.currentQuestion);
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+    console.log('correct answers: ', this.correctAnswers);
 
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
