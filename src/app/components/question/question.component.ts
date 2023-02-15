@@ -45,14 +45,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log(
-      'QSSCM::',
-      this.quizService.setCorrectMessage(this.question, this.correctAnswers)
-    );
-    console.log('QSTEST', this.quizService.quizData);
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
+    this.correctAnswers = this.quizService.getCorrectAnswers(
+      this.currentQuestion
+    );
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
@@ -70,6 +68,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
     ) {
+      console.log('CA1::', this.correctAnswers);
       this.correctMessage = this.quizService.setCorrectMessage(
         this.question,
         this.correctAnswers
