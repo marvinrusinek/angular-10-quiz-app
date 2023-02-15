@@ -123,7 +123,7 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
-  getCorrectAnswers(question: QuizQuestion): Option[] {
+  /* getCorrectAnswers(question: QuizQuestion): Option[] {
     if (!question) {
       return [];
     }
@@ -142,7 +142,16 @@ export class QuizService implements OnDestroy {
     this.setExplanationText(question);
 
     return identifiedCorrectAnswers;
-    console.log('ICA', identifiedCorrectAnswers);
+    console.log("ICA", identifiedCorrectAnswers);
+  } */
+
+  getCorrectAnswers(question: QuizQuestion): number[] {
+    if (question && question.options) {
+      return question.options
+        .map((option, index) => (option.correct ? index : null))
+        .filter((index) => index !== null);
+    }
+    return [];
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
