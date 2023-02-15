@@ -80,17 +80,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  private updateCorrectMessage(): void {
+  async private updateCorrectMessage(): void {
     if (this.question && this.currentQuestion) {
-      this.correctMessage = this.quizService.setCorrectMessage(
+      console.log('qs-scm:', this.quizService.setCorrectMessage);
+      this.correctMessage = await this.quizService.setCorrectMessage(
         this.question,
         this.correctAnswers
       );
     } else {
-      return 'The correct answers are not available yet.';
+      this.correctMessage = 'The correct answers are not available yet.';
     }
   }
-
+  
   private updateMultipleAnswer(): void {
     this.multipleAnswer = this.correctAnswers.length > 1;
   }
