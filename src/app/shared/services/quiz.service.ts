@@ -217,14 +217,18 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    const correctOptionNumbers = correctAnswersArray.map(
-      (answer) => answer + 1
-    );
-    console.log("CON", correctOptionNumbers);
+    const correctOptionNumbers = correctAnswersArray.map((answer) => {
+      if (typeof answer === 'number') {
+        return answer + 1;
+      } else {
+        return null; // or whatever value you want to use for non-numeric answers
+      }
+    });
+    console.log('CON', correctOptionNumbers);
     const correctOptions = correctOptionNumbers
       .map((optionNumber) => `Option ${optionNumber}`)
       .join(' and ');
-    console.log("CORROPS::", correctOptions);
+    console.log('CORROPS::', correctOptions);
 
     let correctMessage = 'Correct answers are not available yet.';
 
