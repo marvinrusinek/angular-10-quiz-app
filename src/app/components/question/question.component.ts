@@ -48,10 +48,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-    this.correctAnswers = this.quizService.getCorrectAnswers(
-      this.currentQuestion
-    );
-    console.log('Correct answers:', this.correctAnswers);
+    
+    this.currentQuestion = this.quizService.getCurrentQuestion();
+    console.log("current question index: ", this.currentQuestion);
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+    console.log("correct answers: ", this.correctAnswers);
+
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
