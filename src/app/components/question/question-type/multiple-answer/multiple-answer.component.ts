@@ -28,6 +28,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements On
   @Input() options: any[];
   @Input() correctMessage: string;
   @Input() selected: string;
+  @Input() correctAnswers: string[];
   @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   form: FormGroup;
