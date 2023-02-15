@@ -220,6 +220,7 @@ export class QuizService implements OnDestroy {
     const correctOptionNumbers = correctAnswersArray.map(
       (answer) => answer + 1
     );
+    console.log("CON", correctOptionNumbers);
     const correctOptions = correctOptionNumbers
       .map((optionNumber) => `Option ${optionNumber}`)
       .join(' and ');
