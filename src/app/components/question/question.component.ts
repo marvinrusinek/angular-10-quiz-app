@@ -35,6 +35,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   alreadyAnswered = false;
   selectedOption: Option;
   hasSelectedOptions = false;
+  answers;
 
   constructor(
     private quizService: QuizService,
@@ -49,11 +50,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-    this.question = this.quizData[this.currentQuestionIndex];
-    // this.currentQuestion = this.quizService.getCurrentQuestion();
+    // this.question = this.quizData[this.currentQuestionIndex];
+    this.currentQuestion = this.quizService.getCurrentQuestion();
     console.log('current question index: ', this.currentQuestion);
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
     console.log('correct answers: ', this.correctAnswers);
+    this.answers = this.quizService.getAnswers();
 
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
