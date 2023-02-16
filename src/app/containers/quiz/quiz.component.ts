@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter, FormGroup, Input,
+  EventEmitter,
+  FormGroup,
+  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -204,6 +206,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.answers[0] = data;
     }
+
+    console.log('CHECK SA', this.answers);
   }
 
   /* updateAnswer(data) {

@@ -123,8 +123,6 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
-
-
   /* getCorrectAnswers(question: QuizQuestion): Option[] {
     if (!question) {
       return [];
@@ -159,23 +157,18 @@ export class QuizService implements OnDestroy {
   getAnswers() {
     const currentQuestion = this.question;
     const answers = currentQuestion.answers || [];
-    const incorrectAnswers = currentQuestion.incorrect_answers || [];
-  
-    // Combine correct and incorrect answers
-    const allAnswers = [...answers, ...incorrectAnswers];
-  
+
     // Shuffle the order of the answers
-    const shuffledAnswers = this.shuffleArray(allAnswers);
-  
+    const shuffledAnswers = this.shuffleArray(answers);
+
     // Convert the answers to an array of objects with 'value' and 'correct' properties
     const formattedAnswers = shuffledAnswers.map((answer, index) => ({
       value: answer,
-      correct: answers.includes(answer)
+      correct: currentQuestion.correct_answer === answer,
     }));
-  
+
     return formattedAnswers;
   }
-  
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
