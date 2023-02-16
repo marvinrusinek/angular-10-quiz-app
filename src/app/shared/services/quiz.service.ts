@@ -156,17 +156,20 @@ export class QuizService implements OnDestroy {
 
   getAnswers() {
     const currentQuestion = this.question;
-    const answers = currentQuestion.answers || [];
-
+    const answer = currentQuestion.answer || '';
+  
+    // Combine the correct answer and the incorrect answers
+    const allAnswers = [answer, ...currentQuestion.options];
+  
     // Shuffle the order of the answers
-    const shuffledAnswers = this.shuffleArray(answers);
-
+    const shuffledAnswers = this.shuffle(allAnswers);
+  
     // Convert the answers to an array of objects with 'value' and 'correct' properties
     const formattedAnswers = shuffledAnswers.map((answer, index) => ({
       value: answer,
-      correct: currentQuestion.correct_answer === answer,
+      correct: answer === currentQuestion.answer
     }));
-
+  
     return formattedAnswers;
   }
 
@@ -198,11 +201,12 @@ export class QuizService implements OnDestroy {
   }
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
-  shuffle<T>(arg: T[]): void {
+  shuffle<T>(arg: T[]): any {
     for (let i = arg.length - 1; i >= 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arg[i], arg[j]] = [arg[j], arg[i]];
     }
+    return arg;
   }
 
   returnQuizSelectionParams(): object {
