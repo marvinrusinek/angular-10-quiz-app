@@ -154,20 +154,25 @@ export class QuizService implements OnDestroy {
     return [];
   }
 
-  getAnswers() {
+  getAnswers(): { value: string, correct: boolean }[] {
     const currentQuestion = this.question;
-    const answer = currentQuestion.answer || '';
+    const answers: unknown = currentQuestion.answer || [];
   
-    // Combine the correct answer and the incorrect answers
-    const allAnswers = [answer, ...currentQuestion.options];
+    // Check if answers is an array
+    if (!Array.isArray(answers)) {
+      return [];
+    }
+  
+    // Combine correct and incorrect answers
+    const allAnswers = [...answers];
   
     // Shuffle the order of the answers
     const shuffledAnswers = this.shuffle(allAnswers);
   
     // Convert the answers to an array of objects with 'value' and 'correct' properties
-    const formattedAnswers = shuffledAnswers.map((answer, index) => ({
+    const formattedAnswers = shuffledAnswers.map((answer) => ({
       value: answer,
-      correct: answer === currentQuestion.answer
+      correct: answers.includes(answer)
     }));
   
     return formattedAnswers;
