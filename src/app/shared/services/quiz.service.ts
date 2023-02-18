@@ -28,6 +28,8 @@ export class QuizService implements OnDestroy {
   totalQuestions: number;
   currentQuizIndex: number = 0;
   currentQuestionIndex: number = 1;
+  private currentIndex = 0;
+  private delayTime = 100;
 
   quizName$: Observable<string>;
   quizId: string;
@@ -115,13 +117,22 @@ export class QuizService implements OnDestroy {
     return this.quizData[this.currentQuizIndex];
   }
 
-  getCurrentQuestion(): QuizQuestion {
+  /* getCurrentQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
       return currentQuiz.questions[this.currentQuestionIndex];
       console.log("GCQCQI:", currentQuiz.questions[this.currentQuestionIndex]);
     }
     return null;
+  } */
+
+  getCurrentQuestion() {
+    // Use a delay to ensure that the quiz object has been properly initialized
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.quizData.questions[this.currentIndex]);
+      }, this.delayTime);
+    });
   }
 
   /* getCorrectAnswers(question: QuizQuestion): Option[] {
@@ -155,7 +166,7 @@ export class QuizService implements OnDestroy {
     return [];
   }
 
-  getAnswers(): { value: string, correct: boolean }[] {
+  /* getAnswers(): { value: string, correct: boolean }[] {
     const currentQuestion = this.question;
     // const answers: unknown = currentQuestion.answer || [];
     const answers = currentQuestion.answer ?? [];
@@ -178,6 +189,26 @@ export class QuizService implements OnDestroy {
     }));
   
     return formattedAnswers;
+  } */
+
+  getAnswers() {
+    // Use a delay to ensure that the quiz object has been properly initialized
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const currentQuestion = this.quizData.questions[this.currentIndex];
+        const answers = currentQuestion.answer || [];
+        // Combine correct and incorrect answers
+        const allAnswers = [...answers];
+        // Shuffle the order of the answers
+        const shuffledAnswers = this.shuffle(allAnswers);
+        // Convert the answers to an array of objects with 'value' and 'correct' properties
+        const formattedAnswers = shuffledAnswers.map((answer) => ({
+          value: answer,
+          correct: answers.includes(answer)
+        }));
+        resolve(formattedAnswers);
+      }, this.delayTime);
+    });
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
