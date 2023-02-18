@@ -119,6 +119,7 @@ export class QuizService implements OnDestroy {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
       return currentQuiz.questions[this.currentQuestionIndex];
+      console.log("GCQCQI:", currentQuiz.questions[this.currentQuestionIndex]);
     }
     return null;
   }
@@ -156,8 +157,9 @@ export class QuizService implements OnDestroy {
 
   getAnswers(): { value: string, correct: boolean }[] {
     const currentQuestion = this.question;
-    const answers: unknown = currentQuestion.answer || [];
-  
+    // const answers: unknown = currentQuestion.answer || [];
+    const answers = currentQuestion.answer ?? [];
+
     // Check if answers is an array
     if (!Array.isArray(answers)) {
       return [];
