@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
@@ -195,7 +195,7 @@ export class QuizService implements OnDestroy {
     return formattedAnswers;
   } */
 
-  getAnswers() {
+  /* getAnswers() {
     // Use a delay to ensure that the quiz object has been properly initialized
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -213,6 +213,10 @@ export class QuizService implements OnDestroy {
         resolve(formattedAnswers);
       }, this.delayTime);
     });
+  } */
+
+  getAnswers(): Observable<string[]> {
+    return of(this.quizData.questions.map(question => question.answer));
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {

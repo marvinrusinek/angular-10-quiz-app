@@ -92,16 +92,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeToQuizParams();
     this.updateQuestionIndex();
 
-    // Call the method that returns a Promise
-    const myPromise = this.quizService.getAnswers();
-
-    // Convert the Promise to an Observable using the from function
-    const myObservable = from(myPromise);
-
-    myObservable.subscribe((answers: string[]) => {
+    this.quizService.getAnswers().subscribe((answers: string[]) => {
       this.answers = answers.map(Number);
     });
-    this.currentQuestion = this.quizService.getFirstQuestion();
+
+    // Call the method that returns a Promise
+    // const myPromise = this.quizService.getAnswers();
+
+    // Convert the Promise to an Observable using the from function
+    // const myObservable = from(myPromise);
+
+    /* myObservable.subscribe((answers: string[]) => {
+      this.answers = answers.map(Number);
+    });
+    this.currentQuestion = this.quizService.getFirstQuestion(); */
 
     this.question = await this.quizService.getCurrentQuestion();
     this.answers = await this.quizService.getAnswers();
