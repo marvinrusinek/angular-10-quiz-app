@@ -18,7 +18,8 @@ import { Score } from '../../shared/models/Score.model';
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  quizData: Quiz[];
+  private quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
+  private quizData: Quiz[] = this.quizInitialState;
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -63,7 +64,7 @@ export class QuizService implements OnDestroy {
 
   unsubscribe$ = new Subject<void>();
   private url = 'assets/data/quiz.json';
-  quizInitialState: any;
+  // quizInitialState: any;
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
