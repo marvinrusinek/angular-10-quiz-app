@@ -88,15 +88,15 @@ export class QuizService implements OnDestroy {
       }); */
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
-      this.quizName = this.getQuiz(this.quizId).name;
+      this.quizName$.next(this.getQuiz(this.quizId)?.name);
     });
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
     } else {
       console.log('QUIZ_DATA is undefined or null');
     }
-    this.quizData = QUIZ_DATA;
-    this.quizResources = QUIZ_RESOURCES;
+    this.quizData = QUIZ_DATA || [];
+    this.quizResources = QUIZ_RESOURCES || [];
     /* this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.getQuizName(segments))
     ); */
@@ -161,22 +161,50 @@ export class QuizService implements OnDestroy {
     return this.quizData[this.currentQuizIndex];
   }
 
-  /* getCurrentQuestion(): QuizQuestion {
+  getNextQuestion(): QuizQuestion {
+    const currentQuiz = this.getCurrentQuiz();
+    const nextIndex = this.currentQuestionIndex;
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      nextIndex <= currentQuiz.questions.length
+    ) {
+      this.currentQuestionIndex++;
+      return currentQuiz.questions[nextIndex - 1];
+    }
+  }
+
+  getPreviousQuestion(): QuizQuestion {
+    const currentQuiz = this.getCurrentQuiz();
+    const previousIndex = this.currentQuestionIndex - 2;
+    if (currentQuiz && currentQuiz.questions && previousIndex >= 0) {
+      this.currentQuestionIndex--;
+      return currentQuiz.questions[previousIndex];
+    }
+  }
+
+  getCurrentQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
-      return currentQuiz.questions[this.currentQuestionIndex];
-      console.log("GCQCQI:", currentQuiz.questions[this.currentQuestionIndex]);
+      return currentQuiz.questions[this.currentQuestionIndex - 1];
     }
-    return null;
-  } */
+  }
 
-  getCurrentQuestion() {
+  /* getCurrentQuestion() {
     // Use a delay to ensure that the quiz object has been properly initialized
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(this.quizData.questions[this.currentIndex]);
       }, this.delayTime);
     });
+  } */
+
+  getTotalQuestions(): number {
+    const currentQuiz = this.getCurrentQuiz();
+    if (currentQuiz && currentQuiz.questions) {
+      return currentQuiz.questions.length;
+    }
+    return 0;
   }
 
   getFirstQuestion(): QuizQuestion {
@@ -304,13 +332,14 @@ export class QuizService implements OnDestroy {
   }
 
   returnQuizSelectionParams(): object {
-    return {
+    const quizSelectionParams = {
       startedQuizId: this.startedQuizId,
       continueQuizId: this.continueQuizId,
       completedQuizId: this.completedQuizId,
       quizCompleted: this.quizCompleted,
       status: this.status,
     };
+    return quizSelectionParams;
   }
 
   /********* setter functions ***********/
@@ -335,7 +364,7 @@ export class QuizService implements OnDestroy {
       if (typeof answer === 'number') {
         return answer + 1;
       } else {
-        return null; // or whatever value you want to use for non-numeric answers
+        return null;
       }
     });
     console.log('CON', correctOptionNumbers);
@@ -420,6 +449,10 @@ export class QuizService implements OnDestroy {
     this.continueQuizId = value;
   }
 
+  setQuizCompleted(completed: boolean) {
+    this.quizCompleted = completed;
+  }
+
   setCompletedQuizId(value: string) {
     this.completedQuizId = value;
   }
@@ -446,6 +479,10 @@ export class QuizService implements OnDestroy {
 
   setCurrentQuestion(value: QuizQuestion): void {
     this.currentQuestion = value;
+  }
+
+  setCurrentQuestionIndex(index: number) {
+    this.currentQuestionIndex = index;
   }
 
   setResources(value: Resource[]): void {
