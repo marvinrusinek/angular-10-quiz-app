@@ -12,6 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
+import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
