@@ -240,13 +240,23 @@ export class QuizService implements OnDestroy {
     return answers;
   } */
 
-  getAnswers(question: QuizQuestion): Answer[] {
+  /* getAnswers(question: QuizQuestion): Answer[] {
     if (question && question.answer && question.options) {
       return question.options
         .filter((option) => option.id === question.answer.optionId)
         .map((option) => option.answer);
     }
     return [];
+  } */
+
+  getAnswers(question: QuizQuestion): Observable<Answer[]> {
+    if (question && question.answer && question.options) {
+      const answers = question.options
+        .filter((option) => option.id === question.answer.optionId)
+        .map((option) => option.answer);
+      return of(answers);
+    }
+    return of([]);
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
