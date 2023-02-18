@@ -135,6 +135,10 @@ export class QuizService implements OnDestroy {
     });
   }
 
+  getFirstQuestion(): QuizQuestion {
+    return this.questions[0];
+  }
+
   /* getCorrectAnswers(question: QuizQuestion): Option[] {
     if (!question) {
       return [];

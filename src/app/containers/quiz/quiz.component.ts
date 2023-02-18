@@ -9,7 +9,7 @@ import {
   Output,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -42,6 +42,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
+  currentQuestion: QuizQuestion;
   resources: Resource[];
   answers: number[] = [];
   @Output() optionSelected = new EventEmitter<Option>();
@@ -90,6 +91,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuizData();
     this.subscribeToQuizParams();
     this.updateQuestionIndex();
+
+    // Call the method that returns a Promise
+    const myPromise = this.quizService.getAnswers();
+
+    // Convert the Promise to an Observable using the from function
+    const myObservable = from(myPromise);
+
+    myObservable.subscribe((answers: string[]) => {
+      this.answers = answers.map(Number);
+    });
+    this.currentQuestion = this.quizService.getFirstQuestion();
 
     this.question = await this.quizService.getCurrentQuestion();
     this.answers = await this.quizService.getAnswers();
