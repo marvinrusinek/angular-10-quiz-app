@@ -32,7 +32,8 @@ export class QuizService implements OnDestroy {
   private currentIndex = 0;
   private delayTime = 100;
 
-  private quizName$ = new BehaviorSubject<string>('');
+  // private quizName$ = new BehaviorSubject<string>('');
+  quizName$: string = '';
   quizId: string;
   indexOfQuizId: number;
   startedQuizId: string;
@@ -78,13 +79,17 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.activatedRoute.paramMap
+    /* this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
         const quizId = params.get('quizId');
         const quiz = this.quizData.find((q) => q.id === quizId);
         this.quizName$.next(quiz ? quiz.name : '');
-      });
+      }); */
+    this.activatedRoute.paramMap.subscribe((params) => {
+      this.quizId = params.get('quizId');
+      this.quizName = this.getQuiz(this.quizId).name;
+    });
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
     } else {
@@ -132,9 +137,9 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  get quizName$(): Observable<string> {
+  /* get quizName$(): Observable<string> {
     return this.quizName$.asObservable();
-  }
+  } */
 
   getQuiz(): Quiz[] {
     return this.quizData;
