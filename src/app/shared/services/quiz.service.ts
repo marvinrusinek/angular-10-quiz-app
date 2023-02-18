@@ -102,6 +102,10 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
+  initializeQuiz(): void {
+    this.quizData = _.cloneDeep(this.quizInitialState);
+  }
+
   getQuiz(): Quiz[] {
     return this.quizData;
   }

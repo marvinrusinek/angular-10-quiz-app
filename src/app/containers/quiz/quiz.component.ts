@@ -87,6 +87,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.quizData = QUIZ_DATA;
+    this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
     this.getQuizData();
     this.subscribeToQuizParams();
