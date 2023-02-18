@@ -7,6 +7,7 @@ import { Howl } from 'howler';
 import * as _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
+import { Answer } from '../../shared/models/Answer.type';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -215,12 +216,20 @@ export class QuizService implements OnDestroy {
     return [];
   }
 
-  getAnswers(): Observable<string[]> {
+  /* getAnswers(): Observable<string[]> {
     console.log('GETANS::', this.quizData);
     const selectedQuiz = this.quizData.find((quiz) => quiz.id === this.quizId);
-    // return of(selectedQuiz.questions.map((question) => question.answer));
+    return of(selectedQuiz.questions.map((question) => question.answer));
 
     return of(this.quizData.questions.map((question) => question.answer));
+  } */
+
+  getAnswers(question: QuizQuestion): Answer[] {
+    const answers = question.answers?.map(answer => ({
+      value: answer.value,
+      correct: answer.correct
+    }));
+    return answers ?? [];
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
