@@ -221,6 +221,7 @@ export class QuizService implements OnDestroy {
   } */
 
   getAnswers(): Observable<string[]> {
+    console.log("GETANS::", this.quizData);
     return of(this.quizData.questions.map((question) => question.answer));
   }
 
