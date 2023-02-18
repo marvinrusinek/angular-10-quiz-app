@@ -33,7 +33,6 @@ export class QuizService implements OnDestroy {
   private delayTime = 100;
 
   // private quizName$ = new BehaviorSubject<string>('');
-  quizName$: string = '';
   quizId: string;
   indexOfQuizId: number;
   startedQuizId: string;
@@ -111,21 +110,6 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  /* initializeQuiz(): void {
-    this.quizData = _.cloneDeep(this.quizInitialState);
-  } */
-
-  /* initializeQuiz(): void {
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => {
-        this.quizId = params.get('quizId');
-        this.quizData$ = this.quizApiService.getQuizById(this.quizId);
-        this.quizName$ = this.quizData$.pipe(map((data) => data.quizName));
-        this.quizQuestions$ = this.quizData$.pipe(map((data) => data.questions));
-      });
-  } */
-
   getQuizById(quizId: string): Quiz | undefined {
     return this.quizData.find((q) => q.id === quizId);
   }
@@ -137,16 +121,16 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  /* get quizName$(): Observable<string> {
-    return this.quizName$.asObservable();
-  } */
-
   getQuiz(): Quiz[] {
     return this.quizData;
   }
 
   getQuizName(segments: any[]): string {
     return segments[1].toString();
+  }
+
+  get quizName$(): Observable<string> {
+    return this.quizName$.asObservable();
   }
 
   getResources(): QuizResource[] {
@@ -190,15 +174,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getCurrentQuestion() {
-    // Use a delay to ensure that the quiz object has been properly initialized
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(this.quizData.questions[this.currentIndex]);
-      }, this.delayTime);
-    });
-  } */
-
   getTotalQuestions(): number {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
@@ -241,51 +216,6 @@ export class QuizService implements OnDestroy {
     }
     return [];
   }
-
-  /* getAnswers(): { value: string, correct: boolean }[] {
-    const currentQuestion = this.question;
-    // const answers: unknown = currentQuestion.answer || [];
-    const answers = currentQuestion.answer ?? [];
-
-    // Check if answers is an array
-    if (!Array.isArray(answers)) {
-      return [];
-    }
-  
-    // Combine correct and incorrect answers
-    const allAnswers = [...answers];
-  
-    // Shuffle the order of the answers
-    const shuffledAnswers = this.shuffle(allAnswers);
-  
-    // Convert the answers to an array of objects with 'value' and 'correct' properties
-    const formattedAnswers = shuffledAnswers.map((answer) => ({
-      value: answer,
-      correct: answers.includes(answer)
-    }));
-  
-    return formattedAnswers;
-  } */
-
-  /* getAnswers() {
-    // Use a delay to ensure that the quiz object has been properly initialized
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const currentQuestion = this.quizData.questions[this.currentIndex];
-        const answers = currentQuestion.answer || [];
-        // Combine correct and incorrect answers
-        const allAnswers = [...answers];
-        // Shuffle the order of the answers
-        const shuffledAnswers = this.shuffle(allAnswers);
-        // Convert the answers to an array of objects with 'value' and 'correct' properties
-        const formattedAnswers = shuffledAnswers.map((answer) => ({
-          value: answer,
-          correct: answers.includes(answer)
-        }));
-        resolve(formattedAnswers);
-      }, this.delayTime);
-    });
-  } */
 
   getAnswers(): Observable<string[]> {
     console.log('GETANS::', this.quizData);
@@ -523,7 +453,6 @@ export class QuizService implements OnDestroy {
   /********* reset functions ***********/
   resetQuestions(): void {
     this.quizData = _.cloneDeep(this.quizInitialState);
-    // or try using this.quizData = Object.assign({}, this.quizInitialState);
   }
 
   resetAll(): void {
