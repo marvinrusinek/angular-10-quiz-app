@@ -224,12 +224,28 @@ export class QuizService implements OnDestroy {
     return of(this.quizData.questions.map((question) => question.answer));
   } */
 
-  getAnswers(question: QuizQuestion): Answer[] {
+  /* getAnswers(question: QuizQuestion): Answer[] {
     const answers = question.answers?.map(answer => ({
       value: answer.value,
       correct: answer.correct
     }));
     return answers ?? [];
+  } */
+
+  /* getAnswers(question: QuizQuestion): Answer[] {
+    const answers = question.answer.map(answer => ({
+      value: answer.value,
+      correct: answer.correct
+    }));
+    return answers;
+  } */
+
+  getAnswers(question: QuizQuestion): Answer[] {
+    const options: Option[] = question.options;
+    const answers = options.map(option => ({
+      value: option.value,
+      correct: option.correct
+    }));
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
