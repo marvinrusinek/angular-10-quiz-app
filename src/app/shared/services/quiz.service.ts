@@ -77,7 +77,11 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.quizInitialState = _.cloneDeep(QUIZ_DATA);
+    if (QUIZ_DATA) {
+      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
+    } else {
+      console.log('QUIZ_DATA is undefined or null');
+    }
     this.quizData = QUIZ_DATA;
     this.quizResources = QUIZ_RESOURCES;
     this.quizName$ = this.activatedRoute.url.pipe(
@@ -216,7 +220,7 @@ export class QuizService implements OnDestroy {
   } */
 
   getAnswers(): Observable<string[]> {
-    return of(this.quizData.questions.map(question => question.answer));
+    return of(this.quizData.questions.map((question) => question.answer));
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
