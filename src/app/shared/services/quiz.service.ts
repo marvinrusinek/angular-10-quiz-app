@@ -90,7 +90,11 @@ export class QuizService implements OnDestroy {
     );
     this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => (this.quizId = params.get('quizId')));
+      .subscribe((params) => {
+        if (params) {
+          this.quizId = params.get('quizId');
+        }
+      });
     this.indexOfQuizId = this.quizData.findIndex(
       (elem) => elem.quizId === this.quizId
     );
@@ -225,7 +229,7 @@ export class QuizService implements OnDestroy {
   } */
 
   getAnswers(): Observable<string[]> {
-    console.log("GETANS::", this.quizData);
+    console.log('GETANS::', this.quizData);
     return of(this.quizData.questions.map((question) => question.answer));
   }
 
