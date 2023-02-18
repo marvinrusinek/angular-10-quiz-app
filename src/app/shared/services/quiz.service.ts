@@ -31,7 +31,7 @@ export class QuizService implements OnDestroy {
   currentQuizIndex: number = 0;
   currentQuestionIndex: number = 1;
 
-  // private quizName$ = new BehaviorSubject<string>('');
+  private quizName$ = new BehaviorSubject<string>('');
   quizId: string;
   indexOfQuizId: number;
   startedQuizId: string;
@@ -128,7 +128,7 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
-  get quizName$(): Observable<string> {
+  get quizNameObservable(): Observable<string> {
     return this.quizName$.asObservable();
   }
 
@@ -241,12 +241,12 @@ export class QuizService implements OnDestroy {
   } */
 
   getAnswers(question: QuizQuestion): Answer[] {
-    const options: Option[] = question.options || [];
-    const answers = options.map(option => ({
-      value: option.value,
-      correct: option.correct
-    }));
-    return answers;
+    if (question && question.answer && question.options) {
+      return question.options
+        .filter((option) => option.id === question.answer.optionId)
+        .map((option) => option.answer);
+    }
+    return [];
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
