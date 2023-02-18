@@ -241,11 +241,12 @@ export class QuizService implements OnDestroy {
   } */
 
   getAnswers(question: QuizQuestion): Answer[] {
-    const options: Option[] = question.options;
+    const options: Option[] = question.options || [];
     const answers = options.map(option => ({
       value: option.value,
       correct: option.correct
     }));
+    return answers;
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
