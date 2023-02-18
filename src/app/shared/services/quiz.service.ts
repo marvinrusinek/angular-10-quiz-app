@@ -32,7 +32,7 @@ export class QuizService implements OnDestroy {
   private currentIndex = 0;
   private delayTime = 100;
 
-  quizName$: Observable<string>;
+  private quizName$ = new BehaviorSubject<string>('');
   quizId: string;
   indexOfQuizId: number;
   startedQuizId: string;
@@ -78,6 +78,13 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((params) => {
+        const quizId = params.get('quizId');
+        const quiz = this.quizData.find((q) => q.id === quizId);
+        this.quizName$.next(quiz ? quiz.name : '');
+      });
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
     } else {
@@ -85,12 +92,9 @@ export class QuizService implements OnDestroy {
     }
     this.quizData = QUIZ_DATA;
     this.quizResources = QUIZ_RESOURCES;
-    this.quizName$ = this.activatedRoute.url.pipe(
+    /* this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.getQuizName(segments))
-    );
-    this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => (this.quizId = params.params.get('quizId')));
+    ); */
     this.indexOfQuizId = this.quizData.findIndex(
       (elem) => elem.quizId === this.quizId
     );
@@ -102,8 +106,34 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  initializeQuiz(): void {
+  /* initializeQuiz(): void {
     this.quizData = _.cloneDeep(this.quizInitialState);
+  } */
+
+  /* initializeQuiz(): void {
+    this.activatedRoute.paramMap
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((params) => {
+        this.quizId = params.get('quizId');
+        this.quizData$ = this.quizApiService.getQuizById(this.quizId);
+        this.quizName$ = this.quizData$.pipe(map((data) => data.quizName));
+        this.quizQuestions$ = this.quizData$.pipe(map((data) => data.questions));
+      });
+  } */
+
+  getQuizById(quizId: string): Quiz | undefined {
+    return this.quizData.find((q) => q.id === quizId);
+  }
+
+  get quizData$(): Observable<Quiz[]> {
+    return new Observable((subscriber) => {
+      subscriber.next(this.quizData);
+      subscriber.complete();
+    });
+  }
+
+  get quizName$(): Observable<string> {
+    return this.quizName$.asObservable();
   }
 
   getQuiz(): Quiz[] {
@@ -226,6 +256,9 @@ export class QuizService implements OnDestroy {
 
   getAnswers(): Observable<string[]> {
     console.log('GETANS::', this.quizData);
+    const selectedQuiz = this.quizData.find((quiz) => quiz.id === this.quizId);
+    // return of(selectedQuiz.questions.map((question) => question.answer));
+
     return of(this.quizData.questions.map((question) => question.answer));
   }
 
