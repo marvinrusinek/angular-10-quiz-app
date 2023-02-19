@@ -89,6 +89,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.quizData = QUIZ_DATA;
+
+    this.activatedRoute.params.subscribe(params => {
+      const quizId = params['quizId'];
+      const milestone = params['milestone'];
+      this.loadQuiz(quizId, milestone);
+    });
+
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
     this.getQuizData();
@@ -112,6 +119,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.question = await this.quizService.getCurrentQuestion();
     this.answers = await this.quizService.getAnswers();
+  }
+
+  loadQuiz(quizId: string, milestone: string): void {
+    this.quizService.getQuizById(quizId, milestone).subscribe((quiz: Quiz) => {
+      this.quiz = quiz;
+      this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone);
+    });
   }
 
   private getQuizData(): void {
