@@ -137,9 +137,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   startQuiz() {
     this.quizService.loadQuestions(this.selectedMilestone).subscribe(() => {
-      this.quizService.quizStarted = true;
-      this.quizService.currentQuestionIndex = 0;
-      this.correctCount = 0;
+      console.log('Questions in start quiz:', this.quizService.questions);
+      this.quizStarted = true;
+      this.currentQuestionIndex = 0;
+      this.correctAnswers = 0;
     });
   }
 

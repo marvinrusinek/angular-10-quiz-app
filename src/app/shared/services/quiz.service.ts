@@ -172,7 +172,12 @@ export class QuizService implements OnDestroy {
         this.questions = data.questions.filter(
           (question) => question.milestone === milestone
         );
+        console.log('Filtered questions:', this.questions);
         return data;
+      }),
+      catchError((err) => {
+        console.error(err);
+        return of(null);
       })
     );
   }
