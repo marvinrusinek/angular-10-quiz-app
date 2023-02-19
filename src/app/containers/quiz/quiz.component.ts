@@ -106,10 +106,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     .pipe(
       map((data: QuizQuestion[]) => data.filter((q: QuizQuestion) => q.milestone === this.selectedMilestone))
     );
-  this.milestoneQuestions$.subscribe((questions: QuizQuestion[]) => {
-    this.quizService.questions = questions;
-    console.log('Questions:', questions);
-  });
+    this.milestoneQuestions$.subscribe((questions: QuizQuestion[]) => {
+      this.quizService.questions = questions;
+      console.log('Questions:', questions);
+    });
 
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
