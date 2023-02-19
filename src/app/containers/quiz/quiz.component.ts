@@ -1,12 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  FormGroup,
+  EventEmitter, 
+  FormGroup, 
   Input,
   OnDestroy,
   OnInit,
-  Output,
+  Output
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
@@ -141,8 +141,30 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Questions in start quiz:', this.quizService.questions);
       this.quizService.quizStarted = true;
       this.quizService.currentQuestionIndex = 0;
-      this.correctAnswers = 0;
+      this.correctCount = 0;
     });
+  }
+
+  startQuiz() {
+    this.quizService.loadQuestions(this.selectedMilestone)
+      .subscribe(
+        data => {
+          this.quizService.questions = data;
+          console.log('Questions in start quiz:', this.quizService.questions);
+          // filter questions by selected milestone and assign to new property
+          this.milestoneQuestions = this.quizService.questions.filter((q: any) => q.milestone === this.selectedMilestone);
+          console.log('Milestone questions:', this.milestoneQuestions);
+          this.quizStarted = true;
+          this.currentQuestionIndex = 0;
+          this.correctAnswers = 0;
+          this.quizService.quizLength = this.milestoneQuestions.length;
+          this.quizService.quizStartTime = new Date();
+          this.quizService.currentQuestion = this.milestoneQuestions[this.currentQuestionIndex];
+        },
+        error => {
+          console.log(error);
+        }
+      );
   }
 
   // don't think this is needed
