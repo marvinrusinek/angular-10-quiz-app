@@ -168,7 +168,7 @@ export class QuizService implements OnDestroy {
 
   loadQuestions(milestone: string) {
     console.log('Loading questions for milestone:', milestone);
-    return this.http.get<any>('assets/questions.json')
+    return this.http.get<any>('./assets/data/quiz.json')
       .pipe(map(data => {
         this.questions = data.questions.filter(question => question.milestone === milestone);
         console.log('Filtered questions:', this.questions);
