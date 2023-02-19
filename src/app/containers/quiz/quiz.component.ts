@@ -45,7 +45,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions: QuizQuestion[];
   currentQuestion: QuizQuestion;
   milestoneQuestions: QuizQuestion[];
-  milestoneQuestions$: Observable<QuizQuestion[]>;
+  milestoneQuestions$: Observable<QuizQuestion[]>; 
   resources: Resource[];
   answers: number[] = [];
   @Output() optionSelected = new EventEmitter<Option>();
@@ -102,6 +102,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
     this.startQuiz();
 
+    this.milestoneQuestions$ = this.quizService.loadQuestions(this.selectedMilestone)
+    .pipe(
+      map((data: QuizQuestion[]) => data.filter((q: QuizQuestion) => q.milestone === this.selectedMilestone))
+    );
+  this.milestoneQuestions$.subscribe((questions: QuizQuestion[]) => {
+    this.quizService.questions = questions;
+    console.log('Questions:', questions);
+  });
+
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
     this.getQuizData();
@@ -139,26 +148,27 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    this.quizService.loadQuestions(this.selectedMilestone)
-      .subscribe(
-        data => {
-          this.quizService.questions = data;
-          console.log('Questions in start quiz:', this.quizService.questions);
-          // filter questions by selected milestone and assign to new property
-          this.milestoneQuestions = this.quizService.questions.filter((q: any) => q.milestone === this.selectedMilestone);
-          console.log('Milestone questions:', this.milestoneQuestions);
-          this.milestoneQuestions$ = of(this.quizService.questions);
-          this.quizService.quizStarted = true;
-          this.quizService.currentQuestionIndex = 0;
-          this.correctCount = 0;
-          this.quizService.quizLength = this.milestoneQuestions.length;
-          this.quizService.quizStartTime = new Date();
-          this.quizService.currentQuestion = this.milestoneQuestions[this.quizService.currentQuestionIndex];
-        },
-        error => {
-          console.log(error);
-        }
-      );
+    this.quizService.loadQuestions(this.selectedMilestone).subscribe(
+      data => {
+        this.quizService.questions = data;
+        console.log('Questions in start quiz:', this.quizService.questions);
+        // filter questions by selected milestone and assign to new property
+        this.milestoneQuestions = this.quizService.questions.filter((q: any) => q.milestone === this.selectedMilestone);
+        console.log('Milestone questions:', this.milestoneQuestions);
+        this.milestoneQuestions$ = of(this.milestoneQuestions);
+        console.log("milestoneQuestions$", this.milestoneQuestions$);
+        this.quizService.quizStarted = true;
+        this.quizService.currentQuestionIndex = 0;
+        this.correctCount = 0;
+        this.quizService.quizLength = this.milestoneQuestions.length;
+        this.quizService.quizStartTime = new Date();
+        this.quizService.currentQuestion = this.milestoneQuestions[this.quizService.currentQuestionIndex];
+      },
+      error => {
+        console.log(error);
+      }
+    );
+    console.log("TEST!!");
   }
 
   // don't think this is needed
