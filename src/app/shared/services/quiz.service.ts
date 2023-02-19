@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { catchError, map, takeUntil } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 
@@ -167,13 +167,15 @@ export class QuizService implements OnDestroy {
   }
 
   loadQuestions(milestone: string) {
-    return this.http.get<any>('./assets/data/quiz.json')
+    console.log('Loading questions for milestone:', milestone);
+    return this.http.get<any>('assets/questions.json')
       .pipe(map(data => {
-        this.questions = data.questions.filter(question => {
-          console.log(typeof milestone, typeof question.milestone, milestone, question.milestone);
-          return question.milestone === milestone;
-        });
+        this.questions = data.questions.filter(question => question.milestone === milestone);
+        console.log('Filtered questions:', this.questions);
         return data;
+      }), catchError(err => {
+        console.error('ERR::', err);
+        return of(null);
       }));
   }
 

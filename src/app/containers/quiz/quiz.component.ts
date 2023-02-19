@@ -98,6 +98,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const milestone = params['milestone'];
       this.loadQuiz(quizId, this.milestone);
     });
+    this.startQuiz();
 
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
