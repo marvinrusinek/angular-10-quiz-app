@@ -96,9 +96,9 @@ export class QuizService implements OnDestroy {
     this.quizData = QUIZ_DATA || [];
     this.quizResources = QUIZ_RESOURCES || [];
 
-    const quizId = this.activatedRoute.snapshot.paramMap.get('id');
+    /* const quizId = this.activatedRoute.snapshot.paramMap.get('id');
     this.quiz = this.quizService.getQuizById(quizId);
-    this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone);
+    this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone); */
 
     /* this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.getQuizName(segments))
@@ -114,8 +114,13 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  getQuizById(quizId: string): Quiz | undefined {
-    return this.quizData.find((q) => q.id === quizId);
+  getQuizById(quizId: string, milestone: string): Observable<Quiz> {
+    return this.getQuizzes().pipe(
+      map(quizzes => {
+        const filteredQuizzes = quizzes.filter(quiz => quiz.quizId === quizId && quiz.milestone === milestone);
+        return filteredQuizzes.length > 0 ? filteredQuizzes[0] : null;
+      })
+    );
   }
 
   get quizData$(): Observable<Quiz[]> {
