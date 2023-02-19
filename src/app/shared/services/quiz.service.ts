@@ -115,7 +115,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizById(quizId: string, milestone: string): Observable<Quiz> {
-    return this.http.get<Quiz>(`${this.url}`).pipe(
+    return this.http.get<Quiz[]>(this.url).pipe(
       map((quizzes: Quiz[]) => quizzes.filter(quiz => quiz.quizId === quizId && quiz.milestone === milestone)[0])
     );
   }

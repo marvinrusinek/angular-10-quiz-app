@@ -52,6 +52,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   isDisabled = true;
   selectedAnswerField: number;
   @Input() form: FormGroup;
+  quiz: Quiz;
+  @Input() milestone: string;
 
   questionIndex: number;
   totalQuestions: number;
@@ -93,7 +95,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       const quizId = params['quizId'];
       const milestone = params['milestone'];
-      this.loadQuiz(quizId, milestone);
+      this.loadQuiz(quizId, this.milestone);
     });
 
     // this.quizService.initializeQuiz(this.quizData);
@@ -121,10 +123,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers = await this.quizService.getAnswers();
   }
 
-  loadQuiz(quizId: string, milestone: string): void {
-    this.quizService.getQuizById(quizId, milestone).subscribe((quiz: Quiz) => {
+  loadQuiz(quizId: string, milestone: string) {
+    this.quizService.getQuizById(quizId, milestone).subscribe(quiz => {
       this.quiz = quiz;
-      this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone);
+      this.questions = this.quiz.questions.filter(q => q.milestone === milestone);
     });
   }
 
