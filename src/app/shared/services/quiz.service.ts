@@ -180,7 +180,7 @@ export class QuizService implements OnDestroy {
   } */
 
   loadQuestions(milestone: string): Observable<any> {
-    const url = `${this.url}/${milestone}`;
+    const url = `${this.url}`;
     return this.http.get(url).pipe(
       map(response => {
         if (response && response.length > 0) { // check if response is not null or undefined
