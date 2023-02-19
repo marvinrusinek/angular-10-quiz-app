@@ -249,7 +249,7 @@ export class QuizService implements OnDestroy {
     return [];
   } */
 
-  getAnswers(question: QuizQuestion): Observable<Answer[]> {
+  /* getAnswers(question: QuizQuestion): Observable<Answer[]> {
     if (question && question.answer && question.options) {
       const answers = question.options
         .filter((option) => option.id === question.answer.optionId)
@@ -257,7 +257,16 @@ export class QuizService implements OnDestroy {
       return of(answers);
     }
     return of([]);
-  }
+  } */
+
+  getAnswers(question: QuizQuestion): Answer[] {
+    if (question && question.answer && question.options) {
+      return question.options
+      .filter((option) => option.value === question.answer?.value)
+      .map((option) => ({ option: option, answer: option.text }));
+    }
+    return [];
+  } 
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
