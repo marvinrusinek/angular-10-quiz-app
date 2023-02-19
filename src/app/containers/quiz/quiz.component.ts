@@ -124,10 +124,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuiz(quizId: string, milestone: string) {
+    console.log("Selected milestone: ", milestone);
+    console.log("Quiz milestone: ", this.quiz.milestone);
+
     this.quizService.getQuizById(quizId, milestone).subscribe(quiz => {
       this.quiz = quiz;
       if (this.quiz && this.quiz.questions) {
-        this.questions = this.quiz.questions.filter(q => q.milestone === milestone) as (QuizQuestion & { milestone: string })[];
+        this.questions = this.quiz.questions.filter(q => {
+          console.log("Question milestone: ", q.milestone);
+          return q.milestone === this.quiz.milestone;
+        }) as (QuizQuestion & { milestone: string })[];
       }
     });
   }
