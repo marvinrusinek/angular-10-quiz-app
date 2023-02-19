@@ -95,6 +95,11 @@ export class QuizService implements OnDestroy {
     }
     this.quizData = QUIZ_DATA || [];
     this.quizResources = QUIZ_RESOURCES || [];
+
+    const quizId = this.activatedRoute.snapshot.paramMap.get('id');
+    this.quiz = this.quizService.getQuizById(quizId);
+    this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone);
+
     /* this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.getQuizName(segments))
     ); */
@@ -142,6 +147,14 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
+  }
+
+  getQuizQuestions(milestone: string): Observable<QuizQuestion[]> {
+    return this.http.get<Quiz[]>('./assets/data/quiz.json')
+      .pipe(
+        map(quizzes => quizzes.find(quiz => quiz.milestone === milestone)),
+        map(quiz => quiz.questions)
+      );
   }
 
   getNextQuestion(): QuizQuestion {
@@ -268,12 +281,22 @@ export class QuizService implements OnDestroy {
     return [];
   } */
 
-  getAnswers(question: QuizQuestion): Answer[] {
+  /* getAnswers(question: QuizQuestion): Answer[] {
     if (question && question.answer && question.options) {
       const selectedOption = question.options.find(option => option.value === question.answer.optionId);
       return selectedOption ? [selectedOption.answer] : [];
     }
     return [];
+  } */
+
+  getAnswers(question: QuizQuestion): Observable<Answer[]> {
+    if (question && question.answer && question.options) {
+      const answers = question.options
+        .filter((option) => option.value === question.answer.optionId)
+        .map((option) => option.answer);
+      return of(answers);
+    }
+    return of([]);
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {

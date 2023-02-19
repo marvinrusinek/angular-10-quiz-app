@@ -1,3 +1,5 @@
+import { Answer } from './Answer.type';
+
 export interface Option {
   text: string;
   correct?: boolean;
