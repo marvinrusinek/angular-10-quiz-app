@@ -1,68 +1,125 @@
 <div class="container">
-	<header class="row">
-		<div class="logo">
-			<a href="https://www.codelab.fun" title="Angular Codelab" target="_blank">
-				<div mat-card-avatar class="header-image" loading="lazy"></div>
-			</a>
-		</div>
-		<div class="intro-titles">
-			<h1 i18n>Angular Codelab Quiz App</h1>
-			<h4>How well do you know Angular? Find out!</h4>
-		</div>
-		<div class="info">
-			<a href="https://www.github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun"
-				target="_blank">
-				<i class="material-icons" matTooltip="Angular Codelab info" matTooltipPosition="right">info</i>
-			</a>
-		</div>
-	</header>
+  <header class="row">
+    <div class="logo">
+      <a href="https://www.codelab.fun" title="Angular Codelab" target="_blank">
+        <div mat-card-avatar class="header-image" loading="lazy"></div>
+      </a>
+    </div>
+    <div class="intro-titles">
+      <h1 i18n>Angular Codelab Quiz App</h1>
+      <h4>How well do you know Angular? Find out!</h4>
+    </div>
+    <div class="info">
+      <a
+        href="https://www.github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun"
+        target="_blank"
+      >
+        <i
+          class="material-icons"
+          matTooltip="Angular Codelab info"
+          matTooltipPosition="right"
+          >info</i
+        >
+      </a>
+    </div>
+  </header>
 
-	<div class="toolbar">
-		<button mat-button [matMenuTriggerFor]="menu" aria-label="Milestones Menu">
+  <div class="toolbar">
+    <button mat-button [matMenuTriggerFor]="menu" aria-label="Milestones Menu">
       <span i18n>Milestones &#x25BC;</span>
     </button>
-		<mat-menu #menu="matMenu" xPosition="before">
-			<div *ngFor="let quiz of quizzes$ | async">
-				<button mat-menu-item name="milestone"
-                [routerLink]="['/intro/', quiz.quizId]"
-                data-i18n="quiz.milestone">{{ quiz.milestone }}
+    <mat-menu #menu="matMenu" xPosition="before">
+      <div *ngFor="let quiz of quizzes$ | async">
+        <button
+          mat-menu-item
+          name="milestone"
+          [routerLink]="['/intro/', quiz.quizId]"
+          data-i18n="quiz.milestone"
+        >
+          {{ quiz.milestone }}
         </button>
-			</div>
-		</mat-menu>
-	</div>
+      </div>
+    </mat-menu>
+  </div>
 
-	<div class="quiz-grid">
-		<div class="quiz-tile" *ngFor="let quiz of quizzes$ | async" [@slideLeftToRight]="animationState$ | async"
-			(@slideLeftToRight.done)="animationDoneHandler()" [routerLink]="['/intro/', quiz.quizId]" loading="lazy"
-			[ngStyle]="{ 'background': 'url(' + quiz.image + ') no-repeat center 10px',
-                     'background-size': '300px 210px' }">
-			<summary class="quiz-info">
-				<h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
-				<h6 class="quiz-summary" i18n>{{ quiz.summary }}</h6>
-			</summary>
+  <div class="quiz-grid">
+    <div
+      class="quiz-tile"
+      *ngFor="let quiz of quizzes$ | async"
+      [@slideLeftToRight]="animationState$ | async"
+      (@slideLeftToRight.done)="animationDoneHandler()"
+      (click)="onSelect(quiz.milestone)"
+      [routerLink]="['/intro/', quiz.quizId]"
+      loading="lazy"
+      [ngStyle]="{
+        background: 'url(' + quiz.image + ') no-repeat center 10px',
+        'background-size': '300px 210px'
+      }"
+    >
+      <summary class="quiz-info">
+        <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
+        <h6 class="quiz-summary" i18n>{{ quiz.summary }}</h6>
+      </summary>
 
-			<div class="status-icon">
-				<ng-container [ngSwitch]="selectionParams.status">
-					<span *ngSwitchCase="'Started'" [ngClass]="{ 'link': !selectionParams.quizCompleted || quiz.quizId === selectionParams.startedQuizId }" name="start" matTooltip="Start">
-						<a *ngIf="!selectionParams.quizCompleted || quiz.quizId === selectionParams.startedQuizId" [routerLink]="['/intro/', quiz.quizId]">
-							<i class="material-icons">play_arrow</i>
-						</a>
-					</span>
-					<span *ngSwitchCase="'Continue'" [ngClass]="{ 'link': quiz.quizId === selectionParams.continueQuizId }" name="continue" matTooltip="Continue">
-						<a *ngIf="quiz.quizId === selectionParams.continueQuizId" [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]">
-							<i class="material-icons">play_arrow</i>
-						</a>
-					</span>
-					<span *ngSwitchCase="'Completed'" [ngClass]="{ 'link': quiz.quizId === selectionParams.completedQuizId }" name="completed" matTooltip="Completed">
-						<a *ngIf="quiz.quizId === selectionParams.completedQuizId" [routerLink]="['/results/', quiz.quizId]">
-							<i class="material-icons">done_all</i>
-						</a>
-					</span>
-				</ng-container>
-			</div>
-		</div></div>
+      <div class="status-icon">
+        <ng-container [ngSwitch]="selectionParams.status">
+          <span
+            *ngSwitchCase="'Started'"
+            [ngClass]="{
+              link:
+                !selectionParams.quizCompleted ||
+                quiz.quizId === selectionParams.startedQuizId
+            }"
+            name="start"
+            matTooltip="Start"
+          >
+            <a
+              *ngIf="
+                !selectionParams.quizCompleted ||
+                quiz.quizId === selectionParams.startedQuizId
+              "
+              [routerLink]="['/intro/', quiz.quizId]"
+            >
+              <i class="material-icons">play_arrow</i>
+            </a>
+          </span>
+          <span
+            *ngSwitchCase="'Continue'"
+            [ngClass]="{ link: quiz.quizId === selectionParams.continueQuizId }"
+            name="continue"
+            matTooltip="Continue"
+          >
+            <a
+              *ngIf="quiz.quizId === selectionParams.continueQuizId"
+              [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]"
+            >
+              <i class="material-icons">play_arrow</i>
+            </a>
+          </span>
+          <span
+            *ngSwitchCase="'Completed'"
+            [ngClass]="{
+              link: quiz.quizId === selectionParams.completedQuizId
+            }"
+            name="completed"
+            matTooltip="Completed"
+          >
+            <a
+              *ngIf="quiz.quizId === selectionParams.completedQuizId"
+              [routerLink]="['/results/', quiz.quizId]"
+            >
+              <i class="material-icons">done_all</i>
+            </a>
+          </span>
+        </ng-container>
+      </div>
+    </div>
+  </div>
 
-	<footer>
-		<h3 i18n>Copyright &copy; 2021 <a target="_blank" href="https://www.codelab.fun">codelab.fun</a></h3>
-	</footer>
+  <footer>
+    <h3 i18n>
+      Copyright &copy; 2021
+      <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
+    </h3>
+  </footer>
 </div>
