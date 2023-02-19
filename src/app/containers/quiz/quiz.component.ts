@@ -103,7 +103,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.startQuiz();
 
     this.milestoneQuestions$ = this.quizService
-      .loadQuestions(this.selectedMilestone)
+      .getMilestoneQuestions(this.selectedMilestone)
       .pipe(
         map((data: QuizQuestion[]) =>
           data.filter(
@@ -150,7 +150,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    this.quizService.loadQuestions(this.selectedMilestone)
+    this.quizService.getMilestoneQuestions(this.selectedMilestone)
       .subscribe(
         data => {
           this.quizService.questions = data;
