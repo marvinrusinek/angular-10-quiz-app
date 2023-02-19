@@ -1,8 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, map, takeUntil, throwError } from 'rxjs/operators';
+import { catchError, map, takeUntil, tap, throwError } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 
@@ -181,7 +181,7 @@ export class QuizService implements OnDestroy {
       }));
   } */
 
-  loadQuestions(milestone: string): Observable<any> {
+  /* loadQuestions(milestone: string): Observable<any> {
     const url = `${this.url}`;
     return this.http.get(url).pipe(
       map(response => {
@@ -195,6 +195,16 @@ export class QuizService implements OnDestroy {
         console.log('Error loading questions:', error);
         return throwError(error);
       })
+    );
+  } */
+
+  loadQuestions(milestone: string): Observable<QuizQuestion[]> {
+    console.log('Loading questions for milestone:', milestone);
+    return this.http.get<QuizQuestion[]>(this.url).pipe(
+      tap((data) => console.log('Data received:', data)),
+      map((data) => data.filter((q) => q.milestone === milestone)),
+      tap((data) => console.log('Questions after filtering:', data)),
+      catchError((error: HttpErrorResponse) => this.handleError(error))
     );
   }
 
@@ -578,5 +588,14 @@ export class QuizService implements OnDestroy {
     this.correctMessage = '';
     this.explanationText = '';
     this.currentQuestionIndex = 0;
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    if (error.error instanceof ErrorEvent) {
+      console.error('An error occurred:', error.error.message);
+    } else {
+      console.error(`Backend returned code ${error.status}, ` + `body was: ${error.error}`);
+    }
+    return throwError('Something bad happened; please try again later.');
   }
 }

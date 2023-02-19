@@ -165,7 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.currentQuestion = this.milestoneQuestions[this.quizService.currentQuestionIndex];
       },
       error => {
-        console.log(error);
+        console.log(this.quizService.handleError(error));
       }
     );
     console.log("TEST!!");
