@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, map, takeUntil } from 'rxjs/operators';
+import { catchError, map, takeUntil, throwError } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 
@@ -166,7 +166,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  loadQuestions(milestone: string) {
+  /* loadQuestions(milestone: string) {
     console.log('Loading questions for milestone:', milestone);
     return this.http.get<any>('./assets/data/quiz.json')
       .pipe(map(data => {
@@ -177,6 +177,23 @@ export class QuizService implements OnDestroy {
         console.error('ERR::', err);
         return of(null);
       }));
+  } */
+
+  loadQuestions(milestone: string): Observable<any> {
+    const url = `${this.url}/${milestone}`;
+    return this.http.get(url).pipe(
+      map(response => {
+        if (response && response.length > 0) { // check if response is not null or undefined
+          return response.filter((q: any) => q.milestone === milestone);
+        } else {
+          throw new Error('API returned null or undefined data.');
+        }
+      }),
+      catchError(error => {
+        console.log('Error loading questions:', error);
+        return throwError(error);
+      })
+    );
   }
 
   getNextQuestion(): QuizQuestion {
