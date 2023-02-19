@@ -111,10 +111,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           )
         )
       );
-    this.milestoneQuestions$.subscribe((questions: QuizQuestion[]) => {
-      this.quizService.questions = questions;
-      console.log('Questions:', questions);
-    });
+    this.milestoneQuestions$.subscribe(questions => console.log('Milestone questions:', questions));
 
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
