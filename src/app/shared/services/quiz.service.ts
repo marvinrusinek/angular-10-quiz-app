@@ -37,6 +37,7 @@ export class QuizService implements OnDestroy {
   startedQuizId: string;
   continueQuizId: string;
   completedQuizId: string;
+  quizStarted: boolean;
   quizCompleted: boolean;
   status: string;
 
@@ -115,9 +116,16 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizById(quizId: string, milestone: string): Observable<Quiz> {
-    return this.http.get<Quiz[]>(this.url).pipe(
-      map((quizzes: Quiz[]) => quizzes.filter(quiz => quiz.quizId === quizId && quiz.milestone === milestone)[0])
-    );
+    return this.http
+      .get<Quiz[]>(this.url)
+      .pipe(
+        map(
+          (quizzes: Quiz[]) =>
+            quizzes.filter(
+              (quiz) => quiz.quizId === quizId && quiz.milestone === milestone
+            )[0]
+        )
+      );
   }
 
   get quizData$(): Observable<Quiz[]> {
@@ -152,11 +160,21 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizQuestions(milestone: string): Observable<QuizQuestion[]> {
-    return this.http.get<Quiz[]>('./assets/data/quiz.json')
-      .pipe(
-        map(quizzes => quizzes.find(quiz => quiz.milestone === milestone)),
-        map(quiz => quiz.questions)
-      );
+    return this.http.get<Quiz[]>('./assets/data/quiz.json').pipe(
+      map((quizzes) => quizzes.find((quiz) => quiz.milestone === milestone)),
+      map((quiz) => quiz.questions)
+    );
+  }
+
+  loadQuestions(milestone: string) {
+    return this.http.get<any>('assets/data/quiz.json').pipe(
+      map((data) => {
+        this.questions = data.questions.filter(
+          (question) => question.milestone === milestone
+        );
+        return data;
+      })
+    );
   }
 
   getNextQuestion(): QuizQuestion {

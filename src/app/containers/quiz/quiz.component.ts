@@ -93,7 +93,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.quizData = QUIZ_DATA;
 
-    this.activatedRoute.params.subscribe(params => {
+    this.activatedRoute.params.subscribe((params) => {
       const quizId = params['quizId'];
       const milestone = params['milestone'];
       this.loadQuiz(quizId, this.milestone);
@@ -125,15 +125,25 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadQuiz(quizId: string, milestone: string) {
-    this.quizService.getQuizById(quizId, milestone).subscribe(quiz => {
+    this.quizService.getQuizById(quizId, milestone).subscribe((quiz) => {
       this.quiz = quiz;
       if (this.quiz && this.quiz.questions) {
-        this.questions = this.quiz.questions.filter(q => q.milestone === milestone);
+        this.questions = this.quiz.questions.filter(
+          (q) => q.milestone === milestone
+        );
       }
     });
   }
 
-  // don't think this is needed 
+  startQuiz() {
+    this.quizService.loadQuestions(this.selectedMilestone).subscribe(() => {
+      this.quizService.quizStarted = true;
+      this.quizService.currentQuestionIndex = 0;
+      this.correctCount = 0;
+    });
+  }
+
+  // don't think this is needed
   onMilestoneSelected(milestone: string) {
     this.loadQuiz('some-quiz-id', milestone);
   }
@@ -212,16 +222,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!(this.answers && this.answers.length > 0);
   }
 
-  /* isAnswered(): boolean {
-    return this.question.options.some((option) => option.selected);
-  } */
-
-  /* onOptionSelected(option: Option) {
-    console.log("onOptionSelected called with option:", option);
-
-    this.optionSelected.emit(option);
-  } */
-
   onOptionSelected(index: number) {
     this.answers = [index];
   }
@@ -252,32 +252,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.answers[0] = data;
     }
-
-    console.log('CHECK SA', this.answers);
   }
-
-  /* updateAnswer(data) {
-    if (!this.question || !this.question.options) {
-      throw new Error('this.question or this.question.options is not defined');
-    }
-
-    const correctAnswers = this.question.options.filter(
-      (option) => option.correct
-    );
-    const isDataInOptions = this.question.options.some(
-      (option) => option === data
-    );
-
-    if (!isDataInOptions) {
-      throw new Error(`${data} is not found in this.question.options`);
-    }
-
-    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
-      this.answers.push(data);
-    } else {
-      this.answers[0] = data;
-    }
-  } */
 
   shuffleQuestions(): void {
     if (this.quizService.checkedShuffle) {
