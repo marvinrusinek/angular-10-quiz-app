@@ -167,19 +167,14 @@ export class QuizService implements OnDestroy {
   }
 
   loadQuestions(milestone: string) {
-    return this.http.get<any>('assets/data/quiz.json').pipe(
-      map((data) => {
-        this.questions = data.questions.filter(
-          (question) => question.milestone === milestone
-        );
-        console.log('Filtered questions:', this.questions);
+    return this.http.get<any>('./assets/data/quiz.json')
+      .pipe(map(data => {
+        this.questions = data.questions.filter(question => {
+          console.log(typeof milestone, typeof question.milestone, milestone, question.milestone);
+          return question.milestone === milestone;
+        });
         return data;
-      }),
-      catchError((err) => {
-        console.error(err);
-        return of(null);
-      })
-    );
+      }));
   }
 
   getNextQuestion(): QuizQuestion {
