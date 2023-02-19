@@ -4,6 +4,7 @@ export interface Option {
   selected?: boolean;
   styleClass?: string;
   value: number;
-  answer?: string;
+  optionId?: number;
+  answer: Answer;
 }
 type Options = Option[];

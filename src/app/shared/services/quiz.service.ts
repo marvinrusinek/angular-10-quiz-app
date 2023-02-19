@@ -259,14 +259,22 @@ export class QuizService implements OnDestroy {
     return of([]);
   } */
 
-  getAnswers(question: QuizQuestion): Answer[] {
+  /* getAnswers(question: QuizQuestion): Answer[] {
     if (question && question.answer && question.options) {
       return question.options
-      .filter((option) => option.value === question.answer?.value)
-      .map((option) => ({ option: option, answer: option.text }));
+  .filter((option) => option.value === question.answer?.optionId)
+  .map((option) => ({ option: option, answer: option.answer }));
     }
     return [];
-  } 
+  } */
+
+  getAnswers(question: QuizQuestion): Answer[] {
+    if (question && question.answer && question.options) {
+      const selectedOption = question.options.find(option => option.value === question.answer.optionId);
+      return selectedOption ? [selectedOption.answer] : [];
+    }
+    return [];
+  }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
