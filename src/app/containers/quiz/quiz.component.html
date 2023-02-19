@@ -1,4 +1,4 @@
-<ng-container *ngFor="let quiz of quizzes$ | async">
+<ng-container *ngFor="let quiz of milestoneQuestions$ | async">
   <mat-card
     *ngIf="
       quiz.quizId === (quizName$ | async) &&
@@ -46,7 +46,7 @@
         (answer)="selectedAnswer($event)"
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"
-        (formReady)="form=$event"
+        (formReady)="form = $event"
       >
       </codelab-quiz-question>
     </mat-card-content>

@@ -168,43 +168,12 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* loadQuestions(milestone: string) {
-    console.log('Loading questions for milestone:', milestone);
-    return this.http.get<any>('./assets/data/quiz.json')
-      .pipe(map(data => {
-        this.questions = data.questions.filter(question => question.milestone === milestone);
-        console.log('Filtered questions:', this.questions);
-        return data;
-      }), catchError(err => {
-        console.error('ERR::', err);
-        return of(null);
-      }));
-  } */
-
-  /* loadQuestions(milestone: string): Observable<any> {
-    const url = `${this.url}`;
-    return this.http.get(url).pipe(
-      map(response => {
-        if (response && response.length > 0) { // check if response is not null or undefined
-          return response.filter((q: any) => q.milestone === milestone);
-        } else {
-          throw new Error('API returned null or undefined data.');
-        }
-      }),
-      catchError(error => {
-        console.log('Error loading questions:', error);
-        return throwError(error);
-      })
-    );
-  } */
-
   loadQuestions(milestone: string): Observable<QuizQuestion[]> {
-    console.log('Loading questions for milestone:', milestone);
     return this.http.get<QuizQuestion[]>(this.url).pipe(
       tap((data) => console.log('Data received:', data)),
       map((data) => data.filter((q) => q.milestone === milestone)),
       tap((data) => console.log('Questions after filtering:', data)),
-      catchError((error: HttpErrorResponse) => this.handleError(error))
+      catchError(this.handleError)
     );
   }
 
@@ -279,66 +248,6 @@ export class QuizService implements OnDestroy {
     }
     return [];
   }
-
-  /* getAnswers(): Observable<string[]> {
-    console.log('GETANS::', this.quizData);
-    const selectedQuiz = this.quizData.find((quiz) => quiz.id === this.quizId);
-    return of(selectedQuiz.questions.map((question) => question.answer));
-
-    return of(this.quizData.questions.map((question) => question.answer));
-  } */
-
-  /* getAnswers(question: QuizQuestion): Answer[] {
-    const answers = question.answers?.map(answer => ({
-      value: answer.value,
-      correct: answer.correct
-    }));
-    return answers ?? [];
-  } */
-
-  /* getAnswers(question: QuizQuestion): Answer[] {
-    const answers = question.answer.map(answer => ({
-      value: answer.value,
-      correct: answer.correct
-    }));
-    return answers;
-  } */
-
-  /* getAnswers(question: QuizQuestion): Answer[] {
-    if (question && question.answer && question.options) {
-      return question.options
-        .filter((option) => option.id === question.answer.optionId)
-        .map((option) => option.answer);
-    }
-    return [];
-  } */
-
-  /* getAnswers(question: QuizQuestion): Observable<Answer[]> {
-    if (question && question.answer && question.options) {
-      const answers = question.options
-        .filter((option) => option.id === question.answer.optionId)
-        .map((option) => option.answer);
-      return of(answers);
-    }
-    return of([]);
-  } */
-
-  /* getAnswers(question: QuizQuestion): Answer[] {
-    if (question && question.answer && question.options) {
-      return question.options
-  .filter((option) => option.value === question.answer?.optionId)
-  .map((option) => ({ option: option, answer: option.answer }));
-    }
-    return [];
-  } */
-
-  /* getAnswers(question: QuizQuestion): Answer[] {
-    if (question && question.answer && question.options) {
-      const selectedOption = question.options.find(option => option.value === question.answer.optionId);
-      return selectedOption ? [selectedOption.answer] : [];
-    }
-    return [];
-  } */
 
   getAnswers(question: QuizQuestion): Observable<Answer[]> {
     if (question && question.answer && question.options) {
@@ -594,7 +503,9 @@ export class QuizService implements OnDestroy {
     if (error.error instanceof ErrorEvent) {
       console.error('An error occurred:', error.error.message);
     } else {
-      console.error(`Backend returned code ${error.status}, ` + `body was: ${error.error}`);
+      console.error(
+        `Backend returned code ${error.status}, ` + `body was: ${error.error}`
+      );
     }
     return throwError('Something bad happened; please try again later.');
   }
