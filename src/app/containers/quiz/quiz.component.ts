@@ -9,7 +9,7 @@ import {
   Output
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, from, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, from, Observable, of, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
@@ -44,6 +44,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   currentQuestion: QuizQuestion;
+  milestoneQuestions: QuizQuestion[];
+  milestoneQuestions$: Observable<QuizQuestion[]>;
   resources: Resource[];
   answers: number[] = [];
   @Output() optionSelected = new EventEmitter<Option>();
@@ -137,15 +139,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    this.quizService.loadQuestions(this.selectedMilestone).subscribe(() => {
-      console.log('Questions in start quiz:', this.quizService.questions);
-      this.quizService.quizStarted = true;
-      this.quizService.currentQuestionIndex = 0;
-      this.correctCount = 0;
-    });
-  }
-
-  startQuiz() {
     this.quizService.loadQuestions(this.selectedMilestone)
       .subscribe(
         data => {
@@ -154,12 +147,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           // filter questions by selected milestone and assign to new property
           this.milestoneQuestions = this.quizService.questions.filter((q: any) => q.milestone === this.selectedMilestone);
           console.log('Milestone questions:', this.milestoneQuestions);
-          this.quizStarted = true;
-          this.currentQuestionIndex = 0;
-          this.correctAnswers = 0;
+          this.milestoneQuestions$ = of(this.quizService.questions);
+          this.quizService.quizStarted = true;
+          this.quizService.currentQuestionIndex = 0;
+          this.correctCount = 0;
           this.quizService.quizLength = this.milestoneQuestions.length;
           this.quizService.quizStartTime = new Date();
-          this.quizService.currentQuestion = this.milestoneQuestions[this.currentQuestionIndex];
+          this.quizService.currentQuestion = this.milestoneQuestions[this.quizService.currentQuestionIndex];
         },
         error => {
           console.log(error);
