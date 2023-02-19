@@ -127,7 +127,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizById(quizId, milestone).subscribe(quiz => {
       this.quiz = quiz;
       if (this.quiz && this.quiz.questions) {
-        this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone) as (QuizQuestion & { milestone: string })[];
+        this.questions = this.quiz.questions.filter(q => q.milestone === milestone) as (QuizQuestion & { milestone: string })[];
       }
     });
   }
