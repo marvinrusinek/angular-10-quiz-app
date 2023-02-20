@@ -111,11 +111,17 @@ export class QuizComponent implements OnInit, OnDestroy {
           )
         )
       );
-      this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.selectedMilestone).pipe(
+      /* this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.selectedMilestone).pipe(
         tap((questions) => console.log('All questions:', questions)),
         map((questions) => questions.filter((q) => q.milestone === this.selectedMilestone)),
         tap((questions) => console.log('Milestone questions:', questions)),
-      );
+      ); */
+
+      if (this.quiz && this.quiz.milestone) {
+        this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.quiz.milestone.toLowerCase()) as Observable<QuizQuestion[]>;
+      } else {
+        // Handle the case where the quiz or milestone is undefined
+      }
 
     // this.milestoneQuestions$ = this.quizService.getMilestoneQuestions('dependency-injection');
   // this.milestoneQuestions$.subscribe(data => console.log(data));
