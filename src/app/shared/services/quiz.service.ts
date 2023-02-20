@@ -171,7 +171,10 @@ export class QuizService implements OnDestroy {
   loadQuestions(): Observable<QuizQuestion[]> {
     return this.http.get<QuizQuestion[]>(this.url).pipe(
       tap((data) => console.log('Data received:', data)),
-      catchError(this.handleError)
+      catchError((error) => {
+        console.error('Error getting quiz questions:', error);
+        return throwError(error);
+      })
     );
   }
 

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, takeUntil, tap } from 'rxjs/operators';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Option } from '../../shared/models/Option.model';
@@ -111,7 +111,11 @@ export class QuizComponent implements OnInit, OnDestroy {
           )
         )
       );
-    this.milestoneQuestions$.subscribe(questions => console.log('Milestone questions:', questions));
+      this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.selectedMilestone).pipe(
+        tap((questions) => console.log('All questions:', questions)),
+        map((questions) => questions.filter((q) => q.milestone === this.selectedMilestone)),
+        tap((questions) => console.log('Milestone questions:', questions)),
+      );
 
     // this.milestoneQuestions$ = this.quizService.getMilestoneQuestions('dependency-injection');
   // this.milestoneQuestions$.subscribe(data => console.log(data));
