@@ -113,6 +113,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
     this.milestoneQuestions$.subscribe(questions => console.log('Milestone questions:', questions));
 
+    // this.milestoneQuestions$ = this.quizService.getMilestoneQuestions('dependency-injection');
+  // this.milestoneQuestions$.subscribe(data => console.log(data));
+
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
     this.getQuizData();

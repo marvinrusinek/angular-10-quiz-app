@@ -168,11 +168,23 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  getMilestoneQuestions(milestone: string): Observable<QuizQuestion[]> {
-    return this.http.get<QuizQuestion[]>(`${this.url}?milestone=${milestone}`).pipe(
+  loadQuestions(): Observable<QuizQuestion[]> {
+    return this.http.get<QuizQuestion[]>(this.url).pipe(
       tap((data) => console.log('Data received:', data)),
       catchError(this.handleError)
     );
+  }
+
+  getMilestoneQuestions(milestone: string): Observable<QuizQuestion[]> {
+    console.log('getMilestoneQuestions() called with milestone:', milestone);
+    return this.loadQuestions().pipe(
+      map((questions) => questions.filter((q) => q.milestone === milestone)),
+      tap((questions) => console.log('Questions after filtering:', questions)),
+      catchError((error) => {
+        console.error('Error getting milestone questions:', error);
+        return throwError(error);
+      })
+    ) as Observable<QuizQuestion[]>;
   }
 
   getNextQuestion(): QuizQuestion {
