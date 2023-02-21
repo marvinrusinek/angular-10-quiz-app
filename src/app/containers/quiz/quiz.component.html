@@ -1,6 +1,6 @@
 <ng-container *ngIf="(milestoneQuestions$ | async) as milestoneQuestions">
+  <div *ngFor="let quiz of quizzes$">
   <mat-card
-  *ngFor="let question of milestoneQuestions"
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
   >
@@ -156,4 +156,5 @@
       </section>
     </mat-card-footer>
   </mat-card>
+</div>
 </ng-container>

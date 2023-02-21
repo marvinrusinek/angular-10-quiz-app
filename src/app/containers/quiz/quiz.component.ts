@@ -102,29 +102,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
     this.startQuiz();
 
-    this.milestoneQuestions$ = this.quizService
-      .getMilestoneQuestions(this.selectedMilestone)
-      .pipe(
-        map((data: QuizQuestion[]) =>
-          data.filter(
-            (q: QuizQuestion) => q.milestone === this.selectedMilestone
-          )
-        )
-      );
-      /* this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.selectedMilestone).pipe(
-        tap((questions) => console.log('All questions:', questions)),
-        map((questions) => questions.filter((q) => q.milestone === this.selectedMilestone)),
-        tap((questions) => console.log('Milestone questions:', questions)),
-      ); */
-
-      if (this.quiz && this.quiz.milestone) {
-        this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.quiz.milestone.toLowerCase()) as Observable<QuizQuestion[]>;
-      } else {
-        // Handle the case where the quiz or milestone is undefined
-      }
-
-    // this.milestoneQuestions$ = this.quizService.getMilestoneQuestions('dependency-injection');
-  // this.milestoneQuestions$.subscribe(data => console.log(data));
+    if (this.quiz && this.quiz.milestone) {
+      this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.quiz.milestone.toLowerCase()) as Observable<QuizQuestion[]>;
+    } else {
+      // Handle the case where the quiz or milestone is undefined
+    }
 
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
@@ -154,11 +136,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   loadQuiz(quizId: string, milestone: string) {
     this.quizService.getQuizById(quizId, milestone).subscribe((quiz) => {
       this.quiz = quiz;
-      if (this.quiz && this.quiz.questions) {
+      /* if (this.quiz && this.quiz.questions) {
         this.questions = this.quiz.questions.filter(
           (q) => q.milestone === milestone
         );
-      }
+      } */
     });
   }
 
