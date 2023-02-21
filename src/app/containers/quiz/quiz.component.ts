@@ -2,12 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  FormGroup,
   Input,
   OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, Subject } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
