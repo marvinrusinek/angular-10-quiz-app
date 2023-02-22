@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
@@ -21,11 +27,15 @@ export class QuizSelectionComponent implements OnInit {
   selectionParams: object;
   selectedMilestone: string;
   @Output() milestoneSelected = new EventEmitter<string>();
-  @Output() selectedMilestoneChanged: EventEmitter<string> = new EventEmitter<string>();
+  @Output() selectedMilestoneChanged: EventEmitter<string> =
+    new EventEmitter<string>();
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
-  constructor(private quizService: QuizService, private selectedMilestoneService: SelectedMilestoneService) {}
+  constructor(
+    private quizService: QuizService,
+    private selectedMilestoneService: SelectedMilestoneService
+  ) {}
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -35,8 +45,7 @@ export class QuizSelectionComponent implements OnInit {
   }
 
   onSelect(milestone: string) {
-    this.selectedMilestone = milestone;
-    this.selectedMilestoneService.setSelectedMilestone(milestone);
+    this.quizService.selectedQuizId = milestone;
   }
 
   animationDoneHandler(): void {
