@@ -161,12 +161,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.quizLength = this.milestoneQuestions.length;
           this.quizService.quizStartTime = new Date();
           this.quizService.currentQuestion = this.milestoneQuestions[this.quizService.currentQuestionIndex];
+          this.router.navigate(['/question', this.selectedMilestone, this.quizService.currentQuestionIndex]);
         },
         error => {
           console.log(error);
         }
       );
-    console.log("TEST!!");
   }
   
   // don't think this is needed
