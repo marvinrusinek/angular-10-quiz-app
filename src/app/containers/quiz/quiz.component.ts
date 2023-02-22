@@ -169,9 +169,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
   }
   
-  // don't think this is needed
   onMilestoneSelected(milestone: string) {
-    this.loadQuiz('some-quiz-id', milestone);
+    this.selectedMilestone = milestone;
+    // this.loadQuiz('some-quiz-id', milestone);
   }
 
   private getQuizData(): void {

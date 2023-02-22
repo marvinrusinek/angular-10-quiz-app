@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,6 +16,7 @@ export class IntroductionComponent implements OnInit {
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
+  @Input() selectedMilestone: string;
   imagePath = '../../../assets/images/milestones/';
 
   constructor(
@@ -29,6 +30,7 @@ export class IntroductionComponent implements OnInit {
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
+    this.selectedMilestone = this.sharedService.selectedMilestone;
   }
 
   onChange($event): void {
