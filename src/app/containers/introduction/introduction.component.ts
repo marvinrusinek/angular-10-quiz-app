@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 
 @Component({
   selector: 'codelab-quiz-intro',
@@ -16,11 +17,12 @@ export class IntroductionComponent implements OnInit {
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
-  @Input() selectedMilestone: string;
+  selectedMilestone: string;
   imagePath = '../../../assets/images/milestones/';
 
   constructor(
-    private quizService: QuizService,
+    private quizService: QuizService, 
+    private selectedMilestoneService: SelectedMilestoneService,
     private activatedRoute: ActivatedRoute
   ) {}
 
@@ -30,7 +32,7 @@ export class IntroductionComponent implements OnInit {
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
-    this.selectedMilestone = this.sharedService.selectedMilestone;
+    this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
   }
 
   onChange($event): void {

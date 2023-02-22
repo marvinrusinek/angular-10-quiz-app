@@ -36,7 +36,7 @@ export class QuizSelectionComponent implements OnInit {
 
   onSelect(milestone: string) {
     this.selectedMilestone = milestone;
-    this.selectedMilestoneChanged.emit(this.selectedMilestone);
+    this.selectedMilestoneService.setSelectedMilestone(milestone);
   }
 
   animationDoneHandler(): void {
