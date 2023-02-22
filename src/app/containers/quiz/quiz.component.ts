@@ -155,7 +155,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadQuiz(quizId: string, milestone: string) {
+  /* loadQuiz(quizId: string, milestone: string) {
     this.quizService.getQuizById(quizId, milestone).subscribe((quiz) => {
       this.quiz = quiz;
       if (this.quiz && this.quiz.questions) {
@@ -164,9 +164,25 @@ export class QuizComponent implements OnInit, OnDestroy {
         );
       }
     });
+  } */
+
+  loadQuiz(milestone: string) {
+    this.http
+      .get<QuizQuestion[]>('assets/data/quiz.json')
+      .subscribe((data: QuizQuestion[]) => {
+        this.questions = data;
+        this.milestoneQuestions = this.questions.filter(
+          (q) => q.milestone === milestone
+        );
+      });
   }
 
   startQuiz() {
+    this.quizService.loadQuiz(this.selectedMilestone);
+    this.quizStarted = true;
+  }
+
+  /* startQuiz() {
     console.log('SM::', this.selectedMilestone);
     this.quizService.getMilestoneQuestions(this.selectedMilestone).subscribe(
       (data) => {
@@ -196,7 +212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log(error);
       }
     );
-  }
+  } */
 
   onMilestoneSelected(milestone: string) {
     this.selectedMilestone = milestone;
