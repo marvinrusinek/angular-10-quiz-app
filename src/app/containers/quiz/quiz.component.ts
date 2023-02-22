@@ -95,6 +95,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.quizData = QUIZ_DATA;
 
+    console.log('Quiz milestone:', this.quiz.milestone);
+    if (this.quiz.milestone !== this.selectedMilestone) {
+      console.error(
+        `Quiz milestone '${this.quiz.milestone}' does not match selected milestone '${this.selectedMilestone}'.`
+      );
+    }
+
     this.activatedRoute.params.subscribe((params) => {
       const quizId = params['quizId'];
       const milestone = params['milestone'];
@@ -102,11 +109,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
     this.startQuiz();
 
-    if (this.quiz && this.quiz.milestone) {
-      this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.quiz.milestone.toLowerCase()) as Observable<QuizQuestion[]>;
-    } else {
-      // Handle the case where the quiz or milestone is undefined
-    }
+    this.quizService.getQuizzes().subscribe((quizzes) => {
+      this.quizzes$ = of(quizzes);
+
+      // Set the default quiz to the first quiz in the list
+      this.quiz = quizzes[0];
+
+      // Call the function to initialize milestone questions
+      this.initializeMilestoneQuestions();
+    });
 
     // this.quizService.initializeQuiz(this.quizData);
     this.totalQuestions = 0;
@@ -133,6 +144,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers = await this.quizService.getAnswers();
   }
 
+  initializeMilestoneQuestions() {
+    if (this.quiz && this.quiz.milestone) {
+      console.log('QM::', this.quiz.milestone);
+      this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(
+        this.quiz.milestone.toLowerCase()
+      ) as Observable<QuizQuestion[]>;
+    } else {
+      // Handle the case where the quiz or milestone is undefined
+    }
+  }
+
   loadQuiz(quizId: string, milestone: string) {
     this.quizService.getQuizById(quizId, milestone).subscribe((quiz) => {
       this.quiz = quiz;
@@ -145,30 +167,37 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    this.quizService.getMilestoneQuestions(this.selectedMilestone)
-      .subscribe(
-        data => {
-          this.quizService.questions = data;
-          console.log('Questions in start quiz:', this.quizService.questions);
-          // filter questions by selected milestone and assign to new property
-          this.milestoneQuestions = this.quizService.questions.filter((q: any) => q.milestone === this.selectedMilestone);
-          console.log('Milestone questions:', this.milestoneQuestions);
-          this.milestoneQuestions$ = of(this.milestoneQuestions);
-          console.log("milestoneQuestions$", this.milestoneQuestions$);
-          this.quizService.quizStarted = true;
-          this.quizService.currentQuestionIndex = 0;
-          this.correctCount = 0;
-          this.quizService.quizLength = this.milestoneQuestions.length;
-          this.quizService.quizStartTime = new Date();
-          this.quizService.currentQuestion = this.milestoneQuestions[this.quizService.currentQuestionIndex];
-          this.router.navigate(['/question', this.selectedMilestone, this.quizService.currentQuestionIndex]);
-        },
-        error => {
-          console.log(error);
-        }
-      );
+    console.log('SM::', this.selectedMilestone);
+    this.quizService.getMilestoneQuestions(this.selectedMilestone).subscribe(
+      (data) => {
+        this.quizService.questions = data;
+        console.log('Questions in start quiz:', this.quizService.questions);
+        // filter questions by selected milestone and assign to new property
+        this.milestoneQuestions = this.quizService.questions.filter(
+          (q: any) => q.milestone === this.selectedMilestone
+        );
+        console.log('Milestone questions:', this.milestoneQuestions);
+        this.milestoneQuestions$ = of(this.milestoneQuestions);
+        console.log('milestoneQuestions$', this.milestoneQuestions$);
+        this.quizService.quizStarted = true;
+        this.quizService.currentQuestionIndex = 0;
+        this.correctCount = 0;
+        this.quizService.quizLength = this.milestoneQuestions.length;
+        this.quizService.quizStartTime = new Date();
+        this.quizService.currentQuestion =
+          this.milestoneQuestions[this.quizService.currentQuestionIndex];
+        this.router.navigate([
+          '/question',
+          this.selectedMilestone,
+          this.quizService.currentQuestionIndex,
+        ]);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
-  
+
   onMilestoneSelected(milestone: string) {
     this.selectedMilestone = milestone;
     // this.loadQuiz('some-quiz-id', milestone);
