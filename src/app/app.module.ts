@@ -32,6 +32,7 @@ import { QuizService } from './shared/services/quiz.service';
 import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
+import { SelectedMilestoneService } from './shared/services/selected-milestone.service';
 import { JoinPipe } from './pipes/join.pipe';
 import { MultipleAnswerComponent } from './components/question/question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/question-type/single-answer/single-answer.component';
@@ -92,7 +93,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
   ],
   exports: [MatExpansionModule],
   bootstrap: [AppComponent],
-  providers: [QuizService, TimerService, CountdownService, StopwatchService],
+  providers: [QuizService, TimerService, CountdownService, StopwatchService, SelectedMilestoneService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}
