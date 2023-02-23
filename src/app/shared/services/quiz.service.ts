@@ -180,6 +180,10 @@ export class QuizService implements OnDestroy {
   }
 
   getMilestoneQuestions(milestone: string): Observable<QuizQuestion[]> {
+    if (!milestone) {
+      console.warn('Milestone is undefined or null.');
+      return of([]);
+    }
     console.log('getMilestoneQuestions() called with milestone:', milestone);
     return this.loadQuestions().pipe(
       map((questions) => questions.filter((q) => q.milestone === milestone)),
