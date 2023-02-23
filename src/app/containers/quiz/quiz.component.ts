@@ -98,7 +98,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.milestoneQuestions$ = this.quizService
       .getMilestoneQuestions(this.milestone)
       .pipe(
-        tap((questions) => console.log('milestoneQuestions', questions)),
+        tap((questions) => console.log('MQs::', questions)),
         shareReplay()
       );
 
@@ -108,12 +108,24 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedMilestone = milestone;
       }); */
 
-    this.selectedMilestoneService.getSelectedMilestone().subscribe(milestone => {
+    /* this.selectedMilestoneService.getSelectedMilestone().subscribe(milestone => {
       this.selectedMilestone = milestone;
       this.quizService.getMilestoneQuestions(milestone).subscribe(questions => {
         this.questions = questions;
       });
-    });
+    }); */
+
+    this.selectedMilestoneService.selectedMilestone$.subscribe(
+      (milestone) => {
+        this.milestone = milestone;
+        this.milestoneQuestions$ = this.quizService
+          .getMilestoneQuestions(this.milestone)
+          .pipe(
+            tap((questions) => console.log('MQs::', questions)),
+            shareReplay()
+          );
+      }
+    );
 
     /* if (!this.selectedMilestone) {
       this.router.navigate(['/intro/quizId']);
