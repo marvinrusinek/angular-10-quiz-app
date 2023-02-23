@@ -95,7 +95,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
+    /* this.activatedRoute.params.subscribe((params) => {
       this.milestone = params.milestone;
       this.milestoneQuestions$ = this.quizService
         .getMilestoneQuestions(this.milestone)
@@ -103,6 +103,18 @@ export class QuizComponent implements OnInit, OnDestroy {
           tap((questions) => console.log('MQs::', questions)),
           shareReplay()
         );
+    }); */
+
+    this.quizService.currentQuestionIndex = 0;
+    this.selectedMilestoneService.selectedMilestone.subscribe(
+      (milestone) => {
+        this.milestone = milestone;
+        this.milestoneQuestions$ = this.quizService
+          .getMilestoneQuestions(this.milestone)
+          .pipe(
+            tap((questions) => console.log('MQs::', questions)),
+            shareReplay()
+          );
     });
 
     /* this.selectedMilestoneService
