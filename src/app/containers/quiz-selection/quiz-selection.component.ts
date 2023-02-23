@@ -36,7 +36,7 @@ export class QuizSelectionComponent implements OnInit {
   constructor(
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
-    private router: Router;
+    private router: Router
   ) {}
 
   ngOnInit(): void {
