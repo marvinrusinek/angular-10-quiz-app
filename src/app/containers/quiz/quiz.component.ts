@@ -138,7 +138,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   loadQuiz(milestone: string) {
-    this.http
+    this.quizService.http
       .get<QuizQuestion[]>('assets/data/quiz.json')
       .subscribe((data: QuizQuestion[]) => {
         this.questions = data;
@@ -149,8 +149,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    this.quizService.loadQuiz(this.selectedMilestone);
-    this.quizStarted = true;
+    this.quizService.loadQuestions(this.selectedMilestone);
+    this.quizService.quizStarted = true;
   }
 
   /* startQuiz() {
