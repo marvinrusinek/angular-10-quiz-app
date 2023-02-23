@@ -97,10 +97,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
 
-    if (!this.selectedMilestone) {
-      this.router.navigate(['/introduction']);
+    /* if (!this.selectedMilestone) {
+      this.router.navigate(['/intro/quizId']);
       return;
-    }
+    } */
 
     this.quizService.loadQuestions()
     .subscribe((questions: QuizQuestion[]) => {
