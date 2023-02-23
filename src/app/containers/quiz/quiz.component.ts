@@ -95,61 +95,22 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.quizData = QUIZ_DATA;
+    this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
 
-    console.log('Quiz milestone:', this.quiz.milestone);
-    if (this.quiz.milestone !== this.selectedMilestone) {
-      console.error(
-        `Quiz milestone '${this.quiz.milestone}' does not match selected milestone '${this.selectedMilestone}'.`
-      );
+    if (!this.selectedMilestone) {
+      this.router.navigate(['/introduction']);
+      return;
     }
 
-    this.activatedRoute.params.subscribe((params) => {
-      const quizId = params['quizId'];
-      const milestone = params['milestone'];
-      this.loadQuiz(quizId, this.milestone);
+    this.quizService.loadQuestions()
+    .subscribe((questions: QuizQuestion[]) => {
+      this.questions = questions;
+      this.quizService.currentQuestionIndex = 0;
+      this.currentQuestion = this.questions[this.quizService.currentQuestionIndex];
+      this.score = 0;
+      this.quizService.quizStarted = false;
     });
-    this.startQuiz();
-
-    this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
-    this.quizService.loadQuiz(this.selectedMilestone).subscribe(data => {
-      this.questions = data;
-    });
-
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes$ = of(quizzes);
-
-      // Set the default quiz to the first quiz in the list
-      this.quiz = quizzes[0];
-
-      // Call the function to initialize milestone questions
-      this.initializeMilestoneQuestions();
-    });
-
-    // this.quizService.initializeQuiz(this.quizData);
-    this.totalQuestions = 0;
-    this.getQuizData();
-    this.subscribeToQuizParams();
-    this.updateQuestionIndex();
-
-    this.quizService.getAnswers().subscribe((answers: string[]) => {
-      this.answers = answers.map(Number);
-    });
-
-    // Call the method that returns a Promise
-    // const myPromise = this.quizService.getAnswers();
-
-    // Convert the Promise to an Observable using the from function
-    // const myObservable = from(myPromise);
-
-    /* myObservable.subscribe((answers: string[]) => {
-      this.answers = answers.map(Number);
-    });
-    this.currentQuestion = this.quizService.getFirstQuestion(); */
-
-    this.question = await this.quizService.getCurrentQuestion();
-    this.answers = await this.quizService.getAnswers();
-  }
+  } 
 
   initializeMilestoneQuestions() {
     if (this.quiz && this.quiz.milestone) {
