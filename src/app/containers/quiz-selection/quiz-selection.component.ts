@@ -48,10 +48,11 @@ export class QuizSelectionComponent implements OnInit {
     this.quizService.selectedQuizId = milestone;
     this.selectedMilestoneService.setSelectedMilestone(milestone);
     this.quizService.selectedQuizId = milestone;
-    this.router.navigate(['/intro']);
+    // this.router.navigate(['/intro']);
   }
 
   selectMilestone(milestone: string) {
+    this.selectedMilestone = milestone;
     this.selectedMilestoneService.setSelectedMilestone(milestone);
     this.quizService.getMilestoneQuestions(milestone).subscribe();
   }

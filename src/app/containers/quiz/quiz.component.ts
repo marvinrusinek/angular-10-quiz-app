@@ -95,12 +95,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.milestoneQuestions$ = this.quizService
-      .getMilestoneQuestions(this.milestone)
-      .pipe(
-        tap((questions) => console.log('MQs::', questions)),
-        shareReplay()
-      );
+    this.activatedRoute.params.subscribe((params) => {
+      this.milestone = params.milestone;
+      this.milestoneQuestions$ = this.quizService
+        .getMilestoneQuestions(this.milestone)
+        .pipe(
+          tap((questions) => console.log('MQs::', questions)),
+          shareReplay()
+        );
+    });
 
     /* this.selectedMilestoneService
       .getSelectedMilestone()
