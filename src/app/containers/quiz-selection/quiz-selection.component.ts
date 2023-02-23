@@ -5,6 +5,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
@@ -34,7 +35,8 @@ export class QuizSelectionComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private selectedMilestoneService: SelectedMilestoneService
+    private selectedMilestoneService: SelectedMilestoneService,
+    private router: Router;
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +50,7 @@ export class QuizSelectionComponent implements OnInit {
     this.quizService.selectedQuizId = milestone;
     this.selectedMilestoneService.setSelectedMilestone(milestone);
     this.quizService.selectedQuizId = milestone;
-    // this.router.navigate(['/intro']);
+    this.router.navigate(['/intro']);
   }
 
   selectMilestone(milestone: string) {
