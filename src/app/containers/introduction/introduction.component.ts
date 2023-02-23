@@ -38,7 +38,7 @@ export class IntroductionComponent implements OnInit {
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
-    this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
+    this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
     this.selectedQuizId = this.quizService.selectedQuizId;
   }
 

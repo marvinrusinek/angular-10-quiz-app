@@ -19,6 +19,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -87,6 +88,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   constructor(
     private quizService: QuizService,
+    private selectedMilestoneService: SelectedMilestoneService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
@@ -108,6 +110,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.loadQuiz(quizId, this.milestone);
     });
     this.startQuiz();
+
+    this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
+    this.quizService.loadQuiz(this.selectedMilestone).subscribe(data => {
+      this.questions = data;
+    });
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes$ = of(quizzes);

@@ -48,6 +48,10 @@ export class QuizSelectionComponent implements OnInit {
     this.quizService.selectedQuizId = milestone;
   }
 
+  selectMilestone(milestone: string) {
+    this.selectedMilestoneService.setSelectedMilestone(milestone);
+  }
+
   animationDoneHandler(): void {
     this.animationState$.next('none');
   }
