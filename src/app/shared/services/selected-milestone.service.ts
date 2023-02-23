@@ -1,18 +1,28 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SelectedMilestoneService {
   selectedMilestone: string;
+  private selectedMilestone$ = new BehaviorSubject<string>('');
 
   constructor() {}
 
-  setSelectedMilestone(milestone: string) {
+  /* setSelectedMilestone(milestone: string) {
     this.selectedMilestone = milestone;
+  } */
+
+  /* getSelectedMilestone() {
+    return this.selectedMilestone;
+  } */
+
+  setSelectedMilestone(milestone: string) {
+    this.selectedMilestone$.next(milestone);
   }
 
-  getSelectedMilestone() {
-    return this.selectedMilestone;
+  getSelectedMilestone(): Observable<string> {
+    return this.selectedMilestone$.asObservable();
   }
 }

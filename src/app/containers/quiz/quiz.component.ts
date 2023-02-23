@@ -95,25 +95,40 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.milestone).pipe(
-      tap(questions => console.log('milestoneQuestions', questions)),
-      shareReplay()
-    );
+    this.milestoneQuestions$ = this.quizService
+      .getMilestoneQuestions(this.milestone)
+      .pipe(
+        tap((questions) => console.log('milestoneQuestions', questions)),
+        shareReplay()
+      );
+
+    /* this.selectedMilestoneService
+      .getSelectedMilestone()
+      .subscribe((milestone) => {
+        this.selectedMilestone = milestone;
+      }); */
+
+    this.selectedMilestoneService.getSelectedMilestone().subscribe(milestone => {
+      this.selectedMilestone = milestone;
+      this.quizService.getMilestoneQuestions(milestone).subscribe(questions => {
+        this.questions = questions;
+      });
+    });
 
     /* if (!this.selectedMilestone) {
       this.router.navigate(['/intro/quizId']);
       return;
     } */
 
-    this.quizService.loadQuestions()
-    .subscribe((questions: QuizQuestion[]) => {
+    this.quizService.loadQuestions().subscribe((questions: QuizQuestion[]) => {
       this.questions = questions;
       this.quizService.currentQuestionIndex = 0;
-      this.currentQuestion = this.questions[this.quizService.currentQuestionIndex];
+      this.currentQuestion =
+        this.questions[this.quizService.currentQuestionIndex];
       this.score = 0;
       this.quizService.quizStarted = false;
     });
-  } 
+  }
 
   initializeMilestoneQuestions() {
     if (this.quiz && this.quiz.milestone) {
