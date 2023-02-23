@@ -10,7 +10,7 @@ import {
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 
 import { QUIZ_DATA } from '../../shared/quiz';
 import { Option } from '../../shared/models/Option.model';
@@ -95,7 +95,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
+    this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(this.milestone).pipe(
+      tap(questions => console.log('milestoneQuestions', questions)),
+      shareReplay()
+    );
 
     /* if (!this.selectedMilestone) {
       this.router.navigate(['/intro/quizId']);

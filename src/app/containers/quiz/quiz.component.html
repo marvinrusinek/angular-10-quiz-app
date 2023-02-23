@@ -1,5 +1,5 @@
 <ng-container *ngIf="milestoneQuestions$ | async as milestoneQuestions">
-  <div *ngFor="let question of quizService.milestoneQuestions; let i = index">
+    <div *ngFor="let question of milestoneQuestions; let i = index">
     <mat-card
       [@changeRoute]="animationState$ | async"
       (@changeRoute.done)="animationDoneHandler()"
