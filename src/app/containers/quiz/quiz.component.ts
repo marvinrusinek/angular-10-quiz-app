@@ -94,67 +94,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  async ngOnInit() {
-    /* this.activatedRoute.params.subscribe((params) => {
-      this.milestone = params.milestone;
-      this.milestoneQuestions$ = this.quizService
-        .getMilestoneQuestions(this.milestone)
-        .pipe(
-          tap((questions) => console.log('MQs::', questions)),
-          shareReplay()
-        );
-    }); */
-
-    this.quizService.currentQuestionIndex = 0;
-    this.selectedMilestoneService.selectedMilestone.subscribe(
-      (milestone) => {
-        this.milestone = milestone;
-        this.milestoneQuestions$ = this.quizService
-          .getMilestoneQuestions(this.milestone)
-          .pipe(
-            tap((questions) => console.log('MQs::', questions)),
-            shareReplay()
-          );
-    });
-
-    /* this.selectedMilestoneService
-      .getSelectedMilestone()
-      .subscribe((milestone) => {
-        this.selectedMilestone = milestone;
-      }); */
-
-    /* this.selectedMilestoneService.getSelectedMilestone().subscribe(milestone => {
-      this.selectedMilestone = milestone;
-      this.quizService.getMilestoneQuestions(milestone).subscribe(questions => {
-        this.questions = questions;
-      });
-    }); */
-
-    this.selectedMilestoneService.selectedMilestone$.subscribe(
-      (milestone) => {
-        this.milestone = milestone;
-        this.milestoneQuestions$ = this.quizService
-          .getMilestoneQuestions(this.milestone)
-          .pipe(
-            tap((questions) => console.log('MQs::', questions)),
-            shareReplay()
-          );
-      }
-    );
-
-    /* if (!this.selectedMilestone) {
-      this.router.navigate(['/intro/quizId']);
-      return;
-    } */
-
-    this.quizService.loadQuestions().subscribe((questions: QuizQuestion[]) => {
-      this.questions = questions;
-      this.quizService.currentQuestionIndex = 0;
-      this.currentQuestion =
-        this.questions[this.quizService.currentQuestionIndex];
-      this.score = 0;
-      this.quizService.quizStarted = false;
-    });
+  async ngOnInit(): void {
+    this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
+    this.milestoneQuestions$ = this.quizService
+      .getMilestoneQuestions(this.selectedMilestone)
+      .pipe(
+        tap((questions) => console.log('MQs::', questions)),
+        shareReplay()
+      );
   }
 
   initializeMilestoneQuestions() {
