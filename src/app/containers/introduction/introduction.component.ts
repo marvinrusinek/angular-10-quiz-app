@@ -43,7 +43,14 @@ export class IntroductionComponent implements OnInit {
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
-    this.quizId = this.quizService.quizId;
+ 
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      if (quizId) {
+        this.quizService.setQuizId(quizId);
+      }
+    });
+
     this.selectedMilestone =
       this.selectedMilestoneService.getSelectedMilestone();
     this.selectedQuizId = this.quizService.selectedQuizId;
@@ -61,7 +68,7 @@ export class IntroductionComponent implements OnInit {
     this.quizService.setQuizId(this.quizService.quizId);
     if (this.quizComponent && this.quizService.quizId) {
       this.quizComponent.startQuiz();
-      this.router.navigate(['question/', this.quizId, 1]);
+      this.router.navigate(['/question/', this.quizId, 1]);
     }
   }
 }
