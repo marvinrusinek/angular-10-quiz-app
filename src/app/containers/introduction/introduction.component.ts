@@ -27,8 +27,12 @@ export class IntroductionComponent implements OnInit {
   quizName$: Observable<string>;
   selectedMilestone: string;
   selectedQuizId: string;
-  quizId: string = '';
+
   imagePath = '../../../assets/images/milestones/';
+
+  get quizId(): string {
+    return this.quizService.quizId;
+  }
 
   constructor(
     private quizService: QuizService,
@@ -36,7 +40,7 @@ export class IntroductionComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.quizId = this.quizService.quizId;
+    // this.quizId = this.quizService.quizId;
   }
 
   ngOnInit(): void {
@@ -46,7 +50,7 @@ export class IntroductionComponent implements OnInit {
       map((segments) => this.quizService.getQuizName(segments))
     );
 
-    this.quizId = this.quizService.quizId;
+    // this.quizId = this.quizService.quizId;
 
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
@@ -85,7 +89,7 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
-    this.quizService.setQuizId(this.quizService.quizId);
+    this.quizService.setQuizId(this.quizId);
     this.quizService.getQuiz().subscribe(() => {
       this.router.navigate(['/question/', this.quizService.quizId, 1]);
     });

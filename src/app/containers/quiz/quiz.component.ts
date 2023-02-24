@@ -105,6 +105,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    console.log("QI:::::", this.quizService.quizId);
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
     this.milestoneQuestions$ = this.quizService
       .getMilestoneQuestions(this.selectedMilestone)
