@@ -35,7 +35,9 @@ export class IntroductionComponent implements OnInit {
     private selectedMilestoneService: SelectedMilestoneService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    this.quizId = this.quizService.quizId;
+  }
 
   ngOnInit(): void {
     this.quizData = this.quizService.getQuiz();
@@ -65,10 +67,10 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
-    this.quizService.setQuizId(this.quizService.quizId);
-    if (this.quizComponent && this.quizService.quizId) {
+    this.quizService.setQuizId(this.quizId);
+    if (this.quizId) {
       this.quizComponent.startQuiz();
-      this.router.navigate(['/question/', this.quizId, 1]);
+      this.router.navigate(['/question', this.quizId, 1]);
     }
   }
 }
