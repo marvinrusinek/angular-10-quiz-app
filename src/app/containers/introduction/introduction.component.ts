@@ -21,7 +21,7 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-  @ViewChild(QuizComponent) quizComponent: QuizComponent;
+  @ViewChild(QuizComponent) quizComponent: QuizComponent | undefined;
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
@@ -58,6 +58,8 @@ export class IntroductionComponent implements OnInit {
     this.quizService.setQuizId(this.quizService.quizId);
     if (this.quizComponent) {
       this.quizComponent.startQuiz();
+    } else {
+      console.log('quizComponent is undefined');
     }
   }
 }
