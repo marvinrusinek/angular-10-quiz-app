@@ -67,10 +67,19 @@ export class IntroductionComponent implements OnInit {
     }
   }
 
-  onStartQuiz() {
+  /* onStartQuiz() {
     console.log('start quiz clicked!');
     this.quizService.setQuizId(this.quizId);
     console.log('QS quiz id', this.quizService.quizId);
-    this.router.navigate(['/question', this.quizId, 1]);
+    this.router.navigate(['/question/', this.quizId, 1]);
+  } */
+
+  onStartQuiz() {
+    console.log('start quiz clicked!');
+    console.log('quizId:', this.quizService.quizId);
+    if (this.quizComponent) {
+      this.quizComponent.startQuiz();
+      this.router.navigate(['/question/', this.quizId, 1]);
+    }
   }
 }

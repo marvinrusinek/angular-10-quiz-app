@@ -420,6 +420,7 @@ export class QuizService implements OnDestroy {
   }
 
   setQuizId(value: string): void {
+    console.log('setQuizId', value);
     this.quizId = value;
   }
 
