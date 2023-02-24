@@ -59,7 +59,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   // @Input() milestone: string;
   selectedMilestone: string;
 
-  @Input() set milestone(value: any) {
+  /* @Input() set milestone(value: any) {
     if (typeof value !== 'string') {
       console.error('Milestone should be of type string');
       return;
@@ -67,7 +67,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this._milestone = value;
   }
   
-  private _milestone: string;
+  private _milestone: string; */
 
   questionIndex: number;
   totalQuestions: number;
