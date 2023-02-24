@@ -5,7 +5,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -21,7 +21,7 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-  @ViewChild(QuizComponent) quizComponent: QuizComponent | undefined;
+  @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
@@ -33,7 +33,8 @@ export class IntroductionComponent implements OnInit {
   constructor(
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +61,7 @@ export class IntroductionComponent implements OnInit {
     this.quizService.setQuizId(this.quizService.quizId);
     if (this.quizComponent && this.quizService.quizId) {
       this.quizComponent.startQuiz();
+      this.router.navigate(['question/', this.quizId, 1]);
     }
   }
 }
