@@ -139,7 +139,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    console.log('startQuiz called!');
+    console.log('questions:::', this.questions);
     this.quizService.currentQuestionIndex = 0;
     this.quizService.quizStarted = true;
     this.quizService.loadQuestions();
