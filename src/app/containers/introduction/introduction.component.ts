@@ -27,7 +27,7 @@ export class IntroductionComponent implements OnInit {
   quizName$: Observable<string>;
   selectedMilestone: string;
   selectedQuizId: string;
-  quizId: string;
+  quizId: string = '';
   imagePath = '../../../assets/images/milestones/';
 
   constructor(
@@ -45,8 +45,13 @@ export class IntroductionComponent implements OnInit {
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
- 
-    this.activatedRoute.paramMap.subscribe(params => {
+
+    console.log('QS quiz id', this.quizService.quizId);
+    if (this.quizService.quizId) {
+      this.quizId = this.quizService.quizId;
+    }
+
+    this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
       if (quizId) {
         this.quizService.setQuizId(quizId);
@@ -67,10 +72,10 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
-    
+
     if (this.quizId) {
       // this.quizComponent.startQuiz();
-      this.router.navigate(['/question', this.quizId, 1]);
+      this.router.navigate(['/question/', this.quizId, 1]);
     }
   }
 }
