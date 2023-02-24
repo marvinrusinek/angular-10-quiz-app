@@ -3,11 +3,13 @@ import {
   Component,
   Input,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { QuizComponent } from '../quiz/quiz.component';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
@@ -19,6 +21,7 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
+  @ViewChild(QuizComponent) quizComponent: QuizComponent;
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
@@ -38,13 +41,19 @@ export class IntroductionComponent implements OnInit {
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
-    this.selectedMilestone = this.selectedMilestoneService.getSelectedMilestone();
+    this.selectedMilestone =
+      this.selectedMilestoneService.getSelectedMilestone();
     this.selectedQuizId = this.quizService.selectedQuizId;
+    console.log('quizComponent:', this.quizComponent);
   }
 
   onChange($event): void {
     if ($event.checked === true) {
       this.quizService.setChecked($event.checked);
     }
+  }
+
+  onStartQuiz() {
+    this.quizComponent.startQuiz();
   }
 }
