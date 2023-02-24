@@ -76,6 +76,14 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
+    this.quizService.setQuizId(this.quizId);
+    if (this.quizComponent) {
+      this.quizComponent.startQuiz();
+    }
+  }
+
+  /* onStartQuiz() {
+    console.log('start quiz clicked!');
     this.quizService.quizId = this.quizId; // set the quizId before calling setQuizId()
     this.quizService.setQuizId(this.quizService.quizId);
 
@@ -83,5 +91,5 @@ export class IntroductionComponent implements OnInit {
       this.quizComponent.startQuiz();
       this.router.navigate(['/question/', this.quizId, 1]);
     }
-  }
+  } */
 }
