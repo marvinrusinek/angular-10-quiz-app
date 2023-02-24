@@ -76,7 +76,9 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
-    console.log('quizId:', this.quizService.quizId);
+    this.quizService.quizId = this.quizId; // set the quizId before calling setQuizId()
+    this.quizService.setQuizId(this.quizService.quizId);
+
     if (this.quizComponent) {
       this.quizComponent.startQuiz();
       this.router.navigate(['/question/', this.quizId, 1]);
