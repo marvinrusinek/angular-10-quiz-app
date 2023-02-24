@@ -138,8 +138,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
-    this.quizService.loadQuestions(this.selectedMilestone);
+    this.quizService.currentQuestionIndex = 0;
     this.quizService.quizStarted = true;
+    this.quizService.loadQuestions();
   }
 
   /* startQuiz() {
