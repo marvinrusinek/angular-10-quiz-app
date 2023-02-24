@@ -50,6 +50,7 @@ export class IntroductionComponent implements OnInit {
 
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
+      console.log("QI::", quizId);
       if (quizId) {
         this.quizService.setQuizId(quizId);
       }
@@ -84,9 +85,9 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
-    this.quizService.setQuizId(this.quizId);
+    this.quizService.setQuizId(this.quizService.quizId);
     this.quizService.getQuiz().subscribe(() => {
-      this.router.navigate(['/question', this.quizId, 1]);
+      this.router.navigate(['/question/', this.quizService.quizId, 1]);
     });
   }
 
