@@ -139,6 +139,12 @@ export class QuizService implements OnDestroy {
     return this.quizData;
   }
 
+  getQuiz(quizId: string): Observable<Quiz> {
+    return this.quizData$.pipe(
+      map((quizData) => quizData.find((q) => q.id === quizId))
+    );
+  }
+
   getQuizName(segments: any[]): string {
     return segments[1].toString();
   }

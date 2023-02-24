@@ -94,8 +94,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  async ngOnInit(): void {
-    console.log("TESTING");
+  async ngOnInit(): Promise<void> {
+    console.log('TESTING');
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
     this.milestoneQuestions$ = this.quizService
       .getMilestoneQuestions(this.selectedMilestone)
@@ -103,7 +103,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         tap((questions) => console.log('MQs::', questions)),
         shareReplay()
       );
-  }
+
+      this.route.params.subscribe(params => {
+        const quizId = params['quizId'];
+        const questionIndex = +params['questionIndex'];
+    
+        this.quizService.getQuiz(quizId).subscribe(quiz => {
+          this.quiz = quiz;
+          this.currentQuestion = this.quiz.questions[questionIndex - 1];
+        });
+      });
+    }
 
   initializeMilestoneQuestions() {
     if (this.quiz && this.quiz.milestone) {
