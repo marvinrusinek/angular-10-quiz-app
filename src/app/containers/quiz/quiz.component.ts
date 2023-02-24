@@ -56,7 +56,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   @Input() form: FormGroup;
   quiz: Quiz;
-  // @Input() milestone: string;
+  @Input() milestone: string;
   selectedMilestone: string;
 
   /* @Input() set milestone(value: any) {
@@ -105,7 +105,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('TESTING');
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
     this.milestoneQuestions$ = this.quizService
       .getMilestoneQuestions(this.selectedMilestone)
@@ -114,7 +113,24 @@ export class QuizComponent implements OnInit, OnDestroy {
         shareReplay()
       );
 
-    this.activatedRoute.params.subscribe(params => {
+    // check if milestone is undefined or null before accessing the first question
+    if (this.milestone && this.milestone === 'question') {
+      const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+      const questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10);
+      this.quizService.getQuiz().subscribe((quiz) => {
+        if (quiz && quiz.length > 0) {
+          this.quiz = quiz;
+          this.questionIndex = questionIndex;
+          this.currentQuestion = this.quiz[this.questionIndex];
+        } else {
+          console.log('Quiz is undefined or empty.');
+        }
+      });
+    } else {
+      console.log('Milestone is undefined or null.');
+    }
+
+    /* this.activatedRoute.params.subscribe(params => {
       const quizId = params['quizId'];
       const questionIndex = +params['questionIndex'];
     
@@ -122,7 +138,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz = quiz;
         this.currentQuestion = this.quiz.questions[questionIndex - 1];
       });
-    });
+    }); */
   }
 
   initializeMilestoneQuestions() {
