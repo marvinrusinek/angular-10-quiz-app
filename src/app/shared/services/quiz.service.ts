@@ -135,15 +135,19 @@ export class QuizService implements OnDestroy {
     return of(this.quizData);
   }
 
-  getQuiz(): Quiz[] {
+  /* getQuiz(): Quiz[] {
     return this.quizData;
+  } */
+
+  getQuiz(): Observable<Quiz[]> {
+    return of(this.quizData);
   }
 
-  getQuiz(quizId: string): Observable<Quiz> {
+  /* getQuiz(quizId: string): Observable<Quiz> {
     return this.quizData$.pipe(
       map((quizData) => quizData.find((q) => q.id === quizId))
     );
-  }
+  } */
 
   getQuizName(segments: any[]): string {
     return segments[1].toString();
