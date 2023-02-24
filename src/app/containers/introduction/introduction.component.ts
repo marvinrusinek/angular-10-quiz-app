@@ -46,10 +46,7 @@ export class IntroductionComponent implements OnInit {
       map((segments) => this.quizService.getQuizName(segments))
     );
 
-    console.log('QS quiz id', this.quizService.quizId);
-    if (this.quizService.quizId) {
-      this.quizId = this.quizService.quizId;
-    }
+    this.quizId = this.quizService.quizId;
 
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
@@ -72,10 +69,8 @@ export class IntroductionComponent implements OnInit {
 
   onStartQuiz() {
     console.log('start quiz clicked!');
-
-    if (this.quizId) {
-      // this.quizComponent.startQuiz();
-      this.router.navigate(['/question/', this.quizId, 1]);
-    }
+    this.quizService.setQuizId(this.quizId);
+    console.log('QS quiz id', this.quizService.quizId);
+    this.router.navigate(['/question', this.quizId, 1]);
   }
 }
