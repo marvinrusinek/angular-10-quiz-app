@@ -41,6 +41,7 @@ export class QuizSelectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
+    console.log(this.quizzes$);
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
@@ -49,7 +50,7 @@ export class QuizSelectionComponent implements OnInit {
   onSelect(milestone: string) {
     this.quizService.selectedQuizId = milestone;
     this.selectedMilestoneService.setSelectedMilestone(milestone);
-    
+
     if (this.quizService.quizId) {
       this.router.navigate(['/intro/', this.quizService.quizId]);
     } else {
