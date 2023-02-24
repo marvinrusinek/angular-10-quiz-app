@@ -56,6 +56,8 @@ export class IntroductionComponent implements OnInit {
   onStartQuiz() {
     console.log('start quiz clicked!');
     this.quizService.setQuizId(this.quizService.quizId);
-    this.quizComponent.startQuiz();
+    if (this.quizComponent) {
+      this.quizComponent.startQuiz();
+    }
   }
 }
