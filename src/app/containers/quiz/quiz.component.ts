@@ -56,8 +56,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   @Input() form: FormGroup;
   quiz: Quiz;
-  @Input() milestone: string;
+  // @Input() milestone: string;
   selectedMilestone: string;
+
+  @Input() set milestone(value: any) {
+    if (typeof value !== 'string') {
+      console.error('Milestone should be of type string');
+      return;
+    }
+    this._milestone = value;
+  }
+  
+  private _milestone: string;
 
   questionIndex: number;
   totalQuestions: number;
