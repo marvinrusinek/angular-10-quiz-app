@@ -95,6 +95,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): void {
+    console.log("TESTING");
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
     this.milestoneQuestions$ = this.quizService
       .getMilestoneQuestions(this.selectedMilestone)
@@ -138,6 +139,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   startQuiz() {
+    console.log('startQuiz called!');
     this.quizService.currentQuestionIndex = 0;
     this.quizService.quizStarted = true;
     this.quizService.loadQuestions();
