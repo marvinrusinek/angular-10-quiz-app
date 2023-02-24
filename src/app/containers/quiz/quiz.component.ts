@@ -104,16 +104,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         shareReplay()
       );
 
-      this.route.params.subscribe(params => {
-        const quizId = params['quizId'];
-        const questionIndex = +params['questionIndex'];
+    this.activatedRoute.params.subscribe(params => {
+      const quizId = params['quizId'];
+      const questionIndex = +params['questionIndex'];
     
-        this.quizService.getQuiz(quizId).subscribe(quiz => {
-          this.quiz = quiz;
-          this.currentQuestion = this.quiz.questions[questionIndex - 1];
-        });
+      this.quizService.getQuiz(quizId).subscribe(quiz => {
+        this.quiz = quiz;
+        this.currentQuestion = this.quiz.questions[questionIndex - 1];
       });
-    }
+    });
+  }
 
   initializeMilestoneQuestions() {
     if (this.quiz && this.quiz.milestone) {
