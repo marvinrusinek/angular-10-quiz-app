@@ -22,9 +22,8 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-  // @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
-
-  @ViewChild(QuizSelectionComponent) quizSelection: QuizSelectionComponent;
+  @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
+  @ViewChild(QuizSelectionComponent) quizSelection!: QuizSelectionComponent | undefined;
 
   quizData: Quiz[];
   quizzes: any[];
@@ -61,7 +60,7 @@ export class IntroductionComponent implements OnInit {
     // this.quizId = this.quizService.quizId;
 
     this.activatedRoute.paramMap.subscribe((params) => {
-      const quizId = params.get('quizId');
+      const quizId = params.get('quizId') ?? 'defaultQuizId';
       console.log('QI::', quizId);
       if (quizId) {
         this.quizService.setQuizId(quizId);
