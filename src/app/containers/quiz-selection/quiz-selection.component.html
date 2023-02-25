@@ -48,7 +48,7 @@
       *ngFor="let quiz of quizzes$ | async"
       [@slideLeftToRight]="animationState$ | async"
       (@slideLeftToRight.done)="animationDoneHandler()"
-      (click)="onSelect(quiz.milestone)"
+      (click)="onSelect(quiz.quizId)"
       [routerLink]="['/intro/', quiz.quizId]"
       loading="lazy"
       [ngStyle]="{
