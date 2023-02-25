@@ -45,7 +45,7 @@ export class IntroductionComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    // this.quizId = this.quizService.quizId;
+    this.quizService.quizId = '';
   }
 
   ngOnInit(): void {
