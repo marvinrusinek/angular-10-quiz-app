@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, from, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 
 import { QUIZ_DATA } from '../../shared/quiz';
@@ -39,7 +39,7 @@ enum Status {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizComponent implements OnInit, OnDestroy {
-  quiz$: Observable<any>;
+  quiz$: Observable<Quiz>;
   quizData: Quiz[];
   quizResources: QuizResource[];
   quizzes: Quiz[];
@@ -52,15 +52,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   resources: Resource[];
   answers: number[] = [];
   @Output() optionSelected = new EventEmitter<Option>();
-  selectedOption: any;
-  selectedAnswers = [];
-  isDisabled = true;
+  selectedOption: Option;
+  selectedAnswers: number[] = [];
   selectedAnswerField: number;
   @Input() form: FormGroup;
   quiz: Quiz;
   @Input() milestone: string;
   selectedMilestone: string;
   selectedQuiz: Quiz[];
+  isDisabled: boolean;
 
   /* @Input() set milestone(value: any) {
     if (typeof value !== 'string') {
@@ -110,17 +110,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
 
-    this.quizService.getQuizzes().subscribe(quizzes => {
+    this.quizService.getQuizzes().subscribe((quizzes) => {
       console.log('Quizzes:', quizzes); // Add this line to check that quizzes is being populated correctly
       this.quizzes = quizzes;
       this.selectedQuiz = this.quizzes[0];
     });
 
-    this.quizService.getQuizzes().subscribe(quizzes => {
-      this.quiz = quizzes.find(q => q.quizId === this.quizService.quizId);
+    this.quizService.getQuizzes().subscribe((quizzes) => {
+      this.quiz = quizzes.find((q) => q.quizId === this.quizService.quizId);
     });
 
-    this.quizService.selectedQuiz$.subscribe(quiz => {
+    this.quizService.selectedQuiz$.subscribe((quiz) => {
       this.quiz = quiz;
     });
 
@@ -148,7 +148,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.activatedRoute.snapshot.paramMap.get('questionIndex'),
         10
       );
-      this.quizService.getQuiz().subscribe((quiz) => {
+      this.quizService.getQuizzes().subscribe((quiz) => {
         if (quiz && quiz.length > 0) {
           this.quiz = quiz;
           this.questionIndex = questionIndex;
@@ -256,7 +256,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private getQuizData(): void {
-    this.quizData = this.quizService.getQuiz();
+    this.quizData = this.quizService.getQuizzes();
     this.quizResources = this.quizService.getResources();
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
@@ -407,7 +407,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
     if (
       correctAnswerFound > -1 &&
-      answers.length === this.quizService.numberOfCorrectAnswers
+      answers.length === this.numberOfCorrectAnswers
     ) {
       this.sendCorrectCountToQuizService(this.correctCount + 1);
     }

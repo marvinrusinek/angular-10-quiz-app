@@ -49,7 +49,7 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.quizData = this.quizService.getQuiz();
+    // this.quizData = this.quizService.getQuizzes();
     this.quizService.getQuizzes().subscribe(quizzes => {
       this.quizzes = quizzes;
     });
@@ -107,7 +107,7 @@ export class IntroductionComponent implements OnInit {
     console.log('start quiz clicked!');
     this.quizService.selectedQuiz$ = this.quizzes$;
     this.quizService.setQuizId(this.quizId);
-    this.quizService.getQuiz().subscribe(() => {
+    this.quizService.getQuizzes().subscribe(() => {
       this.router.navigate(['/question/', this.quizId, 1]);
     });
   } */
