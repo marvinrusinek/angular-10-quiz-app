@@ -49,13 +49,27 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const quizId = this.activatedRoute.snapshot.params.quizId;
+    this.quiz = this.quizService.getQuiz(this.quizService.quizId);
+    
+    if (!this.quiz) {
+      console.error("Selected quiz is null or undefined");
+      return;
+    }
+    this.quizService.setSelectedQuiz(this.quiz);
+
+
+    /* if (!this.quizService.selectedQuiz) {
+      console.error("Selected quiz is null or undefined");
+      return;
+    }
+    this.quiz = this.quizService.selectedQuiz; */
+
+    /* const quizId = this.activatedRoute.snapshot.params.quizId;
     this.quizService.getQuizzes().subscribe(quizzes => {
       const quiz = quizzes.find(q => q.quizId === quizId);
       this.quizService.setSelectedQuiz(quiz);
       this.quiz = quiz;
-    });
-
+    }); */
 
     // this.quizData = this.quizService.getQuizzes();
     /* this.quizService.getQuizzes().subscribe(quizzes => {
