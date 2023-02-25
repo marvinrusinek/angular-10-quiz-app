@@ -39,6 +39,7 @@ enum Status {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizComponent implements OnInit, OnDestroy {
+  quiz$: Observable<any>;
   quizData: Quiz[];
   quizResources: QuizResource[];
   quizzes$: Observable<Quiz[]>;
@@ -105,7 +106,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log("QI:::::", this.quizService.quizId);
+    console.log('QI:::::', this.quizService.quizId);
+
+    this.quizService.selectedQuiz$.subscribe((quiz) => {
+      this.quiz$ = quiz;
+    });
+
     if (!this.milestone) {
       console.log('Milestone is undefined or null!');
       return;
@@ -126,7 +132,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     // check if milestone is undefined or null before accessing the first question
     if (this.milestone && this.milestone === 'question') {
       const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      const questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10);
+      const questionIndex = parseInt(
+        this.activatedRoute.snapshot.paramMap.get('questionIndex'),
+        10
+      );
       this.quizService.getQuiz().subscribe((quiz) => {
         if (quiz && quiz.length > 0) {
           this.quiz = quiz;
@@ -188,10 +197,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('questions:::', this.questions);
 
     if (!this.quiz || !this.quiz.milestone) {
-      console.log("Milestone is undefined or null!!!");
+      console.log('Milestone is undefined or null!!!');
       return;
     }
-  
+
     this.quizService.currentQuestionIndex = 0;
     this.quizService.quizStarted = true;
     this.quizService.loadQuestions();

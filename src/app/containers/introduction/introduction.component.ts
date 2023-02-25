@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { QuizComponent } from '../quiz/quiz.component';
+import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
@@ -21,7 +22,11 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-  @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
+  // @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
+
+  @ViewChild(QuizSelectionComponent)
+  private quizSelectionComponent: QuizSelectionComponent;
+
   quizData: Quiz[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
@@ -54,7 +59,7 @@ export class IntroductionComponent implements OnInit {
 
     this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId');
-      console.log("QI::", quizId);
+      console.log('QI::', quizId);
       if (quizId) {
         this.quizService.setQuizId(quizId);
       }
@@ -88,13 +93,18 @@ export class IntroductionComponent implements OnInit {
   } */
 
   onStartQuiz() {
+    this.quizService.selectedQuiz$.next(null);
+    this.quizSelectionComponent.selectQuiz(this.quizzes$);
+  }
+
+  /* onStartQuiz() {
     console.log('start quiz clicked!');
     this.quizService.selectedQuiz$ = this.quizzes$;
     this.quizService.setQuizId(this.quizId);
     this.quizService.getQuiz().subscribe(() => {
       this.router.navigate(['/question/', this.quizId, 1]);
     });
-  }
+  } */
 
   /* onStartQuiz() {
     console.log('start quiz clicked!');

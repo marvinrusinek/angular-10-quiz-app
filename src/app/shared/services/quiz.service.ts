@@ -34,6 +34,7 @@ export class QuizService implements OnDestroy {
   quizStartTime: Date;
 
   private quizName$ = new BehaviorSubject<string>('');
+  selectedQuiz$ = new BehaviorSubject<any>(null);
   quizId: string = '';
   selectedQuiz: any;
   selectedQuizId: string;
