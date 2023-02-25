@@ -1,5 +1,5 @@
 <ng-container *ngIf="milestoneQuestions$ | async as milestoneQuestions">
-    <div *ngFor="let question of milestoneQuestions">
+    <div *ngFor="let question of selectedQuiz.questions">
     <mat-card
       [@changeRoute]="animationState$ | async"
       (@changeRoute.done)="animationDoneHandler()"

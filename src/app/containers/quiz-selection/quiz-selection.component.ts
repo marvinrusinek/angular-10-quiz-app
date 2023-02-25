@@ -72,6 +72,11 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedMilestone = milestone;
   }
 
+  selectQuiz(quiz: any) {
+    this.quizService.selectedQuiz = quiz;
+    this.selectedQuiz = quiz;
+  }
+
   animationDoneHandler(): void {
     this.animationState$.next('none');
   }

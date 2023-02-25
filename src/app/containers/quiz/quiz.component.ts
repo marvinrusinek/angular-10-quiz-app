@@ -110,6 +110,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Milestone is undefined or null!');
       return;
     }
+
+    this.quizService.selectedQuiz$.subscribe((quiz) => {
+      this.quiz = quiz;
+    });
+
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
     this.milestoneQuestions$ = this.quizService
       .getMilestoneQuestions(this.selectedMilestone)
