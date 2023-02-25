@@ -80,46 +80,13 @@ export class IntroductionComponent implements OnInit {
     }
   }
 
-  /* onStartQuiz() {
-    console.log('start quiz clicked!');
-    this.quizService.setQuizId(this.quizId);
-    console.log('QS quiz id', this.quizService.quizId);
-    this.router.navigate(['/question/', this.quizId, 1]);
-  } */
-
-  /* onStartQuiz() {
-    console.log('start quiz clicked!');
-    this.quizService.setQuizId(this.quizId);
-    if (this.quizComponent) {
-      this.quizComponent.startQuiz();
-    }
-  } */
-
   onStartQuiz() {
     const selectedQuiz = this.quizSelection.selectedQuiz;
-    this.quizService.selectedQuiz$.next(selectedQuiz);
-    // this.quizService.selectedQuiz$.next(this.quizSelectionComponent.selectedQuiz);
-    // this.quizService.selectedQuiz$.next(null);
-    // this.quizSelectionComponent.selectQuiz(this.quizzes$);
-  }
-
-  /* onStartQuiz() {
-    console.log('start quiz clicked!');
-    this.quizService.selectedQuiz$ = this.quizzes$;
-    this.quizService.setQuizId(this.quizId);
-    this.quizService.getQuizzes().subscribe(() => {
+    if (selectedQuiz) {
+      this.quizService.selectedQuiz$.next(selectedQuiz);
       this.router.navigate(['/question/', this.quizId, 1]);
-    });
-  } */
-
-  /* onStartQuiz() {
-    console.log('start quiz clicked!');
-    this.quizService.quizId = this.quizId; // set the quizId before calling setQuizId()
-    this.quizService.setQuizId(this.quizService.quizId);
-
-    if (this.quizComponent) {
-      this.quizComponent.startQuiz();
-      this.router.navigate(['/question/', this.quizId, 1]);
+    } else {
+      console.log('Quiz ID is null or undefined');
     }
-  } */
+  }
 }
