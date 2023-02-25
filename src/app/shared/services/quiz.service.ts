@@ -21,7 +21,7 @@ import { Score } from '../../shared/models/Score.model';
 export class QuizService implements OnDestroy {
   private quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizData: Quiz[] = this.quizInitialState;
-  private quizzes: Quiz[];
+  private quizzes: Observable<Quiz[]> | undefined;
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -177,14 +177,19 @@ export class QuizService implements OnDestroy {
 
   getQuizzes(): Observable<Quiz[]> {
     if (!this.quizzes) {
-      this.quizzes = this.http.get<Quiz[]>(this.url);
+      this.quizzes = this.http.get<Quiz[]>(this.url) as Observable<Quiz[]>;
     }
     return this.quizzes;
   }
 
-  getQuiz(quizId: string): Quiz {
-    return this.quizData.find((q) => q.quizId === quizId);
+  getQuiz(quizId: string): Observable<Quiz> {
+    const quiz = this.quizData.find((q) => q.quizId === quizId);
+    return of(quiz);
   }
+
+  /* getQuiz(quizId: string): Observable<Quiz> {
+    return this.quizData.find((q) => q.quizId === quizId);
+  } */
 
   /* getQuizzes(): Observable<Quiz[]> {
     return of(this.quizData);
