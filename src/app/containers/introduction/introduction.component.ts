@@ -48,27 +48,26 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    if (quizId == null) {
-      this.router.navigate(['/quiz-selection']);
-      return;
-    }
-    this.quiz = this.quizService.getQuiz(this.quizService.quizId);
-    this.quizService.setSelectedQuiz(this.quiz);
+    const quizId = this.activatedRoute.snapshot.params.quizId;
+    this.quizService.getQuizzes().subscribe(quizzes => {
+      const quiz = quizzes.find(q => q.quizId === quizId);
+      this.quizService.setSelectedQuiz(quiz);
+      this.quiz = quiz;
+    });
 
 
     // this.quizData = this.quizService.getQuizzes();
-    this.quizService.getQuizzes().subscribe(quizzes => {
+    /* this.quizService.getQuizzes().subscribe(quizzes => {
       this.quizzes = quizzes;
     });
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
-    );
+    ); */
 
     // this.quizId = this.quizService.quizId;
 
-    this.activatedRoute.paramMap.subscribe((params) => {
+    /* this.activatedRoute.paramMap.subscribe((params) => {
       const quizId = params.get('quizId') ?? 'defaultQuizId';
       console.log('QI::', quizId);
       if (quizId) {
@@ -79,7 +78,7 @@ export class IntroductionComponent implements OnInit {
     this.selectedMilestone =
       this.selectedMilestoneService.getSelectedMilestone();
     this.selectedQuizId = this.quizService.selectedQuizId;
-    console.log('quizComponent:', this.quizComponent);
+    console.log('quizComponent:', this.quizComponent); */
   }
 
   onChange($event): void {
