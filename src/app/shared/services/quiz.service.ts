@@ -40,6 +40,7 @@ export class QuizService implements OnDestroy {
   private quizIdSubject = new Subject<string>();
   public selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
+  private selectedQuizSubject = new BehaviorSubject<Quiz>(null);
   selectedQuiz$ = this.selectedQuizSource.asObservable();
 
   quizId: string = '';
@@ -473,9 +474,13 @@ export class QuizService implements OnDestroy {
     this.quizIdSubject.next(quiz);
   }
 
-  setSelectedQuiz(quizId: string): void {
+  /* setSelectedQuiz(quizId: string): void {
     const selectedQuiz = this.quizzes.find((quiz) => quiz.quizId === quizId);
     this.setQuiz(selectedQuiz);
+  } */
+
+  setSelectedQuiz(quiz: Quiz): void {
+    this.selectedQuizSubject.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {

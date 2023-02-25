@@ -31,6 +31,7 @@ export class IntroductionComponent implements OnInit {
   quizName$: Observable<string>;
   selectedMilestone: string;
   selectedQuizId: string;
+  selectedQuiz$: Observable<Quiz>;
 
   imagePath = '../../../assets/images/milestones/';
 
@@ -49,19 +50,27 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quiz = this.quizService.getQuiz(quizId);
-    this.quizService.setQuiz(this.quiz);
-    // this.quiz = this.quizService.getQuiz();
-    
-    /* this.selectedQuiz$ = this.quizService.selectedQuiz$;
+    this.selectedQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizService.getQuiz(this.selectedQuizId).subscribe((quiz) => {
+      this.quiz = quiz;
+      this.quizService.setSelectedQuiz(quiz);
+    });
+
+    this.selectedQuiz$ = this.quizService.selectedQuiz$;
     this.selectedQuiz$.subscribe((quiz) => {
       if (!quiz) {
         console.error("Selected quiz is null or undefined");
         return;
       }
       this.quiz = quiz;
-    }); */
+    });
+
+
+    /* const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quiz = this.quizService.getQuiz(quizId);
+    this.quizService.setQuiz(this.quiz);
+    // this.quiz = this.quizService.getQuiz(); */
+
 
     /* this.quiz = this.quizService.getQuiz(this.quizService.quizId);
 
