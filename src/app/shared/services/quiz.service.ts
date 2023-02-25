@@ -163,9 +163,9 @@ export class QuizService implements OnDestroy {
     return this.quizResources;
   }
 
-  getQuizzes(): Observable<Quiz[]> {
+  /* getQuizzes(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(`${this.url}`);
-  }
+  } */
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
