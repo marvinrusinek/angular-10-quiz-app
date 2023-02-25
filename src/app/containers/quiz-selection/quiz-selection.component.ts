@@ -41,7 +41,7 @@ export class QuizSelectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    console.log(this.quizzes$);
+    console.log("QUIZZES", this.quizzes$);
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
