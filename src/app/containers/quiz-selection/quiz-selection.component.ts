@@ -41,7 +41,10 @@ export class QuizSelectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    console.log("QUIZZES", this.quizzes$);
+    this.quizzes$.subscribe((quizzes) => {
+      console.log(quizzes); // This will log the actual value emitted by quizzes$
+    });
+
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
