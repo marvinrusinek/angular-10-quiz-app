@@ -46,7 +46,6 @@ export class QuizSelectionComponent implements OnInit {
 
     this.quizService.getQuizzes().subscribe(quizzes => {
       this.quizzes = quizzes;
-      this.selectedQuiz = this.quizzes[0];
     });
 
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
