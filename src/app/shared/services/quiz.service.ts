@@ -38,8 +38,9 @@ export class QuizService implements OnDestroy {
   private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   private selectedQuizIdSubject = new BehaviorSubject<string>(null);
   private quizIdSubject = new Subject<string>();
-  public selectedQuiz$: Observable<Quiz>;
   public selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
+  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = this.selectedQuizSource.asObservable();
 
   quizId: string = '';
   selectedQuiz: any;
@@ -453,7 +454,11 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  setQuiz(quizId: string): void {
+  /* setSelectedQuiz(quiz: Quiz): void {
+    this.selectedQuiz$.next(quiz);
+  } */
+
+  /* setQuiz(quizId: string): void {
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
@@ -462,14 +467,19 @@ export class QuizService implements OnDestroy {
     this.selectedQuiz$ = this.selectedQuizId$.pipe(
       switchMap(id => this.http.get<Quiz>(`/assets/data/quiz.json`))
     );
+  } */
+
+  setQuiz(quiz: Quiz): void {
+    this.quizIdSubject.next(quiz);
   }
 
-  setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuiz$.next(quiz);
+  setSelectedQuiz(quizId: string): void {
+    const selectedQuiz = this.quizzes.find((quiz) => quiz.quizId === quizId);
+    this.setQuiz(selectedQuiz);
   }
 
-  getSelectedQuiz(): Quiz {
-    return this.selectedQuiz$.value;
+  getSelectedQuiz(): Observable<Quiz> {
+    return this.selectedQuiz$;
   }
 
   setStartedQuizId(value: string) {
