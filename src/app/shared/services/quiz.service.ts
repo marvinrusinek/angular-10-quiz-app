@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 
@@ -36,8 +36,11 @@ export class QuizService implements OnDestroy {
 
   private quizName$ = new BehaviorSubject<string>('');
   private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  private selectedQuizIdSubject = new BehaviorSubject<string>(null);
   private quizIdSubject = new Subject<string>();
-  selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
+  public selectedQuiz$: Observable<Quiz>;
+  public selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
+
   quizId: string = '';
   selectedQuiz: any;
   selectedQuizId: string;
@@ -450,12 +453,15 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  setQuizId(quizId: string) {
-    this.quizIdSubject.next(quizId);
-  
-    // Find the selected quiz and emit it to selectedQuiz$
-    const selectedQuiz = this.quizzes.find((quiz) => quiz.quizId === quizId) || null;
-    this.selectedQuizSubject.next(selectedQuiz);
+  setQuiz(quizId: string): void {
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return;
+    }
+    this.selectedQuizIdSubject.next(quizId);
+    this.selectedQuiz$ = this.selectedQuizId$.pipe(
+      switchMap(id => this.http.get<Quiz>(`/assets/data/quiz.json`))
+    );
   }
 
   setSelectedQuiz(quiz: Quiz): void {
