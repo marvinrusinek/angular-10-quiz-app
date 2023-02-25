@@ -92,7 +92,7 @@ export class QuizService implements OnDestroy {
       }); */
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
-      this.quizName$.next(this.getQuiz(this.quizId)?.name);
+      // this.quizName$.next(this.getQuiz(this.quizId)?.name);
     });
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
