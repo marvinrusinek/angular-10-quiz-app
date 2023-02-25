@@ -56,7 +56,7 @@ export class QuizSelectionComponent implements OnInit {
       this.quizzes = quizzes;
       // this.selectedQuiz = quizzes[0];
     }); */
-    
+
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
@@ -84,8 +84,12 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedMilestone = milestone;
   }
 
-  selectQuiz(quiz: any) {
+  /* selectQuiz(quiz: any) {
     this.quizService.selectedQuiz = quiz;
+    this.selectedQuiz = quiz;
+  } */
+
+  selectQuiz(quiz: Quiz) {
     this.selectedQuiz = quiz;
   }
 
