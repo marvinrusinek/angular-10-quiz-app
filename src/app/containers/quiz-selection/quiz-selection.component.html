@@ -49,7 +49,6 @@
       [@slideLeftToRight]="animationState$ | async"
       (@slideLeftToRight.done)="animationDoneHandler()"
       (click)="onSelect(quiz.quizId)"
-      [routerLink]="['/intro/', quiz.quizId]"
       loading="lazy"
       [ngStyle]="{
         background: 'url(' + quiz.image + ') no-repeat center 10px',

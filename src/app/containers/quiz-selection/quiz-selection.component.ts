@@ -70,8 +70,8 @@ export class QuizSelectionComponent implements OnInit {
   } */
 
   onSelect(quizId: string) {
-    this.quizService.quizId = quizId;
-    this.router.navigate(['/intro/', this.quizService.quizId]);
+    this.quizService.setSelectedQuiz(quizId);
+    this.router.navigate(['/intro', quizId]);
   }
 
   /* selectMilestone(milestone: string) {
