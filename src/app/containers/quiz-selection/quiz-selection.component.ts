@@ -24,8 +24,8 @@ type AnimationState = 'animationStarted' | 'none';
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
-  quizzes: any[];
-  selectedQuiz: any;
+  quizzes: Quiz[] = [];
+  selectedQuiz: Quiz;
   currentQuestionIndex: number;
   selectionParams: object;
   selectedMilestone: string;
@@ -49,9 +49,14 @@ export class QuizSelectionComponent implements OnInit {
 
     this.quizService.getQuizzes().subscribe(quizzes => {
       this.quizzes = quizzes;
-      // this.selectedQuiz = quizzes[0];
+      this.selectedQuiz = this.quizzes[0];
     });
 
+    /* this.quizService.getQuizzes().subscribe(quizzes => {
+      this.quizzes = quizzes;
+      // this.selectedQuiz = quizzes[0];
+    }); */
+    
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
