@@ -42,6 +42,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quiz$: Observable<any>;
   quizData: Quiz[];
   quizResources: QuizResource[];
+  quizzes: Quiz[];
   quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -59,6 +60,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quiz: Quiz;
   @Input() milestone: string;
   selectedMilestone: string;
+  selectedQuiz: Quiz[];
 
   /* @Input() set milestone(value: any) {
     if (typeof value !== 'string') {
@@ -107,6 +109,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
+
+    this.quizService.getQuizzes().subscribe(quizzes => {
+      console.log('Quizzes:', quizzes); // Add this line to check that quizzes is being populated correctly
+      this.quizzes = quizzes;
+      this.selectedQuiz = this.quizzes[0];
+    });
 
     this.quizService.getQuizzes().subscribe(quizzes => {
       this.quiz = quizzes.find(q => q.quizId === this.quizService.quizId);
