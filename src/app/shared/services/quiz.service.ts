@@ -454,7 +454,11 @@ export class QuizService implements OnDestroy {
   }
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuiz = quiz;
+    this.selectedQuiz$.next(quiz);
+  }
+
+  getSelectedQuiz(): Quiz {
+    return this.selectedQuiz$.value;
   }
 
   setStartedQuizId(value: string) {
