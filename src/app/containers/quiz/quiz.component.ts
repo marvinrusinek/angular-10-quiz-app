@@ -56,7 +56,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isDisabled = true;
   selectedAnswerField: number;
   @Input() form: FormGroup;
-  quiz: Quiz;
+  quiz: any;
   @Input() milestone: string;
   selectedMilestone: string;
 
@@ -108,8 +108,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
 
-    this.quizService.selectedQuiz$.subscribe((quiz) => {
-      this.quiz$ = quiz;
+    this.quizService.selectedQuiz$.subscribe(quiz => {
+      this.quiz = quiz;
     });
 
     if (!this.milestone) {

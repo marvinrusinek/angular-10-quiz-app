@@ -24,10 +24,10 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
 export class IntroductionComponent implements OnInit {
   // @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
 
-  @ViewChild(QuizSelectionComponent)
-  private quizSelectionComponent: QuizSelectionComponent;
+  @ViewChild(QuizSelectionComponent) quizSelection: QuizSelectionComponent;
 
   quizData: Quiz[];
+  quizzes: any[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
   selectedMilestone: string;
@@ -50,6 +50,9 @@ export class IntroductionComponent implements OnInit {
 
   ngOnInit(): void {
     // this.quizData = this.quizService.getQuiz();
+    this.quizService.getQuizzes().subscribe(quizzes => {
+      this.quizzes = quizzes;
+    });
     this.quizzes$ = this.quizService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
@@ -93,8 +96,11 @@ export class IntroductionComponent implements OnInit {
   } */
 
   onStartQuiz() {
-    this.quizService.selectedQuiz$.next(null);
-    this.quizSelectionComponent.selectQuiz(this.quizzes$);
+    const selectedQuiz = this.quizSelection.selectedQuiz;
+    this.quizService.selectedQuiz$.next(selectedQuiz);
+    // this.quizService.selectedQuiz$.next(this.quizSelectionComponent.selectedQuiz);
+    // this.quizService.selectedQuiz$.next(null);
+    // this.quizSelectionComponent.selectQuiz(this.quizzes$);
   }
 
   /* onStartQuiz() {

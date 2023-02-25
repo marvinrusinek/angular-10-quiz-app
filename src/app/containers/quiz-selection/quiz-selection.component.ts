@@ -24,6 +24,8 @@ type AnimationState = 'animationStarted' | 'none';
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
+  quizzes: any[];
+  selectedQuiz: any;
   currentQuestionIndex: number;
   selectionParams: object;
   selectedMilestone: string;
@@ -41,8 +43,13 @@ export class QuizSelectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
-    this.quizzes$.subscribe((quizzes) => {
+    /* this.quizzes$.subscribe((quizzes) => {
       console.log(quizzes); // This will log the actual value emitted by quizzes$
+    }); */
+
+    this.quizService.getQuizzes().subscribe(quizzes => {
+      this.quizzes = quizzes;
+      // this.selectedQuiz = quizzes[0];
     });
 
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
