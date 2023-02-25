@@ -53,7 +53,7 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
   }
 
-  onSelect(milestone: string) {
+  /* onSelect(milestone: string) {
     this.quizService.selectedQuizId = milestone;
     this.selectedMilestoneService.setSelectedMilestone(milestone);
 
@@ -62,6 +62,11 @@ export class QuizSelectionComponent implements OnInit {
     } else {
       console.error('Quiz ID is null or undefined');
     }
+  } */
+
+  onSelect(quiz: Quiz) {
+    this.quizService.quizId = quiz.quizId;
+    this.router.navigate(['/intro/', quiz.quizId]);
   }
 
   /* selectMilestone(milestone: string) {
