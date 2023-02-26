@@ -115,17 +115,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
 
-    /* this.quizService.getQuestions().subscribe(questions => {
-      this.currentQuestion = questions[0];
-    }); */
-
-    this.quizService.getQuestions()
-      .subscribe((questions: QuizQuestion[]) => {
-      // Store the array of questions in the component property
+    this.quizService.getQuestions().subscribe(questions => {
       this.questions = questions;
-
-      // Set the current question to the first question in the array
-      this.currentQuestion = questions[0];
+      if (this.questions && this.questions.length > 0) {
+        this.currentQuestion = this.questions[0];
+      }
     });
 
     this.questions$ = this.quizService.getQuestions();
