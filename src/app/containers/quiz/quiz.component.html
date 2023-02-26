@@ -1,4 +1,4 @@
-<ng-container *ngIf="questions?.length && currentQuestion">
+<ng-container *ngIf="(questions$ | async)?.length > 0">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
@@ -13,9 +13,9 @@
         matTooltipPosition="left"
       />
       <div class="header-titles">
-        <mat-card-title i18n>{{ currentQuestion?.milestone }} Quiz</mat-card-title>
+        <mat-card-title i18n>{{ (questions$ | async)?.[0]?.milestone }} Quiz</mat-card-title>
         <mat-card-subtitle i18n
-          >Assess your knowledge of {{ currentQuestion?.milestone }}</mat-card-subtitle
+          >Assess your knowledge of {{ (questions$ | async)?.[0]?.milestone }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
@@ -28,7 +28,7 @@
       <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="currentQuestion?.questionText"
+          [questionText]="questions[0]?.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
@@ -84,7 +84,7 @@
               aria-label="Previous Question"
             >
               <i class="material-icons">navigate_before</i>
-              </button>
+            </button>
           </div>
 
           <div
@@ -122,10 +122,7 @@
             </button>
           </div>
 
-          <div
-            class="show-score-nav"
-            *ngIf="questionIndex === totalQuestions"
-          >
+          <div class="show-score-nav" *ngIf="questionIndex === totalQuestions">
             <button
               type="submit"
               mat-raised-button
@@ -145,7 +142,7 @@
       </section>
 
       <!-- progress bar -->
-      <section class="progress-bar" *ngIf="question &&questionIndex > 1">
+      <section class="progress-bar" *ngIf="question && questionIndex > 1">
         <ngb-progressbar
           max="100"
           type="success"
@@ -158,5 +155,5 @@
         </ngb-progressbar>
       </section>
     </mat-card-footer>
-  </mat-card> 
+  </mat-card>
 </ng-container>
