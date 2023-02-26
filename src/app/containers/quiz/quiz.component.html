@@ -2,7 +2,6 @@
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
-    *ngFor="let question of questions$ | async"
   >
     <mat-card-header>
       <img
@@ -14,9 +13,9 @@
         matTooltipPosition="left"
       />
       <div class="header-titles">
-        <mat-card-title i18n>{{ question.milestone }} Quiz</mat-card-title>
+        <mat-card-title i18n>{{ currentQuestion?.milestone }} Quiz</mat-card-title>
         <mat-card-subtitle i18n
-          >Assess your knowledge of {{ question.milestone }}</mat-card-subtitle
+          >Assess your knowledge of {{ currentQuestion?.milestone }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
