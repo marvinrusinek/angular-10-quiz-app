@@ -1,5 +1,4 @@
 <ng-container *ngIf="(questions$ | async)?.length > 0">
-  <div *ngIf="currentIndex < (questions$ | async)?.length">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
@@ -160,6 +159,5 @@
         </ngb-progressbar>
       </section>
     </mat-card-footer>
-  </mat-card>
-  </div>  
+  </mat-card> 
 </ng-container>
