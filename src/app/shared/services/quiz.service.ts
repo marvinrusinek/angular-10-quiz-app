@@ -273,11 +273,20 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestion(): QuizQuestion {
+    const currentQuestionIndex = this.currentQuestionIndex;
+    if (currentQuestionIndex >= 0 && currentQuestionIndex < this.questions.length) {
+      return this.questions[currentQuestionIndex];
+    } else {
+      return null;
+    }
+  }
+
+  /* getCurrentQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
       return currentQuiz.questions[this.currentQuestionIndex - 1];
     }
-  }
+  } */
 
   getTotalQuestions(): number {
     const currentQuiz = this.getCurrentQuiz();

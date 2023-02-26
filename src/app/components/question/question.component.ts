@@ -50,8 +50,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
+    this.currentQuestion = this.quizService.getCurrentQuestion();
 
-    
     // this.question = this.quizData[this.currentQuestionIndex];
     this.currentQuestion = this.quizService.getCurrentQuestion();
     console.log('current question index: ', this.currentQuestion);

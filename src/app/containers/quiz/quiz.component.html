@@ -34,7 +34,6 @@
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
-          [currentQuestionIndex]="currentQuestionIndex"
         ></app-question-state>
       </section>
 
@@ -45,7 +44,7 @@
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"
         (formReady)="form = $event"
-        [currentQuestionIndex]="currentQuestionIndex"
+        [questionIndex]="questionIndex"
       >
       </codelab-quiz-question>
     </mat-card-content>
