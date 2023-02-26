@@ -119,7 +119,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz = data;
         if (this.quiz.questions && this.quiz.questions.length > 0) {
           this.currentQuestion = this.quiz.questions[0];
-          this.loadQuiz();
+          this.loadQuiz(0);
         } else {
           console.error('Quiz has no questions');
         }
@@ -159,7 +159,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  async loadQuiz() {
+  loadQuiz(index: number): void {
+    this.currentQuestionIndex = index;
+    this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
+  }
+
+  /* async loadQuiz() {
     try {
       const data = await this.quizService.getQuiz(this.quizId);
       this.quiz = data.quiz;
@@ -169,7 +174,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error(error);
     }
-  }
+  } */
 
   /* loadQuiz(milestone: string) {
     this.quizService.http
