@@ -47,7 +47,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   questions$: Observable<QuizQuestion[]>;
-  currentQuestion: QuizQuestion;
+  currentQuestion: any = undefined;
   milestoneQuestions: QuizQuestion[];
   milestoneQuestions$: Observable<QuizQuestion[]>;
   resources: Resource[];
@@ -114,6 +114,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
+
+    this.quizService.getQuiz(this.quizId).subscribe(data => {
+      this.quiz = data;
+      this.currentQuestion = this.quiz.questions[this.questionIndex];
+    });
 
     this.quizService.getQuestions().subscribe((data) => {
       this.questions = data;
