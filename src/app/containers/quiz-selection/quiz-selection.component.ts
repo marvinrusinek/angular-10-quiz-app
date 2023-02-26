@@ -53,22 +53,6 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
   }
 
-  /* onSelect(milestone: string) {
-    this.quizService.selectedQuizId = milestone;
-    this.selectedMilestoneService.setSelectedMilestone(milestone);
-
-    if (this.quizService.quizId) {
-      this.router.navigate(['/intro/', this.quizService.quizId]);
-    } else {
-      console.error('Quiz ID is null or undefined');
-    }
-  } */
-
-  /* onSelect(quiz: Quiz) {
-    // this.quizService.quizId = quiz.quizId;
-    this.router.navigate(['/intro/', this.quizService.quizId]);
-  } */
-
   onSelect(quizId) {
     if (!quizId) {
       console.error("Quiz ID is null or undefined");
@@ -78,21 +62,10 @@ export class QuizSelectionComponent implements OnInit {
     this.router.navigate(['/intro/', quizId]);
   }
 
-  /* selectMilestone(milestone: string) {
-    this.selectedMilestone = milestone;
-    this.selectedMilestoneService.setSelectedMilestone(milestone);
-    this.quizService.getMilestoneQuestions(milestone).subscribe();
-  } */
-
   selectMilestone(milestone: string) {
     this.selectedMilestoneService.setSelectedMilestone(milestone);
     this.selectedMilestone = milestone;
   }
-
-  /* selectQuiz(quiz: any) {
-    this.quizService.selectedQuiz = quiz;
-    this.selectedQuiz = quiz;
-  } */
 
   selectQuiz(quiz: Quiz) {
     this.selectedQuiz = quiz;

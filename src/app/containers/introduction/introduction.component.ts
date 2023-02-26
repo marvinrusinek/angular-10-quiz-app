@@ -45,7 +45,6 @@ export class IntroductionComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    // this.quizService.quizId = '';
     console.log(this.quizService.quizId);
   }
 
@@ -64,59 +63,6 @@ export class IntroductionComponent implements OnInit {
       }
       this.quiz = quiz;
     });
-
-
-    /* const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quiz = this.quizService.getQuiz(quizId);
-    this.quizService.setQuiz(this.quiz);
-    // this.quiz = this.quizService.getQuiz(); */
-
-
-    /* this.quiz = this.quizService.getQuiz(this.quizService.quizId);
-
-    if (!this.quiz) {
-      console.error("Selected quiz is null or undefined");
-      return;
-    }
-    this.quizService.setSelectedQuiz(this.quiz); */
-
-
-    /* if (!this.quizService.selectedQuiz) {
-      console.error("Selected quiz is null or undefined");
-      return;
-    }
-    this.quiz = this.quizService.selectedQuiz; */
-
-    /* const quizId = this.activatedRoute.snapshot.params.quizId;
-    this.quizService.getQuizzes().subscribe(quizzes => {
-      const quiz = quizzes.find(q => q.quizId === quizId);
-      this.quizService.setSelectedQuiz(quiz);
-      this.quiz = quiz;
-    }); */
-
-    // this.quizData = this.quizService.getQuizzes();
-    /* this.quizService.getQuizzes().subscribe(quizzes => {
-      this.quizzes = quizzes;
-    });
-    this.quizzes$ = this.quizService.getQuizzes();
-    this.quizName$ = this.activatedRoute.url.pipe(
-      map((segments) => this.quizService.getQuizName(segments))
-    ); */
-
-    // this.quizId = this.quizService.quizId;
-
-    /* this.activatedRoute.paramMap.subscribe((params) => {
-      const quizId = params.get('quizId') ?? 'defaultQuizId';
-      console.log('QI::', quizId);
-      if (quizId) {
-        this.quizService.setQuizId(quizId);
-      }
-    });
-
-    this.selectedMilestone =
-      this.selectedMilestoneService.getSelectedMilestone();
-    this.selectedQuizId = this.quizService.selectedQuizId;
-    console.log('quizComponent:', this.quizComponent); */
   }
 
   onChange($event): void {

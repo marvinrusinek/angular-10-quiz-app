@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 
@@ -39,9 +39,17 @@ export class QuizService implements OnDestroy {
   private selectedQuizIdSubject = new BehaviorSubject<string>(null);
   private quizIdSubject = new Subject<string>();
   public selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
   private selectedQuizSubject = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$ = this.selectedQuizSource.asObservable();
+  // selectedQuiz$ = this.selectedQuizSource.asObservable();
+
+  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
+    filter(quiz => quiz !== null && quiz !== undefined),
+    catchError(error => {
+      console.error(error);
+      return EMPTY;
+    })
+  );
 
   quizId: string = '';
   selectedQuiz: any;
@@ -140,6 +148,12 @@ export class QuizService implements OnDestroy {
         )
       );
   }
+
+  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    return this.getQuiz(quizId).pipe(
+      map(quiz => quiz.questions)
+    );
+  } 
 
   get quizData$(): Observable<Quiz[]> {
     return of(this.quizData);
@@ -485,7 +499,7 @@ export class QuizService implements OnDestroy {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuizSubject.next(quiz);
+    this.selectedQuizSource.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {

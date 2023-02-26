@@ -46,6 +46,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
+  questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   milestoneQuestions: QuizQuestion[];
   milestoneQuestions$: Observable<QuizQuestion[]>;
@@ -109,6 +110,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
+
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
       console.log('Quizzes:', quizzes); // Add this line to check that quizzes is being populated correctly
