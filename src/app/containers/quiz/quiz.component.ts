@@ -110,7 +110,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
-    this.currentQuestion = this.questions[0];
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
   
@@ -118,21 +117,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questions = questions;
       this.currentQuestion = this.questions[0];
     });
-
-    /* this.quizService.getQuiz(this.quizId).subscribe(
-      (data) => {
-        this.quiz = data;
-        if (this.quiz.questions && this.quiz.questions.length > 0) {
-          this.currentQuestion = this.quiz.questions[0];
-          this.loadQuiz(0);
-        } else {
-          console.error('Quiz has no questions');
-        }
-      },
-      (error) => {
-        console.error('Error retrieving quiz data:', error);
-      }
-    ); */
   }
 
   loadQuestion(index: number) {
