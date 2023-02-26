@@ -117,11 +117,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizzes().subscribe((quizzes) => {
       console.log('Quizzes:', quizzes); // Add this line to check that quizzes is being populated correctly
       this.quizzes = quizzes;
-      this.selectedQuiz = this.quizzes[0];
+      this.quiz = quizzes.find((q) => q.quizId === this.quizService.quizId);
+      // this.selectedQuiz = this.quizzes[0];
     });
 
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      this.quiz = quizzes.find((q) => q.quizId === this.quizService.quizId);
+    this.quizService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+      this.questions = questions;
+      this.loadQuestion(this.questionIndex);
     });
 
     this.quizService.selectedQuiz$.subscribe((quiz) => {
@@ -174,6 +176,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestion = this.quiz.questions[questionIndex - 1];
       });
     }); */
+  }
+
+  loadQuestion(index: number) {
+    const question = this.questions[index];
+    this.selectedAnswers[index] = null;
+    this.form.reset();
+    this.form.patchValue({ options: question.options });
   }
 
   initializeMilestoneQuestions() {
