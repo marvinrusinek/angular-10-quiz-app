@@ -110,7 +110,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     // this.currentQuestionIndex = 0;
-
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
 
     this.quizService.getQuestionsForQuiz(this.quizId)
