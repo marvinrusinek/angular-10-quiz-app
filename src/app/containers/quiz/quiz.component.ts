@@ -121,12 +121,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questions = questions;
       this.currentQuestion = this.questions[0];
     });
-
-    this.questions$.subscribe((questions) => {
-      console.log('Questions:::::', questions);
-      this.questions = questions;
-      this.currentQuestion = this.questions[0];
-    });
+    
     /* this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
 
