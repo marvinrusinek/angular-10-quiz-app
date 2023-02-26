@@ -46,7 +46,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   question: QuizQuestion;
   questions: QuizQuestion[];
-  questions$: Observable<QuizQuestion[]>;
   currentQuestion: any = undefined;
   milestoneQuestions: QuizQuestion[];
   milestoneQuestions$: Observable<QuizQuestion[]>;
@@ -80,6 +79,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   score: number;
 
   quizId: string;
+  questions$: Observable<QuizQuestion[]>;
   quizName$: Observable<string>;
   indexOfQuizId: number;
   status: Status;
