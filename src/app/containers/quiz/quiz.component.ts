@@ -161,6 +161,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadQuiz(index: number): void {
     this.currentQuestionIndex = index;
+    console.log('questions:::', this.questions);
     this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
   }
 
