@@ -114,7 +114,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
   
-    this.quizService.getQuiz(this.quizId).subscribe(
+    this.quizService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+      this.questions = questions;
+      this.currentQuestion = this.questions[0];
+    });
+
+    /* this.quizService.getQuiz(this.quizId).subscribe(
       (data) => {
         this.quiz = data;
         if (this.quiz.questions && this.quiz.questions.length > 0) {
@@ -127,7 +132,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       (error) => {
         console.error('Error retrieving quiz data:', error);
       }
-    );
+    ); */
   }
 
   loadQuestion(index: number) {
