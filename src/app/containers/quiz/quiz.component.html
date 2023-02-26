@@ -28,7 +28,7 @@
       <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="question.questionText"
+          [questionText]="currentQuestion?.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
@@ -65,8 +65,8 @@
           [hidden]="questionIndex === totalQuestions"
         >
           Please click the next button to continue&hellip;
-        </span> </ng-container
-      >
+        </span>
+      </ng-container>
 
       <!-- paging -->
       <section class="paging">
