@@ -1,4 +1,4 @@
-<ng-container *ngIf="questions && currentQuestion">
+<ng-container *ngIf="questions?.length && currentQuestion">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
