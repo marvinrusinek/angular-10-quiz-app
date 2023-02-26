@@ -149,7 +149,13 @@ export class QuizService implements OnDestroy {
       );
   }
 
-  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+  getQuestionsForQuiz(quizId: string): Observable<any> {
+    return this.http
+      .get(`${this.url}`)
+      .pipe(map((response: any) => response.data));
+  }
+
+  /* getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map((response) => {
         console.log('Response:', response);
@@ -159,7 +165,7 @@ export class QuizService implements OnDestroy {
       })
       // map(quiz => quiz.questions)
     );
-  } 
+  } */
 
   get quizData$(): Observable<Quiz[]> {
     return of(this.quizData);

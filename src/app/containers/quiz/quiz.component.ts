@@ -109,9 +109,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.currentQuestionIndex = 0;
+    // this.currentQuestionIndex = 0;
 
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
+
+    this.quizService.getQuestionsForQuiz(this.quizId)
+    .pipe(
+      tap(response => console.log('Response:', response))
+    )
+    .subscribe(questions => {
+      this.questions = questions;
+      this.currentQuestion = this.questions[0];
+    });
+
     this.questions$.subscribe((questions) => {
       console.log('Questions:::::', questions);
       this.questions = questions;
