@@ -68,13 +68,13 @@ export class MultipleAnswerComponent
     }
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
+  /* onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
     question.options.forEach(
       (option) => (option.selected = option === selectedOption)
     );
-  }
+  } */
 
-  /* onSelectionChange(question: QuizQuestion, option: Option) {
+  onSelectionChange(question: QuizQuestion, option: Option) {
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
@@ -91,5 +91,5 @@ export class MultipleAnswerComponent
     ) {
       this.quizService.score++;
     }
-  } */
+  }
 }
