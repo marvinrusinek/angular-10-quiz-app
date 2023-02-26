@@ -117,7 +117,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizService.getQuiz(this.quizId).subscribe(data => {
       this.quiz = data;
-      this.currentQuestion = this.quiz.questions[this.questionIndex];
+      this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
+      this.loadQuiz(0);
     });
 
     this.quizService.getQuestions().subscribe((data) => {
@@ -224,7 +225,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  loadQuiz(milestone: string) {
+  async loadQuiz() {
+    try {
+      const data = await this.quizService.getQuiz(this.quizId);
+      this.quiz = data.quiz;
+      this.questions = this.quiz.questions;
+      this.currentQuestion = this.questions[0];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /* loadQuiz(milestone: string) {
     this.quizService.http
       .get<QuizQuestion[]>('assets/data/quiz.json')
       .subscribe((data: QuizQuestion[]) => {
@@ -233,7 +245,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           (q) => q.milestone === milestone
         );
       });
-  }
+  } */
 
   startQuiz() {
     console.log('questions:::', this.questions);
