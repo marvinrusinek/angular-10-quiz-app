@@ -1,18 +1,18 @@
 <ng-container i18n>
   <div
     class="options"
-    *ngFor="let option of currentQuestion?.options; index as i"
+    *ngFor="let option of questions[currentQuestionIndex]?.options; index as i"
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
-      (change)="onSelectionChange(question, option)"
+      (change)="onSelectionChange(currentQuestion, option)"
       [ngClass]="{
         correct: selectedOption === option && option.correct,
         incorrect: selectedOption === option && !option.correct
       }"
       [checked]="
-        question.selectedOptions &&
-        question.selectedOptions.indexOf(option) !== -1
+        currentQuestion.selectedOptions &&
+        currentQuestion.selectedOptions.indexOf(option) !== -1
       "
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
@@ -26,7 +26,7 @@
 
     <codelab-quiz-feedback
       *ngIf="selectedOption?.text === option.text"
-      [question]="question"
+      [question]="currentQuestion"
       [selectedOption]="selectedOption"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>

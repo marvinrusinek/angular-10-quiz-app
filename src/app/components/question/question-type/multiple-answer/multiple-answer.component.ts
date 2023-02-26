@@ -29,6 +29,7 @@ export class MultipleAnswerComponent
   implements OnInit
 {
   @Input() question: QuizQuestion;
+  currentQuestion: QuizQuestion;
   @Input() options: any[];
   @Input() correctMessage: string;
   @Input() selected: string;
@@ -51,7 +52,8 @@ export class MultipleAnswerComponent
     });
     this.formReady.emit(this.form);
 
-    this.currentQuestion = await this.quizService.getCurrentQuestion();
+    this.currentQuestion = this.question;
+    // this.currentQuestion = await this.quizService.getCurrentQuestion();
     this.correctAnswers = this.quizService.getCorrectAnswers(
       this.currentQuestion
     );
