@@ -44,8 +44,8 @@ export class QuizService implements OnDestroy {
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
   selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
-    filter(quiz => quiz !== null && quiz !== undefined),
-    catchError(error => {
+    filter((quiz) => quiz !== null && quiz !== undefined),
+    catchError((error) => {
       console.error(error);
       return EMPTY;
     })
@@ -150,11 +150,9 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.http.get<Quiz>(`${this.url}`)
+    return this.getQuiz(quizId)
       .pipe(
-        tap(response => console.log(response)),
-        map((quiz: Quiz) => quiz.questions),
-        tap((questions: QuizQuestion[]) => console.log('questions:', questions))
+        map((quiz: Quiz) => quiz.questions)
       );
   }
 
@@ -205,16 +203,38 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuizzes(): Observable<Quiz[]> {
-    if (!this.quizzes) {
-      this.quizzes = this.http.get<Quiz[]>(this.url) as Observable<Quiz[]>;
+    if (this.quizData.length) {
+      return of(this.quizData);
     }
-    return this.quizzes;
+    return this.http.get<Quiz[]>(this.url)
+      .pipe(
+        map((response: Quiz[]) => {
+          this.quizData = response;
+          return this.quizData;
+        }),
+        catchError((error: any) => {
+          console.error(error);
+          return of([]);
+        })
+      );
   }
 
   getQuiz(quizId: string): Observable<Quiz> {
-    const quiz = this.quizData.find((q) => q.quizId === quizId);
+    const quiz = this.quizData.find((q) => q.id === quizId);
     return of(quiz);
   }
+
+  /* getQuiz(quizId: string): Observable<Quiz> {
+    return this.getQuizzes().pipe(
+      map((quizzes: Quiz[]) => quizzes.find(q => q.quizId === quizId)),
+      tap((quiz: Quiz) => console.log('quiz:', quiz))
+    );
+  } */
+
+  /* getQuiz(quizId: string): Observable<Quiz> {
+    const quiz = this.quizData.find((q) => q.quizId === quizId);
+    return of(quiz);
+  } */
 
   /* getQuiz(quizId: string): Observable<Quiz> {
     return this.quizData.find((q) => q.quizId === quizId);
@@ -293,7 +313,11 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuestion(): QuizQuestion {
     const currentQuestionIndex = this.currentQuestionIndex;
-    if (this.questions && currentQuestionIndex >= 0 && currentQuestionIndex < this.questions.length) {
+    if (
+      this.questions &&
+      currentQuestionIndex >= 0 &&
+      currentQuestionIndex < this.questions.length
+    ) {
       return this.questions[currentQuestionIndex];
     } else {
       return null;
