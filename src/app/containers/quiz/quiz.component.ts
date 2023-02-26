@@ -110,90 +110,16 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
-    this.currentQuestion = this.questions[0];
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
-
-    this.quizService.getQuiz(this.quizId).subscribe(data => {
+  
+    this.quizService.getQuiz(this.quizId).subscribe(async data => {
       this.quiz = data;
-      this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
-      this.loadQuiz();
-    });
-
-    this.quizService.getQuestions().subscribe((data) => {
-      this.questions = data;
+      this.questions = await this.questions$.toPromise();
       this.currentQuestion = this.questions[0];
+      this.loadQuiz(0);
     });
-
-    this.questions$ = this.quizService.getQuestions();
-    this.questions$.subscribe(questions => {
-      this.totalQuestions = questions.length;
-      this.currentQuestionIndex = 0;
-    });
-
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      console.log('Quizzes:', quizzes); // Add this line to check that quizzes is being populated correctly
-      this.quizzes = quizzes;
-      this.quiz = quizzes.find((q) => q.quizId === this.quizService.quizId);
-      // this.selectedQuiz = this.quizzes[0];
-    });
-
-    this.quizService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
-      this.questions = questions;
-      this.loadQuestion(this.questionIndex);
-    });
-
-    this.quizService.selectedQuiz$.subscribe((quiz) => {
-      this.quiz = quiz;
-    });
-
-    if (!this.milestone) {
-      console.log('Milestone is undefined or null!');
-      return;
-    }
-
-    this.quizService.selectedQuiz$.subscribe((quiz) => {
-      this.quiz = quiz;
-    });
-
-    this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
-    this.milestoneQuestions$ = this.quizService
-      .getMilestoneQuestions(this.selectedMilestone)
-      .pipe(
-        tap((questions) => console.log('MQs::', questions)),
-        shareReplay()
-      );
-
-    // check if milestone is undefined or null before accessing the first question
-    if (this.milestone && this.milestone === 'question') {
-      const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      const questionIndex = parseInt(
-        this.activatedRoute.snapshot.paramMap.get('questionIndex'),
-        10
-      );
-      this.quizService.getQuizzes().subscribe((quiz) => {
-        if (quiz && quiz.length > 0) {
-          this.quiz = quiz;
-          this.questionIndex = questionIndex;
-          this.currentQuestion = this.quiz[this.questionIndex];
-        } else {
-          console.log('Quiz is undefined or empty.');
-        }
-      });
-    } else {
-      console.log('Milestone is undefined or null.');
-    }
-
-    /* this.activatedRoute.params.subscribe(params => {
-      const quizId = params['quizId'];
-      const questionIndex = +params['questionIndex'];
-    
-      this.quizService.getQuiz(quizId).subscribe(quiz => {
-        this.quiz = quiz;
-        this.currentQuestion = this.quiz.questions[questionIndex - 1];
-      });
-    }); */
   }
 
   loadQuestion(index: number) {
