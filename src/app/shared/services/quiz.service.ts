@@ -278,7 +278,7 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuestion(): QuizQuestion {
     const currentQuestionIndex = this.currentQuestionIndex;
-    if (currentQuestionIndex >= 0 && currentQuestionIndex < this.questions.length) {
+    if (this.questions && currentQuestionIndex >= 0 && currentQuestionIndex < this.questions.length) {
       return this.questions[currentQuestionIndex];
     } else {
       return null;
