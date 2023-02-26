@@ -110,9 +110,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
+    this.currentQuestion = this.questions[0];
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
+
+    /* this.quizService.getQuestions().subscribe(questions => {
+      this.currentQuestion = questions[0];
+    }); */
 
     this.quizService.getQuestions()
       .subscribe((questions: QuizQuestion[]) => {
@@ -120,7 +125,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questions = questions;
 
       // Set the current question to the first question in the array
-      this.currentQuestion = this.questions[this.currentQuestionIndex];
+      this.currentQuestion = questions[0];
     });
 
     this.questions$ = this.quizService.getQuestions();
