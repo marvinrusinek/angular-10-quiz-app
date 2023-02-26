@@ -109,8 +109,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('QI:::::', this.quizService.quizId);
     this.currentQuestionIndex = 0;
+    this.currentQuestion = this.questions[0];
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
   
@@ -164,7 +164,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       const data = await this.quizService.getQuiz(this.quizId);
       this.quiz = data.quiz;
       this.questions = this.quiz.questions;
-      this.currentQuestion = this.questions[0];
+      // this.currentQuestion = this.questions[0];
+      this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
     } catch (error) {
       console.error(error);
     }
