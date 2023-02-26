@@ -151,7 +151,13 @@ export class QuizService implements OnDestroy {
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
-      map(quiz => quiz.questions)
+      map((response) => {
+        console.log('Response:', response);
+        return response.map((question) => {
+          return new QuizQuestion(question);
+        });
+      })
+      // map(quiz => quiz.questions)
     );
   } 
 
