@@ -114,12 +114,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
   
-    this.quizService.getQuiz(this.quizId).subscribe(async data => {
-      this.quiz = data;
-      this.questions = await this.questions$.toPromise();
-      this.currentQuestion = this.questions[0];
-      this.loadQuiz(0);
-    });
+    this.quizService.getQuiz(this.quizId).subscribe(
+      (data) => {
+        this.quiz = data;
+        if (this.quiz.questions && this.quiz.questions.length > 0) {
+          this.currentQuestion = this.quiz.questions[0];
+          this.loadQuiz();
+        } else {
+          console.error('Quiz has no questions');
+        }
+      },
+      (error) => {
+        console.error('Error retrieving quiz data:', error);
+      }
+    );
   }
 
   loadQuestion(index: number) {
