@@ -181,8 +181,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   loadQuestion(index: number) {
     const question = this.questions[index];
     this.selectedAnswers[index] = null;
-    this.form.reset();
-    this.form.patchValue({ options: question.options });
+    // this.form.reset();
+    // this.form.patchValue({ options: question.options });
   }
 
   initializeMilestoneQuestions() {
