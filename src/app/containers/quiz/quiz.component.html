@@ -13,9 +13,9 @@
         matTooltipPosition="left"
       />
       <div class="header-titles">
-        <mat-card-title i18n>{{ questions[0]?.milestone }} Quiz</mat-card-title>
+        <mat-card-title i18n>{{ questions[0]?.milestone || 'No questions found' }} Quiz</mat-card-title>
         <mat-card-subtitle i18n
-          >Assess your knowledge of {{ questions[0]?.milestone }}</mat-card-subtitle>
+          >Assess your knowledge of {{ questions[0]?.milestone || 'No questions found' }}</mat-card-subtitle>
       </div>
     </mat-card-header>
 
