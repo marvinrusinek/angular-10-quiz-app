@@ -72,9 +72,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private _milestone: string; */
-
+  currentQuestionIndex = 0;
+  totalQuestions = 0;
   questionIndex: number;
-  totalQuestions: number;
   progressValue: number;
   correctCount: number;
   score: number;
@@ -110,9 +110,24 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('QI:::::', this.quizService.quizId);
-
+    this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
+
+    this.quizService.getQuestions()
+      .subscribe((questions: QuizQuestion[]) => {
+      // Store the array of questions in the component property
+      this.questions = questions;
+
+      // Set the current question to the first question in the array
+      this.currentQuestion = this.questions[this.currentQuestionIndex];
+    });
+
+    this.questions$ = this.quizService.getQuestions();
+    this.questions$.subscribe(questions => {
+      this.totalQuestions = questions.length;
+      this.currentQuestionIndex = 0;
+    });
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
       console.log('Quizzes:', quizzes); // Add this line to check that quizzes is being populated correctly
