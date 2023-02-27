@@ -550,8 +550,10 @@ export class QuizService implements OnDestroy {
     this.setQuiz(selectedQuiz);
   } */
 
-  setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuizSource.next(quiz);
+  public setSelectedQuiz(quiz: Quiz): void {
+    this.selectedQuiz = quiz;
+    this.selectedQuizIdSubject.next(quiz.quizId);
+    this.selectedQuizSubject.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {

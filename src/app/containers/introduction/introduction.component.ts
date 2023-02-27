@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { QuizComponent } from '../quiz/quiz.component';
@@ -32,12 +32,14 @@ export class IntroductionComponent implements OnInit {
   selectedMilestone: string;
   selectedQuizId: string;
   selectedQuiz$: Observable<Quiz>;
+  quizId: string;
+  quizId$ = new BehaviorSubject<string>('');
 
   imagePath = '../../../assets/images/milestones/';
 
-  get quizId(): string {
+  /* get quizId(): string {
     return this.quizService.quizId;
-  }
+  } */
 
   constructor(
     private quizService: QuizService,
@@ -55,6 +57,10 @@ export class IntroductionComponent implements OnInit {
       this.quizService.setSelectedQuiz(quiz);
     });
 
+    this.quizId$.subscribe(id => {
+      this.quizId = id;
+    });
+
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
     this.selectedQuiz$.subscribe((quiz) => {
       if (!quiz) {
@@ -62,6 +68,14 @@ export class IntroductionComponent implements OnInit {
         return;
       }
       this.quiz = quiz;
+    });
+    this.quizService.selectedQuiz$.subscribe(quiz => {
+      this.quizId = quiz.id;
+    });
+
+    this.activatedRoute.paramMap.subscribe(params => {
+      const quizId = params.get('quizId');
+      this.quizId$.next(quizId);
     });
   }
 
@@ -74,7 +88,7 @@ export class IntroductionComponent implements OnInit {
   onStartQuiz() {
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
-      this.quizService.selectedQuiz$.next(selectedQuiz);
+      this.quizService.setSelectedQuiz(selectedQuiz);
       this.router.navigate(['/question/', this.quizId, 1]);
     } else {
       console.log('Quiz ID is null or undefined');
