@@ -48,6 +48,15 @@ export class QuizSelectionComponent implements OnInit {
       this.quizzes = quizzes;
     });
 
+    /* this.quizzes$ = this.quizService.getQuizzes().pipe(
+      catchError((error) => {
+        console.error(error);
+        return EMPTY;
+      })
+    ); */
+    
+    this.selectedQuiz$ = this.quizService.selectedQuiz$;
+
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;

@@ -31,6 +31,7 @@ export class IntroductionComponent implements OnInit {
   quizName$: Observable<string>;
   selectedMilestone: string;
   selectedQuizId: string;
+  selectedQuiz: Quiz | undefined;
   selectedQuiz$: Observable<Quiz>;
   quizId: string;
   quizId$ = new BehaviorSubject<string>('');
@@ -51,14 +52,13 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizService.getQuiz(this.quizId).subscribe((quiz) => {
-      if (quiz.quizId && quiz.milestone && quiz.summary && quiz.image && quiz.questions) {
-        this.quiz = quiz;
-        this.quizService.setSelectedQuiz(quiz);
-      } else {
-        console.error('Quiz object is missing required properties.');
+    this.quizService.selectedQuiz$.subscribe((quiz) => {
+      if (!quiz) {
+        console.error('Selected quiz is null or undefined');
+        return;
       }
+      this.selectedQuiz = quiz;
+      console.log(this.selectedQuiz);
     });
   }
 

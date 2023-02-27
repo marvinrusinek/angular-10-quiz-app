@@ -21,7 +21,7 @@ import { Score } from '../../shared/models/Score.model';
 export class QuizService implements OnDestroy {
   private quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizData: Quiz[] = this.quizInitialState;
-  private quizzes: Observable<Quiz[]> | undefined;
+  private quizzes$: Observable<Quiz[]> | undefined;
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -98,6 +98,13 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
+    this.quizzes$ = this.getQuizzes().pipe(
+      catchError((error) => {
+        console.error(error);
+        return EMPTY;
+      })
+    ) as Observable<Quiz[]>;
+
     /* this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
@@ -202,29 +209,24 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuizzes(): Observable<Quiz[]> {
-    if (this.quizData.length) {
-      return of(this.quizData);
-    }
-    return this.http.get<Quiz[]>(this.url)
-      .pipe(
-        map((response: Quiz[]) => {
-          this.quizData = response;
-          return this.quizData;
-        }),
-        catchError((error: any) => {
-          console.error(error);
-          return of([]);
-        })
-      );
+    return this.http.get<Quiz[]>(this.url);
   }
-
+  
   getQuiz(quizId: string): Observable<Quiz> {
-    const quiz = this.quizData.find((q) => q.id === quizId);
-    return of(quiz);
+    if (!quizId) {
+      console.error("Quiz ID is null or undefined");
+      return of(null);
+    }
+    const quiz = this.quizzes.find((q) => q.quizId === quizId);
+    if (quiz) {
+      return of(quiz);
+    } else {
+      console.error("Quiz not found for ID: ", quizId);
+      return of(null);
+    }
   }
 
   /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.getQuizzes().pipe(
       map((quizzes: Quiz[]) => quizzes.find(q => q.quizId === quizId)),
       tap((quiz: Quiz) => console.log('quiz:', quiz))
     );
