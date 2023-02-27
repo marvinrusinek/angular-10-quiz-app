@@ -54,7 +54,7 @@ export class QuizSelectionComponent implements OnInit {
         return EMPTY;
       })
     ); */
-    
+       
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
 
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
