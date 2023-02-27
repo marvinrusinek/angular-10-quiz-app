@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { filter, first, map } from 'rxjs/operators';
 
 import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
@@ -51,33 +51,28 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.selectedQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizService.getQuiz(this.selectedQuizId).subscribe((quiz) => {
-      this.quiz = quiz;
-      this.quizService.setSelectedQuiz(quiz);
-    });
-
-    this.quizId$.subscribe(id => {
-      this.quizId = id;
-    });
-
-    this.selectedQuiz$ = this.quizService.selectedQuiz$;
-    this.selectedQuiz$.subscribe((quiz) => {
-      if (!quiz) {
-        console.error("Selected quiz is null or undefined");
-        return;
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizService.getQuiz(this.quizId).subscribe((quiz) => {
+      if (quiz.quizId && quiz.milestone && quiz.summary && quiz.image && quiz.questions) {
+        this.quiz = quiz;
+        this.quizService.setSelectedQuiz(quiz);
+      } else {
+        console.error('Quiz object is missing required properties.');
       }
-      this.quiz = quiz;
-    });
-    this.quizService.selectedQuiz$.subscribe(quiz => {
-      this.quizId = quiz.id;
-    });
-
-    this.activatedRoute.paramMap.subscribe(params => {
-      const quizId = params.get('quizId');
-      this.quizId$.next(quizId);
     });
   }
+
+  /* ngOnInit(): void {
+    this.selectedQuiz$ = this.quizService.selectedQuiz$;
+  
+    // Wait for the selectedQuiz$ observable to emit a value before subscribing to it
+    this.selectedQuiz$.pipe(
+      filter(quiz => !!quiz),
+      first()
+    ).subscribe((quiz) => {
+      this.quizId = quiz.quizId;
+    });
+  } */
 
   onChange($event): void {
     if ($event.checked === true) {
