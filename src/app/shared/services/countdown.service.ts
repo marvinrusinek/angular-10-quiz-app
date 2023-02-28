@@ -2,17 +2,12 @@ import { Injectable, Input } from '@angular/core';
 import { concat, BehaviorSubject, interval, Observable, of, timer } from 'rxjs';
 import {
   first,
-  map,
-  pipe,
   repeatWhen,
   scan,
   shareReplay,
   skip,
-  startWith,
   switchMapTo,
-  take,
   takeUntil,
-  takeWhile,
   tap,
 } from 'rxjs/operators';
 
