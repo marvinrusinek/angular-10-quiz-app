@@ -33,9 +33,9 @@ export class IntroductionComponent implements OnInit {
   quizName$: Observable<string>;
   selectedMilestone: string;
   selectedQuizId: string;
-  selectedQuiz: Quiz | undefined;
+  selectedQuiz!: Quiz;
   selectedQuiz$: Observable<Quiz>;
-  quizId: string;
+  public quizId: string | undefined = this.selectedQuiz?.quizId;
   quizId$ = new BehaviorSubject<string>('');
 
   imagePath = '../../../assets/images/milestones/';
@@ -54,6 +54,7 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('IntroductionComponent ngOnInit called');
     this.quizService.selectedQuiz$.subscribe((quiz) => {
       console.log('selectedQuiz$: ', quiz);
       if (!quiz) {

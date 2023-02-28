@@ -107,6 +107,15 @@ export class QuizService implements OnDestroy {
       })
     ) as Observable<Quiz[]>;
 
+    this.selectedQuizSource = new BehaviorSubject<Quiz | undefined>(undefined);
+    this.selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
+      filter((quiz) => quiz !== null && quiz !== undefined),
+      catchError((error) => {
+        console.error(error);
+        return EMPTY;
+      })
+    ) as Observable<Quiz>;
+
     /* this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
@@ -145,6 +154,7 @@ export class QuizService implements OnDestroy {
   }
 
   selectQuiz(quiz: Quiz): void {
+    console.log('selectQuiz called with quiz:', quiz);
     this.selectedQuiz = quiz;
     this.selectedQuizSource.next(quiz);
   }
