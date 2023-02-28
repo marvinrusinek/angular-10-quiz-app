@@ -42,7 +42,8 @@ export class QuizService implements OnDestroy {
   // selectedQuiz$: BehaviorSubject<Quiz | undefined> = new BehaviorSubject(undefined);
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
+  // selectedQuiz$: Observable<Quiz | undefined> = of(undefined);
+  selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource.asObservable().pipe(
     filter((quiz) => quiz !== null && quiz !== undefined),
     catchError((error) => {
       console.error(error);
@@ -141,6 +142,11 @@ export class QuizService implements OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  selectQuiz(quiz: Quiz): void {
+    this.selectedQuiz = quiz;
+    this.selectedQuizSource.next(quiz);
   }
 
   getQuizById(quizId: string, milestone: string): Observable<Quiz> {

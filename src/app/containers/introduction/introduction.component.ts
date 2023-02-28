@@ -23,7 +23,9 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
 })
 export class IntroductionComponent implements OnInit {
   @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
-  @ViewChild(QuizSelectionComponent) quizSelection!: QuizSelectionComponent | undefined;
+  @ViewChild(QuizSelectionComponent) quizSelection!:
+    | QuizSelectionComponent
+    | undefined;
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
@@ -53,12 +55,14 @@ export class IntroductionComponent implements OnInit {
 
   ngOnInit(): void {
     this.quizService.selectedQuiz$.subscribe((quiz) => {
+      console.log('selectedQuiz$: ', quiz);
       if (!quiz) {
         console.error('Selected quiz is null');
         return;
       }
       this.selectedQuiz = quiz;
     });
+    this.quizService.selectQuiz(this.selectedQuiz);
   }
 
   /* ngOnInit(): void {

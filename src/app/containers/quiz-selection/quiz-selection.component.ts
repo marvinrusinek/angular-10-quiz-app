@@ -77,6 +77,8 @@ export class QuizSelectionComponent implements OnInit {
   }
 
   selectQuiz(quiz: Quiz) {
+    console.log('Selected quiz:', quiz);
+    
     this.selectedQuiz = quiz;
   }
 
