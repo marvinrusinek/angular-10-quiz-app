@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, first, map, switchMap, tap } from 'rxjs/operators';
 
 import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
