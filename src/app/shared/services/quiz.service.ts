@@ -158,14 +158,14 @@ export class QuizService implements OnDestroy {
     this.selectedQuizSource.next(quiz);
   }
 
-  getQuizById(quizId: string, milestone: string): Observable<Quiz> {
+  getQuizById(quizId: string): Observable<Quiz> {
     return this.http
       .get<Quiz[]>(this.url)
       .pipe(
         map(
           (quizzes: Quiz[]) =>
             quizzes.filter(
-              (quiz) => quiz.quizId === quizId && quiz.milestone === milestone
+              (quiz) => quiz.quizId === quizId
             )[0]
         )
       );
