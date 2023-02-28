@@ -21,10 +21,10 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-  @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined;
+  @ViewChild(QuizComponent) quizComponent!: QuizComponent | undefined; // remove?
   @ViewChild(QuizSelectionComponent) quizSelection!:
     | QuizSelectionComponent
-    | undefined;
+    | undefined; // remove?
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
