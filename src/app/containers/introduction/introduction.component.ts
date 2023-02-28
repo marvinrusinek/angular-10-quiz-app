@@ -59,7 +59,7 @@ export class IntroductionComponent implements OnInit {
     this.selectedQuiz$ = this.quizService.getQuizById(quizId);
     
     this.selectedQuiz$.subscribe(quiz => {
-      console.log('Selected quiz:', quiz);
+      // console.log('Selected quiz:', quiz);
       this.selectedQuiz = quiz;
     });
   }
