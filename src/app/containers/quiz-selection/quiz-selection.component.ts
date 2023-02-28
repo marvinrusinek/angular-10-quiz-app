@@ -44,19 +44,11 @@ export class QuizSelectionComponent implements OnInit {
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
 
-    this.quizService.getQuizzes().subscribe(quizzes => {
+    this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
 
-    /* this.quizzes$ = this.quizService.getQuizzes().pipe(
-      catchError((error) => {
-        console.error(error);
-        return EMPTY;
-      })
-    ); */
-       
     this.selectedQuiz = this.quizService.selectedQuiz$;
-
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
@@ -64,7 +56,7 @@ export class QuizSelectionComponent implements OnInit {
 
   onSelect(quizId) {
     if (!quizId) {
-      console.error("Quiz ID is null or undefined");
+      console.error('Quiz ID is null or undefined');
       return;
     }
     this.quizService.quizId = quizId;
@@ -77,8 +69,6 @@ export class QuizSelectionComponent implements OnInit {
   }
 
   selectQuiz(quiz: Quiz) {
-    console.log('Selected quiz:', quiz);
-    
     this.selectedQuiz = quiz;
   }
 
