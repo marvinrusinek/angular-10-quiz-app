@@ -53,7 +53,7 @@ export class IntroductionComponent implements OnInit {
     console.log(this.quizService.quizId);
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
   
     this.selectedQuiz$ = this.quizService.getQuizById(quizId);
