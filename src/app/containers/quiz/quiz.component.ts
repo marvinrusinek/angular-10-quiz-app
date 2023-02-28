@@ -109,6 +109,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    if (!this.selectedQuiz) {
+      console.error('Selected quiz is null or undefined');
+      return;
+    }
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
     this.questions$.subscribe((questions) => {
