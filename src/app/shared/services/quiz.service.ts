@@ -2,13 +2,12 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Answer } from '../../shared/models/Answer.type';
-import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
@@ -19,9 +18,9 @@ import { Score } from '../../shared/models/Score.model';
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  private quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
-  private quizData: Quiz[] = this.quizInitialState;
-  private quizzes$: Observable<Quiz[]> | undefined;
+  quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
+  quizData: Quiz[] = this.quizInitialState;
+  quizzes$: Observable<Quiz[]> | undefined;
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -34,22 +33,22 @@ export class QuizService implements OnDestroy {
   quizLength: number;
   quizStartTime: Date;
 
-  private quizName$ = new BehaviorSubject<string>('');
-  private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  private selectedQuizIdSubject = new BehaviorSubject<string>(null);
-  private quizIdSubject = new Subject<string>();
-  public selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-  // selectedQuiz$: BehaviorSubject<Quiz | undefined> = new BehaviorSubject(undefined);
+  quizName$ = new BehaviorSubject<string>('');
+  selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizIdSubject = new BehaviorSubject<string>(null);
+  quizIdSubject = new Subject<string>();
+  selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  // selectedQuiz$: Observable<Quiz | undefined> = of(undefined);
-  selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource.asObservable().pipe(
-    filter((quiz) => quiz !== null && quiz !== undefined),
-    catchError((error) => {
-      console.error(error);
-      return EMPTY;
-    })
-  );
+  selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource
+    .asObservable()
+    .pipe(
+      filter((quiz) => quiz !== null && quiz !== undefined),
+      catchError((error) => {
+        console.error(error);
+        return EMPTY;
+      })
+    );
 
   quizId: string = '';
   selectedQuiz: any;
@@ -85,7 +84,6 @@ export class QuizService implements OnDestroy {
 
   unsubscribe$ = new Subject<void>();
   private url = 'assets/data/quiz.json';
-  // quizInitialState: any;
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -116,16 +114,8 @@ export class QuizService implements OnDestroy {
       })
     );
 
-    /* this.activatedRoute.paramMap
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => {
-        const quizId = params.get('quizId');
-        const quiz = this.quizData.find((q) => q.id === quizId);
-        this.quizName$.next(quiz ? quiz.name : '');
-      }); */
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
-      // this.quizName$.next(this.getQuiz(this.quizId)?.name);
     });
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
@@ -135,13 +125,6 @@ export class QuizService implements OnDestroy {
     this.quizData = QUIZ_DATA || [];
     this.quizResources = QUIZ_RESOURCES || [];
 
-    /* const quizId = this.activatedRoute.snapshot.paramMap.get('id');
-    this.quiz = this.quizService.getQuizById(quizId);
-    this.questions = this.quiz.questions.filter(q => q.milestone === this.quiz.milestone); */
-
-    /* this.quizName$ = this.activatedRoute.url.pipe(
-      map((segments) => this.getQuizName(segments))
-    ); */
     this.indexOfQuizId = this.quizData.findIndex(
       (elem) => elem.quizId === this.quizId
     );
@@ -154,7 +137,6 @@ export class QuizService implements OnDestroy {
   }
 
   selectQuiz(quiz: Quiz | undefined): void {
-    console.log('selectQuiz called with quiz:', quiz);
     this.selectedQuizSource.next(quiz);
   }
 
@@ -164,49 +146,18 @@ export class QuizService implements OnDestroy {
       .pipe(
         map(
           (quizzes: Quiz[]) =>
-            quizzes.filter(
-              (quiz) => quiz.quizId === quizId
-            )[0]
+            quizzes.filter((quiz) => quiz.quizId === quizId)[0]
         )
       );
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuiz(quizId)
-      .pipe(
-        map((quiz: Quiz) => quiz.questions)
-      );
+    return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
-
-  /* getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuiz(quizId).pipe(
-      map((response) => {
-        console.log('Response:', response);
-        return response.map((question) => {
-          return new QuizQuestion(question);
-        });
-      })
-      // map(quiz => quiz.questions)
-    );
-  } */
 
   get quizData$(): Observable<Quiz[]> {
     return of(this.quizData);
   }
-
-  /* getQuiz(): Quiz[] {
-    return this.quizData;
-  } */
-
-  /* getQuizzes(): Observable<Quiz[]> {
-    return of(this.quizData);
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizData$.pipe(
-      map((quizData) => quizData.find((q) => q.id === quizId))
-    );
-  } */
 
   getQuizName(segments: any[]): string {
     return segments[1].toString();
@@ -220,59 +171,26 @@ export class QuizService implements OnDestroy {
     return this.quizResources;
   }
 
-  /* getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.url);
-  } */
-
   getQuizzes(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.url).pipe(
       tap((_) => console.log('fetched quizzes')),
-      catchError(this.handleError<Quiz[]>('getQuizzes', [])));
+      catchError(this.handleError<Quiz[]>('getQuizzes', []))
+    );
   }
-  
+
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
-      console.error("Quiz ID is null or undefined");
+      console.error('Quiz ID is null or undefined');
       return of(null);
     }
     const quiz = this.quizzes.find((q) => q.quizId === quizId);
     if (quiz) {
       return of(quiz);
     } else {
-      console.error("Quiz not found for ID: ", quizId);
+      console.error('Quiz not found for ID: ', quizId);
       return of(null);
     }
   }
-
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
-  }
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-      map((quizzes: Quiz[]) => quizzes.find(q => q.quizId === quizId)),
-      tap((quiz: Quiz) => console.log('quiz:', quiz))
-    );
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    const quiz = this.quizData.find((q) => q.quizId === quizId);
-    return of(quiz);
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizData.find((q) => q.quizId === quizId);
-  } */
-
-  /* getQuizzes(): Observable<Quiz[]> {
-    return of(this.quizData);
-  } */
-
-  /* getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(`${this.url}`);
-  } */
 
   getQuestions(): Observable<QuizQuestion[]> {
     return of(this.quizData);
@@ -350,13 +268,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getCurrentQuestion(): QuizQuestion {
-    const currentQuiz = this.getCurrentQuiz();
-    if (currentQuiz && currentQuiz.questions) {
-      return currentQuiz.questions[this.currentQuestionIndex - 1];
-    }
-  } */
-
   getTotalQuestions(): number {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
@@ -368,28 +279,6 @@ export class QuizService implements OnDestroy {
   getFirstQuestion(): QuizQuestion {
     return this.questions[0];
   }
-
-  /* getCorrectAnswers(question: QuizQuestion): Option[] {
-    if (!question) {
-      return [];
-    }
-
-    const identifiedCorrectAnswers = question.options.filter(
-      (option) => option.correct
-    );
-    this.numberOfCorrectAnswers = identifiedCorrectAnswers.length;
-
-    this.correctAnswerOptions = identifiedCorrectAnswers.map(
-      (option) => question.options.indexOf(option) + 1
-    );
-
-    this.setCorrectAnswers(question);
-    this.setCorrectMessage(question, this.correctAnswersForEachQuestion.sort());
-    this.setExplanationText(question);
-
-    return identifiedCorrectAnswers;
-    console.log("ICA", identifiedCorrectAnswers);
-  } */
 
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
@@ -475,18 +364,12 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    const correctOptionNumbers = correctAnswersArray.map((answer) => {
-      if (typeof answer === 'number') {
-        return answer + 1;
-      } else {
-        return null;
-      }
-    });
-    console.log('CON', correctOptionNumbers);
+    const correctOptionNumbers = correctAnswersArray
+      .filter((answer) => typeof answer === 'number')
+      .map((answer) => answer + 1);
     const correctOptions = correctOptionNumbers
       .map((optionNumber) => `Option ${optionNumber}`)
       .join(' and ');
-    console.log('CORROPS::', correctOptions);
 
     let correctMessage = 'Correct answers are not available yet.';
 
@@ -496,27 +379,23 @@ export class QuizService implements OnDestroy {
       correctAnswersArray &&
       correctAnswersArray.length
     ) {
-      let correctOptions: string;
-
       switch (correctAnswersArray.length) {
         case 1:
-          correctOptions = `${question.options[correctAnswersArray[0] - 1]}`;
-          correctMessage = `The correct answer is Option ${correctOptions}.`;
+          const option1 = question.options[correctAnswersArray[0] - 1];
+          correctMessage = `The correct answer is Option ${option1}.`;
           break;
         case 2:
-          correctOptions = `${
-            question.options[correctAnswersArray[0] - 1]
-          } and ${question.options[correctAnswersArray[1] - 1]}`;
-          correctMessage = `The correct answers are Options ${correctOptions}.`;
+          const option2a = question.options[correctAnswersArray[0] - 1];
+          const option2b = question.options[correctAnswersArray[1] - 1];
+          correctMessage = `The correct answers are Options ${option2a} and ${option2b}.`;
           break;
         case 3:
-          correctOptions = `${question.options[correctAnswersArray[0] - 1]}, ${
-            question.options[correctAnswersArray[1] - 1]
-          } and ${question.options[correctAnswersArray[2] - 1]}`;
-          correctMessage = `The correct answers are Options ${correctOptions}.`;
+          const option3a = question.options[correctAnswersArray[0] - 1];
+          const option3b = question.options[correctAnswersArray[1] - 1];
+          const option3c = question.options[correctAnswersArray[2] - 1];
+          correctMessage = `The correct answers are Options ${option3a}, ${option3b}, and ${option3c}.`;
           break;
         case question.options.length:
-          correctOptions = 'ALL are correct!';
           correctMessage = 'ALL are correct!';
           break;
         default:
@@ -552,35 +431,14 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  /* setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuiz$.next(quiz);
-  } */
-
-  /* setQuiz(quizId: string): void {
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined');
-      return;
-    }
-    this.selectedQuizIdSubject.next(quizId);
-    this.selectedQuiz$ = this.selectedQuizId$.pipe(
-      switchMap(id => this.http.get<Quiz>(`/assets/data/quiz.json`))
-    );
-  } */
-
   setQuiz(quiz: Quiz): void {
     this.quizIdSubject.next(quiz);
   }
-
-  /* setSelectedQuiz(quizId: string): void {
-    const selectedQuiz = this.quizzes.find((quiz) => quiz.quizId === quizId);
-    this.setQuiz(selectedQuiz);
-  } */
 
   public setSelectedQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
     this.selectedQuizIdSubject.next(quiz.quizId);
     this.selectedQuizSubject.next(quiz);
-    console.log('selectedQuiz$:', this.selectedQuiz$);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
@@ -681,14 +539,10 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex = 0;
   }
 
-  /* private handleError(error: HttpErrorResponse): Observable<never> {
-    if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
-    } else {
-      console.error(
-        `Backend returned code ${error.status}, ` + `body was: ${error.error}`
-      );
-    }
-    return throwError('Something bad happened; please try again later.');
-  } */
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
+  }
 }
