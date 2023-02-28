@@ -28,7 +28,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   currentQuestion: QuizQuestion;
   questionForm: FormGroup;
   optionSelected: Option;
-  // correctAnswers: Option[] = [];
   correctAnswers: number[] = [];
   correctMessage: string = '';
   multipleAnswer: boolean;
@@ -41,8 +40,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private quizService: QuizService,
     private timerService: TimerService
   ) {
-    console.log('quizService', quizService); // add this line
-    // this.currentQuestion = {};
     this.correctMessage = '';
   }
 
