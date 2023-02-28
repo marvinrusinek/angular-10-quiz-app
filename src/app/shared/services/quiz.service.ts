@@ -153,9 +153,8 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  selectQuiz(quiz: Quiz): void {
+  selectQuiz(quiz: Quiz | undefined): void {
     console.log('selectQuiz called with quiz:', quiz);
-    this.selectedQuiz = quiz;
     this.selectedQuizSource.next(quiz);
   }
 
