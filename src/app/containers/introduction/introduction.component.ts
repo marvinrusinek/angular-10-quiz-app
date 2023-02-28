@@ -31,18 +31,14 @@ export class IntroductionComponent implements OnInit {
   quizzes: any[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
+  quizId: string | undefined = this.selectedQuiz?.quizId;
+  quizId$ = new BehaviorSubject<string>('');
   selectedMilestone: string;
   selectedQuizId: string;
   selectedQuiz: Quiz;
   selectedQuiz$: Observable<Quiz>;
-  public quizId: string | undefined = this.selectedQuiz?.quizId;
-  quizId$ = new BehaviorSubject<string>('');
 
-  imagePath = '../../../assets/images/milestones/';
-
-  /* get quizId(): string {
-    return this.quizService.quizId;
-  } */
+  imagePath = '../../../assets/images/milestones/'; // shorten variable, path
 
   constructor(
     private quizService: QuizService,
@@ -55,11 +51,9 @@ export class IntroductionComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-  
     this.selectedQuiz$ = this.quizService.getQuizById(quizId);
-    
-    this.selectedQuiz$.subscribe(quiz => {
-      // console.log('Selected quiz:', quiz);
+
+    this.selectedQuiz$.subscribe((quiz) => {
       this.selectedQuiz = quiz;
     });
   }
