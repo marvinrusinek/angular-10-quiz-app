@@ -12,10 +12,10 @@
         matTooltip="back to Codelab Quiz Selection"
         matTooltipPosition="left"
       />
-      <div class="header-titles">
-        <mat-card-title i18n>{{ questions[0]?.milestone || 'No questions found' }} Quiz</mat-card-title>
+      <div class="header-titles" *ngIf="selectedQuiz">
+        <mat-card-title i18n>{{ selectedQuiz.milestone || 'No questions found' }} Quiz</mat-card-title>
         <mat-card-subtitle i18n
-          >Assess your knowledge of {{ questions[0]?.milestone || 'No questions found' }}</mat-card-subtitle>
+          >Assess your knowledge of {{ selectedQuiz.milestone || 'No questions found' }}</mat-card-subtitle>
       </div>
     </mat-card-header>
 
@@ -27,7 +27,7 @@
       <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="questions[0]?.questionText"
+          [questionText]="selectedQuiz.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"

@@ -52,11 +52,9 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('Subscribing to selectedQuiz$');
     this.quizService.selectedQuiz$.subscribe((quiz) => {
-      console.log('selectedQuiz$: ', quiz);
       if (!quiz) {
-        console.error('Selected quiz is null or undefined');
+        console.error('Selected quiz is null');
         return;
       }
       this.selectedQuiz = quiz;
