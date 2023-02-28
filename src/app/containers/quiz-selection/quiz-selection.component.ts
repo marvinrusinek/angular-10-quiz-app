@@ -55,7 +55,7 @@ export class QuizSelectionComponent implements OnInit {
       })
     ); */
        
-    this.selectedQuiz$ = this.quizService.selectedQuiz$;
+    this.selectedQuiz = this.quizService.selectedQuiz$;
 
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();

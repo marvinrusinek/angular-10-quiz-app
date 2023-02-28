@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, first, map, tap } from 'rxjs/operators';
+import { filter, first, map, switchMap, tap } from 'rxjs/operators';
 
 import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
@@ -33,7 +33,7 @@ export class IntroductionComponent implements OnInit {
   quizName$: Observable<string>;
   selectedMilestone: string;
   selectedQuizId: string;
-  selectedQuiz!: Quiz;
+  selectedQuiz: Quiz;
   selectedQuiz$: Observable<Quiz>;
   public quizId: string | undefined = this.selectedQuiz?.quizId;
   quizId$ = new BehaviorSubject<string>('');
@@ -54,34 +54,18 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('IntroductionComponent ngOnInit called');
-
-    this.selectedQuiz$ = this.quizService.getSelectedQuiz().pipe(
-      tap(selectedQuiz => console.log('selectedQuiz', selectedQuiz))
+    this.quizzes$ = this.quizService.getQuizzes();
+    this.selectedQuiz$ = this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const quizId = params.get('id');
+        return this.quizService.getQuiz(quizId);
+      })
     );
-
-    this.quizService.selectedQuiz$.subscribe((quiz) => {
-      console.log('selectedQuiz$: ', quiz);
-      if (!quiz) {
-        console.error('Selected quiz is null');
-        return;
-      }
+    this.selectedQuiz$.subscribe((quiz) => {
+      console.log('Selected quiz:', quiz);
       this.selectedQuiz = quiz;
-      this.quizService.selectQuiz(this.selectedQuiz);
     });
   }
-
-  /* ngOnInit(): void {
-    this.selectedQuiz$ = this.quizService.selectedQuiz$;
-  
-    // Wait for the selectedQuiz$ observable to emit a value before subscribing to it
-    this.selectedQuiz$.pipe(
-      filter(quiz => !!quiz),
-      first()
-    ).subscribe((quiz) => {
-      this.quizId = quiz.quizId;
-    });
-  } */
 
   onChange($event): void {
     if ($event.checked === true) {
