@@ -109,12 +109,12 @@ export class QuizService implements OnDestroy {
 
     this.selectedQuizSource = new BehaviorSubject<Quiz | undefined>(undefined);
     this.selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
-      filter((quiz) => quiz !== null && quiz !== undefined),
+      filter((quiz) => !!quiz),
       catchError((error) => {
         console.error(error);
-        return EMPTY;
+        return of(null);
       })
-    ) as Observable<Quiz>;
+    );
 
     /* this.activatedRoute.paramMap
       .pipe(takeUntil(this.unsubscribe$))
@@ -225,7 +225,9 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.url);
+    return this.http.get<Quiz[]>(this.url).pipe(
+      tap((_) => console.log('fetched quizzes')),
+      catchError(this.handleError<Quiz[]>('getQuizzes', [])));
   }
   
   getQuiz(quizId: string): Observable<Quiz> {
@@ -240,6 +242,13 @@ export class QuizService implements OnDestroy {
       console.error("Quiz not found for ID: ", quizId);
       return of(null);
     }
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
   }
 
   /* getQuiz(quizId: string): Observable<Quiz> {
@@ -672,7 +681,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex = 0;
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
+  /* private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.error instanceof ErrorEvent) {
       console.error('An error occurred:', error.error.message);
     } else {
@@ -681,5 +690,5 @@ export class QuizService implements OnDestroy {
       );
     }
     return throwError('Something bad happened; please try again later.');
-  }
+  } */
 }

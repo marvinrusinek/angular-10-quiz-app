@@ -62,8 +62,8 @@ export class IntroductionComponent implements OnInit {
         return;
       }
       this.selectedQuiz = quiz;
+      this.quizService.selectQuiz(this.selectedQuiz);
     });
-    this.quizService.selectQuiz(this.selectedQuiz);
   }
 
   /* ngOnInit(): void {
