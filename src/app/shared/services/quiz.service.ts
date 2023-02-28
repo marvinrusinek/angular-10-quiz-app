@@ -97,14 +97,6 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.selectedQuiz$ = of(null);
-    this.quizzes$ = this.getQuizzes().pipe(
-      catchError((error) => {
-        console.error(error);
-        return EMPTY;
-      })
-    ) as Observable<Quiz[]>;
-
     this.selectedQuizSource = new BehaviorSubject<Quiz | undefined>(undefined);
     this.selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
       filter((quiz) => !!quiz),
@@ -113,24 +105,25 @@ export class QuizService implements OnDestroy {
         return of(null);
       })
     );
-
+  
+    this.quizzes$ = this.getQuizzes().pipe(
+      catchError((error) => {
+        console.error(error);
+        return EMPTY;
+      })
+    ) as Observable<Quiz[]>;
+  
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
+      this.indexOfQuizId = this.quizData.findIndex((elem) => elem.quizId === this.quizId);
+      this.returnQuizSelectionParams();
     });
-    if (QUIZ_DATA) {
-      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
-    } else {
-      console.log('QUIZ_DATA is undefined or null');
-    }
+  
+    this.quizInitialState = QUIZ_DATA ? _.cloneDeep(QUIZ_DATA) : null;
     this.quizData = QUIZ_DATA || [];
     this.quizResources = QUIZ_RESOURCES || [];
-
-    this.indexOfQuizId = this.quizData.findIndex(
-      (elem) => elem.quizId === this.quizId
-    );
-    this.returnQuizSelectionParams();
   }
-
+  
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
