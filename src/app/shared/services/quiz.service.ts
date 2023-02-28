@@ -97,7 +97,7 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.selectedQuiz$ = of(null); // initialize to an empty observable
+    this.selectedQuiz$ = of(null);
     this.quizzes$ = this.getQuizzes().pipe(
       catchError((error) => {
         console.error(error);
