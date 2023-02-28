@@ -105,25 +105,32 @@ export class QuizService implements OnDestroy {
         return of(null);
       })
     );
-  
+
     this.quizzes$ = this.getQuizzes().pipe(
       catchError((error) => {
         console.error(error);
         return EMPTY;
       })
     ) as Observable<Quiz[]>;
-  
+
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
-      this.indexOfQuizId = this.quizData.findIndex((elem) => elem.quizId === this.quizId);
+      this.indexOfQuizId = this.quizData.findIndex(
+        (elem) => elem.quizId === this.quizId
+      );
       this.returnQuizSelectionParams();
     });
-  
-    this.quizInitialState = QUIZ_DATA ? _.cloneDeep(QUIZ_DATA) : null;
+
     this.quizData = QUIZ_DATA || [];
+    if (QUIZ_DATA) {
+      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
+    } else {
+      console.log('QUIZ_DATA is undefined or null');
+    }
+
     this.quizResources = QUIZ_RESOURCES || [];
   }
-  
+
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
