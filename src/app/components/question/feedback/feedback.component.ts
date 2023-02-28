@@ -10,6 +10,6 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 })
 export class FeedbackComponent {
   @Input() question: QuizQuestion;
-  @Input() selectedOption: { correct: boolean };
   @Input() correctMessage: string;
+  @Input() selectedOption: { correct: boolean };
 }
