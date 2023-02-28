@@ -13,9 +13,9 @@
         matTooltipPosition="left"
       />
       <div class="header-titles" *ngIf="selectedQuiz">
-        <mat-card-title i18n>{{ selectedQuiz.milestone || 'No questions found' }} Quiz</mat-card-title>
+        <mat-card-title i18n>{{ questions?.milestone || 'No questions found' }} Quiz</mat-card-title>
         <mat-card-subtitle i18n
-          >Assess your knowledge of {{ selectedQuiz.milestone || 'No questions found' }}</mat-card-subtitle>
+          >Assess your knowledge of {{ questions?.milestone || 'No questions found' }}</mat-card-subtitle>
       </div>
     </mat-card-header>
 
@@ -27,7 +27,7 @@
       <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="selectedQuiz.questionText"
+          [questionText]="questions?.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
@@ -42,6 +42,7 @@
         (onOptionSelected)="onOptionSelected($event)"
         (formReady)="form = $event"
         [currentQuestionIndex]="currentQuestionIndex"
+        [multipleAnswer]="selectedQuiz.multiple"
       >
       </codelab-quiz-question>
     </mat-card-content>
