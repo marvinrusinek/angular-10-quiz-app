@@ -113,17 +113,24 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Selected quiz is null or undefined');
       return;
     }
+  
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.questions$ = this.quizService.getQuestionsForQuiz(this.quizId);
+  
     this.questions$.subscribe((questions) => {
       console.log('questions$: ', questions);
       if (questions?.length > 0) {
         this.questions = questions;
         this.currentQuestion = this.questions[0];
         console.log('questions: ', this.questions);
+  
+        // Check if the current question exists before calling the find method
+        if (this.currentQuestion) {
+          this.currentQuestionIndex = this.questions.findIndex((q) => q.quizId === this.currentQuestion.quizId);
+        }
       }
     });
-  }
+  }  
 
   loadQuestion(index: number) {
     const question = this.questions[index];
