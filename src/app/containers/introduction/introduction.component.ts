@@ -31,7 +31,7 @@ export class IntroductionComponent implements OnInit {
   quizzes: any[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
-  quizId: string | undefined = this.selectedQuiz?.quizId;
+  quizId: string | undefined;
   quizId$ = new BehaviorSubject<string>('');
   selectedMilestone: string;
   selectedQuizId: string;
@@ -46,10 +46,10 @@ export class IntroductionComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    console.log(this.quizService.quizId);
+    this.quizId = this.selectedQuiz?.quizId;
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.selectedQuiz$ = this.quizService.getQuizById(quizId);
 
