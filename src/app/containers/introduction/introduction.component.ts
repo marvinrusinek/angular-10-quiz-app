@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { filter, first, map, tap } from 'rxjs/operators';
 
 import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
@@ -55,6 +55,11 @@ export class IntroductionComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('IntroductionComponent ngOnInit called');
+
+    this.selectedQuiz$ = this.quizService.getSelectedQuiz().pipe(
+      tap(selectedQuiz => console.log('selectedQuiz', selectedQuiz))
+    );
+
     this.quizService.selectedQuiz$.subscribe((quiz) => {
       console.log('selectedQuiz$: ', quiz);
       if (!quiz) {
