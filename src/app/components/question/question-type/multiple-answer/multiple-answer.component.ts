@@ -65,6 +65,16 @@ export class MultipleAnswerComponent
     this.correctAnswers = this.quizService.getCorrectAnswers(
       this.currentQuestion
     );
+
+    this.initializeOptionChecked();
+  }
+
+  initializeOptionChecked() {
+    this.options.forEach((option) => {
+      this.optionChecked[option.id] =
+        this.currentQuestion.selectedOptions &&
+        this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+    });
   }
 
   onOptionSelected(selectedOption: Option): void {
