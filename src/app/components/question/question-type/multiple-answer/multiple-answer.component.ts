@@ -28,16 +28,17 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements OnInit
 {
+  @Output() formReady = new EventEmitter<FormGroup>();
+  @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
-  currentQuestion: QuizQuestion;
+  @Input() currentQuestionIndex: number;
   @Input() options: any[];
   @Input() correctMessage: string;
   @Input() selected: string;
   @Input() correctAnswers: number[];
-  @Output() answer = new EventEmitter<number>();
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   form: FormGroup;
-  @Output() formReady = new EventEmitter<FormGroup>();
+  currentQuestion: QuizQuestion;
 
   constructor(
     private formBuilder: FormBuilder,
