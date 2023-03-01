@@ -59,7 +59,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
   selectedMilestone: string;
-  selectedQuiz: Quiz[];
   isDisabled: boolean;
 
   currentQuestionIndex = 0;
