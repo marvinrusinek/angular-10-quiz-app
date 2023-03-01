@@ -60,6 +60,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   selectedMilestone: string;
   isDisabled: boolean;
+  cardFooterClass = '';
 
   currentQuestionIndex = 0;
   totalQuestions = 0;
@@ -121,6 +122,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = this.questions[0];
     }
   } */
+
+  updateCardFooterClass() {
+    if (this.multipleAnswer && !this.isAnswered()) {
+      this.cardFooterClass = 'multiple-unanswered';
+    } else if (!this.multipleAnswer && !this.isAnswered()) {
+      this.cardFooterClass = 'single-unanswered';
+    } else {
+      this.cardFooterClass = '';
+    }
+  }
 
   loadQuestion(index: number) {
     const question = this.questions[index];

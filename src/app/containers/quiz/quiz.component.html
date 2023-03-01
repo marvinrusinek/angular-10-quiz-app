@@ -1,4 +1,4 @@
-<ng-container *ngIf="(questions$ | async) as questions">
+<ng-container *ngIf="questions$ | async as questions">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
@@ -13,9 +13,16 @@
         matTooltipPosition="left"
       />
       <div class="header-titles" *ngIf="selectedQuiz">
-        <mat-card-title i18n>{{ questions?.milestone || 'No questions found' }} Quiz</mat-card-title>
+        <mat-card-title i18n
+          >{{
+            questions?.milestone || 'No questions found'
+          }}
+          Quiz</mat-card-title
+        >
         <mat-card-subtitle i18n
-          >Assess your knowledge of {{ questions?.milestone || 'No questions found' }}</mat-card-subtitle>
+          >Assess your knowledge of
+          {{ questions?.milestone || 'No questions found' }}</mat-card-subtitle
+        >
       </div>
     </mat-card-header>
 
@@ -47,12 +54,7 @@
       </codelab-quiz-question>
     </mat-card-content>
 
-    <mat-card-footer
-      [ngClass]="{
-        'multiple-unanswered': multipleAnswer && !isAnswered(),
-        'single-unanswered': !multipleAnswer && !isAnswered()
-      }"
-    >
+    <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
       <ng-container [ngSwitch]="isAnswered()">
         <span *ngSwitchCase="false" i18n class="selection-message">
