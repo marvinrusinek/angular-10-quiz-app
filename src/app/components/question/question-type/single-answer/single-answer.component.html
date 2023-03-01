@@ -1,11 +1,7 @@
 <ng-container i18n>
   <div
     class="options"
-    *ngFor="
-      let option of currentQuestion?.options;
-      index as i;
-      trackBy: trackByFn
-    "
+    *ngFor="let option of currentQuestion?.options; index as i;"
   >
     <mat-radio-button
       id="option{{ i }}"
