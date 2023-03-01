@@ -41,10 +41,10 @@ export class MultipleAnswerComponent
   currentQuestion: QuizQuestion;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private quizService: QuizService
+    private quizService: QuizService,
+    private formBuilder: FormBuilder
   ) {
-    super();
+    super(quizService);
   }
 
   async ngOnInit() {
@@ -68,12 +68,6 @@ export class MultipleAnswerComponent
       this.answer.emit(null);
     }
   }
-
-  /* onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
-    question.options.forEach(
-      (option) => (option.selected = option === selectedOption)
-    );
-  } */
 
   onSelectionChange(question: QuizQuestion, option: Option) {
     if (!question.selectedOptions) {
