@@ -1,18 +1,12 @@
-<ng-container *ngIf="!isAnswered; else answered">
-  <div i18n>
-    {{ questionText }}&nbsp;
-    <span class="number-correct" *ngIf="numberOfCorrectAnswers > 1">
-      <em>({{ numberOfCorrectAnswers }} answers are correct.)</em>
-    </span>
-  </div>
-</ng-container>
-<ng-template #answered>
-  <div i18n>
-    {{
-      numberOfCorrectAnswers === 1
-        ? 'Option ' + correctOptions + ' was correct because '
-        : 'Options ' + correctOptions + ' were correct because '
-    }}
-    {{ explanationText }}.
-  </div>
-</ng-template>
+<div i18n>
+  {{ isAnswered ? 
+      (numberOfCorrectAnswers === 1 ? 
+        'Option ' + correctOptions + ' was correct because ' : 
+        'Options ' + correctOptions + ' were correct because ') 
+      + explanationText 
+      : 
+      questionText 
+      + ' ' 
+      + (numberOfCorrectAnswers > 1 ? '( ' + numberOfCorrectAnswers + ' answers are correct.)' : '') 
+  }}
+</div>
