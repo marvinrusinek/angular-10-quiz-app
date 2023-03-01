@@ -4,6 +4,7 @@
   <codelab-question-single-answer
     *ngSwitchCase="!multipleAnswer"
     [question]="question"
+    [currentQuestionIndex]="currentQuestionIndex"
     (answer)="updateSelectedOption(selectedOption, i)"
   >
   </codelab-question-single-answer>

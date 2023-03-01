@@ -21,6 +21,7 @@ import { Option } from '../../../../shared/models/Option.model';
 })
 export class SingleAnswerComponent extends QuizQuestionComponent {
   @Input() question: QuizQuestion;
+  @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
   @Input() selected: string;
   selectedOption: Option;
