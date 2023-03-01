@@ -15,6 +15,14 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
 
 type AnimationState = 'animationStarted' | 'none';
 
+interface SelectionParams {
+  status: string;
+  startedQuizId: number;
+  continueQuizId: number;
+  completedQuizId: number;
+  quizCompleted: boolean;
+}
+
 @Component({
   selector: 'codelab-quiz-selection',
   templateUrl: './quiz-selection.component.html',
@@ -27,7 +35,7 @@ export class QuizSelectionComponent implements OnInit {
   quizzes: Quiz[] = [];
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
-  selectionParams: object;
+  selectionParams: SelectionParams;
   selectedMilestone: string;
   @Output() milestoneSelected = new EventEmitter<string>();
   @Output() selectedMilestoneChanged: EventEmitter<string> =
@@ -39,15 +47,7 @@ export class QuizSelectionComponent implements OnInit {
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
     private router: Router
-  ) {
-    this.selectionParams = {
-      status: 'Started',
-      quizCompleted: false,
-      startedQuizId: 1,
-      continueQuizId: 2,
-      completedQuizId: 3,
-    };
-  }
+  ) {}
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -60,6 +60,14 @@ export class QuizSelectionComponent implements OnInit {
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
+
+    this.selectionParams = {
+      status: 'NotStarted',
+      startedQuizId: null,
+      continueQuizId: null,
+      completedQuizId: null,
+      quizCompleted: false, // Initialize the missing property here
+    };
   }
 
   onSelect(quizId) {
