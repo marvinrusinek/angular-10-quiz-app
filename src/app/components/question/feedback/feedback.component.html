@@ -1,25 +1,10 @@
-<ng-container *ngIf="selectedOption">
-  <section class="message">
-    <div [ngSwitch]="selectedOption.correct">
-      <i class="material-icons correct-icon" *ngSwitchCase="true"
-        >sentiment_very_satisfied</i
-      >
-      <i class="material-icons wrong-icon" *ngSwitchCase="false"
-        >sentiment_very_dissatisfied</i
-      >
-      <div
-        class="message-text"
-        [ngClass]="{
-          'correct-message': selectedOption.correct,
-          'wrong-message': !selectedOption.correct
-        }"
-      >
-        {{
-          selectedOption.correct
-            ? "You're right! " + correctMessage
-            : "That's wrong. " + correctMessage
-        }}
-      </div>
-    </div>
-  </section>
-</ng-container>
+<section class="message" *ngIf="selectedOption">
+  <div [ngClass]="{
+    'correct-message': selectedOption.correct,
+    'wrong-message': !selectedOption.correct
+  }">
+    <i class="material-icons correct-icon" *ngIf="selectedOption.correct">sentiment_very_satisfied</i>
+    <i class="material-icons wrong-icon" *ngIf="!selectedOption.correct">sentiment_very_dissatisfied</i>
+    {{ selectedOption.correct ? "You're right! " + correctMessage : "That's wrong. " + correctMessage }}
+  </div>
+</section>
