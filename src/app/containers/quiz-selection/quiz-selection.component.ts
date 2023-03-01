@@ -40,9 +40,15 @@ export class QuizSelectionComponent implements OnInit {
     quizCompleted: false,
     startedQuizId: '',
     continueQuizId: '',
-    completedQuizId: ''
+    completedQuizId: '',
   };
   defaultSelectionParams = this.selectionParams;
+
+  quizTileStyle = {
+    'background-repeat': 'no-repeat',
+    'background-position': 'center 10px',
+    'background-size': '300px 210px',
+  };
 
   constructor(
     private quizService: QuizService,

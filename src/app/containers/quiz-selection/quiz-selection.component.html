@@ -51,9 +51,9 @@
       (click)="onSelect(quiz.quizId)"
       loading="lazy"
       [ngStyle]="{
-        background: 'url(' + quiz.image + ') no-repeat center 10px',
-        'background-size': '300px 210px'
-      }"
+        'background-image': 'url(' + quiz.image + ')',
+        ...quizTileStyle
+      }
     >
       <summary class="quiz-info">
         <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
