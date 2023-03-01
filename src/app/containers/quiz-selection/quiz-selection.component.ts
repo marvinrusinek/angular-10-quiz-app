@@ -39,7 +39,15 @@ export class QuizSelectionComponent implements OnInit {
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
     private router: Router
-  ) {}
+  ) {
+    this.selectionParams = {
+      status: 'Started',
+      quizCompleted: false,
+      startedQuizId: 1,
+      continueQuizId: 2,
+      completedQuizId: 3,
+    };
+  }
 
   ngOnInit(): void {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -70,6 +78,82 @@ export class QuizSelectionComponent implements OnInit {
 
   selectQuiz(quiz: Quiz) {
     this.selectedQuiz = quiz;
+  }
+
+  getLinkClass(quiz: Quiz) {
+    const classes = ['status-link'];
+    switch (quiz.status) {
+      case 'Started':
+        if (
+          !this.selectionParams.quizCompleted ||
+          quiz.quizId === this.selectionParams.startedQuizId
+        ) {
+          classes.push('link');
+        }
+        break;
+      case 'Continue':
+        if (quiz.quizId === this.selectionParams.continueQuizId) {
+          classes.push('link');
+        }
+        break;
+      case 'Completed':
+        if (quiz.quizId === this.selectionParams.completedQuizId) {
+          classes.push('link');
+        }
+        break;
+    }
+    return classes;
+  }
+
+  getLinkName(quiz: Quiz) {
+    return quiz.status.toLowerCase();
+  }
+
+  getTooltip(quiz: Quiz) {
+    switch (quiz.status) {
+      case 'Started':
+        return 'Start';
+      case 'Continue':
+        return 'Continue';
+      case 'Completed':
+        return 'Completed';
+    }
+  }
+
+  shouldShowLink(quiz: Quiz) {
+    switch (quiz.status) {
+      case 'Started':
+        return (
+          !this.selectionParams.quizCompleted ||
+          quiz.quizId === this.selectionParams.startedQuizId
+        );
+      case 'Continue':
+        return quiz.quizId === this.selectionParams.continueQuizId;
+      case 'Completed':
+        return quiz.quizId === this.selectionParams.completedQuizId;
+    }
+  }
+
+  getLinkRouterLink(quiz: Quiz) {
+    switch (quiz.status) {
+      case 'Started':
+        return ['/intro/', quiz.quizId];
+      case 'Continue':
+        return ['/question/', quiz.quizId, this.currentQuestionIndex];
+      case 'Completed':
+        return ['/results/', quiz.quizId];
+    }
+  }
+
+  getIconClass(quiz: Quiz) {
+    switch (quiz.status) {
+      case 'Started':
+        return 'material-icons start-icon';
+      case 'Continue':
+        return 'material-icons continue-icon';
+      case 'Completed':
+        return 'material-icons completed-icon';
+    }
   }
 
   animationDoneHandler(): void {
