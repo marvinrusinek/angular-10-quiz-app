@@ -246,15 +246,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getPreviousQuestion(): QuizQuestion {
-    const currentQuiz = this.getCurrentQuiz();
-    const previousIndex = this.currentQuestionIndex - 2;
-    if (currentQuiz && currentQuiz.questions && previousIndex >= 0) {
-      this.currentQuestionIndex--;
-      return currentQuiz.questions[previousIndex];
-    }
-  }
-
   getCurrentQuestion(): QuizQuestion {
     const currentQuestionIndex = this.currentQuestionIndex;
     if (
@@ -264,7 +255,16 @@ export class QuizService implements OnDestroy {
     ) {
       return this.questions[currentQuestionIndex];
     } else {
-      return null;
+       return null;
+    }
+  }
+
+  getPreviousQuestion(): QuizQuestion {
+    const currentQuiz = this.getCurrentQuiz();
+    const previousIndex = this.currentQuestionIndex - 2;
+    if (currentQuiz && currentQuiz.questions && previousIndex >= 0) {
+      this.currentQuestionIndex--;
+      return currentQuiz.questions[previousIndex];
     }
   }
 
