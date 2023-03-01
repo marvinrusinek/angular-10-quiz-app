@@ -98,6 +98,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.quizService.getQuiz(this.quizId).subscribe(quiz => {
+      if (!quiz) {
+        console.error('Selected quiz is null or undefined');
+        return;
+      }
+      this.selectedQuiz = quiz;
+      console.log('selected quiz: ', this.selectedQuiz);
+    });
+  }
+
+  /* async ngOnInit(): Promise<void> {
     if (!this.selectedQuiz) {
       console.error('Selected quiz is null or undefined');
       return;
@@ -109,7 +121,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.questions?.length > 0) {
       this.currentQuestion = this.questions[0];
     }
-  }
+  } */
 
   loadQuestion(index: number) {
     const question = this.questions[index];

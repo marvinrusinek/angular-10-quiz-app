@@ -179,6 +179,12 @@ export class QuizService implements OnDestroy {
   }
 
   getQuiz(quizId: string): Observable<Quiz> {
+    return this.quizzes$.pipe(
+      map(quizzes => quizzes ? quizzes.find(quiz => quiz.quizId === quizId) : undefined)
+    );
+  }
+
+  /* getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return of(null);
@@ -190,7 +196,7 @@ export class QuizService implements OnDestroy {
       console.error('Quiz not found for ID: ', quizId);
       return of(null);
     }
-  }
+  } */
 
   getQuestions(): Observable<QuizQuestion[]> {
     return of(this.quizData);
