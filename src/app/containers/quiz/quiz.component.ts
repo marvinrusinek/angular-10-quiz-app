@@ -10,16 +10,14 @@ import {
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { map, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 
-import { QUIZ_DATA } from '../../shared/quiz';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
-import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -39,6 +37,10 @@ enum Status {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizComponent implements OnInit, OnDestroy {
+  @Output() optionSelected = new EventEmitter<Option>();
+  @Input() form: FormGroup;
+  @Input() milestone: string;
+  quiz: Quiz;
   quiz$: Observable<Quiz>;
   quizData: Quiz[];
   quizResources: QuizResource[];
@@ -51,26 +53,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   milestoneQuestions$: Observable<QuizQuestion[]>;
   resources: Resource[];
   answers: number[] = [];
-  @Output() optionSelected = new EventEmitter<Option>();
+
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
-  @Input() form: FormGroup;
-  quiz: Quiz;
-  @Input() milestone: string;
   selectedMilestone: string;
   selectedQuiz: Quiz[];
   isDisabled: boolean;
 
-  /* @Input() set milestone(value: any) {
-    if (typeof value !== 'string') {
-      console.error('Milestone should be of type string');
-      return;
-    }
-    this._milestone = value;
-  }
-  
-  private _milestone: string; */
   currentQuestionIndex = 0;
   totalQuestions = 0;
   questionIndex: number;
@@ -102,7 +92,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   constructor(
     private quizService: QuizService,
-    private selectedMilestoneService: SelectedMilestoneService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
