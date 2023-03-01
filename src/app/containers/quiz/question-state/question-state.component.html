@@ -1,12 +1,14 @@
 <div i18n>
-  {{ isAnswered ? 
-      (numberOfCorrectAnswers === 1 ? 
-        'Option ' + correctOptions + ' was correct because ' : 
-        'Options ' + correctOptions + ' were correct because ') 
-      + explanationText 
-      : 
-      questionText 
-      + ' ' 
-      + (numberOfCorrectAnswers > 1 ? '( ' + numberOfCorrectAnswers + ' answers are correct.)' : '') 
+  {{
+    isAnswered
+      ? (numberOfCorrectAnswers === 1
+          ? 'Option ' + correctOptions + ' was correct because '
+          : 'Options ' + correctOptions + ' were correct because ') +
+        explanationText
+      : questionText +
+        ' ' +
+        (numberOfCorrectAnswers > 1
+          ? '( ' + numberOfCorrectAnswers + ' answers are correct.)'
+          : '')
   }}
 </div>
