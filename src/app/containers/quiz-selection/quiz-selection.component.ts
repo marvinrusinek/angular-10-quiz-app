@@ -10,18 +10,11 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 
 type AnimationState = 'animationStarted' | 'none';
-
-interface QuizSelectionParams {
-  status: string;
-  startedQuizId: string;
-  continueQuizId: string;
-  completedQuizId: string;
-  quizCompleted: boolean;
-}
 
 @Component({
   selector: 'codelab-quiz-selection',
