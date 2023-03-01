@@ -10,10 +10,7 @@
         correct: selectedOption === option && option.correct,
         incorrect: selectedOption === option && !option.correct
       }"
-      [checked]="
-        currentQuestion.selectedOptions &&
-        currentQuestion.selectedOptions.indexOf(option) !== -1
-      "
+      [checked]="optionChecked[option.id]"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>

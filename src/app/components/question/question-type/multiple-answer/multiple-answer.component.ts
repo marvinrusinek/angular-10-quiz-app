@@ -36,15 +36,22 @@ export class MultipleAnswerComponent
   @Input() correctMessage: string;
   @Input() selected: string;
   @Input() correctAnswers: number[];
-  selectedOption: Option = { text: '', correct: false, value: null } as Option;
   form: FormGroup;
   currentQuestion: QuizQuestion;
+  selectedOption: Option = { text: '', correct: false, value: null } as Option;
+  optionChecked: { [optionId: number]: boolean } = {};
 
   constructor(
     private quizService: QuizService,
     private formBuilder: FormBuilder
   ) {
     super(quizService);
+
+    this.options.forEach((option) => {
+      this.optionChecked[option.id] =
+        this.currentQuestion.selectedOptions &&
+        this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+    });
   }
 
   async ngOnInit() {
