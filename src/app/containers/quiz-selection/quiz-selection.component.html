@@ -50,10 +50,7 @@
       (@slideLeftToRight.done)="animationDoneHandler()"
       (click)="onSelect(quiz.quizId)"
       loading="lazy"
-      [ngStyle]="{
-        'background-image': 'url(' + quiz.image + ')',
-        ...quizTileStyle
-      }
+      [ngStyle]="{ 'background-image': 'url(' + quiz.image + ')', ...otherQuizStyleInfo }"
     >
       <summary class="quiz-info">
         <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
