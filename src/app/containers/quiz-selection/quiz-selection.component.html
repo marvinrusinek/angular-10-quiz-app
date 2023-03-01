@@ -61,16 +61,18 @@
       </summary>
 
       <div class="status-icon">
-        <ng-container *ngFor="let quiz of quizzes">
-          <span [ngClass]="getLinkClass(quiz)" [matTooltip]="getTooltip(quiz)">
-            <a
-              *ngIf="shouldShowLink(quiz)"
-              [routerLink]="getLinkRouterLink(quiz)"
-            >
-              <i [ngClass]="getIconClass(quiz)"></i>
-            </a>
-          </span>
-        </ng-container>
+        <span
+          *ngFor="let quiz of quizzes"
+          [ngClass]="getLinkClass(quiz)"
+          [matTooltip]="getTooltip(quiz)"
+        >
+          <a
+            *ngIf="shouldShowLink(quiz)"
+            [routerLink]="getLinkRouterLink(quiz)"
+          >
+            <i [ngClass]="getIconClass(quiz)"></i>
+          </a>
+        </span>
       </div>
     </div>
   </div>
