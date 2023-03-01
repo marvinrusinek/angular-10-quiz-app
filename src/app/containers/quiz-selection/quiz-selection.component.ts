@@ -40,7 +40,7 @@ export class QuizSelectionComponent implements OnInit {
     quizCompleted: false,
     startedQuizId: '',
     continueQuizId: '',
-    completedQuizId: '',
+    completedQuizId: ''
   };
   defaultSelectionParams = this.selectionParams;
 
