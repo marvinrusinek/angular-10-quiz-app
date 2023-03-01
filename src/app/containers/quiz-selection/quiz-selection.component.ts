@@ -15,11 +15,11 @@ import { SelectedMilestoneService } from '../../shared/services/selected-milesto
 
 type AnimationState = 'animationStarted' | 'none';
 
-interface SelectionParams {
+interface QuizSelectionParams {
   status: string;
-  startedQuizId: number;
-  continueQuizId: number;
-  completedQuizId: number;
+  startedQuizId: string;
+  continueQuizId: string;
+  completedQuizId: string;
   quizCompleted: boolean;
 }
 
@@ -35,13 +35,21 @@ export class QuizSelectionComponent implements OnInit {
   quizzes: Quiz[] = [];
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
-  selectionParams: SelectionParams;
   selectedMilestone: string;
   @Output() milestoneSelected = new EventEmitter<string>();
   @Output() selectedMilestoneChanged: EventEmitter<string> =
     new EventEmitter<string>();
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
+
+  selectionParams: QuizSelectionParams = {
+    status: '',
+    quizCompleted: false,
+    startedQuizId: '',
+    continueQuizId: '',
+    completedQuizId: '',
+  };
+  defaultSelectionParams = this.selectionParams;
 
   constructor(
     private quizService: QuizService,
@@ -60,14 +68,6 @@ export class QuizSelectionComponent implements OnInit {
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
-
-    this.selectionParams = {
-      status: 'NotStarted',
-      startedQuizId: null,
-      continueQuizId: null,
-      completedQuizId: null,
-      quizCompleted: false, // Initialize the missing property here
-    };
   }
 
   onSelect(quizId) {
