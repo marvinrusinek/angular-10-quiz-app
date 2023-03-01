@@ -44,11 +44,15 @@ export class QuizSelectionComponent implements OnInit {
   };
   defaultSelectionParams = this.selectionParams;
 
-  otherQuizStyleInfo = {
+  public quizTileStyle = {
     'background-repeat': 'no-repeat',
     'background-position': 'center 10px',
     'background-size': '300px 210px',
   };
+
+  public get quizTileStyles() {
+    return { ...this.quizTileStyle };
+  }
 
   constructor(
     private quizService: QuizService,
