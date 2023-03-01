@@ -61,53 +61,10 @@
       </summary>
 
       <div class="status-icon">
-        <ng-container [ngSwitch]="selectionParams.status">
-          <span
-            *ngSwitchCase="'Started'"
-            [ngClass]="{
-              link:
-                !selectionParams.quizCompleted ||
-                quiz.quizId === selectionParams.startedQuizId
-            }"
-            name="start"
-            matTooltip="Start"
-          >
-            <a
-              *ngIf="
-                !selectionParams.quizCompleted ||
-                quiz.quizId === selectionParams.startedQuizId
-              "
-              [routerLink]="['/intro/', quiz.quizId]"
-            >
-              <i class="material-icons">play_arrow</i>
-            </a>
-          </span>
-          <span
-            *ngSwitchCase="'Continue'"
-            [ngClass]="{ link: quiz.quizId === selectionParams.continueQuizId }"
-            name="continue"
-            matTooltip="Continue"
-          >
-            <a
-              *ngIf="quiz.quizId === selectionParams.continueQuizId"
-              [routerLink]="['/question/', quiz.quizId, currentQuestionIndex]"
-            >
-              <i class="material-icons">play_arrow</i>
-            </a>
-          </span>
-          <span
-            *ngSwitchCase="'Completed'"
-            [ngClass]="{
-              link: quiz.quizId === selectionParams.completedQuizId
-            }"
-            name="completed"
-            matTooltip="Completed"
-          >
-            <a
-              *ngIf="quiz.quizId === selectionParams.completedQuizId"
-              [routerLink]="['/results/', quiz.quizId]"
-            >
-              <i class="material-icons">done_all</i>
+        <ng-container *ngFor="let quiz of quizzes">
+          <span [ngClass]="getLinkClass(quiz)" name="{{ getLinkName(quiz) }}" [matTooltip]="getTooltip(quiz)">
+            <a *ngIf="shouldShowLink(quiz)" [routerLink]="getLinkRouterLink(quiz)">
+              <i [ngClass]="getIconClass(quiz)"></i>
             </a>
           </span>
         </ng-container>
