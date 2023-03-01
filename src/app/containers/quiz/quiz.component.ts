@@ -38,6 +38,7 @@ enum Status {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
+  @Input() selectedQuiz: Quiz;
   @Input() form: FormGroup;
   @Input() milestone: string;
   quiz: Quiz;
