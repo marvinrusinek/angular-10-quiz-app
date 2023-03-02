@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -31,6 +32,7 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   quizzes: Quiz[] = [];
+  quiz: Quiz;
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
   selectedMilestone: string;
@@ -51,12 +53,20 @@ export class QuizSelectionComponent implements OnInit {
 
   @ViewChild('quizTile') quizTile: ElementRef;
 
+  quizTileStyles = {
+    'background-image': 'url(' + quiz.image + ')',
+    'background-repeat': 'no-repeat',
+    'background-position': 'center 10px',
+    'background-size': '300px 210px'
+  };
+
   constructor(
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
     private router: Router,
     private renderer: Renderer2,
-    private http: HttpClient
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {
     this.quizzes$ = this.quizService.getQuizzes();
   }
@@ -82,7 +92,7 @@ export class QuizSelectionComponent implements OnInit {
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
 
-    this.quizzes$.subscribe(quizzes => {
+    /* this.quizzes$.subscribe(quizzes => {
       quizzes.forEach(quiz => {
         this.renderer.setStyle(
           this.quizTile.nativeElement,
@@ -95,7 +105,18 @@ export class QuizSelectionComponent implements OnInit {
           '300px 210px'
         );
       });
-    });
+    }); */
+  }
+
+  getQuizTileStyle(quiz: Quiz) {
+    const backgroundImage = 'url(./assets/data/' + quiz.image + ')';
+    const style = `
+      background-image: ${backgroundImage};
+      background-repeat: no-repeat;
+      background-position: center 10px;
+      background-size: 300px 210px;
+    `;
+    return this.sanitizer.bypassSecurityTrustStyle(style);
   }
 
   ngAfterViewInit(): void {
