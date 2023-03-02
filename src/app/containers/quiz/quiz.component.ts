@@ -100,7 +100,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    const quiz = await this.quizService.getQuiz(this.quizId);
+    const quiz = await this.quizService.getQuiz(this.quizId).toPromise();
     if (!quiz) {
       console.error('Selected quiz is null or undefined');
       return;
@@ -108,20 +108,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz = quiz;
     console.log('selected quiz: ', this.selectedQuiz);
   }
-
-  /* async ngOnInit(): Promise<void> {
-    if (!this.selectedQuiz) {
-      console.error('Selected quiz is null or undefined');
-      return;
-    }
-    
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.questions = await this.quizService.getQuestionsForQuiz(this.quizId).toPromise();
-    
-    if (this.questions?.length > 0) {
-      this.currentQuestion = this.questions[0];
-    }
-  } */
 
   updateCardFooterClass() {
     if (this.multipleAnswer && !this.isAnswered()) {
@@ -151,51 +137,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* loadQuiz(quizId: string, milestone: string) {
-    this.quizService.getQuizById(quizId, milestone).subscribe((quiz) => {
-      this.quiz = quiz;
-      if (this.quiz && this.quiz.questions) {
-        this.questions = this.quiz.questions.filter(
-          (q) => q.milestone === milestone
-        );
-      }
-    });
-  } */
-
   loadQuiz(index: number): void {
     this.currentQuestionIndex = index;
     console.log('questions:::', this.questions);
     this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
   }
 
-  /* async loadQuiz() {
-    try {
-      const data = await this.quizService.getQuiz(this.quizId);
-      this.quiz = data.quiz;
-      this.questions = this.quiz.questions;
-      // this.currentQuestion = this.questions[0];
-      this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
-    } catch (error) {
-      console.error(error);
-    }
-  } */
-
-  /* loadQuiz(milestone: string) {
-    this.quizService.http
-      .get<QuizQuestion[]>('assets/data/quiz.json')
-      .subscribe((data: QuizQuestion[]) => {
-        this.questions = data;
-        this.milestoneQuestions = this.questions.filter(
-          (q) => q.milestone === milestone
-        );
-      });
-  } */
-
   startQuiz() {
     console.log('questions:::', this.questions);
 
     if (!this.quiz || !this.quiz.milestone) {
-      console.log('Milestone is undefined or null!!!');
+      console.log('Milestone is undefined or null!');
       return;
     }
 
@@ -203,38 +155,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.quizStarted = true;
     this.quizService.loadQuestions();
   }
-
-  /* startQuiz() {
-    console.log('SM::', this.selectedMilestone);
-    this.quizService.getMilestoneQuestions(this.selectedMilestone).subscribe(
-      (data) => {
-        this.quizService.questions = data;
-        console.log('Questions in start quiz:', this.quizService.questions);
-        // filter questions by selected milestone and assign to new property
-        this.milestoneQuestions = this.quizService.questions.filter(
-          (q: any) => q.milestone === this.selectedMilestone
-        );
-        console.log('Milestone questions:', this.milestoneQuestions);
-        this.milestoneQuestions$ = of(this.milestoneQuestions);
-        console.log('milestoneQuestions$', this.milestoneQuestions$);
-        this.quizService.quizStarted = true;
-        this.quizService.currentQuestionIndex = 0;
-        this.correctCount = 0;
-        this.quizService.quizLength = this.milestoneQuestions.length;
-        this.quizService.quizStartTime = new Date();
-        this.quizService.currentQuestion =
-          this.milestoneQuestions[this.quizService.currentQuestionIndex];
-        this.router.navigate([
-          '/question',
-          this.selectedMilestone,
-          this.quizService.currentQuestionIndex,
-        ]);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-  } */
 
   onMilestoneSelected(milestone: string) {
     this.selectedMilestone = milestone;

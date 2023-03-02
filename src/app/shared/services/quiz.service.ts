@@ -184,20 +184,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined');
-      return of(null);
-    }
-    const quiz = this.quizzes.find((q) => q.quizId === quizId);
-    if (quiz) {
-      return of(quiz);
-    } else {
-      console.error('Quiz not found for ID: ', quizId);
-      return of(null);
-    }
-  } */
-
   getQuestions(): Observable<QuizQuestion[]> {
     return of(this.quizData);
   }
