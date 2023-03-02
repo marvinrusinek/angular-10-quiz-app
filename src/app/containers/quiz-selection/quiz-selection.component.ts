@@ -31,7 +31,6 @@ type AnimationState = 'animationStarted' | 'none';
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
   quizzes: Quiz[] = [];
-  quiz: Quiz;
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
   selectedMilestone: string;
@@ -87,6 +86,13 @@ export class QuizSelectionComponent implements OnInit {
 
   selectQuiz(quiz: Quiz) {
     this.selectedQuiz = quiz;
+  }
+
+  getQuizTileStyles(quiz: Quiz) {
+    return {
+      'background': 'url(' + quiz.image + ') no-repeat center 10px',
+      'background-size': '300px 210px'
+    };
   }
 
   getLinkClass(quiz: Quiz) {

@@ -49,10 +49,7 @@
       [@slideLeftToRight]="animationState$ | async"
       (@slideLeftToRight.done)="animationDoneHandler()"
       (click)="onSelect(quiz.quizId)"
-      [ngStyle]="{
-        background: 'url(' + quiz.image + ') no-repeat center 10px',
-        'background-size': '300px 210px'
-      }"
+      [ngStyle]="getQuizTileStyles(quiz)"
       loading="lazy"
     >
       <summary class="quiz-info">
