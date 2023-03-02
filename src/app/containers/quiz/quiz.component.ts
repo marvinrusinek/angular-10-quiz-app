@@ -109,7 +109,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('selected quiz: ', this.selectedQuiz);
   }
 
-  updateCardFooterClass() {
+  updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
       this.cardFooterClass = 'multiple-unanswered';
     } else if (!this.multipleAnswer && !this.isAnswered()) {
