@@ -75,7 +75,7 @@
         <mat-card-actions
           [class.last-question]="questionIndex === totalQuestions"
         >
-          <div class="prev-question-nav" [hidden]="questionIndex <= 1">
+          <div class="prev-question-nav" [hidden]="shouldHidePrevQuestionNav()">
             <button
               type="button"
               mat-icon-button
@@ -89,10 +89,7 @@
             </button>
           </div>
 
-          <div
-            class="restart-nav"
-            [hidden]="questionIndex <= 1 || questionIndex >= totalQuestions"
-          >
+          <div class="restart-nav" [hidden]="shouldHideRestartNav()">
             <button
               type="button"
               mat-icon-button
@@ -107,7 +104,7 @@
 
           <div
             class="next-question-nav"
-            [hidden]="questionIndex >= totalQuestions"
+            [hidden]="shouldHideNextQuestionNav()"
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
