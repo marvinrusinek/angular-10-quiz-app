@@ -399,6 +399,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  shouldApplyLastQuestionClass(): boolean {
+    return this.questionIndex === this.totalQuestions;
+  }
+
   shouldHidePrevQuestionNav(): boolean {
     return this.questionIndex <= 1;
   }
