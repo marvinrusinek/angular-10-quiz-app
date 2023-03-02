@@ -44,13 +44,12 @@
 
   <div class="quiz-grid">
     <div
-      class="quiz-tile"
+      class="quiz-tile" #quizTile
       *ngFor="let quiz of quizzes$ | async"
       [@slideLeftToRight]="animationState$ | async"
       (@slideLeftToRight.done)="animationDoneHandler()"
       (click)="onSelect(quiz.quizId)"
       loading="lazy"
-      [ngStyle]="{ 'background-image': 'url(' + quiz.image + ')', ...quizTileStyles }"
     >
       >
       <summary class="quiz-info">

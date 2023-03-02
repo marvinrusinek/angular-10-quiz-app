@@ -1,9 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   EventEmitter,
   OnInit,
-  Output,
+  Output, 
+  Renderer2,
+  ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
@@ -44,20 +47,13 @@ export class QuizSelectionComponent implements OnInit {
   };
   defaultSelectionParams = this.selectionParams;
 
-  public quizTileStyle = {
-    'background-repeat': 'no-repeat',
-    'background-position': 'center 10px',
-    'background-size': '300px 210px',
-  };
-
-  public get quizTileStyles() {
-    return { ...this.quizTileStyle };
-  }
+  @ViewChild('quizTile') quizTile: ElementRef;
 
   constructor(
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
-    private router: Router
+    private router: Router,
+    private renderer: Renderer2
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +67,26 @@ export class QuizSelectionComponent implements OnInit {
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
+
+    this.quizzes$.subscribe(quizzes => {
+      quizzes.forEach(quiz => {
+        this.renderer.setStyle(
+          this.quizTile.nativeElement,
+          'background',
+          `url(${quiz.image}) no-repeat center 10px`
+        );
+        this.renderer.setStyle(
+          this.quizTile.nativeElement,
+          'background-size',
+          '300px 210px'
+        );
+      });
+    });
+  }
+
+  ngAfterViewInit() {
+    console.log('quizTile', this.quizTile);
+    this.renderer.setStyle(this.quizTile.nativeElement, 'background-image', `url(${this.quiz.image})`);
   }
 
   onSelect(quizId) {
