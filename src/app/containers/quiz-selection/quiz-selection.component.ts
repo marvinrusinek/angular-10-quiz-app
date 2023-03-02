@@ -74,15 +74,6 @@ export class QuizSelectionComponent implements OnInit {
   ngOnInit(): void {
     // this.quizzes$ = this.quizService.getQuizzes();
 
-    this.quizzes$ = this.http.get<any[]>('assets/data/quiz.json').pipe(
-      map(quizzes =>
-        quizzes.map(quiz => ({
-          ...quiz,
-          image: `assets/images/${quiz.image}`
-        }))
-      )
-    );
-
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
@@ -92,42 +83,21 @@ export class QuizSelectionComponent implements OnInit {
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
 
-    /* this.quizzes$.subscribe(quizzes => {
+    this.quizzes$ = this.http.get<any[]>('assets/data/quiz.json').pipe(
+      map(quizzes =>
+        quizzes.map(quiz => ({
+          ...quiz,
+          image: `assets/images/${quiz.image}`
+        }))
+      )
+    );
+  
+    this.quizzes$.subscribe(quizzes => {
       quizzes.forEach(quiz => {
-        this.renderer.setStyle(
-          this.quizTile.nativeElement,
-          'background',
-          `url(${quiz.image}) no-repeat center 10px`
-        );
-        this.renderer.setStyle(
-          this.quizTile.nativeElement,
-          'background-size',
-          '300px 210px'
-        );
-      });
-    }); */
-  }
-
-  getQuizTileStyle(quiz: Quiz) {
-    const backgroundImage = 'url(./assets/data/' + quiz.image + ')';
-    const style = `
-      background-image: ${backgroundImage};
-      background-repeat: no-repeat;
-      background-position: center 10px;
-      background-size: 300px 210px;
-    `;
-    return this.sanitizer.bypassSecurityTrustStyle(style);
-  }
-
-  ngAfterViewInit(): void {
-    this.quizzes$.subscribe((quizzes) => {
-      quizzes.forEach((quiz, index) => {
-        const element = this.quizTile.nativeElement.children[index];
-        const style = element.style;
-        style.backgroundImage = `url(${quiz.image})`;
-        style.backgroundRepeat = 'no-repeat';
-        style.backgroundPosition = 'center 10px';
-        style.backgroundSize = '300px 210px';
+        const div = this.renderer.createElement('div');
+        div.style.backgroundImage = `url(${quiz.image})`;
+        div.className = 'quiz-tile';
+        this.renderer.appendChild(this.quizContainer.nativeElement, div);
       });
     });
   }
