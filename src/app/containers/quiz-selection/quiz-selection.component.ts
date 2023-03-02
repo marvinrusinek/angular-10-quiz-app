@@ -95,7 +95,7 @@ export class QuizSelectionComponent implements OnInit {
     };
   }
 
-  getLinkClass(quiz: Quiz) {
+  getLinkClass(quiz: Quiz): void {
     const classes = ['status-link'];
     switch (quiz.status) {
       case 'Started':
@@ -120,11 +120,11 @@ export class QuizSelectionComponent implements OnInit {
     return classes;
   }
 
-  getLinkName(quiz: Quiz) {
+  getLinkName(quiz: Quiz): string {
     return quiz.status.toLowerCase();
   }
 
-  getTooltip(quiz: Quiz) {
+  getTooltip(quiz: Quiz): string {
     switch (quiz.status) {
       case 'Started':
         return 'Start';
@@ -135,7 +135,7 @@ export class QuizSelectionComponent implements OnInit {
     }
   }
 
-  shouldShowLink(quiz: Quiz) {
+  shouldShowLink(quiz: Quiz): boolean {
     switch (quiz.status) {
       case 'Started':
         return (
