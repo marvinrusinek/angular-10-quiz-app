@@ -423,6 +423,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.question && this.questionIndex > 1;
   }
 
+  shouldDisableButton(): boolean {
+    return !this.formControl || this.formControl.valid === false;
+  }
+
   /************************ paging functions *********************/
   advanceToNextQuestion() {
     if (this.form.valid) {

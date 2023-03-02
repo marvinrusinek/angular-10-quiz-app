@@ -111,7 +111,7 @@
             <button
               type="button"
               mat-icon-button
-              [disabled]="!formControl || formControl.valid === false"
+              [disabled]="shouldDisableButton()"
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
