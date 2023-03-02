@@ -5,7 +5,6 @@ import {
   EventEmitter,
   OnInit,
   Output, 
-  Renderer2,
   ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -51,22 +50,10 @@ export class QuizSelectionComponent implements OnInit {
   };
   defaultSelectionParams = this.selectionParams;
 
-  @ViewChild('quizTile') quizTile: ElementRef;
-
-  quizTileStyles = {
-    'background-image': 'url(' + quiz.image + ')',
-    'background-repeat': 'no-repeat',
-    'background-position': 'center 10px',
-    'background-size': '300px 210px'
-  };
-
   constructor(
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
-    private router: Router,
-    private renderer: Renderer2,
-    private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private router: Router
   ) {
     this.quizzes$ = this.quizService.getQuizzes();
   }
@@ -82,24 +69,6 @@ export class QuizSelectionComponent implements OnInit {
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
-
-    this.quizzes$ = this.http.get<any[]>('assets/data/quiz.json').pipe(
-      map(quizzes =>
-        quizzes.map(quiz => ({
-          ...quiz,
-          image: `assets/images/${quiz.image}`
-        }))
-      )
-    );
-  
-    this.quizzes$.subscribe(quizzes => {
-      quizzes.forEach(quiz => {
-        const div = this.renderer.createElement('div');
-        div.style.backgroundImage = `url(${quiz.image})`;
-        div.className = 'quiz-tile';
-        this.renderer.appendChild(this.quizContainer.nativeElement, div);
-      });
-    });
   }
 
   onSelect(quizId) {
