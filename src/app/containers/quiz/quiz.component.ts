@@ -415,6 +415,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.questionIndex >= this.totalQuestions;
   }
 
+  shouldHideShowScoreNav(): boolean {
+    return this.questionIndex !== this.totalQuestions;
+  }
+
   /************************ paging functions *********************/
   advanceToNextQuestion() {
     if (this.form.valid) {

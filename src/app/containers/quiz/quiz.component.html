@@ -121,7 +121,7 @@
             </button>
           </div>
 
-          <div class="show-score-nav" *ngIf="questionIndex === totalQuestions">
+          <div class="show-score-nav" *ngIf="shouldHideShowScoreNav()">
             <button
               type="submit"
               mat-raised-button
