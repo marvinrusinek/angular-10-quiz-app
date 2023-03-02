@@ -406,17 +406,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   shouldHidePrevQuestionNav(): boolean {
     return this.questionIndex <= 1;
   }
-  
+
   shouldHideRestartNav(): boolean {
     return this.questionIndex <= 1 || this.questionIndex >= this.totalQuestions;
   }
-  
+
   shouldHideNextQuestionNav(): boolean {
     return this.questionIndex >= this.totalQuestions;
   }
 
   shouldHideShowScoreNav(): boolean {
     return this.questionIndex !== this.totalQuestions;
+  }
+
+  shouldHideProgressBar(): boolean {
+    return this.question && this.questionIndex > 1;
   }
 
   /************************ paging functions *********************/

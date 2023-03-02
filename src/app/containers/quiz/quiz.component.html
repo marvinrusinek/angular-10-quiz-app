@@ -141,7 +141,7 @@
       </section>
 
       <!-- progress bar -->
-      <section class="progress-bar" *ngIf="question && questionIndex > 1">
+      <section class="progress-bar" *ngIf="shouldHideProgressBar()">
         <ngb-progressbar
           max="100"
           type="success"
