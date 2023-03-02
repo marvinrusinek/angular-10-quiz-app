@@ -9,7 +9,9 @@ import {
   ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -53,11 +55,23 @@ export class QuizSelectionComponent implements OnInit {
     private quizService: QuizService,
     private selectedMilestoneService: SelectedMilestoneService,
     private router: Router,
-    private renderer: Renderer2
-  ) {}
+    private renderer: Renderer2,
+    private http: HttpClient
+  ) {
+    this.quizzes$ = this.quizService.getQuizzes();
+  }
 
   ngOnInit(): void {
-    this.quizzes$ = this.quizService.getQuizzes();
+    // this.quizzes$ = this.quizService.getQuizzes();
+
+    this.quizzes$ = this.http.get<any[]>('assets/data/quiz.json').pipe(
+      map(quizzes =>
+        quizzes.map(quiz => ({
+          ...quiz,
+          image: `assets/images/${quiz.image}`
+        }))
+      )
+    );
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
@@ -84,9 +98,17 @@ export class QuizSelectionComponent implements OnInit {
     });
   }
 
-  ngAfterViewInit() {
-    console.log('quizTile', this.quizTile);
-    this.renderer.setStyle(this.quizTile.nativeElement, 'background-image', `url(${this.quiz.image})`);
+  ngAfterViewInit(): void {
+    this.quizzes$.subscribe((quizzes) => {
+      quizzes.forEach((quiz, index) => {
+        const element = this.quizTile.nativeElement.children[index];
+        const style = element.style;
+        style.backgroundImage = `url(${quiz.image})`;
+        style.backgroundRepeat = 'no-repeat';
+        style.backgroundPosition = 'center 10px';
+        style.backgroundSize = '300px 210px';
+      });
+    });
   }
 
   onSelect(quizId) {
