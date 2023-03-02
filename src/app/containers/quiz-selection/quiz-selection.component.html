@@ -49,7 +49,7 @@
       [@slideLeftToRight]="animationState$ | async"
       (@slideLeftToRight.done)="animationDoneHandler()"
       (click)="onSelect(quiz.quizId)"
-      [style]="getQuizTileStyle(quiz)"
+      [style.background-image]="'url(' + quiz.image + ')'"
       loading="lazy"
     >
       <summary class="quiz-info">
