@@ -55,6 +55,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   resources: Resource[];
   answers: number[] = [];
 
+  selectedQuiz: Quiz = null;
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
@@ -111,7 +112,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('quizId:', this.quizId);
-    this.quizService.getQuizById(this.quizId).subscribe(quiz => {
+    this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
       console.log('quiz:', quiz);
       if (!quiz) {
         console.error('Selected quiz is null or undefined');

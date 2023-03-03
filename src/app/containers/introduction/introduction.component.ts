@@ -87,7 +87,6 @@ export class IntroductionComponent implements OnInit {
   onStartQuiz() {
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
-      this.quizSelection.quizId = selectedQuiz.quizId; // set quizId property
       this.quizService.setSelectedQuiz(selectedQuiz);
       this.router.navigate(['/question/', selectedQuiz.quizId, 1]);
     } else {
