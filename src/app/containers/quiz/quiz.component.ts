@@ -18,6 +18,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { QuizDataService } from '../../shared/services/quizdata.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -93,15 +94,20 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.quizService.getSelectedQuiz().subscribe((quiz) => (this.selectedQuiz = quiz));
+    this.quizService
+      .getSelectedQuiz()
+      .subscribe((quiz) => (this.selectedQuiz = quiz));
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     if (this.quizId) {
-      this.quizService.getQuizById(this.quizId).subscribe((quiz) => (this.selectedQuiz = quiz));
+      this.quizService
+        .getQuizById(this.quizId)
+        .subscribe((quiz) => (this.selectedQuiz = quiz));
     }
   }
 
@@ -141,15 +147,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  ngOnInit() {
-    this.quizService.getSelectedQuiz().subscribe((quiz) => {
-      if (quiz) {
-        this.quiz = quiz;
-        this.questions$ = this.quizService.getQuestionsForQuiz(
-          this.quiz.quizId
-        );
-      }
-    });
+  ngOnInit(): void {
+    const quizId = this.route.snapshot.paramMap.get('quizId');
+    this.quizDataService.getSelectedQuiz().subscribe(
+      (quiz) => {
+        this.selectedQuiz = quiz;
+        console.log('Selected quiz:', this.selectedQuiz);
+      },
+      (error) => console.error(error)
+    );
   }
 
   updateCardFooterClass(): void {

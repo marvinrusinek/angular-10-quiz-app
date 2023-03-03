@@ -12,6 +12,7 @@ import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { QuizDataService } from '../../shared/services/quizdata.service';
 import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 
 @Component({
@@ -41,6 +42,7 @@ export class IntroductionComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private selectedMilestoneService: SelectedMilestoneService,
     private activatedRoute: ActivatedRoute,
     private router: Router
@@ -87,10 +89,10 @@ export class IntroductionComponent implements OnInit {
   onStartQuiz() {
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
-      this.quizService.setSelectedQuiz(selectedQuiz);
-      this.router.navigate(['/quiz']);
+      this.quizDataService.setSelectedQuiz(selectedQuiz);
+      this.router.navigate(['/question/', this.quizId, 1]);
     } else {
-      console.log('Selected quiz is null or undefined');
+      console.log('Quiz ID is null or undefined');
     }
   }
 }
