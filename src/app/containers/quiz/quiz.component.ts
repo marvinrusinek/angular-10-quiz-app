@@ -96,7 +96,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    this.quizService.getSelectedQuiz().subscribe((quiz) => (this.selectedQuiz = quiz));
+
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    if (this.quizId) {
+      this.quizService.getQuizById(this.quizId).subscribe((quiz) => (this.selectedQuiz = quiz));
+    }
+  }
 
   /* async ngOnInit(): Promise<void> {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
