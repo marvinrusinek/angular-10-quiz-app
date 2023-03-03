@@ -141,12 +141,13 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
+    console.log('Getting quiz with ID:', quizId);
     return this.http
       .get<Quiz[]>(this.url)
       .pipe(
         map(
           (quizzes: Quiz[]) =>
-            quizzes.filter((quiz) => quiz.quizId === quizId)[0]
+            quizzes.find((quiz) => quiz.quizId === quizId)
         )
       );
   }
