@@ -38,7 +38,7 @@ enum Status {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Input() selectedQuiz: Quiz;
+  @Input() selectedQuiz: Quiz = null;
   @Input() form: FormGroup;
   @Input() milestone: string;
   quiz: Quiz;
@@ -55,7 +55,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   resources: Resource[];
   answers: number[] = [];
 
-  selectedQuiz: Quiz = null;
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
@@ -123,7 +122,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  async ngOnInit(): Promise<void> {
+  /* async ngOnInit(): Promise<void> {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizService.getQuiz(this.quizId).subscribe((quiz) => {
       if (!quiz) {
@@ -132,6 +131,17 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.selectedQuiz = quiz;
       console.log('selected quiz: ', this.selectedQuiz);
+    });
+  } */
+
+  ngOnInit() {
+    this.quizService.getSelectedQuiz().subscribe((quiz) => {
+      if (quiz) {
+        this.quiz = quiz;
+        this.questions$ = this.quizService.getQuestionsForQuiz(
+          this.quiz.quizId
+        );
+      }
     });
   }
 

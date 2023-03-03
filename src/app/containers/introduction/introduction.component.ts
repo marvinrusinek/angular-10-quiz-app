@@ -85,16 +85,12 @@ export class IntroductionComponent implements OnInit {
   } */
 
   onStartQuiz() {
-    if (!this.quizSelection.selectedQuiz) {
-      console.log('Quiz ID is null or undefined');
-      return;
+    const selectedQuiz = this.quizSelection.selectedQuiz;
+    if (selectedQuiz) {
+      this.quizService.setSelectedQuiz(selectedQuiz);
+      this.router.navigate(['/quiz']);
+    } else {
+      console.log('Selected quiz is null or undefined');
     }
-
-    this.quizService.setSelectedQuiz(this.quizSelection.selectedQuiz);
-    this.router.navigate([
-      '/question/',
-      this.quizSelection.selectedQuiz.quizId,
-      1,
-    ]);
   }
 }
