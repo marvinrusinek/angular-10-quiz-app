@@ -179,6 +179,16 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  /* getQuiz(): Observable<Quiz> {
+    const quizId = this.quizId; // get quizId property
+    console.log('quizId:', quizId);
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return of(null);
+    }
+    return this.getQuizById(quizId);
+  } */
+
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       map(quizzes => quizzes ? quizzes.find(quiz => quiz.quizId === quizId) : undefined)
