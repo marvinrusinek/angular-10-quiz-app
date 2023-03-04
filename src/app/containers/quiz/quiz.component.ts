@@ -100,6 +100,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    console.log("QuizComponent instantiated");
     this.quizService
       .getSelectedQuiz()
       .subscribe((quiz) => (this.selectedQuiz = quiz));
