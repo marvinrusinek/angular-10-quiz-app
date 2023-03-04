@@ -99,9 +99,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {
-    console.log('QuizComponent instantiated');
-  }
+  ) { }
 
   ngOnInit(): void {
     this.quiz$ = this.quizDataService.getQuizzes();
@@ -128,7 +126,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    // move the following lines from the constructor to ngOnInit
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
 
     this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
