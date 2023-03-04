@@ -116,19 +116,28 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       this.quizId = quizId;
   
-      this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
-        this.quizDataService.selectedQuiz(quiz);
-      });
-
-      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
-        this.selectedQuiz = quiz;
-      });
+      const quizData = this.quizDataService.getQuizById(quizId);
+      if (quizData) {
+        quizData.subscribe((quiz) => {
+          this.quizDataService.selectedQuiz(quiz);
+        });
   
-      this.quizService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-        this.questions$ = of(questions);
-      });
+        const selectedQuiz = this.quizDataService.selectedQuiz$;
+        if (selectedQuiz) {
+          selectedQuiz.subscribe((quiz) => {
+            this.selectedQuiz = quiz;
+          });
+        }
+      }
+  
+      const questions = this.quizService.getQuestionsForQuiz(quizId);
+      if (questions) {
+        questions.subscribe((questions) => {
+          this.questions$ = of(questions);
+        });
+      }
     });
-  }  
+  }
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
