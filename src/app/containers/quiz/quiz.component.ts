@@ -55,7 +55,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   milestoneQuestions$: Observable<QuizQuestion[]>;
   resources: Resource[];
   answers: number[] = [];
-
+  
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
