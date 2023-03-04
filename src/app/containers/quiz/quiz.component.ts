@@ -114,40 +114,34 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.quiz$ = this.quizDataService.getQuizzes();
-    this.quiz$.subscribe((quizzes) => console.log(quizzes));
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-
-    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      console.log('selectedQuiz', selectedQuiz);
+    this.quizDataService.getQuizzes().subscribe(quizzes => {
+      this.quizzes = quizzes;
+    });
+  
+    this.quizDataService.selectedQuiz$.pipe(take(1)).subscribe(selectedQuiz => {
       this.selectedQuiz = selectedQuiz;
     });
-
+  
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       this.quizId = quizId;
-
+  
       const quizData = this.quizDataService.getQuizById(quizId);
-
-      console.log('quizId:', quizId);
       if (quizData) {
-        console.log('quizData:', quizData);
         quizData.subscribe((quiz) => {
           this.quizDataService.selectedQuiz$.next(quiz);
           this.selectedQuiz = quiz;
           this.quiz = quiz;
-
-          const questions = this.quizService.getQuestionsForQuiz(quizId);
-          if (questions) {
-            console.log('questions:', questions);
-            questions.subscribe((questions) => {
-              this.questions$ = of(questions);
-            });
-          }
+  
+          this.questions$ = this.quizService.getQuestionsForQuiz(quizId);
+          this.questions$.subscribe(questions => {
+            this.questions = questions;
+          });
         });
       }
     });
   }
+  
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
