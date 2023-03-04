@@ -112,7 +112,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* ngOnInit(): void {
+  ngOnInit(): void {
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
@@ -137,24 +137,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
     });
-  } */
-
-  ngOnInit(): void {
-    this.quiz$ = this.quizDataService.getQuizzes();
-    this.quiz$.subscribe(quizzes => console.log(quizzes));
-
-    this.questions$ = this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        this.quizId = quizId;
-        return this.quizService.getQuestionsForQuiz(quizId);
-      }),
-      map((questions: Question[]) => {
-        return questions.sort((a: QuizQuestion, b: QuizQuestion) => {
-          return a.index - b.index;
-        });
-      })
-    );
   }
    
   updateCardFooterClass(): void {
