@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
 
-import { Quiz } from '../../models/quiz.model';
+import { Quiz } from '../../models/Quiz.model';
+import { QuizQuestion } from '../../models/QuizQuestion.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuizDataService {
-  private quizzes$: Observable<Quiz[]>;
+  quizzes$: Observable<Quiz[]>;
   // private selectedQuiz = null;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -34,7 +35,7 @@ export class QuizDataService {
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-    this.quizzes$ = this.http.get<Quiz[]>('assets/data/quiz.json')
+    this.quizzes$ = this.http.get<QuizQuestion[]>(this.url)
     .pipe(
       catchError(this.handleError)
     );
