@@ -35,7 +35,7 @@ export class QuizDataService {
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-    this.quizzes$ = this.http.get<QuizQuestion[]>(this.url)
+    this.quizzes$ = this.http.get<Quiz[]>(this.url)
     .pipe(
       catchError(this.handleError)
     );
