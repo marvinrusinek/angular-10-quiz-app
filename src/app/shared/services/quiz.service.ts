@@ -34,21 +34,6 @@ export class QuizService implements OnDestroy {
   quizStartTime: Date;
 
   quizName$ = new BehaviorSubject<string>('');
-  selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  selectedQuizIdSubject = new BehaviorSubject<string>(null);
-  quizIdSubject = new Subject<string>();
-  selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-
-  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource
-    .asObservable()
-    .pipe(
-      filter((quiz) => quiz !== null && quiz !== undefined),
-      catchError((error) => {
-        console.error(error);
-        return EMPTY;
-      })
-    );
 
   quizId: string = '';
   selectedQuiz: any;
@@ -97,15 +82,6 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.selectedQuizSource = new BehaviorSubject<Quiz | undefined>(undefined);
-    this.selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
-      filter((quiz) => !!quiz),
-      catchError((error) => {
-        console.error(error);
-        return of(null);
-      })
-    );
-
     this.quizzes$ = this.getQuizzes().pipe(
       catchError((error) => {
         console.error(error);
@@ -134,10 +110,6 @@ export class QuizService implements OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-  }
-
-  selectQuiz(quiz: Quiz | undefined): void {
-    this.selectedQuizSource.next(quiz);
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
@@ -179,22 +151,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* getQuiz(): Observable<Quiz> {
-    const quizId = this.quizId; // get quizId property
-    console.log('quizId:', quizId);
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined');
-      return of(null);
-    }
-    return this.getQuizById(quizId);
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      map(quizzes => quizzes ? quizzes.find(quiz => quiz.quizId === quizId) : undefined)
-    );
-  } */
-
   getQuiz(quizId: string): Observable<Quiz> {
     console.log('Getting quiz with ID:', quizId);
     return this.http
@@ -227,22 +183,6 @@ export class QuizService implements OnDestroy {
         return throwError(error);
       })
     );
-  }
-
-  getMilestoneQuestions(milestone: string): Observable<QuizQuestion[]> {
-    if (!milestone) {
-      console.warn('Milestone is undefined or null.');
-      return of([]);
-    }
-    console.log('getMilestoneQuestions() called with milestone:', milestone);
-    return this.loadQuestions().pipe(
-      map((questions) => questions.filter((q) => q.milestone === milestone)),
-      tap((questions) => console.log('Questions after filtering:', questions)),
-      catchError((error) => {
-        console.error('Error getting milestone questions:', error);
-        return throwError(error);
-      })
-    ) as Observable<QuizQuestion[]>;
   }
 
   getNextQuestion(): QuizQuestion {
@@ -441,16 +381,6 @@ export class QuizService implements OnDestroy {
 
   setQuizStatus(value: string): void {
     this.status = value;
-  }
-
-  setQuiz(quiz: Quiz): void {
-    this.quizIdSubject.next(quiz);
-  }
-
-  public setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuiz = quiz;
-    this.selectedQuizIdSubject.next(quiz.quizId);
-    this.selectedQuizSubject.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {

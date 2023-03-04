@@ -37,7 +37,7 @@ export class IntroductionComponent implements OnInit {
   selectedMilestone: string;
   selectedQuizId: string;
   selectedQuiz: Quiz;
-  selectedQuiz$: Observable<Quiz>;
+  selectedQuiz$: Observable<Quiz> = this.quizDataService.selectedQuiz$;
   questions$: Observable<QuizQuestion[]>;
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
@@ -59,10 +59,13 @@ export class IntroductionComponent implements OnInit {
       if (quizId) {
         this.quizService.getQuizById(quizId).subscribe((quiz) => {
           this.quizDataService.selectedQuiz = quiz;
+          this.selectedQuiz = quiz;
           this.questions$ = this.quizService.getQuestionsForQuiz(quizId);
         });
       } 
     });
+
+    this.selectedQuiz$.subscribe(console.log);
   }
 
   onChange($event): void {
