@@ -36,7 +36,7 @@ export class QuizDataService {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = this.http.get<Quiz[]>('assets/data/quiz.json')
     .pipe(
-      catchError(handleError)
+      catchError(this.handleError)
     );
   }
 
