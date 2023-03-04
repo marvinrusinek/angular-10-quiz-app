@@ -11,7 +11,7 @@ import { Quiz } from '../../models/quiz.model';
 export class QuizDataService {
   private quizzes$: Observable<Quiz[]>;
   // private selectedQuiz = null;
-  private selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
 
   private url = 'assets/data/quiz.json';

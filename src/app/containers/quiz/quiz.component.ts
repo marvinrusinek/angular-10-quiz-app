@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
@@ -122,7 +122,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizDataService.selectedQuiz(quiz);
         });
   
-        const selectedQuiz = this.quizDataService.selectedQuiz$;
+        const selectedQuiz = this.quizDataService.selectedQuiz$.asObservable();
         if (selectedQuiz) {
           selectedQuiz.subscribe((quiz) => {
             this.selectedQuiz = quiz;
