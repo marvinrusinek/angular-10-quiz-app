@@ -64,12 +64,14 @@ export class MultipleAnswerComponent
   }
 
   initializeOptionChecked() {
-    this.options.forEach((option) => {
-      this.optionChecked[option.id] =
+    if (this.options && this.options.length) {
+      this.options.forEach((option) => {
+        this.optionChecked[option.id] =
         this.currentQuestion.selectedOptions &&
         this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
-    });
-  }
+      });
+    }
+  } 
 
   onOptionSelected(selectedOption: Option): void {
     if (selectedOption) {
