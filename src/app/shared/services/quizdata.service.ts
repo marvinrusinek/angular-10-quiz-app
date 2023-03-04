@@ -10,8 +10,9 @@ import { Quiz } from '../../models/quiz.model';
 })
 export class QuizDataService {
   private quizzes$: Observable<Quiz[]>;
-  // private selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  selectedQuiz$ = new BehaviorSubject<any>({});
+  private selectedQuiz = null;
+  public selectedQuiz$ = new BehaviorSubject(this.selectedQuiz);
+  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
 
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
@@ -68,9 +69,14 @@ export class QuizDataService {
     this.selectedQuizSource.next(quiz);
   }
 
-  setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuiz$.next(quiz);
+  setSelectedQuiz(quiz) {
+    this.selectedQuiz = quiz;
+    this.selectedQuiz$.next(this.selectedQuiz);
   }
+
+  /* setSelectedQuiz(quiz: Quiz): void {
+    this.selectedQuiz$.next(quiz);
+  } */
 
   getSelectedQuiz(): Quiz | null {
     return this.selectedQuiz$.getValue();

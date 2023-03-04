@@ -36,7 +36,7 @@ export class IntroductionComponent implements OnInit {
   selectedMilestone: string;
   selectedQuizId: string;
   selectedQuiz: Quiz;
-  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$: Observable<Quiz>;
   // selectedQuiz$: Observable<Quiz> = this.quizDataService.selectedQuiz$;
   questions$: Observable<QuizQuestion[]>;
 
@@ -49,6 +49,7 @@ export class IntroductionComponent implements OnInit {
     private router: Router
   ) {
     this.quizId = this.selectedQuiz?.quizId;
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
   }
 
   ngOnInit(): void {
