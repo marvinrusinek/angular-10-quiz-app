@@ -79,7 +79,7 @@ export class IntroductionComponent implements OnInit {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizService.selectedQuiz = quiz;
         this.quizDataService.setSelectedQuiz(this.quiz);
-        this.quizDataService.selectedQuiz$.next(this.quiz);
+        this.quizDataService.selectedQuiz.next(this.quizId);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
     } else {
