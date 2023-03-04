@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { Quiz } from '../../models/quiz.model';
@@ -9,8 +9,9 @@ import { Quiz } from '../../models/quiz.model';
   providedIn: 'root',
 })
 export class QuizDataService {
-  quizzes$: Observable<Quiz[]>;
-  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  private quizzes$: Observable<Quiz[]>;
+  // private selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$ = new BehaviorSubject<any>({});
 
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
@@ -68,12 +69,10 @@ export class QuizDataService {
   }
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.selectedQuiz = quiz;
-    this.selectedQuizIdSubject.next(quiz.quizId);
-    this.selectedQuizSubject.next(quiz);
+    this.selectedQuiz$.next(quiz);
   }
 
-  /* get selectedQuiz$(): Observable<Quiz> {
-    return this.selectedQuiz$.asObservable();
-  } */
+  getSelectedQuiz(): Quiz | null {
+    return this.selectedQuiz$.getValue();
+  }
 }
