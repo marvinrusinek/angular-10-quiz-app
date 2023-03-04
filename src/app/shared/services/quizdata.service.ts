@@ -69,6 +69,7 @@ export class QuizDataService {
 
   setSelectedQuiz(quiz) {
     this.selectedQuiz = quiz;
+    console.log("selectedQuiz", this.selectedQuiz);
     this.selectedQuiz$.next(this.selectedQuiz);
   }
 
