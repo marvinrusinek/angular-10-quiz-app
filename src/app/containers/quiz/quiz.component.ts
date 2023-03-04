@@ -149,12 +149,15 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizDataService.getSelectedQuiz().subscribe(
-      (quiz) => {
+    this.quizService.getQuizById(quizId).subscribe(
+      (quiz: Quiz) => {
         this.selectedQuiz = quiz;
-        console.log('Selected quiz:', this.selectedQuiz);
+        this.quizService.setSelectedQuiz(quiz);
+        this.questions = quiz.questions;
       },
-      (error) => console.error(error)
+      (error: any) => {
+        console.log(error);
+      }
     );
   }
 
