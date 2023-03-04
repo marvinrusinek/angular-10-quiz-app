@@ -55,7 +55,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   milestoneQuestions$: Observable<QuizQuestion[]>;
   resources: Resource[];
   answers: number[] = [];
-  
+
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedOption: Option;
   selectedAnswers: number[] = [];
@@ -100,7 +100,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    console.log("QuizComponent instantiated");
+    console.log('QuizComponent instantiated');
     this.quizService
       .getSelectedQuiz()
       .subscribe((quiz) => (this.selectedQuiz = quiz));
@@ -115,27 +115,31 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.quiz$ = this.quizDataService.getQuizzes();
-    this.quiz$.subscribe(quizzes => console.log(quizzes));
+    this.quiz$.subscribe((quizzes) => console.log(quizzes));
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
 
     this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      console.log("selectedQuiz", selectedQuiz);
+      console.log('selectedQuiz', selectedQuiz);
       this.selectedQuiz = selectedQuiz;
     });
-  
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       this.quizId = quizId;
-  
+
       const quizData = this.quizDataService.getQuizById(quizId);
+
+      console.log('quizId:', quizId);
       if (quizData) {
+        console.log('quizData:', quizData);
         quizData.subscribe((quiz) => {
           this.quizDataService.selectedQuiz$.next(quiz);
           this.selectedQuiz = quiz;
           this.quiz = quiz;
-  
+
           const questions = this.quizService.getQuestionsForQuiz(quizId);
           if (questions) {
+            console.log('questions:', questions);
             questions.subscribe((questions) => {
               this.questions$ = of(questions);
             });
@@ -144,7 +148,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-   
+
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
       this.cardFooterClass = 'multiple-unanswered';
