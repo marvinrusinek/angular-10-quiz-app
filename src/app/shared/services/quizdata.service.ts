@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { catchError, filter, map } from 'rxjs/operators';
 
 import { Quiz } from '../../models/quiz.model';
 
@@ -10,7 +10,7 @@ import { Quiz } from '../../models/quiz.model';
 })
 export class QuizDataService {
   quizzes$: Observable<Quiz[]>;
-  // selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
@@ -18,7 +18,7 @@ export class QuizDataService {
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource
+  /* selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource
     .asObservable()
     .pipe(
       filter((quiz) => quiz !== null && quiz !== undefined),
@@ -26,7 +26,7 @@ export class QuizDataService {
         console.error(error);
         return EMPTY;
       })
-    );
+    ); */
 
   constructor(private http: HttpClient) {
     this.quizzes$ = this.http.get<Quiz[]>('assets/data/quiz.json');
@@ -67,7 +67,7 @@ export class QuizDataService {
     this.selectedQuizSource.next(quiz);
   }
 
-  public setSelectedQuiz(quiz: Quiz): void {
+  setSelectedQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
     this.selectedQuizIdSubject.next(quiz.quizId);
     this.selectedQuizSubject.next(quiz);

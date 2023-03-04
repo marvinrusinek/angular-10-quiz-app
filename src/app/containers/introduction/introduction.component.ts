@@ -14,7 +14,6 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
-import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 
 @Component({
   selector: 'codelab-quiz-intro',
@@ -37,7 +36,8 @@ export class IntroductionComponent implements OnInit {
   selectedMilestone: string;
   selectedQuizId: string;
   selectedQuiz: Quiz;
-  selectedQuiz$: Observable<Quiz> = this.quizDataService.selectedQuiz$;
+  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  // selectedQuiz$: Observable<Quiz> = this.quizDataService.selectedQuiz$;
   questions$: Observable<QuizQuestion[]>;
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
@@ -45,7 +45,6 @@ export class IntroductionComponent implements OnInit {
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private selectedMilestoneService: SelectedMilestoneService,
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
