@@ -46,12 +46,6 @@ export class MultipleAnswerComponent
     private formBuilder: FormBuilder
   ) {
     super(quizService);
-
-    this.options.forEach((option) => {
-      this.optionChecked[option.id] =
-        this.currentQuestion.selectedOptions &&
-        this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
-    });
   }
 
   async ngOnInit() {
