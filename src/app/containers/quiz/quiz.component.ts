@@ -115,21 +115,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       this.quizId = quizId;
-  
+
       const quizData = this.quizDataService.getQuizById(quizId);
       if (quizData) {
         quizData.subscribe((quiz) => {
-          this.quizDataService.selectedQuiz(quiz);
+          this.quizDataService.selectedQuiz$.next(quiz);
+          this.selectedQuiz = quiz;
+          this.quiz = quiz; // <- new line
         });
-  
-        const selectedQuiz = this.quizDataService.selectedQuiz$.asObservable();
-        if (selectedQuiz) {
-          selectedQuiz.subscribe((quiz) => {
-            this.selectedQuiz = quiz;
-          });
-        }
       }
-  
+
       const questions = this.quizService.getQuestionsForQuiz(quizId);
       if (questions) {
         questions.subscribe((questions) => {
@@ -138,6 +133,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
