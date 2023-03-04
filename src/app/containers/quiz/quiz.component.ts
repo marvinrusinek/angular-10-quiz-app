@@ -101,16 +101,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     console.log('QuizComponent instantiated');
-    this.quizService
-      .getSelectedQuiz()
-      .subscribe((quiz) => (this.selectedQuiz = quiz));
-
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    if (this.quizId) {
-      this.quizService
-        .getQuizById(this.quizId)
-        .subscribe((quiz) => (this.selectedQuiz = quiz));
-    }
   }
 
   ngOnInit(): void {
