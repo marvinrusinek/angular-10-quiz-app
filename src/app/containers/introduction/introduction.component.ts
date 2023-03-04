@@ -37,6 +37,7 @@ export class IntroductionComponent implements OnInit {
   selectedQuizId: string;
   selectedQuiz: Quiz;
   selectedQuiz$: Observable<Quiz>;
+  questions$: Observable<Quiz[]>;
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
 
@@ -53,11 +54,10 @@ export class IntroductionComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
-      this.quizIndex = +params.get('quizIndex');
+      // this.quizIndex = +params.get('quizIndex');
       if (quizId) {
         this.quizService.getQuizById(quizId).subscribe((quiz) => {
-          this.quizService.selectedQuiz = quiz;
-          this.quizService.selectedQuizIndex = this.quizIndex;
+          this.quizDataService.selectedQuiz = quiz;
           this.questions$ = this.quizService.getQuestionsForQuiz(quizId);
         });
       } 
@@ -70,21 +70,11 @@ export class IntroductionComponent implements OnInit {
     }
   }
 
-  /* onStartQuiz() {
-    const selectedQuiz = this.quizSelection.selectedQuiz;
-    if (selectedQuiz) {
-      this.quizDataService.setSelectedQuiz(selectedQuiz);
-      this.router.navigate(['/question/', this.quizId, 1]);
-    } else {
-      console.log('Quiz ID is null or undefined');
-    }
-  } */
-
   onStartQuiz() {
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
-      this.quizService.getQuizById(selectedQuiz.quizId).subscribe((quiz) => {
-        this.quizService.selectedQuiz = quiz;
+      this.quizDataService.getQuizById(selectedQuiz.quizId).subscribe((quiz) => {
+        this.quizDataService.selectedQuiz = quiz;
         this.router.navigate(['/question', selectedQuiz.quizId, 1]);
       });
     } else {

@@ -13,7 +13,7 @@ export class QuizDataService {
   private selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
   constructor(private http: HttpClient) {
-    this.quizzes$ = this.http.get<Quiz[]>('assets/quizzes.json');
+    this.quizzes$ = this.http.get<Quiz[]>('assets/data/quiz.json');
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -34,7 +34,7 @@ export class QuizDataService {
     this.selectedQuiz$.next(quiz);
   }
 
-  get selectedQuiz$(): Observable<Quiz> {
+  /* get selectedQuiz$(): Observable<Quiz> {
     return this.selectedQuiz$.asObservable();
-  }
+  } */
 }
