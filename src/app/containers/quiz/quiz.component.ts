@@ -10,7 +10,7 @@ import {
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -112,7 +112,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit(): void {
+  /* ngOnInit(): void {
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
@@ -137,7 +137,25 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }  
+  } */
+
+  ngOnInit(): void {
+    this.quiz$ = this.quizDataService.getQuizzes();
+    this.quiz$.subscribe(quizzes => console.log(quizzes));
+
+    this.questions$ = this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const quizId = params.get('quizId');
+        this.quizId = quizId;
+        return this.quizService.getQuestionsForQuiz(quizId);
+      }),
+      map((questions: Question[]) => {
+        return questions.sort((a: QuizQuestion, b: QuizQuestion) => {
+          return a.index - b.index;
+        });
+      })
+    );
+  }
    
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
