@@ -65,7 +65,7 @@ export class IntroductionComponent implements OnInit {
     }
   }
 
-  onStartQuiz() {
+  /* onStartQuiz() {
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
       this.quizDataService.setSelectedQuiz(selectedQuiz);
@@ -73,5 +73,17 @@ export class IntroductionComponent implements OnInit {
     } else {
       console.log('Quiz ID is null or undefined');
     }
-  }
+  } */
+
+  onStartQuiz() {
+    const selectedQuiz = this.quizSelection.selectedQuiz;
+    if (selectedQuiz) {
+      this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
+        this.quizService.selectedQuiz = quiz;
+        this.router.navigate(['/question/', this.quizId, 1]);
+      });
+    } else {
+      console.log('Quiz ID is null or undefined');
+    }
+  } 
 }
