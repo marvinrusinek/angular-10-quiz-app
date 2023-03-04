@@ -116,6 +116,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       this.quizId = quizId;
   
+      if (this.quizDataService.selectedQuiz$.value) {
+        this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+          this.quiz = quiz;
+        });
+      }
+  
       const quizData = this.quizDataService.getQuizById(quizId);
       if (quizData) {
         quizData.subscribe((quiz) => {
@@ -125,10 +131,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
   
-      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
-        this.quiz = quiz;
-      });
-  
       const questions = this.quizService.getQuestionsForQuiz(quizId);
       if (questions) {
         questions.subscribe((questions) => {
@@ -137,6 +139,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
 
 
   updateCardFooterClass(): void {
