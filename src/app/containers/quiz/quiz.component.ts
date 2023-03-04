@@ -43,7 +43,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   @Input() form: FormGroup;
   @Input() milestone: string;
   quiz: Quiz;
-  quiz$: Observable<Quiz>;
+  quiz$: Observable<Quiz[]>;
   quizData: Quiz[];
   quizResources: QuizResource[];
   quizzes: Quiz[];
@@ -112,6 +112,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.quiz$ = this.quizDataService.getQuizzes();
+    this.quiz$.subscribe(quizzes => console.log(quizzes));
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       this.quizId = quizId;
