@@ -11,6 +11,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
@@ -37,7 +38,7 @@ export class IntroductionComponent implements OnInit {
   selectedQuizId: string;
   selectedQuiz: Quiz;
   selectedQuiz$: Observable<Quiz>;
-  questions$: Observable<Quiz[]>;
+  questions$: Observable<QuizQuestion[]>;
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
 
