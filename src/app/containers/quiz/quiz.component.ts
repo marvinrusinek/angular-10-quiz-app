@@ -111,55 +111,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* async ngOnInit(): Promise<void> {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    const quiz = await this.quizService.getQuiz(this.quizId).toPromise();
-    if (!quiz) {
-      console.error('Selected quiz is null or undefined');
-      return;
-    }
-    this.selectedQuiz = quiz;
-    console.log('selected quiz: ', this.selectedQuiz);
-  } */
-
-  /* async ngOnInit(): Promise<void> {
-    console.log('quizId:', this.quizId);
-    this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
-      console.log('quiz:', quiz);
-      if (!quiz) {
-        console.error('Selected quiz is null or undefined');
-        return;
-      }
-      this.selectedQuiz = quiz;
-      console.log('selected quiz: ', this.selectedQuiz);
-    });
-  } */
-
-  /* async ngOnInit(): Promise<void> {
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizService.getQuiz(this.quizId).subscribe((quiz) => {
-      if (!quiz) {
-        console.error('Selected quiz is null or undefined');
-        return;
-      }
-      this.selectedQuiz = quiz;
-      console.log('selected quiz: ', this.selectedQuiz);
-    });
-  } */
-
   ngOnInit(): void {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizService.getQuizById(quizId).subscribe(
-      (quiz: Quiz) => {
-        this.selectedQuiz = quiz;
-        this.quizService.setSelectedQuiz(quiz);
-        this.questions = quiz.questions;
-      },
-      (error: any) => {
-        console.log(error);
-      }
-    );
-  }
+    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      const quizId = params.get('quizId');
+      this.quizId = quizId;
+  
+      this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
+        this.quizDataService.setSelectedQuiz(quiz);
+      });
+  
+      this.quizService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+        this.questions$ = of(questions);
+      });
+    });
+  }  
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
