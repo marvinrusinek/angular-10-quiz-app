@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, filter, map } from 'rxjs/operators';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../models/quiz.model';
 
@@ -10,9 +10,11 @@ import { Quiz } from '../../models/quiz.model';
 })
 export class QuizDataService {
   private quizzes$: Observable<Quiz[]>;
-  private selectedQuiz = null;
-  public selectedQuiz$ = new BehaviorSubject(this.selectedQuiz);
+  // private selectedQuiz = null;
+  private selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+
+  private url = 'assets/data/quiz.json';
 
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
@@ -31,15 +33,10 @@ export class QuizDataService {
     ); */
 
   constructor(private http: HttpClient) {
-    this.quizzes$ = this.http.get<Quiz[]>('assets/data/quiz.json');
-
-    this.selectedQuizSource = new BehaviorSubject<Quiz | undefined>(undefined);
-    this.selectedQuiz$ = this.selectedQuizSource.asObservable().pipe(
-      filter((quiz) => !!quiz),
-      catchError((error) => {
-        console.error(error);
-        return of(null);
-      })
+    this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+    this.quizzes$ = this.http.get<Quiz[]>('assets/data/quiz.json')
+    .pipe(
+      catchError(handleError)
     );
   }
 
@@ -81,4 +78,16 @@ export class QuizDataService {
   getSelectedQuiz(): Quiz | null {
     return this.selectedQuiz$.getValue();
   }
+
+  private handleError(error: any) {
+    console.error('An error occurred', error); // for demo purposes only
+    return throwError(error.message || error);
+  }
+
+  /* private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(error);
+      return of(result as T);
+    };
+  } */
 }
