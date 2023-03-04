@@ -115,16 +115,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-
+  
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       this.quizId = quizId;
-  
-      if (this.quizDataService.selectedQuiz$.value) {
-        this.quizDataService.selectedQuiz$.subscribe((quiz) => {
-          this.quiz = quiz;
-        });
-      }
   
       const quizData = this.quizDataService.getQuizById(quizId);
       if (quizData) {
@@ -133,6 +127,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizDataService.setSelectedQuiz(this.quiz);
           this.selectedQuiz = quiz;
           this.quiz = quiz;
+          
+          if (quiz) {
+            this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+              this.quiz = selectedQuiz;
+            });
+          }
         });
       }
   
@@ -144,7 +144,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
+    
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
       this.cardFooterClass = 'multiple-unanswered';
