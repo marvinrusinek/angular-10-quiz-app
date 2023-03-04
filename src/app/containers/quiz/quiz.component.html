@@ -1,4 +1,4 @@
-<ng-container *ngIf="selectedQuiz && (questions$ | async) as questions">
+<ng-container *ngIf="(selectedQuiz$ | async) as selectedQuiz">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
@@ -12,16 +12,16 @@
         matTooltip="back to Codelab Quiz Selection"
         matTooltipPosition="left"
       />
-      <div class="header-titles" *ngIf="selectedQuiz">
+      <div class="header-titles">
         <mat-card-title i18n
           >{{
-            questions?.milestone || 'No questions found'
+            selectedQuiz.milestone || 'No questions found'
           }}
           Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
-          {{ questions?.milestone || 'No questions found' }}</mat-card-subtitle
+          {{ selectedQuiz.milestone || 'No questions found' }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
