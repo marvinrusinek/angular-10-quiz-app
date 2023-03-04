@@ -52,9 +52,7 @@ export class IntroductionComponent implements OnInit {
 
   ngOnInit(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.selectedQuiz$ = this.quizService.getQuizById(quizId);
-
-    this.selectedQuiz$.subscribe((quiz) => {
+    this.quizService.getQuizById(quizId).subscribe((quiz) => {
       this.selectedQuiz = quiz;
     });
   }
