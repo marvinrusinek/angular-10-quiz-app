@@ -10,7 +10,7 @@ import {
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { map, switchMap, takeUntil } from 'rxjs/operators';
+import { map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -114,14 +114,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.quizDataService.getQuizzes().subscribe(quizzes => {
-      this.quizzes = quizzes;
-    });
-  
-    this.quizDataService.selectedQuiz$.pipe(take(1)).subscribe(selectedQuiz => {
-      this.selectedQuiz = selectedQuiz;
-    });
-  
+    this.quiz$ = this.quizDataService.getQuizzes();
+    this.quiz$.subscribe(quizzes => console.log(quizzes));
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       this.quizId = quizId;
@@ -133,15 +128,24 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.selectedQuiz = quiz;
           this.quiz = quiz;
   
-          this.questions$ = this.quizService.getQuestionsForQuiz(quizId);
-          this.questions$.subscribe(questions => {
-            this.questions = questions;
-          });
+          const questions = this.quizService.getQuestionsForQuiz(quizId);
+          if (questions) {
+            questions.subscribe((questions) => {
+              this.questions$ = of(questions);
+            });
+          }
         });
       }
     });
+
+    // move the following lines from the constructor to ngOnInit
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+
+    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+      console.log("selectedQuiz", selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+    });
   }
-  
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
