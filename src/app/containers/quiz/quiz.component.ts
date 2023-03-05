@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { filter, first, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -104,32 +104,29 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.form = new FormGroup({
-      selectedOption: new FormControl(null, Validators.required),
-    });
-
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-      console.log('Quizzes:', this.quizzes);
-    });
-  
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        this.currentQuestionIndex = +params.get('questionIndex');
+    this.quiz$ = this.activatedRoute.params.pipe(
+      switchMap((params: Params) => {
+        const quizId = params.quizId;
         return this.quizService.getQuiz(quizId);
-      }),
-      tap(quiz => this.quizService.setQuiz(quiz)),
-      tap(() => this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex)),
-      switchMap(() => this.quizService.getSelectedQuiz()),
-      tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
-      filter(selectedQuiz => !!selectedQuiz),
+      })
+    );
+  
+    this.quiz$.subscribe((quiz: Quiz) => {
+      this.handleQuizData(quiz);
+    });
+    
+    this.selectedQuiz$ = this.quizService.getSelectedQuiz();
+    console.log('Selected quiz: ', this.selectedQuiz$);
+    
+    this.selectedQuiz$.pipe(
+      tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
+      filter((selectedQuiz) => !!selectedQuiz),
       first()
     ).subscribe((selectedQuiz) => {
-      console.log("Selected quiz: ", selectedQuiz);
-      this.selectedQuiz = selectedQuiz;
+      console.log('Selected quiz: ', selectedQuiz);
       this.quizLength = this.quizService.getQuizLength();
       if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+        console.log('Getting question: ');
         this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
           this.question = question;
           this.form.patchValue({
@@ -138,7 +135,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }
+    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+  }  
   
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
@@ -161,7 +159,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz, quizId: string): void {
+  handleQuizData(quiz: Quiz): void {
     const selectedQuiz$ = this.quizService.setQuiz(quiz);
     console.log('Selected quiz:', selectedQuiz$);
     selectedQuiz$.subscribe((selectedQuiz) => {
@@ -177,7 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
     });
-    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
   
 

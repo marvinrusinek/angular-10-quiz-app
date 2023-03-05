@@ -82,9 +82,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
-    console.log("Getting question ", index);
-    return of(quiz.questions[index]);
+  getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
+    console.log('Getting question: ', index);
+    const question = selectedQuiz.questions[index];
+    return of(question).pipe(delay(500));
   }
 
   /* getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
