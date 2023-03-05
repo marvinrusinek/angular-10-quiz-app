@@ -71,7 +71,17 @@ export class MultipleAnswerComponent
         this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
       });
     }
-  } 
+  }
+
+  getOptionClass(option): string {
+    if (this.selectedOption === option && option.correct) {
+      return 'correct';
+    } else if (this.selectedOption === option && !option.correct) {
+      return 'incorrect';
+    } else {
+      return '';
+    }
+  }
 
   onOptionSelected(selectedOption: Option): void {
     if (selectedOption) {

@@ -6,10 +6,7 @@
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, option)"
-      [ngClass]="{
-        correct: selectedOption === option && option.correct,
-        incorrect: selectedOption === option && !option.correct
-      }"
+      [class]="getOptionClass(option)"
       [checked]="optionChecked[option.id]"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
