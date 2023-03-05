@@ -10,7 +10,7 @@ import {
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { first, map, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -110,7 +110,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
-    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+    this.selectedQuiz$.pipe(
+      first()
+    ).subscribe((selectedQuiz) => {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
     });
