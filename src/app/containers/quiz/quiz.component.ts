@@ -179,12 +179,39 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   } */
 
-  handleQuizData(quiz: Quiz, quizId: string): void {
+  /* handleQuizData(quiz: Quiz, quizId: string): void {
     this.quizService.setQuizzes([quiz]);
     this.selectedQuiz$.next(quiz);
     this.quizService.setCurrentQuestionIndex(0);
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+  } */
+
+  handleQuizData(quiz: Quiz, quizId: string): void {
+    this.quizService.setQuizzes(this.quizzes);
+    const selectedQuiz = this.quizService.setQuiz(quiz);
+    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+    this.selectedQuiz$ = this.quizService.getSelectedQuiz();
+    console.log("Selected quiz: ", selectedQuiz);
+    this.selectedQuiz$.pipe(
+      tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
+      filter(selectedQuiz => !!selectedQuiz),
+      first()
+    ).subscribe((selectedQuiz) => {
+      console.log("Selected quiz: ", selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      this.quizLength = this.quizService.getQuizLength();
+      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+          this.question = question;
+          this.form.patchValue({
+            selectedOption: null,
+          });
+        });
+      }
+    });
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
+  
 
   handleQuestions(questions: QuizQuestion[]): void {
     this.questions$ = of(questions);
