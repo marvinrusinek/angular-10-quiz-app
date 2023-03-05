@@ -108,7 +108,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: new FormControl(null, Validators.required),
     });
   
-    this.currentQuestionIndex = 0;
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
   
@@ -116,47 +115,27 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.handleParamMap(params);
     });
   
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    console.log("SQ", this.selectedQuiz$);
-    this.selectedQuiz$.pipe(
-      tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
-      first()
-    ).subscribe((selectedQuiz) => {
-      console.log("Selected quiz: ", selectedQuiz);
-      if (selectedQuiz) {
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
-        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-          this.question = selectedQuiz.questions[this.currentQuestionIndex];
-        }
-      } else {
-        console.error("Selected quiz is undefined or null");
-      }
-    }, error => console.error(error));
-  
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       console.log("Getting question for index: " + index);
       this.currentQuestionIndex = index;
+      this.selectedQuiz$ = this.quizService.selectedQuiz$; // Move this here
       this.selectedQuiz$.pipe(
         tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
+        filter(selectedQuiz => !!selectedQuiz), // Add this filter
         first()
       ).subscribe((selectedQuiz) => {
         console.log("Selected quiz: ", selectedQuiz);
-        if (selectedQuiz) {
-          this.selectedQuiz = selectedQuiz;
-          this.quizLength = this.quizService.getQuizLength();
-          if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-            this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-              this.question = question;
-              this.form.patchValue({
-                selectedOption: null,
-              });
+        this.selectedQuiz = selectedQuiz;
+        this.quizLength = this.quizService.getQuizLength();
+        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+            this.question = question;
+            this.form.patchValue({
+              selectedOption: null,
             });
-          }
-        } else {
-          console.error("Selected quiz is undefined or null");
+          });
         }
-      }, error => console.error(error));
+      });
     });
   }
         
