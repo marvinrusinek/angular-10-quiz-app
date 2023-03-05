@@ -66,7 +66,7 @@ export class MultipleAnswerComponent
   }
 
   initializeOptionChecked() {
-    if (this.options && this.options.length) {
+    if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
         this.currentQuestion.selectedOptions &&
