@@ -183,7 +183,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setQuizzes([quiz]);
     this.selectedQuiz$.next(quiz);
     this.quizService.setCurrentQuestionIndex(0);
-    this.router.navigate(['/question', quizId, '0']);
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
