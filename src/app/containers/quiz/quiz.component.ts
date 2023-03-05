@@ -118,19 +118,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
-    if (this.selectedQuiz$) {
-      this.selectedQuiz$.pipe(
-        tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
-        first()
-      ).subscribe((selectedQuiz) => {
-        console.log("Selected quiz: ", selectedQuiz);
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
-        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-          this.question = selectedQuiz.questions[this.currentQuestionIndex];
-        }
-      });
-    }
+    this.selectedQuiz$.pipe(
+      tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
+      first()
+    ).subscribe((selectedQuiz) => {
+      console.log("Selected quiz: ", selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      this.quizLength = this.quizService.getQuizLength();
+      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+        this.question = selectedQuiz.questions[this.currentQuestionIndex];
+      } else {
+        console.log("No questions found in selected quiz");
+      }
+    });
   
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       console.log("Getting question for index: " + index);
@@ -149,11 +149,13 @@ export class QuizComponent implements OnInit, OnDestroy {
               selectedOption: null,
             });
           });
+        } else {
+          console.log("No questions found in selected quiz");
         }
       });
     });
-  }  
-  
+  }
+    
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     this.quizId = quizId;
