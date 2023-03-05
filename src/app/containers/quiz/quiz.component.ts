@@ -107,36 +107,39 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       selectedOption: new FormControl(null, Validators.required),
     });
-
+  
     this.currentQuestionIndex = 0;
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
-
+  
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       this.handleParamMap(params);
     });
-
+  
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
-    this.selectedQuiz$.pipe(
-      first()
-    ).subscribe((selectedQuiz) => {
+    
+    this.selectedQuiz$.pipe(first()).subscribe((selectedQuiz) => {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
       this.quizLength = this.quizService.getQuizLength();
     });
-
+  
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       this.currentQuestionIndex = index;
-      this.getQuestion(this.currentQuestionIndex).subscribe((question) => {
-        this.question = question;
-        this.form.patchValue({
-          selectedOption: null,
+      this.selectedQuiz$.pipe(first()).subscribe((selectedQuiz) => {
+        this.selectedQuiz = selectedQuiz;
+        this.quizLength = this.quizService.getQuizLength();
+        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+          this.question = question;
+          this.form.patchValue({
+            selectedOption: null,
+          });
         });
       });
     });
   }
-
+  
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     this.quizId = quizId;
@@ -359,11 +362,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   } */
 
-  getQuestion(index: number): Observable<QuizQuestion> {
+  /* getQuestion(index: number): Observable<QuizQuestion> {
     return this.selectedQuiz$.pipe(
       filter((quiz) => quiz !== null && quiz.questions !== null && quiz.questions.length > index),
       map((quiz) => quiz.questions[index]),
     );
+  } */
+
+  getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
+    return of(selectedQuiz.questions[index]);
   }
 
   getCurrentQuestion() {
