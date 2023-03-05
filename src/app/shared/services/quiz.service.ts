@@ -191,7 +191,8 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestionIndex(index: number) {
-    this.currentQuestionIndexSubject.next(index);
+    this.currentQuestionIndex = index;
+    this.currentQuestionIndex$.next(index);
   }
 
   getNextQuestion(): QuizQuestion {
