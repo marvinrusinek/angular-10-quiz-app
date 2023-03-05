@@ -109,8 +109,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.currentQuestionIndex = 0;
+    this.quiz$ = this.quizDataService.getQuizzes();
+    this.quiz$.subscribe(quizzes => console.log(quizzes));
+  
+    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      this.handleParamMap(params);
+    });
   
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    console.log("SQ", this.selectedQuiz$);
     this.selectedQuiz$.pipe(
       tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
       first()
@@ -120,30 +127,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizLength = this.quizService.getQuizLength();
     });
   
-    this.quiz$ = this.quizDataService.getQuizzes();
-    this.quiz$.subscribe(quizzes => console.log(quizzes));
-  
-    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      this.handleParamMap(params);
-    });
-  
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       this.currentQuestionIndex = index;
-      this.selectedQuiz$.pipe(
-        first()
-      ).subscribe((selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
-        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-          this.question = question;
-          this.form.patchValue({
-            selectedOption: null,
-          });
+      console.log("Getting question for index: ", this.currentQuestionIndex);
+      this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+        console.log("Got question: ", question);
+        this.question = question;
+        this.form.patchValue({
+          selectedOption: null,
         });
       });
-    });    
+    });
   }
-      
+        
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     this.quizId = quizId;
