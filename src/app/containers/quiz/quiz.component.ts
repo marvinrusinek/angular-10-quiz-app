@@ -145,7 +145,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
     });    
-    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    if (this.quizId && this.currentQuestionIndex) {
+      this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    }
   }  
   
   handleParamMap(params: ParamMap): void {
@@ -188,7 +190,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         });
       }
     });
-    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    if (this.quizId && this.currentQuestionIndex) {
+      this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    }
   }
   
 
