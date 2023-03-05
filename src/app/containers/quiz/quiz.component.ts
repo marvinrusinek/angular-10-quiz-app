@@ -152,11 +152,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
   
-  
   handleParamMap(params: ParamMap): void {
+    const quizId = params.get('quizId');
+    this.quizId = quizId;
+    const quizData = this.quizDataService.getQuizById(quizId);
+    if (quizData) {
+      quizData.subscribe((quiz) => {
+        this.handleQuizData(quiz, quizId);
+      });
+    }
+  }
+  
+  /* handleParamMap(params: ParamMap): void {
     const quizId = Number(params.get('quizId'));
     this.quizDataService.setSelectedQuiz(quizId);
-  }
+  } */
 
   handleQuizData(quiz: Quiz, quizId: string): void {
     this.quizDataService.selectedQuiz$.next(quiz);
