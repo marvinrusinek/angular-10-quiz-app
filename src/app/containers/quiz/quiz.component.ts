@@ -107,39 +107,52 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       selectedOption: new FormControl(null, Validators.required),
     });
-
+  
     this.currentQuestionIndex = 0;
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
-
+  
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       this.handleParamMap(params);
     });
-
+  
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    console.log("SelectedQuiz$", this.selectedQuiz$);
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$.pipe(
-      tap(selectedQuiz => {
-        console.log("Selected quiz: ", selectedQuiz);
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
-      })
-    );
-
-    console.log("getting question for index:", this.currentQuestionIndex);
+    console.log("SQ", this.selectedQuiz$);
+    this.selectedQuiz$.pipe(
+      tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
+      first()
+    ).subscribe((selectedQuiz) => {
+      console.log("Selected quiz: ", selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      this.quizLength = this.quizService.getQuizLength();
+    });
+  
+    console.log("Getting question for index:", this.currentQuestionIndex);
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       this.currentQuestionIndex = index;
-      console.log("getting question for index:", this.currentQuestionIndex);
-      this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-        console.log("question", question);
-        this.question = question;
-        this.form.patchValue({
-          selectedOption: null,
+      console.log("Getting question for index:", this.currentQuestionIndex);
+      this.selectedQuiz$.pipe(
+        tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
+        first(),
+        filter(selectedQuiz => selectedQuiz !== null)
+      ).subscribe((selectedQuiz) => {
+        this.selectedQuiz = selectedQuiz;
+        this.quizLength = this.quizService.getQuizLength();
+        this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+          this.question = question;
+          this.form.patchValue({
+            selectedOption: null,
+          });
         });
       });
     });
   }
-        
+  
+  handleParamMap(params: ParamMap): void {
+    const quizId = Number(params.get('quizId'));
+    this.quizDataService.setSelectedQuiz(quizId);
+  }
+          
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     this.quizId = quizId;
