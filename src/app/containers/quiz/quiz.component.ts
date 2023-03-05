@@ -112,6 +112,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
   
+    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      this.handleParamMap(params);
+    });
+  
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
     this.selectedQuiz$.pipe(
@@ -119,16 +123,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       first()
     ).subscribe((selectedQuiz) => {
       console.log("Selected quiz: ", selectedQuiz);
-      this.selectedQuiz = selectedQuiz;
-      this.quizLength = this.quizService.getQuizLength();
-      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-        this.question = selectedQuiz.questions[this.currentQuestionIndex];
+      if (selectedQuiz) {
+        this.selectedQuiz = selectedQuiz;
+        this.quizLength = this.quizService.getQuizLength();
+        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+          this.question = selectedQuiz.questions[this.currentQuestionIndex];
+        }
+      } else {
+        console.error("Selected quiz is undefined or null");
       }
-    });
-  
-    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      this.handleParamMap(params);
-    });
+    }, error => console.error(error));
   
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       console.log("Getting question for index: " + index);
@@ -138,20 +142,24 @@ export class QuizComponent implements OnInit, OnDestroy {
         first()
       ).subscribe((selectedQuiz) => {
         console.log("Selected quiz: ", selectedQuiz);
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
-        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-            this.question = question;
-            this.form.patchValue({
-              selectedOption: null,
+        if (selectedQuiz) {
+          this.selectedQuiz = selectedQuiz;
+          this.quizLength = this.quizService.getQuizLength();
+          if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+            this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+              this.question = question;
+              this.form.patchValue({
+                selectedOption: null,
+              });
             });
-          });
+          }
+        } else {
+          console.error("Selected quiz is undefined or null");
         }
-      });
+      }, error => console.error(error));
     });
   }
-      
+        
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     if (!quizId) {
