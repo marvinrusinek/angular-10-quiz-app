@@ -165,7 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   } */
 
-  handleQuizData(quiz: Quiz, quizId: string): void {
+  /* handleQuizData(quiz: Quiz, quizId: string): void {
     console.log('Handling quiz data:', quiz);
     const selectedQuiz = this.quizService.setQuiz(quiz);
     console.log('Selected quiz:', selectedQuiz);
@@ -173,6 +173,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Selected quiz$ emitted:', selectedQuiz);
     this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
     console.log('Current question index:', this.currentQuestionIndex);
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+  } */
+
+  handleQuizData(quiz: Quiz, quizId: string): void {
+    console.log('handleQuizData called');
+    const selectedQuiz = this.quizService.setQuiz(quiz);
+    this.selectedQuiz$.next(selectedQuiz);
+    console.log("Selected quiz: ", selectedQuiz);
+    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
