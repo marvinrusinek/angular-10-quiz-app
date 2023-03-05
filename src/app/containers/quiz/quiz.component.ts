@@ -109,6 +109,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.currentQuestionIndex = 0;
+  
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
   
@@ -118,18 +119,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
-    
-    this.selectedQuiz$.pipe(first()).subscribe((selectedQuiz) => {
+  
+    this.selectedQuiz$.pipe(
+      first()
+    ).subscribe((selectedQuiz) => {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
       this.quizLength = this.quizService.getQuizLength();
-    });
   
-    this.quizService.getCurrentQuestionIndex().subscribe((index) => {
-      this.currentQuestionIndex = index;
-      this.selectedQuiz$.pipe(first()).subscribe((selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
+      this.quizService.getCurrentQuestionIndex().subscribe((index) => {
+        this.currentQuestionIndex = index;
+  
         this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
           this.question = question;
           this.form.patchValue({
@@ -139,7 +139,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     });
   }
-  
+    
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     this.quizId = quizId;
