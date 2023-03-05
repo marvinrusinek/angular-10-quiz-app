@@ -388,6 +388,11 @@ export class QuizService implements OnDestroy {
     });
   }
 
+  setQuiz(quiz: Quiz): Quiz {
+    this.quiz = quiz;
+    return quiz;
+  }
+
   setQuizStatus(value: string): void {
     this.status = value;
   }

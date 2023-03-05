@@ -141,6 +141,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
+    if (!quizId) {
+      console.error('Quiz id not found in route params');
+      return;
+    }
     this.quizId = quizId;
     const quizData = this.quizDataService.getQuizById(quizId);
     if (quizData) {
@@ -149,22 +153,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     }
   }
-  
-  /* handleParamMap(params: ParamMap): void {
-    const quizId = Number(params.get('quizId'));
-    this.quizDataService.setSelectedQuiz(quizId);
-  } */
 
   handleQuizData(quiz: Quiz, quizId: string): void {
-    this.quizDataService.selectedQuiz$.next(quiz);
-    this.selectedQuiz = quiz;
-    this.quiz = quiz;
-    const questions = this.quizService.getQuestionsForQuiz(quizId);
-    if (questions) {
-      questions.subscribe((questions) => {
-        this.handleQuestions(questions);
-      });
-    }
+    const selectedQuiz = this.quizService.setQuiz(quiz);
+    this.selectedQuiz$.next(selectedQuiz);
+    console.log("Selected quiz: ", selectedQuiz);
+    this.quizService.setCurrentQuestionIndex(0);
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
