@@ -125,43 +125,37 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("Selected quiz: ", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
       this.quizLength = this.quizService.getQuizLength();
+      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+        this.question = selectedQuiz.questions[this.currentQuestionIndex];
+      }
     });
   
-    console.log("Getting question for index:", this.currentQuestionIndex);
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
+      console.log("Getting question for index: " + index);
       this.currentQuestionIndex = index;
-      console.log("Getting question for index:", this.currentQuestionIndex);
       this.selectedQuiz$.pipe(
         tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
-        first(),
-        filter(selectedQuiz => selectedQuiz !== null)
+        first()
       ).subscribe((selectedQuiz) => {
+        console.log("Selected quiz: ", selectedQuiz);
         this.selectedQuiz = selectedQuiz;
         this.quizLength = this.quizService.getQuizLength();
-        this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-          this.question = question;
-          this.form.patchValue({
-            selectedOption: null,
+        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+            this.question = question;
+            this.form.patchValue({
+              selectedOption: null,
+            });
           });
-        });
+        }
       });
     });
   }
+  
   
   handleParamMap(params: ParamMap): void {
     const quizId = Number(params.get('quizId'));
     this.quizDataService.setSelectedQuiz(quizId);
-  }
-          
-  handleParamMap(params: ParamMap): void {
-    const quizId = params.get('quizId');
-    this.quizId = quizId;
-    const quizData = this.quizDataService.getQuizById(quizId);
-    if (quizData) {
-      quizData.subscribe((quiz) => {
-        this.handleQuizData(quiz, quizId);
-      });
-    }
   }
 
   handleQuizData(quiz: Quiz, quizId: string): void {
