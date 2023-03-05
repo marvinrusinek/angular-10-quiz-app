@@ -43,6 +43,7 @@
 
       <!-- the options -->
       <codelab-quiz-question
+        *ngIf="question"
         [question]="question"
         (answer)="selectedAnswer($event)"
         [answers]="answers"
@@ -50,6 +51,7 @@
         (formReady)="form = $event"
         [currentQuestionIndex]="currentQuestionIndex"
         [multipleAnswer]="selectedQuiz.multiple"
+        [questionIndex]="i"
       >
       </codelab-quiz-question>
     </mat-card-content>
