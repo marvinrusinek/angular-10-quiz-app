@@ -176,6 +176,10 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  getCurrentQuestionIndex(): number {
+    return this.currentQuestionIndex;
+  }
+
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex;

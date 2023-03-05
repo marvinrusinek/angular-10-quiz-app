@@ -364,7 +364,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   advanceToNextQuestion() {
     if (this.form.valid) {
       this.isDisabled = true;
-
       console.log('advanceToNextQuestion method called');
 
       if (!this.selectedOption) {
@@ -377,6 +376,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.animationState$.next('animationStarted');
       this.quizService.navigateToNextQuestion();
       this.timerService.resetTimer();
+
+      // Get the current question index after navigation
+      this.quizService.getCurrentQuestionIndex().subscribe((index) => {
+        this.currentQuestionIndex = index;
+      });
+    
+      this.selectedOption = null;
+      this.isDisabled = false;
+      this.animateProgress = false;
     }
   }
 
