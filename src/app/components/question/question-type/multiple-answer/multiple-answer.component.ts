@@ -91,21 +91,21 @@ export class MultipleAnswerComponent
   }
 
   onSelectionChange(question: QuizQuestion, option: Option) {
-    if (!question.selectedOptionIds) {
-      question.selectedOptionIds = [];
+    if (!question.selectedOptions) {
+      question.selectedOptions = [];
     }
-    const index = question.selectedOptionIds.indexOf(option.id);
+    const index = question.selectedOptions.indexOf(option.id);
     if (index === -1) {
-      question.selectedOptionIds.push(option.id);
+      question.selectedOptions.push(option.id);
     } else {
-      question.selectedOptionIds.splice(index, 1);
+      question.selectedOptions.splice(index, 1);
     }
-
+  
     if (
-      question.selectedOptionIds.sort().join(',') ===
+      question.selectedOptions.sort().join(',') ===
       question.answer.sort().join(',')
     ) {
       this.quizService.score++;
     }
-  }
+  }  
 }
