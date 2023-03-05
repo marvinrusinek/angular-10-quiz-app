@@ -109,6 +109,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.currentQuestionIndex = 0;
+  
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    this.selectedQuiz$.pipe(
+      tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
+      first()
+    ).subscribe((selectedQuiz) => {
+      console.log("Selected quiz: ", selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      this.quizLength = this.quizService.getQuizLength();
+    });
+  
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
   
@@ -116,24 +127,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.handleParamMap(params);
     });
   
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    console.log("SQ", this.selectedQuiz$);
-    this.selectedQuiz$.pipe(
-      tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
-      first()
-    ).subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-      this.quizLength = this.quizService.getQuizLength();
-    });
-  
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       this.currentQuestionIndex = index;
       this.selectedQuiz$.pipe(
         first()
       ).subscribe((selectedQuiz) => {
-        if (!selectedQuiz) {
-          return;
-        }
         this.selectedQuiz = selectedQuiz;
         this.quizLength = this.quizService.getQuizLength();
         this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
@@ -143,9 +141,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           });
         });
       });
-    });
+    });    
   }
-    
+      
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     this.quizId = quizId;
