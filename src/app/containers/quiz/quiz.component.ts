@@ -11,7 +11,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { filter, first, map, takeUntil } from 'rxjs/operators';
+import { filter, first, map, switchMap, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -107,38 +107,35 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       selectedOption: new FormControl(null, Validators.required),
     });
-  
+
     this.currentQuestionIndex = 0;
-  
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
-  
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       this.handleParamMap(params);
     });
-  
+
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
-  
     this.selectedQuiz$.pipe(
-      first()
-    ).subscribe((selectedQuiz) => {
-      console.log("selectedQuiz", selectedQuiz);
-      this.selectedQuiz = selectedQuiz;
-      this.quizLength = this.quizService.getQuizLength();
-  
-      this.quizService.getCurrentQuestionIndex().subscribe((index) => {
+      switchMap((selectedQuiz) => {
+        this.selectedQuiz = selectedQuiz;
+        this.quizLength = this.quizService.getQuizLength();
+        return this.quizService.getCurrentQuestionIndex();
+      }),
+      switchMap((index) => {
         this.currentQuestionIndex = index;
-  
-        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-          this.question = question;
-          this.form.patchValue({
-            selectedOption: null,
-          });
-        });
+        return this.getQuestion(this.selectedQuiz, this.currentQuestionIndex);
+      })
+    ).subscribe((question) => {
+      this.question = question;
+      this.form.patchValue({
+        selectedOption: null,
       });
     });
   }
+
     
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
