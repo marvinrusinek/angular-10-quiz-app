@@ -76,9 +76,9 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option): string {
-    if (option.correct && this.optionChecked[option.id]) {
+    if (this.selectedOption.value === option.value && option.correct) {
       return 'correct';
-    } else if (!option.correct && this.optionChecked[option.id]) {
+    } else if (this.selectedOption.value === option.value && !option.correct) {
       return 'incorrect';
     } else {
       return '';
