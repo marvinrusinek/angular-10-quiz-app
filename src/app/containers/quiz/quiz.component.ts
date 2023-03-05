@@ -112,6 +112,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quiz$ = this.activatedRoute.params.pipe(
       switchMap((params: Params) => {
         const quizId = params.quizId;
+        const currentQuestionIndex = params.currentQuestionIndex ? parseInt(params.currentQuestionIndex, 10) : 0;
+        this.quizId = quizId;
+        this.currentQuestionIndex = currentQuestionIndex;
         return this.quizService.getQuiz(quizId);
       })
     );
@@ -124,7 +127,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Selected quiz: ', this.selectedQuiz$);
     
     this.selectedQuiz$.pipe(
-      tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
       filter((selectedQuiz) => !!selectedQuiz),
       first()
     ).subscribe((selectedQuiz) => {
@@ -134,12 +136,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Getting question: ');
         this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
           this.question = question;
-          this.form.patchValue({
-            selectedOption: null,
-          });
+          if (this.form) {
+            this.form.patchValue({
+              selectedOption: null,
+            });
+          }
         });
       }
-    });
+    });    
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }  
   
