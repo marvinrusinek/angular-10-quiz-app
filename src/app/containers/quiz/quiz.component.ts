@@ -44,7 +44,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   @Input() form: FormGroup;
   @Input() milestone: string;
   quiz: Quiz;
-  quiz$: Observable<Quiz[]>;
+  quiz$: Observable<Quiz>;
   quizData: Quiz[];
   quizResources: QuizResource[];
   quizzes: Quiz[];
@@ -58,7 +58,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   resources: Resource[];
   answers: number[] = [];
 
-  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = new BehaviorSubject<Quiz>({});
+  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
@@ -112,26 +113,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quiz$ = this.activatedRoute.params.pipe(
       switchMap((params: Params) => {
         const quizId = params.quizId;
-        const currentQuestionIndex = params.currentQuestionIndex ? parseInt(params.currentQuestionIndex, 10) : 0;
-        this.quizId = quizId;
-        this.currentQuestionIndex = currentQuestionIndex;
         return this.quizService.getQuiz(quizId);
       })
     );
   
     this.quiz$.subscribe((quiz: Quiz) => {
-      // this.quizDataService.setSelectedQuiz(quiz);
       this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
     });
     
     // this.selectedQuiz$ = this.quizService.getSelectedQuiz();
+    this.selectedQuiz$ = this.quizService.selectedQuiz$;
     console.log('Selected quiz: ', this.selectedQuiz$);
-
-    this.selectedQuiz$ = this.quizService.getSelectedQuiz().pipe(
-      filter(selectedQuiz => !!selectedQuiz) // filter out null/undefined values
-    );
     
     this.selectedQuiz$.pipe(
+      tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
       filter((selectedQuiz) => !!selectedQuiz),
       first()
     ).subscribe((selectedQuiz) => {
@@ -141,17 +136,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Getting question: ');
         this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
           this.question = question;
-          if (this.form) {
-            this.form.patchValue({
-              selectedOption: null,
-            });
-          }
+          this.form.patchValue({
+            selectedOption: null,
+          });
         });
       }
-    });    
-    if (this.quizId && this.currentQuestionIndex) {
-      this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-    }
+    });
+  
+    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }  
   
   handleParamMap(params: ParamMap): void {
