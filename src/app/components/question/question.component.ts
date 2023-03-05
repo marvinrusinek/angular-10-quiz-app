@@ -51,7 +51,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-      this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
+      // this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
+      this.currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
       console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
   
       this.getQuestion(this.currentQuestionIndex).subscribe(
