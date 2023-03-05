@@ -160,9 +160,9 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  setQuizzes(quizzes: Quiz[]): void {
+  /* setQuizzes(quizzes: Quiz[]): void {
     this.quizzes = quizzes;
-  }
+  } */
 
   getQuiz(quizId: string): Observable<Quiz> {
     // console.log('Getting quiz with ID:', quizId);
@@ -403,9 +403,9 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  setQuiz(quiz: Quiz): Quiz {
+  setQuiz(quiz: Quiz): Observable<Quiz> {
     this.selectedQuiz = quiz;
-    return quiz;
+    return of(this.selectedQuiz);
   }
 
   setQuizStatus(value: string): void {

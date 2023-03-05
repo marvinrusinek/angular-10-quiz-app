@@ -15,13 +15,13 @@
       <div class="header-titles">
         <mat-card-title i18n
           >{{
-            selectedQuiz.milestone || 'No questions found'
+            selectedQuiz?.milestone || 'No questions found'
           }}
           Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
-          {{ selectedQuiz.milestone || 'No questions found' }}</mat-card-subtitle
+          {{ selectedQuiz?.milestone || 'No questions found' }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>

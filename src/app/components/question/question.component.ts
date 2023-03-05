@@ -10,10 +10,11 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
+import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -81,11 +82,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  getQuestion(index: number): Observable<QuizQuestion> {
+  getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
+    if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
+      return throwError('Quiz or questions not found');
+    }
+    const question = selectedQuiz.questions[index];
+    return of(question);
+  }
+
+  /* getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizService.getQuestionsForQuiz(this.quizId).pipe(
       map((quizQuestions: QuizQuestion[]) => quizQuestions[index].question)
     );
-  } 
+  } */
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
