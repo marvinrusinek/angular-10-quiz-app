@@ -94,15 +94,16 @@ export class MultipleAnswerComponent
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-    const index = question.selectedOptions.indexOf(option.id);
+    const index = question.selectedOptions.findIndex(o => o.id === option.id);
     if (index === -1) {
-      question.selectedOptions.push(option.id);
+      question.selectedOptions.push(option);
     } else {
       question.selectedOptions.splice(index, 1);
     }
   
+    const selectedOptionIds = question.selectedOptions.map(o => o.id);
     if (
-      question.selectedOptions.sort().join(',') ===
+      selectedOptionIds.sort().join(',') ===
       question.answer.sort().join(',')
     ) {
       this.quizService.score++;
