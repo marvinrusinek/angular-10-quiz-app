@@ -109,6 +109,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.handleParamMap(params);
     });
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    console.log("SQ", this.selectedQuiz$);
     this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
