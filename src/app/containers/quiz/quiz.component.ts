@@ -101,46 +101,48 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { 
-    this.currentQuestionIndex = 0;
-  }
+  ) {}
 
   ngOnInit(): void {
     this.form = new FormGroup({
       selectedOption: new FormControl(null, Validators.required),
     });
-
+  
     this.currentQuestionIndex = 0;
-    this.quiz$ = this.quizDataService.getQuizzes();
-    this.quiz$.subscribe(quizzes => console.log(quizzes));
-
-    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      this.handleParamMap(params);
-    });
-
+  
+    // use combineLatest to get the selectedQuiz and currentQuestionIndex observables
     combineLatest([
-      this.quizService.getCurrentQuestionIndex(),
-      this.selectedQuiz$.pipe(
-        tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
-        filter(selectedQuiz => !!selectedQuiz),
-        first()
-      )
-    ]).subscribe(([index, selectedQuiz]) => {
-      console.log("Getting question for index: " + index);
-      this.currentQuestionIndex = index;
-      console.log("Selected quiz: ", selectedQuiz);
+      this.quizService.getSelectedQuiz(),
+      this.quizService.getCurrentQuestionIndex()
+    ]).pipe(
+      tap(([selectedQuiz, currentQuestionIndex]) => {
+        console.log("Selected quiz: ", selectedQuiz);
+        console.log("Current question index: ", currentQuestionIndex);
+      }),
+      filter(([selectedQuiz, currentQuestionIndex]) => !!selectedQuiz && typeof currentQuestionIndex === 'number'),
+      first()
+    ).subscribe(([selectedQuiz, currentQuestionIndex]) => {
       this.selectedQuiz = selectedQuiz;
-      this.quizLength = this.quizService.getQuizLength();
-      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-          this.question = question;
-          this.form.patchValue({
-            selectedOption: null,
-          });
-        }); 
+      this.quizLength = selectedQuiz.questions.length;
+      this.currentQuestionIndex = currentQuestionIndex;
+      this.getQuestion(selectedQuiz, currentQuestionIndex).subscribe((question) => {
+        this.question = question;
+        this.form.patchValue({
+          selectedOption: null,
+        });
+      });
+    });
+  
+    // subscribe to the form value changes and save the selected answer
+    this.form.valueChanges.subscribe((value) => {
+      const answer = value.selectedOption;
+      const selectedQuiz = this.selectedQuiz;
+      const currentQuestionIndex = this.currentQuestionIndex;
+      if (answer && selectedQuiz && currentQuestionIndex !== undefined) {
+        this.quizService.saveAnswer(selectedQuiz, currentQuestionIndex, answer);
       }
     });
-  }
+  }  
   
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
