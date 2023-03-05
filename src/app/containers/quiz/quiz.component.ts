@@ -7,10 +7,11 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { first, map, takeUntil } from 'rxjs/operators';
+import { filter, first, map, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -103,12 +104,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.form = new FormGroup({
+      selectedOption: new FormControl(null, Validators.required),
+    });
+
     this.currentQuestionIndex = 0;
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       this.handleParamMap(params);
     });
+
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
     this.selectedQuiz$.pipe(
@@ -117,6 +124,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
       this.quizLength = this.quizService.getQuizLength();
+    });
+
+    this.quizService.getCurrentQuestionIndex().subscribe((index) => {
+      this.currentQuestionIndex = index;
+      this.getQuestion(this.currentQuestionIndex).subscribe((question) => {
+        this.question = question;
+        this.form.patchValue({
+          selectedOption: null,
+        });
+      });
     });
   }
 
@@ -336,6 +353,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  /* getQuestion(index: number): Observable<QuizQuestion> {
+    return this.quizDataService.selectedQuiz$.pipe(
+      map(selectedQuiz => selectedQuiz.questions[index])
+    );
+  } */
+
+  getQuestion(index: number): Observable<QuizQuestion> {
+    return this.selectedQuiz$.pipe(
+      filter((quiz) => quiz !== null && quiz.questions !== null && quiz.questions.length > index),
+      map((quiz) => quiz.questions[index]),
+    );
+  }
+
   getCurrentQuestion() {
     this.quizService.getQuestion(this.selectedQuiz.id, this.currentQuestionIndex)
       .subscribe((question) => {
@@ -373,6 +403,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
+    const selectedOption = this.form.value.selectedOption;
     if (this.form.valid) {
       this.isDisabled = true;
   
@@ -388,11 +419,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       const isLastQuestion = this.currentQuestionIndex === this.quizLength - 1;
   
       if (isLastQuestion) {
-        // Submit the quiz if this is the last question
         this.status = Status.Complete;
         this.submitQuiz();
       } else {
-        // Navigate to the next question
         this.quizService.navigateToNextQuestion();
         this.getCurrentQuestion();
         this.timerService.resetTimer();

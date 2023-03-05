@@ -51,6 +51,7 @@ export class QuizService implements OnDestroy {
   correctAnswerOptions: number[] = [];
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  currentQuestionIndexSubject = new BehaviorSubject<number>(0);
 
   userAnswers = [];
   previousAnswers = [];
@@ -185,8 +186,12 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz ? this.selectedQuiz.questions.length : 0;
   }
 
-  getCurrentQuestionIndex(): number {
-    return this.currentQuestionIndex;
+  getCurrentQuestionIndex(): Observable<number> {
+    return this.currentQuestionIndexSubject.asObservable();
+  }
+
+  setCurrentQuestionIndex(index: number) {
+    this.currentQuestionIndexSubject.next(index);
   }
 
   getNextQuestion(): QuizQuestion {
@@ -431,9 +436,9 @@ export class QuizService implements OnDestroy {
     this.currentQuestion = value;
   }
 
-  setCurrentQuestionIndex(index: number) {
+  /* setCurrentQuestionIndex(index: number) {
     this.currentQuestionIndex = index;
-  }
+  } */
 
   setResources(value: Resource[]): void {
     this.resources = value;
