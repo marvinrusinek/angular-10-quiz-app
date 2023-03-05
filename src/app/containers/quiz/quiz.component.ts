@@ -101,7 +101,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { }
+  ) { 
+    this.currentQuestionIndex = 0;
+  }
 
   ngOnInit(): void {
     this.form = new FormGroup({
@@ -154,8 +156,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz, quizId: string): void {
+  /* handleQuizData(quiz: Quiz, quizId: string): void {
     const selectedQuiz = this.quizService.setQuiz(quiz);
+    this.selectedQuiz$.next(selectedQuiz);
+    console.log("Selected quiz: ", selectedQuiz);
+    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+  } */
+
+  handleQuizData(quiz: Quiz, quizId: string): void {
+    this.quizService.setQuiz(quiz);
+    const selectedQuiz = this.quizService.getQuiz();
     this.selectedQuiz$.next(selectedQuiz);
     console.log("Selected quiz: ", selectedQuiz);
     this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
