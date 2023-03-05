@@ -336,6 +336,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  getCurrentQuestion() {
+    this.quizService.getQuestion(this.selectedQuiz.id, this.currentQuestionIndex)
+      .subscribe((question) => {
+        this.currentQuestion = question;
+      });
+  }
+
   shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;
   }
@@ -387,6 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         // Navigate to the next question
         this.quizService.navigateToNextQuestion();
+        this.getCurrentQuestion();
         this.timerService.resetTimer();
       }
     }
