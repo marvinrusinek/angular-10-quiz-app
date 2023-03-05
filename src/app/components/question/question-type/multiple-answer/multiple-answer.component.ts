@@ -61,6 +61,7 @@ export class MultipleAnswerComponent
     );
 
     this.initializeOptionChecked();
+    console.log('initializeOptionChecked called');
   }
 
   initializeOptionChecked() {
@@ -69,11 +70,11 @@ export class MultipleAnswerComponent
         this.optionChecked[option.id] =
           this.currentQuestion.selectedOptions &&
           this.currentQuestion.selectedOptions.indexOf(option.id) !== -1 &&
-          this.optionChecked && this.optionChecked[option.id];
+          this.optionChecked &&
+          this.optionChecked[option.id];
       });
     }
   }
-  
 
   getOptionClass(option): string {
     if (this.selectedOption === option && option.correct) {
@@ -104,12 +105,12 @@ export class MultipleAnswerComponent
     } else {
       question.selectedOptionIds.splice(index, 1);
     }
-  
+
     if (
       question.selectedOptionIds.sort().join(',') ===
       question.answer.sort().join(',')
     ) {
       this.quizService.score++;
     }
-  }  
+  }
 }
