@@ -161,7 +161,7 @@ export class QuizSelectionComponent implements OnInit {
     }
   }
 
-  getIconClass(quiz: Quiz) {
+  getIconClass(quiz: Quiz): string {
     switch (quiz.status) {
       case 'Started':
         return 'material-icons start-icon';
