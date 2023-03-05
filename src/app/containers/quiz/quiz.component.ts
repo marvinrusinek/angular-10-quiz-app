@@ -10,7 +10,7 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import { filter, first, map, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -109,35 +109,36 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       selectedOption: new FormControl(null, Validators.required),
     });
-  
+
     this.currentQuestionIndex = 0;
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
-  
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       this.handleParamMap(params);
     });
-  
-    this.quizService.getCurrentQuestionIndex().subscribe((index) => {
-      console.log("Getting question for index: " + index);
-      this.currentQuestionIndex = index;
+
+    combineLatest([
+      this.quizService.getCurrentQuestionIndex(),
       this.selectedQuiz$.pipe(
         tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
         filter(selectedQuiz => !!selectedQuiz),
         first()
-      ).subscribe((selectedQuiz) => {
-        console.log("Selected quiz: ", selectedQuiz);
-        this.selectedQuiz = selectedQuiz;
-        this.quizLength = this.quizService.getQuizLength();
-        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-            this.question = question;
-            this.form.patchValue({
-              selectedOption: null,
-            });
+      )
+    ]).subscribe(([index, selectedQuiz]) => {
+      console.log("Getting question for index: " + index);
+      this.currentQuestionIndex = index;
+      console.log("Selected quiz: ", selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      this.quizLength = this.quizService.getQuizLength();
+      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+          this.question = question;
+          this.form.patchValue({
+            selectedOption: null,
           });
-        }
-      });
+        }); 
+      }
     });
   }
   
