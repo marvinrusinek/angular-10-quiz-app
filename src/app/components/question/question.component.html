@@ -1,22 +1,24 @@
-<ng-content *ngIf="question && questionForm.valid"></ng-content>
-<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
-  <codelab-question-single-answer
-    *ngSwitchCase="!multipleAnswer"
-    [question]="question"
-    [currentQuestionIndex]="currentQuestionIndex"
-    (answer)="updateSelectedOption(selectedOption, i)"
-  >
-  </codelab-question-single-answer>
+<div *ngIf="questionForm">
+  <ng-content *ngIf="questionForm.valid"></ng-content>
+  <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
+    <codelab-question-single-answer
+      *ngSwitchCase="!multipleAnswer"
+      [question]="question"
+      [currentQuestionIndex]="currentQuestionIndex"
+      (answer)="updateSelectedOption(selectedOption, i)"
+    >
+    </codelab-question-single-answer>
 
-  <codelab-question-multiple-answer
-    *ngSwitchCase="multipleAnswer"
-    [form]="questionForm"
-    [question]="currentQuestion"
-    [currentQuestionIndex]="currentQuestionIndex"
-    [options]="options"
-    [selectedOption]="selectedOption"
-    [correctAnswers]="correctAnswers"
-    [correctMessage]="correctMessage"
-    (answer)="updateClassName(selectedOption, i)"
-  ></codelab-question-multiple-answer>
-</form>
+    <codelab-question-multiple-answer
+      *ngSwitchCase="multipleAnswer"
+      [form]="questionForm"
+      [question]="currentQuestion"
+      [currentQuestionIndex]="currentQuestionIndex"
+      [options]="options"
+      [selectedOption]="selectedOption"
+      [correctAnswers]="correctAnswers"
+      [correctMessage]="correctMessage"
+      (answer)="updateClassName(selectedOption, i)"
+    ></codelab-question-multiple-answer>
+  </form>
+</div>

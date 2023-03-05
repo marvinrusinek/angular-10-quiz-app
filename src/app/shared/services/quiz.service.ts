@@ -124,6 +124,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    console.log("QI:", quizId);
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
 
@@ -163,13 +164,6 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
-  }
-
-  getQuizQuestions(milestone: string): Observable<QuizQuestion[]> {
-    return this.http.get<Quiz[]>('./assets/data/quiz.json').pipe(
-      map((quizzes) => quizzes.find((quiz) => quiz.milestone === milestone)),
-      map((quiz) => quiz.questions)
-    );
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {

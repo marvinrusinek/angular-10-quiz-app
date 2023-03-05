@@ -44,6 +44,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    console.log('QuestionComponent ngOnInit: question=', this.question);
+
+    this.activatedRoute.params.subscribe((params) => {
+      this.quizId = params['quizId'];
+      this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
+      console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
+  
+      this.getQuestion(this.currentQuestionIndex).subscribe(
+        (question) => {
+          console.log('QuestionComponent subscribe: question=', question);
+          this.question = question;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    });
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
@@ -58,6 +76,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
+
+  getQuestion(index: number): Observable<QuizQuestion> {
+    return this.quizService.getQuestionsForQuiz(this.quizId).pipe(
+      map((quizQuestions: QuizQuestion[]) => quizQuestions[index].question)
+    );
+  } 
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
