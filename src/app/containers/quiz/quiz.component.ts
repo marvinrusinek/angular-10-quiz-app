@@ -48,6 +48,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizResources: QuizResource[];
   quizzes: Quiz[];
   quizzes$: Observable<Quiz[]>;
+  quizLength: number;
   question: QuizQuestion;
   questions: QuizQuestion[];
   currentQuestion: any = undefined;
@@ -115,6 +116,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe((selectedQuiz) => {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
+      this.quizLength = this.quizService.getQuizLength();
     });
   }
 
@@ -366,30 +368,30 @@ export class QuizComponent implements OnInit, OnDestroy {
   advanceToNextQuestion() {
     if (this.form.valid) {
       this.isDisabled = true;
-      console.log('advanceToNextQuestion method called');
-
+  
       if (!this.selectedOption) {
         return;
       }
-
+  
       this.checkIfAnsweredCorrectly();
       this.answers = [];
       this.status = Status.Continue;
       this.animationState$.next('animationStarted');
-      this.quizService.navigateToNextQuestion();
-      this.timerService.resetTimer();
-
-      // Get the current question index after navigation
-      this.quizService.getCurrentQuestionIndex().subscribe((index) => {
-        this.currentQuestionIndex = index;
-      });
-    
-      this.selectedOption = null;
-      this.isDisabled = false;
-      this.animateProgress = false;
+  
+      const isLastQuestion = this.currentQuestionIndex === this.quizLength - 1;
+  
+      if (isLastQuestion) {
+        // Submit the quiz if this is the last question
+        this.status = Status.Complete;
+        this.submitQuiz();
+      } else {
+        // Navigate to the next question
+        this.quizService.navigateToNextQuestion();
+        this.timerService.resetTimer();
+      }
     }
   }
-
+    
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = Status.Continue;
@@ -403,6 +405,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.resetTimer();
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
+  }
+
+  submitQuiz() {
+    this.quizService.submitQuiz(this.selectedQuiz.id, this.form.value).subscribe(() => {
+      this.status = Status.Complete;
+      // this.quizService.resetQuiz(); ???
+      this.router.navigate(['/results']);
+    });
   }
 
   restartQuiz() {

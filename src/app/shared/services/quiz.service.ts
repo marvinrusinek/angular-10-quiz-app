@@ -176,6 +176,15 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  submitQuiz(quizId: string, formData: any) 
+    // handle quiz submission logic here, such as sending the answers to a server
+    console.log('Quiz submitted!');
+  }
+
+  getQuizLength(): number {
+    return this.selectedQuiz ? this.selectedQuiz.questions.length : 0;
+  }
+
   getCurrentQuestionIndex(): number {
     return this.currentQuestionIndex;
   }
