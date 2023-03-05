@@ -30,6 +30,7 @@ export class QuizService implements OnDestroy {
   totalQuestions: number;
   currentQuizIndex: number = 0;
   currentQuestionIndex: number = 1;
+  currentQuestionIndex$ = new BehaviorSubject<number>(0);
   quizLength: number;
   quizStartTime: Date;
 
