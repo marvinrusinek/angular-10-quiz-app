@@ -10,6 +10,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class QuizDataService {
+  quiz: Quiz;
   quizzes$: Observable<Quiz[]>;
   // private selectedQuiz = null;
   selectedQuiz$: BehaviorSubject<Quiz>;
@@ -60,8 +61,14 @@ export class QuizDataService {
     this.selectedQuiz$.next(quiz);
   }
 
-  setQuiz(quiz: Quiz): void {
+  /* setQuiz(quiz: Quiz): void {
     this.quizIdSubject.next(quiz);
+  } */
+
+  setQuiz(quiz: Quiz) {
+    this.quiz = quiz;
+    this.selectedQuiz$.next(quiz);
+    console.log("Selected quiz: ", this.selectedQuiz$.value);
   }
 
   selectQuiz(quiz: Quiz | undefined): void {

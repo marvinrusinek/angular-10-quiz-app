@@ -187,7 +187,7 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestionIndex(): Observable<number> {
-    return this.currentQuestionIndexSubject.asObservable();
+    return this.currentQuestionIndex$.asObservable();
   }
 
   setCurrentQuestionIndex(index: number) {
