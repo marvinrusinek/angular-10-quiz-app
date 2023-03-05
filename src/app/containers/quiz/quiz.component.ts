@@ -107,49 +107,57 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       selectedOption: new FormControl(null, Validators.required),
     });
-  
+
     this.quiz$ = this.quizDataService.getQuizzes();
-    this.quiz$.subscribe(quizzes => console.log(quizzes));
-  
+
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       this.handleParamMap(params);
     });
-  
-    this.quizService.getCurrentQuestionIndex().subscribe((index) => {
-      console.log("Getting question for index: " + index);
-      this.currentQuestionIndex = index;
-      this.selectedQuiz$ = this.quizService.selectedQuiz$; // Move this here
-      this.selectedQuiz$.pipe(
-        tap(selectedQuiz => console.log("Selected quiz: ", selectedQuiz)),
-        filter(selectedQuiz => !!selectedQuiz), // Add this filter
-        first()
-      ).subscribe((selectedQuiz) => {
-        console.log("Selected quiz: ", selectedQuiz);
-        this.selectedQuiz = selectedQuiz;
+
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+
+    this.selectedQuiz$
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe((selectedQuiz) => {
         this.quizLength = this.quizService.getQuizLength();
         if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
-            this.question = question;
-            this.form.patchValue({
-              selectedOption: null,
-            });
-          });
+          this.question = selectedQuiz.questions[this.currentQuestionIndex];
         }
       });
+
+    this.quizService.getCurrentQuestionIndex().subscribe((index) => {
+      this.currentQuestionIndex = index;
+      this.selectedQuiz$
+        .pipe(
+          takeUntil(this.unsubscribe$)
+        )
+        .subscribe((selectedQuiz) => {
+          this.quizLength = this.quizService.getQuizLength();
+          if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+            this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe((question) => {
+              this.question = question;
+              this.form.patchValue({
+                selectedOption: null,
+              });
+            });
+          }
+        });
     });
   }
-        
+
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
-    if (!quizId) {
-      console.error('Quiz id not found in route params');
-      return;
-    }
-    this.quizId = quizId;
-    const quizData = this.quizDataService.getQuizById(quizId);
-    if (quizData) {
-      quizData.subscribe((quiz) => {
-        this.handleQuizData(quiz, quizId);
+    const currentQuestionIndex = parseInt(params.get('currentQuestionIndex') || '0');
+    this.quizService.setCurrentQuestionIndex(currentQuestionIndex);
+    if (quizId) {
+      this.quizService.getQuiz(quizId).subscribe((quiz) => {
+        if (quiz) {
+          this.quizService.setQuiz(quiz);
+          this.selectedQuiz$.next(quiz);
+          this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+        }
       });
     }
   }
