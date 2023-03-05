@@ -7,7 +7,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
@@ -100,8 +100,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     private quizDataService: QuizDataService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.form = this.fb.group({
+      selectedOption: null,
+    });
+  }
 
   ngOnInit(): void {
     this.quiz$ = this.activatedRoute.params.pipe(
