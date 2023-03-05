@@ -150,7 +150,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
     });
-  }
+  }  
   
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
