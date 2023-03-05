@@ -46,7 +46,8 @@ export class MultipleAnswerComponent
     super(quizService);
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    console.log("ngOnInit called");
     this.form = this.formBuilder.group({
       answer: [null, Validators.required],
     });
@@ -58,11 +59,15 @@ export class MultipleAnswerComponent
       this.currentQuestion
     );
 
+    this.initializeOptionChecked();
+  }
+
+  initializeOptionChecked() {
     if (this.options && this.options.length) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
-          this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+        this.currentQuestion.selectedOptions &&
+        this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
       });
     }
   }
