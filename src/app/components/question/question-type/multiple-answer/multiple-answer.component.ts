@@ -25,7 +25,7 @@ import { QuizService } from '../../../../shared/services/quiz.service';
 })
 export class MultipleAnswerComponent
   extends QuizQuestionComponent
-  implements OnInit
+  implements OnInit, OnChanges
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -53,11 +53,15 @@ export class MultipleAnswerComponent
       answer: [null, Validators.required],
     });
     this.formReady.emit(this.form);
+
+    this.currentQuestion = this.question;
+    // this.currentQuestion = await this.quizService.getCurrentQuestion();
+    this.correctAnswers = this.quizService.getCorrectAnswers(
+      this.currentQuestion
+    );
   }
 
   ngOnChanges() {
-    this.currentQuestion = this.question;
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
     this.initializeOptionChecked();
   }
 
