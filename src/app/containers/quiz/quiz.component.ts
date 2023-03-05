@@ -159,17 +159,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.form.patchValue({ options: question.options });
   }
 
-  initializeMilestoneQuestions() {
-    if (this.quiz && this.quiz.milestone) {
-      console.log('QM::', this.quiz.milestone);
-      this.milestoneQuestions$ = this.quizService.getMilestoneQuestions(
-        this.quiz.milestone.toLowerCase()
-      ) as Observable<QuizQuestion[]>;
-    } else {
-      // Handle the case where the quiz or milestone is undefined
-    }
-  }
-
   loadQuiz(index: number): void {
     this.currentQuestionIndex = index;
     console.log('questions:::', this.questions);
@@ -178,20 +167,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   startQuiz() {
     console.log('questions:::', this.questions);
-
-    if (!this.quiz || !this.quiz.milestone) {
-      console.log('Milestone is undefined or null!');
-      return;
-    }
-
     this.quizService.currentQuestionIndex = 0;
     this.quizService.quizStarted = true;
     this.quizService.loadQuestions();
-  }
-
-  onMilestoneSelected(milestone: string) {
-    this.selectedMilestone = milestone;
-    // this.loadQuiz('some-quiz-id', milestone);
   }
 
   private getQuizData(): void {
@@ -209,6 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.shuffleAnswers();
   }
 
+  // check if used or not
   private subscribeToQuizParams(): void {
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
