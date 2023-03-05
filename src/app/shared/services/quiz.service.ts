@@ -13,6 +13,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { Score } from '../../shared/models/Score.model';
+import { QuizDataService } from '../../shared/services/quizdata.service';
 
 @Injectable({
   providedIn: 'root',
@@ -83,9 +84,14 @@ export class QuizService implements OnDestroy {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private quizDataService: QuizDataService,
     private router: Router,
     private http: HttpClient
   ) {
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      this.setQuizzes(quizzes);
+    });
+
     this.quizzes$ = this.getQuizzes().pipe(
       catchError((error) => {
         console.error(error);
@@ -190,7 +196,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizLength(): number {
-    return this.selectedQuiz ? this.selectedQuiz.questions.length : 0;
+    return this.selectedQuiz.questions.length;
   }
 
   getCurrentQuestionIndex(): Observable<number> {
@@ -398,7 +404,7 @@ export class QuizService implements OnDestroy {
   }
 
   setQuiz(quiz: Quiz): Quiz {
-    this.quiz = quiz;
+    this.selectedQuiz = quiz;
     return quiz;
   }
 
