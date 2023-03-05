@@ -67,8 +67,11 @@ export class MultipleAnswerComponent
     if (this.options && this.options.length) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
-        this.currentQuestion.selectedOptions &&
-        this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+          this.currentQuestion.selectedOptions &&
+          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+        if (this.optionChecked[option.id]) {
+          this.selectedOption = option;
+        }
       });
     }
   }
