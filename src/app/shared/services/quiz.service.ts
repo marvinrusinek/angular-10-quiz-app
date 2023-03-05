@@ -191,9 +191,10 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionIndex$.asObservable();
   }
 
-  setCurrentQuestionIndex(index: number) {
+  setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
-    this.currentQuestionIndex$.next(index);
+    console.log('Current question index:', this.currentQuestionIndex);
+    this.currentQuestionIndex$.next(this.currentQuestionIndex);
   }
 
   getNextQuestion(): QuizQuestion {

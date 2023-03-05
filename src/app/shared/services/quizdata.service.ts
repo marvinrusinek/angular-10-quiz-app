@@ -65,11 +65,16 @@ export class QuizDataService {
     this.quizIdSubject.next(quiz);
   } */
 
-  setQuiz(quiz: Quiz) {
+  setQuiz(quiz: Quiz): void {
+    this.quiz = quiz;
+    console.log('Selected quiz:', this.quiz);
+  }
+
+  /* setQuiz(quiz: Quiz) {
     this.quiz = quiz;
     this.selectedQuiz$.next(quiz);
     console.log("Selected quiz: ", this.selectedQuiz$.value);
-  }
+  } */
 
   selectQuiz(quiz: Quiz | undefined): void {
     this.selectedQuiz$.next(quiz);
