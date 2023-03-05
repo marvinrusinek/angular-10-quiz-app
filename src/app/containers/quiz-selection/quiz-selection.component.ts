@@ -84,18 +84,18 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedMilestone = milestone;
   }
 
-  selectQuiz(quiz: Quiz) {
+  selectQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
   }
 
-  getQuizTileStyles(quiz: Quiz) {
+  getQuizTileStyles(quiz: Quiz): void {
     return {
       'background': 'url(' + quiz.image + ') no-repeat center 10px',
       'background-size': '300px 210px'
     };
   }
 
-  getLinkClass(quiz: Quiz): void {
+  getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
     switch (quiz.status) {
       case 'Started':
