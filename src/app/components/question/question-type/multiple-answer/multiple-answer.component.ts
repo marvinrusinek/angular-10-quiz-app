@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges, 
   OnInit,
   Output,
   ViewEncapsulation,
@@ -46,19 +47,17 @@ export class MultipleAnswerComponent
     super(quizService);
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     console.log("ngOnInit called");
     this.form = this.formBuilder.group({
       answer: [null, Validators.required],
     });
     this.formReady.emit(this.form);
+  }
 
+  ngOnChanges() {
     this.currentQuestion = this.question;
-    // this.currentQuestion = await this.quizService.getCurrentQuestion();
-    this.correctAnswers = this.quizService.getCorrectAnswers(
-      this.currentQuestion
-    );
-
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
     this.initializeOptionChecked();
   }
 
