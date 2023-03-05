@@ -118,17 +118,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     console.log("SQ", this.selectedQuiz$);
-    this.selectedQuiz$.pipe(
-      tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
-      first()
-    ).subscribe((selectedQuiz) => {
-      console.log("Selected quiz: ", selectedQuiz);
-      this.selectedQuiz = selectedQuiz;
-      this.quizLength = this.quizService.getQuizLength();
-      if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
-        this.question = selectedQuiz.questions[this.currentQuestionIndex];
-      }
-    });
+    if (this.selectedQuiz$) {
+      this.selectedQuiz$.pipe(
+        tap(selectedQuiz => console.log("selectedQuiz", selectedQuiz)),
+        first()
+      ).subscribe((selectedQuiz) => {
+        console.log("Selected quiz: ", selectedQuiz);
+        this.selectedQuiz = selectedQuiz;
+        this.quizLength = this.quizService.getQuizLength();
+        if (selectedQuiz && selectedQuiz.questions && selectedQuiz.questions.length > 0) {
+          this.question = selectedQuiz.questions[this.currentQuestionIndex];
+        }
+      });
+    }
   
     this.quizService.getCurrentQuestionIndex().subscribe((index) => {
       console.log("Getting question for index: " + index);
