@@ -120,6 +120,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   
     this.quiz$.subscribe((quiz: Quiz) => {
+      this.quizDataService.setSelectedQuiz(quiz);
       this.handleQuizData(quiz);
     });
     
@@ -168,7 +169,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz): void {
+  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number) {
+    this.quizService.setQuizzes([quiz]);
+    this.quizId = quizId;
+    this.currentQuestionIndex = currentQuestionIndex;
     const selectedQuiz$ = this.quizService.setQuiz(quiz);
     console.log('Selected quiz:', selectedQuiz$);
     selectedQuiz$.subscribe((selectedQuiz) => {
