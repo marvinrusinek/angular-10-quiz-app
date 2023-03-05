@@ -9,6 +9,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -35,17 +36,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   selectedOption: Option;
   hasSelectedOptions = false;
   answers;
+  quizId: string;
 
   constructor(
     private quizService: QuizService,
-    private timerService: TimerService
+    private timerService: TimerService,
+    private activatedRoute: ActivatedRoute
   ) {
     this.correctMessage = '';
   }
 
   ngOnInit(): void {
-    console.log('QuestionComponent ngOnInit: question=', this.question);
-
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.currentQuestionIndex = parseInt(params['questionIndex'], 10);

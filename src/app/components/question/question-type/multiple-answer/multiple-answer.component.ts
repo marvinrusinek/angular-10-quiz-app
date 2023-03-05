@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -21,6 +22,7 @@ import { QuizService } from '../../../../shared/services/quiz.service';
     './multiple-answer.component.scss',
     '../../question.component.scss',
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class MultipleAnswerComponent
