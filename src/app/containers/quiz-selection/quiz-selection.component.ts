@@ -8,16 +8,12 @@ import {
   ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { DomSanitizer } from '@angular/platform-browser';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { QuizService } from '../../shared/services/quiz.service';
-import { SelectedMilestoneService } from '../../shared/services/selected-milestone.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
@@ -51,7 +47,6 @@ export class QuizSelectionComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private selectedMilestoneService: SelectedMilestoneService,
     private router: Router
   ) {
     this.quizzes$ = this.quizService.getQuizzes();
@@ -67,28 +62,23 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedQuiz = this.quizService.selectedQuiz$;
     this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     this.selectionParams = this.quizService.returnQuizSelectionParams();
-    this.selectedMilestone = this.selectedMilestoneService.selectedMilestone;
   }
 
-  onSelect(quizId) {
+  onSelect(quizId): void {
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
     }
+
     this.quizService.quizId = quizId;
     this.router.navigate(['/intro/', quizId]);
-  }
-
-  selectMilestone(milestone: string) {
-    this.selectedMilestoneService.setSelectedMilestone(milestone);
-    this.selectedMilestone = milestone;
   }
 
   selectQuiz(quiz: Quiz): void {
     this.selectedQuiz = quiz;
   }
 
-  getQuizTileStyles(quiz: Quiz): void {
+  getQuizTileStyles(quiz: Quiz) {
     return {
       'background': 'url(' + quiz.image + ') no-repeat center 10px',
       'background-size': '300px 210px'

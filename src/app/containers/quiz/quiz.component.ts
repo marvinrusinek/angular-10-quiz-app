@@ -105,34 +105,41 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionIndex = 0;
     this.quiz$ = this.quizDataService.getQuizzes();
     this.quiz$.subscribe(quizzes => console.log(quizzes));
-
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      const quizId = params.get('quizId');
-      this.quizId = quizId;
-  
-      const quizData = this.quizDataService.getQuizById(quizId);
-      if (quizData) {
-        quizData.subscribe((quiz) => {
-          this.quizDataService.selectedQuiz$.next(quiz);
-          this.selectedQuiz = quiz;
-          this.quiz = quiz;
-  
-          const questions = this.quizService.getQuestionsForQuiz(quizId);
-          if (questions) {
-            questions.subscribe((questions) => {
-              this.questions$ = of(questions);
-            });
-          }
-        });
-      }
+      this.handleParamMap(params);
     });
-
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-
     this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
       console.log("selectedQuiz", selectedQuiz);
       this.selectedQuiz = selectedQuiz;
     });
+  }
+
+  handleParamMap(params: ParamMap): void {
+    const quizId = params.get('quizId');
+    this.quizId = quizId;
+    const quizData = this.quizDataService.getQuizById(quizId);
+    if (quizData) {
+      quizData.subscribe((quiz) => {
+        this.handleQuizData(quiz, quizId);
+      });
+    }
+  }
+
+  handleQuizData(quiz: Quiz, quizId: string): void {
+    this.quizDataService.selectedQuiz$.next(quiz);
+    this.selectedQuiz = quiz;
+    this.quiz = quiz;
+    const questions = this.quizService.getQuestionsForQuiz(quizId);
+    if (questions) {
+      questions.subscribe((questions) => {
+        this.handleQuestions(questions);
+      });
+    }
+  }
+
+  handleQuestions(questions: QuizQuestion[]): void {
+    this.questions$ = of(questions);
   }
 
   updateCardFooterClass(): void {
