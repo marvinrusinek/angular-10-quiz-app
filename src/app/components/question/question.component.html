@@ -1,5 +1,4 @@
-<ng-content *ngIf="questionForm.valid"></ng-content>
-
+<ng-content *ngIf="question && questionForm.valid"></ng-content>
 <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
   <codelab-question-single-answer
     *ngSwitchCase="!multipleAnswer"
