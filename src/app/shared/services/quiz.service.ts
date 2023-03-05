@@ -113,7 +113,6 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
-    console.log('Getting quiz with ID:', quizId);
     return this.http
       .get<Quiz[]>(this.url)
       .pipe(
@@ -146,7 +145,6 @@ export class QuizService implements OnDestroy {
 
   getQuizzes(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.url).pipe(
-      tap((_) => console.log('fetched quizzes')),
       catchError(this.handleError<Quiz[]>('getQuizzes', []))
     );
   }
@@ -160,7 +158,7 @@ export class QuizService implements OnDestroy {
       );
   }
 
-  getQuestions(): Observable<QuizQuestion[]> {
+  getQuestions(): Observable<Quiz[]> {
     return of(this.quizData);
   }
 
