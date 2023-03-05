@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -21,7 +20,6 @@ import { QuizService } from '../../../../shared/services/quiz.service';
     './multiple-answer.component.scss',
     '../../question.component.scss',
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class MultipleAnswerComponent
@@ -48,7 +46,7 @@ export class MultipleAnswerComponent
     super(quizService);
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.form = this.formBuilder.group({
       answer: [null, Validators.required],
     });
@@ -60,18 +58,11 @@ export class MultipleAnswerComponent
       this.currentQuestion
     );
 
-    this.initializeOptionChecked();
-    console.log('initializeOptionChecked called');
-  }
-
-  initializeOptionChecked() {
     if (this.options && this.options.length) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
           this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1 &&
-          this.optionChecked &&
-          this.optionChecked[option.id];
+          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
       });
     }
   }
