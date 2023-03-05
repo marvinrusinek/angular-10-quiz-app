@@ -8,4 +8,5 @@ export interface QuizQuestion {
   selectedOptions: string[];
   answer: Option;
   milestone: string;
+  selectedOptionIds?: number[];
 }

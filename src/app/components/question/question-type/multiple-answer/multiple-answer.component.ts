@@ -67,11 +67,8 @@ export class MultipleAnswerComponent
     if (this.options && this.options.length) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
-          this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
-        if (this.optionChecked[option.id]) {
-          this.selectedOption = option;
-        }
+        this.currentQuestion.selectedOptionIds &&
+        this.currentQuestion.selectedOptionIds.indexOf(option.id) !== -1;
       });
     }
   }
@@ -96,21 +93,21 @@ export class MultipleAnswerComponent
   }
 
   onSelectionChange(question: QuizQuestion, option: Option) {
-    if (!question.selectedOptions) {
-      question.selectedOptions = [];
+    if (!question.selectedOptionIds) {
+      question.selectedOptionIds = [];
     }
-    const index = question.selectedOptions.indexOf(option);
+    const index = question.selectedOptionIds.indexOf(option.id);
     if (index === -1) {
-      question.selectedOptions.push(option);
+      question.selectedOptionIds.push(option.id);
     } else {
-      question.selectedOptions.splice(index, 1);
+      question.selectedOptionIds.splice(index, 1);
     }
-
+  
     if (
-      question.selectedOptions.sort().join(',') ===
+      question.selectedOptionIds.sort().join(',') ===
       question.answer.sort().join(',')
     ) {
       this.quizService.score++;
     }
-  }
+  }  
 }
