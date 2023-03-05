@@ -44,7 +44,7 @@ export class QuizDataService {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.quizzes$;
+    return this.http.get<Quiz[]>(this.url);
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
