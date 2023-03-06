@@ -47,7 +47,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quiz$: Observable<Quiz>;
   quizData: Quiz[];
   quizResources: QuizResource[];
-  quizzes: Quiz[];
+  quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
   question: QuizQuestion;
@@ -122,6 +122,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.quiz$.subscribe((quiz: Quiz) => {
       this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
+    });
+
+    this.quizService.getQuizzes().subscribe(quizzes => {
+      this.quizzes = quizzes;
     });
     
     // this.selectedQuiz$ = this.quizService.getSelectedQuiz();
