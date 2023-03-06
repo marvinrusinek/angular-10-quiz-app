@@ -83,7 +83,7 @@ export class QuizDataService {
 
   setSelectedQuiz(quiz: Quiz) {
     this.selectedQuiz$.next(quiz);
-  }
+  } 
 
   getSelectedQuiz(): Quiz | null {
     return this.selectedQuiz$.getValue();
