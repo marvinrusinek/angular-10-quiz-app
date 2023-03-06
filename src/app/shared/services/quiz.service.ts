@@ -153,10 +153,10 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.quizUrl);
-    /* return this.http.get<Quiz[]>(this.quizUrl).pipe(
+    // return this.http.get<Quiz[]>(this.quizUrl);
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError(this.handleError<Quiz[]>('getQuizzes', []))
-    ); */
+    );
   }
 
   setQuizzes(quizzes: Quiz[]): void {
