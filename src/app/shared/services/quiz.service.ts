@@ -74,7 +74,7 @@ export class QuizService implements OnDestroy {
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
   unsubscribe$ = new Subject<void>();
-  private url = 'assets/data/quiz.json';
+  private apiUrl = 'assets/data/quiz.json';
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -125,17 +125,14 @@ export class QuizService implements OnDestroy {
 
   getQuizById(quizId: string): Observable<Quiz> {
     return this.http
-      .get<Quiz[]>(this.url)
+      .get<Quiz[]>(this.apiUrl)
       .pipe(
-        map(
-          (quizzes: Quiz[]) =>
-            quizzes.find((quiz) => quiz.quizId === quizId)
-        )
+        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
       );
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    console.log("QI:", quizId);
+    console.log('QI:', quizId);
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
 
@@ -156,9 +153,10 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.url).pipe(
+    return this.http.get<Quiz[]>(this.apiUrl);
+    /* return this.http.get<Quiz[]>(this.apiUrl).pipe(
       catchError(this.handleError<Quiz[]>('getQuizzes', []))
-    );
+    ); */
   }
 
   setQuizzes(quizzes: Quiz[]): void {
@@ -167,7 +165,7 @@ export class QuizService implements OnDestroy {
 
   /* getQuiz(quizId: string): Observable<Quiz> {
     // console.log('Getting quiz with ID:', quizId);
-    return this.http.get<Quiz[]>(this.url)
+    return this.http.get<Quiz[]>(this.apiUrl)
       .pipe(
         map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
         catchError(this.handleError)
@@ -175,7 +173,7 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuiz(quizId: string): Observable<Quiz> {
-    const quiz = this.quizzes.find(q => q.quizId === quizId);
+    const quiz = this.quizzes.find((q) => q.quizId === quizId);
     return of(quiz);
   }
 
@@ -188,7 +186,7 @@ export class QuizService implements OnDestroy {
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {
-    return this.http.get<QuizQuestion[]>(this.url).pipe(
+    return this.http.get<QuizQuestion[]>(this.apiUrl).pipe(
       tap((data) => console.log('Data received:', data)),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
@@ -238,7 +236,7 @@ export class QuizService implements OnDestroy {
     ) {
       return this.questions[currentQuestionIndex];
     } else {
-       return null;
+      return null;
     }
   }
 
