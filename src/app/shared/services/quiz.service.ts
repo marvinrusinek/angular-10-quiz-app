@@ -177,8 +177,13 @@ export class QuizService implements OnDestroy {
     return of(quiz);
   }
 
-  getQuestions(): Observable<Quiz[]> {
+  /* getQuestions(): Observable<Quiz[]> {
     return of(this.quizData);
+  } */
+
+  getQuestions(quizId: string): Observable<QuizQuestion[]> {
+    const apiUrl = `${this.apiUrl}/${quizId}/questions`;
+    return this.http.get<QuizQuestion[]>(apiUrl);
   }
 
   getCurrentQuiz(): Quiz {
