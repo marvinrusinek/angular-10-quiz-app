@@ -121,21 +121,21 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.quiz$ = this.activatedRoute.params.pipe(
-      switchMap((params: Params) => {
+      map((params: Params) => {
         const quizId = params.quizId;
+        this.quizId = quizId;
         return this.quizService.getQuiz(quizId);
       })
     );
 
     this.quiz$.subscribe((quiz: Quiz) => {
-      this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
+      this.handleQuizData(quiz);
     });
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
 
-    // this.selectedQuiz$ = this.quizService.getSelectedQuiz();
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
     this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
@@ -146,28 +146,21 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.selectedQuiz$
       .pipe(
-        tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
-        filter((selectedQuiz) => !!selectedQuiz),
-        first()
+        map((selectedQuiz) => selectedQuiz.questions),
+        map((questions) => questions[this.currentQuestionIndex]),
+        map((question) => ({
+          ...question,
+          choices: question.choices.map((choice) => ({
+            ...choice,
+            selected: false,
+          })),
+        }))
       )
-      .subscribe((selectedQuiz) => {
-        console.log('Selected quiz: ', selectedQuiz);
-        this.quizLength = this.quizService.getQuizLength();
-        if (
-          selectedQuiz &&
-          selectedQuiz.questions &&
-          selectedQuiz.questions.length > 0
-        ) {
-          console.log('Getting question: ');
-          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe(
-            (question) => {
-              this.question = question;
-              this.form.patchValue({
-                selectedOption: null,
-              });
-            }
-          );
-        }
+      .subscribe((question) => {
+        this.question = question;
+        this.form.patchValue({
+          selectedOption: null,
+        });
       });
 
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
@@ -194,38 +187,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number) {
-    this.quizService.setQuizzes([quiz]);
-    this.quizId = quizId;
-    this.currentQuestionIndex = currentQuestionIndex;
-    const selectedQuiz$ = this.quizService.setQuiz(quiz);
-    console.log('Selected quiz:', selectedQuiz$);
-    selectedQuiz$.subscribe((selectedQuiz) => {
-      console.log('Selected quiz:', selectedQuiz);
-      this.selectedQuiz = selectedQuiz;
-      this.quizLength = this.quizService.getQuizLength();
-      if (
-        selectedQuiz &&
-        selectedQuiz.questions &&
-        selectedQuiz.questions.length > 0
-      ) {
-        this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe(
-          (question) => {
-            this.question = question;
-            this.form.patchValue({
-              selectedOption: null,
-            });
-          }
-        );
-      }
-    });
-    if (this.quizId && this.currentQuestionIndex) {
-      this.router.navigate([
-        '/question',
-        this.quizId,
-        this.currentQuestionIndex,
-      ]);
-    }
+  handleQuizData(quiz: Quiz) {
+    this.quizDataService.setSelectedQuiz(quiz);
+    this.quizLength = this.quizService.getQuizLength();
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
