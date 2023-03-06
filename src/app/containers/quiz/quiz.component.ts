@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     
     // this.selectedQuiz$ = this.quizService.getSelectedQuiz();
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
-    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+    this.quizDataService.selectedQuiz$.subscribe(selectedQuiz => {
       this.selectedQuiz = selectedQuiz;
     });
     this.quizDataService.getSelectedQuiz().subscribe(selectedQuiz => {
@@ -229,9 +229,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.form.patchValue({ options: question.options });
   }
 
-  selectQuiz(quiz: Quiz) {
-    this.quizDataService.setSelectedQuiz(quiz);
-    // this.selectedQuiz$.next(quiz);
+  selectQuiz(quiz: Quiz): void {
+    this.quizDataService.selectedQuiz$.next(quiz);
   }
 
   loadQuiz(index: number): void {

@@ -37,10 +37,9 @@ export class QuizDataService {
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-    this.quizzes$ = this.http.get<Quiz[]>(this.url)
-    .pipe(
-      catchError(this.handleError)
-    );
+    this.quizzes$ = this.http
+      .get<Quiz[]>(this.url)
+      .pipe(catchError(this.handleError));
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -83,7 +82,7 @@ export class QuizDataService {
 
   setSelectedQuiz(quiz: Quiz) {
     this.selectedQuiz$.next(quiz);
-  } 
+  }
 
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$.asObservable();
