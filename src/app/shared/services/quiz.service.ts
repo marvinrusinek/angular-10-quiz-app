@@ -38,7 +38,7 @@ export class QuizService implements OnDestroy {
 
   quizName$ = new BehaviorSubject<string>('');
   // selectedQuiz$: Observable<Quiz>;
-  private selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
   quizId: string = '';
   selectedQuiz: any;
