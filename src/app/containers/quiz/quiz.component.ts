@@ -59,8 +59,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   answers: number[] = [];
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$: Observable<Quiz>;
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
 
   // selectedQuiz$ = new BehaviorSubject<Quiz>({});
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -230,7 +229,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   selectQuiz(quiz: Quiz) {
-    this.selectedQuiz$ = of(quiz);
+    this.selectedQuiz$.next(quiz);
   }
 
   loadQuiz(index: number): void {
@@ -311,6 +310,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
   }
 
   animationDoneHandler(): void {
