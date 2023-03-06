@@ -85,8 +85,8 @@ export class QuizDataService {
     this.selectedQuiz$.next(quiz);
   } 
 
-  getSelectedQuiz(): Quiz | null {
-    return this.selectedQuiz$.getValue();
+  getSelectedQuiz(): Observable<Quiz> {
+    return this.selectedQuiz$.asObservable();
   }
 
   private handleError(error: any) {
