@@ -81,15 +81,9 @@ export class QuizDataService {
     // this.selectedQuizSource.next(quiz);
   }
 
-  setSelectedQuiz(quiz) {
-    this.selectedQuiz = quiz;
-    console.log("selectedQuiz", this.selectedQuiz);
-    this.selectedQuiz$.next(this.selectedQuiz);
-  }
-
-  /* setSelectedQuiz(quiz: Quiz): void {
+  setSelectedQuiz(quiz: Quiz) {
     this.selectedQuiz$.next(quiz);
-  } */
+  }
 
   getSelectedQuiz(): Quiz | null {
     return this.selectedQuiz$.getValue();
