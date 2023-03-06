@@ -1,4 +1,4 @@
-<ng-container *ngIf="(selectedQuiz$ | async) as selectedQuiz">
+<ng-container *ngIf="(selectedQuiz$ | async) as selectedQuiz" (click)="selectQuiz(quiz)">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"

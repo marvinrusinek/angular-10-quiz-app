@@ -40,7 +40,7 @@ enum Status {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Input() selectedQuiz: Quiz = null;
+  @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
   @Input() milestone: string;
   quiz: Quiz;
@@ -51,7 +51,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
   question: QuizQuestion;
-  questions: QuizQuestion[];
+  // questions: QuizQuestion[];
   currentQuestion: any = undefined;
   milestoneQuestions: QuizQuestion[];
   milestoneQuestions$: Observable<QuizQuestion[]>;
@@ -59,7 +59,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   answers: number[] = [];
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$ = this.selectedQuizSource.asObservable();
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
 
   // selectedQuiz$ = new BehaviorSubject<Quiz>({});
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -94,6 +94,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   get numberOfCorrectAnswers(): number {
     return this.quizService.numberOfCorrectAnswers;
+  }
+  get questions(): QuizQuestion[] {
+    const selectedQuiz = this.selectedQuiz$.getValue();
+    return selectedQuiz ? selectedQuiz.questions : [];
   }
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -222,6 +226,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedAnswers[index] = null;
     // this.form.reset();
     // this.form.patchValue({ options: question.options });
+  }
+
+  selectQuiz(quiz: Quiz) {
+    this.selectedQuiz$.next(quiz);
   }
 
   loadQuiz(index: number): void {
