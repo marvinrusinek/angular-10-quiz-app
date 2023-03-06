@@ -1,5 +1,5 @@
 <ng-container *ngIf="(selectedQuiz$ | async) as selectedQuiz">
-  <mat-card *ngIf="selectedQuiz"
+  <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
   >
@@ -34,7 +34,7 @@
       <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="questions?.questionText"
+          [questionText]="selectedQuiz?.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
@@ -50,7 +50,7 @@
         (onOptionSelected)="onOptionSelected($event)"
         (formReady)="form = $event"
         [currentQuestionIndex]="currentQuestionIndex"
-        [multipleAnswer]="selectedQuiz.multiple"
+        [multipleAnswer]="selectedQuiz?.multiple"
         [questionIndex]="i"
       >
       </codelab-quiz-question>

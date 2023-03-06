@@ -58,7 +58,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   resources: Resource[];
   answers: number[] = [];
 
-  selectedQuiz$ = new BehaviorSubject<Quiz>({});
+  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = this.selectedQuizSource.asObservable();
+
+  // selectedQuiz$ = new BehaviorSubject<Quiz>({});
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedOption: Option;
   selectedAnswers: number[] = [];
@@ -124,6 +127,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.selectedQuiz$ = this.quizService.getSelectedQuiz();
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
     console.log('Selected quiz: ', this.selectedQuiz$);
+
+    this.quizService.selectedQuiz$.subscribe(selectedQuiz => {
+      this.selectedQuiz = selectedQuiz;
+    });
     
     this.selectedQuiz$.pipe(
       tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),

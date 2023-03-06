@@ -168,7 +168,8 @@ export class QuizService implements OnDestroy {
     // console.log('Getting quiz with ID:', quizId);
     return this.http.get<Quiz[]>(this.url)
       .pipe(
-        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
+        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
+        catchError(this.handleError)
       );
   }
 
