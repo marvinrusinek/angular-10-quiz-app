@@ -74,7 +74,7 @@ export class QuizService implements OnDestroy {
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
   unsubscribe$ = new Subject<void>();
-  private apiUrl = 'assets/data/quiz.json';
+  private quizUrl = 'assets/data/quiz.json';
 
   correctSound = new Howl({
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
@@ -125,7 +125,7 @@ export class QuizService implements OnDestroy {
 
   getQuizById(quizId: string): Observable<Quiz> {
     return this.http
-      .get<Quiz[]>(this.apiUrl)
+      .get<Quiz[]>(this.quizUrl)
       .pipe(
         map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
       );
@@ -153,8 +153,8 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.apiUrl);
-    /* return this.http.get<Quiz[]>(this.apiUrl).pipe(
+    return this.http.get<Quiz[]>(this.quizUrl);
+    /* return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError(this.handleError<Quiz[]>('getQuizzes', []))
     ); */
   }
@@ -165,7 +165,7 @@ export class QuizService implements OnDestroy {
 
   /* getQuiz(quizId: string): Observable<Quiz> {
     // console.log('Getting quiz with ID:', quizId);
-    return this.http.get<Quiz[]>(this.apiUrl)
+    return this.http.get<Quiz[]>(this.quizUrl)
       .pipe(
         map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
         catchError(this.handleError)
@@ -182,8 +182,8 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuestions(quizId: string): Observable<QuizQuestion[]> {
-    const apiUrl = `${this.apiUrl}/${quizId}/questions`;
-    return this.http.get<QuizQuestion[]>(apiUrl);
+    const quizUrl = `${this.quizUrl}/${quizId}/questions`;
+    return this.http.get<QuizQuestion[]>(quizUrl);
   }
 
   getCurrentQuiz(): Quiz {
@@ -191,7 +191,7 @@ export class QuizService implements OnDestroy {
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {
-    return this.http.get<QuizQuestion[]>(this.apiUrl).pipe(
+    return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((data) => console.log('Data received:', data)),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
