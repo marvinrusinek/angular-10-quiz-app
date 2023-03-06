@@ -42,7 +42,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
-  @Input() milestone: string;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
   quizData: Quiz[];
@@ -53,8 +52,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   question: QuizQuestion;
   // questions: QuizQuestion[];
   currentQuestion: any = undefined;
-  milestoneQuestions: QuizQuestion[];
-  milestoneQuestions$: Observable<QuizQuestion[]>;
   resources: Resource[];
   answers: number[] = [];
 
@@ -66,7 +63,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
-  selectedMilestone: string;
   isDisabled: boolean;
   cardFooterClass = '';
 
@@ -82,6 +78,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizName$: Observable<string>;
   indexOfQuizId: number;
   status: Status;
+
+  animationState$ = new BehaviorSubject<AnimationState>('none');
+  unsubscribe$ = new Subject<void>();
 
   get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
@@ -99,9 +98,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const selectedQuiz = this.selectedQuiz$.getValue();
     return selectedQuiz ? selectedQuiz.questions : [];
   }
-
-  animationState$ = new BehaviorSubject<AnimationState>('none');
-  unsubscribe$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
