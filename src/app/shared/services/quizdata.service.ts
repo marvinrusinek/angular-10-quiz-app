@@ -33,13 +33,15 @@ export class QuizDataService {
       })
     ); */
 
- /* get selectedQuiz(): Quiz {
+  get selectedQuiz(): Quiz {
     return this.selectedQuiz$.value;
   }
 
   set selectedQuiz(quiz: Quiz) {
+    this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
-  } */
+    console.log('Selected quiz:', this.selectedQuiz$.value);
+  }
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
@@ -78,12 +80,12 @@ export class QuizDataService {
     // this.selectedQuizSource.next(quiz);
   }
 
-  setSelectedQuiz(quiz: Quiz) {
-    this.selectedQuiz$.next(quiz);
-  }
-
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$.asObservable();
+  }
+
+  setSelectedQuiz(quiz: Quiz) {
+    this.selectedQuiz$.next(quiz);
   }
 
   private handleError(error: any) {
