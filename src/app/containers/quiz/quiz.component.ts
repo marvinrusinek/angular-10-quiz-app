@@ -215,9 +215,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.setQuiz(this.quiz);
       this.quizLength = this.quizService.getQuizLength();
       if (
-        this.quiz &&
+        this.quiz !== null &&
+        this.quiz !== undefined &&
         this.quiz.questions &&
-        Array.isArray(this.quiz.questions) &&
+        this.quiz.questions.length !== null &&
         this.quiz.questions.length > 0
       ) {
         console.log("this.quiz.questions:", this.quiz.questions);
