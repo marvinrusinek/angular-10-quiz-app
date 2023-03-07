@@ -128,39 +128,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId: string = params.quizId;
     this.quizId = quizId;
   
-    // Fetch the quiz data from the quiz service and store it in the `quiz$` observable
-    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
-    );
-  
-    // Subscribe to the list of quizzes in the quiz data service
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
+    // Subscribe to selectedQuiz$ observable
+    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+      console.log('selectedQuiz$ value in ngOnInit:', selectedQuiz);
+      if (selectedQuiz) {
+        this.selectedQuiz = selectedQuiz;
+      }
     });
   
-    // Get the selected quiz from the quiz data service if it's available
-    const selectedQuiz = this.quizDataService.getSelectedQuiz();
-    
-    // Check if the selected quiz is defined
-    if (selectedQuiz) {
-      this.selectedQuiz$ = new BehaviorSubject<Quiz>(selectedQuiz);
+    // Check if selectedQuiz is defined and has questions before retrieving the first question
+    if (this.selectedQuiz !== undefined && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+      this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
+      this.form.patchValue({
+        selectedOption: null
+      });
     } else {
-      this.selectedQuiz$ = new BehaviorSubject<Quiz>({});
+      this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
+      this.form.patchValue({
+        selectedOption: null
+      });
     }
-  
-    // Retrieve the first question for the selected quiz
-    this.question = await this.getQuestion(this.selectedQuiz$, this.currentQuestionIndex).toPromise();
-    
-    // Update the form with the selected option
-    this.form.patchValue({
-      selectedOption: null
-    });
-  
-    // Navigate to the current question URL
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
-  
-    
+      
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
