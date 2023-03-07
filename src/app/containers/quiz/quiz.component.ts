@@ -119,69 +119,38 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizzes();
   }
 
-  ngOnInit(): void {
-    this.quiz$ = this.activatedRoute.params.pipe(
-      map((params: Params) => {
-        const quizId = params.quizId;
-        this.quizId = quizId;
-        return this.quizService.getQuiz(quizId);
-      })
+  async ngOnInit(): Promise<void> {
+    const params: Params = await this.activatedRoute.params.toPromise();
+    const quizId: string = params.quizId;
+    this.quizId = quizId;
+    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
+      tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
-
-    this.quiz$.subscribe((quiz: Quiz) => {
-      this.handleQuizData(this.quizId, this.currentQuestionIndex);
-    });
-
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
-
-    this.quizService
-      .getQuestion(this.quizId, this.currentQuestionIndex)
-      .subscribe((question) => {
-        this.question = question;
-        this.form.patchValue({
-          selectedOption: null,
-        });
-        this.router.navigate([
-          '/question',
-          this.quizId,
-          this.currentQuestionIndex,
-        ]);
-      });
-
-    this.selectedQuiz$ = this.quizService.selectedQuiz$;
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
+    this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
+    this.form.patchValue({
+      selectedOption: null,
     });
-
-    this.selectedQuiz$
-      .pipe(
-        tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
-        filter((selectedQuiz) => !!selectedQuiz),
-        first()
-      )
-      .subscribe((selectedQuiz) => {
-        console.log('Selected quiz: ', selectedQuiz);
-        if (
-          selectedQuiz !== null &&
-          selectedQuiz !== undefined &&
-          selectedQuiz.questions &&
-          selectedQuiz.questions.length > 0
-        ) {
-          console.log('Getting question: ');
-          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe(
-            (question) => {
-              this.question = question;
-              this.form.patchValue({
-                selectedOption: null,
-              });
-            }
-          );
-        }
-      });
-
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    this.selectedQuiz$ = this.quizService.selectedQuiz$;
+    this.selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
+    const selectedQuiz = await this.selectedQuiz$.pipe(
+      tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
+      filter((selectedQuiz) => !!selectedQuiz),
+      first()
+    ).toPromise();
+    if (selectedQuiz !== null &&
+      selectedQuiz !== undefined &&
+      selectedQuiz.questions &&
+      selectedQuiz.questions.length > 0) {
+      console.log('Getting question: ');
+      this.question = await this.getQuestion(selectedQuiz, this.currentQuestionIndex).toPromise();
+      this.form.patchValue({
+        selectedOption: null,
+      });
+    }
   }
 
   handleParamMap(params: ParamMap): void {
@@ -207,9 +176,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
     console.log('handleQuizData called with quizId:', quizId, 'and currentQuestionIndex:', currentQuestionIndex);
+    console.log("CHECKING", this.quiz);
 
     this.quizService.getQuiz(quizId).subscribe(quiz => {
       console.log('quiz:', quiz);
+      console.log('Quiz questions:', quiz.questions);
       this.quiz = quiz;
       this.quizId = quizId;
       this.currentQuestionIndex = currentQuestionIndex;
@@ -236,6 +207,15 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   handleQuestions(questions: QuizQuestion[]): void {
     this.questions$ = of(questions);
+  }
+
+  async getQuiz(id: string): Promise<void> {
+    try {
+      const quiz = await this.quizService.getQuiz(id).toPromise();
+      this.handleQuizData(this.quizId, this.currentQuestionIndex);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   updateCardFooterClass(): void {
@@ -491,6 +471,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
+    console.log('quiz:::::::', this.quiz);
+    console.log('currentQuestionIndex:::', this.currentQuestionIndex);
+    console.log('quiz:::', this.quiz);
+
     const selectedOption = this.form.value.selectedOption;
     if (this.form.valid) {
       this.isDisabled = true;
