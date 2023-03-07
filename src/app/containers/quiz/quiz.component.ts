@@ -16,7 +16,7 @@ import {
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { filter, first, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { filter, first, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -115,8 +115,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: null,
     });
-    this.selectedQuiz$ = new BehaviorSubject<Quiz>({});
     this.quizService.getQuizzes();
+    // this.selectedQuiz$ = new BehaviorSubject<Quiz>({});
+    this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
   async ngOnInit(): Promise<void> {
@@ -129,12 +130,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
-  
+
     // Check if selectedQuiz is defined before accessing its properties
     if (this.quizDataService.getSelectedQuiz() !== undefined) {
-      this.selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
+      this.selectedQuiz = (await this.quizDataService.getSelectedQuiz().toPromise()) || {} as Quiz;
     }
-  
+
     // Check if selectedQuiz is defined and has questions before retrieving the first question
     if (this.selectedQuiz !== undefined && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
       this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
@@ -151,7 +152,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
   }
   
-
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
@@ -424,12 +424,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   } */
 
-  getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
-    console.log("QUIZ:", quiz);
-    console.log("INDEX:", index);
-    console.log("QUESTION:", quiz.questions[index]);
-    const question = this.quiz.questions[index];
-    return of(question);
+  private getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
+    return of(quiz.questions[index]);
   }
 
   getCurrentQuestion() {
