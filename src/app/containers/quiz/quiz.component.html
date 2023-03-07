@@ -15,7 +15,7 @@
       <div class="header-titles">
         <mat-card-title i18n
           >{{
-            selectedQuiz?.milestone || 'No questions found'
+            selectedQuiz.milestone || 'No questions found'
           }}
           Quiz</mat-card-title
         >
@@ -28,12 +28,12 @@
       </div>
     </mat-card-header>
 
-    <mat-card-content *ngFor="let question of quiz.questions">
+    <mat-card-content *ngIf="(question$ | async) as question">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
       <!-- the question/explanation section -->
-      <section id="question" *ngIf="currentQuestion">
+      <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
           [questionText]="question.questionText"
