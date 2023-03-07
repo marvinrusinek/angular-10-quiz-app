@@ -33,7 +33,7 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <!-- the question/explanation section -->
-      <section id="question">
+      <section id="question" *ngIf="currentQuestion">
         <app-question-state
           [isAnswered]="isAnswered()"
           [questionText]="selectedQuiz.questionText"
@@ -45,7 +45,6 @@
 
       <!-- the options -->
       <codelab-quiz-question
-        *ngIf="question"
         [question]="question"
         (answer)="selectedAnswer($event)"
         [answers]="answers"
