@@ -471,25 +471,29 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   advanceToNextQuestion() {
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
     console.log('quiz:::::::', this.quiz);
     console.log('currentQuestionIndex:::', this.currentQuestionIndex);
     console.log('quiz:::', this.quiz);
-
+  
     const selectedOption = this.form.value.selectedOption;
     if (this.form.valid) {
       this.isDisabled = true;
-
-      if (!this.selectedQuiz || !this.selectedOption) {
+  
+      if (!this.selectedOption) {
         return;
       }
-
+  
       this.checkIfAnsweredCorrectly();
       this.answers = [];
       this.status = Status.Continue;
       this.animationState$.next('animationStarted');
-
+  
       const isLastQuestion = this.currentQuestionIndex === this.quizLength - 1;
-
+  
       if (isLastQuestion) {
         this.status = Status.Complete;
         this.submitQuiz();
@@ -499,7 +503,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.timerService.resetTimer();
       }
     }
-  }
+  }  
 
   advanceToPreviousQuestion() {
     this.answers = [];
