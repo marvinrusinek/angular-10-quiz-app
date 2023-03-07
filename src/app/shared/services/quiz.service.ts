@@ -187,7 +187,12 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
+    if (!quizId) {
+      return throwError('quizId parameter is null or undefined');
+    }
+
     const apiUrl = `${this.quizUrl}/${quizId}/questions`;
+
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
         const question = response.questions.find(
@@ -202,7 +207,7 @@ export class QuizService implements OnDestroy {
         };
       })
     );
-  }
+}
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
