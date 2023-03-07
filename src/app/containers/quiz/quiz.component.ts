@@ -479,7 +479,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isDisabled = true;
 
-      if (!this.selectedOption || !this.selectedQuiz) {
+      if (!this.selectedQuiz || !this.selectedOption) {
         return;
       }
 
