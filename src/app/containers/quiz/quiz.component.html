@@ -1,4 +1,4 @@
-<ng-container *ngIf="selectedQuiz$ | async as selectedQuiz">
+<ng-container *ngIf="quiz$ | async as quiz; else loading">
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
@@ -15,20 +15,20 @@
       <div class="header-titles">
         <mat-card-title i18n
           >{{
-            selectedQuiz?.milestone || 'No questions found'
+            quiz?.milestone || 'No questions found'
           }}
           Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
           {{
-            selectedQuiz?.milestone || 'No questions found'
+            quiz?.milestone || 'No questions found'
           }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content *ngFor="let question of quiz.questions">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
@@ -36,7 +36,7 @@
       <section id="question" *ngIf="currentQuestion">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="selectedQuiz.questionText"
+          [questionText]="question.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
@@ -51,7 +51,7 @@
         (onOptionSelected)="onOptionSelected($event)"
         (formReady)="form = $event"
         [currentQuestionIndex]="currentQuestionIndex"
-        [multipleAnswer]="selectedQuiz.multiple"
+        [multipleAnswer]="question.multiple"
         [questionIndex]="i"
       >
       </codelab-quiz-question>
@@ -158,4 +158,7 @@
       </section>
     </mat-card-footer>
   </mat-card>
+  <ng-template #loading>
+    <p>Loading quiz...</p>
+  </ng-template>
 </ng-container>
