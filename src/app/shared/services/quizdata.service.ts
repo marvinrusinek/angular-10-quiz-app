@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { asObservable, catchError, filter, map, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -48,12 +48,11 @@ export class QuizDataService {
   }
 
   setSelectedQuiz(quiz: Quiz) {
-    console.log('setSelectedQuiz called with quiz:', quiz);
     this.selectedQuiz$.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
-    return this.selectedQuiz$.asObservable();
+    return this.selectedQuiz$.pipe(asObservable());
   }
 
   private handleError(error: any) {
