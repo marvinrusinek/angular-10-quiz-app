@@ -219,7 +219,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz.questions &&
         this.quiz.questions.length > 0
       ) {
-        this.getQuestion(this.quizId, this.currentQuestionIndex).subscribe(
+        this.getQuestion(this.quiz, this.currentQuestionIndex).subscribe(
           (question) => {
             this.question = question;
             this.form.patchValue({
