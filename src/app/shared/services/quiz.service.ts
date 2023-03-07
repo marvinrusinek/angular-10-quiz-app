@@ -178,8 +178,17 @@ export class QuizService implements OnDestroy {
   } */
 
   getQuiz(id: string): Observable<Quiz> {
-    const apiUrl = `${this.quizUrl}/${id}`;
-    return this.http.get<Quiz>(apiUrl);
+    // const apiUrl = `${this.quizUrl}/${id}`;
+    // return this.http.get<Quiz>(apiUrl);
+    return this.http.get(this.quizUrl).pipe(
+      map((response: any) => {
+        return response;
+      }),
+      catchError((error) => {
+        console.log('Error:', error);
+        return throwError('Something went wrong');
+      })
+    );
   }
 
   /* getQuestions(): Observable<Quiz[]> {

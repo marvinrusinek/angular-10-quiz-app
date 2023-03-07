@@ -207,7 +207,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
     this.quizService.getQuiz(quizId).subscribe(quiz => {
-      console.log("QUIZ:", quiz);
+      console.log("QUIZ CHECK:", quiz);
       this.quiz = quiz;
       this.quizId = quizId;
       this.currentQuestionIndex = currentQuestionIndex;
