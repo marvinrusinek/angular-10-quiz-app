@@ -133,6 +133,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   
     this.quizService.getQuizzes().subscribe((quizzes) => {
+      console.log("QUIZZES:::", quizzes);
       this.quizzes = quizzes;
     });
   

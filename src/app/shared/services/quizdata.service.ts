@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { asObservable, catchError, filter, map, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -23,8 +23,10 @@ export class QuizDataService {
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  public selectedQuiz$ = this.selectedQuizSource.asObservable();
-  
+  // public selectedQuiz$ = this.selectedQuizSource.asObservable();
+  // private selectedQuiz$ = new ReplaySubject<Quiz>(1);
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = this.http
@@ -44,7 +46,7 @@ export class QuizDataService {
   }
 
   get selectedQuiz(): Quiz {
-    return this.selectedQuiz$.value;
+    return this.selectedQuiz$.getValue();
   }
 
   setSelectedQuiz(quiz: Quiz) {
@@ -52,7 +54,7 @@ export class QuizDataService {
   }
 
   getSelectedQuiz(): Observable<Quiz> {
-    return this.selectedQuiz$.pipe(asObservable());
+    return this.selectedQuiz$;
   }
 
   private handleError(error: any) {
