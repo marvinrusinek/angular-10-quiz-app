@@ -61,7 +61,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   answers: number[] = [];
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz | null>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$: BehaviorSubject<Quiz | undefined> = new BehaviorSubject<Quiz | undefined>(undefined);
 
   // selectedQuiz$ = new BehaviorSubject<Quiz>({});
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -117,7 +118,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
     this.quizService.getQuizzes();
     // this.selectedQuiz$ = new BehaviorSubject<Quiz>({});
-    this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+    // this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
   async ngOnInit(): Promise<void> {
@@ -130,14 +131,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
-
+  
     // Check if selectedQuiz is defined before accessing its properties
     if (this.quizDataService.getSelectedQuiz() !== undefined) {
       this.selectedQuiz = (await this.quizDataService.getSelectedQuiz().toPromise()) || {} as Quiz;
+      this.selectedQuiz$.next(this.selectedQuiz);
+    } else {
+      this.selectedQuiz$.next(null);
     }
-
+  
     // Check if selectedQuiz is defined and has questions before retrieving the first question
-    if (this.selectedQuiz !== undefined && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+    if (this.selectedQuiz !== null && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
       this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
       this.form.patchValue({
         selectedOption: null,
@@ -149,9 +153,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     }
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-    this.selectedQuiz$ = this.quizService.selectedQuiz$;
   }
-  
+    
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
