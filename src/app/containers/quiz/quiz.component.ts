@@ -45,7 +45,7 @@ enum Status {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Input() selectedQuiz: Quiz;
+  @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
@@ -129,29 +129,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
-    this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
-    this.form.patchValue({
-      selectedOption: null,
-    });
-    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-    this.selectedQuiz$ = this.quizService.selectedQuiz$;
-    this.selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
-    const selectedQuiz = await this.selectedQuiz$.pipe(
-      tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
-      filter((selectedQuiz) => !!selectedQuiz),
-      first()
-    ).toPromise();
-    if (selectedQuiz !== null &&
-      selectedQuiz !== undefined &&
-      selectedQuiz.questions &&
-      selectedQuiz.questions.length > 0) {
-      console.log('Getting question: ');
-      this.question = await this.getQuestion(selectedQuiz, this.currentQuestionIndex).toPromise();
+  
+    // Check if selectedQuiz is defined before accessing its properties
+    if (this.quizDataService.getSelectedQuiz() !== undefined) {
+      this.selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
+    }
+  
+    // Check if selectedQuiz is defined and has questions before retrieving the first question
+    if (this.selectedQuiz !== undefined && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+      this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
+      this.form.patchValue({
+        selectedOption: null,
+      });
+    } else {
+      this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
       this.form.patchValue({
         selectedOption: null,
       });
     }
+    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    this.selectedQuiz$ = this.quizService.selectedQuiz$;
   }
+  
 
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
