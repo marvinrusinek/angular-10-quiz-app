@@ -78,8 +78,10 @@ export class IntroductionComponent implements OnInit {
   onStartQuiz() {
     console.log('selectedQuiz$ value in onStartQuiz before update:', this.quizDataService.selectedQuiz$.value);
     const selectedQuiz = this.quizSelection.selectedQuiz;
+    console.log("TESTING");
     if (selectedQuiz) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
+        console.log("TEST");
         this.quizDataService.setSelectedQuiz(quiz);
         console.log('selectedQuiz$ value in onStartQuiz after update:', this.quizDataService.selectedQuiz$.value);
         this.router.navigate(['/question/', this.quizId, 1]);
