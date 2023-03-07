@@ -125,31 +125,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = await this.activatedRoute.params.toPromise();
     const quizId: string = params.quizId;
     this.quizId = quizId;
-  
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
   
-    this.quizDataService.getQuizzes().pipe(
-      switchMap((quizzes: Quiz[]) => {
-        this.quizzes = quizzes;
-        return this.quizDataService.getSelectedQuiz();
-      })
-    ).subscribe((selectedQuiz: Quiz) => {
-      this.selectedQuiz = selectedQuiz || (this.quizzes.length > 0 ? this.quizzes[0] : {} as Quiz);
-      this.selectedQuiz$.next(this.selectedQuiz);
+    const quizzes: Quiz[] = await this.quizDataService.getQuizzes().toPromise();
+    this.quizzes = quizzes;
+
+    const selectedQuiz: Quiz = await this.quizDataService.getSelectedQuiz().toPromise();
+    this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
+    this.selectedQuiz$.next(this.selectedQuiz);
   
-      if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
-        this.currentQuestionIndex = 0;
-        this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-        // this.setOptions();
-      } else {
-        this.question = this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
-        // this.setOptions();
-      }
-  
-      this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-    });
+    if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
+      this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
+      this.form.patchValue({
+        selectedOption: null,
+      });
+    } else {
+      this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
+      this.form.patchValue({
+        selectedOption: null,
+      });
+    }
+    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
           
   handleParamMap(params: ParamMap): void {
