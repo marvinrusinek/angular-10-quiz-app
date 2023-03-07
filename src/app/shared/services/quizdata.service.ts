@@ -51,6 +51,7 @@ export class QuizDataService {
 
   setSelectedQuiz(quiz: Quiz) {
     this.selectedQuiz$.next(quiz);
+    console.log('selectedQuiz$ value in setSelectedQuiz:', this.selectedQuiz$.value);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
