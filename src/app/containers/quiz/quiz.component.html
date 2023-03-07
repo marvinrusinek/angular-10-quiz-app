@@ -1,9 +1,9 @@
-<ng-container *ngIf="quiz$ | async as quiz; else loading">
+<ng-container>
   <mat-card
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
   >
-    <mat-card-header>
+    <mat-card-header [quiz]="selectedQuiz$ | async">
       <img
         mat-card-avatar
         class="header-image"
@@ -15,14 +15,14 @@
       <div class="header-titles">
         <mat-card-title i18n
           >{{
-            quiz?.milestone || 'No questions found'
+            selectedQuiz?.milestone || 'No questions found'
           }}
           Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
           {{
-            quiz?.milestone || 'No questions found'
+            selectedQuiz?.milestone || 'No questions found'
           }}</mat-card-subtitle
         >
       </div>

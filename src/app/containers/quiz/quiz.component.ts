@@ -125,52 +125,32 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = await this.activatedRoute.params.toPromise();
     const quizId: string = params.quizId;
     this.quizId = quizId;
-
+  
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
-
-    this.quizDataService.getQuizzes().subscribe(quizzes => {
-      this.quizzes = quizzes;
-      this.quizDataService.getSelectedQuiz().subscribe(selectedQuiz => {
-        this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-        this.selectedQuiz$.next(this.selectedQuiz);
-      });
-    });
-
-    this.selectedQuiz$.subscribe(selectedQuiz => {
-      this.selectedQuiz = selectedQuiz;
-      if (selectedQuiz && selectedQuiz.questions.length > 0) {
+  
+    this.quizDataService.getQuizzes().pipe(
+      switchMap((quizzes: Quiz[]) => {
+        this.quizzes = quizzes;
+        return this.quizDataService.getSelectedQuiz();
+      })
+    ).subscribe((selectedQuiz: Quiz) => {
+      this.selectedQuiz = selectedQuiz || (this.quizzes.length > 0 ? this.quizzes[0] : {} as Quiz);
+      this.selectedQuiz$.next(this.selectedQuiz);
+  
+      if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
         this.currentQuestionIndex = 0;
-        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
+        this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+        // this.setOptions();
+      } else {
+        this.question = this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
         // this.setOptions();
       }
+  
+      this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
     });
-
-    this.form = this.formBuilder.group({
-      selectedOption: [null],
-    });
-
-    // Retrieve the current question index from the URL if it exists
-    if (params.questionIndex) {
-      this.currentQuestionIndex = +params.questionIndex;
-    }
-
-    // Check if selectedQuiz is defined and has questions before retrieving the first question
-    if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
-      this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
-      this.form.patchValue({
-        selectedOption: null,
-      });
-    } else {
-      this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
-      this.form.patchValue({
-        selectedOption: null,
-      });
-    }
-    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
-
           
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
