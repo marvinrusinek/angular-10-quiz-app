@@ -129,15 +129,38 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
   
-    const quizzes: Quiz[] = await this.quizDataService.getQuizzes().toPromise();
-    this.quizzes = quizzes;
-
-    const selectedQuiz: Quiz = await this.quizDataService.getSelectedQuiz().toPromise();
-    this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-    this.selectedQuiz$.next(this.selectedQuiz);
+    this.quizService.getQuizzes().subscribe((quizzes) => {
+      console.log("QUIZZES:::", quizzes);
+      this.quizzes = quizzes;
+    });
   
-    if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
-      this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
+    this.quizDataService.getSelectedQuiz().subscribe(selectedQuiz => {
+      this.selectedQuiz = selectedQuiz;
+      if (selectedQuiz && selectedQuiz.questions.length > 0) {
+        this.currentQuestionIndex = 0;
+        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
+        // this.setOptions();
+      }
+    });
+  
+    this.selectedQuiz$.subscribe(selectedQuiz => {
+      this.selectedQuiz = selectedQuiz;
+      if (selectedQuiz && selectedQuiz.questions.length > 0) {
+        this.currentQuestionIndex = 0;
+        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
+        // this.setOptions();
+      }
+    });
+  
+    // Check if selectedQuiz is defined before accessing its properties
+    const selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
+    if (selectedQuiz) {
+      this.selectedQuizSource.next(selectedQuiz);
+    }
+  
+    // Check if selectedQuiz is defined and has questions before retrieving the first question
+    if (this.selectedQuizSource.value && this.selectedQuizSource.value.questions && this.selectedQuizSource.value.questions.length > 0) {
+      this.question = await this.getQuestion(this.selectedQuizSource.value, this.currentQuestionIndex).toPromise();
       this.form.patchValue({
         selectedOption: null,
       });
@@ -149,7 +172,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
-          
+            
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
