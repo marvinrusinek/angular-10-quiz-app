@@ -33,7 +33,7 @@ export class QuizDataService {
       })
     ); */
 
-  get selectedQuiz(): Quiz {
+  /* get selectedQuiz(): Quiz {
     return this.selectedQuiz$.value;
   }
 
@@ -41,7 +41,7 @@ export class QuizDataService {
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
     console.log('Selected quiz:', this.selectedQuiz$.value);
-  }
+  } */
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
