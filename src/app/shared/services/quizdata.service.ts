@@ -26,6 +26,7 @@ export class QuizDataService {
     this.quizzes$ = this.http
       .get<Quiz[]>(this.url)
       .pipe(catchError(this.handleError));
+    this.quizzes$.subscribe(data => console.log("DATA", data));
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -39,6 +40,7 @@ export class QuizDataService {
   }
 
   setSelectedQuiz(quiz: Quiz) {
+    console.log('setSelectedQuiz called with quiz:', quiz);
     this.selectedQuiz$.next(quiz);
   }
 

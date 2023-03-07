@@ -52,6 +52,7 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('selectedQuiz$ value in ngOnInit:', this.quizDataService.selectedQuiz$.value);
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       // this.quizIndex = +params.get('quizIndex');
@@ -75,14 +76,16 @@ export class IntroductionComponent implements OnInit {
   }
 
   onStartQuiz() {
+    console.log('selectedQuiz$ value in onStartQuiz before update:', this.quizDataService.selectedQuiz$.value);
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
+        console.log('selectedQuiz$ value in onStartQuiz after update:', this.quizDataService.selectedQuiz$.value);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
     } else {
       console.log('Quiz ID is null or undefined');
     }
-  }
+  }  
 }
