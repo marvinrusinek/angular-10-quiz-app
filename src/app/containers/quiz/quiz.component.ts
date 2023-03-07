@@ -206,8 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
-    console.log("QI", quizId);
-    console.log("cqi", currentQuestionIndex);
+    console.log('handleQuizData called with quizId:', quizId, 'and currentQuestionIndex:', currentQuestionIndex);
 
     this.quizService.getQuiz(quizId).subscribe(quiz => {
       console.log('quiz:', quiz);
@@ -447,8 +446,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
-    console.log("Quiz:::", quiz);
-    console.log("Index:::", index);
+    console.log("QUIZ:", quiz);
+    console.log("INDEX:", index);
+    console.log("QUESTION:", quiz.questions[index]);
     const question = quiz.questions[index];
     return of(question);
   }
