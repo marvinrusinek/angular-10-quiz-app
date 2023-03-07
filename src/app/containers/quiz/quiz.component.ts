@@ -129,7 +129,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     this.quiz$.subscribe((quiz: Quiz) => {
-      this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
+      this.handleQuizData(this.quizId, this.currentQuestionIndex);
     });
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
@@ -205,32 +205,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(newQuiz: Quiz, quizId: string, currentQuestionIndex: number): void {
-    console.log("QUIZ:", newQuiz);
-    this.quiz = newQuiz;
-    this.quizId = quizId;
-    this.currentQuestionIndex = currentQuestionIndex;
-    this.quizService.setQuiz(this.quiz);
-
-    const quiz = this.quizService.getQuiz(this.quizId);
-    this.quizLength = quiz && quiz.questions ? quiz.questions.length : 0;
-
-    if (
-      this.quiz !== null &&
-      this.quiz !== undefined &&
-      this.quiz.questions &&
-      this.quiz.questions.length > 0
-    ) {
-      this.quizService.getQuestion(this.quizId, this.currentQuestionIndex).subscribe(
-        (question) => {
-          this.question = question;
-          this.form.patchValue({
-            selectedOption: null,
-          });
-        }
-      );
-    }
-  }
+  handleQuizData(quizId: string, currentQuestionIndex: number): void {
+    this.quizService.getQuiz(quizId).subscribe(quiz => {
+      console.log("QUIZ:", quiz);
+      this.quiz = quiz;
+      this.quizId = quizId;
+      this.currentQuestionIndex = currentQuestionIndex;
+      this.quizService.setQuiz(this.quiz);
+      this.quizLength = this.quizService.getQuizLength();
+      if (
+        this.quiz !== null &&
+        this.quiz !== undefined &&
+        this.quiz.questions &&
+        this.quiz.questions.length > 0
+      ) {
+        this.getQuestion(this.quizId, this.currentQuestionIndex).subscribe(
+          (question) => {
+            this.question = question;
+            this.form.patchValue({
+              selectedOption: null,
+            });
+          }
+        );
+      }
+    });
+  }  
 
   handleQuestions(questions: QuizQuestion[]): void {
     this.questions$ = of(questions);
