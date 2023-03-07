@@ -429,7 +429,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("QUIZ:", quiz);
     console.log("INDEX:", index);
     console.log("QUESTION:", quiz.questions[index]);
-    const question = quiz.questions[index];
+    const question = this.quiz.questions[index];
     return of(question);
   }
 
@@ -479,7 +479,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isDisabled = true;
 
-      if (!this.selectedOption) {
+      if (!this.selectedOption || !this.selectedQuiz) {
         return;
       }
 
