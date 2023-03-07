@@ -157,21 +157,28 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.selectedQuiz$
       .pipe(
-        map((selectedQuiz) => selectedQuiz.questions),
-        map((questions) => questions[this.currentQuestionIndex]),
-        map((question) => ({
-          ...question,
-          choices: question.choices.map((choice) => ({
-            ...choice,
-            selected: false,
-          })),
-        }))
+        tap((selectedQuiz) => console.log('Selected quiz: ', selectedQuiz)),
+        filter((selectedQuiz) => !!selectedQuiz),
+        first()
       )
-      .subscribe((question) => {
-        this.question = question;
-        this.form.patchValue({
-          selectedOption: null,
-        });
+      .subscribe((selectedQuiz) => {
+        console.log('Selected quiz: ', selectedQuiz);
+        if (
+          selectedQuiz !== null &&
+          selectedQuiz !== undefined &&
+          selectedQuiz.questions &&
+          selectedQuiz.questions.length > 0
+        ) {
+          console.log('Getting question: ');
+          this.getQuestion(selectedQuiz, this.currentQuestionIndex).subscribe(
+            (question) => {
+              this.question = question;
+              this.form.patchValue({
+                selectedOption: null,
+              });
+            }
+          );
+        }
       });
 
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
