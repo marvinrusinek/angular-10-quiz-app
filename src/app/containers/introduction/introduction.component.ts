@@ -58,7 +58,7 @@ export class IntroductionComponent implements OnInit {
       // this.quizIndex = +params.get('quizIndex');
       if (quizId) {
         this.quizService.getQuizById(quizId).subscribe((quiz) => {
-          this.quizDataService.selectedQuiz = quiz;
+          this.quizDataService.selectedQuiz$.next(quiz);
           this.selectedQuiz = quiz;
           this.questions$ = this.quizService.getQuestionsForQuiz(quizId);
         });

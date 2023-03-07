@@ -12,7 +12,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
-  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  private selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
   private url = 'assets/data/quiz.json';
 
@@ -26,7 +27,7 @@ export class QuizDataService {
     this.quizzes$ = this.http
       .get<Quiz[]>(this.url)
       .pipe(catchError(this.handleError));
-    this.quizzes$.subscribe(data => console.log("DATA", data));
+    this.quizzes$.subscribe((data) => console.log('DATA', data));
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -37,6 +38,10 @@ export class QuizDataService {
     return this.quizzes$.pipe(
       map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId))
     );
+  }
+
+  get selectedQuiz(): Quiz {
+    return this.selectedQuiz$.value;
   }
 
   setSelectedQuiz(quiz: Quiz) {
