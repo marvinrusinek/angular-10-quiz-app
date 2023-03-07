@@ -206,9 +206,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
+    console.log("QI", quizId);
+    console.log("cqi", currentQuestionIndex);
+
     this.quizService.getQuiz(quizId).subscribe(quiz => {
-      console.log("QUIZ CHECK:", quiz);
-      console.log("GQ", this.quizService.getQuiz);
+      console.log('quiz:', quiz);
       this.quiz = quiz;
       this.quizId = quizId;
       this.currentQuestionIndex = currentQuestionIndex;
@@ -218,10 +220,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quiz !== null &&
         this.quiz !== undefined &&
         this.quiz.questions &&
-        this.quiz.questions.length !== null &&
         this.quiz.questions.length > 0
       ) {
-        console.log("this.quiz.questions:", this.quiz.questions);
+        console.log('questions:', quiz.questions);
         this.getQuestion(this.quiz, this.currentQuestionIndex).subscribe(
           (question) => {
             this.question = question;
@@ -230,11 +231,9 @@ export class QuizComponent implements OnInit, OnDestroy {
             });
           }
         );
-      } else {
-        console.log('Quiz or quiz questions is undefined or empty');
       }
     });
-  }  
+  }
 
   handleQuestions(questions: QuizQuestion[]): void {
     this.questions$ = of(questions);
@@ -447,8 +446,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   } */
 
-  getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
-    return of(selectedQuiz.questions[index]);
+  getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
+    console.log("Quiz:::", quiz);
+    console.log("Index:::", index);
+    const question = quiz.questions[index];
+    return of(question);
   }
 
   getCurrentQuestion() {

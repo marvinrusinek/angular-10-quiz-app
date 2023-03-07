@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
@@ -177,15 +177,27 @@ export class QuizService implements OnDestroy {
     return of(quiz);
   } */
 
-  getQuiz(id: string): Observable<Quiz> {
+  /* getQuiz(id: string): Observable<Quiz> {
     // const apiUrl = `${this.quizUrl}/${id}`;
     // return this.http.get<Quiz>(apiUrl);
     return this.http.get(this.quizUrl).pipe(
       map((response: any) => {
+        console.log('Quiz response:', response);
         return response;
       }),
       catchError((error) => {
         console.log('Error:', error);
+        return throwError('Something went wrong');
+      })
+    );
+  } */
+
+  getQuiz(id: string): Observable<Quiz> {
+    return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
+      tap(response => console.log('Quiz response:', response)),
+      map(response => response as Quiz),
+      catchError((error: any) => {
+        console.log('Error:', error.message);
         return throwError('Something went wrong');
       })
     );
