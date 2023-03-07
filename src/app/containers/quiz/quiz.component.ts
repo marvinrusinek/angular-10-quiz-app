@@ -213,7 +213,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = currentQuestionIndex;
       this.quizService.setQuiz(this.quiz);
       this.quizLength = this.quizService.getQuizLength();
-      if (this.quiz && this.quiz.questions && this.quiz.questions.length > 0) {
+      if (
+        this.quiz !== null &&
+        this.quiz !== undefined &&
+        this.quiz.questions !== null &&
+        this.quiz.questions !== undefined &&
+        this.quiz.questions.length > 0
+      ) {
         this.getQuestion(this.quiz, this.currentQuestionIndex).subscribe(
           (question) => {
             this.question = question;
