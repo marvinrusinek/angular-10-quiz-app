@@ -151,9 +151,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     this.selectedQuiz$ = this.quizService.selectedQuiz$;
-    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-    });
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
     });
