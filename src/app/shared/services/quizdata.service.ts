@@ -12,7 +12,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
-  selectedQuiz: Quiz = null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   private url = 'assets/data/quiz.json';
@@ -21,27 +20,6 @@ export class QuizDataService {
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-
-  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  /* selectedQuiz$: Observable<Quiz | undefined> = this.selectedQuizSource
-    .asObservable()
-    .pipe(
-      filter((quiz) => quiz !== null && quiz !== undefined),
-      catchError((error) => {
-        console.error(error);
-        return EMPTY;
-      })
-    ); */
-
-  /* get selectedQuiz(): Quiz {
-    return this.selectedQuiz$.value;
-  }
-
-  set selectedQuiz(quiz: Quiz) {
-    this.selectedQuiz = quiz;
-    this.selectedQuiz$.next(quiz);
-    console.log('Selected quiz:', this.selectedQuiz$.value);
-  } */
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
@@ -60,43 +38,16 @@ export class QuizDataService {
     );
   }
 
-  /* setQuiz(quiz: Quiz): void {
-    this.quizIdSubject.next(quiz);
-  } */
-
-  setQuiz(quiz: Quiz): void {
-    this.quiz = quiz;
-    console.log('Selected quiz:', this.quiz);
-  }
-
-  /* setQuiz(quiz: Quiz) {
-    this.quiz = quiz;
+  setSelectedQuiz(quiz: Quiz) {
     this.selectedQuiz$.next(quiz);
-    console.log("Selected quiz: ", this.selectedQuiz$.value);
-  } */
-
-  selectQuiz(quiz: Quiz | undefined): void {
-    this.selectedQuiz$.next(quiz);
-    // this.selectedQuizSource.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$.asObservable();
   }
 
-  setSelectedQuiz(quiz: Quiz) {
-    this.selectedQuiz$.next(quiz);
-  }
-
   private handleError(error: any) {
-    console.error('An error occurred', error); // for demo purposes only
+    console.error('An error occurred', error);
     return throwError(error.message || error);
   }
-
-  /* private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(error);
-      return of(result as T);
-    };
-  } */
 }

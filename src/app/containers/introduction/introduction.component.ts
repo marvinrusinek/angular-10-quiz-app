@@ -78,12 +78,7 @@ export class IntroductionComponent implements OnInit {
     const selectedQuiz = this.quizSelection.selectedQuiz;
     if (selectedQuiz) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
-        if (this.quizDataService.selectedQuiz !== null) {
-          console.log(this.quizDataService.selectedQuiz.quizId);
-        }
-        this.quizService.selectedQuiz = quiz;
-        this.quizDataService.selectedQuiz$.next(quiz);
-        this.quizDataService.setSelectedQuiz(this.quiz);
+        this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
     } else {
