@@ -129,7 +129,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     this.quiz$.subscribe((quiz: Quiz) => {
-      this.handleQuizData(quiz);
+      this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
     });
 
     this.quizService.getQuizzes().subscribe((quizzes) => {
@@ -205,13 +205,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
-    console.log("QUIZ:", quiz);
-    this.quiz = quiz;
+  handleQuizData(newQuiz: Quiz, quizId: string, currentQuestionIndex: number): void {
+    console.log("QUIZ:", newQuiz);
+    this.quiz = newQuiz;
     this.quizId = quizId;
     this.currentQuestionIndex = currentQuestionIndex;
     this.quizService.setQuiz(this.quiz);
-    this.quizLength = this.quizService.getQuizLength();
+
+    const quiz = this.quizService.getQuiz(this.quizId);
+    this.quizLength = quiz && quiz.questions ? quiz.questions.length : 0;
+
     if (
       this.quiz !== null &&
       this.quiz !== undefined &&
