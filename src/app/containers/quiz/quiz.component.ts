@@ -127,30 +127,35 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = await this.activatedRoute.params.toPromise();
     const quizId: string = params.quizId;
     this.quizId = quizId;
+    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
+      tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
+    );
   
-    // Subscribe to selectedQuiz$ observable
-    this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      console.log('selectedQuiz$ value in ngOnInit:', selectedQuiz);
-      if (selectedQuiz) {
-        this.selectedQuiz = selectedQuiz;
-      }
+    this.quizService.getQuizzes().subscribe((quizzes) => {
+      this.quizzes = quizzes;
     });
   
+    // Check if selectedQuiz is defined before accessing its properties
+    const selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
+    if (selectedQuiz) {
+      this.selectedQuizSource.next(selectedQuiz);
+    }
+  
     // Check if selectedQuiz is defined and has questions before retrieving the first question
-    if (this.selectedQuiz !== undefined && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
-      this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
+    if (this.selectedQuizSource.value && this.selectedQuizSource.value.questions && this.selectedQuizSource.value.questions.length > 0) {
+      this.question = await this.getQuestion(this.selectedQuizSource.value, this.currentQuestionIndex).toPromise();
       this.form.patchValue({
-        selectedOption: null
+        selectedOption: null,
       });
     } else {
       this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
       this.form.patchValue({
-        selectedOption: null
+        selectedOption: null,
       });
     }
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
-      
+        
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
