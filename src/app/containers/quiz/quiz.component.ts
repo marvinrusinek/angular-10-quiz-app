@@ -119,6 +119,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getQuizzes();
     // this.selectedQuiz$ = new BehaviorSubject<Quiz>({});
     // this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+    // initialize selectedQuiz$ to null
+    this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
   async ngOnInit(): Promise<void> {
@@ -127,21 +129,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = quizId;
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
-    );
+    ).subscribe((quiz: Quiz) => {
+      this.selectedQuiz = quiz;
+    });
     this.quizService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
   
     // Check if selectedQuiz is defined before accessing its properties
     if (this.quizDataService.getSelectedQuiz() !== undefined) {
-      this.selectedQuiz = (await this.quizDataService.getSelectedQuiz().toPromise()) || {} as Quiz;
-      this.selectedQuiz$.next(this.selectedQuiz);
-    } else {
-      this.selectedQuiz$.next(null);
+      this.selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
     }
   
     // Check if selectedQuiz is defined and has questions before retrieving the first question
-    if (this.selectedQuiz !== null && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+    if (this.selectedQuiz !== undefined && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
       this.question = await this.getQuestion(this.selectedQuiz, this.currentQuestionIndex).toPromise();
       this.form.patchValue({
         selectedOption: null,
@@ -152,8 +153,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         selectedOption: null,
       });
     }
+  
+    // set the selectedQuiz$ behavior subject
+    this.selectedQuiz$?.next(this.selectedQuiz);
+  
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
-  }
+  }  
     
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
