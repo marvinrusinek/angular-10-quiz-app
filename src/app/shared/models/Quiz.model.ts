@@ -5,6 +5,6 @@ export interface Quiz {
   milestone: string;
   summary: string;
   image: string;
-  questions: QuizQuestion[];
+  questions?: QuizQuestion[];
   status: 'Started' | 'Continue' | 'Completed';
 }
