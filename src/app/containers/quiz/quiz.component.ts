@@ -213,12 +213,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = currentQuestionIndex;
       this.quizService.setQuiz(this.quiz);
       this.quizLength = this.quizService.getQuizLength();
-      if (
-        this.quiz !== null &&
-        this.quiz !== undefined &&
-        this.quiz.questions &&
-        this.quiz.questions.length > 0
-      ) {
+      if (this.quiz && this.quiz.questions && this.quiz.questions.length > 0) {
         this.getQuestion(this.quiz, this.currentQuestionIndex).subscribe(
           (question) => {
             this.question = question;
@@ -227,6 +222,8 @@ export class QuizComponent implements OnInit, OnDestroy {
             });
           }
         );
+      } else {
+        console.log('Quiz or quiz questions is undefined or empty');
       }
     });
   }  
