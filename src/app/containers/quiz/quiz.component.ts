@@ -132,16 +132,22 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
   
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      console.log("QUIZZES:::", quizzes);
+    this.quizDataService.getQuizzes().subscribe(quizzes => {
       this.quizzes = quizzes;
+      this.quizDataService.getSelectedQuiz().subscribe(selectedQuiz => {
+        this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
+        this.selectedQuiz$.next(this.selectedQuiz);
+      });
     });
   
-    // Check if selectedQuiz is defined before accessing its properties
-    const selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
-    if (selectedQuiz) {
-      this.selectedQuizSource.next(selectedQuiz);
-    }
+    this.selectedQuiz$.subscribe(selectedQuiz => {
+      this.selectedQuiz = selectedQuiz;
+      if (selectedQuiz && selectedQuiz.questions.length > 0) {
+        this.currentQuestionIndex = 0;
+        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
+        // this.setOptions();
+      }
+    });
   
     // Check if selectedQuiz is defined and has questions before retrieving the first question
     if (this.selectedQuizSource.value && this.selectedQuizSource.value.questions && this.selectedQuizSource.value.questions.length > 0) {
@@ -155,8 +161,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         selectedOption: null,
       });
     }
+  
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
+  
         
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
