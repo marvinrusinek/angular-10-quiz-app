@@ -200,6 +200,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private setOptions(): void {
+    if (!this.question) {
+      return;
+    }
+
     this.form.patchValue({
       selectedOption: null,
     });
