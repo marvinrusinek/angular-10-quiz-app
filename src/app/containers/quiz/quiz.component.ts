@@ -126,9 +126,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap((quiz: Quiz) => {
         this.handleQuizData(quizId, this.currentQuestionIndex);
         this.question = quiz.questions[this.currentQuestionIndex];
-        if (this.question && this.question.options) {
-          this.answers = this.question.options.map(option => option.value);
-        }
       })
     );
 
@@ -154,9 +151,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.question$.subscribe((question) => {
       this.question = question;
       this.setOptions();
-      /* if (this.question && this.question.options) {
-        this.answers = this.question.options; // figure out why this isn't working...
-      } */
     });
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
@@ -218,7 +212,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
     this.form.setControl('selectedOption', this.fb.control(null));
     this.form.setControl('options', this.fb.array(options));
+    this.answers = this.question.options.map(option => option.value);
   }
+  
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
