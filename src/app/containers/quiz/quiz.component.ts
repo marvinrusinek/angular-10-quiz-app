@@ -122,32 +122,42 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-  
+
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
         this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       })
     );
-  
+
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz || (quizzes && quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-        if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+        this.selectedQuiz =
+          selectedQuiz ||
+          (quizzes && quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
+        if (
+          this.selectedQuiz &&
+          this.selectedQuiz.questions &&
+          this.selectedQuiz.questions.length > 0
+        ) {
           this.currentQuestionIndex = 0;
-          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.question =
+            this.selectedQuiz.questions[this.currentQuestionIndex];
           this.setOptions();
         }
       });
     });
-  
-    this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
+
+    this.question$ = this.quizService.getQuestion(
+      quizId,
+      this.currentQuestionIndex
+    );
     this.question$.subscribe((question) => {
       this.question = question;
       this.setOptions();
     });
-  
+
     this.answers = this.question.options.map((option) => option.value);
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
@@ -173,7 +183,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
+  handleQuizData(
+    quiz: Quiz,
+    quizId: string,
+    currentQuestionIndex: number
+  ): void {
     this.quizDataService.setSelectedQuiz(quiz);
 
     this.quizDataService
