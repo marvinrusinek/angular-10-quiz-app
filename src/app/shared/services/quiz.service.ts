@@ -173,6 +173,7 @@ export class QuizService implements OnDestroy {
     return this.http.get(apiUrl).pipe(
       mergeMap((response: any) => {
         const quiz = response.quizzes.find((q: any) => q.quizId === quizId);
+        console.log('MYQUIZ', quiz);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
