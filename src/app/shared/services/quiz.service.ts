@@ -169,14 +169,21 @@ export class QuizService implements OnDestroy {
     }
   
     const apiUrl = `${this.quizUrl}`;
-  
+    
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        const questions = response.quiz.questions;
-        const question = questions.find((q: any) => q.order === questionIndex);
-        if (!question) {
-          throw new Error('Invalid response format');
+        const quiz = response.quizzes.find((q: any) => q.id === quizId);
+        if (!quiz) {
+          throw new Error('Invalid quizId parameter');
         }
+  
+        const question = quiz.questions.find(
+          (q: any) => q.order === questionIndex
+        );
+        if (!question) {
+          throw new Error('Invalid questionIndex parameter');
+        }
+  
         return {
           ...question,
           options: question.options.map((option: any) => ({
@@ -188,8 +195,9 @@ export class QuizService implements OnDestroy {
       catchError((error: HttpErrorResponse) => {
         return throwError('Error getting quiz question\n' + error.message);
       })
-    );    
+    );
   }
+  
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
