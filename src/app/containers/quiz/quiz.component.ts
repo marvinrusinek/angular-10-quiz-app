@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId: string = params.quizId;
   
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => {
+      tap(() => {
         this.handleQuizData(quizId, this.currentQuestionIndex, quiz);
       })
     );
@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
         this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-        if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
+        if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
           this.currentQuestionIndex = 0;
           this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
           this.setOptions();
@@ -144,14 +144,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
     this.question$.subscribe((question) => {
-      this.question = question;
-      this.setOptions();
+      if (question && question.options) {
+        this.question = question;
+        this.answers = this.question.options.map((option) => option.value);
+        this.setOptions();
+      }
     });
   
-    this.answers = this.question.options.map((option) => option.value);
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
-
+  
+  
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
