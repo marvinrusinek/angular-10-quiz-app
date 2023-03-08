@@ -55,9 +55,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
+  quizQuestions: QuizQuestion[];
   question: QuizQuestion;
   question$: Observable<QuizQuestion>;
-  questions: QuizQuestion[];
   currentQuestion: any = undefined;
   resources: Resource[];
   answers: number[] = [];
@@ -511,8 +511,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   submitQuiz() {
-    this.quizService
-      .submitQuiz(this.selectedQuiz.quizId, this.form.value)
+    this.quizDataService.submitQuiz(this.quiz)
       .subscribe(() => {
         this.status = Status.Complete;
         // this.quizService.resetQuiz(); ???
@@ -546,8 +545,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendQuizQuestionsToQuizService(): void {
-    this.questions = this.quizData[this.indexOfQuizId].questions;
-    this.quizService.setQuestions(this.questions);
+    this.quizQuestions = this.quizData[this.indexOfQuizId].questions;
+    this.quizService.setQuestions(this.quizQuestions);
   }
 
   private sendQuizResourcesToQuizService(): void {
