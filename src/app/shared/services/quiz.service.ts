@@ -174,7 +174,7 @@ export class QuizService implements OnDestroy {
       map((response: any) => {
         const quiz = response.quizzes.find((q: any) => q.id === quizId);
         if (!quiz) {
-          throw new Error(`Quiz with id '${quizId}' not found`);
+          throw new Error(`Quiz with id ${quizId} not found`);
         }
         const question = quiz.questions.find(
           (q: any) => q.order === questionIndex
@@ -189,6 +189,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
+ 
   
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
