@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { catchError, filter, map } from 'rxjs/operators';
+import { catchError, map, throwError } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
   providedIn: 'root',
