@@ -180,7 +180,7 @@ export class QuizService implements OnDestroy {
         }
         return {
           ...question,
-          choices: question.options.map((option: any) => ({
+          options: question.options.map((option: any) => ({
             ...option,
             selected: false,
           })),
