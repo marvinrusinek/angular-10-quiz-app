@@ -224,6 +224,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((selectedQuiz) => {
           if (selectedQuiz && selectedQuiz.questions.length > 0) {
+            this.currentQuestionIndex = currentQuestionIndex;
             this.question = selectedQuiz.questions[currentQuestionIndex];
             this.answers = this.question.options.map((option) => option.value);
             this.setOptions();
