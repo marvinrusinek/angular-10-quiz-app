@@ -1,14 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { QuizComponent } from '../quiz/quiz.component';
 import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -36,7 +34,6 @@ export class IntroductionComponent implements OnInit {
   selectedQuizId: string;
   selectedQuiz: Quiz;
   selectedQuiz$: Observable<Quiz>;
-  // selectedQuiz$: Observable<Quiz> = this.quizDataService.selectedQuiz$;
   questions$: Observable<QuizQuestion[]>;
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
@@ -55,7 +52,6 @@ export class IntroductionComponent implements OnInit {
     console.log('selectedQuiz$ value in ngOnInit:', this.quizDataService.selectedQuiz$.value);
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
-      // this.quizIndex = +params.get('quizIndex');
       if (quizId) {
         this.quizService.getQuizById(quizId).subscribe((quiz) => {
           this.quizDataService.selectedQuiz$.next(quiz);
@@ -76,14 +72,10 @@ export class IntroductionComponent implements OnInit {
   }
 
   onStartQuiz() {
-    console.log('selectedQuiz$ value in onStartQuiz before update:', this.quizDataService.selectedQuiz$.value);
     const selectedQuiz = this.quizSelection.selectedQuiz;
-    console.log("TESTING");
     if (selectedQuiz) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
-        console.log("TEST");
         this.quizDataService.setSelectedQuiz(quiz);
-        console.log('selectedQuiz$ value in onStartQuiz after update:', this.quizDataService.selectedQuiz$.value);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
     } else {
