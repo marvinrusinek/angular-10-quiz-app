@@ -161,22 +161,22 @@ export class QuizService implements OnDestroy {
 
   getQuizzes(): Observable<Quiz[]> {
     return this.quizDataService.getQuizzes();
-    // return this.http.get<Quiz[]>(this.quizUrl);
-    /* return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      catchError(this.handleError<Quiz[]>('getQuizzes', []))
-    ); */
   }
 
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-
-    const apiUrl = `${this.quizUrl}/${quizId}/questions`;
-
+  
+    const apiUrl = `${this.quizUrl}`;
+  
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        const question = response.questions.find(
+        const quiz = response.quizzes.find((q: any) => q.id === quizId);
+        if (!quiz) {
+          throw new Error(`Quiz with id '${quizId}' not found`);
+        }
+        const question = quiz.questions.find(
           (q: any) => q.order === questionIndex
         );
         return {
@@ -188,8 +188,8 @@ export class QuizService implements OnDestroy {
         };
       })
     );
-}
-
+  }
+  
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
   }
