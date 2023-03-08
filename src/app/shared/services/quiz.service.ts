@@ -167,19 +167,6 @@ export class QuizService implements OnDestroy {
     ); */
   }
 
-  setQuizzes(quizzes: Quiz[]): void {
-    this.quizzes = quizzes;
-  }
-
-  /* getQuestions(): Observable<Quiz[]> {
-    return of(this.quizData);
-  } */
-
-  getQuestions(quizId: string): Observable<QuizQuestion[]> {
-    const quizUrl = `${this.quizUrl}/${quizId}/questions`;
-    return this.http.get<QuizQuestion[]>(quizUrl);
-  }
-
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
@@ -433,6 +420,10 @@ export class QuizService implements OnDestroy {
   setQuiz(quiz: Quiz): Observable<Quiz> {
     this.selectedQuiz = quiz;
     return of(this.selectedQuiz);
+  }
+
+  setQuizzes(quizzes: Quiz[]): void {
+    this.quizzes = quizzes;
   }
 
   setQuizStatus(value: string): void {
