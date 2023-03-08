@@ -26,7 +26,8 @@ export class QuizDataService {
   // public selectedQuiz$ = this.selectedQuizSource.asObservable();
   // private selectedQuiz$ = new ReplaySubject<Quiz>(1);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  // selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$: Observable<Quiz>;
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
@@ -52,7 +53,10 @@ export class QuizDataService {
 
   setSelectedQuiz(quiz: Quiz) {
     this.selectedQuiz$.next(quiz);
-    console.log('selectedQuiz$ value in setSelectedQuiz:', this.selectedQuiz$.value);
+    console.log(
+      'selectedQuiz$ value in setSelectedQuiz:',
+      this.selectedQuiz$.value
+    );
   }
 
   getSelectedQuiz(): Observable<Quiz> {
