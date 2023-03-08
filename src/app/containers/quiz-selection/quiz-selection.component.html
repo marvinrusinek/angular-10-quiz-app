@@ -10,16 +10,8 @@
       <h4>How well do you know Angular? Find out!</h4>
     </div>
     <div class="info">
-      <a
-        href="https://www.github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun"
-        target="_blank"
-      >
-        <i
-          class="material-icons"
-          matTooltip="Angular Codelab info"
-          matTooltipPosition="right"
-          >info</i
-        >
+      <a href="https://www.github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun" target="_blank">
+        <i class="material-icons" matTooltip="Angular Codelab info" matTooltipPosition="right">info</i>
       </a>
     </div>
   </header>
@@ -30,12 +22,7 @@
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
       <div *ngFor="let quiz of quizzes$ | async">
-        <button
-          mat-menu-item
-          name="milestone"
-          [routerLink]="['/intro/', quiz.quizId]"
-          data-i18n="quiz.milestone"
-        >
+        <button mat-menu-item name="milestone" [routerLink]="['/intro/', quiz.quizId]" data-i18n="quiz.milestone">
           {{ quiz.milestone }}
         </button>
       </div>
@@ -43,29 +30,17 @@
   </div>
 
   <div class="quiz-grid">
-    <div
-      class="quiz-tile" #quizTile
-      *ngFor="let quiz of quizzes$ | async"
-      [@slideLeftToRight]="animationState$ | async"
-      (@slideLeftToRight.done)="animationDoneHandler()"
-      (click)="onSelect(quiz.quizId)"
-      [ngStyle]="getQuizTileStyles(quiz)"
-      loading="lazy"
-    >
+    <div class="quiz-tile" #quizTile *ngFor="let quiz of quizzes$ | async"
+      [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()"
+      (click)="onSelect(quiz.quizId)" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
       <summary class="quiz-info">
         <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
         <h6 class="quiz-summary" i18n>{{ quiz.summary }}</h6>
       </summary>
 
       <div class="status-icon">
-        <span
-          [ngClass]="getLinkClass(quiz)"
-          [matTooltip]="getTooltip(quiz)"
-        >
-          <a
-            *ngIf="shouldShowLink(quiz)"
-            [routerLink]="getLinkRouterLink(quiz)"
-          >
+        <span [ngClass]="getLinkClass(quiz)" [matTooltip]="getTooltip(quiz)">
+          <a *ngIf="shouldShowLink(quiz)" [routerLink]="getLinkRouterLink(quiz)">
             <i [ngClass]="getIconClass(quiz)"></i>
           </a>
         </span>
@@ -74,8 +49,7 @@
   </div>
 
   <footer>
-    <h3 i18n>
-      Copyright &copy; 2023
+    <h3 i18n>Copyright &copy; 2023
       <a target="_blank" href="https://www.codelab.fun">codelab.fun</a>
     </h3>
   </footer>
