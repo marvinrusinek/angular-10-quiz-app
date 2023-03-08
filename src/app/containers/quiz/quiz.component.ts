@@ -115,11 +115,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
+    this.currentQuestionIndex = 0;
     this.quizService.getQuizzes();
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
-  ngOnInit(): void {
+  /* ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
 
@@ -154,6 +155,39 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.question && this.question.options
         ? this.question.options.map((option) => option.value)
         : [];
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+  } */
+
+  ngOnInit(): void {
+    const params: Params = this.activatedRoute.snapshot.params;
+    const quizId: string = params.quizId;
+
+    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
+      tap((quiz: Quiz) => {
+        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+      })
+    );
+
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      this.quizzes = quizzes;
+      this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
+      this.selectedQuiz$.subscribe((selectedQuiz) => {
+        this.selectedQuiz =
+          selectedQuiz ||
+          (quizzes && quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
+        if (
+          this.selectedQuiz &&
+          this.selectedQuiz.questions &&
+          this.selectedQuiz.questions.length > 0
+        ) {
+          this.currentQuestionIndex = 0;
+          this.question =
+            this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.setOptions();
+        }
+      });
+    });
+
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
@@ -213,7 +247,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  setOptions(): void {
+  /* setOptions(): void {
     this.form.patchValue({
       selectedOption: null,
     });
@@ -227,6 +261,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.form.setControl('options', this.fb.array(options));
       this.answers = this.question.options.map((option) => option.value);
     }
+  } */
+
+  setOptions() {
+    this.answers =
+      this.question && this.question.options
+        ? this.question.options.map((option) => option.value)
+        : [];
   }
 
   updateCardFooterClass(): void {
