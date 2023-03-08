@@ -47,6 +47,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
+  formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
   quizData: Quiz[];
@@ -56,7 +57,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizLength: number;
   question: QuizQuestion;
   question$: Observable<QuizQuestion>;
-  // questions: QuizQuestion[];
+  questions: QuizQuestion[];
   currentQuestion: any = undefined;
   resources: Resource[];
   answers: number[] = [];
@@ -64,7 +65,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz | null>(null);
   // public selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$: Observable<Quiz>;
+  selectedQuiz$: BehaviorSubject<Quiz>;
 
   // selectedQuiz$ = new BehaviorSubject<Quiz>({});
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -172,12 +173,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
-    this.quizDataService.setSelectedQuiz(this.quizzes.find(quiz => quiz.id === quizId));
-    const selectedQuiz = this.quizDataService.getSelectedQuiz().getValue();
-    if (selectedQuiz && selectedQuiz.questions.length > 0) {
-      this.question = selectedQuiz.questions[currentQuestionIndex];
-      this.setOptions();
-    }
+    this.quizDataService.setSelectedQuiz(this.quizzes.find(quiz => quiz.quizId === quizId));
+    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      if (selectedQuiz && selectedQuiz.questions.length > 0) {
+        this.question = selectedQuiz.questions[currentQuestionIndex];
+        this.setOptions();
+      }
+    });
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
@@ -253,7 +255,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.shuffleAnswers();
   }
 
-  // check if used or not
   private subscribeToQuizParams(): void {
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
@@ -269,16 +270,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateQuestionIndex(): void {
-    this.questionIndex =
-      parseInt(this.activatedRoute.snapshot.params.questionIndex, 10) || 0;
-    this.quizService.currentQuestionIndex = this.questionIndex;
-  }
-
   private updateTotalQuestions(): void {
     this.updateQuestionIndex();
     this.totalQuestions = this.quizData[this.indexOfQuizId].questions.length;
     this.quizService.setTotalQuestions(this.totalQuestions);
+  }  
+
+  private updateQuestionIndex(): void {
+    this.questionIndex =
+      parseInt(this.activatedRoute.snapshot.params.questionIndex, 10) || 0;
+    this.quizService.currentQuestionIndex = this.questionIndex;
   }
 
   private updateProgressValue(): void {
@@ -417,7 +418,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuestion() {
     this.quizService
-      .getQuestion(this.selectedQuiz.id, this.currentQuestionIndex)
+      .getQuestion(this.selectedQuiz.quizId, this.currentQuestionIndex)
       .subscribe((question) => {
         this.currentQuestion = question;
       });
@@ -481,10 +482,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    console.log('quiz:::::::', this.quiz);
-    console.log('currentQuestionIndex:::', this.currentQuestionIndex);
-    console.log('quiz:::', this.quiz);
-  
     const selectedOption = this.form.value.selectedOption;
     if (this.form.valid) {
       this.isDisabled = true;
@@ -528,7 +525,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   submitQuiz() {
     this.quizService
-      .submitQuiz(this.selectedQuiz.id, this.form.value)
+      .submitQuiz(this.selectedQuiz.quizId, this.form.value)
       .subscribe(() => {
         this.status = Status.Complete;
         // this.quizService.resetQuiz(); ???
