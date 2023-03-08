@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
         this.selectedQuiz = selectedQuiz || (quizzes && quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-        if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
+        if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
           this.currentQuestionIndex = 0;
           this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
           this.setOptions();
@@ -151,7 +151,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers = this.question.options.map((option) => option.value);
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
- 
 
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
