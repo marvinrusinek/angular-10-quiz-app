@@ -132,6 +132,17 @@ export class QuizService implements OnDestroy {
       );
   }
 
+  getQuiz(id: string): Observable<Quiz> {
+    return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
+      tap(response => console.log('Quiz response:', response)),
+      map(response => response as Quiz),
+      catchError((error: any) => {
+        console.log('Error:', error.message);
+        return throwError('Something went wrong');
+      })
+    );
+  }
+
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
@@ -162,46 +173,6 @@ export class QuizService implements OnDestroy {
 
   setQuizzes(quizzes: Quiz[]): void {
     this.quizzes = quizzes;
-  }
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    // console.log('Getting quiz with ID:', quizId);
-    return this.http.get<Quiz[]>(this.quizUrl)
-      .pipe(
-        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
-        catchError(this.handleError)
-      );
-  } */
-
-  /* getQuiz(quizId: string): Observable<Quiz> {
-    const quiz = this.quizzes.find((q) => q.quizId === quizId);
-    return of(quiz);
-  } */
-
-  /* getQuiz(id: string): Observable<Quiz> {
-    // const apiUrl = `${this.quizUrl}/${id}`;
-    // return this.http.get<Quiz>(apiUrl);
-    return this.http.get(this.quizUrl).pipe(
-      map((response: any) => {
-        console.log('Quiz response:', response);
-        return response;
-      }),
-      catchError((error) => {
-        console.log('Error:', error);
-        return throwError('Something went wrong');
-      })
-    );
-  } */
-
-  getQuiz(id: string): Observable<Quiz> {
-    return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
-      tap(response => console.log('Quiz response:', response)),
-      map(response => response as Quiz),
-      catchError((error: any) => {
-        console.log('Error:', error.message);
-        return throwError('Something went wrong');
-      })
-    );
   }
 
   /* getQuestions(): Observable<Quiz[]> {
