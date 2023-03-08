@@ -179,7 +179,7 @@ export class QuizService implements OnDestroy {
     
         const question = quiz.questions[currentQuestionIndex];
         if (!question) {
-          throw new Error('Invalid questionIndex');
+          throw new Error('Invalid question index');
         }
     
         return of({
@@ -196,7 +196,6 @@ export class QuizService implements OnDestroy {
     );
   }
   
-
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
   }
