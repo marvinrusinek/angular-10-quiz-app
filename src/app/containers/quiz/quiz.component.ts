@@ -122,11 +122,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-    this.quiz$ = this.quizService
-      .getQuiz(quizId)
-      .pipe(
-        tap(() => this.handleQuizData(quizId, this.currentQuestionIndex))
-      );
+    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
+      tap((quiz: Quiz) => {
+        this.handleQuizData(quizId, this.currentQuestionIndex);
+        this.question = quiz.questions[this.currentQuestionIndex];
+        this.answers = this.question.options;
+      })
+    );
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
@@ -150,7 +152,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.question$.subscribe((question) => {
       this.question = question;
       this.setOptions();
-      this.answers = this.question.options; // figure out why this isn't working...
+      // this.answers = this.question.options; // figure out why this isn't working...
     });
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
