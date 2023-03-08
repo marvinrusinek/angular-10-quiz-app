@@ -172,11 +172,7 @@ export class QuizService implements OnDestroy {
   
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        if (!response.questions) {
-          throw new Error('Invalid response format');
-        }
-  
-        const question = response.questions.find(
+        const question = response.quiz.questions.find(
           (q: any) => q.order === questionIndex
         );
         if (!question) {
@@ -194,6 +190,7 @@ export class QuizService implements OnDestroy {
         return throwError('Error getting quiz question\n' + error.message);
       })
     );
+    
   }
   
   getCurrentQuiz(): Quiz {
