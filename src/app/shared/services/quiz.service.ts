@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
@@ -167,18 +167,17 @@ export class QuizService implements OnDestroy {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-
+  
     const apiUrl = `${this.quizUrl}`;
-
+  
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        const questions = response.questions || [];
-        const question = questions.find(
-          (q: any) => q.quizId === quizId && q.order === questionIndex
-        );
-        if (!question) {
+        if (!response || !response.questions || response.questions.length === 0) {
           throw new Error('Invalid response format');
         }
+      
+        const question = response.questions[0];
+      
         return {
           ...question,
           choices: question.choices.map((choice: any) => ({
@@ -186,10 +185,6 @@ export class QuizService implements OnDestroy {
             selected: false,
           })),
         };
-      }),
-      catchError((error: any) => {
-        console.error('Error getting quiz question', error);
-        return throwError('Error getting quiz question');
       })
     );
   }
