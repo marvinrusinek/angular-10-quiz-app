@@ -120,44 +120,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
-  /* ngOnInit(): void {
-    const params: Params = this.activatedRoute.snapshot.params;
-    const quizId: string = params.quizId;
-
-    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => {
-        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
-      })
-    );
-
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-      this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
-      this.selectedQuiz$.subscribe((selectedQuiz) => {
-        this.selectedQuiz =
-          selectedQuiz ||
-          (quizzes && quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
-        if (
-          this.selectedQuiz &&
-          this.selectedQuiz.questions &&
-          this.selectedQuiz.questions.length > 0
-        ) {
-          this.currentQuestionIndex = 0;
-          this.question =
-            this.selectedQuiz.questions[this.currentQuestionIndex];
-          this.question$ = of(this.question);
-          this.setOptions();
-        }
-      });
-    });
-
-    this.answers =
-      this.question && this.question.options
-        ? this.question.options.map((option) => option.value)
-        : [];
-    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
-  } */
-
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
@@ -186,6 +148,15 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.setOptions();
         }
       });
+    });
+
+    this.question$ = this.quizService.getQuestion(
+      quizId,
+      this.currentQuestionIndex
+    );
+    this.question$.subscribe((question) => {
+      this.question = question;
+      this.setOptions();
     });
 
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
@@ -218,21 +189,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     currentQuestionIndex: number
   ): void {
     this.quizDataService.setSelectedQuiz(quiz);
-
-    this.quizDataService
-      .getSelectedQuiz()
-      .pipe(
-        switchMap((selectedQuiz) => {
-          if (selectedQuiz && selectedQuiz.questions.length > 0) {
-            this.currentQuestionIndex = currentQuestionIndex;
-            this.question = selectedQuiz.questions[currentQuestionIndex];
-            this.answers = this.question.options.map((option) => option.value);
-            this.setOptions();
-          }
-          return of(null);
-        })
-      )
-      .subscribe();
+    if (quiz && quiz.questions && quiz.questions.length > 0) {
+      this.currentQuestionIndex = currentQuestionIndex;
+      this.question = quiz.questions[currentQuestionIndex];
+      this.answers = this.question.options.map((option) => option.value);
+      this.setOptions();
+    }
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
