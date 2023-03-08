@@ -1,11 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   EventEmitter,
   OnInit,
-  Output, 
-  ViewChild
+  Output
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
@@ -85,6 +83,10 @@ export class QuizSelectionComponent implements OnInit {
     };
   }
 
+  getLinkName(quiz: Quiz): string {
+    return quiz.status.toLowerCase();
+  }
+
   getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
     switch (quiz.status) {
@@ -108,10 +110,6 @@ export class QuizSelectionComponent implements OnInit {
         break;
     }
     return classes;
-  }
-
-  getLinkName(quiz: Quiz): string {
-    return quiz.status.toLowerCase();
   }
 
   getTooltip(quiz: Quiz): string {
