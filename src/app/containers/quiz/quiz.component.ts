@@ -399,19 +399,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* getQuestion(index: number): Observable<QuizQuestion> {
-    return this.quizDataService.selectedQuiz$.pipe(
-      map(selectedQuiz => selectedQuiz.questions[index])
-    );
-  } */
-
-  /* getQuestion(index: number): Observable<QuizQuestion> {
-    return this.selectedQuiz$.pipe(
-      filter((quiz) => quiz !== null && quiz.questions !== null && quiz.questions.length > index),
-      map((quiz) => quiz.questions[index]),
-    );
-  } */
-
   private getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
     return of(quiz.questions[index]);
   }
