@@ -64,7 +64,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz | null>(null);
-  public selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  // public selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$: Observable<Quiz>;
 
   // selectedQuiz$ = new BehaviorSubject<Quiz>({});
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -113,50 +114,45 @@ export class QuizComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private formBuilder: FormBuilder
+    private fb: FormBuilder
   ) {
+    this.form = this.fb.group({
+      selectedOption: [null],
+    });
     this.quizService.getQuizzes();
-    // this.selectedQuiz$ = new BehaviorSubject<Quiz>({});
-    // this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-    // initialize selectedQuiz$ to null
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
-  async ngOnInit(): Promise<void> {
-    const params: Params = await this.activatedRoute.params.toPromise();
+  ngOnInit(): void {
+    const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-    this.quizId = quizId;
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
 
-    this.quizService.getQuizzes().subscribe((quizzes) => {
-      console.log("QUIZZES:::", quizzes);
+    this.quizDataService.getQuizzes().subscribe(quizzes => {
       this.quizzes = quizzes;
+      this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
+      this.selectedQuiz$.subscribe(selectedQuiz => {
+        this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
+        if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
+          this.currentQuestionIndex = 0;
+          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.setOptions();
+        }
+      });
     });
 
-    // Check if selectedQuiz is defined before accessing its properties
-    const selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
-    if (selectedQuiz) {
-      this.selectedQuizSource.next(selectedQuiz);
-    }
-
-    // Check if selectedQuiz is defined and has questions before retrieving the first question
-    if (this.selectedQuizSource.value && this.selectedQuizSource.value.questions && this.selectedQuizSource.value.questions.length > 0) {
-      this.question$ = this.getQuestion(this.selectedQuizSource.value, this.currentQuestionIndex);
-      this.form.patchValue({
-        selectedOption: null,
-      });
-    } else {
-      this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
-      this.form.patchValue({
-        selectedOption: null,
-      });
-    }
-    this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
+    this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
+    this.question$.subscribe(question => {
+      this.question = question;
+      this.setOptions();
+    });
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
             
   handleParamMap(params: ParamMap): void {
+
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
       params.get('currentQuestionIndex') || '0'
@@ -178,34 +174,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
-    console.log('handleQuizData called with quizId:', quizId, 'and currentQuestionIndex:', currentQuestionIndex);
-    console.log("CHECKING", this.quiz);
-
-    this.quizService.getQuiz(quizId).subscribe(quiz => {
-      console.log('quiz:', quiz);
-      console.log('Quiz questions:', quiz.questions);
-      this.quiz = quiz;
-      this.quizId = quizId;
-      this.currentQuestionIndex = currentQuestionIndex;
-      this.quizService.setQuiz(this.quiz);
-      this.quizLength = this.quizService.getQuizLength();
-      if (
-        this.quiz !== null &&
-        this.quiz !== undefined &&
-        this.quiz.questions &&
-        this.quiz.questions.length > 0
-      ) {
-        console.log('questions:', quiz.questions);
-        this.getQuestion(this.quiz, this.currentQuestionIndex).subscribe(
-          (question) => {
-            this.question = question;
-            this.form.patchValue({
-              selectedOption: null,
-            });
-          }
-        );
-      }
-    });
+    this.quizDataService.setSelectedQuiz(this.quizzes.find(quiz => quiz.id === quizId));
+    const selectedQuiz = this.quizDataService.getSelectedQuiz().getValue();
+    if (selectedQuiz && selectedQuiz.questions.length > 0) {
+      this.question = selectedQuiz.questions[currentQuestionIndex];
+      this.setOptions();
+    }
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
@@ -219,6 +193,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  setOptions(): void {
+    this.form.patchValue({
+      selectedOption: null
+    });
+    const options = this.question.options.map(option => this.fb.group({
+      value: option.value
+    }));
+    this.form.setControl('selectedOption', this.fb.control(null));
+    this.form.setControl('options', this.fb.array(options));
   }
 
   updateCardFooterClass(): void {
@@ -438,6 +423,30 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe((question) => {
         this.currentQuestion = question;
       });
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      return;
+    }
+    const selectedOption = this.form.get('selectedOption').value;
+    if (selectedOption === null) {
+      return;
+    }
+  
+    this.answers.push({
+      question: this.currentQuestion,
+      selectedOption: selectedOption
+    });
+  
+    if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
+      await this.quizDataService.submitQuiz(this.selectedQuiz, this.answers).toPromise();
+      this.router.navigate(['quiz', 'result']);
+    } else {
+      this.currentQuestionIndex++;
+      this.currentQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+      this.setOptions();
+    }
   }
 
   shouldApplyLastQuestionClass(): boolean {

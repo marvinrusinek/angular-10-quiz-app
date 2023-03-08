@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { asObservable, catchError, filter, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { catchError, filter, map } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -15,7 +15,7 @@ export class QuizDataService {
   // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   // private selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
-  private url = 'assets/data/quiz.json';
+  private quizUrl = 'assets/data/quiz.json';
 
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
@@ -31,13 +31,13 @@ export class QuizDataService {
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = this.http
-      .get<Quiz[]>(this.url)
+      .get<Quiz[]>(this.quizUrl)
       .pipe(catchError(this.handleError));
     this.quizzes$.subscribe((data) => console.log('DATA', data));
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.url);
+    return this.http.get<Quiz[]>(this.quizUrl);
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
@@ -57,6 +57,16 @@ export class QuizDataService {
 
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$;
+  }
+
+  submitQuiz(quiz: Quiz): Observable<any> {
+    const submitUrl = `${this.quizUrl}/quizzes/${quiz.id}/submit`;
+    return this.http.post(submitUrl, quiz).pipe(
+      catchError((error) => {
+        console.error(`Error submitting quiz ${quiz.id}`, error);
+        return throwError(error);
+      })
+    );
   }
 
   private handleError(error: any) {
