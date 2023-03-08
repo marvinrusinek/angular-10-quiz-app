@@ -32,7 +32,7 @@ export class QuizDataService {
     this.quizzes$ = this.http
       .get<Quiz[]>(this.quizUrl)
       .pipe(catchError(this.handleError));
-    this.quizzes$.subscribe((data) => console.log('DATA', data));
+    this.quizzes$.subscribe((data) => console.log('DATA', data)); // remove?
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -59,10 +59,10 @@ export class QuizDataService {
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {
-    const submitUrl = `${this.quizUrl}/quizzes/${quiz.id}/submit`;
+    const submitUrl = `${this.quizUrl}/quizzes/${quiz.quizId}/submit`;
     return this.http.post(submitUrl, quiz).pipe(
       catchError((error) => {
-        console.error(`Error submitting quiz ${quiz.id}`, error);
+        console.error(`Error submitting quiz ${quiz.quizId}`, error);
         return throwError(error);
       })
     );
