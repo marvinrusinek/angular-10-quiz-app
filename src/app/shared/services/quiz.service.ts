@@ -172,22 +172,26 @@ export class QuizService implements OnDestroy {
   
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        if (!response || !response.questions || response.questions.length === 0) {
+        const question = response.questions.find(
+          (q: any) => q.order === questionIndex
+        );
+        if (!question) {
           throw new Error('Invalid response format');
         }
-      
-        const question = response.questions[0];
-      
         return {
           ...question,
-          choices: question.choices.map((choice: any) => ({
-            ...choice,
+          choices: question.options.map((option: any) => ({
+            ...option,
             selected: false,
           })),
         };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError('Error getting quiz question\n' + error.message);
       })
     );
   }
+
   
   
   getCurrentQuiz(): Quiz {
