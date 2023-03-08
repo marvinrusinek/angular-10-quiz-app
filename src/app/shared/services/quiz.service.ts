@@ -155,10 +155,6 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
-  get quizNameObservable(): Observable<string> {
-    return this.quizName$.asObservable();
-  }
-
   getResources(): QuizResource[] {
     return this.quizResources;
   }
