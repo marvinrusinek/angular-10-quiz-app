@@ -176,15 +176,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quizId: string, currentQuestionIndex: number): void {
-    this.quizDataService.setSelectedQuiz(
-      this.quizzes.find((quiz) => quiz.quizId === quizId)
-    );
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      if (selectedQuiz && selectedQuiz.questions.length > 0) {
-        this.question = selectedQuiz.questions[currentQuestionIndex];
-        this.setOptions();
-      }
+  private handleQuizData(quizId: string, currentQuestionIndex: number) {
+    this.selectedQuiz$ = this.quizDataService.getQuiz(quizId);
+    this.selectedQuiz$.subscribe((quiz: Quiz) => {
+      this.selectedQuiz = quiz;
+      this.currentQuestionIndex = currentQuestionIndex;
+      this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+      this.answers = this.question.options.map((option) => option.value);
     });
   }
 
@@ -201,20 +199,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  setOptions(): void {
+  private setOptions(): void {
     this.form.patchValue({
       selectedOption: null,
     });
+
     const options = this.question.options.map((option) =>
       this.fb.group({
         value: option.value,
       })
     );
+
+    this.answers = this.question.options.map((option) => option.value);
+
     this.form.setControl('selectedOption', this.fb.control(null));
     this.form.setControl('options', this.fb.array(options));
-    this.answers = this.question.options.map(option => option.value);
   }
-  
 
   updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isAnswered()) {
