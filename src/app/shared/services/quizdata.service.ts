@@ -25,7 +25,8 @@ export class QuizDataService {
   private selectedQuizSource = new BehaviorSubject<Quiz>({});
   // public selectedQuiz$ = this.selectedQuizSource.asObservable();
   // private selectedQuiz$ = new ReplaySubject<Quiz>(1);
-  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);

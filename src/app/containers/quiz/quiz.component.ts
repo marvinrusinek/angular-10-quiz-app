@@ -151,7 +151,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
             
   handleParamMap(params: ParamMap): void {
-
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
       params.get('currentQuestionIndex') || '0'
@@ -161,7 +160,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.getQuiz(quizId).subscribe((quiz) => {
         if (quiz) {
           this.quizService.setQuiz(quiz);
-          this.selectedQuiz$.next(quiz);
+          this.quizDataService.selectedQuiz$.next(quiz);
           this.router.navigate([
             '/question',
             quizId,
