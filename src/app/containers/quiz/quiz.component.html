@@ -33,7 +33,7 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <!-- the question/explanation section -->
-      <section id="question" *ngIf="(question$ | async) as question">
+      <section id="question">
         <app-question-state
           [isAnswered]="isAnswered()"
           [questionText]="question?.questionText"
