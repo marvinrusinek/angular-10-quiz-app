@@ -169,19 +169,18 @@ export class QuizService implements OnDestroy {
     }
   
     const apiUrl = `${this.quizUrl}`;
-    
-    return this.http.get(apiUrl).pipe(
-      map((response: any) => {
-        const quiz = response.quizzes.find((q: any) => q.id === quizId);
-        if (!quiz) {
-          throw new Error('Invalid quizId parameter');
-        }
   
-        const question = quiz.questions.find(
-          (q: any) => q.order === questionIndex
-        );
+    return this.http.get(apiUrl).pipe(
+      tap((response: any) => console.log('Quiz data:', response)), // Log the response from the server
+      map((response: any) => {
+        const questions = response?.quiz?.questions;
+        if (!questions) {
+          throw new Error('Invalid response format');
+        }
+        
+        const question = questions.find((q: any) => q.order === questionIndex);
         if (!question) {
-          throw new Error('Invalid questionIndex parameter');
+          throw new Error('Question not found');
         }
   
         return {
