@@ -163,23 +163,21 @@ export class QuizService implements OnDestroy {
     return this.quizDataService.getQuizzes();
   }
 
-  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
+  getQuestion(quizId: string, currentQuestionIndex: number): Observable<QuizQuestion> {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-
+  
     const apiUrl = `${this.quizUrl}`;
-
-    return this.http.get(apiUrl).pipe(
-      tap((response: any) => console.log('API Response:', response)),
-      mergeMap((response: any) => {
-        const quiz = response.questions.find((q: any) => q.quizId === quizId);
-        console.log('QUIZ:', quiz);
+  
+    return this.http.get<Quiz[]>(apiUrl).pipe(
+      mergeMap((response: Quiz[]) => {
+        const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
     
-        const question = quiz.questions[questionIndex];
+        const question = quiz.questions[currentQuestionIndex];
         if (!question) {
           throw new Error('Invalid questionIndex');
         }
@@ -197,6 +195,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
+  
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
