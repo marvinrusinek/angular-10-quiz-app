@@ -173,17 +173,17 @@ export class QuizService implements OnDestroy {
     return this.http.get(apiUrl).pipe(
       tap((response: any) => console.log('API Response:', response)),
       mergeMap((response: any) => {
-        const quiz = response.quizzes.find((q: any) => q.quizId === quizId);
-        console.log('Quiz:', quiz);
+        const quiz = response.questions.find((q: any) => q.quizId === quizId);
+        console.log('QUIZ:', quiz);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-
+    
         const question = quiz.questions[questionIndex];
         if (!question) {
           throw new Error('Invalid questionIndex');
         }
-
+    
         return of({
           ...question,
           options: question.options.map((option: any) => ({
