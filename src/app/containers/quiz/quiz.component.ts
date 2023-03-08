@@ -122,30 +122,38 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-  
+
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
         this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       })
     );
-  
+
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz || (quizzes && quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-        if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+        this.selectedQuiz =
+          selectedQuiz ||
+          (quizzes && quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
+        if (
+          this.selectedQuiz &&
+          this.selectedQuiz.questions &&
+          this.selectedQuiz.questions.length > 0
+        ) {
           this.currentQuestionIndex = 0;
-          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.question =
+            this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.question$ = of(this.question);
           this.setOptions();
         }
       });
     });
-  
-    this.question = this.quizService.getCurrentQuestion();
-    this.setOptions();
-  
-    this.answers = this.question && this.question.options ? this.question.options.map((option) => option.value) : [];
+
+    this.answers =
+      this.question && this.question.options
+        ? this.question.options.map((option) => option.value)
+        : [];
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
