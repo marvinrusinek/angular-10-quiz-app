@@ -11,7 +11,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { filter, map, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -122,37 +122,32 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-
+  
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
-      tap(() => {
+      tap((quiz: Quiz) => {
         this.handleQuizData(quizId, this.currentQuestionIndex, quiz);
       })
     );
-
+  
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
-        this.selectedQuiz =
-          selectedQuiz || (quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
+        this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
         if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
           this.currentQuestionIndex = 0;
-          this.question =
-            this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
           this.setOptions();
         }
       });
     });
-
-    this.question$ = this.quizService.getQuestion(
-      quizId,
-      this.currentQuestionIndex
-    );
+  
+    this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
     this.question$.subscribe((question) => {
       this.question = question;
       this.setOptions();
     });
-
+  
     this.answers = this.question.options.map((option) => option.value);
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
@@ -221,25 +216,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setOptions(): void {
-    if (!this.question) {
-      return;
-    }
-
+  setOptions(): void {
     this.form.patchValue({
       selectedOption: null,
     });
-
-    const options = this.question.options.map((option) =>
-      this.fb.group({
-        value: option.value,
-      })
-    );
-
-    this.answers = this.question.options.map((option) => option.value);
-
-    this.form.setControl('selectedOption', this.fb.control(null));
-    this.form.setControl('options', this.fb.array(options));
+    if (this.question && this.question.options) {
+      const options = this.question.options.map((option) =>
+        this.fb.group({
+          value: option.value,
+        })
+      );
+      this.form.setControl('selectedOption', this.fb.control(null));
+      this.form.setControl('options', this.fb.array(options));
+      this.answers = this.question.options.map((option) => option.value);
+    }
   }
 
   updateCardFooterClass(): void {
