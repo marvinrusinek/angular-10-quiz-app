@@ -122,39 +122,40 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-  
+
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
-      tap(() => {
-        this.handleQuizData(quizId, this.currentQuestionIndex, quiz);
+      tap((quiz: Quiz) => {
+        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       })
     );
-  
+
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
-        if (this.selectedQuiz && this.selectedQuiz.questions && this.selectedQuiz.questions.length > 0) {
+        this.selectedQuiz =
+          selectedQuiz || (quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
+        if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
           this.currentQuestionIndex = 0;
-          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.question =
+            this.selectedQuiz.questions[this.currentQuestionIndex];
           this.setOptions();
         }
       });
     });
-  
-    this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
+
+    this.question$ = this.quizService.getQuestion(
+      quizId,
+      this.currentQuestionIndex
+    );
     this.question$.subscribe((question) => {
-      if (question && question.options) {
-        this.question = question;
-        this.answers = this.question.options.map((option) => option.value);
-        this.setOptions();
-      }
+      this.question = question;
+      this.setOptions();
     });
-  
+
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
-  
-  
+
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
@@ -176,20 +177,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* private handleQuizData(quizId: string, currentQuestionIndex: number) {
-    this.selectedQuiz$ = this.quizService.getQuiz(quizId);
-    this.selectedQuiz$.subscribe((quiz: Quiz) => {
-      this.selectedQuiz = quiz;
-      this.currentQuestionIndex = currentQuestionIndex;
-      this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-      this.answers = this.question.options.map((option) => option.value);
-    });
-  } */
-
-  handleQuizData(quizId: string, currentQuestionIndex: number): void {
-    this.quizDataService.setSelectedQuiz(
-      this.quizzes.find((quiz) => quiz.quizId === quizId)
-    );
+  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
+    this.quizDataService.setSelectedQuiz(quiz);
 
     this.quizDataService
       .getSelectedQuiz()
@@ -213,7 +202,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuiz(id: string): Promise<void> {
     try {
       const quiz = await this.quizService.getQuiz(id).toPromise();
-      this.handleQuizData(this.quizId, this.currentQuestionIndex);
+      this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
     } catch (error) {
       console.log(error);
     }
