@@ -167,18 +167,18 @@ export class QuizService implements OnDestroy {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+
     const apiUrl = `${this.quizUrl}`;
-  
+
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        const quiz = response.quizzes.find((q: any) => q.id === quizId);
-        if (!quiz) {
-          throw new Error(`Quiz with id ${quizId} not found`);
-        }
-        const question = quiz.questions.find(
-          (q: any) => q.order === questionIndex
+        const questions = response.questions || [];
+        const question = questions.find(
+          (q: any) => q.quizId === quizId && q.order === questionIndex
         );
+        if (!question) {
+          throw new Error('Invalid response format');
+        }
         return {
           ...question,
           choices: question.choices.map((choice: any) => ({
@@ -186,10 +186,14 @@ export class QuizService implements OnDestroy {
             selected: false,
           })),
         };
+      }),
+      catchError((error: any) => {
+        console.error('Error getting quiz question', error);
+        return throwError('Error getting quiz question');
       })
     );
   }
- 
+  
   
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
