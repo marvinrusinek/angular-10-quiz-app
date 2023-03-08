@@ -167,12 +167,13 @@ export class QuizService implements OnDestroy {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+
     const apiUrl = `${this.quizUrl}`;
-  
+
     return this.http.get(apiUrl).pipe(
       map((response: any) => {
-        const question = response.quiz.questions.find(
+        console.log(response);
+        const question = response.questions.find(
           (q: any) => q.order === questionIndex
         );
         if (!question) {
@@ -190,7 +191,6 @@ export class QuizService implements OnDestroy {
         return throwError('Error getting quiz question\n' + error.message);
       })
     );
-    
   }
   
   getCurrentQuiz(): Quiz {
