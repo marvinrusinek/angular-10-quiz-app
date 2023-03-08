@@ -36,7 +36,7 @@
       <section id="question" *ngIf="(question$ | async) as question">
         <app-question-state
           [isAnswered]="isAnswered()"
-          [questionText]="question.questionText"
+          [questionText]="question?.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
