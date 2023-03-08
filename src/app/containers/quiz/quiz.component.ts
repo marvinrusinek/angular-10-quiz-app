@@ -126,7 +126,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap((quiz: Quiz) => {
         this.handleQuizData(quizId, this.currentQuestionIndex);
         this.question = quiz.questions[this.currentQuestionIndex];
-        this.answers = this.question.options;
+        this.answers = this.question.options.map(option => option.value);
       })
     );
 
