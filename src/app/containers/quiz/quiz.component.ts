@@ -7,11 +7,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup
-} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
@@ -126,31 +122,39 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
-    );
+    this.quiz$ = this.quizService
+      .getQuiz(quizId)
+      .pipe(
+        tap(() => this.handleQuizData(quizId, this.currentQuestionIndex))
+      );
 
-    this.quizDataService.getQuizzes().subscribe(quizzes => {
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
-      this.selectedQuiz$.subscribe(selectedQuiz => {
-        this.selectedQuiz = selectedQuiz || (quizzes.length > 0 ? quizzes[0] : {} as Quiz);
+      this.selectedQuiz$.subscribe((selectedQuiz) => {
+        this.selectedQuiz =
+          selectedQuiz || (quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
         if (this.selectedQuiz && this.selectedQuiz.questions.length > 0) {
           this.currentQuestionIndex = 0;
-          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.question =
+            this.selectedQuiz.questions[this.currentQuestionIndex];
           this.setOptions();
         }
       });
     });
 
-    this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
-    this.question$.subscribe(question => {
+    this.question$ = this.quizService.getQuestion(
+      quizId,
+      this.currentQuestionIndex
+    );
+    this.question$.subscribe((question) => {
       this.question = question;
       this.setOptions();
+      this.answers = this.question.options; // figure out why this isn't working...
     });
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
-            
+
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
@@ -173,7 +177,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuizData(quizId: string, currentQuestionIndex: number): void {
-    this.quizDataService.setSelectedQuiz(this.quizzes.find(quiz => quiz.quizId === quizId));
+    this.quizDataService.setSelectedQuiz(
+      this.quizzes.find((quiz) => quiz.quizId === quizId)
+    );
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
       if (selectedQuiz && selectedQuiz.questions.length > 0) {
         this.question = selectedQuiz.questions[currentQuestionIndex];
@@ -197,11 +203,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   setOptions(): void {
     this.form.patchValue({
-      selectedOption: null
+      selectedOption: null,
     });
-    const options = this.question.options.map(option => this.fb.group({
-      value: option.value
-    }));
+    const options = this.question.options.map((option) =>
+      this.fb.group({
+        value: option.value,
+      })
+    );
     this.form.setControl('selectedOption', this.fb.control(null));
     this.form.setControl('options', this.fb.array(options));
   }
@@ -274,7 +282,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateQuestionIndex();
     this.totalQuestions = this.quizData[this.indexOfQuizId].questions.length;
     this.quizService.setTotalQuestions(this.totalQuestions);
-  }  
+  }
 
   private updateQuestionIndex(): void {
     this.questionIndex =
@@ -419,18 +427,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (selectedOption === null) {
       return;
     }
-  
+
     this.answers.push({
       question: this.currentQuestion,
-      selectedOption: selectedOption
+      selectedOption: selectedOption,
     });
-  
+
     if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
-      await this.quizDataService.submitQuiz(this.selectedQuiz, this.answers).toPromise();
+      await this.quizDataService
+        .submitQuiz(this.selectedQuiz, this.answers)
+        .toPromise();
       this.router.navigate(['quiz', 'result']);
     } else {
       this.currentQuestionIndex++;
-      this.currentQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+      this.currentQuestion =
+        this.selectedQuiz.questions[this.currentQuestionIndex];
       this.setOptions();
     }
   }
@@ -468,22 +479,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.selectedQuiz) {
       return;
     }
-  
+
     const selectedOption = this.form.value.selectedOption;
     if (this.form.valid) {
       this.isDisabled = true;
-  
+
       if (!this.selectedOption) {
         return;
       }
-  
+
       this.checkIfAnsweredCorrectly();
       this.answers = [];
       this.status = Status.Continue;
       this.animationState$.next('animationStarted');
-  
+
       const isLastQuestion = this.currentQuestionIndex === this.quizLength - 1;
-  
+
       if (isLastQuestion) {
         this.status = Status.Complete;
         this.submitQuiz();
@@ -493,7 +504,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.timerService.resetTimer();
       }
     }
-  }  
+  }
 
   advanceToPreviousQuestion() {
     this.answers = [];
@@ -511,12 +522,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   submitQuiz() {
-    this.quizDataService.submitQuiz(this.quiz)
-      .subscribe(() => {
-        this.status = Status.Complete;
-        // this.quizService.resetQuiz(); ???
-        this.router.navigate(['/results']);
-      });
+    this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
+      this.status = Status.Complete;
+      // this.quizService.resetQuiz(); ???
+      this.router.navigate(['/results']);
+    });
   }
 
   restartQuiz() {
