@@ -134,8 +134,8 @@ export class QuizService implements OnDestroy {
 
   getQuiz(id: string): Observable<Quiz> {
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
-      tap(response => console.log('Quiz response:', response)),
-      map(response => response as Quiz),
+      tap((response) => console.log('Quiz response:', response)),
+      map((response) => response as Quiz),
       catchError((error: any) => {
         console.log('Error:', error.message);
         return throwError('Something went wrong');
@@ -167,25 +167,23 @@ export class QuizService implements OnDestroy {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+
     const apiUrl = `${this.quizUrl}`;
-  
+
     return this.http.get(apiUrl).pipe(
       tap((response: any) => console.log('API Response:', response)),
-      catchError((error: HttpErrorResponse) => {
-        return throwError('Error getting quiz question\n' + error.message);
-      }),
       mergeMap((response: any) => {
         const quiz = response.quizzes.find((q: any) => q.quizId === quizId);
+        console.log('Quiz:', quiz);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-    
+
         const question = quiz.questions[questionIndex];
         if (!question) {
           throw new Error('Invalid questionIndex');
         }
-    
+
         return of({
           ...question,
           options: question.options.map((option: any) => ({
@@ -194,8 +192,10 @@ export class QuizService implements OnDestroy {
           })),
         });
       }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError('Error getting quiz question\n' + error.message);
+      })
     );
-   
   }
 
   getCurrentQuiz(): Quiz {
