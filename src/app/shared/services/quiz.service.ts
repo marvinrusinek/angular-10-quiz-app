@@ -167,15 +167,18 @@ export class QuizService implements OnDestroy {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-
+  
     const apiUrl = `${this.quizUrl}`;
-
+  
     return this.http.get(apiUrl).pipe(
+      tap((response) => console.log('Response:', response)),
       map((response: any) => {
-        console.log(response);
-        const question = response.questions.find(
+        const questions = response.questions;
+        console.log('Questions:', questions);
+        const question = questions.find(
           (q: any) => q.order === questionIndex
         );
+        console.log('Question:', question);
         if (!question) {
           throw new Error('Invalid response format');
         }
@@ -192,7 +195,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
+
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
   }
