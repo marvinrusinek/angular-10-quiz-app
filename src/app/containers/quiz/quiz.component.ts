@@ -126,7 +126,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = await this.activatedRoute.params.toPromise();
     const quizId: string = params.quizId;
     this.quizId = quizId;
-
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
@@ -136,32 +135,24 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizzes = quizzes;
     });
 
+    // Check if selectedQuiz is defined before accessing its properties
     const selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
     if (selectedQuiz) {
       this.selectedQuizSource.next(selectedQuiz);
     }
 
-    this.selectedQuiz$.subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-      if (selectedQuiz && selectedQuiz.questions.length > 0) {
-        this.currentQuestionIndex = 0;
-        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
-        // this.setOptions();
-      }
-    });
-
-    this.question$ = this.selectedQuiz$.pipe(
-      filter((selectedQuiz) => !!selectedQuiz),
-      switchMap((selectedQuiz) => this.quizService.getQuestion(selectedQuiz.id, this.currentQuestionIndex))
-    );
-
-    this.question$.subscribe((question) => {
-      this.question = question;
+    // Check if selectedQuiz is defined and has questions before retrieving the first question
+    if (this.selectedQuizSource.value && this.selectedQuizSource.value.questions && this.selectedQuizSource.value.questions.length > 0) {
+      this.question$ = this.getQuestion(this.selectedQuizSource.value, this.currentQuestionIndex);
       this.form.patchValue({
         selectedOption: null,
       });
-    });
-
+    } else {
+      this.question$ = this.quizService.getQuestion(quizId, this.currentQuestionIndex);
+      this.form.patchValue({
+        selectedOption: null,
+      });
+    }
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
             
