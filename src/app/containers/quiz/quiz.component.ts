@@ -56,6 +56,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
   question: QuizQuestion;
+  question$: Observable<QuizQuestion>;
   // questions: QuizQuestion[];
   currentQuestion: any = undefined;
   resources: Resource[];
@@ -125,51 +126,42 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = await this.activatedRoute.params.toPromise();
     const quizId: string = params.quizId;
     this.quizId = quizId;
+
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quizId, this.currentQuestionIndex))
     );
-  
+
     this.quizService.getQuizzes().subscribe((quizzes) => {
       console.log("QUIZZES:::", quizzes);
       this.quizzes = quizzes;
     });
-  
-    this.quizDataService.getSelectedQuiz().subscribe(selectedQuiz => {
-      this.selectedQuiz = selectedQuiz;
-      if (selectedQuiz && selectedQuiz.questions.length > 0) {
-        this.currentQuestionIndex = 0;
-        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
-        // this.setOptions();
-      }
-    });
-  
-    this.selectedQuiz$.subscribe(selectedQuiz => {
-      this.selectedQuiz = selectedQuiz;
-      if (selectedQuiz && selectedQuiz.questions.length > 0) {
-        this.currentQuestionIndex = 0;
-        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
-        // this.setOptions();
-      }
-    });
-  
-    // Check if selectedQuiz is defined before accessing its properties
+
     const selectedQuiz = await this.quizDataService.getSelectedQuiz().toPromise();
     if (selectedQuiz) {
       this.selectedQuizSource.next(selectedQuiz);
     }
-  
-    // Check if selectedQuiz is defined and has questions before retrieving the first question
-    if (this.selectedQuizSource.value && this.selectedQuizSource.value.questions && this.selectedQuizSource.value.questions.length > 0) {
-      this.question = await this.getQuestion(this.selectedQuizSource.value, this.currentQuestionIndex).toPromise();
+
+    this.selectedQuiz$.subscribe((selectedQuiz) => {
+      this.selectedQuiz = selectedQuiz;
+      if (selectedQuiz && selectedQuiz.questions.length > 0) {
+        this.currentQuestionIndex = 0;
+        this.currentQuestion = selectedQuiz.questions[this.currentQuestionIndex];
+        // this.setOptions();
+      }
+    });
+
+    this.question$ = this.selectedQuiz$.pipe(
+      filter((selectedQuiz) => !!selectedQuiz),
+      switchMap((selectedQuiz) => this.quizService.getQuestion(selectedQuiz.id, this.currentQuestionIndex))
+    );
+
+    this.question$.subscribe((question) => {
+      this.question = question;
       this.form.patchValue({
         selectedOption: null,
       });
-    } else {
-      this.question = await this.quizService.getQuestion(quizId, this.currentQuestionIndex).toPromise();
-      this.form.patchValue({
-        selectedOption: null,
-      });
-    }
+    });
+
     this.router.navigate(['/question', this.quizId, this.currentQuestionIndex]);
   }
             
