@@ -183,7 +183,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(
+  /* handleQuizData(
     quiz: Quiz,
     quizId: string,
     currentQuestionIndex: number
@@ -195,6 +195,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.answers = this.question.options.map((option) => option.value);
       this.setOptions();
     }
+  } */
+
+  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
+    this.quizDataService.setSelectedQuiz(quiz);
+
+    this.question$ = this.quizService.getQuestion(quizId, currentQuestionIndex);
+    this.question$.subscribe((question) => {
+      console.log('Getting question:', question);
+      console.log('current question index:', this.currentQuestionIndex);
+      this.question = question;
+      this.answers = this.question?.options.map((option) => option.value) || [];
+      this.explanationText = '';
+      this.correctOptions = [];
+    });
   }
 
   handleQuestions(questions: QuizQuestion[]): void {

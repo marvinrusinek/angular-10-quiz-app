@@ -45,7 +45,7 @@
 
       <!-- the options -->
       <codelab-quiz-question
-        [question]="question"
+        [question$]="question$"
         (answer)="selectedAnswer($event)"
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"
