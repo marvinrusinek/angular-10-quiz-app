@@ -206,8 +206,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('current question index:', this.currentQuestionIndex);
       this.question = question;
       this.answers = this.question?.options.map((option) => option.value) || [];
-      this.explanationText = '';
-      this.correctOptions = [];
+      // this.explanationText = '';
+      // this.correctOptions = [];
+      this.setOptions();
     });
   }
 
