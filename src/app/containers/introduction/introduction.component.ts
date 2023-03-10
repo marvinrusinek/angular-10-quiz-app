@@ -49,11 +49,11 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.quizDataService.getSelectedQuiz().subscribe(quiz => {
-      if (quiz) {
-        this.selectedQuiz = quiz;
+    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      if (selectedQuiz) {
+        this.selectedQuiz = selectedQuiz;
       }
-    });    
+    }); 
     console.log("selectedQuiz$ value in ngOnInit:", this.selectedQuiz$.getValue());
     
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
