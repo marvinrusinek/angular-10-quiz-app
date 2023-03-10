@@ -170,6 +170,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setOptions() {
+    if (!this.question) {
+      return;
+    }
+
     const options = this.question.options;
     this.optionList = options.map((option) => {
       return { 

@@ -126,8 +126,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
-        if (this.quiz.questions && this.quiz.questions.length > 0) {
-            this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+        if (quiz.questions && quiz.questions.length > 0) {
+          this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
         }
       })
     );
