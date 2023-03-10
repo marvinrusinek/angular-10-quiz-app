@@ -147,6 +147,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           return;
         }
         this.selectedQuiz = selectedQuiz;
+        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+          console.error('Selected quiz questions not found');
+          return;
+        }
         this.currentQuestionIndex = 0;
         this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
         this.setOptions();

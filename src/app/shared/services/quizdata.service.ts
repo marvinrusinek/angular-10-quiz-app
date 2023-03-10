@@ -19,7 +19,7 @@ export class QuizDataService {
 
   private quizUrl = 'assets/data/quiz.json';
 
-  selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  // selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
@@ -31,6 +31,7 @@ export class QuizDataService {
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   selectedQuiz$: Observable<Quiz>;
+  private selectedQuizSubject = new BehaviorSubject<Quiz | undefined>(undefined);
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
@@ -62,8 +63,26 @@ export class QuizDataService {
     );
   }
 
-  getSelectedQuiz(): Observable<Quiz> {
+  /* getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$;
+  } */
+
+  getSelectedQuiz(): Observable<Quiz> {
+    return this.selectedQuizSubject.asObservable().pipe(
+      switchMap((selectedQuiz) => {
+        if (selectedQuiz) {
+          return of(selectedQuiz);
+        } else {
+          return this.getQuizzes().pipe(
+            map((quizzes) => quizzes[0])
+          );
+        }
+      })
+    );
+  }
+
+  selectQuiz(quiz: Quiz): void {
+    this.selectedQuizSubject.next(quiz);
   }
 
   getCurrentQuestionIndex(): Observable<number> {
