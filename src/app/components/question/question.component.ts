@@ -58,8 +58,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizId = params['quizId'];
       this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
   
-      console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
-  
       this.quizDataService
         .getSelectedQuiz()
         .pipe(
