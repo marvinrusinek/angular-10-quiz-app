@@ -50,7 +50,6 @@ export class MultipleAnswerComponent
   }
 
   ngOnInit(): void {
-    console.log("ngOnInit called");
     this.form = this.formBuilder.group({
       answer: [null, Validators.required],
     });
