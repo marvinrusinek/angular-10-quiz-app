@@ -199,17 +199,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
     this.quizDataService.setSelectedQuiz(quiz);
-    // this.quizDataService.setSelectedQuizId(quizId);
     this.quizDataService.setCurrentQuestionIndex(currentQuestionIndex);
 
     this.question$ = this.quizService.getQuestion(quizId, currentQuestionIndex);
     this.question$.subscribe((question) => {
       console.log('Getting question:', question);
-      console.log('current question index:', this.currentQuestionIndex);
+      console.log('current question index:', this.quizDataService.getCurrentQuestionIndex());
       this.question = question;
       this.answers = this.question?.options.map((option) => option.value) || [];
-      // this.explanationText = '';
-      // this.correctOptions = [];
       this.setOptions();
     });
   }
