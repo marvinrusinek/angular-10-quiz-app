@@ -11,6 +11,9 @@ import { Quiz } from '../../shared/models/Quiz.model';
 export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+  currentQuestionIndex: number = 1;
+  currentQuestionIndex$ = new BehaviorSubject<number>(0);
+
   // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   // private selectedQuiz$ = new BehaviorSubject<Quiz>(null);
 
@@ -61,6 +64,16 @@ export class QuizDataService {
 
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$;
+  }
+
+  getCurrentQuestionIndex(): Observable<number> {
+    return this.currentQuestionIndex$.asObservable();
+  }
+
+  setCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndex = index;
+    console.log('Current question index:', this.currentQuestionIndex);
+    this.currentQuestionIndex$.next(this.currentQuestionIndex);
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {

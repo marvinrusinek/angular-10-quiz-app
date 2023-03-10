@@ -32,7 +32,6 @@ export class QuizService implements OnDestroy {
   totalQuestions: number;
   currentQuizIndex: number = 0;
   currentQuestionIndex: number = 1;
-  currentQuestionIndex$ = new BehaviorSubject<number>(0);
   quizLength: number;
   quizStartTime: Date;
 
@@ -217,16 +216,6 @@ export class QuizService implements OnDestroy {
 
   getQuizLength(): number {
     return this.selectedQuiz.questions.length;
-  }
-
-  getCurrentQuestionIndex(): Observable<number> {
-    return this.currentQuestionIndex$.asObservable();
-  }
-
-  setCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndex = index;
-    console.log('Current question index:', this.currentQuestionIndex);
-    this.currentQuestionIndex$.next(this.currentQuestionIndex);
   }
 
   getNextQuestion(): QuizQuestion {
