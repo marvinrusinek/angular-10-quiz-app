@@ -49,7 +49,7 @@ export class MultipleAnswerComponent
     super(quizService);
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     console.log("ngOnInit called");
     this.form = this.formBuilder.group({
       answer: [null, Validators.required],
@@ -63,11 +63,11 @@ export class MultipleAnswerComponent
     );
   }
 
-  ngOnChanges() {
+  ngOnChanges(): void {
     this.initializeOptionChecked();
   }
 
-  initializeOptionChecked() {
+  initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
@@ -96,7 +96,7 @@ export class MultipleAnswerComponent
     }
   }
 
-  onSelectionChange(question: QuizQuestion, option: Option) {
+  onSelectionChange(question: QuizQuestion, option: Option): void {
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
