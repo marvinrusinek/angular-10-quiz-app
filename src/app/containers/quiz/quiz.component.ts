@@ -146,12 +146,14 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Selected quiz not found');
           return;
         }
-        this.selectedQuiz = selectedQuiz;
+        const quizIndex = quizzes.findIndex(q => q.quizId === selectedQuiz.quizId);
+        this.selectedQuiz = quizIndex >= 0 ? quizzes[quizIndex] : quizzes[0];
         if (
+          !this.selectedQuiz ||
           !this.selectedQuiz.questions ||
           this.selectedQuiz.questions.length === 0
         ) {
-          console.error('Selected quiz questions not found');
+          console.error('Selected quiz or questions not found');
           return;
         }
         this.currentQuestionIndex = 0;
@@ -176,7 +178,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-  
+    
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
