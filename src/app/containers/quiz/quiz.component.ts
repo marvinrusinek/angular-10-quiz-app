@@ -205,6 +205,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.question$ = this.quizService.getQuestion(quizId, currentQuestionIndex);
     this.question$.subscribe((question) => {
+      if (!question) {
+        console.error(`Question is null for quizId: ${quizId} and index: ${currentQuestionIndex}`);
+        return;
+      }
+      
       console.log('Getting question:', question);
       console.log('current question index:', this.quizDataService.getCurrentQuestionIndex());
       this.question = question;
