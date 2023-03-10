@@ -72,7 +72,12 @@ export class IntroductionComponent implements OnInit {
   }
 
   onStartQuiz() {
+    if (!this.quizSelection) {
+      console.error('QuizSelectionComponent not found');
+      return;
+    }
     const selectedQuiz = this.quizSelection.selectedQuiz;
+    
     if (selectedQuiz) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
