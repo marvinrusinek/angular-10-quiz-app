@@ -14,6 +14,7 @@ import { Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
+import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
@@ -31,6 +32,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
   questionForm: FormGroup;
+  selectedQuiz: Quiz;
   optionSelected: Option;
   correctAnswers: number[] = [];
   correctMessage: string = '';
