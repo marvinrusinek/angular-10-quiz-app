@@ -66,6 +66,15 @@ export class IntroductionComponent implements OnInit {
         });
       } 
     });
+
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      if (!quizzes || quizzes.length === 0) {
+        console.error('No quizzes found');
+        return;
+      }
+
+      this.selectedQuizId = quizzes[0].quizId;
+    });
   }
 
   onChange($event): void {
@@ -75,10 +84,11 @@ export class IntroductionComponent implements OnInit {
   }
 
   onStartQuiz() {
-    if (!this.selectedQuiz) {
+    if (!this.selectedQuiz || !this.selectedQuizId) {
       console.error('No quiz selected');
       return;
     }
+
     if (this.quizId) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
