@@ -55,6 +55,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   question: QuizQuestion;
   question$: Observable<QuizQuestion>;
   currentQuestion: any = undefined;
+  questionSubscription: Subscription;
   resources: Resource[];
   answers: number[] = [];
 
@@ -161,7 +162,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       quizId,
       this.currentQuestionIndex
     );
-    this.question$.subscribe((question) => {
+    this.questionSubscription = this.question$.subscribe((question) => {
       if (!question) {
         console.error('Question not found');
         return;
@@ -172,6 +173,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
+  
       
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
@@ -334,6 +336,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
+    
+    if (this.questionSubscription) {
+      this.questionSubscription.unsubscribe();
+    }
   }
 
   animationDoneHandler(): void {
