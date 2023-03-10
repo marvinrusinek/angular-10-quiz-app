@@ -126,29 +126,36 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
-        if (quiz.questions && quiz.questions.length > 0) {
-          this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+          console.error('Quiz or questions not found');
+          return;
         }
+        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       })
     );
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      if (!quizzes || quizzes.length === 0) {
+        console.error('No quizzes found');
+        return;
+      }
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
         this.selectedQuiz =
-          selectedQuiz ||
-          (quizzes && quizzes.length > 0 ? quizzes[0] : ({} as Quiz));
+          selectedQuiz || quizzes[0];
         if (
-          this.selectedQuiz &&
-          this.selectedQuiz.questions &&
-          this.selectedQuiz.questions.length > 0
+          !this.selectedQuiz ||
+          !this.selectedQuiz.questions ||
+          this.selectedQuiz.questions.length === 0
         ) {
-          this.currentQuestionIndex = 0;
-          this.question =
-            this.selectedQuiz.questions[this.currentQuestionIndex];
-          this.setOptions();
+          console.error('Selected quiz or questions not found');
+          return;
         }
+        this.currentQuestionIndex = 0;
+        this.question =
+          this.selectedQuiz.questions[this.currentQuestionIndex];
+        this.setOptions();
       });
     });
 
@@ -157,6 +164,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex
     );
     this.question$.subscribe((question) => {
+      if (!question) {
+        console.error('Question not found');
+        return;
+      }
       this.question = question;
       this.setOptions();
     });
