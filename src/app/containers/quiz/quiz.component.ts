@@ -159,7 +159,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.setOptions();
     });
 
-    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
 
   handleParamMap(params: ParamMap): void {
