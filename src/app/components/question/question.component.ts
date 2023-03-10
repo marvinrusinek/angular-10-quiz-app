@@ -53,35 +53,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
+      this.quizDataService.setCurrentQuestionIndex(parseInt(params['questionIndex'], 10));
   
-      // subscribe to the observable and set the value of this.currentQuestionIndex inside the subscription
-      this.quizService.getCurrentQuestionIndex().subscribe((currentQuestionIndex) => {
-        this.currentQuestionIndex = currentQuestionIndex;
-  
-        console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
-  
-        this.getQuestion(this.currentQuestionIndex).subscribe(
-          (question) => {
-            console.log('QuestionComponent subscribe: question=', question);
-            this.question = question;
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
+      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+        if (selectedQuiz) {
+          this.question = selectedQuiz.questions[this.quizDataService.getCurrentQuestionIndex()];
+          this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+          this.answers = this.quizService.getAnswers(this.question);
+          this.setOptions();
+        }
       });
     });
-  
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
     this.currentQuestion = this.quizService.getCurrentQuestion();
-    this.answers = this.quizService.getAnswers(this.currentQuestion);
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-    console.log('correct answers: ', this.correctAnswers);
-  
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-  }  
+  } 
 
   getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
