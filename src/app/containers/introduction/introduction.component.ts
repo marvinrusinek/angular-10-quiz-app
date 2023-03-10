@@ -66,13 +66,6 @@ export class IntroductionComponent implements OnInit {
         });
       } 
     });
-    this.selectedQuiz$.subscribe(console.log);
-    this.quizDataService.selectedQuiz$.subscribe(
-      (selectedQuiz) => {
-        console.log(selectedQuiz);
-        this.selectedQuiz = selectedQuiz;
-      }
-    );
   }
 
   onChange($event): void {
