@@ -166,7 +166,7 @@ export class QuizService implements OnDestroy {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+    
     const apiUrl = `${this.quizUrl}`;
   
     return this.http.get<Quiz[]>(apiUrl).pipe(
@@ -174,6 +174,10 @@ export class QuizService implements OnDestroy {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
+        }
+    
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Quiz or questions not found');
         }
     
         const question = quiz.questions[currentQuestionIndex];
