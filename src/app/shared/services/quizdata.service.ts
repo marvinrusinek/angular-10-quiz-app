@@ -14,33 +14,24 @@ export class QuizDataService {
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
-  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-  // private selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+  selectedQuizIdSubject = new BehaviorSubject<string>(null);
+  quizIdSubject = new Subject<string>();
+  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
+  selectedQuizSource = new BehaviorSubject<Quiz>({});
+  selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   private quizUrl = 'assets/data/quiz.json';
 
-  // selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  selectedQuizIdSubject = new BehaviorSubject<string>(null);
-  quizIdSubject = new Subject<string>();
-  selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-
-  // private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  private selectedQuizSource = new BehaviorSubject<Quiz>({});
-  // public selectedQuiz$ = this.selectedQuizSource.asObservable();
-  // private selectedQuiz$ = new ReplaySubject<Quiz>(1);
-  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  // selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-  // selectedQuiz$: Observable<Quiz>;
-  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  // private selectedQuizSubject = new BehaviorSubject<Quiz | undefined>(undefined);
-  private selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-    this.quizzes$ = this.http
+    this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
+    this.http
       .get<Quiz[]>(this.quizUrl)
-      .pipe(catchError(this.handleError));
-    // this.quizzes$.subscribe((data) => console.log('DATA', data)); // remove?
+      .subscribe(
+        (quizzes) => this.quizzes$.next(quizzes),
+        (error) => console.error(error)
+      );
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -97,10 +88,5 @@ export class QuizDataService {
         return throwError(error);
       })
     );
-  }
-
-  private handleError(error: any) {
-    console.error('An error occurred', error);
-    return throwError(error.message || error);
   }
 }
