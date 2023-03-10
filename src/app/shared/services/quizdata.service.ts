@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -63,7 +63,7 @@ export class QuizDataService {
 
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuizSubject.asObservable().pipe(
-      switchMap((selectedQuiz) => {
+      switchMap((selectedQuiz): Observable<Quiz> => {
         if (selectedQuiz) {
           return of(selectedQuiz);
         } else {
