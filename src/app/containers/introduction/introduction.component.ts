@@ -5,9 +5,9 @@ import {
   ViewChild
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-import { QuizSelectionComponent } from '../quiz-selection/quiz-selection.component';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -20,9 +20,6 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-    /* @ViewChild(QuizSelectionComponent) quizSelection!:
-    | QuizSelectionComponent
-    | undefined; */
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
@@ -49,31 +46,23 @@ export class IntroductionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.selectedQuiz = selectedQuiz;
-        console.log("selectedQuiz$ value in ngOnInit:", this.selectedQuiz);
-      }
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const quizId = params.get('quizId');
+        return quizId ? this.quizService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
+      })
+    ).subscribe((quiz) => {
+      this.quizDataService.selectedQuiz$.next(quiz);
+      this.selectedQuiz = quiz;
+      this.questions$ = this.quizService.getQuestionsForQuiz(quiz.quizId);
     });
-    
-    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      const quizId = params.get('quizId');
-      if (quizId) {
-        this.quizService.getQuizById(quizId).subscribe((quiz) => {
-          this.quizDataService.selectedQuiz$.next(quiz);
-          this.selectedQuiz = quiz;
-          this.questions$ = this.quizService.getQuestionsForQuiz(quizId);
-        });
-      } 
-    });
-
+  
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      if (!quizzes || quizzes.length === 0) {
-        console.error('No quizzes found');
-        return;
-      }
-
-      this.selectedQuizId = quizzes[0].quizId;
+      this.selectedQuizId = quizzes?.[0]?.quizId || null;
+    });
+  
+    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      this.selectedQuiz = selectedQuiz;
     });
   }
 
