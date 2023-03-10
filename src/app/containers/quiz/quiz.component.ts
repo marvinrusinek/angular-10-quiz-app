@@ -10,7 +10,7 @@ import {
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -336,7 +336,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
-    
+
     if (this.questionSubscription) {
       this.questionSubscription.unsubscribe();
     }
