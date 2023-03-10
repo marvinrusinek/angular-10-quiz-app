@@ -11,7 +11,7 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -36,6 +36,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctMessage: string = '';
   multipleAnswer: boolean;
   alreadyAnswered = false;
+  optionList: Option[];
   selectedOption: Option;
   hasSelectedOptions = false;
   answers;
@@ -53,24 +54,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-      this.quizDataService.setCurrentQuestionIndex(parseInt(params['questionIndex'], 10));
+      this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
   
-      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.question = selectedQuiz.questions[this.quizDataService.getCurrentQuestionIndex()];
-          this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-          this.answers = this.quizService.getAnswers(this.question);
+      console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
+  
+      this.quizDataService
+        .getSelectedQuiz()
+        .pipe(
+          switchMap((selectedQuiz) => {
+            if (selectedQuiz && selectedQuiz.questions.length > 0) {
+              this.selectedQuiz = selectedQuiz;
+              return this.quizService.getQuestion(selectedQuiz.quizId, this.currentQuestionIndex);
+            }
+            return of(null);
+          })
+        )
+        .subscribe((question) => {
+          console.log('Getting question:', question);
+          console.log('current question index:', this.currentQuestionIndex);
+          this.question = question;
+          this.answers = this.question?.options.map((option) => option.value) || [];
           this.setOptions();
-        }
-      });
+        });
     });
-
+  
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
+  
     this.currentQuestion = this.quizService.getCurrentQuestion();
+    this.answers = this.quizService.getAnswers(this.currentQuestion);
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-  } 
+  }
 
   getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
@@ -150,6 +167,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.multipleAnswer = this.correctAnswers.length > 1;
   }
 
+  setOptions() {
+    const options = this.question.options;
+    this.optionList = options.map((option) => {
+      return { 
+        text: option.value.toString(), 
+        value: parseInt(option.optionId), 
+        answer: option.correct 
+      };
+    });
+  }
+  
   private resetForm(): void {
     if (!this.questionForm) {
       return;
