@@ -176,10 +176,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     const options = this.question.options;
     this.optionList = options.map((option) => {
+      const text = option.value ? option.value.toString() : '';
+      const value = option.optionId ? parseInt(option.optionId) : 0;
+      const answer = option.correct ? option.correct : false;
       return { 
-        text: option.value.toString(), 
-        value: parseInt(option.optionId), 
-        answer: option.correct 
+        text, 
+        value, 
+        answer 
       };
     });
   }
