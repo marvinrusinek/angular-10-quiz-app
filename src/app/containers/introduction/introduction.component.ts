@@ -20,9 +20,9 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit {
-  @ViewChild(QuizSelectionComponent) quizSelection!:
+    /* @ViewChild(QuizSelectionComponent) quizSelection!:
     | QuizSelectionComponent
-    | undefined;
+    | undefined; */
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
@@ -32,7 +32,7 @@ export class IntroductionComponent implements OnInit {
   quizId$ = new BehaviorSubject<string>('');
   selectedMilestone: string;
   selectedQuizId: string;
-  selectedQuiz: Quiz;
+  selectedQuiz: Quiz | null = null;
   selectedQuiz$: Observable<Quiz>;
   questions$: Observable<QuizQuestion[]>;
 
@@ -60,9 +60,13 @@ export class IntroductionComponent implements OnInit {
         });
       } 
     });
-
     this.selectedQuiz$.subscribe(console.log);
-    this.quizDataService.selectedQuiz$.subscribe(selectedQuiz => console.log(selectedQuiz));
+    this.quizDataService.selectedQuiz$.subscribe(
+      (selectedQuiz) => {
+        console.log(selectedQuiz);
+        this.selectedQuiz = selectedQuiz;
+      }
+    );
   }
 
   onChange($event): void {
@@ -72,13 +76,11 @@ export class IntroductionComponent implements OnInit {
   }
 
   onStartQuiz() {
-    if (!this.quizSelection) {
-      console.error('QuizSelectionComponent not found');
+    if (!this.selectedQuiz) {
+      console.error('No quiz selected');
       return;
     }
-    const selectedQuiz = this.quizSelection.selectedQuiz;
-    
-    if (selectedQuiz) {
+    if (this.quizId) {
       this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', this.quizId, 1]);
@@ -86,5 +88,6 @@ export class IntroductionComponent implements OnInit {
     } else {
       console.log('Quiz ID is null or undefined');
     }
-  }  
+  }
+   
 }
