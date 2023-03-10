@@ -169,17 +169,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.multipleAnswer = this.correctAnswers.length > 1;
   }
   
-  private setOptions() {
+  setOptions() {
     if (!this.question) {
       return;
     }
-
+  
     const options = this.question.options;
     this.optionList = options.map((option) => {
-      return { 
-        text: option.value.toString(), 
-        value: parseInt(option.optionId), 
-        answer: option.correct 
+      return {
+        text: option.value ? option.value.toString() : '',
+        value: parseInt(option.optionId),
+        answer: option.correct,
       };
     });
   }
