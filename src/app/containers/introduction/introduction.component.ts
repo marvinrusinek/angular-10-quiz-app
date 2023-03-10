@@ -98,5 +98,4 @@ export class IntroductionComponent implements OnInit {
       console.log('Quiz ID is null or undefined');
     }
   }
-   
 }
