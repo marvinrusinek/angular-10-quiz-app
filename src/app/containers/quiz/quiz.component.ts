@@ -126,7 +126,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
-        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+        if (this.quiz.questions && this.quiz.questions.length > 0) {
+            this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+        }
       })
     );
 
@@ -218,7 +220,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuiz(id: string): Promise<void> {
     try {
       const quiz = await this.quizService.getQuiz(id).toPromise();
-      this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
+      if (this.quiz.questions && this.quiz.questions.length > 0) {
+        this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
+      }
     } catch (error) {
       console.log(error);
     }
