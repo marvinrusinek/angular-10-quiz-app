@@ -14,9 +14,9 @@ import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
-import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { QuizDataService } from '../../shared/services/quizdata.service';
 import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
@@ -43,6 +43,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {
@@ -52,55 +53,43 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-      // this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
-      this.currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-      console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
   
-      this.getQuestion(this.currentQuestionIndex).subscribe(
-        (question) => {
-          console.log('QuestionComponent subscribe: question=', question);
-          this.question = question;
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
+      // subscribe to the observable and set the value of this.currentQuestionIndex inside the subscription
+      this.quizService.getCurrentQuestionIndex().subscribe((currentQuestionIndex) => {
+        this.currentQuestionIndex = currentQuestionIndex;
+  
+        console.log('QuestionComponent ngOnInit: quizId=', this.quizId, 'currentQuestionIndex=', this.currentQuestionIndex);
+  
+        this.getQuestion(this.currentQuestionIndex).subscribe(
+          (question) => {
+            console.log('QuestionComponent subscribe: question=', question);
+            this.question = question;
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+      });
     });
-
+  
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
     this.currentQuestion = this.quizService.getCurrentQuestion();
-
-    // this.question = this.quizData[this.currentQuestionIndex];
-    this.currentQuestion = this.quizService.getCurrentQuestion();
-    console.log('current question index: ', this.currentQuestion);
+    this.answers = this.quizService.getAnswers(this.currentQuestion);
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
     console.log('correct answers: ', this.correctAnswers);
-    this.answers = this.quizService.getAnswers();
-
+  
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-  }
+  }  
 
-  getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
-    console.log('Getting question: ', index);
-    const question = selectedQuiz.questions[index];
-    return of(question).pipe(delay(500));
-  }
-
-  /* getQuestion(selectedQuiz: Quiz, index: number): Observable<QuizQuestion> {
-    if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
-      return throwError('Quiz or questions not found');
-    }
-    const question = selectedQuiz.questions[index];
-    return of(question);
-  } */
-
-  /* getQuestion(index: number): Observable<QuizQuestion> {
-    return this.quizService.getQuestionsForQuiz(this.quizId).pipe(
-      map((quizQuestions: QuizQuestion[]) => quizQuestions[index].question)
+  getQuestion(index: number): Observable<QuizQuestion> {
+    return this.quizDataService.getSelectedQuiz().pipe(
+      map((selectedQuiz) => {
+        return selectedQuiz.questions[index];
+      })
     );
-  } */
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
