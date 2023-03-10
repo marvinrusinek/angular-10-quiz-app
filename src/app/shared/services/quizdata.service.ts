@@ -30,8 +30,10 @@ export class QuizDataService {
   // private selectedQuiz$ = new ReplaySubject<Quiz>(1);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$ = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$: Observable<Quiz>;
-  private selectedQuizSubject = new BehaviorSubject<Quiz | undefined>(undefined);
+  // selectedQuiz$: Observable<Quiz>;
+  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  // private selectedQuizSubject = new BehaviorSubject<Quiz | undefined>(undefined);
+  private selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
@@ -63,10 +65,6 @@ export class QuizDataService {
     );
   }
 
-  /* getSelectedQuiz(): Observable<Quiz> {
-    return this.selectedQuiz$;
-  } */
-
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuizSubject.asObservable().pipe(
       switchMap((selectedQuiz) => {
@@ -74,7 +72,7 @@ export class QuizDataService {
           return of(selectedQuiz);
         } else {
           return this.getQuizzes().pipe(
-            map((quizzes) => quizzes[0])
+            map((quizzes: Quiz[]) => quizzes[0])
           );
         }
       })
