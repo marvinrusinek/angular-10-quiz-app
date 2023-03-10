@@ -38,7 +38,7 @@ export class QuizDataService {
     this.quizzes$ = this.http
       .get<Quiz[]>(this.quizUrl)
       .pipe(catchError(this.handleError));
-    this.quizzes$.subscribe((data) => console.log('DATA', data)); // remove?
+    // this.quizzes$.subscribe((data) => console.log('DATA', data)); // remove?
   }
 
   getQuizzes(): Observable<Quiz[]> {
