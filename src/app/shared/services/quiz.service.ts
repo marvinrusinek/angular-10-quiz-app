@@ -131,17 +131,32 @@ export class QuizService implements OnDestroy {
       );
   }
 
-  getQuiz(id: string): Observable<Quiz> {
-    return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
-      tap((response) => console.log('Quiz response:', response)),
-      map((response) => response as Quiz),
-      catchError((error: any) => {
-        console.log('Error:', error.message);
-        return throwError('Something went wrong');
+  getQuiz(quizId: string): Observable<Quiz> {
+    if (!quizId) {
+      return throwError('quizId parameter is null or undefined');
+    }
+  
+    const apiUrl = `${this.quizUrl}`;
+  
+    return this.http.get<Quiz[]>(apiUrl).pipe(
+      mergeMap((response: Quiz[]) => {
+        const quiz = response.find((q: Quiz) => q.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Invalid quizId');
+        }
+  
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Quiz has no questions');
+        }
+  
+        return of(quiz);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError('Error getting quiz\n' + error.message);
       })
     );
   }
-
+  
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
