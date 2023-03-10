@@ -54,7 +54,7 @@ export class IntroductionComponent implements OnInit {
         this.selectedQuiz = quiz;
       }
     });    
-    console.log("selectedQuiz$ value in ngOnInit:", this.selectedQuiz$);
+    console.log("selectedQuiz$ value in ngOnInit:", this.selectedQuiz$.getValue());
     
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
