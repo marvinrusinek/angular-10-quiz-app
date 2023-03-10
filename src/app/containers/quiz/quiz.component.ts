@@ -123,25 +123,28 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-
+  
     this.quiz$ = this.quizService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
         if (!quiz || !quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
+          console.error('Quiz or questions not found');
+          return;
         }
         this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       })
     );
-
+  
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       if (!quizzes || quizzes.length === 0) {
-        throw new Error('No quizzes found');
+        console.error('No quizzes found');
+        return;
       }
       this.quizzes = quizzes;
       this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
       this.selectedQuiz$.subscribe((selectedQuiz) => {
         if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
-          throw new Error('Selected quiz or questions not found');
+          console.error('Selected quiz or questions not found');
+          return;
         }
         this.selectedQuiz = selectedQuiz;
         this.currentQuestionIndex = 0;
@@ -149,22 +152,23 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.setOptions();
       });
     });
-
+  
     this.question$ = this.quizService.getQuestion(
       quizId,
       this.currentQuestionIndex
     );
     this.question$.subscribe((question) => {
       if (!question) {
-        throw new Error('Question not found');
+        console.error('Question not found');
+        return;
       }
       this.question = question;
       this.setOptions();
     });
-
+  
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-    
+      
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
