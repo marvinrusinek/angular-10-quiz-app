@@ -54,8 +54,11 @@ export class QuizDataService {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
-    console.log('Selected quiz ID:', quiz.quizId);
-    this.selectedQuizSubject.next(quiz);
+    this.getQuiz(quiz.quizId).subscribe(selectedQuiz => {
+      if (selectedQuiz) {
+        this.selectedQuizSubject.next(selectedQuiz);
+      }
+    });
   }
 
   getSelectedQuiz(): Observable<Quiz> {
