@@ -69,10 +69,10 @@ export class QuizDataService {
     this.selectedQuizSubject.next(quiz);
   }
 
-  getSelectedQuiz(): Observable<Quiz> {
-    console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
+  public getSelectedQuiz(): Observable<Quiz> {
+    console.log('getSelectedQuiz selectedQuizSubject:', this.selectedQuizSubject);
     console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
-    console.log('getSelectedQuiz selectedQuiz:', this.selectedQuiz);
+    console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
     return this.selectedQuizSubject.asObservable();
   }
 
