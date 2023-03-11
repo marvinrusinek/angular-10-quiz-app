@@ -64,7 +64,7 @@ export class QuizDataService {
         }
       }),
       tap(selectedQuiz => {
-        console.log('Selected Quiz Id:', selectedQuiz?.quizId); // Log selectedQuiz.quizId value
+        console.log('Selected Quiz Id:', selectedQuiz?.quizId);
       })
     );
   }
