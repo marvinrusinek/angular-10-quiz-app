@@ -106,13 +106,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
     console.log("QI", this.quizId);
   
-    if (!this.quizId) {
-      console.log('Quiz ID is null or undefined');
-    } else {
+    if (this.quizId) {
       this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
+    } else {
+      console.log('Quiz ID is null or undefined');
     }
   }  
 }
