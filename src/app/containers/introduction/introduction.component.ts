@@ -1,11 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
-  ViewChild
+  OnDestroy,
+  OnInit
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, throwError } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -19,19 +19,22 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   styleUrls: ['./introduction.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class IntroductionComponent implements OnInit {
+export class IntroductionComponent implements OnInit, OnDestroy {
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
   quizzes$: Observable<Quiz[]>;
   quizName$: Observable<string>;
+  questions$: Observable<QuizQuestion[]>;
   quizId: string | undefined;
   quizId$ = new BehaviorSubject<string>('');
   selectedMilestone: string;
   selectedQuizId: string;
-  selectedQuiz: Quiz | null = null;
+  // selectedQuiz: Quiz | null = null;
+  selectedQuiz: Quiz;
   selectedQuiz$: Observable<Quiz>;
-  questions$: Observable<QuizQuestion[]>;
+  selectedQuizSubscription: Subscription;
+  
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
 
@@ -45,7 +48,7 @@ export class IntroductionComponent implements OnInit {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
   }
 
-  ngOnInit(): void {
+  /* ngOnInit(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const quizId = params.get('quizId');
@@ -64,6 +67,30 @@ export class IntroductionComponent implements OnInit {
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
     });
+  } */
+
+  ngOnInit(): void {
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const quizId = params.get('quizId');
+        return quizId ? this.quizDataService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
+      })
+    ).subscribe((quiz) => {
+      this.quizDataService.setSelectedQuiz(quiz);
+      this.questions$ = this.quizDataService.getQuestionsForQuiz(quiz.quizId);
+    });
+  
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      this.selectedQuizId = quizzes?.[0]?.quizId || null;
+    });
+  
+    this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+      this.selectedQuiz = selectedQuiz;
+    });
+  }
+  
+  ngOnDestroy(): void {
+    this.selectedQuizSubscription.unsubscribe();
   }
 
   onChange($event): void {
@@ -77,6 +104,7 @@ export class IntroductionComponent implements OnInit {
       console.error('No quiz selected');
       return;
     }
+    console.log("QI", this.quizId);
   
     if (!this.quizId) {
       console.log('Quiz ID is null or undefined');
