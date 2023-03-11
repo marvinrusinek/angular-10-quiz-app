@@ -133,7 +133,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId: string = params.quizId;
 
     if (!quizId) {
-      console.error(':::Quiz ID is null or undefined');
+      console.error('Quiz ID is null or undefined');
       return;
     }
 
