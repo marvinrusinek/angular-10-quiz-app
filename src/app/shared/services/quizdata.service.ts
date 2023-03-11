@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 
@@ -54,7 +54,7 @@ export class QuizDataService {
 
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuizSubject.asObservable().pipe(
-      switchMap((selectedQuiz): Observable<Quiz> => {
+      switchMap((selectedQuiz) => {
         if (selectedQuiz) {
           return of(selectedQuiz);
         } else {
@@ -62,10 +62,13 @@ export class QuizDataService {
             map((quizzes: Quiz[]) => quizzes[0])
           );
         }
+      }),
+      tap(selectedQuiz => {
+        console.log('Selected Quiz Id:', selectedQuiz?.quizId); // Log selectedQuiz.quizId value
       })
     );
   }
-
+  
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }

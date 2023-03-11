@@ -58,30 +58,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizId = params['quizId'];
       this.currentQuestionIndex = parseInt(params['questionIndex'], 10);
   
-      this.quizDataService
-        .getSelectedQuiz()
-        .pipe(
-          switchMap((selectedQuiz) => {
-            if (selectedQuiz && selectedQuiz.questions.length > 0) {
-              this.selectedQuiz = selectedQuiz;
-              return this.quizService.getQuestion(selectedQuiz.quizId, this.currentQuestionIndex);
-            }
-            return of(null);
-          })
-        )
-        .subscribe((question) => {
-          if (question && question.quizId === this.selectedQuiz.quizId) {
-            console.log('Getting question:::::::', question);
-            console.log('current question index:', this.currentQuestionIndex);
-            this.question = question;
-            this.answers = this.question?.options.map((option) => option.value) || [];
-            this.setOptions();
-          } else {
-            console.log('Question not found for quiz', this.selectedQuiz.quizId, 'and index', this.currentQuestionIndex);
-          }
-        });   
-    });
+      console.log('Quiz Id:', this.quizId); // Log quizId value
   
+      this.quizDataService.getSelectedQuiz().pipe(
+        switchMap((selectedQuiz) => {
+          if (selectedQuiz && selectedQuiz.questions.length > 0) {
+            this.selectedQuiz = selectedQuiz;
+            return this.quizService.getQuestion(selectedQuiz.quizId, this.currentQuestionIndex);
+          }
+          return of(null);
+        })
+      ).subscribe((question) => {
+        console.log('Getting question:::::::', question);
+        console.log('current question index:', this.currentQuestionIndex);
+        this.question = question;
+        this.answers = this.question?.options.map((option) => option.value) || [];
+        this.setOptions();
+      });
+    });
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
@@ -92,7 +87,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
-
+  
   getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {
