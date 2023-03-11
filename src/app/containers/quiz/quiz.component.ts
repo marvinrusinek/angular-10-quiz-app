@@ -125,11 +125,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-
+  
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
-    }  
+    }
   
     this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
@@ -141,10 +141,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     );
   
-    this.selectedQuiz$ = this.quizDataService.getSelectedQuiz().pipe(
-      filter(selectedQuiz => !!selectedQuiz)
-    );
-  
+    this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
     this.selectedQuizSubscription = this.selectedQuiz$.subscribe((selectedQuiz) => {
       console.log('Selected quiz:', selectedQuiz);
       this.selectedQuiz = selectedQuiz;
@@ -172,7 +169,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-    
+      
   // set the selected quiz
   setSelectedQuiz(quiz: Quiz): void {
     this.quizDataService.setSelectedQuiz(quiz);
