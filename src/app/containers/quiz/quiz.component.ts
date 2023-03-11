@@ -154,35 +154,51 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
-    this.selectedQuizSubscription = this.selectedQuiz$.subscribe((selectedQuiz) => {
-      console.log('Selected quiz:', selectedQuiz);
-      if (selectedQuiz) {
-        this.selectedQuiz = selectedQuiz;
+    this.selectedQuizSubscription = this.selectedQuiz$.subscribe({
+      next: (selectedQuiz) => {
+        console.log('Selected quiz:', selectedQuiz);
+        if (selectedQuiz) {
+          this.selectedQuiz = selectedQuiz;
 
-        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-          console.error('Selected quiz questions not found');
-          return;
+          if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+            console.error('Selected quiz questions not found');
+            return;
+          }
+
+          this.currentQuestionIndex = 0;
+          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+          this.setOptions();
+        } else {
+          console.error('Selected quiz not found');
         }
-
-        this.currentQuestionIndex = 0;
-        this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-        this.setOptions();
-      } else {
-        console.error('Selected quiz not found');
-      }
+      },
+      error: (err) => {
+        console.error('Error in selectedQuiz$: ', err);
+      },
+      complete: () => {
+        console.log('selectedQuiz$ subscription completed');
+      },
     });
 
     this.question$ = this.quizDataService.getQuestion(
       quizId,
       this.currentQuestionIndex
     );
-    this.questionSubscription = this.question$.subscribe((question) => {
-      if (!question) {
-        console.error('Question not found');
-        return;
-      }
-      this.question = question;
-      this.setOptions();
+    this.questionSubscription = this.question$.subscribe({
+      next: (question) => {
+        if (!question) {
+          console.error('Question not found');
+          return;
+        }
+        this.question = question;
+        this.setOptions();
+      },
+      error: (err) => {
+        console.error('Error in question$: ', err);
+      },
+      complete: () => {
+        console.log('question$ subscription completed');
+      },
     });
 
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);

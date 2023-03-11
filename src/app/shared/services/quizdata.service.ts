@@ -62,12 +62,13 @@ export class QuizDataService {
     });
   } */
 
-  setSelectedQuiz(quiz: Quiz): void {
-    if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+  setSelectedQuiz(selectedQuiz: Quiz): void {
+    if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
       console.error('Selected quiz or questions not found');
       return;
     }
-    this.selectedQuizSubject.next(quiz);
+    this.selectedQuizSubject.next(selectedQuiz);
+    console.log('Selected quiz updated:', selectedQuiz);
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
