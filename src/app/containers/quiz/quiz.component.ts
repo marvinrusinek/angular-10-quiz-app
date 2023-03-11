@@ -125,6 +125,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
+
+    if (!quizId) {
+      console.error('Quiz ID is null or undefined');
+      return;
+    }  
   
     this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
