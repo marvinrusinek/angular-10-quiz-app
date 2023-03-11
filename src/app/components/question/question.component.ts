@@ -70,12 +70,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           })
         )
         .subscribe((question) => {
-          console.log('Getting question:', question);
-          console.log('current question index:', this.currentQuestionIndex);
-          this.question = question;
-          this.answers = this.question?.options.map((option) => option.value) || [];
-          this.setOptions();
-        });
+          if (question && question.quizId === this.selectedQuiz.quizId) {
+            console.log('Getting question:::::::', question);
+            console.log('current question index:', this.currentQuestionIndex);
+            this.question = question;
+            this.answers = this.question?.options.map((option) => option.value) || [];
+            this.setOptions();
+          } else {
+            console.log('Question not found for quiz', this.selectedQuiz.quizId, 'and index', this.currentQuestionIndex);
+          }
+        });   
     });
   
     this.questionForm = new FormGroup({

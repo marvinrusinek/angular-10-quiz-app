@@ -220,9 +220,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error(`Question is null for quizId: ${quizId} and index: ${currentQuestionIndex}`);
         return;
       }
-      
-      console.log('Getting question:', question);
-      console.log('current question index:', this.quizDataService.getCurrentQuestionIndex());
+
       this.question = question;
       this.answers = this.question?.options.map((option) => option.value) || [];
       this.setOptions();
