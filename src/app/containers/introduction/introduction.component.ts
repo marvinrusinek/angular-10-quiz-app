@@ -84,7 +84,7 @@ export class IntroductionComponent implements OnInit {
         this.router.navigate(['/question/', this.quizId, 1]);
       });
     } else {
-      console.log(':::::Quiz ID is null or undefined');
+      console.log('TEST Quiz ID is null or undefined');
     }
   }
 }
