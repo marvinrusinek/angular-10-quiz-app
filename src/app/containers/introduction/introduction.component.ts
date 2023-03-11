@@ -80,6 +80,7 @@ export class IntroductionComponent implements OnInit {
 
     if (this.quizId) {
       this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
+        console.log("QUIZ TEST");
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
