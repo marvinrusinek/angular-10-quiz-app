@@ -88,6 +88,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
+  options: { 
+    text: any; 
+    answer: any; 
+    isCorrect: any; 
+    isSelected: boolean; 
+  }[];
 
   get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
@@ -221,7 +227,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.question = question;
       this.answers = this.question?.options.map((option) => option.value) || [];
-      this.setOptions();
+      this.options = this.question?.options.map((option, index) => ({
+        text: option.text,
+        answer: option.answer,
+        isCorrect: option.correct,
+        isSelected: false,
+      })) || [];
+      this.shuffleAnswers();
     });
   }
 

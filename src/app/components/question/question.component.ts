@@ -43,6 +43,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   hasSelectedOptions = false;
   answers;
   quizId: string;
+  correctOptionIndex: number;
+  options: Option[];
+  shuffleOptions = true;
 
   constructor(
     private quizService: QuizService,
@@ -162,7 +165,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.multipleAnswer = this.correctAnswers.length > 1;
   }
   
-  setOptions() {
+  /* setOptions() {
     if (!this.question) {
       return;
     }
@@ -175,7 +178,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         answer: option.correct,
       };
     });
-  }
+  } */
+
+  setOptions(): void {
+    if (!this.selectedQuiz) {
+      console.error('Selected quiz not found');
+      return;
+    }
+  
+    const { options, answer } = this.question;
+    const { shuffleOptions } = this.selectedQuiz;
+  
+    if (shuffleOptions) {
+      this.quizService.shuffleArray(options);
+    }
+  
+    this.correctOptionIndex = options.findIndex((option) => option === answer);
+
+    this.options = options.map((option, index) => ({
+      value: option,
+      text: option.value,
+      isCorrect: index === this.correctOptionIndex,
+      answer: index === this.correctOptionIndex,
+      isSelected: false
+    }));
+  }  
   
   private resetForm(): void {
     if (!this.questionForm) {
