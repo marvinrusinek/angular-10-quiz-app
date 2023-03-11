@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, mergeMap } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({
   providedIn: 'root',
 })
-export class QuizDataService {
+export class QuizDataService implements OnInit {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   private quizzes: Quiz[] = [];
@@ -22,12 +22,16 @@ export class QuizDataService {
   // selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
+  private selectedQuiz: Quiz | null = null;
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
   // selectedQuizSource = new BehaviorSubject<Quiz>({});
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  selectedQuiz$ = this.selectedQuizSource.asObservable();
+  // selectedQuiz$ = this.selectedQuizSource.asObservable();
+  // selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   private quizUrl = 'assets/data/quiz.json';
+
 
   constructor(private http: HttpClient) {
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
@@ -39,6 +43,16 @@ export class QuizDataService {
         (quizzes) => this.quizzes$.next(quizzes),
         (error) => console.error(error)
       );
+  }
+
+  ngOnInit(): void {
+    this.getQuizzes().subscribe((quizzes) => {
+      this.quizzes = quizzes;
+      if (this.quizzes.length > 0) {
+        this.selectedQuiz = this.quizzes[0];
+        this.selectedQuiz$.next(this.selectedQuiz);
+      }
+    });
   }
 
   getQuizzes(): Observable<Quiz[]> {

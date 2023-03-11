@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription, throwError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { startWith, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -30,8 +30,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId$ = new BehaviorSubject<string>('');
   selectedMilestone: string;
   selectedQuizId: string;
-  // selectedQuiz: Quiz | null = null;
-  selectedQuiz: Quiz;
+  selectedQuiz: Quiz | null;
   selectedQuiz$: Observable<Quiz>;
   selectedQuizSubscription: Subscription;
   
@@ -63,13 +62,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.selectedQuizId = quizzes?.[0]?.quizId || null;
     });
-  
+
     this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
       console.log("Selected quiz:", selectedQuiz);
     });
+    
+    // get initial value
+    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();    
   }
-  
   
   ngOnDestroy(): void {
     this.selectedQuizSubscription.unsubscribe();
