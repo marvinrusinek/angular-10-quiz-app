@@ -86,7 +86,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
-    console.log("QI", this.selectedQuizId);
+    console.log("QI::", this.selectedQuizId);
   
     if (this.selectedQuizId) {
       this.quizDataService.getQuizById(this.selectedQuizId).subscribe((quiz) => {
