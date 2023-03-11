@@ -19,7 +19,7 @@ export class QuizDataService {
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
   selectedQuizSource = new BehaviorSubject<Quiz>({});
-  selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  private selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   private quizUrl = 'assets/data/quiz.json';
 
@@ -48,9 +48,11 @@ export class QuizDataService {
     return this.selectedQuiz$.getValue();
   }
 
-  setSelectedQuiz(quiz: Quiz) {
-    console.log('Setting selected quiz:', quiz);
-    this.selectedQuiz$.next(quiz);
+  setSelectedQuiz(quiz: Quiz): void {
+    if (quiz) {
+      this.selectedQuizSubject.next(quiz);
+      this.selectedQuiz = quiz;
+    }
   }
 
   getSelectedQuiz(): Observable<Quiz> {
