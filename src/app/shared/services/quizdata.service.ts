@@ -44,12 +44,17 @@ export class QuizDataService {
     return this.selectedQuiz$.getValue();
   }
 
-  setSelectedQuiz(quizId: string): void {
+  /* setSelectedQuiz(quizId: string): void {
+    console.log("QI", quizId.quizId);
     this.getQuiz(quizId).subscribe(quiz => {
       if (quiz) {
         this.selectedQuizSubject.next(quiz);
       }
     });
+  } */
+
+  setSelectedQuiz(quiz: Quiz): void {
+    this.selectedQuizSubject.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
@@ -162,7 +167,6 @@ export class QuizDataService {
 
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
-    console.log('Current question index:', this.currentQuestionIndex);
     this.currentQuestionIndex$.next(this.currentQuestionIndex);
   }
 
