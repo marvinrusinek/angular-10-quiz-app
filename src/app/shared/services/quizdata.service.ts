@@ -20,7 +20,7 @@ export class QuizDataService {
 
   private selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   // readonly selectedQuiz$ = this.selectedQuizSubject.asObservable();
-  selectedQuiz$: Subject<Quiz> = new Subject<Quiz>();
+  selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
