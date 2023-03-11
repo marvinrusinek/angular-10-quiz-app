@@ -48,6 +48,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const quizId = params.get('quizId');

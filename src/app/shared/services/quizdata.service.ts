@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -18,7 +18,7 @@ export class QuizDataService implements OnInit {
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
-  private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  // private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
   // selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
@@ -28,7 +28,10 @@ export class QuizDataService implements OnInit {
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$ = this.selectedQuizSource.asObservable();
   // selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+
+  private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$ = this.selectedQuizSubject.asObservable();
 
   private quizUrl = 'assets/data/quiz.json';
 
@@ -37,6 +40,10 @@ export class QuizDataService implements OnInit {
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
+    
+    const lastSelectedQuiz = JSON.parse(localStorage.getItem('selectedQuiz') || '{}') as Quiz;
+    this.selectedQuizSubject.next(lastSelectedQuiz);
+
     this.http
       .get<Quiz[]>(this.quizUrl)
       .subscribe(
@@ -71,6 +78,7 @@ export class QuizDataService implements OnInit {
     }
     // this.selectedQuizSubject.next(selectedQuiz);
     this.selectedQuizSource.next(selectedQuiz);
+    localStorage.setItem('selectedQuiz', JSON.stringify(selectedQuiz));
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
@@ -109,7 +117,12 @@ export class QuizDataService implements OnInit {
     return this.http
       .get<Quiz[]>(this.quizUrl)
       .pipe(
-        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
+        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
+        tap((quiz) => {
+          if (!quiz) {
+            throw new Error(`Quiz with ID ${quizId} not found`);
+          }
+        })  
       );
   }
 
