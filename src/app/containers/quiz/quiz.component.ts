@@ -170,7 +170,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const currentQuestionIndex = parseInt(
       params.get('currentQuestionIndex') || '0'
     );
-    this.quizService.setCurrentQuestionIndex(currentQuestionIndex);
+    this.quizDataService.setCurrentQuestionIndex(currentQuestionIndex);
     if (quizId) {
       this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
         if (quiz) {
@@ -185,20 +185,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     }
   }
-
-  /* handleQuizData(
-    quiz: Quiz,
-    quizId: string,
-    currentQuestionIndex: number
-  ): void {
-    this.quizDataService.setSelectedQuiz(quiz);
-    if (quiz && quiz.questions && quiz.questions.length > 0) {
-      this.currentQuestionIndex = currentQuestionIndex;
-      this.question = quiz.questions[currentQuestionIndex];
-      this.answers = this.question.options.map((option) => option.value);
-      this.setOptions();
-    }
-  } */
 
   handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
     this.quizDataService.setSelectedQuiz(quiz);
