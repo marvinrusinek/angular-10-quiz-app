@@ -48,19 +48,6 @@ export class QuizDataService {
     return this.quizzesSubject.asObservable();
   }
 
-  /* get selectedQuiz(): Quiz {
-    return this.selectedQuiz$.getValue();
-  } */
-
-  /* setSelectedQuiz(quizId: string): void {
-    console.log("QI", quizId.quizId);
-    this.getQuiz(quizId).subscribe(quiz => {
-      if (quiz) {
-        this.selectedQuizSubject.next(quiz);
-      }
-    });
-  } */
-
   setSelectedQuiz(selectedQuiz: Quiz): void {
     console.log('Setting selected quiz:', selectedQuiz);
     if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
@@ -71,43 +58,11 @@ export class QuizDataService {
     console.log('Selected quiz updated:', this.selectedQuizSubject.value);
   }
 
-  /* setSelectedQuiz(selectedQuiz: Quiz): void {
-    if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
-      console.error('Selected quiz or questions not found');
-      return;
-    }
-    this.selectedQuizSubject.next(selectedQuiz);
-    console.log('Selected quiz updated:', selectedQuiz);
-  } */
-
   getSelectedQuiz(): Observable<Quiz | null> {
-    console.log('getSelectedQuiz selectedQuizSubject:', this.selectedQuizSubject);
-    console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
-    console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
     return this.selectedQuizSubject.asObservable().pipe(
       filter(quiz => quiz != null)
     );
-    // return this.selectedQuizSubject.asObservable();
   }
-
-  /* getSelectedQuiz(): Observable<Quiz> {
-    console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
-    console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
-    console.log('getSelectedQuiz selectedQuiz:', this.selectedQuiz);
-  
-    return this.selectedQuizSubject.asObservable().pipe(
-      switchMap((selectedQuiz) => {
-        if (selectedQuiz) {
-          console.log('getSelectedQuiz returning selectedQuiz:', selectedQuiz);
-          return of(selectedQuiz);
-        } else {
-          return this.getQuizzes().pipe(
-            map((quizzes: Quiz[]) => quizzes[0])
-          );
-        }
-      })
-    );
-  } */
 
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
@@ -142,12 +97,6 @@ export class QuizDataService {
         map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
       );
   }
-
-  /* getQuizById(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId))
-    );
-  } */
 
   getQuestion(quizId: string, currentQuestionIndex: number): Observable<QuizQuestion> {
     if (!quizId) {
