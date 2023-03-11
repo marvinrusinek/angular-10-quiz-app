@@ -78,14 +78,14 @@ export class IntroductionComponent implements OnInit {
       return;
     }
 
-    if (this.quizId) {
+    if (!this.quizId)
+      console.log('Quiz ID is null or undefined');
+      });
+    } else {
       this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
-        console.log("QUIZ TEST");
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
-    } else {
-      console.log('TEST Quiz ID is null or undefined');
     }
   }
 }
