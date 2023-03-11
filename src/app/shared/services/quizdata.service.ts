@@ -29,6 +29,7 @@ export class QuizDataService {
   private quizUrl = 'assets/data/quiz.json';
 
   constructor(private http: HttpClient) {
+    this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
     this.http
