@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -74,7 +74,10 @@ export class QuizDataService {
     console.log('getSelectedQuiz selectedQuizSubject:', this.selectedQuizSubject);
     console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
     console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
-    return this.selectedQuizSubject.asObservable();
+    return this.selectedQuizSubject.asObservable().pipe(
+      filter(quiz => quiz != null)
+    );
+    // return this.selectedQuizSubject.asObservable();
   }
 
   /* getSelectedQuiz(): Observable<Quiz> {
