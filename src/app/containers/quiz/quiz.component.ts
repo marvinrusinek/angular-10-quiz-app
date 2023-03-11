@@ -11,7 +11,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -136,7 +136,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     );
   
-    this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
+    this.selectedQuiz$ = this.quizDataService.getSelectedQuiz().pipe(
+      filter(selectedQuiz => !!selectedQuiz)
+    );
+  
     this.selectedQuizSubscription = this.selectedQuiz$.subscribe((selectedQuiz) => {
       console.log('Selected quiz:', selectedQuiz);
       this.selectedQuiz = selectedQuiz;
@@ -164,7 +167,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-  
+    
   // set the selected quiz
   setSelectedQuiz(quiz: Quiz): void {
     this.quizDataService.setSelectedQuiz(quiz);
