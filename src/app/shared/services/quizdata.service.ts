@@ -40,9 +40,9 @@ export class QuizDataService {
     return this.http.get<Quiz[]>(this.quizUrl);
   }
 
-  get selectedQuiz(): Quiz {
+  /* get selectedQuiz(): Quiz {
     return this.selectedQuiz$.getValue();
-  }
+  } */
 
   /* setSelectedQuiz(quizId: string): void {
     console.log("QI", quizId.quizId);
