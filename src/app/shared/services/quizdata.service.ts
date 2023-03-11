@@ -49,25 +49,28 @@ export class QuizDataService {
   }
 
   setSelectedQuiz(quiz: Quiz) {
+    console.log('Setting selected quiz:', quiz);
     this.selectedQuiz$.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
+    console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
+    console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
+    console.log('getSelectedQuiz selectedQuiz:', this.selectedQuiz);
+  
     return this.selectedQuizSubject.asObservable().pipe(
       switchMap((selectedQuiz) => {
         if (selectedQuiz) {
+          console.log('getSelectedQuiz returning selectedQuiz:', selectedQuiz);
           return of(selectedQuiz);
         } else {
           return this.getQuizzes().pipe(
             map((quizzes: Quiz[]) => quizzes[0])
           );
         }
-      }),
-      tap(selectedQuiz => {
-        console.log('Selected Quiz Id:', selectedQuiz?.quizId);
       })
     );
-  }
+  }  
   
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
