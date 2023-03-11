@@ -16,12 +16,12 @@ export class QuizDataService {
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
+  private readonly selectedQuizSubject = new BehaviorSubject<Quiz>(null);
+  readonly selectedQuiz$ = this.selectedQuizSubject.asObservable();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
-  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
   selectedQuizSource = new BehaviorSubject<Quiz>({});
-  selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   private quizUrl = 'assets/data/quiz.json';
 
