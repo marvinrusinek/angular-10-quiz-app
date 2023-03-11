@@ -138,18 +138,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
     this.selectedQuizSubscription = this.selectedQuiz$.subscribe((selectedQuiz) => {
-      if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
+      console.log('Selected quiz:', selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      if (!this.selectedQuiz || !this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
         console.error('Selected quiz or questions not found');
         return;
       }
-      console.log('Selected quiz:', selectedQuiz);
-      this.selectedQuiz = selectedQuiz;
       this.currentQuestionIndex = 0;
       this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
       this.setOptions();
     });
   
-    this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
+    this.question$ = this.quizDataService.getQuestion(
+      quizId,
+      this.currentQuestionIndex
+    );
     this.questionSubscription = this.question$.subscribe((question) => {
       if (!question) {
         console.error('Question not found');
@@ -160,7 +163,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
-  }
+  }  
   
   // set the selected quiz
   setSelectedQuiz(quiz: Quiz): void {

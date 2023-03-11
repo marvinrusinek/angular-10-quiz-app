@@ -55,13 +55,11 @@ export class QuizDataService {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.getQuiz(quiz.quizId).subscribe((selectedQuiz: Quiz) => {
-      if (selectedQuiz) {
-        this.selectedQuizSubject.next(selectedQuiz);
-      } else {
-        console.error(`Quiz with id ${quiz.quizId} not found`);
-      }
-    });
+    if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+      console.error('Selected quiz or questions not found');
+      return;
+    }
+    this.selectedQuizSubject.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
