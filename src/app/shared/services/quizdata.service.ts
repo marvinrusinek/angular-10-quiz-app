@@ -12,6 +12,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+  quizId: string = '';
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
