@@ -149,10 +149,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.setOptions();
     });
   
-    this.question$ = this.quizDataService.getQuestion(
-      quizId,
-      this.currentQuestionIndex
-    );
+    this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
     this.questionSubscription = this.question$.subscribe((question) => {
       if (!question) {
         console.error('Question not found');
@@ -163,6 +160,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
+  }
+  
+  // set the selected quiz
+  setSelectedQuiz(quiz: Quiz): void {
+    this.quizDataService.setSelectedQuiz(quiz);
   }
          
   handleParamMap(params: ParamMap): void {
