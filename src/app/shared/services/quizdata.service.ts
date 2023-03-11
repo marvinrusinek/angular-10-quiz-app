@@ -70,7 +70,7 @@ export class QuizDataService {
     }
     this.selectedQuizSubject.next(selectedQuiz);
     console.log('Selected quiz updated:', this.selectedQuizSubject.value);
-    }
+  }
 
   /* setSelectedQuiz(selectedQuiz: Quiz): void {
     if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
