@@ -18,7 +18,7 @@ export class QuizDataService {
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
-  private readonly selectedQuizSubject = new BehaviorSubject<Quiz>(null);
+  private selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   // readonly selectedQuiz$ = this.selectedQuizSubject.asObservable();
   selectedQuiz$: Subject<Quiz> = new Subject<Quiz>();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
@@ -70,7 +70,7 @@ export class QuizDataService {
     this.selectedQuizSubject.next(quiz);
   }
 
-  public getSelectedQuiz(): Observable<Quiz> {
+  getSelectedQuiz(): Observable<Quiz | null> {
     console.log('getSelectedQuiz selectedQuizSubject:', this.selectedQuizSubject);
     console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
     console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);

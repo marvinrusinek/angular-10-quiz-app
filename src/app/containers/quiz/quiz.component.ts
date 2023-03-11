@@ -125,49 +125,47 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-  
+
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
     }
-  
+
     this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
         if (!quiz) {
           console.error('Quiz not found');
           return;
         }
-  
+
         if (!quiz.questions || quiz.questions.length === 0) {
           console.error('Quiz questions not found');
           return;
         }
-  
+
         this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       })
     );
-  
+
     this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
     this.selectedQuizSubscription = this.selectedQuiz$.subscribe((selectedQuiz) => {
       console.log('Selected quiz:', selectedQuiz);
-  
-      if (!selectedQuiz) {
+      if (selectedQuiz) {
+        this.selectedQuiz = selectedQuiz;
+
+        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+          console.error('Selected quiz questions not found');
+          return;
+        }
+
+        this.currentQuestionIndex = 0;
+        this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+        this.setOptions();
+      } else {
         console.error('Selected quiz not found');
-        return;
       }
-  
-      this.selectedQuiz = selectedQuiz;
-  
-      if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-        console.error('Selected quiz questions not found');
-        return;
-      }
-  
-      this.currentQuestionIndex = 0;
-      this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-      this.setOptions();
     });
-  
+
     this.question$ = this.quizDataService.getQuestion(
       quizId,
       this.currentQuestionIndex
@@ -180,10 +178,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.question = question;
       this.setOptions();
     });
-  
+
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-  
           
   // set the selected quiz
   setSelectedQuiz(quiz: Quiz): void {
