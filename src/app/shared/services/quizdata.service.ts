@@ -55,9 +55,11 @@ export class QuizDataService {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.getQuiz(quiz.quizId).subscribe((fetchedQuiz) => {
-      if (fetchedQuiz) {
-        this.selectedQuiz$.next(fetchedQuiz);
+    this.getQuiz(quiz.quizId).subscribe((selectedQuiz: Quiz) => {
+      if (selectedQuiz) {
+        this.selectedQuizSubject.next(selectedQuiz);
+      } else {
+        console.error(`Quiz with id ${quiz.quizId} not found`);
       }
     });
   }

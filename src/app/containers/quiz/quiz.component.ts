@@ -56,6 +56,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   question$: Observable<QuizQuestion>;
   currentQuestion: any = undefined;
   questionSubscription: Subscription;
+  selectedQuizSubscription: Subscription;
   resources: Resource[];
   answers: number[] = [];
 
@@ -125,28 +126,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
   
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      if (!quizzes || quizzes.length === 0) {
-        console.error('No quizzes found');
+    this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
+      tap((quiz: Quiz) => {
+        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+          console.error('Quiz or questions not found');
+          return;
+        }
+        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+      })
+    );
+  
+    this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
+    this.selectedQuizSubscription = this.selectedQuiz$.subscribe((selectedQuiz) => {
+      if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
+        console.error('Selected quiz or questions not found');
         return;
       }
-      this.quizzes = quizzes;
-      this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
-      this.selectedQuiz$.subscribe((selectedQuiz) => {
-        console.log('Selected quiz:', selectedQuiz);
-        if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
-          console.error('Selected quiz or questions not found');
-          return;
-        }
-        this.selectedQuiz = selectedQuiz;
-        if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-          console.error('Selected quiz questions not found');
-          return;
-        }
-        this.currentQuestionIndex = 0;
-        this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-        this.setOptions();
-      });
+      console.log('Selected quiz:', selectedQuiz);
+      this.selectedQuiz = selectedQuiz;
+      this.currentQuestionIndex = 0;
+      this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+      this.setOptions();
     });
   
     this.question$ = this.quizDataService.getQuestion(
@@ -163,8 +163,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
-  }  
-      
+  }
+         
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
