@@ -125,7 +125,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
   
-    this.quiz$ = this.quizService.getQuiz(quizId).pipe(
+    this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => {
         if (!quiz || !quiz.questions || quiz.questions.length === 0) {
           console.error('Quiz or questions not found');
@@ -158,7 +158,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     });
   
-    this.question$ = this.quizService.getQuestion(
+    this.question$ = this.quizDataService.getQuestion(
       quizId,
       this.currentQuestionIndex
     );
@@ -214,7 +214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.setSelectedQuiz(quiz);
     this.quizDataService.setCurrentQuestionIndex(currentQuestionIndex);
 
-    this.question$ = this.quizService.getQuestion(quizId, currentQuestionIndex);
+    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
     this.question$.subscribe((question) => {
       if (!question) {
         console.error(`Question is null for quizId: ${quizId} and index: ${currentQuestionIndex}`);
@@ -233,7 +233,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async getQuiz(id: string): Promise<void> {
     try {
-      const quiz = await this.quizService.getQuiz(id).toPromise();
+      const quiz = await this.quizDataService.getQuiz(id).toPromise();
       if (this.quiz.questions && this.quiz.questions.length > 0) {
         this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
       }

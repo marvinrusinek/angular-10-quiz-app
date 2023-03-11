@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,12 +37,6 @@ export class QuizDataService {
 
   getQuizzes(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl);
-  }
-
-  getQuizById(quizId: string): Observable<Quiz> {
-    return this.quizzes$.pipe(
-      map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId))
-    );
   }
 
   get selectedQuiz(): Quiz {
@@ -101,6 +96,57 @@ export class QuizDataService {
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError('Error getting quiz\n' + error.message);
+      })
+    );
+  }
+
+  getQuizById(quizId: string): Observable<Quiz> {
+    return this.http
+      .get<Quiz[]>(this.quizUrl)
+      .pipe(
+        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
+      );
+  }
+
+  /* getQuizById(quizId: string): Observable<Quiz> {
+    return this.quizzes$.pipe(
+      map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId))
+    );
+  } */
+
+  getQuestion(quizId: string, currentQuestionIndex: number): Observable<QuizQuestion> {
+    if (!quizId) {
+      return throwError('quizId parameter is null or undefined');
+    }
+    
+    const apiUrl = `${this.quizUrl}`;
+  
+    return this.http.get<Quiz[]>(apiUrl).pipe(
+      mergeMap((response: Quiz[]) => {
+        const quiz = response.find((q: Quiz) => q.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Invalid quizId');
+        }
+    
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Quiz or questions not found');
+        }
+    
+        const question = quiz.questions[currentQuestionIndex];
+        if (!question) {
+          throw new Error('Invalid question index');
+        }
+    
+        return of({
+          ...question,
+          options: question.options.map((option: any) => ({
+            ...option,
+            selected: false,
+          })),
+        });
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError('Error getting quiz question\n' + error.message);
       })
     );
   }

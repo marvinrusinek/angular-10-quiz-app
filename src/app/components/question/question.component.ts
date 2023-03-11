@@ -64,7 +64,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         switchMap((selectedQuiz) => {
           if (selectedQuiz && selectedQuiz.questions.length > 0) {
             this.selectedQuiz = selectedQuiz;
-            return this.quizService.getQuestion(selectedQuiz.quizId, this.currentQuestionIndex);
+            return this.quizDataService.getQuestion(selectedQuiz.quizId, this.currentQuestionIndex);
           }
           return of(null);
         })

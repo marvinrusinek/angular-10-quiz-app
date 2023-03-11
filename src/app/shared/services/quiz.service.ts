@@ -122,14 +122,6 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-
-  getQuizById(quizId: string): Observable<Quiz> {
-    return this.http
-      .get<Quiz[]>(this.quizUrl)
-      .pipe(
-        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId))
-      );
-  }
   
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.quizDataService.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
@@ -149,43 +141,6 @@ export class QuizService implements OnDestroy {
 
   getQuizzes(): Observable<Quiz[]> {
     return this.quizDataService.getQuizzes();
-  }
-
-  getQuestion(quizId: string, currentQuestionIndex: number): Observable<QuizQuestion> {
-    if (!quizId) {
-      return throwError('quizId parameter is null or undefined');
-    }
-    
-    const apiUrl = `${this.quizUrl}`;
-  
-    return this.http.get<Quiz[]>(apiUrl).pipe(
-      mergeMap((response: Quiz[]) => {
-        const quiz = response.find((q: Quiz) => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error('Invalid quizId');
-        }
-    
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
-        }
-    
-        const question = quiz.questions[currentQuestionIndex];
-        if (!question) {
-          throw new Error('Invalid question index');
-        }
-    
-        return of({
-          ...question,
-          options: question.options.map((option: any) => ({
-            ...option,
-            selected: false,
-          })),
-        });
-      }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError('Error getting quiz question\n' + error.message);
-      })
-    );
   }
   
   getCurrentQuiz(): Quiz {

@@ -49,12 +49,12 @@ export class IntroductionComponent implements OnInit {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const quizId = params.get('quizId');
-        return quizId ? this.quizService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
+        return quizId ? this.quizDataService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
       })
     ).subscribe((quiz) => {
       this.quizDataService.selectedQuiz$.next(quiz);
       this.selectedQuiz = quiz;
-      this.questions$ = this.quizService.getQuestionsForQuiz(quiz.quizId);
+      this.questions$ = this.quizDataService.getQuestionsForQuiz(quiz.quizId);
     });
   
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
@@ -79,7 +79,7 @@ export class IntroductionComponent implements OnInit {
     }
 
     if (this.quizId) {
-      this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
+      this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', this.quizId, 1]);
       });
