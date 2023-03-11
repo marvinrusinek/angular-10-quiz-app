@@ -22,7 +22,6 @@ export class QuizDataService implements OnInit {
   // selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
-  private selectedQuiz: Quiz | null = null;
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
   // selectedQuizSource = new BehaviorSubject<Quiz>({});
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
@@ -30,8 +29,10 @@ export class QuizDataService implements OnInit {
   // selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
+  private selectedQuiz: Quiz;
   private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  selectedQuiz$ = this.selectedQuizSubject.asObservable();
+  // selectedQuiz$ = this.selectedQuizSubject.asObservable();
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
 
   private quizUrl = 'assets/data/quiz.json';
 
@@ -40,9 +41,6 @@ export class QuizDataService implements OnInit {
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
-    
-    const lastSelectedQuiz = JSON.parse(localStorage.getItem('selectedQuiz') || '{}') as Quiz;
-    this.selectedQuizSubject.next(lastSelectedQuiz);
 
     this.http
       .get<Quiz[]>(this.quizUrl)
@@ -71,20 +69,14 @@ export class QuizDataService implements OnInit {
     return this.quizzesSubject.asObservable();
   }
 
-  setSelectedQuiz(selectedQuiz: Quiz): void {
-    if (!selectedQuiz || !selectedQuiz.questions || selectedQuiz.questions.length === 0) {
-      console.error('Selected quiz or questions not found');
-      return;
-    }
-    // this.selectedQuizSubject.next(selectedQuiz);
-    this.selectedQuizSource.next(selectedQuiz);
-    localStorage.setItem('selectedQuiz', JSON.stringify(selectedQuiz));
+  setSelectedQuiz(quiz: Quiz | null): void {
+    this.selectedQuiz = quiz;
+    this.selectedQuiz$.next(quiz);
+    this.selectedQuizSubject.next(this.selectedQuiz);
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
-    return this.selectedQuizSubject.asObservable().pipe(
-      filter(quiz => quiz != null)
-    );
+    return this.selectedQuiz$.asObservable();
   }
 
   getQuiz(quizId: string): Observable<Quiz> {

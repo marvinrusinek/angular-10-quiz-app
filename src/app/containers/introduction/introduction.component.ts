@@ -52,7 +52,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const quizId = params.get('quizId');
-        console.log("QI::", quizId); // You should see the quizId in the console
         return quizId ? this.quizDataService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
       })
     ).subscribe((quiz) => {
@@ -66,7 +65,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
-      console.log("Selected quiz:", selectedQuiz);
     });
     
     // get initial value
