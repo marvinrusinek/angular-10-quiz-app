@@ -48,27 +48,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
   }
 
-  /* ngOnInit(): void {
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        return quizId ? this.quizDataService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
-      })
-    ).subscribe((quiz) => {
-      this.quizDataService.selectedQuiz$.next(quiz);
-      this.selectedQuiz = quiz;
-      this.questions$ = this.quizDataService.getQuestionsForQuiz(quiz.quizId);
-    });
-  
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.selectedQuizId = quizzes?.[0]?.quizId || null;
-    });
-  
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-    });
-  } */
-
   ngOnInit(): void {
     this.activatedRoute.paramMap.pipe(
       switchMap((params: ParamMap) => {
@@ -86,9 +65,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
     this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
-      console.log('Selected quiz:', selectedQuiz);
+      console.log("Selected quiz:", selectedQuiz);
     });
   }
+  
   
   ngOnDestroy(): void {
     this.selectedQuizSubscription.unsubscribe();
