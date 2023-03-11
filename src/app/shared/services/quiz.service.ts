@@ -122,10 +122,6 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-  
-  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.quizDataService.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
-  }
 
   get quizData$(): Observable<Quiz[]> {
     return of(this.quizData);

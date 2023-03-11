@@ -161,6 +161,10 @@ export class QuizDataService {
       })
     );
   }
+
+  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
+  }
   
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
