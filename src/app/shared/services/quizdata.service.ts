@@ -12,6 +12,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+  private quizzes: Quiz[] = [];
+  private quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId: string = '';
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
@@ -38,7 +40,12 @@ export class QuizDataService {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.quizUrl);
+    this.http.get<Quiz[]>(this.quizUrl)
+    .subscribe((quizzes) => {
+      this.quizzes = quizzes;
+      this.quizzesSubject.next(quizzes);
+    });
+    return this.quizzesSubject.asObservable();
   }
 
   /* get selectedQuiz(): Quiz {
