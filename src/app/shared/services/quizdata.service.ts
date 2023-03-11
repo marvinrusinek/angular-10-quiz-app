@@ -19,11 +19,13 @@ export class QuizDataService {
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
   private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
+  // selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-  selectedQuizSource = new BehaviorSubject<Quiz>({});
+  // selectedQuizSource = new BehaviorSubject<Quiz>({});
+  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
+  selectedQuiz$ = this.selectedQuizSource.asObservable();
 
   private quizUrl = 'assets/data/quiz.json';
 
@@ -53,7 +55,8 @@ export class QuizDataService {
       console.error('Selected quiz or questions not found');
       return;
     }
-    this.selectedQuizSubject.next(selectedQuiz);
+    // this.selectedQuizSubject.next(selectedQuiz);
+    this.selectedQuizSource.next(selectedQuiz);
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
