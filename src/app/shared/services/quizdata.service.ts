@@ -55,9 +55,9 @@ export class QuizDataService {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.getQuiz(quiz.quizId).subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.selectedQuiz$.next(selectedQuiz);
+    this.getQuiz(quiz.quizId).subscribe((fetchedQuiz) => {
+      if (fetchedQuiz) {
+        this.selectedQuiz$.next(fetchedQuiz);
       }
     });
   }

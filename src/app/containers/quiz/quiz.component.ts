@@ -125,16 +125,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
   
-    this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => {
-        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
-          console.error('Quiz or questions not found');
-          return;
-        }
-        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
-      })
-    );
-  
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       if (!quizzes || quizzes.length === 0) {
         console.error('No quizzes found');
@@ -173,8 +163,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
-  }
-  
+  }  
       
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
