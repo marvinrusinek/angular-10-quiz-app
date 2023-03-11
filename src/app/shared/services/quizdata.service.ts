@@ -97,7 +97,6 @@ export class QuizDataService {
   } */
 
   getQuiz(quizId: string): Observable<Quiz> {
-    console.log('Fetching quiz data for quiz ID:', quizId);
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
