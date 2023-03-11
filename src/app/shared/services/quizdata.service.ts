@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 
@@ -48,14 +48,19 @@ export class QuizDataService {
     return this.selectedQuiz$.getValue();
   }
 
-  setSelectedQuiz(quiz: Quiz): void {
-    if (quiz) {
-      this.selectedQuizSubject.next(quiz);
-      this.selectedQuiz = quiz;
-    }
+  setSelectedQuiz(quizId: string): void {
+    this.getQuiz(quizId).subscribe(quiz => {
+      if (quiz) {
+        this.selectedQuizSubject.next(quiz);
+      }
+    });
   }
 
   getSelectedQuiz(): Observable<Quiz> {
+    return this.selectedQuizSubject.asObservable();
+  }
+
+  /* getSelectedQuiz(): Observable<Quiz> {
     console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
     console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
     console.log('getSelectedQuiz selectedQuiz:', this.selectedQuiz);
@@ -72,7 +77,33 @@ export class QuizDataService {
         }
       })
     );
-  }  
+  } */
+
+  getQuiz(quizId: string): Observable<Quiz> {
+    if (!quizId) {
+      return throwError('quizId parameter is null or undefined');
+    }
+  
+    const apiUrl = `${this.quizUrl}`;
+  
+    return this.http.get<Quiz[]>(apiUrl).pipe(
+      mergeMap((response: Quiz[]) => {
+        const quiz = response.find((q: Quiz) => q.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Invalid quizId');
+        }
+  
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Quiz has no questions');
+        }
+  
+        return of(quiz);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError('Error getting quiz\n' + error.message);
+      })
+    );
+  }
   
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
