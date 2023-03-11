@@ -17,7 +17,8 @@ export class QuizDataService {
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
   private readonly selectedQuizSubject = new BehaviorSubject<Quiz>(null);
-  readonly selectedQuiz$ = this.selectedQuizSubject.asObservable();
+  // readonly selectedQuiz$ = this.selectedQuizSubject.asObservable();
+  private selectedQuiz$: Subject<Quiz> = new Subject<Quiz>();
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   quizIdSubject = new Subject<string>();
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
@@ -54,9 +55,9 @@ export class QuizDataService {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
-    this.getQuiz(quiz.quizId).subscribe(selectedQuiz => {
+    this.getQuiz(quiz.quizId).subscribe((selectedQuiz) => {
       if (selectedQuiz) {
-        this.selectedQuizSubject.next(selectedQuiz);
+        this.selectedQuiz$.next(selectedQuiz);
       }
     });
   }
