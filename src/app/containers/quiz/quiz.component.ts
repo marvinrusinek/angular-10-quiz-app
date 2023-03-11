@@ -195,10 +195,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error in question$: ', err);
-      },
-      complete: () => {
-        console.log('question$ subscription completed');
-      },
+      }
     });
 
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
