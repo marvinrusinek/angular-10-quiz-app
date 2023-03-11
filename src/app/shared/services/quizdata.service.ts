@@ -19,7 +19,7 @@ export class QuizDataService {
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
   selectedQuizSource = new BehaviorSubject<Quiz>({});
-  private selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   private quizUrl = 'assets/data/quiz.json';
 
