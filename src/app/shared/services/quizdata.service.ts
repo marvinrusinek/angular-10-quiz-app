@@ -54,10 +54,14 @@ export class QuizDataService {
   } */
 
   setSelectedQuiz(quiz: Quiz): void {
+    console.log('Selected quiz ID:', quiz.quizId);
     this.selectedQuizSubject.next(quiz);
   }
 
   getSelectedQuiz(): Observable<Quiz> {
+    console.log('getSelectedQuiz selectedQuizSubject value:', this.selectedQuizSubject.value);
+    console.log('getSelectedQuiz selectedQuizSubject asObservable:', this.selectedQuizSubject.asObservable());
+    console.log('getSelectedQuiz selectedQuiz:', this.selectedQuiz);
     return this.selectedQuizSubject.asObservable();
   }
 
@@ -81,6 +85,7 @@ export class QuizDataService {
   } */
 
   getQuiz(quizId: string): Observable<Quiz> {
+    console.log('Fetching quiz data for quiz ID:', quizId);
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
