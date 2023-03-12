@@ -10,7 +10,7 @@ import {
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
-import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
