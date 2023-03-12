@@ -93,8 +93,7 @@ export class QuizDataService implements OnInit {
     return this.http.get<Quiz[]>(apiUrl).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
-        console.log('quizId parameter:', quizId);
-        console.log('fetched quizId:', quiz.quizId);
+
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
@@ -128,8 +127,6 @@ export class QuizDataService implements OnInit {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
-    console.log('quizId:::', quizId); // log the quizId being passed to the method
     
     const apiUrl = `${this.quizUrl}`;
   
