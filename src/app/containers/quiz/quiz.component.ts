@@ -147,8 +147,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe((result) => {
       const { quiz, selectedQuiz } = result;
-      console.log('quiz:', quiz);
-      console.log('selectedQuiz:', selectedQuiz);
+
+      console.log('Quiz:', quiz);
+      console.log('Selected quiz:', selectedQuiz);
 
       if (!quiz) {
         console.error('Quiz not found');
@@ -167,7 +168,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizDataService.getQuestion(selectedQuiz[0].quizId, 0).subscribe((question) => {
           this.handleQuestion(question);
         });
-        console.log('Selected quiz found:', this.quiz);
       } else {
         console.error('Selected quiz not found');
       }
@@ -181,6 +181,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
+
     
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
