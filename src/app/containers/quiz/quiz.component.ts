@@ -147,29 +147,29 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
         this.handleQuestion(question);
       });
-    });
   
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.quiz = selectedQuiz;
-        this.quizDataService.setCurrentQuestionIndex(0);
-        this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
-          this.handleQuestion(question);
-        });
-      } else {
-        console.error('Selected quiz not found');
-      }
-    });
+      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+        if (selectedQuiz) {
+          console.log('Selected quiz:', selectedQuiz);
+          this.quiz = selectedQuiz;
+          this.quizDataService.setCurrentQuestionIndex(0);
+          this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
+            this.handleQuestion(question);
+          });
+        } else {
+          console.error('Selected quiz not found');
+        }
+      });
   
-    this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
-    this.questionSubscription = this.question$.subscribe({
-      next: (question) => this.handleQuestion(question),
-      error: (err) => console.error('Error in question$: ', err),
-    });
+      this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
+      this.questionSubscription = this.question$.subscribe({
+        next: (question) => this.handleQuestion(question),
+        error: (err) => console.error('Error in question$: ', err),
+      });
   
-    this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
+      this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
+    });
   }
-  
           
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
