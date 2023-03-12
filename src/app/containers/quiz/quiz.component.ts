@@ -262,29 +262,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadQuestion(index: number) {
-    const question = this.questions[index];
-    this.selectedAnswers[index] = null;
-    // this.form.reset();
-    // this.form.patchValue({ options: question.options });
-  }
-
   selectQuiz(quiz: Quiz): void {
     this.quizDataService.selectedQuiz$.next(quiz);
   }
-
-  loadQuiz(index: number): void {
-    this.currentQuestionIndex = index;
-    console.log('questions:::', this.questions);
-    this.currentQuestion = this.quiz.questions[this.currentQuestionIndex];
-  }
-
-  /* startQuiz() {
-    console.log('questions:::', this.questions);
-    this.quizService.currentQuestionIndex = 0;
-    this.quizService.quizStarted = true;
-    this.quizService.loadQuestions();
-  } */
 
   private updateTotalQuestions(): void {
     this.updateQuestionIndex();

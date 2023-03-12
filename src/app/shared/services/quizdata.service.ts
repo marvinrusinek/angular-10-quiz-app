@@ -18,20 +18,10 @@ export class QuizDataService implements OnInit {
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
-  // private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  // selectedQuiz$: Observable<Quiz | null> = this.selectedQuizSubject.asObservable();
-  selectedQuizIdSubject = new BehaviorSubject<string>(null);
-  quizIdSubject = new Subject<string>();
-  selectedQuizId$ = this.selectedQuizIdSubject.asObservable();
-  // selectedQuizSource = new BehaviorSubject<Quiz>({});
-  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  // selectedQuiz$ = this.selectedQuizSource.asObservable();
-  // selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  // selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-
   private selectedQuiz: Quiz;
   private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
-  // selectedQuiz$ = this.selectedQuizSubject.asObservable();
+
+  selectedQuizIdSubject = new BehaviorSubject<string>(null);
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
 
   private quizUrl = 'assets/data/quiz.json';
