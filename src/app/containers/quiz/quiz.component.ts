@@ -132,76 +132,30 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-
+  
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
     }
-
+  
     this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => {
-        if (!quiz) {
-          console.error('Quiz not found');
-          return;
-        }
-
-        if (!quiz.questions || quiz.questions.length === 0) {
-          console.error('Quiz questions not found');
-          return;
-        }
-
-        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
-      })
+      tap((quiz: Quiz) => this.handleQuizData(quiz, quizId, this.currentQuestionIndex))
     );
-
+  
     this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
     this.selectedQuizSubscription = this.selectedQuiz$.subscribe({
-      next: (selectedQuiz) => {
-        if (selectedQuiz) {
-          this.selectedQuiz = selectedQuiz;
-
-          if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-            console.error('Selected quiz questions not found');
-            return;
-          }
-
-          this.currentQuestionIndex = 0;
-          this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-          this.setOptions();
-        } else {
-          console.error('Selected quiz not found');
-        }
-      },
-      error: (err) => {
-        console.error('Error in selectedQuiz$: ', err);
-      },
-      complete: () => {
-        console.log('selectedQuiz$ subscription completed');
-      },
+      next: (selectedQuiz) => this.handleSelectedQuiz(selectedQuiz),
+      error: (err) => console.error('Error in selectedQuiz$: ', err),
+      complete: () => console.log('selectedQuiz$ subscription completed')
     });
-
-    this.question$ = this.quizDataService.getQuestion(
-      quizId,
-      this.currentQuestionIndex
-    );
+  
+    this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
     this.questionSubscription = this.question$.subscribe({
-      next: (question) => {
-        if (!question) {
-          console.error('Question not found');
-          return;
-        }
-        console.log('Question emitted:', question);
-        this.question = question;
-        this.setOptions();
-      },
-      error: (err) => {
-        console.error('Error in question$: ', err);
-      },
-      complete: () => {
-        // console.log('question$ subscription completed');
-      }
+      next: (question) => this.handleQuestion(question),
+      error: (err) => console.error('Error in question$: ', err),
+     // complete: () => console.log('question$ subscription completed')
     });
-
+  
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
           
@@ -231,27 +185,47 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
-    this.quizDataService.setSelectedQuiz(quiz);
-    this.quizDataService.setCurrentQuestionIndex(currentQuestionIndex);
+  private handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
+    if (!quiz) {
+      console.error('Quiz not found');
+      return;
+    }
+  
+    if (!quiz.questions || quiz.questions.length === 0) {
+      console.error('Quiz questions not found');
+      return;
+    }
+  
+    this.currentQuestionIndex = currentQuestionIndex;
+    this.question = quiz.questions[currentQuestionIndex];
+    this.setOptions();
+  }
 
-    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
-    this.question$.subscribe((question) => {
-      if (!question) {
-        console.error(`Question is null for quizId: ${quizId} and index: ${currentQuestionIndex}`);
+  private handleSelectedQuiz(selectedQuiz: Quiz): void {
+    if (selectedQuiz) {
+      this.selectedQuiz = selectedQuiz;
+  
+      if (!this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
+        console.error('Selected quiz questions not found');
         return;
       }
+  
+      this.currentQuestionIndex = 0;
+      this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
+      this.setOptions();
+    } else {
+      console.error('Selected quiz not found');
+    }
+  }
 
-      this.question = question;
-      this.answers = this.question?.options.map((option) => option.value) || [];
-      this.options = this.question?.options.map((option, index) => ({
-        text: option.text,
-        answer: option.answer,
-        isCorrect: option.correct,
-        isSelected: false,
-      })) || [];
-      this.shuffleAnswers();
-    });
+  private handleQuestion(question: QuizQuestion): void {
+    if (!question) {
+      console.error('Question not found');
+      return;
+    }
+  
+    this.question = question;
+    this.setOptions();
   }
 
   handleQuestions(questions: QuizQuestion[]): void {
@@ -268,22 +242,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log(error);
     }
   }
-
-  /* setOptions(): void {
-    this.form.patchValue({
-      selectedOption: null,
-    });
-    if (this.question && this.question.options) {
-      const options = this.question.options.map((option) =>
-        this.fb.group({
-          value: option.value,
-        })
-      );
-      this.form.setControl('selectedOption', this.fb.control(null));
-      this.form.setControl('options', this.fb.array(options));
-      this.answers = this.question.options.map((option) => option.value);
-    }
-  } */
 
   setOptions() {
     this.answers =
