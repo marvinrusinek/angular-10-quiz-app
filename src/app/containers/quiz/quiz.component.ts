@@ -139,6 +139,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Quiz ID is null or undefined');
       return;
     }
+
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      this.quizzes = quizzes;
+      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+        if (selectedQuiz) {
+          this.selectedQuiz = selectedQuiz;
+          this.handleSelectedQuiz(selectedQuiz);
+        }
+      });
+    });
   
     this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
       tap((quiz: Quiz) => this.handleQuizData(quiz, quizId, this.currentQuestionIndex))
