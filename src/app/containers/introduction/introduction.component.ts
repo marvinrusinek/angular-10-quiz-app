@@ -87,6 +87,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.selectedQuizId = quizId;
+
     if (this.selectedQuizId) {
       this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
