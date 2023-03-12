@@ -165,6 +165,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       },
       complete: () => console.log('selectedQuiz$ subscription completed')
     });
+
+    this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
+    this.questionSubscription = this.question$.subscribe({
+      next: (question) => this.handleQuestion(question),
+      error: (err) => console.error('Error in question$: ', err),
+     // complete: () => console.log('question$ subscription completed')
+    });
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
