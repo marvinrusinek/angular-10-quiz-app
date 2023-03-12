@@ -130,6 +130,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log('Quizzes:', this.quizzes);
+    console.log('Selected quiz:', this.selectedQuiz);
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
   
