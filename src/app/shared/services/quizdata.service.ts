@@ -12,14 +12,15 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizDataService implements OnInit {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
-  private quizzes: Quiz[] = [];
-  private quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
+  quizzes: Quiz[] = [];
+  quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId: string = '';
+
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
-  private selectedQuiz: Quiz;
-  private selectedQuizSubject = new BehaviorSubject<Quiz>(null);
+  selectedQuiz: Quiz;
+  selectedQuizSubject = new BehaviorSubject<Quiz>(null);
 
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
