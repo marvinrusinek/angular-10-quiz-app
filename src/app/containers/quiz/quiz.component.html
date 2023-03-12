@@ -28,17 +28,19 @@
       </div>
     </mat-card-header>
 
-    <mat-card-content *ngIf="question">
+    <mat-card-content *ngIf="question$ | async as question">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
       <!-- the question/explanation section -->
       <section id="question">
         <div *ngIf="!isAnswered()">
-          <h3>{{ question.questionText }}</h3>
+          <h3>{{ question?.questionText }}</h3>
         </div>
         <codelab-quiz-explanation
-          *ngIf="isAnswered() && showExplanation"
+          *ngIf="isAnswered()"
+          [isAnswered]="isAnswered()"
+          [question$]="question$"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
