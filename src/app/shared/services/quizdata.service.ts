@@ -28,8 +28,9 @@ export class QuizDataService implements OnInit {
 
 
   constructor(private http: HttpClient) {
+    // this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
+    this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
-    this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
 
     this.http
