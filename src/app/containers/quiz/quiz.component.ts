@@ -128,61 +128,46 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const params: Params = this.activatedRoute.snapshot.params;
     const quizId: string = params.quizId;
-
+  
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
     }
-
-    // Combine the quiz and selectedQuiz observables using forkJoin
-    forkJoin({
-      quiz: this.quizDataService.getQuiz(quizId),
-      selectedQuiz: this.quizDataService.getSelectedQuiz().pipe(
-        tap(selectedQuiz => console.log('Selected quiz:', selectedQuiz))
-      )
-    }).pipe(
-      catchError((error) => {
-        console.error('Error in forkJoin:', error);
-        return throwError(error);
-      })
-    ).subscribe((result) => {
-      const { quiz, selectedQuiz } = result;
-
-      console.log('Quiz:', quiz);
-      console.log('Selected quiz:', selectedQuiz);
-
+  
+    this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
       if (!quiz) {
         console.error('Quiz not found');
         return;
       }
-
+  
       this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       this.quizDataService.setCurrentQuestionIndex(0);
       this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
         this.handleQuestion(question);
       });
-
-      if (selectedQuiz && selectedQuiz.length > 0) {
-        this.quiz = selectedQuiz[0];
+    });
+  
+    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      if (selectedQuiz) {
+        this.quiz = selectedQuiz;
         this.quizDataService.setCurrentQuestionIndex(0);
-        this.quizDataService.getQuestion(selectedQuiz[0].quizId, 0).subscribe((question) => {
+        this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
           this.handleQuestion(question);
         });
       } else {
         console.error('Selected quiz not found');
       }
     });
-
+  
     this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
     this.questionSubscription = this.question$.subscribe({
       next: (question) => this.handleQuestion(question),
       error: (err) => console.error('Error in question$: ', err),
     });
-
+  
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-
-    
+      
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
