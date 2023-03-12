@@ -135,22 +135,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Quiz ID is null or undefined');
       return;
     }
-
+  
+    // Get quizzes data and set the initial quiz and question data
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
-      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.selectedQuiz = selectedQuiz;
-        } else {
-          console.error('Selected quiz not found');
-        }
+      this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
+        this.handleQuizData(quiz, quizId, 0);
+        this.quizDataService.setCurrentQuestionIndex(0);
+        this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+          this.handleQuestion(question);
+        });
       });
     });
   
-    this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(
-      tap((quiz: Quiz) => this.handleQuizData(quiz, quizId, this.currentQuestionIndex))
-    );
-  
+    // Subscribe to the selectedQuiz$ observable
     this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
     this.selectedQuizSubscription = this.selectedQuiz$.subscribe({
       next: (quiz) => {
@@ -158,10 +156,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quiz = quiz;
           this.quizDataService.setCurrentQuestionIndex(0);
           this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
-            this.question = question;
-            this.answers = question?.options.map((option) => option.value) || [];
-            this.setOptions();
+            this.handleQuestion(question);
           });
+        } else {
+          console.error('Selected quiz not found');
         }
       },
       error: (error) => {
@@ -170,16 +168,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       complete: () => console.log('selectedQuiz$ subscription completed')
     });
   
-    this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
-    this.questionSubscription = this.question$.subscribe({
-      next: (question) => this.handleQuestion(question),
-      error: (err) => console.error('Error in question$: ', err),
-     // complete: () => console.log('question$ subscription completed')
-    });
-  
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-         
+           
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
