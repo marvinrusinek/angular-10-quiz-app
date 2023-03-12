@@ -134,24 +134,39 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
+    // Get the quiz observable
+    const quiz$ = this.quizDataService.getQuiz(quizId);
+  
+    // Get the selectedQuiz observable
+    const selectedQuiz$ = this.quizDataService.getSelectedQuiz().pipe(
+      tap(selectedQuiz => console.log('Selected quiz:', selectedQuiz)),
+    );
+  
+    // Subscribe to both observables using forkJoin
+    forkJoin([quiz$, selectedQuiz$]).pipe(
+      catchError((error) => {
+        console.error('Error in forkJoin:', error);
+        return throwError(error);
+      })
+    ).subscribe((results) => {
+      const [quiz, selectedQuiz] = results;
+  
       if (!quiz) {
         console.error('Quiz not found');
         return;
       }
   
+      // Handle the quiz and question data
       this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       this.quizDataService.setCurrentQuestionIndex(0);
       this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
         this.handleQuestion(question);
       });
-    });
   
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.quiz = selectedQuiz;
+      if (selectedQuiz && selectedQuiz.length > 0) {
+        this.quiz = selectedQuiz[0];
         this.quizDataService.setCurrentQuestionIndex(0);
-        this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
+        this.quizDataService.getQuestion(selectedQuiz[0].quizId, 0).subscribe((question) => {
           this.handleQuestion(question);
         });
       } else {
@@ -167,7 +182,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-      
+        
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(
