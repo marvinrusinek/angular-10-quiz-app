@@ -140,6 +140,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
+      console.log('Quiz:', quiz);
+  
       this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       this.quizDataService.setCurrentQuestionIndex(0);
       this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
@@ -148,6 +150,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      console.log('Selected quiz:', selectedQuiz);
+  
       if (selectedQuiz) {
         this.quiz = selectedQuiz;
         this.quizDataService.setCurrentQuestionIndex(0);
@@ -167,6 +171,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
+  
           
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
