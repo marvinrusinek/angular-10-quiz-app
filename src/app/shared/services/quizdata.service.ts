@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -19,7 +19,7 @@ export class QuizDataService implements OnInit {
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
   private selectedQuiz: Quiz;
-  private selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
+  private selectedQuizSubject = new BehaviorSubject<Quiz>(null);
 
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -66,8 +66,17 @@ export class QuizDataService implements OnInit {
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
-    return this.selectedQuiz$.asObservable();
+    return this.selectedQuiz$.pipe(
+      switchMap(selectedQuiz => {
+        if (selectedQuiz) {
+          return of(selectedQuiz);
+        } else {
+          return this.selectedQuizSubject.asObservable();
+        }
+      })
+    );
   }
+  
 
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
