@@ -61,13 +61,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   answers: number[] = [];
   showExplanation = false;
 
-  private selectedQuizSource = new BehaviorSubject<Quiz>(null);
-  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz | null>(null);
-  // public selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedQuiz$: BehaviorSubject<Quiz>;
 
-  // selectedQuiz$ = new BehaviorSubject<Quiz>({});
-  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedOption: Option;
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
@@ -89,6 +84,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
+
   options: { 
     text: any; 
     answer: any; 
@@ -142,12 +138,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
-      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.selectedQuiz = selectedQuiz;
-          this.handleSelectedQuiz(selectedQuiz);
-        }
-      });
     });
   
     this.quiz$ = this.quizDataService.getQuiz(quizId).pipe(

@@ -59,20 +59,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-  
+
       this.quizDataService.getSelectedQuiz().pipe(
         switchMap((selectedQuiz) => {
           if (selectedQuiz && selectedQuiz.questions.length > 0) {
             this.selectedQuiz = selectedQuiz;
             this.quizDataService.setCurrentQuestionIndex(0);
             return this.quizDataService.getQuestion(selectedQuiz.quizId, this.currentQuestionIndex);
+          } else {
+            console.error('Selected quiz not found');
+            return of(null);
           }
-          return of(null);
         })
       ).subscribe((question) => {
-        this.question = question;
-        this.answers = this.question?.options.map((option) => option.value) || [];
-        this.setOptions();
+        if (question) {
+          this.question = question;
+          this.answers = this.question?.options.map((option) => option.value) || [];
+          this.setOptions();
+        } else {
+          console.error('Question not found');
+        }
       });
     });
 
@@ -86,7 +92,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
-  
+
   getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {
