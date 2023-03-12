@@ -170,11 +170,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-          
-  // set the selected quiz
-  setSelectedQuiz(quiz: Quiz): void {
-    this.quizDataService.setSelectedQuiz(quiz);
-  }
          
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
