@@ -59,6 +59,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedQuizSubscription: Subscription;
   resources: Resource[];
   answers: number[] = [];
+  showExplanation = false;
 
   private selectedQuizSource = new BehaviorSubject<Quiz>(null);
   // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz | null>(null);
@@ -394,6 +395,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   selectedAnswer(data): void {
+    this.showExplanation = true;
+    
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
     );
