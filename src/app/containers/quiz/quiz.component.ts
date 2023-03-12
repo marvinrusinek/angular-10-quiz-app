@@ -147,6 +147,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe((result) => {
       const { quiz, selectedQuiz } = result;
+      console.log('quiz:', quiz);
+      console.log('selectedQuiz:', selectedQuiz);
 
       if (!quiz) {
         console.error('Quiz not found');
