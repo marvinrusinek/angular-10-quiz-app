@@ -58,20 +58,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-  
-      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.selectedQuiz = selectedQuiz;
+      this.quizId = +params['quizId'];
+      this.quizDataService.setSelectedQuiz(null);
+      this.quizDataService.getQuiz(this.quizId).subscribe((quiz) => {
+        if (quiz) {
+          this.quizDataService.setSelectedQuiz(quiz);
           this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
-            if (question) {
-              this.question = question;
-              this.answers = this.question.options.map((option) => option.value);
-              this.setOptions();
-            } else {
-              console.error('Question not found');
-            }
+          this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+            this.question = question;
+            this.answers = question?.options.map((option) => option.value) || [];
+            this.setOptions();
           });
         } else {
           console.error('Selected quiz not found');
