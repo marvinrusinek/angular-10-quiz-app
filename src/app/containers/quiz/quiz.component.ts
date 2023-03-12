@@ -11,7 +11,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -134,38 +134,40 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
+    // Combine the quiz and selectedQuiz observables using forkJoin
     forkJoin({
       quiz: this.quizDataService.getQuiz(quizId),
       selectedQuiz: this.quizDataService.getSelectedQuiz().pipe(
         tap(selectedQuiz => console.log('Selected quiz:', selectedQuiz))
       )
-    }).subscribe({
-      next: ({ quiz, selectedQuiz }) => {
-        if (!quiz) {
-          console.error('Quiz not found');
-          return;
-        }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error in forkJoin:', error);
+        return throwError(error);
+      })
+    ).subscribe((result) => {
+      const { quiz, selectedQuiz } = result;
+      
+      if (!quiz) {
+        console.error('Quiz not found');
+        return;
+      }
   
-        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+      this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
+      this.quizDataService.setCurrentQuestionIndex(0);
+      this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+        this.handleQuestion(question);
+      });
+  
+      if (selectedQuiz && selectedQuiz.length > 0) {
+        this.quiz = selectedQuiz[0];
         this.quizDataService.setCurrentQuestionIndex(0);
-        this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+        this.quizDataService.getQuestion(selectedQuiz[0].quizId, 0).subscribe((question) => {
           this.handleQuestion(question);
         });
-  
-        if (selectedQuiz) {
-          this.quiz = selectedQuiz;
-          this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
-            this.handleQuestion(question);
-          });
-        } else {
-          console.error('Selected quiz not found');
-        }
-      },
-      error: (error) => {
-        console.error('Error in forkJoin(): ', error);
-      },
-      complete: () => console.log('forkJoin() subscription completed')
+      } else {
+        console.error('Selected quiz not found');
+      }
     });
   
     this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
