@@ -67,15 +67,16 @@ export class QuizDataService implements OnInit {
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
+      filter(selectedQuiz => !!selectedQuiz),
       switchMap(selectedQuiz => {
         if (selectedQuiz) {
           return of(selectedQuiz);
         } else {
-          return this.selectedQuizSubject.asObservable();
+          return this.selectedQuizSubject.asObservable().pipe(filter(selectedQuiz => !!selectedQuiz));
         }
       })
     );
-  }
+  }  
   
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
