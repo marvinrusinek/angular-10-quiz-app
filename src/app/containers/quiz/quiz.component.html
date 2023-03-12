@@ -34,11 +34,11 @@
 
       <!-- the question/explanation section -->
       <section id="question">
-        <div *ngIf="!isAnswered()">
+        <div>
           <h3>{{ question?.questionText }}</h3>
         </div>
         <codelab-quiz-explanation
-          *ngIf="isAnswered()"
+          *ngIf="isAnswered() && showExplanation"
           [isAnswered]="isAnswered()"
           [question$]="question$"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
