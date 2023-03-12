@@ -77,7 +77,6 @@ export class QuizDataService implements OnInit {
     );
   }
   
-
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
