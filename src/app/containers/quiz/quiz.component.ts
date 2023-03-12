@@ -190,6 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Question not found');
           return;
         }
+        console.log('Question emitted:', question);
         this.question = question;
         this.setOptions();
       },
@@ -396,7 +397,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   selectedAnswer(data): void {
     this.showExplanation = true;
-    
+
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
     );
