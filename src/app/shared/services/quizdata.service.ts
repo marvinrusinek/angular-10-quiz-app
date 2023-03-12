@@ -91,6 +91,7 @@ export class QuizDataService implements OnInit {
     const apiUrl = `${this.quizUrl}`;
   
     return this.http.get<Quiz[]>(apiUrl).pipe(
+      tap(response => console.log(response)),
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
@@ -108,6 +109,8 @@ export class QuizDataService implements OnInit {
       })
     );
   }
+  
+
 
   getQuizById(quizId: string): Observable<Quiz> {
     return this.http
