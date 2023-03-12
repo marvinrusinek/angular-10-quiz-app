@@ -130,6 +130,8 @@ export class QuizDataService implements OnInit {
     }
     
     const apiUrl = `${this.quizUrl}`;
+
+    console.log(`Selected Quiz ID: ${quizId}`);
   
     return this.http.get<Quiz[]>(apiUrl).pipe(
       mergeMap((response: Quiz[]) => {
