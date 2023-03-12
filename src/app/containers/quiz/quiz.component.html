@@ -34,13 +34,13 @@
 
       <!-- the question/explanation section -->
       <section id="question">
-        <app-question-state
+        <codelab-quiz-explanation
           [isAnswered]="isAnswered()"
           [questionText]="question.questionText"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
-        ></app-question-state>
+        ></codelab-quiz-explanation>
       </section>
 
       <!-- the options -->

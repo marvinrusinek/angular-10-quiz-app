@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-question-state',
-  templateUrl: './question-state.component.html',
-  styleUrls: ['./question-state.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'codelab-quiz-explanation',
+  templateUrl: './explanation.component.html',
+  styleUrls: ['./explanation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuestionStateComponent {
+export class ExplanationComponent {
   @Input() isAnswered: boolean;
   @Input() questionText: string;
   @Input() numberOfCorrectAnswers: number;

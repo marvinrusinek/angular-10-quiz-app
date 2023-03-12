@@ -22,7 +22,7 @@ import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizQuestionComponent } from './components/question/question.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
-import { QuestionStateComponent } from './containers/quiz/question-state/question-state.component';
+import { ExplanationComponent } from './containers/quiz/explanation/explanation.component';
 import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
@@ -52,7 +52,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     IntroductionComponent,
     QuizQuestionComponent,
     QuizComponent,
-    QuestionStateComponent,
+    ExplanationComponent,
     QuizSelectionComponent,
     ResultsComponent,
     ScoreboardComponent,
