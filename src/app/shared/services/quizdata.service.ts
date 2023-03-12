@@ -71,6 +71,7 @@ export class QuizDataService implements OnInit {
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
+    console.log('getSelectedQuiz called');
     return this.selectedQuiz$.pipe(
       filter(selectedQuiz => !!selectedQuiz),
       switchMap(selectedQuiz => {
