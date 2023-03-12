@@ -82,7 +82,7 @@ export class QuizDataService implements OnInit {
       })
     );
   }  
-  
+
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
@@ -91,17 +91,18 @@ export class QuizDataService implements OnInit {
     const apiUrl = `${this.quizUrl}`;
   
     return this.http.get<Quiz[]>(apiUrl).pipe(
-      tap(response => console.log(response)),
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
+        console.log('quizId parameter:', quizId);
+        console.log('fetched quizId:', quiz.quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-  
+    
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz has no questions');
         }
-  
+    
         return of(quiz);
       }),
       catchError((error: HttpErrorResponse) => {
@@ -109,8 +110,6 @@ export class QuizDataService implements OnInit {
       })
     );
   }
-  
-
 
   getQuizById(quizId: string): Observable<Quiz> {
     return this.http
