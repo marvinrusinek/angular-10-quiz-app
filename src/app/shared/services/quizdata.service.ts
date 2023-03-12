@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -65,7 +65,9 @@ export class QuizDataService implements OnInit {
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
-    this.selectedQuizSubject.next(quiz);
+    this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
+      this.selectedQuizSubject.next(selectedQuiz);
+    });
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
