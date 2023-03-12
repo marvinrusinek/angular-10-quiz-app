@@ -62,7 +62,7 @@ export class QuizDataService implements OnInit {
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
-    this.selectedQuizSubject.next(quiz);
+    this.selectedQuizSubject.next(this.selectedQuiz);
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
