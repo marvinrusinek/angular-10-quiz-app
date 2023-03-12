@@ -202,6 +202,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private handleSelectedQuiz(selectedQuiz: Quiz): void {
+    console.log('Selected Quiz:', selectedQuiz);
     if (selectedQuiz) {
       this.selectedQuiz = selectedQuiz;
   
@@ -215,8 +216,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.setOptions();
     } else {
       console.error('Selected quiz not found');
+      return;
     }
-  }
+  }  
 
   private handleQuestion(question: QuizQuestion): void {
     if (!question) {
