@@ -10,7 +10,7 @@ import {
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -134,27 +134,28 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    // Get quizzes data and set the initial quiz and question data
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-      this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
-        this.handleQuizData(quiz, quizId, 0);
+    forkJoin({
+      quiz: this.quizDataService.getQuiz(quizId),
+      selectedQuiz: this.quizDataService.getSelectedQuiz().pipe(
+        tap(selectedQuiz => console.log('Selected quiz:', selectedQuiz))
+      )
+    }).subscribe({
+      next: ({ quiz, selectedQuiz }) => {
+        if (!quiz) {
+          console.error('Quiz not found');
+          return;
+        }
+  
+        this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
         this.quizDataService.setCurrentQuestionIndex(0);
         this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
           this.handleQuestion(question);
         });
-      });
-    });
   
-    // Subscribe to the selectedQuiz$ observable
-    this.selectedQuiz$ = this.quizDataService.getSelectedQuiz();
-    this.selectedQuizSubscription = this.selectedQuiz$.subscribe({
-      next: (quiz) => {
-        console.log('Selected quiz:', quiz);
-        if (quiz) {
-          this.quiz = quiz;
+        if (selectedQuiz) {
+          this.quiz = selectedQuiz;
           this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+          this.quizDataService.getQuestion(selectedQuiz.quizId, 0).subscribe((question) => {
             this.handleQuestion(question);
           });
         } else {
@@ -162,22 +163,20 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error(error);
+        console.error('Error in forkJoin(): ', error);
       },
-      complete: () => console.log('selectedQuiz$ subscription completed')
+      complete: () => console.log('forkJoin() subscription completed')
     });
   
     this.question$ = this.quizDataService.getQuestion(quizId, this.currentQuestionIndex);
     this.questionSubscription = this.question$.subscribe({
       next: (question) => this.handleQuestion(question),
       error: (err) => console.error('Error in question$: ', err),
-     // complete: () => console.log('question$ subscription completed')
     });
   
     this.router.navigate(['/question', quizId, this.currentQuestionIndex + 1]);
   }
-  
-           
+    
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
     const currentQuestionIndex = parseInt(

@@ -73,6 +73,7 @@ export class QuizDataService implements OnInit {
   getSelectedQuiz(): Observable<Quiz | null> {
     console.log('getSelectedQuiz called');
     return this.selectedQuiz$.pipe(
+      tap(selectedQuiz => console.log('Selected quiz:', selectedQuiz)),
       filter(selectedQuiz => !!selectedQuiz),
       switchMap(selectedQuiz => {
         if (selectedQuiz) {
@@ -82,7 +83,7 @@ export class QuizDataService implements OnInit {
         }
       })
     );
-  }  
+  }
 
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
