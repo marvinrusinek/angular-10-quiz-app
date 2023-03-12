@@ -1,6 +1,6 @@
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input,
-  OnDestroy, OnInit, Output
+  ChangeDetectionStrategy, ChangeDetectorRef, Component, 
+  EventEmitter, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
@@ -121,58 +121,59 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const params: Params = this.activatedRoute.snapshot.params;
-    const quizId: string = params.quizId;
+    this.getCurrentQuiz();
+    this.getSelectedQuiz();
+    this.getQuestion();
+  }
 
+  getCurrentQuiz(): void {
+    const quizId = this.activatedRoute.snapshot.params.quizId;
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
     }
-
     this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
       if (!quiz) {
         console.error('Quiz not found');
         return;
       }
-
       console.log('Quiz:', quiz);
-
       this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       this.quizDataService.setCurrentQuestionIndex(0);
-      this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+    });
+  }
+
+  getSelectedQuiz(): void {
+    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      if (selectedQuiz) {
+        console.log('Selected quiz:', selectedQuiz);
+        this.quiz = selectedQuiz;
+        this.quizDataService.setCurrentQuestionIndex(0);
+      } else {
+        console.error('Selected quiz not found');
+      }
+    });
+  }
+
+  getQuestion(): void {
+    this.question$ = this.quizDataService.getQuestion(
+      this.activatedRoute.snapshot.params.quizId,
+      this.currentQuestionIndex
+    );
+    this.questionSubscription = this.question$.subscribe({
+      next: (question) => this.handleQuestion(question),
+      error: (err) => console.error('Error in question$: ', err),
+    });
+    this.quizDataService
+      .getQuestion(this.activatedRoute.snapshot.params.quizId, 0)
+      .subscribe((question) => {
         this.handleQuestion(question);
       });
-
-      this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          console.log('Selected quiz:', selectedQuiz);
-          this.quiz = selectedQuiz;
-          this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService
-            .getQuestion(selectedQuiz.quizId, 0)
-            .subscribe((question) => {
-              this.handleQuestion(question);
-            });
-        } else {
-          console.error('Selected quiz not found');
-        }
-      });
-
-      this.question$ = this.quizDataService.getQuestion(
-        quizId,
-        this.currentQuestionIndex
-      );
-      this.questionSubscription = this.question$.subscribe({
-        next: (question) => this.handleQuestion(question),
-        error: (err) => console.error('Error in question$: ', err),
-      });
-
-      this.router.navigate([
-        '/question',
-        quizId,
-        this.currentQuestionIndex + 1,
-      ]);
-    });
+    this.router.navigate([
+      '/question',
+      this.activatedRoute.snapshot.params.quizId,
+      this.currentQuestionIndex + 1,
+    ]);
   }
 
   handleParamMap(params: ParamMap): void {
