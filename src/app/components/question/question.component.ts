@@ -1,6 +1,12 @@
 import {
-  ChangeDetectionStrategy, Component, EventEmitter,
-  Input, OnChanges, OnInit, Output, SimpleChanges
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -51,6 +57,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.currentQuestionIndex = 0;
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.quizDataService.setSelectedQuiz(null);
@@ -58,27 +65,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         if (quiz) {
           this.quizDataService.setSelectedQuiz(quiz);
           this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
-            this.question = question;
-            this.answers = question?.options.map((option) => option.value) || [];
-            this.setOptions();
-          });
+          this.quizDataService
+            .getQuestion(quiz.quizId, 0)
+            .subscribe((question) => {
+              this.question = question;
+              this.answers =
+                question?.options.map((option) => option.value) || [];
+              this.setOptions();
+            });
         } else {
           console.error('Selected quiz not found');
         }
       });
     });
-  
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-  
+
     this.currentQuestion = this.quizService.getCurrentQuestion();
+    console.log('CQ', this.currentQuestion);
+    console.log('Question:', this.question);
     this.answers = this.quizService.getAnswers(this.currentQuestion);
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-  
+
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-  }  
+  }
 
   getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
@@ -163,14 +175,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       console.error('Selected quiz not found');
       return;
     }
-  
+
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
-  
+
     if (shuffleOptions) {
       this.quizService.shuffleArray(options);
     }
-  
+
     this.correctOptionIndex = options.findIndex((option) => option === answer);
 
     this.options = options.map((option, index) => ({
@@ -178,10 +190,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       text: option.value,
       isCorrect: index === this.correctOptionIndex,
       answer: index === this.correctOptionIndex,
-      isSelected: false
+      isSelected: false,
     }));
-  }  
-  
+  }
+
   private resetForm(): void {
     if (!this.questionForm) {
       return;
