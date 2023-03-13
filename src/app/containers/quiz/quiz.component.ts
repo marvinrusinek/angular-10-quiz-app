@@ -1,6 +1,12 @@
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, 
-  EventEmitter, Input, OnDestroy, OnInit, Output
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -181,8 +187,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       .getQuestion(this.activatedRoute.snapshot.params.quizId, 0)
       .subscribe((question) => {
         this.handleQuestion(question);
-    });
-    this.options$ = this.quizDataService.getOptions(quizId, this.currentQuestionIndex);
+      });
+    this.options$ = this.quizDataService.getOptions(
+      quizId,
+      this.currentQuestionIndex
+    );
     this.optionsSubscription = this.options$.subscribe({
       next: (options) => this.handleOptions(options),
       error: (err) => console.error('Error in options$: ', err),
@@ -218,14 +227,18 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.router.navigate([
             '/question',
             quizId,
-            this.currentQuestionIndex
+            this.currentQuestionIndex,
           ]);
         }
       });
     }
   }
 
-  private handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
+  private handleQuizData(
+    quiz: Quiz,
+    quizId: string,
+    currentQuestionIndex: number
+  ): void {
     if (!quiz) {
       console.error('Quiz not found');
       return;
@@ -264,6 +277,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private handleQuestion(question: QuizQuestion): void {
+    this.question$.subscribe((question) => {
+      console.log('Question:::', question);
+    });
+
     if (!question) {
       console.error('Question not found');
       return;
@@ -440,6 +457,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   getCurrentQuestion() {
+    this.quizService
+      .getCurrentQuestion()
+      .subscribe((question: QuizQuestion) => {
+        console.log('CQ', question);
+        this.handleQuestion(question);
+      });
     this.quizService
       .getQuestion(this.selectedQuiz.quizId, this.currentQuestionIndex)
       .subscribe((question) => {
