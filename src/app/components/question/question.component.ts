@@ -1,17 +1,11 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
+  ChangeDetectionStrategy, Component, EventEmitter,
+  Input, OnChanges, OnInit, Output, SimpleChanges
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -163,21 +157,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   private updateMultipleAnswer(): void {
     this.multipleAnswer = this.correctAnswers.length > 1;
   }
-  
-  /* setOptions() {
-    if (!this.question) {
-      return;
-    }
-  
-    const options = this.question.options;
-    this.optionList = options.map((option) => {
-      return {
-        text: option.value ? option.value.toString() : '',
-        value: parseInt(option.optionId),
-        answer: option.correct,
-      };
-    });
-  } */
 
   setOptions(): void {
     if (!this.selectedQuiz) {
