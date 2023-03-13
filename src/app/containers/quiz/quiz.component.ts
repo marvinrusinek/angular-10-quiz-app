@@ -279,10 +279,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private handleQuestion(question: QuizQuestion): void {
-    this.question$.subscribe((question) => {
-      console.log('Question:::', question);
-    });
-
     if (!question) {
       console.error('Question not found');
       return;
@@ -458,38 +454,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     return of(quiz.questions[index]);
   } */
 
-  /* getCurrentQuestion(): void {
-    this.quizService
-      .getCurrentQuestion()
+  getCurrentQuestion(): void {
+    this.quizDataService
+      .getQuestion(this.selectedQuiz.quizId, this.currentQuestionIndex)
       .subscribe((question: QuizQuestion) => {
         console.log('CQ', question);
         this.handleQuestion(question);
       });
-    this.quizDataService
-      .getQuestion(this.selectedQuiz.quizId, this.currentQuestionIndex)
-      .subscribe((question) => {
-        this.currentQuestion = question;
-      });
-  } */
-
-  getCurrentQuestion(): void {
-    this.quizService.getCurrentQuiz().subscribe((quiz: Quiz) => {
-      if (!quiz) {
-        console.error('Quiz not found');
-        return;
-      }
-
-      this.currentQuiz = quiz;
-      this.currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-
-      this.quizDataService
-        .getQuestion(this.currentQuiz.quizId, this.currentQuestionIndex)
-        .subscribe((question) => {
-          this.currentQuestion = question;
-          console.log('CQ', this.currentQuestion);
-          this.handleQuestion(this.currentQuestion);
-        });
-    });
   }
 
   async onSubmit(): Promise<void> {
