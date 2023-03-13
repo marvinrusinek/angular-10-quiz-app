@@ -1,12 +1,6 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges, 
-  OnInit,
-  Output,
-  ViewEncapsulation,
+  ChangeDetectionStrategy, Component, EventEmitter, Input,
+  OnChanges, OnInit, Output, ViewEncapsulation
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
