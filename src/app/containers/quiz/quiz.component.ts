@@ -55,6 +55,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   question: QuizQuestion;
   question$: Observable<QuizQuestion>;
   currentQuestion: any = undefined;
+  currentQuiz: Quiz;
   questionSubscription: Subscription;
   selectedQuizSubscription: Subscription;
   resources: Resource[];
@@ -133,6 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
+    this.getCurrentQuestion();
   }
 
   ngOnDestroy(): void {
@@ -456,18 +458,38 @@ export class QuizComponent implements OnInit, OnDestroy {
     return of(quiz.questions[index]);
   } */
 
-  getCurrentQuestion() {
+  /* getCurrentQuestion(): void {
     this.quizService
       .getCurrentQuestion()
       .subscribe((question: QuizQuestion) => {
         console.log('CQ', question);
         this.handleQuestion(question);
       });
-    this.quizService
+    this.quizDataService
       .getQuestion(this.selectedQuiz.quizId, this.currentQuestionIndex)
       .subscribe((question) => {
         this.currentQuestion = question;
       });
+  } */
+
+  getCurrentQuestion(): void {
+    this.quizService.getCurrentQuiz().subscribe((quiz: Quiz) => {
+      if (!quiz) {
+        console.error('Quiz not found');
+        return;
+      }
+
+      this.currentQuiz = quiz;
+      this.currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+
+      this.quizDataService
+        .getQuestion(this.currentQuiz.quizId, this.currentQuestionIndex)
+        .subscribe((question) => {
+          this.currentQuestion = question;
+          console.log('CQ', this.currentQuestion);
+          this.handleQuestion(this.currentQuestion);
+        });
+    });
   }
 
   async onSubmit(): Promise<void> {
