@@ -99,14 +99,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
-  getQuestion(index: number): Observable<QuizQuestion> {
-    return this.quizDataService.getSelectedQuiz().pipe(
-      map((selectedQuiz) => {
-        return selectedQuiz.questions[index];
-      })
-    );
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
@@ -134,6 +126,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.resetForm();
   }
 
+  getQuestion(index: number): Observable<QuizQuestion> {
+    return this.quizDataService.getSelectedQuiz().pipe(
+      map((selectedQuiz) => {
+        return selectedQuiz.questions[index];
+      })
+    );
+  }
+  
   private updateCurrentQuestion(question: QuizQuestion) {
     this.currentQuestion = question;
     console.log('CURRQUEST: ', this.currentQuestion);

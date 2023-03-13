@@ -289,10 +289,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.changeDetector.detectChanges();
   }
 
-  private handleQuestions(questions: QuizQuestion[]): void {
-    this.questions$ = of(questions);
-  }
-
   async getQuiz(id: string): Promise<void> {
     try {
       const quiz = await this.quizDataService.getQuiz(id).toPromise();
