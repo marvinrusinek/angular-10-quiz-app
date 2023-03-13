@@ -53,6 +53,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedQuizSubscription: Subscription;
   resources: Resource[];
   answers: number[] = [];
+  options: string[];
+  optionsSubscription: Subscription;
   showExplanation = false;
 
   selectedQuiz$: BehaviorSubject<Quiz>;
@@ -85,6 +87,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     isCorrect: any;
     isSelected: boolean;
   }[];
+  options$: Observable<Option[]>;
 
   get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
@@ -178,12 +181,27 @@ export class QuizComponent implements OnInit, OnDestroy {
       .getQuestion(this.activatedRoute.snapshot.params.quizId, 0)
       .subscribe((question) => {
         this.handleQuestion(question);
-      });
+    });
+    this.options$ = this.quizDataService.getOptions(quizId, this.currentQuestionIndex);
+    this.optionsSubscription = this.options$.subscribe({
+      next: (options) => this.handleOptions(options),
+      error: (err) => console.error('Error in options$: ', err),
+    });
+
     this.router.navigate([
       '/question',
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
+  }
+
+  private handleOptions(options: string[]): void {
+    if (!options || options.length === 0) {
+      console.error('Options not found');
+      return;
+    }
+
+    this.options = options;
   }
 
   handleParamMap(params: ParamMap): void {
