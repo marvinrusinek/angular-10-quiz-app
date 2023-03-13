@@ -134,7 +134,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     );
   }
   
-  private updateCurrentQuestion(question: QuizQuestion) {
+  private updateCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
     console.log('CURRQUEST: ', this.currentQuestion);
   }
