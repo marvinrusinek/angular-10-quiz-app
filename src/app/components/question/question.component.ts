@@ -79,13 +79,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       });
     });
 
+    this.quizDataService.getQuestion(this.quizId, this.currentQuestionIndex).subscribe((question: QuizQuestion) => {
+      this.quizService.setCurrentQuestion(question);
+      this.currentQuestion = question;
+      console.log("CQ", this.currentQuestion);
+      console.log("Question:", this.question);
+    });
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
 
-    this.currentQuestion = this.quizService.getCurrentQuestion();
+    /* this.currentQuestion = this.quizService.getCurrentQuestion();
     console.log('CQ', this.currentQuestion);
-    console.log('Question:', this.question);
+    console.log('Question:', this.question); */
     this.answers = this.quizService.getAnswers(this.currentQuestion);
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
 
