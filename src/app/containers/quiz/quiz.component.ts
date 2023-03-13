@@ -3,7 +3,7 @@ import {
   EventEmitter, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
 
@@ -126,6 +126,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
+
+    if (this.questionSubscription) {
+      this.questionSubscription.unsubscribe();
+    }
+  }
+
   getCurrentQuiz(): void {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     if (!quizId) {
@@ -190,18 +200,14 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.router.navigate([
             '/question',
             quizId,
-            this.currentQuestionIndex,
+            this.currentQuestionIndex
           ]);
         }
       });
     }
   }
 
-  private handleQuizData(
-    quiz: Quiz,
-    quizId: string,
-    currentQuestionIndex: number
-  ): void {
+  private handleQuizData(quiz: Quiz, quizId: string, currentQuestionIndex: number): void {
     if (!quiz) {
       console.error('Quiz not found');
       return;
@@ -250,7 +256,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.changeDetector.detectChanges();
   }
 
-  handleQuestions(questions: QuizQuestion[]): void {
+  private handleQuestions(questions: QuizQuestion[]): void {
     this.questions$ = of(questions);
   }
 
@@ -315,16 +321,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.questionIndex === 1
       ? this.sendStartedQuizIdToQuizService()
       : this.sendContinueQuizIdToQuizService();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
-
-    if (this.questionSubscription) {
-      this.questionSubscription.unsubscribe();
-    }
   }
 
   animationDoneHandler(): void {
@@ -421,9 +417,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
+  /* private getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
     return of(quiz.questions[index]);
-  }
+  } */
 
   getCurrentQuestion() {
     this.quizService
