@@ -131,7 +131,7 @@ export class QuizDataService implements OnInit {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-    
+  
     const apiUrl = `${this.quizUrl}`;
   
     return this.http.get<Quiz[]>(apiUrl).pipe(
@@ -149,49 +149,27 @@ export class QuizDataService implements OnInit {
         if (!question) {
           throw new Error('Invalid question index');
         }
-
-        const options = quiz.questions[currentQuestionIndex].options;
+  
+        const options = question.options;
         if (!options) {
-          throw new Error('Invalid options???');
+          throw new Error('Invalid question options');
         }
   
-        return of({
+        const quizQuestion: QuizQuestion = {
           ...question,
-          options: question.options.map((option: any) => ({
+          options: options.map((option: Option) => ({
             ...option,
-            selected: false,
+            selected: false
           })),
-        });
+        };
+        
+        return of(quizQuestion);
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError('Error getting quiz question\n' + error.message);
       })
     );
   }
-
-  /* getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
-    // const url = `${this.quizUrl}/quizzes/${quizId}/questions/${questionIndex}/options`;
-    const apiUrl = `${this.quizUrl}`;
-
-    return this.http.get<Option[]>(url).pipe(
-      mergeMap((response: Quiz[]) => {
-        const quiz = response.find((q: Quiz) => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error('Invalid quizId');
-        }
-  
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
-        }
-
-        const options = quiz.questions[currentQuestionIndex].options;
-
-
-
-      })
-      //map((response: any) => response.options)
-    );
-  } */
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
