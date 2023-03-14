@@ -223,7 +223,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
 
     if (this.options) {
-      const correctOptions = this.options?.filter((option) => option.correct) ?? [];
+      const correctOptions = this.options.filter((option) => option.correct) ?? [];
       this.multipleAnswer = correctOptions.length > 1;
     }
   }
