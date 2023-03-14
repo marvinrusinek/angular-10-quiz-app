@@ -225,7 +225,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
   
     const correctOptions = this.options?.filter((option) => option.correct) ?? [];
-    this.multipleAnswer = correctOptions?.length > 1;
+    // this.multipleAnswer = correctOptions?.length > 1;
+    this.quizService.setMultipleAnswer(correctOptions.length > 1);
   
     this.checkIfMultipleAnswer();
   }  
