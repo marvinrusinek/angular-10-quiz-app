@@ -174,6 +174,42 @@ export class QuizDataService implements OnInit {
       })
     );
   }
+
+  getOptions(quizId: string, currentQuestionIndex: number): Observable<Option[]> {
+    if (!quizId) {
+      return throwError('quizId parameter is null or undefined');
+    }
+
+    const apiUrl = `${this.quizUrl}`;
+
+    return this.http.get<Quiz[]>(apiUrl).pipe(
+      mergeMap((response: Quiz[]) => {
+        const quiz = response.find((q: Quiz) => q.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Invalid quizId');
+        }
+
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Quiz or questions not found');
+        }
+
+        const question = quiz.questions[currentQuestionIndex];
+        if (!question) {
+          throw new Error('Invalid question index');
+        }
+
+        const options = question.options;
+        if (!options) {
+          throw new Error('Invalid question options');
+        }
+
+        return of(options);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError('Error getting options\n' + error.message);
+      })
+    );
+  }
   
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));

@@ -186,29 +186,25 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex
     );
     this.questionSubscription = this.question$.subscribe({
-      next: (question) => this.handleQuestion(question),
+      next: (question) => {
+        this.handleQuestion(question);
+        this.options$ = this.quizDataService.getOptions(
+          this.activatedRoute.snapshot.params.quizId,
+          this.currentQuestionIndex
+        );
+        this.optionsSubscription = this.options$.subscribe({
+          next: (options) => this.handleOptions(options),
+          error: (err) => console.error('Error in options$: ', err),
+        });
+      },
       error: (err) => console.error('Error in question$: ', err),
     });
-    this.quizDataService
-      .getQuestion(this.activatedRoute.snapshot.params.quizId, 0)
-      .subscribe((question) => {
-        this.handleQuestion(question);
-      });
-    this.options$ = this.quizDataService.getOptions(
-      quizId,
-      this.currentQuestionIndex
-    );
-    this.optionsSubscription = this.options$.subscribe({
-      next: (options) => this.handleOptions(options),
-      error: (err) => console.error('Error in options$: ', err),
-    });
-
     this.router.navigate([
       '/question',
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
-  }
+  }  
 
   private handleOptions(options: string[]): void {
     if (!options || options.length === 0) {
