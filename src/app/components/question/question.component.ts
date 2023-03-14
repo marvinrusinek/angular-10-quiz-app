@@ -47,6 +47,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctOptionIndex: number;
   options: Option[];
   shuffleOptions = true;
+  private _multipleAnswer = false;
 
   constructor(
     private quizService: QuizService,
@@ -71,17 +72,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
             .subscribe((question) => {
               console.log('Question:::', question);
               this.question = question;
-              if (question) { // check if question is defined before accessing options
+              if (question) {
+                // check if question is defined before accessing options
                 this.answers =
                   question.options.map((option) => option.value) || [];
                 this.setOptions();
                 this.currentQuestion = question;
                 this.quizService.setCurrentQuestion(question);
-                this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
-                  this.multipleAnswer = multipleAnswer;
-                  this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-                });
-                this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+                this.quizService
+                  .isMultipleAnswer(this.currentQuestion)
+                  .subscribe((multipleAnswer) => {
+                    this.multipleAnswer = multipleAnswer;
+                    this.sendMultipleAnswerToQuizService(this.multipleAnswer);
+                  });
+                this.correctAnswers = this.quizService.getCorrectAnswers(
+                  this.question
+                );
               }
             });
         } else {
@@ -89,12 +95,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         }
       });
     });
-  
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
   }
-      
+
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
@@ -122,6 +128,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.resetForm();
   }
 
+  // getter function
+  get multipleAnswer(): boolean {
+    return this._multipleAnswer;
+  }
+
+  // setter function
+  set multipleAnswer(value: boolean) {
+    this._multipleAnswer = value;
+  }
+
   getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {
@@ -129,7 +145,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       })
     );
   }
-  
+
   private updateCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
     console.log('CURRQUEST: ', this.currentQuestion);
@@ -194,14 +210,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       text: option.value,
       isCorrect: index === this.correctOptionIndex,
       answer: index === this.correctOptionIndex,
-      isSelected: false
+      isSelected: false,
     }));
 
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
   }
-  
+
   private resetForm(): void {
     if (!this.questionForm) {
       return;
@@ -250,7 +266,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateClassName(selectedOption: Option, optionIndex: number): void {
-    if (selectedOption && this.currentQuestion && this.currentQuestion.options) {
+    if (
+      selectedOption &&
+      this.currentQuestion &&
+      this.currentQuestion.options
+    ) {
       this.optionSelected.styleClass = this.currentQuestion.options[
         optionIndex
       ]['correct']
