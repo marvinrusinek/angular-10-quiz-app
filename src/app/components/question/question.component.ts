@@ -85,32 +85,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
             .subscribe((question) => {
               console.log('Question:::', question);
               this.question = question[0];
-              if (question) {
-                // check if question is defined before accessing options
-                this.answers = question[1].map((option) => option.value) || [];
-                this.setOptions();
-                this.currentQuestion = question[0];
-                this.quizService.setCurrentQuestion(question[0]);
-                this.quizService
-                  .isMultipleAnswer(this.currentQuestion)
-                  .subscribe((multipleAnswer) => {
-                    this.multipleAnswerSubject.next(multipleAnswer);
-                  });
-                this.correctAnswers = this.quizService.getCorrectAnswers(
-                  this.question
-                );
+              if (!this.question.options) {
+                console.error('Question options not found');
+                return false;
               }
+              this.answers = question[1].map((option) => option.value) || [];
+              this.setOptions();
+              this.currentQuestion = question[0];
+              this.quizService.setCurrentQuestion(question[0]);
+              this.quizService
+                .isMultipleAnswer(this.currentQuestion)
+                .subscribe((multipleAnswer) => {
+                  this.multipleAnswerSubject.next(multipleAnswer);
+                });
+              this.correctAnswers = this.quizService.getCorrectAnswers(
+                this.question
+              );
             });
         } else {
           console.error('Selected quiz not found');
         }
       });
     });
-
+  
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
   }
+  
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
