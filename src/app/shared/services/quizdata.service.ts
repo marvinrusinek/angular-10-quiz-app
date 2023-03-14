@@ -1,7 +1,15 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
+import {
+  catchError,
+  filter,
+  map,
+  mergeMap,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -28,18 +36,15 @@ export class QuizDataService implements OnInit {
 
   private quizUrl = 'assets/data/quiz.json';
 
-
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
 
-    this.http
-      .get<Quiz[]>(this.quizUrl)
-      .subscribe(
-        (quizzes) => this.quizzes$.next(quizzes),
-        (error) => console.error(error)
-      );
+    this.http.get<Quiz[]>(this.quizUrl).subscribe(
+      (quizzes) => this.quizzes$.next(quizzes),
+      (error) => console.error(error)
+    );
   }
 
   ngOnInit(): void {
@@ -53,8 +58,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    this.http.get<Quiz[]>(this.quizUrl)
-    .subscribe((quizzes) => {
+    this.http.get<Quiz[]>(this.quizUrl).subscribe((quizzes) => {
       this.quizzes = quizzes;
       this.quizzesSubject.next(quizzes);
     });
@@ -68,19 +72,23 @@ export class QuizDataService implements OnInit {
       this.selectedQuizSubject.next(selectedQuiz);
     });
   }
-  
+
   getSelectedQuiz(): Observable<Quiz | null> {
     console.log('getSelectedQuiz called');
     return this.selectedQuiz$.pipe(
-      tap(selectedQuiz => console.log('selectedQuiz$ emitted:', selectedQuiz)),
-      filter(selectedQuiz => !!selectedQuiz),
-      switchMap(selectedQuiz => {
+      tap((selectedQuiz) =>
+        console.log('selectedQuiz$ emitted:', selectedQuiz)
+      ),
+      filter((selectedQuiz) => !!selectedQuiz),
+      switchMap((selectedQuiz) => {
         if (selectedQuiz) {
           return of(selectedQuiz);
         } else {
           return this.selectedQuizSubject.asObservable().pipe(
-            tap(selectedQuiz => console.log('selectedQuizSubject emitted:', selectedQuiz)),
-            filter(selectedQuiz => !!selectedQuiz)
+            tap((selectedQuiz) =>
+              console.log('selectedQuizSubject emitted:', selectedQuiz)
+            ),
+            filter((selectedQuiz) => !!selectedQuiz)
           );
         }
       })
@@ -91,9 +99,9 @@ export class QuizDataService implements OnInit {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+
     const apiUrl = `${this.quizUrl}`;
-  
+
     return this.http.get<Quiz[]>(apiUrl).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
@@ -101,11 +109,11 @@ export class QuizDataService implements OnInit {
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-    
+
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz has no questions');
         }
-    
+
         return of(quiz);
       }),
       catchError((error: HttpErrorResponse) => {
@@ -115,16 +123,14 @@ export class QuizDataService implements OnInit {
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
-    return this.http
-      .get<Quiz[]>(this.quizUrl)
-      .pipe(
-        map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
-        tap((quiz) => {
-          if (!quiz) {
-            throw new Error(`Quiz with ID ${quizId} not found`);
-          }
-        })  
-      );
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
+      tap((quiz) => {
+        if (!quiz) {
+          throw new Error(`Quiz with ID ${quizId} not found`);
+        }
+      })
+    );
   }
 
   getQuestion(
@@ -175,7 +181,10 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getOptions(quizId: string, currentQuestionIndex: number): Observable<Option[]> {
+  getOptions(
+    quizId: string,
+    currentQuestionIndex: number
+  ): Observable<Option[]> {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
@@ -199,6 +208,7 @@ export class QuizDataService implements OnInit {
         }
 
         const options = question.options;
+        console.log('Options:', options);
         if (!options) {
           throw new Error('Invalid question options');
         }
@@ -210,11 +220,11 @@ export class QuizDataService implements OnInit {
       })
     );
   }
-  
+
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
-  
+
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
