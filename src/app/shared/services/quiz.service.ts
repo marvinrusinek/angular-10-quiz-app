@@ -61,6 +61,7 @@ export class QuizService implements OnDestroy {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   currentQuestionSubject = new BehaviorSubject<number>(0);
+  multipleAnswerSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   userAnswers = [];
   previousAnswers = [];
@@ -128,9 +129,9 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  setMultipleAnswer(value: boolean) {
+  /* setMultipleAnswer(value: boolean) {
     this._multipleAnswer = value;
-  }
+  } */
 
   getMultipleAnswer(): boolean {
     return this._multipleAnswer;
@@ -185,7 +186,7 @@ export class QuizService implements OnDestroy {
     const isMultipleAnswer = correctOptions.length > 1;
     return of(isMultipleAnswer);
   }
-  
+
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex;
@@ -431,7 +432,8 @@ export class QuizService implements OnDestroy {
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswer = value;
-    this.currentQuestionSubject.value.multipleAnswer = multipleAnswer;
+    // this.currentQuestionSubject.value.multipleAnswer = multipleAnswer;
+    this.multipleAnswerSubject.next(this.multipleAnswer);
   }
 
   setCurrentQuestion(value: QuizQuestion): void {
