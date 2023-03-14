@@ -101,6 +101,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     });
   }
 
+
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
@@ -126,16 +127,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
-  }
-
-  // getter function
-  get multipleAnswer(): boolean {
-    return this._multipleAnswer;
-  }
-
-  // setter function
-  set multipleAnswer(value: boolean) {
-    this._multipleAnswer = value;
   }
 
   getQuestion(index: number): Observable<QuizQuestion> {
