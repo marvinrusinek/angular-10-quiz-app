@@ -175,26 +175,15 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  /* isMultipleAnswer(): void {
-    this.multipleAnswer = this.options.filter((option) => option.correct).length > 1;
-  } */
-
   isMultipleAnswer(question: QuizQuestion): boolean {
-    const { options } = question || {};
-    if (!options) {
+    if (!question || !question.options) {
         console.error('Question options not found');
         return false;
     }
-    const correctOptions = options.filter((option) => option.correct);
+
+    const correctOptions = question.options.filter((option) => option.correct);
     return correctOptions.length > 1;
   }
-
-
-  /* isMultipleAnswer(): boolean {
-    return (
-      this.options && this.options.filter((option) => option.correct).length > 1
-    );
-  } */
 
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
