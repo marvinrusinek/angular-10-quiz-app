@@ -224,13 +224,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizService.shuffle(this.options);
     }
   
-    if (this.options) {
-      const correctOptions = this.options.filter((option) => option.correct);
-      this.multipleAnswer = correctOptions.length > 1;
-    }
+    const correctOptions = this.options?.filter((option) => option.correct);
+    this.multipleAnswer = correctOptions?.length > 1;
   
     this.checkIfMultipleAnswer();
-  }
+  }  
 
   private checkIfMultipleAnswer(): void {
     if (this.options) {
