@@ -87,8 +87,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
               this.question = question[0];
               if (question) {
                 // check if question is defined before accessing options
-                this.answers =
-                  question[1].map((option) => option.value) || [];
+                this.answers = question[1].map((option) => option.value) || [];
                 this.setOptions();
                 this.currentQuestion = question[0];
                 this.quizService.setCurrentQuestion(question[0]);
@@ -209,8 +208,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
 
-    if(this.question.multipleAnswer) {
-      this.correctOptionIndex = options.filter((option) => option.answer).map((option) => options.indexOf(option));
+    if (this.question.multipleAnswer) {
+      this.correctOptionIndex = options
+        .filter((option) => option.answer)
+        .map((option) => options.indexOf(option));
 
       this.options = options.map((option, index) => ({
         value: option,
@@ -224,7 +225,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         this.quizService.shuffle(this.options);
       }
     } else {
-      this.correctOptionIndex = options.findIndex((option) => option === answer);
+      this.correctOptionIndex = options.findIndex(
+        (option) => option === answer
+      );
 
       this.options = options.map((option, index) => ({
         value: option,
@@ -239,7 +242,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       }
     }
   }
-
 
   private resetForm(): void {
     if (!this.questionForm) {
