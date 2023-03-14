@@ -223,7 +223,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     }
 
     // Calculate the number of correct options
-    const correctOptions = this.options.filter((option) => option.correct);
+    const correctOptions = this.options?.filter((option) => option.correct) ?? [];
     this.multipleAnswer = correctOptions.length > 1;
   }
 
