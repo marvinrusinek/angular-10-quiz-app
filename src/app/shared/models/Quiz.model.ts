@@ -6,5 +6,6 @@ export interface Quiz {
   summary: string;
   image: string;
   questions?: QuizQuestion[];
+  shuffleOptions: boolean;
   status: 'Started' | 'Continue' | 'Completed';
 }

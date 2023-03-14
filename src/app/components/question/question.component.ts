@@ -177,8 +177,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setOptions(): void {
-    if (!this.selectedQuiz || !this.question) {
-      console.error('Selected quiz or question not found');
+    if (!this.selectedQuiz) {
+      console.error('Selected quiz not found');
       return;
     }
   
@@ -193,12 +193,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   
     this.options = options.map((option, index) => ({
       value: option,
-      text: option.value,
+      text: option.value.toString(), // update text to be a string
       isCorrect: index === this.correctOptionIndex,
       answer: index === this.correctOptionIndex,
       isSelected: false,
     }));
-  }
+  }  
   
   private resetForm(): void {
     if (!this.questionForm) {
