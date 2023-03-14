@@ -132,11 +132,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.multipleAnswer = this.quizService.isMultipleAnswer(
-      this.currentQuestion
-    );
     console.log('multipleAnswer:', this.multipleAnswer);
-
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
@@ -198,6 +194,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           next: (options) => this.handleOptions(options),
           error: (err) => console.error('Error in options$: ', err),
         });
+  
+        // Call isMultipleAnswer() and subscribe to the result
+        this.quizService.isMultipleAnswer(question)
+          .subscribe((multipleAnswer) => {
+            this.quizService.setMultipleAnswer(multipleAnswer);
+          });
       },
       error: (err) => console.error('Error in question$: ', err),
     });
@@ -207,6 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex + 1,
     ]);
   }
+  
 
   handleOptions(options: Option[]): void {
     console.log('Options received:', options); // Log the emitted options array
