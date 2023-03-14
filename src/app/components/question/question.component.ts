@@ -37,7 +37,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   optionSelected: Option;
   correctAnswers: number[] = [];
   correctMessage: string = '';
-  multipleAnswer: boolean;
+  // multipleAnswer: boolean;
   alreadyAnswered = false;
   optionList: Option[];
   selectedOption: Option;
@@ -47,7 +47,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   correctOptionIndex: number;
   options: Option[];
   shuffleOptions = true;
-  private _multipleAnswer = false;
+
+  private _multipleAnswer: boolean;
+
+  get multipleAnswer(): boolean {
+    return this._multipleAnswer;
+  }
+
+  set multipleAnswer(value: boolean) {
+    this._multipleAnswer = value;
+  }
 
   constructor(
     private quizService: QuizService,
