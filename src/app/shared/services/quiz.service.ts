@@ -162,8 +162,8 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  isMultipleAnswer(question: QuizQuestion): boolean {
-    return question.options.some((option) => option.correct);
+  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    return of(question.options.some((option) => option.correct));
   }
 
   getNextQuestion(): QuizQuestion {
