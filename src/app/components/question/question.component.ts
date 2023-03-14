@@ -201,7 +201,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       return;
     }
 
-    if (!this.question || !this.question.options) {
+    if (!this.question || !this.question?.options) {
       console.error('Question or options not found');
       return;
     }

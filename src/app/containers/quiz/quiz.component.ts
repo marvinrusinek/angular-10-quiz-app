@@ -323,7 +323,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setOptions() {
     this.answers =
       this.question && this.question.options
-        ? this.question.options.map((option) => option.value)
+        ? this.question.options?.map((option) => option.value)
         : [];
   }
 
