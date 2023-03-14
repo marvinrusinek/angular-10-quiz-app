@@ -175,11 +175,15 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  isMultipleAnswer(): boolean {
+  isMultipleAnswer(): void {
+    this.multipleAnswer = this.options.filter((option) => option.correct).length > 1;
+  }
+
+  /* isMultipleAnswer(): boolean {
     return (
       this.options && this.options.filter((option) => option.correct).length > 1
     );
-  }
+  } */
 
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
