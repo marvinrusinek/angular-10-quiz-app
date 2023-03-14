@@ -147,7 +147,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    return this.http.get<Quiz[]>(this.apiUrl).pipe(
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
         const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
