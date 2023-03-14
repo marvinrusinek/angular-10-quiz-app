@@ -70,16 +70,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
             .getQuestion(quiz.quizId, 0)
             .subscribe((question) => {
               this.question = question;
-              this.answers =
-                question?.options.map((option) => option.value) || [];
-              this.setOptions();
-              this.currentQuestion = question;
-              this.quizService.setCurrentQuestion(question);
-              this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
-                this.multipleAnswer = multipleAnswer;
-                this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-              });
-              this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+              if (question) { // check if question is defined before accessing options
+                this.answers =
+                  question.options.map((option) => option.value) || [];
+                this.setOptions();
+                this.currentQuestion = question;
+                this.quizService.setCurrentQuestion(question);
+                this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
+                  this.multipleAnswer = multipleAnswer;
+                  this.sendMultipleAnswerToQuizService(this.multipleAnswer);
+                });
+                this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+              }
             });
         } else {
           console.error('Selected quiz not found');
@@ -90,14 +92,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-
-    // Check if the question is defined before accessing its options property
-    if (this.question && this.question.options) {
-      this.answers = this.question.options.map((option) => option.value) || [];
-      this.setOptions();
-    }
   }
-    
+      
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
