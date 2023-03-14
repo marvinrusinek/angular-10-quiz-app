@@ -187,17 +187,9 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getOptions(quizId: string, questionId: number): Observable<Option[]> {
-    if (!quizId) {
-      return throwError('quizId parameter is null or undefined');
-    }
-
-    if (!questionId) {
-      return throwError('questionId parameter is null or undefined');
-    }
-
+  getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
+    console.log('getOptions method called');
     const apiUrl = `${this.quizUrl}`;
-
     return this.http.get<Quiz[]>(apiUrl).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
@@ -205,11 +197,7 @@ export class QuizDataService implements OnInit {
           throw new Error('Invalid quizId');
         }
 
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
-        }
-
-        const question = quiz.questions[questionId];
+        const question = quiz.questions[questionIndex];
         if (!question) {
           throw new Error('Invalid question index');
         }
@@ -219,8 +207,7 @@ export class QuizDataService implements OnInit {
           throw new Error('Invalid question options');
         }
 
-        console.log('Options:', options); // add this line to check if options are being retrieved correctly
-
+        console.log('Options:', options);
         return of(options);
       }),
       catchError((error: HttpErrorResponse) => {
