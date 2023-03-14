@@ -54,7 +54,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   private _multipleAnswer: boolean;
 
   get multipleAnswer(): boolean {
-    return this._multipleAnswer;
+    return this.quizService.isMultipleAnswer(this.question);
   }
 
   set multipleAnswer(value: boolean) {
@@ -149,9 +149,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     );
   }
 
-  setMultipleAnswer(multipleAnswer: boolean) {
+  /* setMultipleAnswer(multipleAnswer: boolean) {
     this.multipleAnswer = multipleAnswer;
-  }
+  } */
 
   private updateCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
