@@ -133,35 +133,43 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestion(quizId: string, currentQuestionIndex: number): Observable<QuizQuestion> {
-    console.log('getQuestion method called with quizId', quizId, 'and currentQuestionIndex', currentQuestionIndex);
+  getQuestion(
+    quizId: string,
+    currentQuestionIndex: number
+  ): Observable<QuizQuestion> {
+    console.log(
+      'getQuestion method called with quizId',
+      quizId,
+      'and currentQuestionIndex',
+      currentQuestionIndex
+    );
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+
     const apiUrl = `${this.quizUrl}`;
-  
+
     return this.http.get<Quiz[]>(apiUrl).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-  
+
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz or questions not found');
         }
-  
+
         const question = quiz.questions[currentQuestionIndex];
         if (!question) {
           throw new Error('Invalid question index');
         }
-  
+
         const options = question.options;
         if (!options) {
           throw new Error('Invalid question options');
         }
-  
+
         console.log('Question:', question);
         const quizQuestion: QuizQuestion = {
           ...question,
@@ -178,20 +186,11 @@ export class QuizDataService implements OnInit {
       })
     );
   }
-  
 
-  getOptions(
-    quizId: string,
-    currentQuestionIndex: number
-  ): Observable<Option[]> {
-    if (!quizId) {
-      return throwError('quizId parameter is null or undefined');
-    }
-
+  getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     const apiUrl = `${this.quizUrl}`;
-
     return this.http.get<Quiz[]>(apiUrl).pipe(
-      mergeMap((response: Quiz[]) => {
+      map((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
@@ -201,18 +200,18 @@ export class QuizDataService implements OnInit {
           throw new Error('Quiz or questions not found');
         }
 
-        const question = quiz.questions[currentQuestionIndex];
+        const question = quiz.questions[questionIndex];
         if (!question) {
           throw new Error('Invalid question index');
         }
 
         const options = question.options;
-        console.log('Options:', options);
         if (!options) {
           throw new Error('Invalid question options');
         }
 
-        return of(options);
+        console.log('Options:', options); // Log the options array
+        return options;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError('Error getting options\n' + error.message);

@@ -208,14 +208,30 @@ export class QuizComponent implements OnInit, OnDestroy {
     ]);
   }
 
-  private handleOptions(options: string[]): void {
+  handleOptions(options: Option[]): void {
+    console.log('Options received:', options); // Log the emitted options array
     if (!options || options.length === 0) {
       console.error('Options not found');
       return;
     }
 
-    this.options = options;
+    // this.options = options;
+    this.options = options.map((option, index) => ({
+      value: option,
+      text: option.value,
+      isCorrect: index === this.correctOptionIndex,
+      answer: index === this.correctOptionIndex,
+      isSelected: false,
+    }));
+  
+    const { shuffleOptions } = this.selectedQuiz;
+    if (shuffleOptions) {
+      this.quizService.shuffle(this.options);
+    }
+  
+    this.setOptions();
   }
+  
 
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
