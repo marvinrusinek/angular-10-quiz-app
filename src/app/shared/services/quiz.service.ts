@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Answer } from '../../shared/models/Answer.type';
+import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
@@ -28,6 +29,7 @@ export class QuizService implements OnDestroy {
   questions: QuizQuestion[];
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
+  options: Option[] = [];
   resources: Resource[];
   answers: number[];
   totalQuestions: number;
@@ -140,7 +142,7 @@ export class QuizService implements OnDestroy {
   getQuizzes(): Observable<Quiz[]> {
     return this.quizDataService.getQuizzes();
   }
-  
+
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuizIndex];
   }
@@ -165,9 +167,11 @@ export class QuizService implements OnDestroy {
   }
 
   isMultipleAnswer(): boolean {
-    return this.options.filter((option) => option.correct).length > 1;
+    return (
+      this.options && this.options.filter((option) => option.correct).length > 1
+    );
   }
-  
+
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex;
