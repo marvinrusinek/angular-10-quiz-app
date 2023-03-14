@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -48,6 +48,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   options: Option[];
   shuffleOptions = true;
 
+  private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
+  multipleAnswer$ = this.multipleAnswerSubject.asObservable();
+
   private _multipleAnswer: boolean;
 
   get multipleAnswer(): boolean {
@@ -79,20 +82,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.quizDataService.setCurrentQuestionIndex(0);
           this.quizDataService
             .getQuestionAndOptions(quiz.quizId, 0)
-            .subscribe(([question, options]) => {
+            .subscribe((question) => {
               console.log('Question:::', question);
-              this.question = question;
+              this.question = question[0];
               if (question) {
                 // check if question is defined before accessing options
-                this.answers = options.map((option) => option.value) || [];
+                this.answers =
+                  question[1].map((option) => option.value) || [];
                 this.setOptions();
-                this.currentQuestion = question;
-                this.quizService.setCurrentQuestion(question);
+                this.currentQuestion = question[0];
+                this.quizService.setCurrentQuestion(question[0]);
                 this.quizService
                   .isMultipleAnswer(this.currentQuestion)
                   .subscribe((multipleAnswer) => {
-                    this.setMultipleAnswer(multipleAnswer);
-                    this.sendMultipleAnswerToQuizService(this.multipleAnswer);
+                    this.multipleAnswerSubject.next(multipleAnswer);
                   });
                 this.correctAnswers = this.quizService.getCorrectAnswers(
                   this.question
