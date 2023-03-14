@@ -69,6 +69,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.quizDataService
             .getQuestion(quiz.quizId, 0)
             .subscribe((question) => {
+              console.log('Question:::', question);
               this.question = question;
               if (question) { // check if question is defined before accessing options
                 this.answers =
