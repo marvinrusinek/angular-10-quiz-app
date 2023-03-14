@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import {
   catchError, 
+  combineLatest,
   filter,
   map,
   mergeMap,
@@ -146,33 +147,36 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, currentQuestionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-  
+
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz or questions not found');
         }
-  
+
         const question = quiz.questions[currentQuestionIndex];
         if (!question) {
           throw new Error('Invalid question index');
         }
-  
+
         const options = question.options;
         if (!options) {
           throw new Error('Invalid question options');
         }
-  
-        const questionAndOptions: [QuizQuestion, Option[]] = [question, options];
-        return of(questionAndOptions);
+
+        const question$ = of(question);
+        const options$ = of(options);
+        return combineLatest([question$, options$]);
       }),
+      map(([question, options]) => [question, options])
     );
   }
-  
+
+
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
