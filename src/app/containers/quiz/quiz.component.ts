@@ -183,7 +183,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestion(): void {
-    this.question$ = this.quizDataService.getQuestion(
+    this.question$ = this.quizDataService.getQuestionAndOptions(
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex
     );

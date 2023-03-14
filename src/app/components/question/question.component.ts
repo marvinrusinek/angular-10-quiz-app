@@ -67,7 +67,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.quizDataService.setSelectedQuiz(quiz);
           this.quizDataService.setCurrentQuestionIndex(0);
           this.quizDataService
-            .getQuestion(quiz.quizId, 0)
+            .getQuestionAndOptions(quiz.quizId, 0)
             .subscribe((question) => {
               console.log('Question:::', question);
               this.question = question;
