@@ -175,21 +175,17 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  /* isMultipleAnswer(question: QuizQuestion): boolean {
-    if (!question || !question.options) {
-        console.error('Question options not found');
-        return false;
+  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    const options = question?.options;
+    if (!options) {
+      console.error('Question options not found');
+      return of(false);
     }
-
-    const correctOptions = question.options.filter((option) => option.correct);
-    return correctOptions.length > 1;
-  } */
-
-  isMultipleAnswer(question: QuizQuestion): boolean {
-    const correctOptions = question.options?.filter((option) => option.correct);
-    return correctOptions.length > 1;
+    const correctOptions = options.filter((option) => option.correct);
+    const isMultipleAnswer = correctOptions.length > 1;
+    return of(isMultipleAnswer);
   }
-
+  
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex;

@@ -83,36 +83,35 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.quizDataService
             .getQuestionAndOptions(quiz.quizId, 0)
             .subscribe((question) => {
-              console.log('Question:::', question);
+              console.log('Question:', question); // added log statement
               this.question = question[0];
-              if (!this.question.options) {
-                console.error('Question options not found');
-                return false;
+              if (this.question && this.question.options) {
+                this.answers = question[1].map((option) => option.value) || [];
+                this.setOptions();
+                this.currentQuestion = question[0];
+                this.quizService.setCurrentQuestion(question[0]);
+                this.quizService
+                  .isMultipleAnswer(this.currentQuestion)
+                  .subscribe((multipleAnswer) => {
+                    this.multipleAnswerSubject.next(multipleAnswer);
+                  });
+                this.correctAnswers = this.quizService.getCorrectAnswers(
+                  this.question
+                );
+              } else {
+                console.error('Question or question options not found');
               }
-              this.answers = question[1].map((option) => option.value) || [];
-              this.setOptions();
-              this.currentQuestion = question[0];
-              this.quizService.setCurrentQuestion(question[0]);
-              this.quizService
-                .isMultipleAnswer(this.currentQuestion)
-                .subscribe((multipleAnswer) => {
-                  this.multipleAnswerSubject.next(multipleAnswer);
-                });
-              this.correctAnswers = this.quizService.getCorrectAnswers(
-                this.question
-              );
             });
         } else {
           console.error('Selected quiz not found');
         }
       });
     });
-  
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
   }
-  
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
