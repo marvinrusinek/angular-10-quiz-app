@@ -127,42 +127,46 @@ export class QuizDataService implements OnInit {
       );
   }
 
-  getQuestion(quizId: string, currentQuestionIndex: number): Observable<QuizQuestion> {
+  getQuestion(
+    quizId: string,
+    currentQuestionIndex: number
+  ): Observable<QuizQuestion> {
+    console.log('getQuestion method called');
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-  
+
     const apiUrl = `${this.quizUrl}`;
-  
+
     return this.http.get<Quiz[]>(apiUrl).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-  
+
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz or questions not found');
         }
-  
+
         const question = quiz.questions[currentQuestionIndex];
         if (!question) {
           throw new Error('Invalid question index');
         }
-  
+
         const options = question.options;
         if (!options) {
           throw new Error('Invalid question options');
         }
-  
+
         const quizQuestion: QuizQuestion = {
           ...question,
           options: options.map((option: Option) => ({
             ...option,
-            selected: false
+            selected: false,
           })),
         };
-        
+        console.log('Question:', question);
         return of(quizQuestion);
       }),
       catchError((error: HttpErrorResponse) => {
@@ -170,7 +174,7 @@ export class QuizDataService implements OnInit {
       })
     );
   }
-
+  
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
