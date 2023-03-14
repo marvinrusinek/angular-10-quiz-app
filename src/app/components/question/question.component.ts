@@ -224,7 +224,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizService.shuffle(this.options);
     }
   
-    // Add a check to make sure that the options array is not null or undefined
     if (this.options) {
       const correctOptions = this.options.filter((option) => option.correct);
       this.multipleAnswer = correctOptions.length > 1;
@@ -232,7 +231,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   
     this.checkIfMultipleAnswer();
   }
-  
 
   private checkIfMultipleAnswer(): void {
     if (this.options) {
