@@ -66,41 +66,44 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         if (quiz) {
           this.quizDataService.setSelectedQuiz(quiz);
           this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService
-            .getQuestion(quiz.quizId, 0)
-            .subscribe((question) => {
-              this.question = question;
-              this.answers =
-                question?.options.map((option) => option.value) || [];
-              this.setOptions();
+          this.quizDataService.getQuestion(quiz.quizId, 0).subscribe((question) => {
+            this.question = question;
+            this.answers = question?.options.map((option) => option.value) || [];
+            this.setOptions();
+  
+            // Set the current question and determine if it is multiple answer
+            this.currentQuestion = question;
+            this.quizService.setCurrentQuestion(question);
+            this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
+              this.multipleAnswer = multipleAnswer;
             });
+  
+            this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+            this.sendMultipleAnswerToQuizService(this.multipleAnswer);
+          });
         } else {
           console.error('Selected quiz not found');
         }
       });
     });
-
-    this.quizDataService.getQuestion(this.quizId, this.currentQuestionIndex).subscribe((question: QuizQuestion) => {
-      this.quizService.setCurrentQuestion(question);
+  
+    this.questionForm = new FormGroup({
+      answer: new FormControl('', Validators.required),
+    });
+  
+    this.quizService.currentQuestion$.subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
       this.answers = this.quizService.getAnswers(this.currentQuestion);
       console.log("CQ", this.currentQuestion);
       console.log("Question:", this.question);
-
-      this.currentQuestion$ = this.quizService.getCurrentQuestion();
+  
       this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
         this.multipleAnswer = multipleAnswer;
+        this.sendMultipleAnswerToQuizService(this.multipleAnswer);
       });
-
-      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
-      this.sendMultipleAnswerToQuizService(this.multipleAnswer);
-    });
-
-    this.questionForm = new FormGroup({
-      answer: new FormControl('', Validators.required),
     });
   }
-
+  
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
       return;
