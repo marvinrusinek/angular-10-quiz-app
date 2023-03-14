@@ -63,6 +63,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   options: string[];
   optionsSubscription: Subscription;
   showExplanation = false;
+  multipleAnswer: boolean;
 
   selectedQuiz$: BehaviorSubject<Quiz>;
 
@@ -131,6 +132,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.multipleAnswer = this.quizService.isMultipleAnswer(this.currentQuestion);
+    console.log('multipleAnswer:', this.multipleAnswer);
+
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
