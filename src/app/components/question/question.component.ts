@@ -82,7 +82,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
                 this.quizService
                   .isMultipleAnswer(this.currentQuestion)
                   .subscribe((multipleAnswer) => {
-                    this.multipleAnswer = multipleAnswer;
+                    this.setMultipleAnswer(multipleAnswer);
                     this.sendMultipleAnswerToQuizService(this.multipleAnswer);
                   });
                 this.correctAnswers = this.quizService.getCorrectAnswers(
