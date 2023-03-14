@@ -56,6 +56,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     private activatedRoute: ActivatedRoute
   ) {
     this.correctMessage = '';
+    this.multipleAnswer = false;
   }
 
   ngOnInit(): void {
@@ -74,8 +75,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
               this.question = question;
               if (question) {
                 // check if question is defined before accessing options
-                this.answers =
-                  options.map((option) => option.value) || [];
+                this.answers = options.map((option) => option.value) || [];
                 this.setOptions();
                 this.currentQuestion = question;
                 this.quizService.setCurrentQuestion(question);
