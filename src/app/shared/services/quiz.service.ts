@@ -164,10 +164,10 @@ export class QuizService implements OnDestroy {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    console.log('question:', question);
-    const result = of(question.options.some((option) => option.correct));
-    console.log('result:', result);
-    return result;
+    return this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      .pipe(
+        map(([question, options]) => options.some(option => option.correct))
+      );
   }
 
   getNextQuestion(): QuizQuestion {
