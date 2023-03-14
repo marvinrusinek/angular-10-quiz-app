@@ -58,6 +58,7 @@ export class QuizService implements OnDestroy {
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
+  currentQuestionSubject = new BehaviorSubject<number>(0);
 
   userAnswers = [];
   previousAnswers = [];
@@ -415,6 +416,7 @@ export class QuizService implements OnDestroy {
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswer = value;
+    this.currentQuestionSubject.value.multipleAnswer = multipleAnswer;
   }
 
   setCurrentQuestion(value: QuizQuestion): void {
