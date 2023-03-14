@@ -69,13 +69,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.quizDataService.setCurrentQuestionIndex(0);
           this.quizDataService
             .getQuestionAndOptions(quiz.quizId, 0)
-            .subscribe((question) => {
+            .subscribe(([question, options]) => { // destructuring the returned array
               console.log('Question:::', question);
               this.question = question;
               if (question) {
                 // check if question is defined before accessing options
                 this.answers =
-                  question.options.map((option) => option.value) || [];
+                  options.map((option) => option.value) || [];
                 this.setOptions();
                 this.currentQuestion = question;
                 this.quizService.setCurrentQuestion(question);
@@ -100,7 +100,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       answer: new FormControl('', Validators.required),
     });
   }
-
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.question || !this.question.options) {
