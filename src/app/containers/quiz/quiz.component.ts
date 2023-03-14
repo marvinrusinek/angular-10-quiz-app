@@ -132,7 +132,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.multipleAnswer = this.quizService.isMultipleAnswer(this.currentQuestion);
+    this.multipleAnswer = this.quizService.isMultipleAnswer(
+      this.currentQuestion
+    );
     console.log('multipleAnswer:', this.multipleAnswer);
 
     this.getCurrentQuiz();
@@ -204,7 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
-  }  
+  }
 
   private handleOptions(options: string[]): void {
     if (!options || options.length === 0) {
@@ -284,6 +286,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('Question:::::', question);
     this.question = question;
     this.setOptions();
     this.changeDetector.detectChanges();
