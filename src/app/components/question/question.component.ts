@@ -177,20 +177,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setOptions(): void {
-    if (!this.selectedQuiz) {
-      console.error('Selected quiz not found');
+    if (!this.selectedQuiz || !this.question) {
+      console.error('Selected quiz or question not found');
       return;
     }
-
+  
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
-
+  
     if (shuffleOptions) {
       this.quizService.shuffleArray(options);
     }
-
+  
     this.correctOptionIndex = options.findIndex((option) => option === answer);
-
+  
     this.options = options.map((option, index) => ({
       value: option,
       text: option.value,
@@ -199,7 +199,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       isSelected: false,
     }));
   }
-
+  
   private resetForm(): void {
     if (!this.questionForm) {
       return;
