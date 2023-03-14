@@ -177,18 +177,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       console.error('Selected quiz not found');
       return;
     }
-  
+
+    if (!this.question || !this.question.options) {
+      console.error('Question or options not found');
+      return;
+    }
+
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
-  
+
     this.correctOptionIndex = options.findIndex((option) => option === answer);
-  
+
     this.options = options.map((option, index) => ({
       value: option,
-      text: option.value.toString(), // update text to be a string
+      text: option.value,
       isCorrect: index === this.correctOptionIndex,
       answer: index === this.correctOptionIndex,
-      isSelected: false,
+      isSelected: false
     }));
 
     if (shuffleOptions) {
