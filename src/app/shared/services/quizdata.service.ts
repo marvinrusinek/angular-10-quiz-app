@@ -152,35 +152,33 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestionAndOptions(
-    quizId: string,
-    questionIndex: number
-  ): Observable<[QuizQuestion, Option[]]> {
-    console.log('getQuestionAndOptions() function called');
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      tap(quizzes => console.log('Quizzes:', quizzes)),
       map((quizzes: Quiz[]) => {
-        const quiz = quizzes.find((q) => q.quizId === quizId);
-        console.log('quiz:', quiz);
+        console.log('Quizzes in map operator:', quizzes);
+        const quiz = quizzes.find(q => q.quizId === quizId);
+        console.log('Quiz:', quiz);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-
+  
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz or questions not found');
         }
-
+  
         const question = quiz.questions[questionIndex];
-        console.log('question:', question);
+        console.log('Question:', question);
         if (!question) {
           throw new Error('Invalid question index');
         }
-
+  
         const options = question.options;
-        console.log('options:', options);
+        console.log('Options:', options);
         if (!options) {
           throw new Error('Invalid question options');
         }
-
+  
         return [question, options];
       })
     );
