@@ -185,10 +185,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
   
-    if (shuffleOptions) {
-      this.quizService.shuffleArray(options);
-    }
-  
     this.correctOptionIndex = options.findIndex((option) => option === answer);
   
     this.options = options.map((option, index) => ({
@@ -198,7 +194,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       answer: index === this.correctOptionIndex,
       isSelected: false,
     }));
-  }  
+
+    if (shuffleOptions) {
+      this.quizService.shuffle(this.options);
+    }
+  }
   
   private resetForm(): void {
     if (!this.questionForm) {
