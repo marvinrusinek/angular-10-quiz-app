@@ -3,8 +3,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import {
   catchError, 
-  combineLatest,
   filter,
+  forkJoin,
   map,
   mergeMap,
   switchMap,
@@ -146,17 +146,10 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestionAndOptions(
-    quizDataService: QuizDataService,
-    quizId: string,
-    currentQuestionIndex: number
-  ): Observable<[QuizQuestion, Option[]]> {
-    const question$ = quizDataService.getQuestion(quizId, currentQuestionIndex);
-    const options$ = quizDataService.getOptions(quizId, currentQuestionIndex);
-  
-    return combineLatest([question$, options$]).pipe(
-      map(([question, options]) => [question, options])
-    );
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    const question$ = this.getQuestion(quizId, questionIndex);
+    const options$ = this.getOptions(quizId, questionIndex);
+    return forkJoin([question$, options$]);
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
