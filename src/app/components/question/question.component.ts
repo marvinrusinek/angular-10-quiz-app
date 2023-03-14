@@ -31,6 +31,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
+  currentQuestion$: Observable<QuizQuestion>;
   questionForm: FormGroup;
   selectedQuiz: Quiz;
   optionSelected: Option;
@@ -85,23 +86,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.answers = this.quizService.getAnswers(this.currentQuestion);
       console.log("CQ", this.currentQuestion);
       console.log("Question:", this.question);
+
+      this.currentQuestion$ = this.quizService.getCurrentQuestion();
+      this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
+        this.multipleAnswer = multipleAnswer;
+      });
+
+      this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+      this.sendMultipleAnswerToQuizService(this.multipleAnswer);
     });
 
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-
-    /* this.currentQuestion = this.quizService.getCurrentQuestion();
-    console.log('CQ', this.currentQuestion);
-    console.log('Question:', this.question); */
-
-    this.currentQuestion$ = this.quizService.getCurrentQuestion();
-    this.quizService.isMultipleAnswer(this.currentQuestion).subscribe(multipleAnswer => {
-      this.multipleAnswer = multipleAnswer;
-    });
-    
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-    this.sendMultipleAnswerToQuizService(this.multipleAnswer);
   }
 
   ngOnChanges(changes: SimpleChanges) {
