@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import {
   catchError, 
   filter,
-  forkJoin,
   map,
   mergeMap,
   switchMap,
@@ -139,19 +138,41 @@ export class QuizDataService implements OnInit {
       map(([question, options]) => question)
     );
   }
-  
+
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       map(([question, options]) => options)
     );
   }
 
-  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    const question$ = this.getQuestion(quizId, questionIndex);
-    const options$ = this.getOptions(quizId, questionIndex);
-    return forkJoin([question$, options$]);
+  getQuestionAndOptions(quizId: string, currentQuestionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
+      mergeMap((response: Quiz[]) => {
+        const quiz = response.find((q: Quiz) => q.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Invalid quizId');
+        }
+  
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Quiz or questions not found');
+        }
+  
+        const question = quiz.questions[currentQuestionIndex];
+        if (!question) {
+          throw new Error('Invalid question index');
+        }
+  
+        const options = question.options;
+        if (!options) {
+          throw new Error('Invalid question options');
+        }
+  
+        const questionAndOptions: [QuizQuestion, Option[]] = [question, options];
+        return of(questionAndOptions);
+      }),
+    );
   }
-
+  
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
