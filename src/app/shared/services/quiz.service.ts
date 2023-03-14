@@ -180,9 +180,15 @@ export class QuizService implements OnDestroy {
   } */
 
   isMultipleAnswer(question: QuizQuestion): boolean {
-    const correctOptions = question.options.filter((option) => option.correct);
+    const { options } = question || {};
+    if (!options) {
+        console.error('Question options not found');
+        return false;
+    }
+    const correctOptions = options.filter((option) => option.correct);
     return correctOptions.length > 1;
   }
+
 
   /* isMultipleAnswer(): boolean {
     return (
