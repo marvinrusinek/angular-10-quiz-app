@@ -222,9 +222,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
       this.quizService.shuffle(this.options);
     }
 
-    // Calculate the number of correct options
-    const correctOptions = this.options?.filter((option) => option.correct) ?? [];
-    this.multipleAnswer = correctOptions.length > 1;
+    if (this.options) {
+      const correctOptions = this.options?.filter((option) => option.correct) ?? [];
+      this.multipleAnswer = correctOptions.length > 1;
+    }
   }
 
   private resetForm(): void {
