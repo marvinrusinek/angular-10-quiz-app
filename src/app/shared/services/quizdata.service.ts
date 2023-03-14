@@ -174,6 +174,9 @@ export class QuizDataService implements OnInit {
           throw new Error('Invalid question options');
         }
   
+        console.log('question:', question);
+        console.log('options:', options);
+
         return [question, options];
       })
     );
