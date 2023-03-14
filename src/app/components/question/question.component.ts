@@ -209,20 +209,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
 
-    this.correctOptionIndex = options.findIndex((option) => option === answer);
+    if(this.question.multipleAnswer) {
+      this.correctOptionIndex = options.filter((option) => option.answer).map((option) => options.indexOf(option));
 
-    this.options = options.map((option, index) => ({
-      value: option,
-      text: option.value,
-      isCorrect: index === this.correctOptionIndex,
-      answer: index === this.correctOptionIndex,
-      isSelected: false,
-    }));
+      this.options = options.map((option, index) => ({
+        value: option,
+        text: option.value,
+        isCorrect: this.correctOptionIndex.includes(index),
+        answer: option.answer,
+        isSelected: false,
+      }));
 
-    if (shuffleOptions) {
-      this.quizService.shuffle(this.options);
+      if (shuffleOptions) {
+        this.quizService.shuffle(this.options);
+      }
+    } else {
+      this.correctOptionIndex = options.findIndex((option) => option === answer);
+
+      this.options = options.map((option, index) => ({
+        value: option,
+        text: option.value,
+        isCorrect: index === this.correctOptionIndex,
+        answer: option === answer,
+        isSelected: false,
+      }));
+
+      if (shuffleOptions) {
+        this.quizService.shuffle(this.options);
+      }
     }
   }
+
 
   private resetForm(): void {
     if (!this.questionForm) {
