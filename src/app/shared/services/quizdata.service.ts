@@ -2,7 +2,8 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import {
-  catchError,
+  catchError, 
+  combineLatest,
   filter,
   map,
   mergeMap,
@@ -133,95 +134,28 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestion(
-    quizId: string,
-    currentQuestionIndex: number
-  ): Observable<QuizQuestion> {
-    console.log(
-      'getQuestion method called with quizId',
-      quizId,
-      'and currentQuestionIndex',
-      currentQuestionIndex
+  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
+    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
+      map(([question, options]) => question)
     );
-    if (!quizId) {
-      return throwError('quizId parameter is null or undefined');
-    }
-
-    const apiUrl = `${this.quizUrl}`;
-
-    return this.http.get<Quiz[]>(apiUrl).pipe(
-      mergeMap((response: Quiz[]) => {
-        const quiz = response.find((q: Quiz) => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error('Invalid quizId');
-        }
-
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
-        }
-
-        const question = quiz.questions[currentQuestionIndex];
-        if (!question) {
-          throw new Error('Invalid question index');
-        }
-
-        const options = question.options;
-        if (!options) {
-          throw new Error('Invalid question options');
-        }
-
-        console.log('Question:', question);
-        const quizQuestion: QuizQuestion = {
-          ...question,
-          options: options.map((option: Option) => ({
-            ...option,
-            selected: false,
-          })),
-        };
-        console.log('Quiz Question:', quizQuestion);
-        return of(quizQuestion);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError('Error getting quiz question\n' + error.message);
-      })
+  }
+  
+  getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
+    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
+      map(([question, options]) => options)
     );
   }
 
-  getOptions(quizId: string, currentQuestionIndex: number): Observable<Option[]> {
-    console.log('getOptions method called');
-    if (!quizId) {
-      return throwError('quizId parameter is null or undefined');
-    }
+  getQuestionAndOptions(
+    quizDataService: QuizDataService,
+    quizId: string,
+    currentQuestionIndex: number
+  ): Observable<[QuizQuestion, Option[]]> {
+    const question$ = quizDataService.getQuestion(quizId, currentQuestionIndex);
+    const options$ = quizDataService.getOptions(quizId, currentQuestionIndex);
   
-    const apiUrl = `${this.quizUrl}`;
-  
-    return this.http.get<Quiz[]>(apiUrl).pipe(
-      mergeMap((response: Quiz[]) => {
-        const quiz = response.find((q: Quiz) => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error('Invalid quizId');
-        }
-  
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
-        }
-  
-        const question = quiz.questions[currentQuestionIndex];
-        if (!question) {
-          throw new Error('Invalid question index');
-        }
-  
-        const options = question.options;
-        if (!options) {
-          throw new Error('Invalid question options');
-        }
-  
-        console.log('Options:', options);
-        return of(options);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        return throwError('Error getting quiz options\n' + error.message);
-      })
+    return combineLatest([question$, options$]).pipe(
+      map(([question, options]) => [question, options])
     );
   }
 
