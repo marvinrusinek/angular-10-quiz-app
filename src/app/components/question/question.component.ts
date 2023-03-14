@@ -69,7 +69,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
           this.quizDataService.setCurrentQuestionIndex(0);
           this.quizDataService
             .getQuestionAndOptions(quiz.quizId, 0)
-            .subscribe(([question, options]) => { // destructuring the returned array
+            .subscribe(([question, options]) => {
               console.log('Question:::', question);
               this.question = question;
               if (question) {
@@ -134,6 +134,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
         return selectedQuiz.questions[index];
       })
     );
+  }
+
+  setMultipleAnswer(multipleAnswer: boolean) {
+    this.multipleAnswer = multipleAnswer;
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
