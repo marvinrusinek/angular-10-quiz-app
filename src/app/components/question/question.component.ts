@@ -90,6 +90,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
+
+    // Check if the question is defined before accessing its options property
+    if (this.question && this.question.options) {
+      this.answers = this.question.options.map((option) => option.value) || [];
+      this.setOptions();
+    }
   }
     
   ngOnChanges(changes: SimpleChanges) {
