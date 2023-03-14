@@ -147,8 +147,9 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    return this.getQuiz(quizId).pipe(
-      map((quiz: Quiz) => {
+    return this.http.get<Quiz[]>(this.apiUrl).pipe(
+      map((quizzes: Quiz[]) => {
+        const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
@@ -163,7 +164,7 @@ export class QuizDataService implements OnInit {
         }
   
         const options = question.options;
-        if (!options || options.length === 0) {
+        if (!options) {
           throw new Error('Invalid question options');
         }
   
@@ -171,6 +172,7 @@ export class QuizDataService implements OnInit {
       })
     );
   }
+  
   
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
