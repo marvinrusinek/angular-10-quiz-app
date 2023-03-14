@@ -141,11 +141,17 @@ export class QuizDataService implements OnInit {
   }
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
-    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      map(([question, options]) => options)
+    return this.getQuestion(quizId, questionIndex).pipe(
+      map(question => {
+        const options = question.options;
+        if (!options) {
+          throw new Error('Invalid question options');
+        }
+        return options;
+      })
     );
   }
-
+  
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
