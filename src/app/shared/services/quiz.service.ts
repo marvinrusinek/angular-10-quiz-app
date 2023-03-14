@@ -71,6 +71,7 @@ export class QuizService implements OnDestroy {
   correctMessage: string;
 
   multipleAnswer: boolean;
+  private _multipleAnswer: boolean;
   checkedShuffle: boolean;
 
   score: Score;
@@ -125,6 +126,14 @@ export class QuizService implements OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  setMultipleAnswer(value: boolean) {
+    this._multipleAnswer = value;
+  }
+
+  getMultipleAnswer(): boolean {
+    return this._multipleAnswer;
   }
 
   get quizData$(): Observable<Quiz[]> {
