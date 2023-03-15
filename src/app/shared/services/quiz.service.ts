@@ -184,7 +184,8 @@ export class QuizService implements OnDestroy {
     }
     const correctOptions = options.filter((option) => option.correct);
     const isMultipleAnswer = correctOptions.length > 1;
-    return of(isMultipleAnswer);
+    this.setMultipleAnswer(isMultipleAnswer);
+    return this.multipleAnswerSubject.asObservable();
   }
 
   getNextQuestion(): QuizQuestion {
