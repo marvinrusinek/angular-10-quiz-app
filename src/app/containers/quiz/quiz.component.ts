@@ -133,7 +133,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('multipleAnswer:', this.multipleAnswer);
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
