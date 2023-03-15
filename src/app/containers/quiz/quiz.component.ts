@@ -12,6 +12,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -183,24 +184,32 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex
     );
-    this.questionSubscription = this.question$.subscribe({
+    this.questionSubscription = this.question$.pipe(
+      switchMap((question) => {
+        return this.quizService.isMultipleAnswer(question).pipe(
+          tap((isMultipleAnswer) => {
+            this.quizService.setMultipleAnswer(isMultipleAnswer);
+          }),
+          catchError((err) => {
+            console.error(err);
+            return of(false);
+          })
+        );
+      }),
+      switchMap(() => {
+        return this.question$;
+      })
+    ).subscribe({
       next: (question) => {
         this.handleQuestion(question);
         this.options$ = this.quizDataService.getOptions(
           this.activatedRoute.snapshot.params.quizId,
           this.currentQuestionIndex
         );
-        // Move options$ subscription here
         this.optionsSubscription = this.options$.subscribe({
           next: (options) => this.handleOptions(options),
           error: (err) => console.error('Error in options$: ', err),
         });
-        // Call isMultipleAnswer here
-        this.quizService
-          .isMultipleAnswer(question)
-          .subscribe((multipleAnswer) => {
-            this.quizService.setMultipleAnswer(multipleAnswer);
-          });
       },
       error: (err) => console.error('Error in question$: ', err),
     });
@@ -209,7 +218,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
-  }
+  }  
 
   handleOptions(options: Option[]): void {
     console.log('Options received:', options); // Log the emitted options array
