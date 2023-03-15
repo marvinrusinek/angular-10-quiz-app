@@ -183,10 +183,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex
     );
-  
+
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
-        this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
+        this.isMultipleAnswer(question).subscribe((isMultiple) => {
           this.handleQuestion(question);
           this.options$ = this.quizDataService.getOptions(
             this.activatedRoute.snapshot.params.quizId,
@@ -195,7 +195,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsSubscription = this.options$.subscribe({
             next: (options) => {
               this.handleOptions(options);
-              this.quizService.setMultipleAnswer(isMultiple);
+              this.setMultipleAnswer(isMultiple);
             },
             error: (err) => console.error('Error in options$: ', err),
           });
@@ -203,14 +203,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error in question$: ', err),
     });
-  
+
     this.router.navigate([
       '/question',
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
   }
- 
+
   handleOptions(options: Option[]): void {
     console.log('Options received:', options); // Log the emitted options array
     if (!options || options.length === 0) {
