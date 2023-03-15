@@ -177,15 +177,15 @@ export class QuizService implements OnDestroy {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    const options = question?.options;
-    if (!options) {
+    if (question && question.options) {
+      const correctOptions = question.options.filter((option) => option.correct);
+      const isMultipleAnswer = correctOptions.length > 1;
+      this.setMultipleAnswer(isMultipleAnswer);
+      return this.multipleAnswerSubject.asObservable();
+    } else {
       console.error('Question options not found');
       return of(false);
     }
-    const correctOptions = options.filter((option) => option.correct);
-    const isMultipleAnswer = correctOptions.length > 1;
-    this.setMultipleAnswer(isMultipleAnswer);
-    return this.multipleAnswerSubject.asObservable();
   }
 
   getNextQuestion(): QuizQuestion {
