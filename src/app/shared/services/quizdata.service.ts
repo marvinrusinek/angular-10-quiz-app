@@ -154,6 +154,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    console.log("THIS", this);
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap(quizzes => console.log('Quizzes:>', quizzes)),
       map((quizzes: Quiz[]) => {
