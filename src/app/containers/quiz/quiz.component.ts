@@ -12,7 +12,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -64,7 +64,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   options: string[];
   optionsSubscription: Subscription;
   showExplanation = false;
-  multipleAnswer: boolean;
+  // multipleAnswer: boolean;
 
   selectedQuiz$: BehaviorSubject<Quiz>;
 
