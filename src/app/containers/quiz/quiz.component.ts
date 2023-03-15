@@ -190,14 +190,17 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.activatedRoute.snapshot.params.quizId,
           this.currentQuestionIndex
         );
+        // Move options$ subscription here
         this.optionsSubscription = this.options$.subscribe({
           next: (options) => this.handleOptions(options),
           error: (err) => console.error('Error in options$: ', err),
         });
-  
-        this.quizService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-          this.quizService.setMultipleAnswer(isMultipleAnswer);
-        });
+        // Call isMultipleAnswer here
+        this.quizService
+          .isMultipleAnswer(question)
+          .subscribe((multipleAnswer) => {
+            this.quizService.setMultipleAnswer(multipleAnswer);
+          });
       },
       error: (err) => console.error('Error in question$: ', err),
     });
@@ -207,7 +210,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex + 1,
     ]);
   }
-    
+
   handleOptions(options: Option[]): void {
     console.log('Options received:', options); // Log the emitted options array
     if (!options || options.length === 0) {
@@ -223,15 +226,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       answer: index === this.correctOptionIndex,
       isSelected: false,
     }));
-  
+
     const { shuffleOptions } = this.selectedQuiz;
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
-  
+
     this.setOptions();
   }
-  
 
   handleParamMap(params: ParamMap): void {
     const quizId = params.get('quizId');
@@ -472,7 +474,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuestion(): void {
     this.quizDataService
-      .getQuestionAndOptions(this.selectedQuiz.quizId, this.currentQuestionIndex)
+      .getQuestionAndOptions(
+        this.selectedQuiz.quizId,
+        this.currentQuestionIndex
+      )
       .subscribe((question: QuizQuestion) => {
         console.log('CQ', question);
         this.handleQuestion(question);
