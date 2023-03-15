@@ -145,7 +145,7 @@ export class QuizDataService implements OnInit {
       map((question) => {
         const options = question.options;
         if (!options || options.length === 0) {
-          console.error('Invalid question options');
+          console.error('Invalid question options>>');
           throw new Error('Invalid question options');
         }
         return options;
@@ -155,11 +155,11 @@ export class QuizDataService implements OnInit {
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap(quizzes => console.log('Quizzes:', quizzes)),
+      tap(quizzes => console.log('Quizzes:>', quizzes)),
       map((quizzes: Quiz[]) => {
-        console.log('Quizzes in map operator:', quizzes);
+        console.log('Quizzes in map operator:>', quizzes);
         const quiz = quizzes.find(q => q.quizId === quizId);
-        console.log('Quiz:', quiz);
+        console.log('Quiz:>', quiz);
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
@@ -177,7 +177,7 @@ export class QuizDataService implements OnInit {
         const options = question.options;
         console.log('Options:', options);
         if (!options) {
-          const errorMessage = 'Invalid question options';
+          const errorMessage = 'Invalid question options>';
           console.error(errorMessage);
           throw new Error(errorMessage);
         }
