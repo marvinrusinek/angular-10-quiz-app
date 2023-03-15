@@ -179,39 +179,38 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestion(): void {
-    console.log('getQuestion called with currentQuestionIndex:', this.currentQuestionIndex);
     this.question$ = this.quizDataService.getQuestionAndOptions(
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex
     );
+  
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
-        console.log('Received question:', question);
-        this.handleQuestion(question);
-        this.options$ = this.quizDataService.getOptions(
-          this.activatedRoute.snapshot.params.quizId,
-          this.currentQuestionIndex
-        );
-        this.optionsSubscription = this.options$.subscribe({
-          next: (options) => {
-            console.log('Received options:', options);
-            this.handleOptions(options);
-            this.quizService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-              console.log('isMultipleAnswer:', isMultipleAnswer);
-            });
-          },
-          error: (err) => console.error('Error in options$: ', err),
+        this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
+          this.handleQuestion(question);
+          this.options$ = this.quizDataService.getOptions(
+            this.activatedRoute.snapshot.params.quizId,
+            this.currentQuestionIndex
+          );
+          this.optionsSubscription = this.options$.subscribe({
+            next: (options) => {
+              this.handleOptions(options);
+              this.quizService.setMultipleAnswer(isMultiple);
+            },
+            error: (err) => console.error('Error in options$: ', err),
+          });
         });
       },
       error: (err) => console.error('Error in question$: ', err),
     });
+  
     this.router.navigate([
       '/question',
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
   }
-
+ 
   handleOptions(options: Option[]): void {
     console.log('Options received:', options); // Log the emitted options array
     if (!options || options.length === 0) {
