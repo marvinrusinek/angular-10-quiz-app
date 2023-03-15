@@ -179,34 +179,27 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestion(): void {
+    console.log('getQuestion called with currentQuestionIndex:', this.currentQuestionIndex);
     this.question$ = this.quizDataService.getQuestionAndOptions(
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex
     );
-    this.questionSubscription = this.question$.pipe(
-      switchMap((question) => {
-        return this.quizService.isMultipleAnswer(question).pipe(
-          tap((isMultipleAnswer) => {
-            this.quizService.setMultipleAnswer(isMultipleAnswer);
-          }),
-          catchError((err) => {
-            console.error(err);
-            return of(false);
-          })
-        );
-      }),
-      switchMap(() => {
-        return this.question$;
-      })
-    ).subscribe({
+    this.questionSubscription = this.question$.subscribe({
       next: (question) => {
+        console.log('Received question:', question);
         this.handleQuestion(question);
         this.options$ = this.quizDataService.getOptions(
           this.activatedRoute.snapshot.params.quizId,
           this.currentQuestionIndex
         );
         this.optionsSubscription = this.options$.subscribe({
-          next: (options) => this.handleOptions(options),
+          next: (options) => {
+            console.log('Received options:', options);
+            this.handleOptions(options);
+            this.quizService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
+              console.log('isMultipleAnswer:', isMultipleAnswer);
+            });
+          },
           error: (err) => console.error('Error in options$: ', err),
         });
       },
@@ -217,7 +210,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.params.quizId,
       this.currentQuestionIndex + 1,
     ]);
-  }  
+  }
 
   handleOptions(options: Option[]): void {
     console.log('Options received:', options); // Log the emitted options array
