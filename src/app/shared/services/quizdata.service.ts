@@ -144,7 +144,8 @@ export class QuizDataService implements OnInit {
     return this.getQuestion(quizId, questionIndex).pipe(
       map((question) => {
         const options = question.options;
-        if (!options) {
+        if (!options || options.length === 0) {
+          console.error('Invalid question options');
           throw new Error('Invalid question options');
         }
         return options;
