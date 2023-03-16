@@ -180,7 +180,7 @@ export class QuizDataService implements OnInit {
           throw new Error('Invalid question options');
         }
   
-        return [question, options];
+        return [question, options] as [QuizQuestion, Option[]];
       }),
       catchError(err => {
         console.log('Error:', err);
