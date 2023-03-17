@@ -12,7 +12,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, tap } from 'rxjs/operators';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
