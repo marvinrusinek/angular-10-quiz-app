@@ -143,6 +143,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Selected quiz:', quiz);
         this.quizId = quiz.quizId;
         console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+    
+        // Make the API call to get the question and options only when quiz is available
         try {
           this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
             console.log('QuizDataService returned question:::>>', question);
@@ -156,7 +158,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         console.log('No quiz selected');
       }
-    });    
+    });      
   
     this.getCurrentQuiz();
     this.getSelectedQuiz();
