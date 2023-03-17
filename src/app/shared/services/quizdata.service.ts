@@ -161,23 +161,23 @@ export class QuizDataService implements OnInit {
         const quiz = quizzes.find(q => q.quizId === quizId);
         console.log('Quiz:', quiz);
         if (!quiz) {
-          throw new Error('Invalid quizId');
+          throw new Error('Selected quiz not found');
         }
   
         if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Quiz or questions not found');
+          throw new Error('Selected quiz has no questions');
         }
   
         const question = quiz.questions[questionIndex];
         console.log('Question:', question);
         if (!question) {
-          throw new Error('Invalid question index');
+          throw new Error('Question not found');
         }
   
         const options = question.options;
         console.log('Options:', options);
         if (!options || !Array.isArray(options) || options.length === 0) {
-          throw new Error('Invalid question options');
+          throw new Error('Question options not found');
         }
   
         return [question, options] as [QuizQuestion, Option[]];
