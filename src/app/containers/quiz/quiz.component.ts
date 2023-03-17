@@ -217,19 +217,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getQuestion(): void {
     const quizId = this.activatedRoute.snapshot.params.quizId;
-    this.question$ = this.quizDataService.getQuestionAndOptions(
-      quizId,
-      this.currentQuestionIndex
-    );
+    const currentQuestionIndex = this.currentQuestionIndex;
+    this.question$ = this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex);
 
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
         this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
           this.handleQuestion(question);
-          this.options$ = this.quizDataService.getOptions(
-            quizId,
-            this.currentQuestionIndex
-          );
+          this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
           this.optionsSubscription = this.options$.subscribe({
             next: (options) => {
               this.handleOptions(options);
@@ -244,8 +239,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.router.navigate([
       '/question',
-      this.activatedRoute.snapshot.params.quizId,
-      this.currentQuestionIndex + 1,
+      quizId,
+      currentQuestionIndex + 1,
     ]);
   }
 

@@ -153,7 +153,7 @@ export class QuizDataService implements OnInit {
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     console.log('getQuestionAndOptions called with quizId:', quizId, 'and questionIndex:', questionIndex);
-    return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
         const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
@@ -182,7 +182,7 @@ export class QuizDataService implements OnInit {
       })
     );
   }
-    
+  
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
