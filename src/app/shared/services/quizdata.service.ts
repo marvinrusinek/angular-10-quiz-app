@@ -75,26 +75,21 @@ export class QuizDataService implements OnInit {
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
+    console.log('getSelectedQuiz called');
     return this.selectedQuiz$.pipe(
-      tap((selectedQuiz) =>
-        console.log('selectedQuiz$ emitted:', selectedQuiz)
-      ),
+      tap((selectedQuiz) => console.log('selectedQuiz$ emitted:', selectedQuiz)),
       filter((selectedQuiz) => !!selectedQuiz),
       take(1),
       switchMap((selectedQuiz) => {
         if (selectedQuiz) {
           return of(selectedQuiz);
-        } else {
+        } else if (this.selectedQuizSubject) {
           return this.selectedQuizSubject.asObservable().pipe(
-            tap((selectedQuiz) =>
-              console.log('selectedQuizSubject emitted:', selectedQuiz)
-            ),
-            filter((selectedQuiz) => !!selectedQuiz),
-            catchError((error) => {
-              console.error('Error occurred:', error);
-              return of(null);
-            })
+            tap((selectedQuiz) => console.log('selectedQuizSubject emitted:', selectedQuiz)),
+            filter((selectedQuiz) => !!selectedQuiz)
           );
+        } else {
+          return of(null);
         }
       })
     );
