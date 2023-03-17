@@ -137,32 +137,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.questionIndex) {
       this.questionIndex = 0;
     }
-    console.log('QuizComponent initialized with questionIndex:::>>&&&', this.questionIndex);
+    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
   
     this.subscription = this.quizDataService.selectedQuiz$.pipe(
       filter((quiz) => !!quiz),
       tap((quiz) => {
-        console.log('Selected quiz:&&&', quiz);
+        console.log('Selected quiz:', quiz);
         this.quizId = quiz.quizId;
-        console.log('QuizComponent initialized with quizId:::>>&&&', this.quizId);
+        console.log('QuizComponent initialized with quizId:::>>', this.quizId);
       }),
       catchError((error) => {
         console.error('Error occurred:', error);
-        this.errorMessage = 'An error occurred while loading the quiz.';
         return EMPTY;
       })
     ).subscribe();
   
-    this.quizDataService.getQuestionAndOptions(this.quizId, +this.questionIndex)
+    console.log('Attempting to retrieve question and options...');
+    this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
       .subscribe(([question, options]) => {
-        this.question = question;
-        this.options = options;
         console.log('QuizDataService returned question:::>>', question);
         console.log('QuizDataService returned options:::>>', options);
+        this.question = question;
+        this.options = options;
       },
       (error) => {
         console.error('Error occurred while retrieving question and options:', error);
-        this.errorMessage = 'An error occurred while loading the quiz question and options.';
         this.question = null;
         this.options = null;
       }
@@ -173,6 +172,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
   }
+  
         
   ngOnDestroy(): void {
     this.unsubscribe$.next();
