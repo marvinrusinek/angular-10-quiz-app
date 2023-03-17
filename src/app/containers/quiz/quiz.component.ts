@@ -73,6 +73,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
   isDisabled: boolean;
+  errorMessage: string;
   cardFooterClass = '';
 
   currentQuestionIndex = 0;
@@ -148,11 +149,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       catchError((error) => {
         console.error('Error occurred:', error);
+        this.errorMessage = 'An error occurred while loading the quiz.';
         return EMPTY;
       })
     ).subscribe();
   
-    console.log('Attempting to retrieve question and options...');
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
       .subscribe(([question, options]) => {
         console.log('QuizDataService returned question:::>>', question);
@@ -162,17 +163,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       },
       (error) => {
         console.error('Error occurred while retrieving question and options:', error);
+        this.errorMessage = 'An error occurred while loading the quiz question and options.';
         this.question = null;
         this.options = null;
       }
     );
-
+  
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
   }
-      
+        
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
