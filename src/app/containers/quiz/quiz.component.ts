@@ -137,14 +137,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.questionIndex) {
       this.questionIndex = 0;
     }
-    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
+    console.log('QuizComponent initialized with questionIndex:::>>&&&', this.questionIndex);
   
     this.subscription = this.quizDataService.selectedQuiz$.pipe(
       filter((quiz) => !!quiz),
       tap((quiz) => {
-        console.log('Selected quiz:', quiz);
+        console.log('Selected quiz:&&&', quiz);
         this.quizId = quiz.quizId;
-        console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+        console.log('QuizComponent initialized with quizId:::>>&&&', this.quizId);
       }),
       catchError((error) => {
         console.error('Error occurred:', error);
@@ -153,7 +153,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe();
   
-    this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
+    this.quizDataService.getQuestionAndOptions(this.quizId, parseInt(this.questionIndex))
       .subscribe(([question, options]) => {
         this.question = question;
         this.options = options;
