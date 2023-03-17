@@ -12,7 +12,6 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, switchMap, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -59,6 +58,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz: Quiz;
   questionSubscription: Subscription;
   selectedQuizSubscription: Subscription;
+  subscription: Subscription;
   resources: Resource[];
   answers: number[] = [];
   options: string[];
@@ -81,7 +81,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctCount: number;
   score: number;
 
-  quizId: string;
+  quizId: string = '';
   questions$: Observable<QuizQuestion[]>;
   quizName$: Observable<string>;
   indexOfQuizId: number;
@@ -136,6 +136,20 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("TESTING");
     //console.log(this);
     //console.log("QDS:", this.quizDataService);
+
+    if (!this.quizId) {
+      this.quizId = 'default-quiz-id';
+    }
+  
+    if (!this.questionIndex) {
+      this.questionIndex = 0;
+    }
+
+    this.subscription = this.quizDataService.selectedQuiz$.subscribe(quiz => {
+      console.log('Selected quiz:', quiz);
+      this.quizId = quiz.quizId;
+    });
+
     console.log('QuizComponent initialized with quizId:::>>', this.quizId);
     console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
     try {
@@ -161,6 +175,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.questionSubscription) {
       this.questionSubscription.unsubscribe();
+    }
+    if (this.questionSubscription) {
+      this.subscription.unsubscribe();
     }
   }
 
