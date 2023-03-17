@@ -153,28 +153,27 @@ export class QuizDataService implements OnInit {
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     console.log('getQuestionAndOptions called with quizId:', quizId, 'and questionIndex:', questionIndex);
-    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+    return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
       map((quizzes: Quiz[]) => {
         const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Selected quiz not found');
         }
-  
+
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Selected quiz has no questions');
         }
-  
+
         const question = quiz.questions[questionIndex];
         if (!question) {
           throw new Error('Question not found');
         }
-  
+
         const options = question.options;
         if (!options || !Array.isArray(options) || options.length === 0) {
-          console.log('Question options not found');
           throw new Error('Question options not found');
         }
-  
+
         return [question, options] as [QuizQuestion, Option[]];
       }),
       catchError(err => {
