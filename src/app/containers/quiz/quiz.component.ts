@@ -152,6 +152,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe();
   
+    console.log('Attempting to retrieve question and options...');
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
       .subscribe(([question, options]) => {
         console.log('QuizDataService returned question:::>>', question);
@@ -160,7 +161,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.options = options;
       },
       (error) => {
-        console.error('Error occurred:', error);
+        console.error('Error occurred while retrieving question and options:', error);
+        this.question = null;
+        this.options = null;
       }
     );
 
