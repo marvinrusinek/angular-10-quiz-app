@@ -161,9 +161,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       },
       (error) => {
         console.error('Error occurred:', error);
-        this.errorMessage = 'There was an error retrieving the question options. Please try again.';
-      });
-    }
+      }
+    );
 
     this.getCurrentQuiz();
     this.getSelectedQuiz();
