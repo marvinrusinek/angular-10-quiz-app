@@ -216,8 +216,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestion(): void {
+    const quizId = this.activatedRoute.snapshot.params.quizId;
     this.question$ = this.quizDataService.getQuestionAndOptions(
-      this.activatedRoute.snapshot.params.quizId,
+      quizId,
       this.currentQuestionIndex
     );
 
@@ -226,7 +227,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
           this.handleQuestion(question);
           this.options$ = this.quizDataService.getOptions(
-            this.activatedRoute.snapshot.params.quizId,
+            quizId,
             this.currentQuestionIndex
           );
           this.optionsSubscription = this.options$.subscribe({
