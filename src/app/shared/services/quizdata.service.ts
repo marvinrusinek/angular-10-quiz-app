@@ -152,6 +152,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    console.log('getQuestionAndOptions called with quizId:', quizId, 'and questionIndex:', questionIndex);
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
         const quiz = quizzes.find(q => q.quizId === quizId);
@@ -172,6 +173,9 @@ export class QuizDataService implements OnInit {
         if (!options || !Array.isArray(options) || options.length === 0) {
           throw new Error('Question options not found');
         }
+  
+        console.log('QuizDataService returned question:', question);
+        console.log('QuizDataService returned options:', options);
   
         return [question, options] as [QuizQuestion, Option[]];
       }),

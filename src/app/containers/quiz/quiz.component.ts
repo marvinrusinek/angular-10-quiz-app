@@ -57,15 +57,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   question$: Observable<QuizQuestion>;
   currentQuestion: any = undefined;
   currentQuiz: Quiz;
+  subscription: Subscription;
   questionSubscription: Subscription;
   selectedQuizSubscription: Subscription;
-  subscription: Subscription;
   resources: Resource[];
   answers: number[] = [];
   options: string[];
   optionsSubscription: Subscription;
-  showExplanation = false;
-  // multipleAnswer: boolean;
 
   selectedQuiz$: BehaviorSubject<Quiz>;
 
@@ -73,6 +71,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
   isDisabled: boolean;
+  showExplanation = false;
   errorMessage: string;
   cardFooterClass = '';
 
