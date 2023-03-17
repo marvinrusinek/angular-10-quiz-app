@@ -139,6 +139,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
   
     this.subscription = this.quizDataService.selectedQuiz$.subscribe(quiz => {
+      console.log('Quiz::::::', quiz);
       if (quiz) {
         console.log('Selected quiz:', quiz);
         this.quizId = quiz.quizId;
@@ -161,7 +162,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
   }
-  
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();

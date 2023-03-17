@@ -96,7 +96,11 @@ export class QuizService implements OnDestroy {
     private http: HttpClient
   ) {
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.setQuizzes(quizzes);
+      this.quizzes = quizzes;
+      if (this.quizzes.length > 0) {
+        this.selectedQuiz = this.quizzes[0];
+        this.selectedQuiz$.next(this.selectedQuiz);
+      }
     });
 
     this.quizzes$ = this.getQuizzes().pipe(
@@ -385,10 +389,6 @@ export class QuizService implements OnDestroy {
   setQuiz(quiz: Quiz): Observable<Quiz> {
     this.selectedQuiz = quiz;
     return of(this.selectedQuiz);
-  }
-
-  setQuizzes(quizzes: Quiz[]): void {
-    this.quizzes = quizzes;
   }
 
   setQuizStatus(value: string): void {
