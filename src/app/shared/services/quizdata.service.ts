@@ -157,6 +157,7 @@ export class QuizDataService implements OnInit {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap(quizzes => console.log('Quizzes:', quizzes)),
       map((quizzes: Quiz[]) => {
+        console.log('Quiz Id:', quizId);
         console.log('Quizzes in map operator:', quizzes);
         const quiz = quizzes.find(q => q.quizId === quizId);
         console.log('Quiz:', quiz);

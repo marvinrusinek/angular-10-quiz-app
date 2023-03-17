@@ -133,40 +133,36 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log("TESTING");
     //console.log(this);
     //console.log("QDS:", this.quizDataService);
-
-    if (!this.quizId) {
-      this.quizId = 'default-quiz-id';
-    }
   
     if (!this.questionIndex) {
       this.questionIndex = 0;
     }
-
+  
     this.subscription = this.quizDataService.selectedQuiz$.subscribe(quiz => {
       console.log('Selected quiz:', quiz);
       this.quizId = quiz.quizId;
+  
+      console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+      console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
+      try {
+        this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
+          console.log('QuizDataService returned question:::>>', question);
+          console.log('QuizDataService returned options:::>>', options);
+          this.question = question;
+          this.options = options;
+        });
+      } catch (error) {
+        console.error('Error occurred:', error);
+      }
     });
-
-    console.log('QuizComponent initialized with quizId:::>>', this.quizId);
-    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
-    try {
-      this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
-        console.log('QuizDataService returned question:::>>', question);
-        console.log('QuizDataService returned options:::>>', options);
-        this.question = question;
-        this.options = options;
-      });
-    } catch (error) {
-      console.error('Error occurred:', error);
-    }
+  
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
-  }
+  }  
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
