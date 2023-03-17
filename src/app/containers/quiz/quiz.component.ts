@@ -155,10 +155,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
       .subscribe(([question, options]) => {
-        console.log('QuizDataService returned question:::>>', question);
-        console.log('QuizDataService returned options:::>>', options);
         this.question = question;
         this.options = options;
+        console.log('QuizDataService returned question:::>>', question);
+        console.log('QuizDataService returned options:::>>', options);
       },
       (error) => {
         console.error('Error occurred while retrieving question and options:', error);
