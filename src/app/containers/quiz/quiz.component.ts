@@ -197,7 +197,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
-        this.isMultipleAnswer(question).subscribe((isMultiple) => {
+        this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
           this.handleQuestion(question);
           this.options$ = this.quizDataService.getOptions(
             this.activatedRoute.snapshot.params.quizId,
@@ -206,7 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsSubscription = this.options$.subscribe({
             next: (options) => {
               this.handleOptions(options);
-              this.setMultipleAnswer(isMultiple);
+              this.quizService.setMultipleAnswer(isMultiple);
             },
             error: (err) => console.error('Error in options$: ', err),
           });
