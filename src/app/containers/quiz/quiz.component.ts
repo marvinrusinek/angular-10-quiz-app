@@ -139,12 +139,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
   
     this.subscription = this.quizDataService.selectedQuiz$.subscribe(quiz => {
-      console.log('Quiz::::::', quiz);
       if (quiz) {
         console.log('Selected quiz:', quiz);
         this.quizId = quiz.quizId;
         console.log('QuizComponent initialized with quizId:::>>', this.quizId);
-  
         try {
           this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
             console.log('QuizDataService returned question:::>>', question);
@@ -156,9 +154,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Error occurred:', error);
         }
       } else {
-        console.error('Selected quiz is null or undefined');
+        console.log('No quiz selected');
       }
-    });
+    });    
   
     this.getCurrentQuiz();
     this.getSelectedQuiz();
