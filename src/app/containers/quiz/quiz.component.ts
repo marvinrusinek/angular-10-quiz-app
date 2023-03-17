@@ -134,43 +134,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (!this.questionIndex) {
-      this.questionIndex = 0;
-    }
-    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
-  
-    this.subscription = this.quizDataService.selectedQuiz$.pipe(
-      filter((quiz) => !!quiz),
-      tap((quiz) => {
-        console.log('Selected quiz:', quiz);
-        this.quizId = quiz.quizId;
-        console.log('QuizComponent initialized with quizId:::>>', this.quizId);
-      }),
-      catchError((error) => {
-        console.error('Error occurred:', error);
-        return EMPTY;
+    this.activatedRoute.paramMap.pipe(
+      map((params) => {
+        this.quizId = params.get('quizId');
+        this.currentQuestionIndex = +params.get('questionIndex');
       })
-    ).subscribe();
-  
-    console.log('Attempting to retrieve question and options...');
-    this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
-      .subscribe(([question, options]) => {
-        console.log('QuizDataService returned question:::>>', question);
-        console.log('QuizDataService returned options:::>>', options);
-        this.question = question;
-        this.options = options;
-      },
-      (error) => {
-        console.error('Error occurred while retrieving question and options:', error);
-        this.question = null;
-        this.options = null;
-      }
-    );
-  
-    this.getCurrentQuiz();
-    this.getSelectedQuiz();
-    this.getQuestion();
-    this.getCurrentQuestion();
+    ).subscribe(() => {
+      this.getQuestion();
+    });
   }
     
   ngOnDestroy(): void {
@@ -216,15 +187,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestion(): void {
-    const quizId = this.activatedRoute.snapshot.params.quizId;
-    const currentQuestionIndex = this.currentQuestionIndex;
-    this.question$ = this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex);
+    this.question$ = this.quizDataService.getQuestionAndOptions(
+      this.quizId,
+      this.currentQuestionIndex
+    );
 
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
         this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
           this.handleQuestion(question);
-          this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
+          this.options$ = this.quizDataService.getOptions(
+            this.quizId,
+            this.currentQuestionIndex
+          );
           this.optionsSubscription = this.options$.subscribe({
             next: (options) => {
               this.handleOptions(options);
@@ -239,8 +214,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.router.navigate([
       '/question',
-      quizId,
-      currentQuestionIndex + 1,
+      this.quizId,
+      this.currentQuestionIndex + 1,
     ]);
   }
 
