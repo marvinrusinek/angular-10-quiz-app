@@ -176,7 +176,7 @@ export class QuizDataService implements OnInit {
   
         const options = question.options;
         console.log('Options:', options);
-        if (!options) {
+        if (!options || !Array.isArray(options) || options.length === 0) {
           throw new Error('Invalid question options');
         }
   
