@@ -229,7 +229,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       isCorrect: index === this.correctOptionIndex,
       correct: index === this.correctOptionIndex,
       isSelected: false,
-    }));
+    } as Option));
 
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
