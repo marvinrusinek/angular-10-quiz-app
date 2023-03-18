@@ -224,11 +224,12 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.correctOptionIndex = options.findIndex((option) => option === answer);
 
     this.options = options.map((option, index) => ({
+      answer: option.value,
       value: option,
-      text: option.value,
+      text: option.value.toString(),
       isCorrect: index === this.correctOptionIndex,
       correct: index === this.correctOptionIndex,
-      isSelected: false,
+      isSelected: false
     } as Option));
 
     if (shuffleOptions) {
