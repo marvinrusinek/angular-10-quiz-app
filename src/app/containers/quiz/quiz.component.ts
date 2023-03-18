@@ -273,14 +273,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // this.options = options;
     this.options = options.map((option, index) => ({
       value: option,
-      text: option.value,
+      text: option.value.toString(),
       isCorrect: index === this.correctOptionIndex,
       answer: index === this.correctOptionIndex,
       isSelected: false,
-    }));
+    } as Option));
 
     const { shuffleOptions } = this.selectedQuiz;
     if (shuffleOptions) {
