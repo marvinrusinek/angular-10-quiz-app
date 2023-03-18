@@ -134,14 +134,43 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.paramMap.pipe(
-      map((params) => {
-        this.quizId = params.get('quizId');
-        this.currentQuestionIndex = +params.get('questionIndex');
+    if (!this.questionIndex) {
+      this.questionIndex = 0;
+    }
+    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
+  
+    this.subscription = this.quizDataService.selectedQuiz$.pipe(
+      filter((quiz) => !!quiz),
+      tap((quiz) => {
+        console.log('Selected quiz:', quiz);
+        this.quizId = quiz.quizId;
+        console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+      }),
+      catchError((error) => {
+        console.error('Error occurred:', error);
+        return EMPTY;
       })
-    ).subscribe(() => {
-      this.getQuestion();
-    });
+    ).subscribe();
+  
+    console.log('Attempting to retrieve question and options...');
+    this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex)
+      .subscribe(([question, options]) => {
+        console.log('QuizDataService returned question:::>>', question);
+        console.log('QuizDataService returned options:::>>', options);
+        this.question = question;
+        this.options = options;
+      },
+      (error) => {
+        console.error('Error occurred while retrieving question and options:', error);
+        this.question = null;
+        this.options = null;
+      }
+    );
+  
+    this.getCurrentQuiz();
+    this.getSelectedQuiz();
+    this.getQuestion();
+    this.getCurrentQuestion();
   }
     
   ngOnDestroy(): void {
