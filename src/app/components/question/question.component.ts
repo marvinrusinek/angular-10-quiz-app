@@ -221,17 +221,18 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
 
-    this.correctOptionIndex = options.findIndex((option) => option === answer);
+    
+    this.correctOptionIndex = options.findIndex((option) => option.value === this.question.answer.value);
 
     this.options = options.map((option, index) => ({
       answer: option.value,
-      value: option,
-      text: option.value.toString(),
+      value: option.value,
+      text: option.text,
       isCorrect: index === this.correctOptionIndex,
       correct: index === this.correctOptionIndex,
       isSelected: false
     } as Option));
-
+    
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
