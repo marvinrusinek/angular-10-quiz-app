@@ -163,7 +163,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }),
         catchError((error) => {
           console.error('Error occurred:', error);
-          return EMPTY;
+          return of(null);
         })
       )
       .subscribe();
