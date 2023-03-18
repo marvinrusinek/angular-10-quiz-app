@@ -266,7 +266,7 @@ export class QuizService implements OnDestroy {
   }
 
   saveHighScores(): void {
-    this.score = {
+    this.quizScore = {
       quizId: this.quizId,
       attemptDateTime: new Date(),
       score: this.calculatePercentageOfCorrectlyAnsweredQuestions(),
@@ -275,7 +275,7 @@ export class QuizService implements OnDestroy {
 
     const MAX_HIGH_SCORES = 10; // show results of the last 10 quizzes
     this.highScoresLocal = this.highScoresLocal ?? [];
-    this.highScoresLocal.push(this.score);
+    this.highScoresLocal.push(this.quizScore);
     this.highScoresLocal.sort((a, b) => b.attemptDateTime - a.attemptDateTime);
     this.highScoresLocal.reverse(); // show high scores from most recent to latest
     this.highScoresLocal.splice(MAX_HIGH_SCORES);
