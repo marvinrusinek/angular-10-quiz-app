@@ -676,7 +676,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   sendQuizIdToQuizService(): void {
-    this.quizService.getQuizById(this.quizId).subscribe((quiz) => {
+    this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
       this.quizService.setQuiz(quiz).subscribe((selectedQuiz) => {
         // this.router.navigate(['/quiz', this.quizId, 'question', 1]);
       });
