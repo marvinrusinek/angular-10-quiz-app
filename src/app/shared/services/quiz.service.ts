@@ -12,9 +12,9 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
+import { QuizScore } from '../../shared/models/QuizScore.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
-import { Score } from '../../shared/models/Score.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
 @Injectable({
@@ -78,6 +78,7 @@ export class QuizService implements OnDestroy {
   checkedShuffle: boolean;
 
   score: number = 0; // changed from Score to number
+  score: QuizScore;
   highScores: Score[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
@@ -173,9 +174,15 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  submitQuiz(quizId: string, formData: any) {
-    // handle quiz submission logic here, such as sending the answers to a server
-    console.log('Quiz submitted!');
+  submitQuiz(): Observable<void> {
+    const quizScore: QuizScore = {
+      quizId: this.selectedQuiz.quizId,
+      attemptDateTime: new Date(),
+      score: this.correctAnswers.length,
+      totalQuestions: this.questions.length,
+    };
+    this.score = quizScore;
+    return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
   }
 
   getQuizLength(): number {
@@ -251,17 +258,6 @@ export class QuizService implements OnDestroy {
     }
     return [];
   }
-
-  /* probably remove
-  getAnswers(question: QuizQuestion): Observable<Answer[]> {
-    if (question && question.answer && question.options) {
-      const answers = question.options
-        .filter((option) => option.value === question.answer.optionId)
-        .map((option) => option.answer);
-      return of(answers);
-    }
-    return of([]);
-  } */
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(

@@ -1,6 +1,6 @@
-export interface Score {
+export interface QuizScore {
   quizId: string;
-  score: number;
   attemptDateTime: Date;
+  score: number;
   totalQuestions: number;
 }

@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizMetadata } from '../../../shared/models/QuizMetadata.model';
-import { Score } from '../../../shared/models/Score.model';
+import { QuizScore } from '../../../shared/models/QuizScore.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { TimerService } from '../../../shared/services/timer.service';
 
@@ -32,7 +32,7 @@ export class SummaryReportComponent implements OnInit {
   elapsedMinutes: number;
   elapsedSeconds: number;
   checkedShuffle: boolean;
-  highScores: Score[];
+  highScores: QuizScore[];
   codelabUrl = 'https://www.codelab.fun';
 
   constructor(
