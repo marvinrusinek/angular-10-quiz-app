@@ -84,17 +84,24 @@ export class MultipleAnswerComponent
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-    const index = question.selectedOptions.findIndex(o => o.id === option.id);
+
+    const index = question.selectedOptions.findIndex(o => o === option.value.toString());
     if (index === -1) {
-      question.selectedOptions.push(option);
+      question.selectedOptions.push(option.value.toString());
     } else {
       question.selectedOptions.splice(index, 1);
     }
-  
-    const selectedOptionIds = question.selectedOptions.map(o => o.optionId);
-    const answerOptionIds = question.answer.map(o => o.optionId).sort();
-    if (selectedOptionIds.sort().join(',') === answerOptionIds.join(',')) {
-      this.quizService.score++;
+
+    const selectedOptionIds = question.selectedOptions.map(o => {
+      const selectedOption = question.options.find(option => option.value.toString() === o);
+      return selectedOption ? selectedOption.value.toString() : null;
+    });
+
+    if (
+      selectedOptionIds.sort().join(',') ===
+      question.answer.map(a => a.value.toString()).sort().join(',')
+    ) {
+      this.quizService.score = Number(this.quizService.score) + 1;
     }
   }
 }
