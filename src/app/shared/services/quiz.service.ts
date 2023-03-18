@@ -109,7 +109,7 @@ export class QuizService implements OnDestroy {
     this.quizzes$ = this.getQuizzes().pipe(
       catchError((error) => {
         console.error(error);
-        return EMPTY;
+        return of(null);
       })
     ) as Observable<Quiz[]>;
 
