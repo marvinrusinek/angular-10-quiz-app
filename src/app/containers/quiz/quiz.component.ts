@@ -634,7 +634,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   submitQuiz() {
     this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
-      this.status = Status.Complete;
+      this.status = Status.Completed;
       // this.quizService.resetQuiz(); ???
       this.router.navigate(['/results']);
     });
