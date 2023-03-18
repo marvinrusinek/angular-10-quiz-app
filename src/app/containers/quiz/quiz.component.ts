@@ -532,7 +532,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe({
         next: ([question, options]) => {
           console.log('CQ', question);
-          this.handleQuestion(question, options);
+          this.handleQuestion(question);
         },
         error: error => console.log('Error retrieving question:', error),
         complete: () => console.log('Question retrieval complete')
