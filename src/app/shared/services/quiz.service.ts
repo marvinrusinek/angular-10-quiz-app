@@ -79,7 +79,7 @@ export class QuizService implements OnDestroy {
 
   score: number = 0;
   quizScore: QuizScore;
-  highScores: Score[];
+  highScores: QuizScore[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
   unsubscribe$ = new Subject<void>();
