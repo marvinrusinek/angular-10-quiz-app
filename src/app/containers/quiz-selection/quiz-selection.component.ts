@@ -29,15 +29,7 @@ export class QuizSelectionComponent implements OnInit {
   currentQuestionIndex: number;
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-
-  selectionParams: QuizSelectionParams = {
-    status: '',
-    quizCompleted: false,
-    startedQuizId: '',
-    continueQuizId: '',
-    completedQuizId: '',
-  };
-  defaultSelectionParams = this.selectionParams;
+  selectionParams: QuizSelectionParams;
 
   constructor(
     private quizService: QuizService,
