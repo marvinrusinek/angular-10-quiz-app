@@ -93,19 +93,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizId: string = '';
   questions$: Observable<QuizQuestion[]>;
   quizName$: Observable<string>;
+  options$: Observable<Option[]>;
   indexOfQuizId: number;
   status: Status;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-
-  options: {
-    text: any;
-    answer: any;
-    isCorrect: any;
-    isSelected: boolean;
-  }[];
-  options$: Observable<Option[]>;
 
   get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
