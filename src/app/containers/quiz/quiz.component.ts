@@ -529,17 +529,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuestion(): void {
     this.quizDataService
-      .getQuestionAndOptions(
-        this.selectedQuiz.quizId,
-        this.currentQuestionIndex
-      )
-      .subscribe(<PartialObserver<QuizQuestion>>{
-        next: (question: QuizQuestion) => {
+      .getQuestionAndOptions(this.selectedQuiz.quizId, this.currentQuestionIndex)
+      .subscribe({
+        next: ([question, options]) => {
           console.log('CQ', question);
-          this.handleQuestion(question);
+          this.handleQuestion(question, options);
         },
-        error: (err: any) => console.error(err),
-        complete: () => console.log('Question retrieval complete'),
+        error: error => console.log('Error retrieving question:', error),
+        complete: () => console.log('Question retrieval complete')
       });
   }
 
