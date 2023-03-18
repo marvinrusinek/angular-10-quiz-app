@@ -161,7 +161,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   public getCorrectAnswers(): void {
-    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+    this.correctAnswers = this.quizService.getCorrectAnswers(
+      this.currentQuestion
+    );
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
@@ -221,18 +223,21 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
 
-    
-    this.correctOptionIndex = options.findIndex((option) => option.value === this.question.answer.value);
+    const answerValue = this.question.answer.values().next().value;
+    this.correctOptionIndex = options.findIndex((option) => option.value === answerValue);
 
-    this.options = options.map((option, index) => ({
-      answer: option.value,
-      value: option.value,
-      text: option.text,
-      isCorrect: index === this.correctOptionIndex,
-      correct: index === this.correctOptionIndex,
-      isSelected: false
-    } as Option));
-    
+    this.options = options.map(
+      (option, index) =>
+        ({
+          answer: option.value,
+          value: option.value,
+          text: option.text,
+          isCorrect: index === this.correctOptionIndex,
+          correct: index === this.correctOptionIndex,
+          isSelected: false,
+        } as Option)
+    );
+
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
     }

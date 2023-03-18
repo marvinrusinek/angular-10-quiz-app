@@ -12,6 +12,7 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
+import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { Score } from '../../shared/models/Score.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
@@ -61,7 +62,8 @@ export class QuizService implements OnDestroy {
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   currentQuestionSubject = new BehaviorSubject<number>(0);
-  multipleAnswerSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  multipleAnswerSubject: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
 
   userAnswers = [];
   previousAnswers = [];
@@ -182,7 +184,9 @@ export class QuizService implements OnDestroy {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     if (question && question.options) {
-      const correctOptions = question.options.filter((option) => option.correct);
+      const correctOptions = question.options.filter(
+        (option) => option.correct
+      );
       const isMultipleAnswer = correctOptions.length > 1;
       this.setMultipleAnswer(isMultipleAnswer);
       return this.multipleAnswerSubject.asObservable();
@@ -294,7 +298,7 @@ export class QuizService implements OnDestroy {
     return arg;
   }
 
-  returnQuizSelectionParams(): object {
+  returnQuizSelectionParams(): QuizSelectionParams {
     const quizSelectionParams = {
       startedQuizId: this.startedQuizId,
       continueQuizId: this.continueQuizId,
