@@ -181,7 +181,7 @@ export class QuizService implements OnDestroy {
       score: this.correctAnswers.length,
       totalQuestions: this.questions.length,
     };
-    this.score = quizScore;
+    this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
   }
 
