@@ -37,10 +37,10 @@ export class MultipleAnswerComponent
   optionChecked: { [optionId: number]: boolean } = {};
 
   constructor(
-    private quizService: QuizService,
+    quizService: QuizService,
     private formBuilder: FormBuilder
   ) {
-    super(quizService);
+    super();
   }
 
   ngOnInit(): void {

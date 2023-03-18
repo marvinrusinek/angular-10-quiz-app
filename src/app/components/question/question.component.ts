@@ -62,9 +62,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   constructor(
-    private quizService: QuizService,
-    private quizDataService: QuizDataService,
-    private timerService: TimerService,
+    quizService: QuizService,
+    quizDataService: QuizDataService,
+    timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {
     this.correctMessage = '';

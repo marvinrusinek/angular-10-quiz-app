@@ -676,7 +676,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendQuizIdToQuizService(): void {
-    this.quizService.setQuizId(this.quizId);
+    this.quizService.setQuiz(this.quizId);
   }
 
   private sendQuizStatusToQuizService(): void {
