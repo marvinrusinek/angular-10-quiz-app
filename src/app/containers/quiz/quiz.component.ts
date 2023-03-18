@@ -607,7 +607,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const isLastQuestion = this.currentQuestionIndex === this.quizLength - 1;
 
       if (isLastQuestion) {
-        this.status = Status.Complete;
+        this.status = Status.Completed;
         this.submitQuiz();
       } else {
         this.quizService.navigateToNextQuestion();
