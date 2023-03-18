@@ -1,6 +1,12 @@
 import {
-  ChangeDetectionStrategy, Component, EventEmitter, Input,
-  OnChanges, OnInit, Output, ViewEncapsulation
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -36,11 +42,8 @@ export class MultipleAnswerComponent
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
-  constructor(
-    quizService: QuizService,
-    private formBuilder: FormBuilder
-  ) {
-    super();
+  constructor(quizService: QuizService, private formBuilder: FormBuilder) {
+    super(quizService);
   }
 
   ngOnInit(): void {
@@ -51,9 +54,7 @@ export class MultipleAnswerComponent
 
     this.currentQuestion = this.question;
     // this.currentQuestion = await this.quizService.getCurrentQuestion();
-    this.correctAnswers = this.quizService.getCorrectAnswers(
-      this.currentQuestion
-    );
+    this.getCorrectAnswers();
   }
 
   ngOnChanges(): void {
@@ -64,8 +65,8 @@ export class MultipleAnswerComponent
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
         this.optionChecked[option.id] =
-        this.currentQuestion.selectedOptions &&
-        this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+          this.currentQuestion.selectedOptions &&
+          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
       });
     }
   }
@@ -85,23 +86,30 @@ export class MultipleAnswerComponent
       question.selectedOptions = [];
     }
 
-    const index = question.selectedOptions.findIndex(o => o === option.value.toString());
+    const index = question.selectedOptions.findIndex(
+      (o) => o === option.value.toString()
+    );
     if (index === -1) {
       question.selectedOptions.push(option.value.toString());
     } else {
       question.selectedOptions.splice(index, 1);
     }
 
-    const selectedOptionIds = question.selectedOptions.map(o => {
-      const selectedOption = question.options.find(option => option.value.toString() === o);
+    const selectedOptionIds = question.selectedOptions.map((o) => {
+      const selectedOption = question.options.find(
+        (option) => option.value.toString() === o
+      );
       return selectedOption ? selectedOption.value.toString() : null;
     });
 
     if (
       selectedOptionIds.sort().join(',') ===
-      question.answer.map(a => a.value.toString()).sort().join(',')
+      question.answer
+        .map((a) => a.value.toString())
+        .sort()
+        .join(',')
     ) {
-      this.quizService.score = Number(this.quizService.score) + 1;
+      this.incrementScore();
     }
   }
 }

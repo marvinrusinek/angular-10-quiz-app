@@ -25,7 +25,8 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent implements OnInit, OnChanges {
+export abstract class QuizQuestionComponent implements OnInit, OnChanges {
+  private quizService: QuizService;
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
@@ -67,6 +68,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
     timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {
+    this.quizService = quizService;
     this.correctMessage = '';
     this.multipleAnswer = false;
   }
@@ -153,6 +155,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges {
   /* setMultipleAnswer(multipleAnswer: boolean) {
     this.multipleAnswer = multipleAnswer;
   } */
+
+  public incrementScore(): void {
+    this.quizService.score++;
+  }
+
+  public getCorrectAnswers(): void {
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.currentQuestion);
+  }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion = question;
