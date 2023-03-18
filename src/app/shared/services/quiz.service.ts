@@ -252,6 +252,7 @@ export class QuizService implements OnDestroy {
     return [];
   }
 
+  /* probably remove
   getAnswers(question: QuizQuestion): Observable<Answer[]> {
     if (question && question.answer && question.options) {
       const answers = question.options
@@ -260,7 +261,7 @@ export class QuizService implements OnDestroy {
       return of(answers);
     }
     return of([]);
-  }
+  } */
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
