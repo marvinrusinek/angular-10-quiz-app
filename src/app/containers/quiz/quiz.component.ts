@@ -69,7 +69,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedQuizSubscription: Subscription;
   resources: Resource[];
   answers = [];
-  options: string[];
+  options: Option[] = [];
   optionsSubscription: Subscription;
 
   selectedQuiz$: BehaviorSubject<Quiz>;
@@ -274,12 +274,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.options = options.map((option, index) => ({
-      value: option,
-      text: option.value.toString(),
+      value: option.value,
+      text: option.value,
       isCorrect: index === this.correctOptionIndex,
       answer: index === this.correctOptionIndex,
       isSelected: false,
-    } as Option));
+    }));
 
     const { shuffleOptions } = this.selectedQuiz;
     if (shuffleOptions) {
