@@ -11,7 +11,14 @@ import {
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  of,
+  PartialObserver,
+  Subject,
+  Subscription,
+} from 'rxjs';
 import { catchError, filter, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -61,7 +68,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionSubscription: Subscription;
   selectedQuizSubscription: Subscription;
   resources: Resource[];
-  answers: number[] = [];
+  answers = [];
   options: string[];
   optionsSubscription: Subscription;
 
@@ -526,9 +533,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedQuiz.quizId,
         this.currentQuestionIndex
       )
-      .subscribe((question: QuizQuestion) => {
-        console.log('CQ', question);
-        this.handleQuestion(question);
+      .subscribe(<PartialObserver<QuizQuestion>>{
+        next: (question: QuizQuestion) => {
+          console.log('CQ', question);
+          this.handleQuestion(question);
+        },
+        error: (err: any) => console.error(err),
+        complete: () => console.log('Question retrieval complete'),
       });
   }
 
@@ -543,7 +554,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.answers.push({
       question: this.currentQuestion,
-      selectedOption: selectedOption,
+      questionIndex: this.currentQuestionIndex,
+      selectedOption: selectedOption
     });
 
     if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
