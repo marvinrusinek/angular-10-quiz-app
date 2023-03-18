@@ -6,7 +6,7 @@ export interface QuizQuestion {
   explanation: string;
   question: string;
   selectedOptions: string[];
-  answer: Option;
+  answer: Option[];
   milestone: string;
   selectedOptionIds?: number[];
 }

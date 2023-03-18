@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   styleUrls: ['./explanation.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExplanationComponent {
+export class QuizExplanationComponent {
   @Input() isAnswered: boolean;
   @Input() questionText: string;
   @Input() numberOfCorrectAnswers: number;

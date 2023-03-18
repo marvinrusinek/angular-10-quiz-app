@@ -80,15 +80,6 @@ export class MultipleAnswerComponent
     }
   }
 
-  onOptionSelected(selectedOption: Option): void {
-    if (selectedOption) {
-      this.selectedOption = selectedOption;
-      this.answer.emit(this.selectedOption.correct ? 1 : 0);
-    } else {
-      this.answer.emit(null);
-    }
-  }
-
   onSelectionChange(question: QuizQuestion, option: Option): void {
     if (!question.selectedOptions) {
       question.selectedOptions = [];
@@ -100,12 +91,10 @@ export class MultipleAnswerComponent
       question.selectedOptions.splice(index, 1);
     }
   
-    const selectedOptionIds = question.selectedOptions.map(o => o.id);
-    if (
-      selectedOptionIds.sort().join(',') ===
-      question.answer.sort().join(',')
-    ) {
+    const selectedOptionIds = question.selectedOptions.map(o => o.optionId);
+    const answerOptionIds = question.answer.map(o => o.optionId).sort();
+    if (selectedOptionIds.sort().join(',') === answerOptionIds.join(',')) {
       this.quizService.score++;
     }
-  }  
+  }
 }

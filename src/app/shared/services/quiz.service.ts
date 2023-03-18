@@ -75,7 +75,7 @@ export class QuizService implements OnDestroy {
   private _multipleAnswer: boolean;
   checkedShuffle: boolean;
 
-  score: Score;
+  score: number = 0; // changed from Score to number
   highScores: Score[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
