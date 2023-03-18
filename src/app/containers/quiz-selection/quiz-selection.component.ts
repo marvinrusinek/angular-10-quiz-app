@@ -27,10 +27,6 @@ export class QuizSelectionComponent implements OnInit {
   quizzes: Quiz[] = [];
   selectedQuiz: Quiz;
   currentQuestionIndex: number;
-  selectedMilestone: string;
-  @Output() milestoneSelected = new EventEmitter<string>();
-  @Output() selectedMilestoneChanged: EventEmitter<string> =
-    new EventEmitter<string>();
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
