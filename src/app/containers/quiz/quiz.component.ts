@@ -83,6 +83,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   cardFooterClass = '';
 
   currentQuestionIndex = 0;
+  correctOptionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
   progressValue: number;
