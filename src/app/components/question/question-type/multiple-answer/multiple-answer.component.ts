@@ -35,7 +35,6 @@ export class MultipleAnswerComponent
   @Input() currentQuestionIndex: number;
   @Input() options: any[];
   @Input() correctMessage: string;
-  @Input() selected: string;
   @Input() correctAnswers: number[];
   form: FormGroup;
   currentQuestion: QuizQuestion;
