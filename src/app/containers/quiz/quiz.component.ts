@@ -267,7 +267,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.options = options.map(
-      (option, index) =>
+      (option) =>
         ({
           value: option.value,
           text: option.text,
