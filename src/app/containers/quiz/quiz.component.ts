@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (!this.questionIndex) {
       this.questionIndex = 0;
     }
@@ -162,24 +162,34 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe();
 
     console.log('Attempting to retrieve question and options...');
-    this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .subscribe(
-        ([question, options]) => {
-          console.log('QuizDataService returned question:::>>', question);
-          console.log('QuizDataService returned options:::>>', options);
-          this.question = question;
-          this.options = options;
-        },
-        (error) => {
-          console.error(
-            'Error occurred while retrieving question and options:',
-            error
-          );
-          this.question = null;
-          this.options = null;
-        }
+    try {
+      const [question, options] = await this.quizDataService
+        .getQuestionAndOptions(this.quizId, this.questionIndex)
+        .pipe(
+          map(([question, options]) => [question, options]),
+          catchError((error) => {
+            console.error(
+              'Error occurred while retrieving question and options:',
+              error
+            );
+            this.question = null;
+            this.options = null;
+            return of(null);
+          })
+        )
+        .toPromise();
+      console.log('QuizDataService returned question:::>>', question);
+      console.log('QuizDataService returned options:::>>', options);
+      this.question = question;
+      this.options = options;
+    } catch (error) {
+      console.error(
+        'Error occurred while retrieving question and options:',
+        error
       );
+      this.question = null;
+      this.options = null;
+    }
 
     this.getCurrentQuiz();
     this.getSelectedQuiz();
