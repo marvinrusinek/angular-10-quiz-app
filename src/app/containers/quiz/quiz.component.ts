@@ -229,12 +229,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  getQuestion(): void {
+  async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-    this.question$ = this.quizDataService
+    const quizQuestion = await this.quizDataService
       .getQuestionAndOptions(quizId, currentQuestionIndex)
-      .pipe(map(([quizQuestion, options]) => quizQuestion));
+      .pipe(map(([quizQuestion, options]) => quizQuestion)).toPromise();
+    this.question$ - of(quizQuestion);
+    this.cdRef.detectChanges();
 
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
