@@ -349,7 +349,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private handleQuestion(question: QuizQuestion): void {
-    this.cdRef.detectChanges();
     console.log('handleQuestion method called', question);
     if (!question) {
       console.error('Question not found');
@@ -359,6 +358,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Question:::::', question);
     this.question = question;
     this.setOptions();
+    this.cdRef.detectChanges();
   }
 
   async getQuiz(id: string): Promise<void> {
