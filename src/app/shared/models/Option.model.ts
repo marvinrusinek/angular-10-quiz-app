@@ -1,12 +1,12 @@
 import { Answer } from './Answer.type';
 
 export interface Option {
+  optionId?: number;
   text: string;
   correct?: boolean;
+  value?: number;
+  answer?: Answer;
   selected?: boolean;
   styleClass?: string;
-  value: number;
-  optionId?: number;
-  answer: Answer;
 }
 type Options = Option[];
