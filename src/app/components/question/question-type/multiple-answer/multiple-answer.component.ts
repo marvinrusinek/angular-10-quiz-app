@@ -57,16 +57,16 @@ export class MultipleAnswerComponent
     this.getCorrectAnswers();
   }
 
-  /* ngOnChanges(): void {
+  ngOnChanges(): void {
     this.initializeOptionChecked();
-  } */
+  }
 
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
-        this.optionChecked[option.id] =
+        this.optionChecked[option.optionId] =
           this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(option.id) !== -1;
+          this.currentQuestion.selectedOptions.indexOf(option.optionId) !== -1;
       });
     }
   }
