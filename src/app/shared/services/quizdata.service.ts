@@ -138,6 +138,10 @@ export class QuizDataService implements OnInit {
     );
   }
 
+  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
+  }
+
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuestion(quizId, questionIndex).pipe(
       map((question) => {
@@ -181,10 +185,6 @@ export class QuizDataService implements OnInit {
         return of(null);
       })
     );
-  }
-  
-  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
 
   selectQuiz(quiz: Quiz): void {
