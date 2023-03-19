@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private changeDetector: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       selectedOption: [null],
@@ -232,9 +232,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   getQuestion(): void {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-    this.question$ = this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(
-      map(([quizQuestion, options]) => quizQuestion)
-    );
+    this.question$ = this.quizDataService
+      .getQuestionAndOptions(quizId, currentQuestionIndex)
+      .pipe(map(([quizQuestion, options]) => quizQuestion));
 
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
@@ -266,13 +266,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.options = options.map((option, index) => ({
-      value: option.value,
-      text: option.text,
-      isCorrect: option.correct,
-      answer: option.answer,
-      isSelected: false
-    } as Option)) as Option[];
+    this.options = options.map(
+      (option, index) =>
+        ({
+          value: option.value,
+          text: option.text,
+          isCorrect: option.correct,
+          answer: option.answer,
+          isSelected: false,
+        } as Option)
+    ) as Option[];
 
     const { shuffleOptions } = this.selectedQuiz;
     if (shuffleOptions) {
@@ -355,7 +358,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Question:::::', question);
     this.question = question;
     this.setOptions();
-    this.changeDetector.detectChanges();
+    // this.cdRef.detectChanges();
   }
 
   async getQuiz(id: string): Promise<void> {
@@ -521,14 +524,17 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuestion(): void {
     this.quizDataService
-      .getQuestionAndOptions(this.selectedQuiz.quizId, this.currentQuestionIndex)
+      .getQuestionAndOptions(
+        this.selectedQuiz.quizId,
+        this.currentQuestionIndex
+      )
       .subscribe({
         next: ([question, options]) => {
           console.log('CQ', question);
           this.handleQuestion(question);
         },
-        error: error => console.log('Error retrieving question:', error),
-        complete: () => console.log('Question retrieval complete')
+        error: (error) => console.log('Error retrieving question:', error),
+        complete: () => console.log('Question retrieval complete'),
       });
   }
 
@@ -544,7 +550,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers.push({
       question: this.currentQuestion,
       questionIndex: this.currentQuestionIndex,
-      selectedOption: selectedOption
+      selectedOption: selectedOption,
     });
 
     if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
