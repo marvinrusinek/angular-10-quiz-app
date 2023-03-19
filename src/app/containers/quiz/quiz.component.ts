@@ -43,7 +43,7 @@ enum Status {
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
   styleUrls: ['./quiz.component.scss'],
-  providers: [QuizService, QuizDataService],
+  providers: [FormBuilder, QuizService, QuizDataService],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
