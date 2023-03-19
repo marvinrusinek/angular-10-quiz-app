@@ -57,9 +57,9 @@ export class MultipleAnswerComponent
     this.getCorrectAnswers();
   }
 
-  ngOnChanges(): void {
+  /* ngOnChanges(): void {
     this.initializeOptionChecked();
-  }
+  } */
 
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
