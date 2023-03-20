@@ -19,7 +19,7 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
