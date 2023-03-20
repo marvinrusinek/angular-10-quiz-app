@@ -53,9 +53,7 @@ export class MultipleAnswerComponent
       this.formReady.emit(this.form);
 
       this.currentQuestion = this.question;
-      // this.currentQuestion = await this.quizService.getCurrentQuestion();
       this.getCorrectAnswers();
-
       resolve();
     });
   }
