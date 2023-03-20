@@ -75,35 +75,32 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
-    this.activatedRoute.params.subscribe((params) => {
+    this.activatedRoute.params.subscribe(async (params) => {
       this.quizId = params['quizId'];
       this.quizDataService.setSelectedQuiz(null);
-      this.quizDataService.getQuiz(this.quizId).subscribe((quiz) => {
+      this.quizDataService.getQuiz(this.quizId).subscribe(async (quiz) => {
         if (quiz) {
           this.quizDataService.setSelectedQuiz(quiz);
           this.quizDataService.setCurrentQuestionIndex(0);
-          await this.quizDataService
+          const [question, options] = await this.quizDataService
             .getQuestionAndOptions(quiz.quizId, 0)
-            .subscribe((question) => {
-              console.log('Question:', question);
-              this.question = question[0];
-              if (this.question && this.question.options) {
-                this.answers = question[1].map((option) => option.value) || [];
-                this.setOptions();
-                this.currentQuestion = question[0];
-                this.quizService.setCurrentQuestion(question[0]);
-                this.quizService
-                  .isMultipleAnswer(this.currentQuestion)
-                  .subscribe((multipleAnswer) => {
-                    this.multipleAnswerSubject.next(multipleAnswer);
-                  });
-                this.correctAnswers = this.quizService.getCorrectAnswers(
-                  this.question
-                );
-              } else {
-                console.error('Question or question options not found');
-              }
-            }).toPromise();
+            .toPromise();
+          console.log('Question:', question);
+          this.question = question;
+          if (this.question && this.question.options) {
+            this.answers = options.map((option) => option.value) || [];
+            this.setOptions();
+            this.currentQuestion = question;
+            this.quizService.setCurrentQuestion(question);
+            this.quizService
+              .isMultipleAnswer(this.currentQuestion)
+              .subscribe((multipleAnswer) => {
+                this.multipleAnswerSubject.next(multipleAnswer);
+              });
+            this.correctAnswers = this.quizService.getCorrectAnswers(question);
+          } else {
+            console.error('Question or question options not found');
+          }
         } else {
           console.error('Selected quiz not found');
         }
@@ -224,7 +221,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     const { shuffleOptions } = this.selectedQuiz;
 
     const answerValue = this.question.answer.values().next().value;
-    this.correctOptionIndex = options.findIndex((option) => option.value === answerValue);
+    this.correctOptionIndex = options.findIndex(
+      (option) => option.value === answerValue
+    );
 
     this.options = options.map(
       (option, index) =>
