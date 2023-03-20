@@ -113,32 +113,26 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (!this.question || !this.question.options) {
-      return;
-    }
-
-    if (changes.question) {
-      this.currentQuestion = changes.question.currentValue;
-      this.question = changes.question.currentValue;
+    if (changes.questionIndex) {
+      this.currentQuestion = this.question;
       this.setOptions();
       this.updateCorrectMessage();
+      this.updateCurrentQuestion(this.currentQuestion);
+      this.updateCorrectAnswers();
+      this.updateMultipleAnswer();
+      this.resetForm();
     }
-
+  
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
     ) {
       console.log('CA1::', this.correctAnswers);
       this.correctMessage = this.quizService.setCorrectMessage(
-        this.question,
+        this.currentQuestion,
         this.correctAnswers
       );
     }
-
-    this.updateCurrentQuestion(this.question);
-    this.updateCorrectAnswers();
-    this.updateMultipleAnswer();
-    this.resetForm();
   }
 
   getQuestion(index: number): Observable<QuizQuestion> {
