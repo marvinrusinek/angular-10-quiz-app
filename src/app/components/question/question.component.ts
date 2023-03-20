@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -66,7 +67,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     quizService: QuizService,
     private quizDataService: QuizDataService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {
     this.quizService = quizService;
     this.correctMessage = '';
@@ -130,6 +132,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         this.currentQuestion,
         this.correctAnswers
       );
+      this.cdRef.detectChanges(); // manually trigger change detection
     }
   }
 
