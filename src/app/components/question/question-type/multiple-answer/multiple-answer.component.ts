@@ -1,9 +1,9 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
-  OnChanges,
   OnInit,
   Output,
   ViewEncapsulation,
@@ -27,7 +27,7 @@ import { QuizService } from '../../../../shared/services/quiz.service';
 })
 export class MultipleAnswerComponent
   extends QuizQuestionComponent
-  implements OnInit, OnChanges
+  implements AfterViewInit, OnInit
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -58,7 +58,7 @@ export class MultipleAnswerComponent
     });
   }
 
-  ngOnChanges(): void {
+  ngAfterViewInit(): void {
     this.initializeOptionChecked();
   }
 
