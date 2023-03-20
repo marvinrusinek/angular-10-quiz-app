@@ -64,8 +64,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
   constructor(
     quizService: QuizService,
-    quizDataService: QuizDataService,
-    timerService: TimerService,
+    private quizDataService: QuizDataService,
+    private timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {
     this.quizService = quizService;
@@ -73,7 +73,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.multipleAnswer = false;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
@@ -82,10 +82,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         if (quiz) {
           this.quizDataService.setSelectedQuiz(quiz);
           this.quizDataService.setCurrentQuestionIndex(0);
-          this.quizDataService
+          await this.quizDataService
             .getQuestionAndOptions(quiz.quizId, 0)
             .subscribe((question) => {
-              console.log('Question:', question); // added log statement
+              console.log('Question:', question);
               this.question = question[0];
               if (this.question && this.question.options) {
                 this.answers = question[1].map((option) => option.value) || [];
@@ -103,7 +103,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
               } else {
                 console.error('Question or question options not found');
               }
-            });
+            }).toPromise();
         } else {
           console.error('Selected quiz not found');
         }

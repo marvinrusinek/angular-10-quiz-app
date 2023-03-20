@@ -535,8 +535,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     return of(quiz.questions[index]);
   } */
 
-  getCurrentQuestion(): void {
-    this.quizDataService
+  async getCurrentQuestion(): Promise<void> {
+    await this.quizDataService
       .getQuestionAndOptions(
         this.selectedQuiz.quizId,
         this.currentQuestionIndex
@@ -548,7 +548,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         },
         error: (error) => console.log('Error retrieving question:', error),
         complete: () => console.log('Question retrieval complete'),
-      });
+      }).toPromise();
   }
 
   async onSubmit(): Promise<void> {
