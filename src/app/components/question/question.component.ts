@@ -110,19 +110,17 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
+
+    this.currentQuestion = this.question;
+    this.setOptions();
+    this.updateCorrectMessage();
+    this.updateCurrentQuestion(this.currentQuestion);
+    this.updateCorrectAnswers();
+    this.updateMultipleAnswer();
+    this.resetForm();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.questionIndex) {
-      this.currentQuestion = this.question;
-      this.setOptions();
-      this.updateCorrectMessage();
-      this.updateCurrentQuestion(this.currentQuestion);
-      this.updateCorrectAnswers();
-      this.updateMultipleAnswer();
-      this.resetForm();
-    }
-  
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
