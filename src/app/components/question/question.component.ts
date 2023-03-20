@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DoCheck,
   EventEmitter,
   Input,
   OnChanges,
@@ -120,6 +121,16 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
+  }
+
+  ngDoCheck() {
+    if (this.isChangeDetected) {
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.currentQuestion,
+        this.correctAnswers
+      );
+      this.isChangeDetected = false;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
