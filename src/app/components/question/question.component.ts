@@ -50,6 +50,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   correctOptionIndex: number;
   options: Option[];
   shuffleOptions = true;
+  isChangeDetected = false;
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
