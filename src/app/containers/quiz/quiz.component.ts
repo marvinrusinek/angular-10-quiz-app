@@ -536,19 +536,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   async getCurrentQuestion(): Promise<void> {
-    await this.quizDataService
-      .getQuestionAndOptions(
-        this.selectedQuiz.quizId,
-        this.currentQuestionIndex
-      )
-      .subscribe({
-        next: ([question, options]) => {
-          console.log('CQ', question);
-          this.handleQuestion(question);
-        },
-        error: (error) => console.log('Error retrieving question:', error),
-        complete: () => console.log('Question retrieval complete'),
-      }).toPromise();
+    try {
+      const [question, options] = await this.quizDataService.getQuestionAndOptions(this.selectedQuiz.quizId, this.currentQuestionIndex).toPromise();
+      console.log('CQ', question);
+      this.handleQuestion(question);
+    } catch (error) {
+      console.log('Error retrieving question:', error);
+    }
   }
 
   async onSubmit(): Promise<void> {
