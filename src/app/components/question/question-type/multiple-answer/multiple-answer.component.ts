@@ -45,15 +45,19 @@ export class MultipleAnswerComponent
     super(quizService);
   }
 
-  ngOnInit(): void {
-    this.form = this.formBuilder.group({
-      answer: [null, Validators.required],
-    });
-    this.formReady.emit(this.form);
+  ngOnInit(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.form = this.formBuilder.group({
+        answer: [null, Validators.required],
+      });
+      this.formReady.emit(this.form);
 
-    this.currentQuestion = this.question;
-    // this.currentQuestion = await this.quizService.getCurrentQuestion();
-    this.getCorrectAnswers();
+      this.currentQuestion = this.question;
+      // this.currentQuestion = await this.quizService.getCurrentQuestion();
+      this.getCorrectAnswers();
+
+      resolve();
+    });
   }
 
   ngOnChanges(): void {
