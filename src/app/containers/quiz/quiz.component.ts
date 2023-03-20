@@ -146,6 +146,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscription = this.quizDataService.selectedQuiz$
       .pipe(
         filter((quiz) => !!quiz),
+        distinctUntilChanged(),
         tap((quiz) => {
           console.log('Selected quiz:', quiz);
           this.quizId = quiz.quizId;
@@ -153,13 +154,14 @@ export class QuizComponent implements OnInit, OnDestroy {
             'QuizComponent initialized with quizId:::>>',
             this.quizId
           );
+          this.getCurrentQuestion();
         }),
         catchError((error) => {
           console.error('Error occurred:', error);
           return of(null);
         })
-      )
-      .subscribe();
+    )
+    .subscribe();
 
     console.log('Attempting to retrieve question and options...');
     try {
