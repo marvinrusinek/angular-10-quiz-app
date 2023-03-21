@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
   ViewEncapsulation,
@@ -29,7 +30,7 @@ import { QuizDataService } from '../../../../shared/services/quizdata.service';
 })
 export class MultipleAnswerComponent
   extends QuizQuestionComponent
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnChanges
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -74,6 +75,20 @@ export class MultipleAnswerComponent
   ngAfterViewInit(): void {
     this.initializeOptionChecked();
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.questions && !changes.questions.firstChange) {
+      const options = [];
+      for (const question of this.questions) {
+        if (question.options) {
+          for (const option of question.options) {
+            options.push(option);
+          }
+        }
+      }
+      this.options = options;
+    }
+  }  
 
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
