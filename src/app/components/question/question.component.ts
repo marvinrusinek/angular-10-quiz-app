@@ -235,11 +235,11 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.options = options.map(
       (option, index) =>
         ({
-          answer: option.value,
-          value: option.value,
           text: option.text,
           correct: index === this.correctOptionIndex,
-          isSelected: false,
+          value: option.value,
+          answer: option.value,
+          selected: false,
         } as Option)
     );
 

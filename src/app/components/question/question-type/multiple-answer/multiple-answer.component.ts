@@ -1,12 +1,6 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewEncapsulation,
+  AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter,
+  Input, OnInit, Output, ViewEncapsulation
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -26,8 +20,8 @@ import { QuizService } from '../../../../shared/services/quiz.service';
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class MultipleAnswerComponent
-  extends QuizQuestionComponent
-  implements AfterViewInit, OnInit
+       extends QuizQuestionComponent
+       implements AfterViewInit, OnInit
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -36,6 +30,7 @@ export class MultipleAnswerComponent
   @Input() options: any[];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
+  questions: QuizQuestion[] = [];
   form: FormGroup;
   currentQuestion: QuizQuestion;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
@@ -45,13 +40,15 @@ export class MultipleAnswerComponent
     super(quizService);
   }
 
-  ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.form = this.formBuilder.group({
         answer: [null, Validators.required],
       });
       this.formReady.emit(this.form);
 
+      const quizId = this.route.snapshot.params.quizId;
+      this.questions = await this.quizDataService.getQuestions(quizId).toPromise();
       this.currentQuestion = this.question;
       this.getCorrectAnswers();
       resolve();
