@@ -115,6 +115,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       answer: new FormControl('', Validators.required),
     });
 
+    this.quizService.currentQuestionSubject.subscribe((currentQuestion) => {
+      console.log('currentQuestionSubject emitted:', currentQuestion);
+    });
+
     this.currentQuestion = this.question;
     this.setOptions();
     this.updateCorrectMessage();
