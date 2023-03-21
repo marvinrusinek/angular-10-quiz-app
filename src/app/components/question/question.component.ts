@@ -238,7 +238,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
           answer: option.value,
           value: option.value,
           text: option.text,
-          isCorrect: index === this.correctOptionIndex,
           correct: index === this.correctOptionIndex,
           isSelected: false,
         } as Option)
