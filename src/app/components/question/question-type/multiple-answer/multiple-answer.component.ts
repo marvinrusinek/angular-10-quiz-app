@@ -1,6 +1,12 @@
 import {
-  AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter,
-  Input, OnInit, Output, ViewEncapsulation
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -8,6 +14,7 @@ import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../../shared/services/quizdata.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -20,8 +27,8 @@ import { QuizService } from '../../../../shared/services/quiz.service';
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class MultipleAnswerComponent
-       extends QuizQuestionComponent
-       implements AfterViewInit, OnInit
+  extends QuizQuestionComponent
+  implements AfterViewInit, OnInit
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -36,19 +43,26 @@ export class MultipleAnswerComponent
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
-  constructor(quizService: QuizService, private formBuilder: FormBuilder) {
+  constructor(
+    quizService: QuizService,
+    private quizDataService: QuizDataService,
+    private formBuilder: FormBuilder
+  ) {
     super(quizService);
   }
 
   async ngOnInit(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    super.ngOnInit();
+    await new Promise<void>(async (resolve, reject) => {
       this.form = this.formBuilder.group({
         answer: [null, Validators.required],
       });
       this.formReady.emit(this.form);
 
       const quizId = this.route.snapshot.params.quizId;
-      this.questions = await this.quizDataService.getQuestions(quizId).toPromise();
+      this.questions = await this.quizDataService
+        .getQuestionsForQuiz(quizId)
+        .toPromise();
       this.currentQuestion = this.question;
       this.getCorrectAnswers();
       resolve();
