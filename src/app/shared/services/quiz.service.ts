@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
+import { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Answer } from '../../shared/models/Answer.type';
@@ -452,8 +453,11 @@ export class QuizService implements OnDestroy {
     this.multipleAnswerSubject.next(this.multipleAnswer);
   }
 
-  setCurrentQuestion(value: QuizQuestion): void {
-    this.currentQuestion = value;
+  setCurrentQuestion(question: QuizQuestion) {
+    if (question && !isEqual(question, this.currentQuestion)) {
+      this.currentQuestion = question;
+      this.currentQuestionSubject.next(this.currentQuestion);
+    }
   }
 
   /* setCurrentQuestionIndex(index: number) {
