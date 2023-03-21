@@ -78,17 +78,15 @@ export class MultipleAnswerComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.questions && !changes.questions.firstChange) {
-      const options = [];
-      for (const question of this.questions) {
+      const newOptions = [];
+      this.questions.forEach((question) => {
         if (question.options) {
-          for (const option of question.options) {
-            options.push(option);
-          }
+          newOptions.push(...question.options);
         }
-      }
-      this.options = options;
+      });
+      this.options = newOptions;
     }
-  }  
+  } 
 
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
