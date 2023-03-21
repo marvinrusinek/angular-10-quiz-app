@@ -39,7 +39,7 @@ export class MultipleAnswerComponent
   @Input() options: any[];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
-  questions: QuizQuestion[] = [];
+  questions: QuizQuestion[];
   form: FormGroup;
   currentQuestion: QuizQuestion;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
