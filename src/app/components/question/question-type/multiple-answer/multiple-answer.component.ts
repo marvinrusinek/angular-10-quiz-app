@@ -8,6 +8,7 @@ import {
   Output,
   ViewEncapsulation,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { QuizQuestionComponent } from '../../question.component';
@@ -46,6 +47,7 @@ export class MultipleAnswerComponent
   constructor(
     quizService: QuizService,
     private quizDataService: QuizDataService,
+    activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
     super(quizService);
@@ -59,7 +61,7 @@ export class MultipleAnswerComponent
       });
       this.formReady.emit(this.form);
 
-      const quizId = this.route.snapshot.params.quizId;
+      const quizId = this.activatedRoute.snapshot.params.quizId;
       this.questions = await this.quizDataService
         .getQuestionsForQuiz(quizId)
         .toPromise();

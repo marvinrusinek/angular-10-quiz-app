@@ -69,7 +69,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     quizService: QuizService,
     private quizDataService: QuizDataService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute,
+    activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
   ) {
     this.quizService = quizService;
