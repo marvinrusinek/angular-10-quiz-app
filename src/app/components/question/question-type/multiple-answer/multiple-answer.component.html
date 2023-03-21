@@ -7,7 +7,7 @@
       (click)="selectedOption = option; onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, option)"
       [class]="getOptionClass(option)"
-      [checked]="optionChecked[option.id]"
+      [checked]="optionChecked[option.optionId]"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option.text }}</span>
