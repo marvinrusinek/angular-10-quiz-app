@@ -8,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -200,12 +201,18 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.getCurrentQuestion();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.quizData && changes.quizData.currentValue) {
       const data = changes.quizData.currentValue;
       this.quizName$ = data.quizName;
       this.questions$ = data.questions;
-      this.options = data.options;
+      const newOptions = [];
+      data.questions.forEach((question) => {
+        if (question.options) {
+          newOptions.push(...question.options);
+        }
+      });
+      this.options = newOptions;
     }
   }
 

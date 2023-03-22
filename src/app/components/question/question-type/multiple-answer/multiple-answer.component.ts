@@ -88,6 +88,10 @@ export class MultipleAnswerComponent
     }
   } 
 
+  trackByFn(index: number, question: any) {
+    return question.id;
+  }
+
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
