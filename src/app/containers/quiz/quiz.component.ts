@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -47,7 +48,7 @@ enum Status {
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -197,6 +198,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.quizData && changes.quizData.currentValue) {
+      const data = changes.quizData.currentValue;
+      this.quizName$ = data.quizName;
+      this.questions$ = data.questions;
+      this.options = data.options;
+    }
   }
 
   ngOnDestroy(): void {
