@@ -77,15 +77,9 @@ export class MultipleAnswerComponent
     this.initializeOptionChecked();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.questions && !changes.questions.firstChange) {
-      const newOptions = [];
-      this.questions.forEach((question) => {
-        if (question.options) {
-          newOptions.push(...question.options);
-        }
-      });
-      this.options = newOptions;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.question && !changes.question.firstChange) {
+      this.options = this.question.options || [];
     }
   }
 

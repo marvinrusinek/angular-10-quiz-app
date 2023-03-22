@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -21,7 +21,14 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { catchError, combineLatest, distinctUntilChanged, filter, map, tap } from 'rxjs/operators';
+import {
+  catchError,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  tap,
+} from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -145,13 +152,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex
     );
 
-    this.questions$ = this.quizService.quizData.questions;
-    this.options = [];
-
-    this.questions$.forEach((q) => {
-      if (q.options) {
-        this.options.push(...q.options);
-      }
+    this.quizService.getQuizData().subscribe((data) => {
+      this.quizData = data;
+      this.quizName$ = data.quizName;
+      this.questions$ = data.questions;
+      this.options = [];
+      this.questions$.forEach((q) => {
+        if (q.options) {
+          this.options.push(...q.options);
+        }
+      });
     });
 
     this.subscription = this.quizDataService.selectedQuiz$
@@ -171,8 +181,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Error occurred:', error);
           return of(null);
         })
-    )
-    .subscribe();
+      )
+      .subscribe();
 
     console.log('Attempting to retrieve question and options...');
     try {
@@ -550,7 +560,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async getCurrentQuestion(): Promise<void> {
     try {
-      const [question, options] = await this.quizDataService.getQuestionAndOptions(this.selectedQuiz.quizId, this.currentQuestionIndex).toPromise();
+      const [question, options] = await this.quizDataService
+        .getQuestionAndOptions(
+          this.selectedQuiz.quizId,
+          this.currentQuestionIndex
+        )
+        .toPromise();
       console.log('CQ', question);
       this.handleQuestion(question);
     } catch (error) {
