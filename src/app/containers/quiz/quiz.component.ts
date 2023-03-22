@@ -201,7 +201,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.getCurrentQuestion();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     if (changes.quizData && changes.quizData.currentValue) {
       const data = changes.quizData.currentValue;
       this.quizName$ = data.quizName;
@@ -214,7 +214,19 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       });
       this.options = newOptions;
     }
-  }
+  } */
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.quizData && !changes.quizData.firstChange) {
+      const newOptions = [];
+      this.quizData.questions.forEach((question) => {
+        if (question.options) {
+          newOptions.push(...question.options);
+        }
+      });
+      this.options = newOptions;
+    }
+  } 
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();

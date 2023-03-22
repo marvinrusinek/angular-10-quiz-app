@@ -7,6 +7,7 @@ import {
   OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
   ViewEncapsulation,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -86,7 +87,7 @@ export class MultipleAnswerComponent
       });
       this.options = newOptions;
     }
-  } 
+  }
 
   trackByFn(index: number, question: any) {
     return question.id;
