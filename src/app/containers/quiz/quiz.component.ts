@@ -49,7 +49,7 @@ enum Status {
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -145,6 +145,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       this.questionIndex
     );
 
+    this.questions$ = this.quizService.quizData.questions;
+    this.options = [];
+
+    this.questions$.forEach((q) => {
+      if (q.options) {
+        this.options.push(...q.options);
+      }
+    });
+
     this.subscription = this.quizDataService.selectedQuiz$
       .pipe(
         filter((quiz) => !!quiz),
@@ -200,33 +209,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
   }
-
-  /* ngOnChanges(changes: SimpleChanges): void {
-    if (changes.quizData && changes.quizData.currentValue) {
-      const data = changes.quizData.currentValue;
-      this.quizName$ = data.quizName;
-      this.questions$ = data.questions;
-      const newOptions = [];
-      data.questions.forEach((question) => {
-        if (question.options) {
-          newOptions.push(...question.options);
-        }
-      });
-      this.options = newOptions;
-    }
-  } */
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.quizData && !changes.quizData.firstChange) {
-      const newOptions = [];
-      this.quizData.questions.forEach((question) => {
-        if (question.options) {
-          newOptions.push(...question.options);
-        }
-      });
-      this.options = newOptions;
-    }
-  } 
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
