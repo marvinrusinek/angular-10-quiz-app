@@ -56,7 +56,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
   formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
-  quizData: Quiz[];
+  @Input() quizData: {
+    quizName: string;
+    questions: QuizQuestion[];
+    options: { value: number; correct: boolean }[];
+  };
   quizResources: QuizResource[];
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]>;
@@ -144,6 +148,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       'QuizComponent initialized with questionIndex:::>>',
       this.questionIndex
     );
+
+    combineLatest([
+      this.quizData.questions,
+      this.quizData.options
+    ]).subscribe(([questions, options]) => {
+      this.questions = questions;
+      this.options = options;
+    });
 
     this.subscription = this.quizDataService.selectedQuiz$
       .pipe(
