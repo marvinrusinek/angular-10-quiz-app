@@ -152,11 +152,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex
     );
 
-    this.questions$ = this.quizService.quizData$;
-
-    this.questions$.subscribe((questions) => {
+    this.quizDataService.getQuizData().subscribe((quizData) => {
+      this.questions = quizData.questions;
       this.options = [];
-      questions.forEach((q) => {
+      this.questions.forEach((q) => {
         if (q.options) {
           this.options.push(...q.options);
         }
