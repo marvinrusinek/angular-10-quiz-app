@@ -165,19 +165,11 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestionAndOptions(
-    quizId: string,
-    questionIndex: number
-  ): Observable<[QuizQuestion, Option[]]> {
-    console.log(
-      'getQuestionAndOptions called with quizId:',
-      quizId,
-      'and questionIndex:',
-      questionIndex
-    );
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    console.log('getQuestionAndOptions called with quizId:', quizId, 'and questionIndex:', questionIndex);
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
-        const quiz = quizzes.find((q) => q.quizId === quizId);
+        const quiz = quizzes.find(q => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Selected quiz not found');
         }
@@ -192,19 +184,20 @@ export class QuizDataService implements OnInit {
         }
 
         const options = question.options;
-        if (!options || !Array.isArray(options) || options.length === 0) {
+        if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
           throw new Error('Question options not found');
         }
 
         return [question, options] as [QuizQuestion, Option[]];
       }),
-      catchError((err) => {
+      catchError(err => {
         console.log('Error:', err);
         return of(null);
       }),
       retryWhen((errors) => errors.pipe(delay(1000), take(3)))
     );
-  }
+}
+
 
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
