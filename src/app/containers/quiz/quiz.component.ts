@@ -11,7 +11,12 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  ParamMap,
+  Router,
+} from '@angular/router';
 
 import {
   BehaviorSubject,
@@ -142,7 +147,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
     this.currentQuestionIndex = 0;
-    this.quizService.getQuizzes();
+    this.quizService.getQuizzes().then((quiz) => (this.quiz = quiz));
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
@@ -152,7 +157,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex); */
-  
+
     // Initialize the previous quizId and questionIndex values to the current values
     let prevQuizId = this.quizId;
     let prevQuestionIndex = this.questionIndex;
@@ -172,7 +177,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.questionIndex = 0;
 
         // Call getQuestionAndOptions() only if the quizId or questionIndex have changed
-        if (prevQuizId !== this.quizId || prevQuestionIndex !== this.questionIndex) {
+        if (
+          prevQuizId !== this.quizId ||
+          prevQuestionIndex !== this.questionIndex
+        ) {
           this.getQuestionAndOptions();
         }
 
@@ -180,7 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         prevQuizId = this.quizId;
         prevQuestionIndex = this.questionIndex;
       });
-  
+
     this.subscription = this.quizDataService.selectedQuiz$
       .pipe(
         filter((quiz) => !!quiz),
@@ -188,7 +196,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         tap((quiz) => {
           console.log('Selected quiz:', quiz);
           this.quizId = quiz.quizId;
-          console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+          console.log(
+            'QuizComponent initialized with quizId:::>>',
+            this.quizId
+          );
           this.getCurrentQuestion();
         }),
         catchError((error) => {
@@ -197,7 +208,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
-  
+
     console.log('Attempting to retrieve question and options...');
     try {
       const [question, options] = await this.quizDataService
@@ -205,17 +216,20 @@ export class QuizComponent implements OnInit, OnDestroy {
         .pipe(
           map(([question, options]) => [question, options]),
           catchError((error) => {
-            console.error('Error occurred while retrieving question and options:', error);
+            console.error(
+              'Error occurred while retrieving question and options:',
+              error
+            );
             this.question = null;
             this.options = null;
             return of(null);
           })
         )
         .toPromise();
-  
+
       console.log('QuizDataService returned question:::>>', question);
       console.log('QuizDataService returned options:::>>', options);
-  
+
       if (options !== null && options !== undefined) {
         this.question = question;
         this.options = options;
@@ -224,22 +238,25 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.question = null;
         this.options = null;
       }
-  
+
       // Update the previous quizId and questionIndex values to the current values
       prevQuizId = this.quizId;
       prevQuestionIndex = this.questionIndex;
     } catch (error) {
-      console.error('Error occurred while retrieving question and options:', error);
+      console.error(
+        'Error occurred while retrieving question and options:',
+        error
+      );
       this.question = null;
       this.options = null;
     }
-  
+
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
   }
-            
+
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
@@ -630,19 +647,25 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   getCurrentQuestion() {
-    console.log('getCurrentQuestion called with questionIndex:::>>', this.questionIndex);
-  
+    console.log(
+      'getCurrentQuestion called with questionIndex:::>>',
+      this.questionIndex
+    );
+
     // Set the question index to 0 if it is not set
     if (!this.questionIndex) {
       this.questionIndex = 0;
     }
-  
+
     this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
         map(([question, options]) => [question, options]),
         catchError((error) => {
-          console.error('Error occurred while retrieving question and options:', error);
+          console.error(
+            'Error occurred while retrieving question and options:',
+            error
+          );
           this.question = null;
           this.options = null;
           return of(null);
@@ -651,7 +674,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe(([question, options]) => {
         console.log('QuizDataService returned question:::>>', question);
         console.log('QuizDataService returned options:::>>', options);
-  
+
         if (options !== null && options !== undefined) {
           this.question = question;
           this.options = options;
@@ -661,7 +684,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options = null;
         }
       });
-  }  
+  }
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
