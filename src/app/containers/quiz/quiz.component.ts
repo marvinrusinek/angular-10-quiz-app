@@ -81,6 +81,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   answers = [];
   options: Option[] = [];
   optionsSubscription: Subscription;
+  private routerSubscription: Subscription;
 
   selectedQuiz$: BehaviorSubject<Quiz>;
 
@@ -153,6 +154,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       'QuizComponent initialized with questionIndex:::>>',
       this.questionIndex
     );
+
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        this.quizId = quizId;
+        this.questionIndex = 0;
+        this.getQuestionAndOptions();
+      });
 
     /* this.questions$ = this.quizService.quizData$.pipe(
       map((quizData) => quizData.flatMap((q) => q.questions)),
@@ -240,6 +250,42 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
     if (this.questionSubscription) {
       this.subscription.unsubscribe();
+    }
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  async getQuestionAndOptions(): Promise<void> {
+    try {
+      const [question, options] = await this.quizDataService
+        .getQuestionAndOptions(this.quizId, this.questionIndex)
+        .pipe(
+          map(([question, options]) => [question, options]),
+          catchError((error) => {
+            console.error(
+              'Error occurred while retrieving question and options:',
+              error
+            );
+            this.question = null;
+            this.options = null;
+            return of(null);
+          })
+        )
+        .toPromise();
+      console.log('QuizDataService returned question:::>>', question);
+      console.log('QuizDataService returned options:::>>', options);
+      if (options !== null && options !== undefined) {
+        this.question = question;
+        this.options = options;
+      }
+    } catch (error) {
+      console.error(
+        'Error occurred while retrieving question and options:',
+        error
+      );
+      this.question = null;
+      this.options = null;
     }
   }
 
