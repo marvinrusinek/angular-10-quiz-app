@@ -1,7 +1,15 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
+import {
+  catchError,
+  filter,
+  map,
+  mergeMap,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -50,9 +58,9 @@ export class QuizDataService implements OnInit {
   }
 
   getQuizData(): Observable<QuizQuestion[]> {
-    return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map(quizData => quizData.questions)
-    );
+    return this.http
+      .get<Quiz[]>(this.quizUrl)
+      .pipe(map((quizData) => quizData.questions));
   }
 
   getQuizzes(): Observable<Quiz[]> {
@@ -73,7 +81,9 @@ export class QuizDataService implements OnInit {
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
-      tap((selectedQuiz) => console.log('selectedQuiz$ emitted:', selectedQuiz)),
+      tap((selectedQuiz) =>
+        console.log('selectedQuiz$ emitted:', selectedQuiz)
+      ),
       filter((selectedQuiz) => !!selectedQuiz),
       take(1),
       switchMap((selectedQuiz) => {
@@ -81,7 +91,9 @@ export class QuizDataService implements OnInit {
           return of(selectedQuiz);
         } else {
           return this.selectedQuizSubject.asObservable().pipe(
-            tap((selectedQuiz) => console.log('selectedQuizSubject emitted:', selectedQuiz)),
+            tap((selectedQuiz) =>
+              console.log('selectedQuizSubject emitted:', selectedQuiz)
+            ),
             filter((selectedQuiz) => !!selectedQuiz),
             take(1),
             catchError(() => of(null))
@@ -89,7 +101,7 @@ export class QuizDataService implements OnInit {
         }
       })
     );
-  }  
+  }
 
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
@@ -152,11 +164,19 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    console.log('getQuestionAndOptions called with quizId:', quizId, 'and questionIndex:', questionIndex);
+  getQuestionAndOptions(
+    quizId: string,
+    questionIndex: number
+  ): Observable<[QuizQuestion, Option[]]> {
+    console.log(
+      'getQuestionAndOptions called with quizId:',
+      quizId,
+      'and questionIndex:',
+      questionIndex
+    );
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
+        const quiz = quizzes.find((q) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Selected quiz not found');
         }
@@ -177,10 +197,11 @@ export class QuizDataService implements OnInit {
 
         return [question, options] as [QuizQuestion, Option[]];
       }),
-      catchError(err => {
+      catchError((err) => {
         console.log('Error:', err);
         return of(null);
-      })
+      }),
+      retryWhen((errors) => errors.pipe(delay(1000), take(3)))
     );
   }
 
