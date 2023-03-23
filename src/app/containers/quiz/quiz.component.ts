@@ -154,7 +154,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex
     );
 
-    this.questions$ = this.quizService.quizData$.pipe(
+    /* this.questions$ = this.quizService.quizData$.pipe(
       map((quizData) => quizData.flatMap((q) => q.questions)),
       shareReplay(1)
     );
@@ -165,7 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options.push(...q.options);
         }
       });
-    });
+    }); */
 
     this.subscription = this.quizDataService.selectedQuiz$
       .pipe(
@@ -206,7 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         .toPromise();
       console.log('QuizDataService returned question:::>>', question);
       console.log('QuizDataService returned options:::>>', options);
-    
+
       if (options !== null && options !== undefined) {
         this.question = question;
         this.options = options;
@@ -223,7 +223,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.question = null;
       this.options = null;
     }
-    
+
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
