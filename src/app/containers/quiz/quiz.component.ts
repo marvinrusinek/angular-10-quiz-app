@@ -156,20 +156,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Initialize the previous quizId and questionIndex values to the current values
     let prevQuizId = this.quizId;
     let prevQuestionIndex = this.questionIndex;
-  
+    let isInitialNavigation = true;
+
     // Subscribe to the router events to detect changes in the quizId or questionIndex
     this.routerSubscription = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
+      .subscribe((event: NavigationEnd) => {
+        if (isInitialNavigation) {
+          isInitialNavigation = false;
+          return;
+        }
+
         const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
         this.quizId = quizId;
         this.questionIndex = 0;
-  
+
         // Call getQuestionAndOptions() only if the quizId or questionIndex have changed
         if (prevQuizId !== this.quizId || prevQuestionIndex !== this.questionIndex) {
           this.getQuestionAndOptions();
         }
-  
+
         // Update the previous quizId and questionIndex values to the current values
         prevQuizId = this.quizId;
         prevQuestionIndex = this.questionIndex;
