@@ -152,7 +152,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex
     );
 
-    this.questions$ = this.quizService.getQuizData().pipe(map(quiz => quiz.questions));
+    this.questions$ = this.quizDataService.getQuizData().pipe(map(quiz => quiz.questions));
     this.options$ = this.questions$.pipe(
       map(questions =>
         questions.reduce(
