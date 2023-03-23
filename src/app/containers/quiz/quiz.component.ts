@@ -147,11 +147,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    if (!this.questionIndex) {
+    /* if (!this.questionIndex) {
       this.questionIndex = 0;
     }
   
-    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
+    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex); */
   
     // Initialize the previous quizId and questionIndex values to the current values
     let prevQuizId = this.quizId;
@@ -608,7 +608,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return of(quiz.questions[index]);
   } */
 
-  async getCurrentQuestion(): Promise<void> {
+  /* async getCurrentQuestion(): Promise<void> {
     try {
       const [question, options] = await this.quizDataService
         .getQuestionAndOptions(
@@ -621,7 +621,41 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.log('Error retrieving question:', error);
     }
-  }
+  } */
+
+  getCurrentQuestion() {
+    console.log('getCurrentQuestion called with questionIndex:::>>', this.questionIndex);
+  
+    // Set the question index to 0 if it is not set
+    if (!this.questionIndex) {
+      this.questionIndex = 0;
+    }
+  
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map(([question, options]) => [question, options]),
+        catchError((error) => {
+          console.error('Error occurred while retrieving question and options:', error);
+          this.question = null;
+          this.options = null;
+          return of(null);
+        })
+      )
+      .subscribe(([question, options]) => {
+        console.log('QuizDataService returned question:::>>', question);
+        console.log('QuizDataService returned options:::>>', options);
+  
+        if (options !== null && options !== undefined) {
+          this.question = question;
+          this.options = options;
+        } else {
+          console.error('Options array is null or undefined');
+          this.question = null;
+          this.options = null;
+        }
+      });
+  }  
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
