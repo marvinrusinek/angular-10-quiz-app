@@ -153,18 +153,17 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex
     );
 
-    this.questions$ = this.quizDataService.getQuizData().pipe(map(quiz => quiz.questions));
-    this.options$ = this.questions$.pipe(
-      map(questions =>
-        questions.reduce(
-          (options, question) => (question.options ? [...options, ...question.options] : options),
-          []
-        )
-      )
+    this.questions$ = this.quizService.quizData$.pipe(
+      map((quizData) => quizData.flatMap((q) => q.questions)),
+      shareReplay(1)
     );
 
-    this.options$.subscribe(options => {
-      console.log(options);
+    this.questions$.subscribe((questions) => {
+      questions.forEach((q) => {
+        if (q.options) {
+          this.options.push(...q.options);
+        }
+      });
     });
 
     this.subscription = this.quizDataService.selectedQuiz$

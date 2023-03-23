@@ -24,6 +24,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 export class QuizService implements OnDestroy {
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   quizData: Quiz[] = this.quizInitialState;
+  private _quizData$ = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
   quizResources: QuizResource[];
@@ -99,6 +100,10 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
+    this.getQuizData().subscribe((data) => {
+      this._quizData$.next(data);
+    });
+
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       if (this.quizzes.length > 0) {
@@ -145,8 +150,16 @@ export class QuizService implements OnDestroy {
     return this._multipleAnswer;
   }
 
-  get quizData$(): Observable<Quiz[]> {
+  /* get quizData$(): Observable<Quiz[]> {
     return of(this.quizData);
+  } */
+
+  get quizData$() {
+    return this._quizData$.asObservable();
+  }
+
+  private getQuizData(): Observable<Quiz[]> {
+    return this.http.get<Quiz[]>('/assets/data/quiz.json');
   }
 
   getQuizName(segments: any[]): string {
