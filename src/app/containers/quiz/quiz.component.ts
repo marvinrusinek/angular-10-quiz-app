@@ -161,7 +161,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.questions$.subscribe((questions) => {
       questions.forEach((q) => {
-        if (q.options) {
+        if (q.options && q.options.length > 0) {
           this.options.push(...q.options);
         }
       });
