@@ -101,6 +101,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   quizId: string = '';
   questions$: Observable<QuizQuestion[]>;
+  options$: Observable<Option[]>;
   quizName$: Observable<string>;
   options$: Observable<Option[]>;
   indexOfQuizId: number;
