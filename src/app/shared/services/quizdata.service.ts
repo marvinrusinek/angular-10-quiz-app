@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
+  distinctUntilChanged,
   filter,
   map,
   mergeMap,
@@ -198,7 +199,7 @@ export class QuizDataService implements OnInit {
       distinctUntilChanged((prev, curr) => prev[0].questionId === curr[0].questionId && prev[1].length === curr[1].length)
     );
   }
-  
+
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
