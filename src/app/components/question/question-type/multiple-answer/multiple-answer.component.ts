@@ -77,9 +77,12 @@ export class MultipleAnswerComponent
     this.initializeOptionChecked();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.question && !changes.question.firstChange) {
-      this.options = this.question.options || [];
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.selectedOptions && !changes.selectedOptions.firstChange) {
+      const selectedOptions = changes.selectedOptions.currentValue;
+      this.options.forEach((option) => {
+        option.selected = selectedOptions.includes(option.value);
+      });
     }
   }
 
