@@ -218,6 +218,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.question = null;
         this.options = null;
       }
+  
+      // Update the previous quizId and questionIndex values to the current values
+      prevQuizId = this.quizId;
+      prevQuestionIndex = this.questionIndex;
     } catch (error) {
       console.error('Error occurred while retrieving question and options:', error);
       this.question = null;
@@ -229,7 +233,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
   }
-          
+            
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
