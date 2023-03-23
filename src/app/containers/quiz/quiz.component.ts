@@ -27,6 +27,7 @@ import {
   distinctUntilChanged,
   filter,
   map,
+  shareReplay,
   tap,
 } from 'rxjs/operators';
 
