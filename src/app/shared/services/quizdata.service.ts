@@ -194,11 +194,11 @@ export class QuizDataService implements OnInit {
         console.log('Error:', err);
         return of(null);
       }),
-      retryWhen((errors) => errors.pipe(delay(1000), take(3)))
+      retryWhen((errors) => errors.pipe(delay(1000), take(3))),
+      distinctUntilChanged((prev, curr) => prev[0].questionId === curr[0].questionId && prev[1].length === curr[1].length)
     );
-}
-
-
+  }
+  
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
