@@ -147,9 +147,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.questionIndex = +this.activatedRoute.snapshot.queryParamMap.get('questionIndex') || 0;
-    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
-    
+    if (!this.questionIndex) {
+      this.questionIndex = 0;
+    }
+    console.log(
+      'QuizComponent initialized with questionIndex:::>>',
+      this.questionIndex
+    );
+  
     this.routerSubscription = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -166,8 +171,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         tap((quiz) => {
           console.log('Selected quiz:', quiz);
           this.quizId = quiz.quizId;
-          console.log('QuizComponent initialized with quizId:::>>', this.quizId);
-          this.getQuestionAndOptions();
+          console.log(
+            'QuizComponent initialized with quizId:::>>',
+            this.quizId
+          );
+          this.getCurrentQuestion();
         }),
         catchError((error) => {
           console.error('Error occurred:', error);
@@ -183,14 +191,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         .pipe(
           map(([question, options]) => [question, options]),
           catchError((error) => {
-            console.error('Error occurred while retrieving question and options:', error);
+            console.error(
+              'Error occurred while retrieving question and options:',
+              error
+            );
             this.question = null;
             this.options = null;
             return of(null);
           })
         )
         .toPromise();
-  
       console.log('QuizDataService returned question:::>>', question);
       console.log('QuizDataService returned options:::>>', options);
   
@@ -203,7 +213,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.options = null;
       }
     } catch (error) {
-      console.error('Error occurred while retrieving question and options:', error);
+      console.error(
+        'Error occurred while retrieving question and options:',
+        error
+      );
       this.question = null;
       this.options = null;
     }
@@ -213,7 +226,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
   }
-      
+        
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
