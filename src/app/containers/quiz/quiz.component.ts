@@ -206,8 +206,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         .toPromise();
       console.log('QuizDataService returned question:::>>', question);
       console.log('QuizDataService returned options:::>>', options);
-      this.question = question;
-      this.options = options;
+    
+      if (options !== null && options !== undefined) {
+        this.question = question;
+        this.options = options;
+      } else {
+        console.error('Options array is null or undefined');
+        this.question = null;
+        this.options = null;
+      }
     } catch (error) {
       console.error(
         'Error occurred while retrieving question and options:',
@@ -216,7 +223,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.question = null;
       this.options = null;
     }
-
+    
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
