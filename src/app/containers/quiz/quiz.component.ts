@@ -20,6 +20,7 @@ import {
 
 import {
   BehaviorSubject,
+  forkJoin,
   Observable,
   of,
   PartialObserver,
@@ -31,7 +32,6 @@ import {
   combineLatest,
   distinctUntilChanged,
   filter,
-  forkJoin,
   map,
   shareReplay,
   tap,
