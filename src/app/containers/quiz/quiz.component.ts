@@ -531,13 +531,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<void> {
-    if (!this.questionIndex) {
+    if (!this.questionIndex && this.questionIndex !== 0) {
       this.questionIndex = 0;
     }
-    console.log(
-      'getCurrentQuestion called with questionIndex:::>>',
-      this.questionIndex
-    );
+    console.log('getCurrentQuestion called with questionIndex:::>>', this.questionIndex);
   
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
@@ -547,10 +544,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           response[1] as Option[]
         ]),
         catchError((error) => {
-          console.error(
-            'Error occurred while retrieving question and options:',
-            error
-          );
+          console.error('Error occurred while retrieving question and options:', error);
           this.question = null;
           this.options = null;
           return of(null);
@@ -571,7 +565,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.options = null;
     }
   }
-      
+        
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
