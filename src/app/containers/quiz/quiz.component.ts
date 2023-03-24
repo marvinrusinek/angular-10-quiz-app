@@ -31,6 +31,7 @@ import {
   combineLatest,
   distinctUntilChanged,
   filter,
+  forkJoin,
   map,
   shareReplay,
   tap,
@@ -219,7 +220,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  async getQuestion(): Promise<void> {
+  /* async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
 
@@ -245,8 +246,36 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.cdRef.detectChanges();
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
-  }
+  } */
 
+  async getQuestion(): Promise<void> {
+    const quizId = this.activatedRoute.snapshot.params.quizId;
+    const currentQuestionIndex = this.currentQuestionIndex;
+  
+    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
+    this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
+  
+    const [question, options] = await forkJoin([this.question$, this.options$]).toPromise();
+  
+    if (!question) {
+      console.error('QuizDataService returned null question');
+      return;
+    }
+  
+    if (!options || options.length === 0) {
+      console.error('QuizDataService returned null or empty options');
+      return;
+    }
+  
+    this.handleQuestion(question);
+    this.handleOptions(options);
+  
+    const isMultiple = await this.quizService.isMultipleAnswer(question).toPromise();
+    this.quizService.setMultipleAnswer(isMultiple);
+  
+    this.cdRef.detectChanges();
+    this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
+  }
 
   subscribeRouterAndInit(): void {
     // Initialize the previous quizId and questionIndex values to the current values
