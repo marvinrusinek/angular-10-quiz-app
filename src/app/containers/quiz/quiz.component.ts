@@ -151,85 +151,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
-  async ngOnInit(): Promise<void> {
-    if (!this.questionIndex) {
-      this.questionIndex = 0;
-    }
-
-    console.log('QuizComponent initialized with questionIndex:::>>', this.questionIndex);
-
-    // Initialize the previous quizId and questionIndex values to the current values
-    let prevQuizId = this.quizId;
-    let prevQuestionIndex = this.questionIndex;
-
-    // Subscribe to the router events to detect changes in the quizId or questionIndex
-    this.routerSubscription = this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        this.quizId = quizId;
-        this.questionIndex = 0;
-
-        // Update the previous quizId and questionIndex values to the current values
-        prevQuizId = this.quizId;
-        prevQuestionIndex = this.questionIndex;
-      });
-
-    this.subscription = this.quizDataService.selectedQuiz$
-      .pipe(
-        filter((quiz) => !!quiz),
-        distinctUntilChanged(),
-        tap((quiz) => {
-          console.log('Selected quiz:', quiz);
-          this.quizId = quiz.quizId;
-          console.log('QuizComponent initialized with quizId:::>>', this.quizId);
-          this.getCurrentQuestion();
-        }),
-        catchError((error) => {
-          console.error('Error occurred:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
-
-    console.log('Attempting to retrieve question and options...');
-    try {
-      const [question, options] = await this.quizDataService
-        .getQuestionAndOptions(this.quizId, this.questionIndex)
-        .pipe(
-          map(([question, options]) => [question, options]),
-          catchError((error) => {
-            console.error('Error occurred while retrieving question and options:', error);
-            this.question = null;
-            this.options = null;
-            return of(null);
-          })
-        )
-        .toPromise();
-
-      console.log('QuizDataService returned question:::>>', question);
-      console.log('QuizDataService returned options:::>>', options);
-
-      if (options !== null && options !== undefined) {
-        this.question = question;
-        this.options = options;
-      } else {
-        console.error('Options array is null or undefined');
-        this.question = null;
-        this.options = null;
-      }
-    } catch (error) {
-      console.error('Error occurred while retrieving question and options:', error);
-      this.question = null;
-      this.options = null;
-    }
-
+  ngOnInit(): void {
+    this.subscribeRouterAndInit();
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
   }
-
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -239,39 +167,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.questionSubscription.unsubscribe();
     this.subscription.unsubscribe();
     this.routerSubscription.unsubscribe();
-  }
-
-  async getQuestionAndOptions(): Promise<void> {
-    try {
-      const [question, options] = await this.quizDataService
-        .getQuestionAndOptions(this.quizId, this.questionIndex)
-        .pipe(
-          map(([question, options]) => [question, options]),
-          catchError((error) => {
-            console.error(
-              'Error occurred while retrieving question and options:',
-              error
-            );
-            this.question = null;
-            this.options = null;
-            return of(null);
-          })
-        )
-        .toPromise();
-      console.log('QuizDataService returned question:::>>', question);
-      console.log('QuizDataService returned options:::>>', options);
-      if (options !== null && options !== undefined) {
-        this.question = question;
-        this.options = options;
-      }
-    } catch (error) {
-      console.error(
-        'Error occurred while retrieving question and options:',
-        error
-      );
-      this.question = null;
-      this.options = null;
-    }
   }
 
   getCurrentQuiz(): void {
@@ -301,16 +196,33 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Selected quiz not found');
       }
     });
+
+    this.subscription = this.quizDataService.selectedQuiz$
+      .pipe(
+        filter((quiz) => !!quiz),
+        distinctUntilChanged(),
+        tap((quiz) => {
+          console.log('Selected quiz:', quiz);
+          this.quizId = quiz.quizId;
+          console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+          this.getCurrentQuestion();
+        }),
+        catchError((error) => {
+          console.error('Error occurred:', error);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-    const quizQuestion = await this.quizDataService
+    /* const quizQuestion = await this.quizDataService
       .getQuestionAndOptions(quizId, currentQuestionIndex)
       .pipe(map(([quizQuestion, options]) => quizQuestion))
       .toPromise();
-    this.question$ = of(quizQuestion);
+    this.question$ = of(quizQuestion); */
     this.cdRef.detectChanges();
 
     this.questionSubscription = this.question$.subscribe({
@@ -334,6 +246,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
+  }
+  
+  subscribeRouterAndInit(): void {
+    // Initialize the previous quizId and questionIndex values to the current values
+    let prevQuizId = this.quizId;
+    let prevQuestionIndex = this.questionIndex;
+
+    // Subscribe to the router events to detect changes in the quizId or questionIndex
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+        this.quizId = quizId;
+        this.questionIndex = 0;
+
+        // Update the previous quizId and questionIndex values to the current values
+        prevQuizId = this.quizId;
+        prevQuestionIndex = this.questionIndex;
+      }
+    );
   }
 
   handleOptions(options: Option[]): void {
@@ -595,37 +527,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* private getQuestion(quiz: Quiz, index: number): Observable<QuizQuestion> {
-    return of(quiz.questions[index]);
-  } */
-
-  /* async getCurrentQuestion(): Promise<void> {
-    try {
-      const [question, options] = await this.quizDataService
-        .getQuestionAndOptions(
-          this.selectedQuiz.quizId,
-          this.currentQuestionIndex
-        )
-        .toPromise();
-      console.log('CQ', question);
-      this.handleQuestion(question);
-    } catch (error) {
-      console.log('Error retrieving question:', error);
+  async getCurrentQuestion(): Promise<void> {
+    // Set the question index to 0 if it is not set
+    if (!this.questionIndex) {
+      this.questionIndex = 0;
     }
-  } */
-
-  getCurrentQuestion() {
     console.log(
       'getCurrentQuestion called with questionIndex:::>>',
       this.questionIndex
     );
 
-    // Set the question index to 0 if it is not set
-    if (!this.questionIndex) {
-      this.questionIndex = 0;
-    }
-
-    this.quizDataService
+    const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
         map(([question, options]) => [question, options]),
@@ -638,7 +550,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options = null;
           return of(null);
         })
-      )
+      ).toPromise().
       .subscribe(([question, options]) => {
         console.log('QuizDataService returned question:::>>', question);
         console.log('QuizDataService returned options:::>>', options);
