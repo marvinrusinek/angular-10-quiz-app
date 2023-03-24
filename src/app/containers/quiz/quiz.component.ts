@@ -551,9 +551,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             'Error occurred while retrieving question and options:',
             error
           );
-          this.question = null;
-          this.options = null;
-          return of(null);
+          return of([null, null]);
         }),
         toArray()
       )
@@ -562,16 +560,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('QuizDataService returned question:::>>', question);
     console.log('QuizDataService returned options:::>>', options);
   
-    if (options && options.length > 0 && question !== null) {
+    if (options && options.length > 0 && question) {
       this.question = question;
       this.options = options;
     } else {
-      console.error('Options array is null or undefined');
+      console.error('Question or options array is null or undefined');
       this.question = null;
       this.options = null;
     }
   }
-  
+    
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
