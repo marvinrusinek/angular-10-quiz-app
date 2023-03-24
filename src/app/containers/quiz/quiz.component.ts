@@ -538,7 +538,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       'getCurrentQuestion called with questionIndex:::>>',
       this.questionIndex
     );
-
+  
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
@@ -558,11 +558,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         toArray()
       )
       .toPromise();
-
+  
     console.log('QuizDataService returned question:::>>', question);
     console.log('QuizDataService returned options:::>>', options);
-
-    if (options && options.length > 0) {
+  
+    if (options && options.length > 0 && question !== null) {
       this.question = question;
       this.options = options;
     } else {
@@ -571,7 +571,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.options = null;
     }
   }
-
+  
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
