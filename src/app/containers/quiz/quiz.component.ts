@@ -34,7 +34,7 @@ import {
   map,
   shareReplay,
   tap,
-  toArray
+  toArray,
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -205,7 +205,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         tap((quiz) => {
           console.log('Selected quiz:', quiz);
           this.quizId = quiz.quizId;
-          console.log('QuizComponent initialized with quizId:::>>', this.quizId);
+          console.log(
+            'QuizComponent initialized with quizId:::>>',
+            this.quizId
+          );
           this.getCurrentQuestion();
         }),
         catchError((error) => {
@@ -248,7 +251,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
   }
-  
+
   subscribeRouterAndInit(): void {
     // Initialize the previous quizId and questionIndex values to the current values
     let prevQuizId = this.quizId;
@@ -265,8 +268,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Update the previous quizId and questionIndex values to the current values
         prevQuizId = this.quizId;
         prevQuestionIndex = this.questionIndex;
-      }
-    );
+      });
   }
 
   handleOptions(options: Option[]): void {
@@ -538,27 +540,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     const [question, options] = await this.quizDataService
-  .getQuestionAndOptions(this.quizId, this.questionIndex)
-  .pipe(
-    map((response: any) => [response[0] as QuizQuestion, response[1] as Option[]]),
-    catchError((error) => {
-      console.error(
-        'Error occurred while retrieving question and options:',
-        error
-      );
-      this.question = null;
-      this.options = null;
-      return of(null);
-    }),
-    toArray()
-  )
-  .toPromise();
-
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map((response: any) => [
+          response[0] as QuizQuestion,
+          response[1] as Option[]
+        ]),
+        catchError((error) => {
+          console.error(
+            'Error occurred while retrieving question and options:',
+            error
+          );
+          this.question = null;
+          this.options = null;
+          return of(null);
+        }),
+        toArray()
+      )
+      .toPromise();
 
     console.log('QuizDataService returned question:::>>', question);
     console.log('QuizDataService returned options:::>>', options);
 
-    if (options !== null && options !== undefined) {
+    if (options && options.length > 0) {
       this.question = question;
       this.options = options;
     } else {
