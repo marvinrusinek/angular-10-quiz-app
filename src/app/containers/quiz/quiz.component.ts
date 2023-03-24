@@ -222,12 +222,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-    /* const quizQuestion = await this.quizDataService
-      .getQuestionAndOptions(quizId, currentQuestionIndex)
-      .pipe(map(([quizQuestion, options]) => quizQuestion))
-      .toPromise();
-    this.question$ = of(quizQuestion); */
-    this.cdRef.detectChanges();
 
     this.questionSubscription = this.question$.subscribe({
       next: (question) => {
@@ -249,8 +243,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Error in question$: ', err),
     });
 
+    this.cdRef.detectChanges();
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
   }
+
 
   subscribeRouterAndInit(): void {
     // Initialize the previous quizId and questionIndex values to the current values
