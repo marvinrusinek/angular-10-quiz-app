@@ -572,7 +572,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
