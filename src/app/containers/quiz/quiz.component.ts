@@ -538,11 +538,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       'getCurrentQuestion called with questionIndex:::>>',
       this.questionIndex
     );
-
+  
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
-        map((response: any) => response[0] as QuizQuestion),
+        map((response: any) => [
+          response[0] as QuizQuestion,
+          response[1] as Option[]
+        ]),
         catchError((error) => {
           console.error(
             'Error occurred while retrieving question and options:',
@@ -555,20 +558,20 @@ export class QuizComponent implements OnInit, OnDestroy {
         toArray()
       )
       .toPromise();
-
+  
     console.log('QuizDataService returned question:::>>', question);
     console.log('QuizDataService returned options:::>>', options);
-
-    if (options !== undefined && options.length > 0) {
-      this.question = question;
-      this.options = options;
+  
+    if (question && options && options.length > 0) {
+      this.question = question[0];
+      this.options = options[0];
     } else {
       console.error('Question or options array is null or undefined');
       this.question = null;
       this.options = null;
     }
   }
-  
+    
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
