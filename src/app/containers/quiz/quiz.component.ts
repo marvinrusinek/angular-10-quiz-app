@@ -147,7 +147,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
     this.currentQuestionIndex = 0;
-    this.quizService.getQuizzes().then((quiz) => (this.quiz = quiz));
+    this.quizService.getQuizzes();
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
