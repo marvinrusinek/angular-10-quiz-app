@@ -34,6 +34,7 @@ import {
   map,
   shareReplay,
   tap,
+  toArray
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -537,20 +538,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     const [question, options] = await this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .pipe(
-        map((response: any) => [response[0] as QuizQuestion, response[1] as Option[]]),
-        catchError((error) => {
-          console.error(
-            'Error occurred while retrieving question and options:',
-            error
-          );
-          this.question = null;
-          this.options = null;
-          return of(null);
-        })
-      )
-      .toPromise();
+  .getQuestionAndOptions(this.quizId, this.questionIndex)
+  .pipe(
+    map((response: any) => [response[0] as QuizQuestion, response[1] as Option[]]),
+    catchError((error) => {
+      console.error(
+        'Error occurred while retrieving question and options:',
+        error
+      );
+      this.question = null;
+      this.options = null;
+      return of(null);
+    }),
+    toArray()
+  )
+  .toPromise();
+
 
     console.log('QuizDataService returned question:::>>', question);
     console.log('QuizDataService returned options:::>>', options);
