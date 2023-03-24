@@ -537,33 +537,44 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex
     );
 
-    const [question, options] = await this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .pipe(
-        map(([question, options]) => [question, options]),
-        catchError((error) => {
-          console.error(
-            'Error occurred while retrieving question and options:',
-            error
-          );
-          this.question = null;
-          this.options = null;
-          return of(null);
-        })
-      ).toPromise().
-      .subscribe(([question, options]) => {
-        console.log('QuizDataService returned question:::>>', question);
-        console.log('QuizDataService returned options:::>>', options);
+    try {
+      const [question, options] = await this.quizDataService
+        .getQuestionAndOptions(this.quizId, this.questionIndex)
+        .pipe(
+          map(([question, options]) => {
+            console.log('QuizDataService returned question:::>>', question);
+            console.log('QuizDataService returned options:::>>', options);
 
-        if (options !== null && options !== undefined) {
-          this.question = question;
-          this.options = options;
-        } else {
-          console.error('Options array is null or undefined');
-          this.question = null;
-          this.options = null;
-        }
-      });
+            if (options !== null && options !== undefined) {
+              this.question = question;
+              this.options = options;
+            } else {
+              console.error('Options array is null or undefined');
+              this.question = null;
+              this.options = null;
+            }
+
+            return [question, options];
+          }),
+          catchError((error) => {
+            console.error(
+              'Error occurred while retrieving question and options:',
+              error
+            );
+            this.question = null;
+            this.options = null;
+            return of(null);
+          })
+        )
+        .toPromise();
+    } catch (error) {
+      console.error(
+        'Error occurred while retrieving question and options:',
+        error
+      );
+      this.question = null;
+      this.options = null;
+    }
   }
 
   async onSubmit(): Promise<void> {
