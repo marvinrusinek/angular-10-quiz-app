@@ -85,7 +85,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
 
-    if (!this.quiz || !this.question) {
+    if (!this.selectedQuiz || !this.question) {
       console.error('Question or quiz not found');
       return;
     }
