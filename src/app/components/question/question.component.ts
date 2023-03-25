@@ -78,7 +78,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('ngOnInit called');
     this.currentQuestionIndex = 0;
 
     this.activatedRoute.params.subscribe(async (params) => {
