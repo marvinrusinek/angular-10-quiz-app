@@ -258,18 +258,17 @@ export class QuizService implements OnDestroy {
       )
       .toPromise() as [QuizQuestion, Option[]];
   
-      if (question && options && options.length > 0) {
-        this.currentQuestion = question;
-        this.currentOptions = options;
-        this.questionsAndOptions[questionIndex] = [question, options];
-      } else {
-        console.error('Question or options array is null or undefined');
-        this.currentQuestion = null;
-        this.currentOptions = null;
-      }
+    if (question && options && options.length > 0) {
+      this.currentQuestion = question;
+      this.currentOptions = options;
+      this.questionsAndOptions[questionIndex] = [question, options];
+    } else {
+      console.error('Question or options array is null or undefined');
+      this.currentQuestion = null;
+      this.currentOptions = null;
     }
   }
-      
+        
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
