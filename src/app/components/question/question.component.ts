@@ -85,19 +85,34 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
 
-    console.log('Question: ', this.question);
-    console.log('Selected quiz: ', this.selectedQuiz);
-
     if (!this.selectedQuiz) {
       console.error('Quiz not found');
       return;
     }
   
+    const quizQuestion = this.selectedQuiz.questions.find(
+      (question: any) => question.id === question
+    ) as QuizQuestion;
+    if (!quizQuestion) {
+      console.error('Question not found');
+      return;
+    }
+    
     if (!this.question || !this.question.options) {
       console.error('Question or question options not found');
       return;
     }
-    
+  
+    this.quizService.getSelectedQuiz().subscribe(
+      (quiz: Quiz) => {
+        this.selectedQuiz = quiz;
+        this.setOptions();
+      },
+      (error: any) => {
+        console.error(error);
+      }
+    );
+
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.id) {
         this.quizId = params['quizId'];
