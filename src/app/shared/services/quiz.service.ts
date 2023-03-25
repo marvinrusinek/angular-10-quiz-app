@@ -34,6 +34,7 @@ export class QuizService implements OnDestroy {
   currentQuestion$: Observable<QuizQuestion>;
   options: Option[] = [];
   resources: Resource[];
+  quizId: string = '';
   answers: number[];
   totalQuestions: number;
   currentQuizIndex: number = 0;
@@ -42,11 +43,7 @@ export class QuizService implements OnDestroy {
   quizStartTime: Date;
 
   quizName$ = new BehaviorSubject<string>('');
-  // selectedQuiz$: Observable<Quiz>;
-  // selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-
-  quizId: string = '';
   selectedQuiz: any;
   selectedQuizId: string;
   indexOfQuizId: number;
@@ -231,13 +228,13 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<void> {
-    let questionIndex = this.currentQuestionIndex;
+    const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
-      questionIndex = 0;
+      this.currentQuestionIndex = 0;
     }
   
     const [question, options] = await this.quizDataService
-      .getQuestionAndOptions(this.quizId, questionIndex)
+      .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
       .pipe(
         map((response: any) => [
           response[0] as QuizQuestion,
@@ -246,21 +243,22 @@ export class QuizService implements OnDestroy {
         catchError((error) => {
           console.error('Error occurred while retrieving question and options:', error);
           this.currentQuestion = null;
+          this.currentOptions = null;
           throw error;
-        }),
-        toArray()
+        })
       )
       .toPromise() as [QuizQuestion, Option[]];
   
     if (question && options && options.length > 0) {
       this.currentQuestion = question;
-      this.currentQuestion.options = options;
+      this.currentOptions = options;
     } else {
       console.error('Question or options array is null or undefined');
       this.currentQuestion = null;
+      this.currentOptions = null;
     }
   }
-
+  
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
