@@ -14,7 +14,6 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizScore } from '../../shared/models/QuizScore.model';
-import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
