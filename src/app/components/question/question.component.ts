@@ -106,7 +106,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
               this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-              console.log('QuizService Correct Answers:', this.quizService.getCorrectAnswers(question));
+              console.log('QuizService Correct Answers:', this.quizService.getCorrectAnswers(this.question));
             } else {
               console.error('Question or question options not found');
             }
@@ -228,7 +228,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
   public getCorrectAnswers(): void {
     this.correctAnswers = this.quizService.getCorrectAnswers(
-      this.currentQuestion
+      this.question
     );
   }
 
