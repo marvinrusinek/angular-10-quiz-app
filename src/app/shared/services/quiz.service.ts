@@ -231,9 +231,9 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<void> {
-    const questionIndex = this.currentQuestionIndex;
+    let questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
-      this.questionIndex = 0;
+      questionIndex = 0;
     }
   
     const [question, options] = await this.quizDataService
