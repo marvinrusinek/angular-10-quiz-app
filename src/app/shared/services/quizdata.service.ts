@@ -66,7 +66,7 @@ export class QuizDataService implements OnInit {
       .pipe(map((quizData) => quizData.questions));
   } */
 
-  getQuizData(quizId: number): Observable<QuizQuestion[]> {
+  getQuizData(quizId: string): Observable<QuizQuestion[]> {
     return this.http
       .get<Quiz[]>(this.quizUrl)
       .pipe(
