@@ -105,7 +105,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
                 .subscribe((multipleAnswer) => {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
-              this.correctAnswers = this.quizService.getCorrectAnswers(question);
+              this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
               console.log('QuizService Correct Answers:', this.quizService.getCorrectAnswers(question));
             } else {
               console.error('Question or question options not found');

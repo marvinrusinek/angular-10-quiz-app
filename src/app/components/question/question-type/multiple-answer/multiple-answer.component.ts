@@ -47,7 +47,7 @@ export class MultipleAnswerComponent
   optionChecked: { [optionId: number]: boolean } = {};
 
   constructor(
-    quizService: QuizService,
+    public quizService: QuizService,
     private quizDataService: QuizDataService,
     activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
@@ -68,7 +68,7 @@ export class MultipleAnswerComponent
         .getQuestionsForQuiz(quizId)
         .toPromise();
       this.currentQuestion = this.question;
-      this.getCorrectAnswers();
+      this.quizService.getCorrectAnswers(this.currentQuestion);
       resolve();
     });
   }

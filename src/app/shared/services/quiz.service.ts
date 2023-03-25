@@ -291,7 +291,6 @@ export class QuizService implements OnDestroy {
   }
 
   getCorrectAnswers(question: QuizQuestion): number[] {
-    console.log('Correct Answers:', question.correctAnswers);
     if (question && question.options) {
       return question.options
         .map((option, index) => (option.correct ? index : null))
