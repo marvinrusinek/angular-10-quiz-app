@@ -8,9 +8,10 @@ import {
   map,
   mergeMap,
   retryWhen,
+  shareReplay,
   switchMap,
   take,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -168,7 +169,6 @@ export class QuizDataService implements OnInit {
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     console.log(`getQuestionAndOptions called with quizId: ${quizId} and questionIndex: ${questionIndex}`);
-    // console.log('getQuestionAndOptions called with quizId:', quizId, 'and questionIndex:', questionIndex);
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => {
         const quiz = quizzes.find(q => q.quizId === quizId);
@@ -198,10 +198,11 @@ export class QuizDataService implements OnInit {
         return of(null);
       }),
       retryWhen((errors) => errors.pipe(delay(1000), take(3))),
-      distinctUntilChanged((prev, curr) => prev[0].questionId === curr[0].questionId && prev[1].length === curr[1].length)
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-
+  
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
