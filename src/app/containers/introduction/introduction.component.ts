@@ -2,7 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
-  OnInit
+  OnInit,
+  Output
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription, throwError } from 'rxjs';
@@ -33,7 +34,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz: Quiz | null;
   selectedQuiz$: Observable<Quiz>;
   selectedQuizSubscription: Subscription;
-  
+  @Output() quizSelected = new EventEmitter<string>();
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
 
@@ -91,6 +92,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     if (this.selectedQuizId) {
       this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
+        this.quizSelected.emit(quizId);
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', quizId, 1]);
       });
