@@ -122,12 +122,12 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
     this.quizService.currentQuestionSubject.subscribe((currentQuestion) => {
       console.log('currentQuestionSubject emitted:', currentQuestion);
+      this.updateCurrentQuestion(this.currentQuestion);
     });
 
     this.currentQuestion = this.question;
     this.setOptions();
     this.updateCorrectMessage();
-    this.updateCurrentQuestion(this.currentQuestion);
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
