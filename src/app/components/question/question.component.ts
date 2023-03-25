@@ -89,7 +89,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
             this.quizDataService.setSelectedQuiz(quiz);
             this.quizDataService.setCurrentQuestionIndex(0);
             const [question, options] = await this.quizDataService
-              .getQuestionAndOptions(quiz.quizId, 0)
+              .getQuestionAndOptions(this.quizId, 0)
               .toPromise();
             console.log('Question:', question);
             this.question = question;
