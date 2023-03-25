@@ -100,8 +100,12 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   
     this.quizService.getSelectedQuiz().subscribe(
       (quiz: Quiz) => {
+        if (!quiz) {
+          console.error('Selected quiz is undefined');
+          return;
+        }
         this.selectedQuiz = quiz;
-        if (this.selectedQuiz && this.selectedQuiz?.questions && this.selectedQuiz?.questions.length > 0) {
+        if (this.selectedQuiz?.questions && this.selectedQuiz?.questions.length > 0) {
           this.setOptions();
         } else {
           console.error('Invalid Quiz object');
