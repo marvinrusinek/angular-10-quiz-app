@@ -304,7 +304,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleOptions(options: Option[]): void {
-    console.log('Options received:', options); // Log the emitted options array
     if (!options || options.length === 0) {
       console.error('Options not found');
       return;
