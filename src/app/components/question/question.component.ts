@@ -84,11 +84,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
-
-    if (!this.selectedQuiz) {
-      console.error('Quiz not found');
-      return;
-    }
   
     const quizQuestion = this.selectedQuiz.questions.find(
       (question: any) => question.id === question
@@ -106,6 +101,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.quizService.getSelectedQuiz().subscribe(
       (quiz: Quiz) => {
         this.selectedQuiz = quiz;
+        if (!this.selectedQuiz) {
+          console.error('Quiz not found');
+          return;
+        }
         this.setOptions();
       },
       (error: any) => {
