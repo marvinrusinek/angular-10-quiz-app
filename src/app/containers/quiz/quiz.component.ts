@@ -392,7 +392,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Question:::::', question);
     this.question = question;
     this.setOptions();
     this.cdRef.detectChanges();
