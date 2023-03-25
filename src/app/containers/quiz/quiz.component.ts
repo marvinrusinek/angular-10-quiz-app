@@ -564,6 +564,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .pipe(
+        tap(([question, options]) => {
+          console.log('Question and options received from QuizDataService:', question, options);
+        }),
         map((response: any) => [
           response[0] as QuizQuestion,
           response[1] as Option[]
@@ -590,7 +593,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.options = null;
     }
   }
-        
+          
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
