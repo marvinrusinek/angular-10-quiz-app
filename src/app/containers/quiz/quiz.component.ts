@@ -342,7 +342,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-
   private handleQuizData(
     quiz: Quiz,
     quizId: string,
