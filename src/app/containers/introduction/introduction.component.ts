@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   OnDestroy,
   OnInit,
   Output
@@ -93,6 +94,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     if (this.selectedQuizId) {
       this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
         this.quizSelected.emit(quizId);
+        this.quizDataService.selectedQuizSubject.next(quizId);
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', quizId, 1]);
       });
