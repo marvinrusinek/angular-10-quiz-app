@@ -49,7 +49,7 @@ export class MultipleAnswerComponent
   constructor(
     public quizService: QuizService,
     private quizDataService: QuizDataService,
-    activatedRoute: ActivatedRoute,
+    public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
     super(quizService);
