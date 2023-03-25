@@ -59,7 +59,11 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   private _multipleAnswer: boolean;
 
   get multipleAnswer(): boolean {
-    return this.quizService.isMultipleAnswer(this.question);
+    let result = false;
+    this.quizService.isMultipleAnswer(this.question).subscribe((res) => {
+      result = res;
+    });
+    return result;
   }
 
   set multipleAnswer(value: boolean) {
