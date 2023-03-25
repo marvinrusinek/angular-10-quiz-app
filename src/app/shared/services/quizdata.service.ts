@@ -84,9 +84,6 @@ export class QuizDataService implements OnInit {
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
-      tap((selectedQuiz) =>
-        console.log('selectedQuiz$ emitted:', selectedQuiz)
-      ),
       filter((selectedQuiz) => !!selectedQuiz),
       take(1),
       switchMap((selectedQuiz) => {

@@ -200,7 +200,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   getSelectedQuiz(): void {
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
       if (selectedQuiz) {
-        console.log('Selected quiz:', selectedQuiz);
         this.quiz = selectedQuiz;
         this.quizDataService.setCurrentQuestionIndex(0);
       } else {
