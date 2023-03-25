@@ -304,28 +304,32 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setOptions(): void {
-    if (!this.selectedQuiz || !this.selectedQuiz.questions || this.selectedQuiz.questions.length === 0) {
-      console.error('Invalid Quiz object');
+    if (!this.selectedQuiz) {
+      console.error('Selected quiz not found');
       return;
     }
-
+    
+    if (!this.selectedQuiz.questions) {
+      console.error('Questions not found');
+      return;
+    }
+  
     const quizQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
-
-    if (!quizQuestion || !quizQuestion.options || quizQuestion.options.length === 0) {
-      console.error('Invalid Question object');
+    this.options = quizQuestion.options;
+  
+    if (!this.question || !this.question.options) {
+      console.error('Question or options not found');
       return;
     }
-
-    this.options = quizQuestion.options;
-
-    const { options, answer } = quizQuestion;
+  
+    const { options, answer } = this.question;
     const { shuffleOptions } = this.selectedQuiz;
-
-    const answerValue = answer.values().next().value;
+  
+    const answerValue = this.question.answer.values().next().value;
     this.correctOptionIndex = options.findIndex(
       (option) => option.value === answerValue
     );
-
+  
     this.options = options.map(
       (option, index) =>
         ({
@@ -336,15 +340,15 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
           selected: false,
         } as Option)
     );
-
+  
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
-
+  
     const correctOptions = this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
-    this.quizService.isMultipleAnswer(quizQuestion);
-  }
+    this.quizService.isMultipleAnswer(this.question);
+  }  
 
   private resetForm(): void {
     if (!this.questionForm) {
