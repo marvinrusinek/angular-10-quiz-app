@@ -89,16 +89,12 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
           if (quiz) {
             this.quizDataService.setSelectedQuiz(quiz);
             this.quizDataService.setCurrentQuestionIndex(0);
-            const [question, options] = await this.quizDataService
-              .getQuestionAndOptions(this.quizId, 0)
-              .toPromise();
-            console.log('Question:', question);
-            this.question = question;
-            console.log('Correct Answers:', this.correctAnswers);
+            this.question = quiz.questions[0];
+            console.log('Question:', this.question);
             if (this.question && this.question.options) {
-              this.answers = options.map((option) => option.value) || [];
+              this.answers = this.question.options.map((option) => option.value) || [];
               this.setOptions();
-              this.currentQuestion = question;
+              this.currentQuestion = this.question;
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
                 .isMultipleAnswer(this.currentQuestion)
@@ -106,7 +102,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
               this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
-              console.log('QuizService Correct Answers:', this.quizService.getCorrectAnswers(this.question));
+              console.log('QuizService Correct Answers:', this.correctAnswers);
             } else {
               console.error('Question or question options not found');
             }
