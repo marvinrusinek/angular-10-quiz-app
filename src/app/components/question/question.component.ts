@@ -81,7 +81,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent ngOnInit called');
     this.currentQuestionIndex = 0;
-  
+
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.id) {
         this.quizId = params['quizId'];
@@ -90,11 +90,15 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
           if (quiz) {
             this.quizDataService.setSelectedQuiz(quiz);
             this.quizDataService.setCurrentQuestionIndex(0);
-            this.question = quiz.questions[this.currentQuestionIndex];
+            const [question, options] = await this.quizDataService
+              .getQuestionAndOptions(this.quizId, 0)
+              .toPromise();
+            console.log('Question:', question);
+            this.question = question;
             if (this.question && this.question.options) {
-              this.answers = this.question.options.map((option) => option.value) || [];
+              this.answers = options.map((option) => option.value) || [];
               this.setOptions();
-              this.currentQuestion = this.question;
+              this.currentQuestion = question;
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
                 .isMultipleAnswer(this.currentQuestion)
@@ -102,7 +106,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
               this.correctAnswers =
-                this.quizService.getCorrectAnswers(this.question);
+                this.quizService.getCorrectAnswers(question);
             } else {
               console.error('Question or question options not found');
             }
@@ -112,11 +116,11 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         });
       }
     });
-  
+
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-  
+
     this.quizService.currentQuestionSubject.subscribe((currentQuestion) => {
       console.log('currentQuestionSubject emitted:', currentQuestion);
       this.currentQuestion = currentQuestion;
@@ -126,11 +130,11 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       this.updateMultipleAnswer();
       this.resetForm();
     });
-  
+
     if (this.question && this.question.options) {
       console.log('Question:', this.question);
       console.log('Options:', this.options);
-      this.answers = this.question.options.map((option) => option.value) || [];
+      this.answers = this.options.map((option) => option.value) || [];
       this.setOptions();
       this.currentQuestion = this.question;
       this.quizService.setCurrentQuestion(this.currentQuestion);
@@ -146,13 +150,13 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       console.error('Question:', this.question);
       console.error('Options:', this.options);
     }
-  
+
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
   }
-    
+   
   async getCurrentQuestion(): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
