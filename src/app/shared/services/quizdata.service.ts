@@ -189,7 +189,9 @@ export class QuizDataService implements OnInit {
           throw new Error('Question options not found');
         }
 
-        return [question, options] as [QuizQuestion, Option[]];
+        const result = [question, options] as [QuizQuestion, Option[]];
+        console.log('result:', result);
+        return result;
       }),
       catchError(err => {
         console.log('Error:', err);
