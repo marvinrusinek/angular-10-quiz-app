@@ -230,19 +230,34 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestion(): QuizQuestion {
-    console.log("getCurrentQuestion() called");
-    const currentQuestionIndex = this.currentQuestionIndex;
-    if (
-      this.questions &&
-      currentQuestionIndex >= 0 &&
-      currentQuestionIndex < this.questions.length
-    ) {
-      console.log('QUESTIONS', this.questions);
-      console.log("CQI>>", this.questions[currentQuestionIndex]);
-      return this.questions[currentQuestionIndex];
+  async getCurrentQuestion(): Promise<void> {
+    const questionIndex = this.currentQuestionIndex;
+    if (!this.questionIndex && this.questionIndex !== 0) {
+      this.questionIndex = 0;
+    }
+  
+    const [question, options] = await this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .pipe(
+        map((response: any) => [
+          response[0] as QuizQuestion,
+          response[1] as Option[]
+        ]),
+        catchError((error) => {
+          console.error('Error occurred while retrieving question and options:', error);
+          this.currentQuestion = null;
+          throw error;
+        }),
+        toArray()
+      )
+      .toPromise() as [QuizQuestion, Option[]];
+  
+    if (question && options && options.length > 0) {
+      this.currentQuestion = question;
+      this.currentQuestion.options = options;
     } else {
-      return null;
+      console.error('Question or options array is null or undefined');
+      this.currentQuestion = null;
     }
   }
 
