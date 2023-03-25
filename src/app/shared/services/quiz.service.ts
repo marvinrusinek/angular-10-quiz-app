@@ -232,12 +232,12 @@ export class QuizService implements OnDestroy {
 
   async getCurrentQuestion(): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
-    if (!this.questionIndex && this.questionIndex !== 0) {
+    if (!questionIndex && questionIndex !== 0) {
       this.questionIndex = 0;
     }
   
     const [question, options] = await this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .getQuestionAndOptions(this.quizId, questionIndex)
       .pipe(
         map((response: any) => [
           response[0] as QuizQuestion,
