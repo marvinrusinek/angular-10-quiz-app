@@ -568,9 +568,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           response[0] as QuizQuestion,
           response[1] as Option[]
         ]),
-        tap(([question, options]) => {
-          console.log('Question and options received from QuizDataService:', question, options);
-        }),
         catchError((error) => {
           console.error('Error occurred while retrieving question and options:', error);
           this.question = null;
@@ -579,24 +576,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         }),
         toArray()
       )
-      .toPromise();
+      .toPromise() as [QuizQuestion, Option[]];
   
-    if (!question) {
-      console.error('Question is null or undefined');
+    if (question && options && options.length > 0) {
+      this.question = question;
+      this.options = options;
+    } else {
+      console.error('Question or options array is null or undefined');
       this.question = null;
       this.options = null;
-      return;
     }
-  
-    if (!options || options.length === 0) {
-      console.error('Options array is null or undefined');
-      this.question = null;
-      this.options = null;
-      return;
-    }
-  
-    this.question = question;
-    this.options = options;
   }
             
   async onSubmit(): Promise<void> {
