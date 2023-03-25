@@ -304,6 +304,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   setOptions(): void {
+    const quizQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+    this.options = quizQuestion.options;
+
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
