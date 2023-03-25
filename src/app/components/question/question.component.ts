@@ -33,7 +33,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
-  currentQuestion: QuizQuestion = {};
+  currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   questionForm: FormGroup;
   selectedQuiz: Quiz;
@@ -178,6 +178,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
+    console.log('UCQ', question);
     this.currentQuestion = question;
     console.log('CURRQUEST: ', this.currentQuestion);
   }
