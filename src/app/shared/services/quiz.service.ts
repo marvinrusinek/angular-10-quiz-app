@@ -231,6 +231,7 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestion(): QuizQuestion {
+    console.log("getCurrentQuestion() called");
     const currentQuestionIndex = this.currentQuestionIndex;
     if (
       this.questions &&
