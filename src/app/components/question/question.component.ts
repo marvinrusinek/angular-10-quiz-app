@@ -35,6 +35,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
+  questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   questionForm: FormGroup;
   selectedQuiz: Quiz;
@@ -116,6 +117,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       if (params && params.id) {
         this.quizId = params['quizId'];
         this.quizDataService.setSelectedQuiz(null);
+        this.quizDataService.getQuizData(this.quizId).subscribe(data => {
+          this.questions = data;
+        });
         this.quizDataService.getQuiz(this.quizId).subscribe(async (quiz) => {
           if (quiz) {
             this.quizDataService.setSelectedQuiz(quiz);
