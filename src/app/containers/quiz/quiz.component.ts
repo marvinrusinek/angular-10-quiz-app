@@ -34,8 +34,7 @@ import {
   filter,
   map,
   shareReplay,
-  tap,
-  toArray,
+  tap
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
