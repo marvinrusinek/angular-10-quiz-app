@@ -565,7 +565,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.questionIndex && this.questionIndex !== 0) {
       this.questionIndex = 0;
     }
-    console.log('getCurrentQuestion called with questionIndex:::>>', this.questionIndex);
+    if (this.currentQuestion == null || this.currentQuestion.length === 0) {
+      return;
+    }
   
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
