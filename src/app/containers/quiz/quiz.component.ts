@@ -180,16 +180,18 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuiz(): void {
     const quizId = this.activatedRoute.snapshot.params.quizId;
+
     if (!quizId) {
       console.error('Quiz ID is null or undefined');
       return;
     }
+    
     this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
       if (!quiz) {
         console.error('Quiz not found');
         return;
       }
-      console.log('Quiz:', quiz);
+
       this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
       this.quizDataService.setCurrentQuestionIndex(0);
     });
