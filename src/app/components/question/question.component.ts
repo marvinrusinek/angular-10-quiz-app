@@ -98,6 +98,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
               this.answers = options.map((option) => option.value) || [];
               this.setOptions();
               this.currentQuestion = question;
+              console.log('Current Question:', this.currentQuestion);
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
                 .isMultipleAnswer(this.currentQuestion)
