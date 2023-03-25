@@ -387,7 +387,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private handleQuestion(question: QuizQuestion): void {
-    console.log('handleQuestion method called', question);
     if (!question) {
       console.error('Question not found');
       return;
