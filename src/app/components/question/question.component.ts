@@ -94,19 +94,20 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
               .toPromise();
             console.log('Question:', question);
             this.question = question;
+            console.log('Correct Answers:', this.correctAnswers);
             if (this.question && this.question.options) {
               this.answers = options.map((option) => option.value) || [];
               this.setOptions();
               this.currentQuestion = question;
-              console.log('Current Question:', this.currentQuestion);
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
                 .isMultipleAnswer(this.currentQuestion)
                 .subscribe((multipleAnswer) => {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
-              this.correctAnswers =
-                this.quizService.getCorrectAnswers(question);
+                console.log('Getting correct answers...');
+              this.correctAnswers = this.quizService.getCorrectAnswers(question);
+              console.log('Correct answers:', this.correctAnswers);
             } else {
               console.error('Question or question options not found');
             }
