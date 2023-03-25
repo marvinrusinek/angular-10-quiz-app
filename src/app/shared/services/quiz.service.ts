@@ -229,6 +229,10 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<void> {
+    if (this.currentQuestion && this.currentOptions && this.currentOptions.length > 0) {
+      return; // Already fetched the question and options
+    }
+
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
