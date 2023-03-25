@@ -60,12 +60,23 @@ export class QuizDataService implements OnInit {
     });
   }
 
-  getQuizData(): Observable<QuizQuestion[]> {
+  /* getQuizData(): Observable<QuizQuestion[]> {
     return this.http
       .get<Quiz[]>(this.quizUrl)
       .pipe(map((quizData) => quizData.questions));
-  }
+  } */
 
+  getQuizData(quizId: number): Observable<QuizQuestion[]> {
+    return this.http
+      .get<Quiz[]>(this.quizUrl)
+      .pipe(
+        map((quizzes) => {
+          const selectedQuiz = quizzes.find((quiz) => quiz.id === quizId);
+          return selectedQuiz.questions;
+        })
+      );
+  }
+  
   getQuizzes(): Observable<Quiz[]> {
     this.http.get<Quiz[]>(this.quizUrl).subscribe((quizzes) => {
       this.quizzes = quizzes;
