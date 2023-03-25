@@ -191,7 +191,6 @@ export class QuizDataService implements OnInit {
         }
 
         const result = [question, options] as [QuizQuestion, Option[]];
-        console.log('result:', result);
         return result;
       }),
       catchError(err => {
