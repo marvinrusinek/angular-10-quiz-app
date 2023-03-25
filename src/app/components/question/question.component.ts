@@ -78,8 +78,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('QuizQuestionComponent ngOnInit called');
     this.currentQuestionIndex = 0;
-
+  
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.id) {
         this.quizId = params['quizId'];
@@ -114,16 +115,21 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         });
       }
     });
-
+  
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-
+  
     this.quizService.currentQuestionSubject.subscribe((currentQuestion) => {
       console.log('currentQuestionSubject emitted:', currentQuestion);
-      this.updateCurrentQuestion(this.currentQuestion);
+      this.currentQuestion = currentQuestion;
+      this.setOptions();
+      this.updateCorrectMessage();
+      this.updateCorrectAnswers();
+      this.updateMultipleAnswer();
+      this.resetForm();
     });
-
+  
     this.currentQuestion = this.question;
     this.setOptions();
     this.updateCorrectMessage();
@@ -131,7 +137,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.updateMultipleAnswer();
     this.resetForm();
   }
-
+  
   ngDoCheck() {
     if (this.isChangeDetected) {
       this.correctMessage = this.quizService.setCorrectMessage(
