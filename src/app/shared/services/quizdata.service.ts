@@ -71,7 +71,7 @@ export class QuizDataService implements OnInit {
       .get<Quiz[]>(this.quizUrl)
       .pipe(
         map((quizzes) => {
-          const selectedQuiz = quizzes.find((quiz) => quiz.id === quizId);
+          const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
           return selectedQuiz.questions;
         })
       );
