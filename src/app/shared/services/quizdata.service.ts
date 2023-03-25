@@ -188,6 +188,7 @@ export class QuizDataService implements OnInit {
         if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
           throw new Error('Question options not found');
         }
+        console.log('Options:', options);
 
         const result = [question, options] as [QuizQuestion, Option[]];
         console.log('result:', result);
