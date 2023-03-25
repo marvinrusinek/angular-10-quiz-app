@@ -180,19 +180,18 @@ export class QuizDataService implements OnInit {
           throw new Error('Selected quiz has no questions');
         }
 
-        console.log('Quiz Questions:', quiz.questions);
         const question = quiz.questions[questionIndex];
         if (!question || question.options === undefined) {
           throw new Error('Question not found');
         }
 
-        if (questionIndex >= quiz.questions.length) {
-          throw new Error('Question index out of bounds');
-        }
-
         const options = question.options;
         if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
           throw new Error('Question options not found');
+        }
+
+        if (questionIndex >= quiz.questions.length) {
+          throw new Error('Question index out of bounds');
         }
 
         const result = [question, options] as [QuizQuestion, Option[]];
