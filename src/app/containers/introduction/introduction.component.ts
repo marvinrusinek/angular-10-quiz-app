@@ -22,6 +22,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IntroductionComponent implements OnInit, OnDestroy {
+  @Output() quizSelected = new EventEmitter<string>();
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
@@ -35,7 +36,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz: Quiz | null;
   selectedQuiz$: Observable<Quiz>;
   selectedQuizSubscription: Subscription;
-  @Output() quizSelected = new EventEmitter<string>();
 
   imagePath = '../../../assets/images/milestones/'; // shorten variable, path
 
@@ -93,8 +93,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     if (this.selectedQuizId) {
       this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
-        this.quizSelected.emit(quizId);
-        this.quizDataService.selectedQuizSubject.next(quizId);
+        this.quizSelected.emit(this.selectedQuizId);
+        this.quizDataService.selectedQuizSubject.next(this.selectedQuizId);
         this.quizDataService.setSelectedQuiz(quiz);
         this.router.navigate(['/question/', quizId, 1]);
       });
