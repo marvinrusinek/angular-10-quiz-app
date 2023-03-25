@@ -181,7 +181,7 @@ export class QuizDataService implements OnInit {
         }
 
         const question = quiz.questions[questionIndex];
-        if (!question) {
+        if (!question || question.options === undefined) {
           throw new Error('Question not found');
         }
 
@@ -202,7 +202,8 @@ export class QuizDataService implements OnInit {
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
+
+    
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
