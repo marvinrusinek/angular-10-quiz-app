@@ -185,7 +185,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Quiz ID is null or undefined');
       return;
     }
-    
+
     this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
       if (!quiz) {
         console.error('Quiz not found');
@@ -213,12 +213,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         filter((quiz) => !!quiz),
         distinctUntilChanged(),
         tap((quiz) => {
-          console.log('Selected quiz:', quiz);
           this.quizId = quiz.quizId;
-          console.log(
-            'QuizComponent initialized with quizId:::>>',
-            this.quizId
-          );
+          // console.log('QuizComponent initialized with quizId: ', this.quizId);
           this.getCurrentQuestion();
         }),
         catchError((error) => {
