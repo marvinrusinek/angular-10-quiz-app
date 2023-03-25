@@ -78,6 +78,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('ngOnInit called');
     this.currentQuestionIndex = 0;
 
     this.activatedRoute.params.subscribe(async (params) => {
@@ -103,7 +104,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
                 .subscribe((multipleAnswer) => {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
-              this.correctAnswers = this.quizService.getCorrectAnswers(question);
+              this.correctAnswers =
+                this.quizService.getCorrectAnswers(question);
             } else {
               console.error('Question or question options not found');
             }
