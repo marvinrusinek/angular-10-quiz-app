@@ -337,15 +337,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (quiz) {
           this.quizService.setQuiz(quiz);
           this.quizDataService.selectedQuiz$.next(quiz);
-          this.router.navigate([
-            '/question',
-            quizId,
-            this.currentQuestionIndex,
-          ]);
         }
       });
     }
   }
+
 
   private handleQuizData(
     quiz: Quiz,

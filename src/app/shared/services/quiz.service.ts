@@ -490,10 +490,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* setCurrentQuestionIndex(index: number) {
-    this.currentQuestionIndex = index;
-  } */
-
   setResources(value: Resource[]): void {
     this.resources = value;
   }
