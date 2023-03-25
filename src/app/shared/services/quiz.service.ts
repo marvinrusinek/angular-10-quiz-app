@@ -483,7 +483,7 @@ export class QuizService implements OnDestroy {
     this.multipleAnswerSubject.next(this.multipleAnswer);
   }
 
-  setCurrentQuestion(question: QuizQuestion) {
+  setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with question:', question);
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('currentQuestion updated to:', question);
