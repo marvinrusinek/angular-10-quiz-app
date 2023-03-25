@@ -30,6 +30,7 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
+  questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   options: Option[] = [];
@@ -229,31 +230,36 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<void> {
-    if (this.currentQuestion && this.currentOptions && this.currentOptions.length > 0) {
-      return; // Already fetched the question and options
-    }
-
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
     }
-  
-    const [question, options] = await this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-      .pipe(
-        map((response: any) => [
-          response[0] as QuizQuestion,
-          response[1] as Option[]
-        ]),
-        catchError((error) => {
-          console.error('Error occurred while retrieving question and options:', error);
-          this.currentQuestion = null;
-          this.currentOptions = null;
-          throw error;
-        })
-      )
-      .toPromise() as [QuizQuestion, Option[]];
-  
+
+    let questionAndOptions: [QuizQuestion, Option[]];
+    if (this.currentQuestionIndex < this.questionsAndOptions.length) {
+      questionAndOptions = this.questionsAndOptions[this.currentQuestionIndex];
+    } else {
+      questionAndOptions = await this.quizDataService
+        .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+        .pipe(
+          map((response: any) => [
+            response[0] as QuizQuestion,
+            response[1] as Option[]
+          ]),
+          catchError((error) => {
+            console.error('Error occurred while retrieving question and options:', error);
+            this.currentQuestion = null;
+            this.currentOptions = null;
+            throw error;
+          })
+        )
+        .toPromise() as [QuizQuestion, Option[]];
+
+      this.questionsAndOptions.push(questionAndOptions);
+    }
+
+    const [question, options] = questionAndOptions;
+
     if (question && options && options.length > 0) {
       this.currentQuestion = question;
       this.currentOptions = options;
@@ -263,7 +269,7 @@ export class QuizService implements OnDestroy {
       this.currentOptions = null;
     }
   }
-  
+    
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
