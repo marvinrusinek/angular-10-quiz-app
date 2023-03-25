@@ -180,11 +180,12 @@ export class QuizDataService implements OnInit {
           throw new Error('Selected quiz has no questions');
         }
 
-        const question = quiz.questions[questionIndex];
+        const questions = quiz.questions;
+        const question = questions[questionIndex];
         if (!question || question.options === undefined) {
           throw new Error('Question not found');
         }
-
+        
         const options = question.options;
         if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
           throw new Error('Question options not found');
