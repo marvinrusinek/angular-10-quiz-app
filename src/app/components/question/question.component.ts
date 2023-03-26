@@ -328,6 +328,19 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     const quizQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
     this.options = quizQuestion?.options;
 
+    const currentQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
+    if (currentQuestion) {
+      this.currentQuestion = currentQuestion;
+      this.currentOptions = currentQuestion.options;
+
+      // Update the quiz service with the current question and options
+      this.quizService.setCurrentQuestion(currentQuestion);
+      this.quizService.setCurrentOptions(currentQuestion.options);
+    } else {
+      console.error('Invalid question index');
+    }
+    console.log('Options:', this.currentOptions);
+
     const { options, answer } = quizQuestion;
 
     const answerValue = answer?.values().next().value;
@@ -345,6 +358,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
           selected: false,
         } as Option)
     );
+    this.quizService.setCurrentOptions(this.options)
 
     // shuffle options only if the shuffleOptions boolean is true
     if (this.shuffleOptions) {

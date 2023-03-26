@@ -65,6 +65,9 @@ export class QuizService implements OnDestroy {
   multipleAnswerSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
 
+  private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
+  currentOptions$ = this.currentOptionsSubject.asObservable();
+
   userAnswers = [];
   previousAnswers = [];
   previousAnswersMultipleTextArray: string[] = [];
@@ -497,6 +500,10 @@ export class QuizService implements OnDestroy {
       console.log('emitting currentQuestionSubject with question:', question);
       this.quizStateService.currentQuestionSubject.next(this.currentQuestion);
     }
+  }
+
+  setCurrentOptions(options: Option[]): void {
+    this.currentOptionsSubject.next(options);
   }
   
   setResources(value: Resource[]): void {
