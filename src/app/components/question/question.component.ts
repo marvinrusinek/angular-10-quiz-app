@@ -114,7 +114,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
             this.question = quiz.questions[0];
             console.log('Question:', this.question);
             if (this.question?.options) {
-              this.answers = this.question.options.map((option) => option.value) || [];
+              this.answers = this.question?.options.map((option) => option.value) || [];
               this.setOptions();
               this.currentQuestion = this.question;
               this.quizService.setCurrentQuestion(this.currentQuestion);
@@ -173,7 +173,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       .getQuestionAndOptions(this.quizId, questionIndex)
       .toPromise();
   
-    if (question && options && options.length > 0) {
+    if (question && options && options?.length > 0) {
       this.currentQuestion = question;
       this.currentOptions = options;
       this.questionsAndOptions[questionIndex] = [question, options];
@@ -185,7 +185,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
 
-  ngDoCheck() {
+  ngDoCheck(): void {
     if (this.isChangeDetected) {
       this.correctMessage = this.quizService.setCorrectMessage(
         this.currentQuestion,
@@ -195,7 +195,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
