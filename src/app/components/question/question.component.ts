@@ -94,8 +94,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.currentQuestionIndex = 0;
   
     this.quizService.getSelectedQuiz().subscribe(
-      (quiz: Quiz) => {
-        this.selectedQuiz = quiz;
+      (selectedQuiz) => {
+        this.selectedQuiz = selectedQuiz;
         if (this.selectedQuiz && this.selectedQuiz?.questions && this.selectedQuiz?.questions.length > 0) {
           this.setOptions();
         } else {
