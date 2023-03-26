@@ -292,7 +292,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     }
   
     const quizQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
-    this.options = quizQuestion.options;
+    this.options = quizQuestion?.options;
   
     const { options, answer } = quizQuestion;
     const { shuffleOptions } = this.selectedQuiz;
