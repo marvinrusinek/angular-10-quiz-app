@@ -151,6 +151,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
             this.currentQuestion = currentQuestion;
             this.setOptions();
             if (this.currentQuestion?.options.length > 0) {
+              this.questionForm = new FormGroup({
+                answer: new FormControl('', Validators.required),
+              });
               this.updateQuestionForm();
             }
           },
@@ -160,17 +163,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
         );
     } else {
       console.error('currentQuestion$ is not initialized!');
-    } 
-    
-    this.questionForm = new FormGroup({
-      answer: new FormControl('', Validators.required),
-    });
-
-    if (this.currentQuestion?.options.length > 0) {
-      this.updateQuestionForm();
     }
   }
-  
+    
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
