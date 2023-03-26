@@ -495,7 +495,6 @@ export class QuizService implements OnDestroy {
     console.log('setCurrentQuestion called with question:', question);
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
-      this.currentQuestion = question;
       this.quizStateService.currentQuestionSubject.next(this.currentQuestion);
     }
   }
