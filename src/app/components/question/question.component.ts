@@ -74,6 +74,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   constructor(
     quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizStateService: QuizStateService,
     private timerService: TimerService,
     public activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
