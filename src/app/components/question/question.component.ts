@@ -368,7 +368,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     if (
       selectedOption &&
       this.currentQuestion &&
-      this.currentQuestion.options
+      this.currentQuestion?.options
     ) {
       this.optionSelected.styleClass = this.currentQuestion?.options[
         optionIndex
