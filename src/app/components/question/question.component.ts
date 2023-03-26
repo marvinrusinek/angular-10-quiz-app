@@ -40,6 +40,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
+  currentOptions: Option[];
   questionForm: FormGroup;
   selectedQuiz: Quiz;
   optionSelected: Option;
@@ -55,6 +56,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   correctOptionIndex: number;
   options: Option[];
   shuffleOptions = true;
+  shuffledOptions: Option[];
   isChangeDetected = false;
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
@@ -310,6 +312,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     }
   
     const quizQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
+  
     this.options = quizQuestion?.options;
   
     const { options, answer } = quizQuestion;
@@ -320,7 +323,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       (option) => option.value === answerValue
     );
   
-    this.options = options.map(
+    const shuffledOptions = options.map(
       (option, index) =>
         ({
           text: option.text,
@@ -332,15 +335,17 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     );
   
     if (shuffleOptions) {
-      this.quizService.shuffle(this.options);
+      this.quizService.shuffle(shuffledOptions);
     }
   
-    const correctOptions = this.options?.filter((option) => option.correct) ?? [];
+    this.shuffledOptions = shuffledOptions;
+  
+    const correctOptions = shuffledOptions?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(quizQuestion);
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
   }
-    
+
   private resetForm(): void {
     if (!this.questionForm) {
       return;
