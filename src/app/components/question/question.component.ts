@@ -165,7 +165,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('currentQuestion$ is not initialized!');
     }
   }
-    
+      
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
