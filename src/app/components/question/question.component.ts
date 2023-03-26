@@ -13,8 +13,8 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { filter, map, startWith } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -58,6 +58,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   shuffleOptions = true;
   shuffledOptions: Option[];
   isChangeDetected = false;
+  destroy$: Subject<void> = new Subject<void>();
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
@@ -166,13 +167,25 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('currentQuestion$ is not initialized!');
     }
   
-    this.quizStateService.currentQuestionSubject.subscribe(() => this.setOptions());
+    this.quizStateService.currentQuestionSubject
+    .pipe(
+      tap(() => console.log('Current question has changed')),
+      filter(() => !!this.currentQuestion?.options?.length),
+      switchMap(() => this.quizService.isMultipleAnswer(this.currentQuestion)),
+      takeUntil(this.destroy$)
+    )
+    .subscribe((multipleAnswer) => {
+      this.multipleAnswerSubject.next(multipleAnswer);
+    }); 
   }
         
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
     }
+
+    this.destroy$.next();
+    this.destroy$.complete();
   }
     
   updateQuestionForm(): void {
