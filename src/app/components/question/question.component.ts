@@ -37,6 +37,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   quiz: Quiz = {};
+  quizLoaded = false;
   currentQuestion: QuizQuestion;
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
@@ -93,11 +94,14 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
 
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
+
+    console.log('Quiz:::::', this.quiz);
   
     this.quizService.getSelectedQuiz().subscribe(
       (selectedQuiz) => {
         this.selectedQuiz = selectedQuiz;
         if (this.selectedQuiz && this.selectedQuiz?.questions && this.selectedQuiz?.questions.length > 0) {
+          this.quizLoaded = true;
           this.setOptions();
         } else {
           console.error('Invalid Quiz object');
@@ -169,6 +173,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     }
   
     this.setQuizQuestion(this.quizId);
+
+    // subscribe to currentQuestionSubject to update current question
     this.quizStateService.currentQuestionSubject
     .pipe(
       // tap(() => console.log('Current question has changed')),
@@ -177,6 +183,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       takeUntil(this.destroy$)
     )
     .subscribe((multipleAnswer) => {
+      this.currentQuestion = this.question;
       this.multipleAnswerSubject.next(multipleAnswer);
     }); 
   }
@@ -257,6 +264,18 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    /* if (changes.quizId && changes.quizId.currentValue && this.quizLoaded) {
+      const quizId = changes.quizId.currentValue;
+      const quiz = this.quizDataService.getQuizById(quizId);
+      if (quiz) {
+        console.log('Current Quiz Questions:', quiz.questions);
+        this.quizService.setQuiz(quiz);
+        this.quizStateService.setCurrentQuestion(quiz.questions[0].questionId);
+      } else {
+        console.error('Invalid Quiz ID');
+      }
+    } */
+
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)

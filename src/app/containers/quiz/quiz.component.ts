@@ -317,6 +317,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (quizId) {
       this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
         if (quiz) {
+          this.quiz = quiz;
+          console.log("HPM", this.quiz);
           this.quizService.setQuiz(quiz);
           this.quizDataService.selectedQuiz$.next(quiz);
         }
