@@ -6,13 +6,14 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -28,7 +29,7 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export abstract class QuizQuestionComponent implements OnInit, OnChanges {
+export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private quizService: QuizService;
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
@@ -37,6 +38,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
+  currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   questionForm: FormGroup;
@@ -138,7 +140,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       }
     });
   
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       console.log('currentQuestionSubject emitted:', currentQuestion);
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
@@ -146,14 +148,20 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         this.updateQuestionForm();
       }
     });
-
+  
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
   
     this.updateQuestionForm();
   }
-  
+
+  ngOnDestroy(): void {
+    if (this.currentQuestionSubscription) {
+      this.currentQuestionSubscription.unsubscribe();
+    }
+  }
+    
   updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
