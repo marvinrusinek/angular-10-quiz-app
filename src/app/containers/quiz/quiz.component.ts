@@ -34,6 +34,7 @@ import {
   filter,
   map,
   shareReplay,
+  switchMap,
   tap
 } from 'rxjs/operators';
 
@@ -154,6 +155,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.question$ = of(null).pipe(
+      switchMap(() => this.quizService.getCurrentQuestion())
+    );
+    console.log(this.question$);
+
     this.activatedRoute.paramMap.subscribe(params => {
       this.handleParamMap(params);
     });
