@@ -272,7 +272,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateMultipleAnswer(): void {
-    this.multipleAnswer = this.correctAnswers.length > 1;
+    this.multipleAnswer = this.correctAnswers?.length > 1;
   }
 
   setOptions(): void {
@@ -286,7 +286,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       return;
     }
   
-    const quizQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+    const quizQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
     this.options = quizQuestion.options;
   
     const { options, answer } = quizQuestion;
@@ -326,10 +326,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
     this.alreadyAnswered = false;
   }
 
-  private updateSelectedOption(
-    selectedOption: Option,
-    optionIndex: number
-  ): void {
+  private updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
     this.selectedOption = selectedOption;
@@ -343,7 +340,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   private clearSelection(): void {
     if (this.correctAnswers.length === 1) {
       if (this.currentQuestion && this.currentQuestion?.options) {
-        this.currentQuestion.options.forEach((option) => {
+        this.currentQuestion?.options.forEach((option) => {
           option.selected = false;
           option.styleClass = '';
         });
