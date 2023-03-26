@@ -20,6 +20,7 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizStateService } from '../../shared/services/quizstate.service';
 import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
