@@ -54,6 +54,7 @@
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"
         (formReady)="form = $event"
+        [currentQuestion$]="currentQuestion$"
         [currentQuestionIndex]="currentQuestionIndex"
         [multipleAnswer]="multipleAnswer"
       >
