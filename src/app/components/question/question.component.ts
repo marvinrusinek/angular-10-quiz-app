@@ -94,7 +94,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       (quiz: Quiz) => {
         this.selectedQuiz = quiz;
         if (this.selectedQuiz && this.selectedQuiz?.questions && this.selectedQuiz?.questions.length > 0) {
-          this.setOptions();
+          await this.setOptions();
         } else {
           console.error('Invalid Quiz object');
         }
@@ -119,7 +119,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
             console.log('Question:', this.question);
             if (this.question?.options) {
               this.answers = this.question?.options.map((option) => option.value) || [];
-              this.setOptions();
+              await this.setOptions();
               this.currentQuestion = this.question;
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
@@ -337,7 +337,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   
     const correctOptions = this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
-    await this.quizService.isMultipleAnswer(quizQuestion);
+    this.quizService.isMultipleAnswer(quizQuestion);
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
   }
     
   private resetForm(): void {
