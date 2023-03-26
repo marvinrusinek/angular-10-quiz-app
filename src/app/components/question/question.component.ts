@@ -86,19 +86,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   async ngOnInit(): Promise<void> {
     this.currentQuestionIndex = 0;
   
-    const quizQuestion = this.selectedQuiz.questions.find(
-      (question: any) => question.id === question
-    ) as QuizQuestion;
-    if (!quizQuestion) {
-      console.error('Question not found');
-      return;
-    }
-    
-    if (!this.question || !this.question.options) {
-      console.error('Question or question options not found');
-      return;
-    }
-  
     this.quizService.getSelectedQuiz().subscribe(
       (quiz: Quiz) => {
         this.selectedQuiz = quiz;
@@ -156,32 +143,13 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       console.log('currentQuestionSubject emitted:', currentQuestion);
       this.currentQuestion = currentQuestion;
       this.setOptions();
-      this.updateCorrectMessage();
-      this.updateCorrectAnswers();
-      this.updateMultipleAnswer();
-      this.resetForm();
+      this.updateFunctions();
     });
 
-    if (this.question && this.question.options) {
-      console.log('Question:', this.question);
-      console.log('Options:', this.options);
-      this.answers = this.options.map((option) => option.value) || [];
-      this.setOptions();
-      this.currentQuestion = this.question;
-      this.quizService.setCurrentQuestion(this.currentQuestion);
-      this.quizService
-        .isMultipleAnswer(this.currentQuestion)
-        .subscribe((multipleAnswer) => {
-          this.multipleAnswerSubject.next(multipleAnswer);
-        });
-      this.correctAnswers =
-        this.quizService.getCorrectAnswers(this.question);
-    } else {
-      console.error('Question or question options not found');
-      console.error('Question:', this.question);
-      console.error('Options:', this.options);
-    }
+    this.updateFunctions();
+  }
 
+  updateFunctions(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
