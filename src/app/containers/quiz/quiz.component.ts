@@ -544,7 +544,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuestion() {
     this.currentQuestion$ = this.quizService.currentQuestion$;
-    return this.quizService.getCurrentQuestion();
+    this.quizService.getCurrentQuestion();
+    return this.currentQuestion$;
   }
             
   async onSubmit(): Promise<void> {
