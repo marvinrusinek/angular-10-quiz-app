@@ -79,6 +79,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   question: QuizQuestion;
   question$: Observable<QuizQuestion>;
   currentQuestion: QuizQuestion;
+  currentQuestion$: Observable<QuizQuestion>;
   currentQuiz: Quiz;
   subscription: Subscription;
   questionSubscription: Subscription;
@@ -524,6 +525,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getCurrentQuestion() {
+    this.currentQuestion$ = this.quizService.currentQuestion$;
     return this.quizService.getCurrentQuestion();
   }
             

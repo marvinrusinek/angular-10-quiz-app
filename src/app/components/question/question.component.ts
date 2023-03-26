@@ -33,6 +33,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
+  @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
