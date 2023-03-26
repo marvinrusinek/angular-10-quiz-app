@@ -121,7 +121,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
             console.log('Question:', this.question);
             if (this.question?.options) {
               this.answers = this.question?.options.map((option) => option.value) || [];
-              this.setOptions();
               this.currentQuestion = this.question;
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
@@ -151,12 +150,12 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
           (currentQuestion: QuizQuestion) => {
             console.log('Current question:', currentQuestion);
             this.currentQuestion = currentQuestion;
-            this.setOptions();
             if (this.currentQuestion?.options.length > 0) {
               this.questionForm = new FormGroup({
                 answer: new FormControl('', Validators.required),
               });
               this.updateQuestionForm();
+              this.setOptions();
             }
           },
           (error: any) => {
@@ -166,10 +165,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     } else {
       console.error('currentQuestion$ is not initialized!');
     }
-
+  
     this.quizStateService.currentQuestionSubject.subscribe(() => this.setOptions());
   }
-      
+        
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
@@ -342,7 +341,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     const correctOptions = this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(quizQuestion);
+    
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
+    console.log('Options:>>', this.options);
   }
 
   private resetForm(): void {
