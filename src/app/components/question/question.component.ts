@@ -99,7 +99,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         console.error(error);
       }
     );
-
+  
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.id) {
         this.quizId = params['quizId'];
@@ -134,12 +134,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
         });
       }
     });
-
-    this.questionForm = new FormGroup({
-      answer: new FormControl('', Validators.required),
-    });
-
-    this.quizService.currentQuestionSubject.subscribe((currentQuestion) => {
+  
+    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       console.log('currentQuestionSubject emitted:', currentQuestion);
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
@@ -148,9 +144,13 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       }
     });
 
+    this.questionForm = new FormGroup({
+      answer: new FormControl('', Validators.required),
+    });
+  
     this.updateQuestionForm();
   }
-
+  
   updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
