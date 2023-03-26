@@ -157,7 +157,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.handleParamMap(params);
     });
 
-    this.quizDataService.selectedQuiz$.subscribe((quizId) => {
+    this.quizDataService.selectedQuiz$.subscribe((quizId: string) => {
       this.quizId = quizId;
     });
 
@@ -223,34 +223,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       )
       .subscribe();
   }
-
-  /* async getQuestion(): Promise<void> {
-    const quizId = this.activatedRoute.snapshot.params.quizId;
-    const currentQuestionIndex = this.currentQuestionIndex;
-
-    this.questionSubscription = this.question$.subscribe({
-      next: (question) => {
-        this.quizService.isMultipleAnswer(question).subscribe((isMultiple) => {
-          this.handleQuestion(question);
-          this.options$ = this.quizDataService.getOptions(
-            quizId,
-            currentQuestionIndex
-          );
-          this.optionsSubscription = this.options$.subscribe({
-            next: (options) => {
-              this.handleOptions(options);
-              this.quizService.setMultipleAnswer(isMultiple);
-            },
-            error: (err) => console.error('Error in options$: ', err),
-          });
-        });
-      },
-      error: (err) => console.error('Error in question$: ', err),
-    });
-
-    this.cdRef.detectChanges();
-    this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
-  } */
 
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
