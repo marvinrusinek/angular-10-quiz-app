@@ -281,7 +281,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       return;
     }
   
-    if (!this.selectedQuiz.questions || !this.selectedQuiz.questions[this.currentQuestionIndex]) {
+    if (!this.selectedQuiz?.questions || !this.selectedQuiz?.questions[this.currentQuestionIndex]) {
       console.error('Question not found');
       return;
     }
@@ -352,7 +352,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateSelection(optionIndex: number): void {
-    const option = this.currentQuestion.options[optionIndex];
+    const option = this.currentQuestion?.options[optionIndex];
     if (option && this.currentQuestion && this.currentQuestion.options) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
       option.selected = true;
