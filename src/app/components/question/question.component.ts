@@ -169,7 +169,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   
     this.quizStateService.currentQuestionSubject
     .pipe(
-      tap(() => console.log('Current question has changed')),
+      // tap(() => console.log('Current question has changed')),
       filter(() => !!this.currentQuestion?.options?.length),
       switchMap(() => this.quizService.isMultipleAnswer(this.currentQuestion)),
       takeUntil(this.destroy$)
