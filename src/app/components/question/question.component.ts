@@ -113,7 +113,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
             this.quizDataService.setCurrentQuestionIndex(0);
             this.question = quiz.questions[0];
             console.log('Question:', this.question);
-            if (this.question && this.question.options) {
+            if (this.question && this.question?.options) {
               this.answers = this.question.options.map((option) => option.value) || [];
               this.setOptions();
               this.currentQuestion = this.question;
@@ -238,7 +238,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private updateCorrectAnswers(): void {
-    if (this.question && this.question.options) {
+    if (this.question && this.question?.options) {
       this.correctAnswers = this.question.options
         .filter((option) => option.correct)
         .map((option) => option.value);
