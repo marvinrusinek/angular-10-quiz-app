@@ -305,25 +305,23 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('Selected quiz not found');
       return;
     }
-  
+
     if (!this.selectedQuiz?.questions || !this.selectedQuiz?.questions[this.currentQuestionIndex]) {
       console.error('Question not found');
       return;
     }
-  
+
     const quizQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
-  
     this.options = quizQuestion?.options;
-  
+
     const { options, answer } = quizQuestion;
-    const { shuffleOptions } = this.selectedQuiz;
-  
+
     const answerValue = answer?.values().next().value;
     this.correctOptionIndex = options.findIndex(
       (option) => option.value === answerValue
     );
-  
-    const shuffledOptions = options.map(
+
+    this.options = options.map(
       (option, index) =>
         ({
           text: option.text,
@@ -333,14 +331,13 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
           selected: false,
         } as Option)
     );
-  
-    if (shuffleOptions) {
-      this.quizService.shuffle(shuffledOptions);
+
+    // shuffle options only if the shuffleOptions boolean is true
+    if (this.shuffleOptions) {
+      this.quizService.shuffle(this.options);
     }
-  
-    this.shuffledOptions = shuffledOptions;
-  
-    const correctOptions = shuffledOptions?.filter((option) => option.correct) ?? [];
+
+    const correctOptions = this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(quizQuestion);
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
