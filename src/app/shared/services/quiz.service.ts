@@ -30,6 +30,7 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
+  question$: Observable<QuizQuestion>;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
@@ -260,6 +261,12 @@ export class QuizService implements OnDestroy {
         })
       )
       .toPromise() as [QuizQuestion, Option[]];
+
+      this.question$ = of(question).pipe(
+        tap((question: QuizQuestion) => {
+          console.log('QUESTION:::::', question);
+        })
+      );
   
     if (question && options && options.length > 0) {
       this.currentQuestion = question;

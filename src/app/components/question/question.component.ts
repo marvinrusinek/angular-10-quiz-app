@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, from, Observable, Subject, Subscription } from 'rxjs';
 import { filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -98,13 +98,19 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
 
+    this.question$ = this.quizService.getCurrentQuestion().pipe(
+      tap((question: QuizQuestion) => {
+        console.log('QUESTION', question);
+      })
+    );
+    
     this.question$.subscribe((question: QuizQuestion) => {
       console.log('question: ', question);
       this.question = question;
       this.options = question.options;
       this.answer = question.answer;
       this.multipleAnswer = question.multipleAnswer;
-      this.quizService.setQuizQuestion(this.question);
+      this.setQuizQuestion(this.quizId);
     });
   
     this.quizService.getSelectedQuiz().subscribe(
@@ -260,6 +266,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       this.currentQuestion = null;
       this.currentOptions = null;
     }
+
+    this.currentQuestion$ = await this.quizService.getCurrentQuestion();
+    console.log('QUESTION', this.currentQuestion$);
+    return this.currentQuestion$;
   }
 
 
