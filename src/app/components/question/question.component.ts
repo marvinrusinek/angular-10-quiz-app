@@ -298,7 +298,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.multipleAnswer = this.correctAnswers?.length > 1;
   }
 
-  setOptions(): void {
+  async setOptions(): Promise<void> {
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
@@ -337,9 +337,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   
     const correctOptions = this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
-    this.quizService.isMultipleAnswer(quizQuestion);
+    await this.quizService.isMultipleAnswer(quizQuestion);
   }
-  
+    
   private resetForm(): void {
     if (!this.questionForm) {
       return;
