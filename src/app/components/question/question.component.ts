@@ -140,14 +140,17 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       }
     });
   
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
-      console.log('currentQuestionSubject emitted:', currentQuestion);
-      if (currentQuestion) {
+    this.quizService.currentQuestion$.subscribe(
+      (currentQuestion: QuizQuestion) => {
+        console.log('Current question:', currentQuestion);
         this.currentQuestion = currentQuestion;
         this.setOptions();
         this.updateQuestionForm();
+      },
+      (error: any) => {
+        console.error(error);
       }
-    });
+    );
   
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
@@ -155,7 +158,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   
     this.updateQuestionForm();
   }
-
+  
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
