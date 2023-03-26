@@ -198,6 +198,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   setQuizQuestion(quizId: string) {
+    console.log('quizId:', quizId);
     this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
       if (quiz && quiz.questions && quiz.questions.length > 0) {
         this.quiz = quiz;

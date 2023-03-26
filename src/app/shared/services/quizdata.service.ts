@@ -142,6 +142,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
+    console.log("QI", quizId);
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
       tap((quiz) => {
