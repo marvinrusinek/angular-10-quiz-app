@@ -6,7 +6,7 @@ import { QuizQuestion } from '../models/quiz-question';
   providedIn: 'root',
 })
 export class QuizStateService {
-  private currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
 
   setCurrentQuestion(question: QuizQuestion): void {
