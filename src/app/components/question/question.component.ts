@@ -150,7 +150,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
             console.log('Current question:', currentQuestion);
             this.currentQuestion = currentQuestion;
             this.setOptions();
-            this.updateQuestionForm();
+            if (this.currentQuestion?.options.length > 0) {
+              this.updateQuestionForm();
+            }
           },
           (error: any) => {
             console.error(error);
@@ -164,7 +166,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       answer: new FormControl('', Validators.required),
     });
 
-    this.updateQuestionForm();
+    if (this.currentQuestion?.options.length > 0) {
+      this.updateQuestionForm();
+    }
   }
   
   ngOnDestroy(): void {
