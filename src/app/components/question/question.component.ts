@@ -42,6 +42,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
+  question$: Observable<QuizQuestion>;
   currentOptions: Option[];
   questionForm: FormGroup;
   selectedQuiz: Quiz;
@@ -49,6 +50,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   correctAnswers: number[] = [];
   correctMessage: string = '';
   // multipleAnswer: boolean;
+  answer;
   alreadyAnswered = false;
   optionList: Option[];
   selectedOption: Option;
@@ -93,9 +95,17 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
 
-    console.log('Quiz:::::', this.quiz);
+    this.question$.subscribe((question: QuizQuestion) => {
+      console.log('question: ', question);
+      this.question = question;
+      this.options = question.options;
+      this.answer = question.answer;
+      this.multipleAnswer = question.multipleAnswer;
+      this.quizService.setQuizQuestion(this.question);
+    });
   
     this.quizService.getSelectedQuiz().subscribe(
       (selectedQuiz) => {
