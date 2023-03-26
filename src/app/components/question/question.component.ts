@@ -37,7 +37,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   currentQuestion: QuizQuestion;
-  currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
@@ -140,17 +139,21 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       }
     });
   
-    this.quizService.currentQuestion$.subscribe(
-      (currentQuestion: QuizQuestion) => {
-        console.log('Current question:', currentQuestion);
-        this.currentQuestion = currentQuestion;
-        this.setOptions();
-        this.updateQuestionForm();
-      },
-      (error: any) => {
-        console.error(error);
-      }
-    );
+    if (this.quizService.currentQuestion$) {
+      this.quizService.currentQuestion$.subscribe(
+        (currentQuestion: QuizQuestion) => {
+          console.log('Current question:', currentQuestion);
+          this.currentQuestion = currentQuestion;
+          this.setOptions();
+          this.updateQuestionForm();
+        },
+        (error: any) => {
+          console.error(error);
+        }
+      );
+    } else {
+      console.error('currentQuestion$ is not initialized!');
+    }    
   
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
