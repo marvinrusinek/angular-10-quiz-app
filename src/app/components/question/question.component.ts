@@ -154,11 +154,11 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     } else {
       console.error('currentQuestion$ is not initialized!');
     }    
-  
+    
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
     });
-  
+    
     this.updateQuestionForm();
   }
   
