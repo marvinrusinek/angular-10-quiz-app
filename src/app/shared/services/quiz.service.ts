@@ -487,7 +487,6 @@ export class QuizService implements OnDestroy {
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswer = value;
-    // this.currentQuestionSubject.value.multipleAnswer = multipleAnswer;
     this.multipleAnswerSubject.next(this.multipleAnswer);
   }
 

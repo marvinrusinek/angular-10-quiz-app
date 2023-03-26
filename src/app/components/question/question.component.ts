@@ -144,14 +144,14 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
         this.setOptions();
-        this.updateFunctions();
+        this.updateQuestionForm();
       }
     });
 
-    this.updateFunctions();
+    this.updateQuestionForm();
   }
 
-  updateFunctions(): void {
+  updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
