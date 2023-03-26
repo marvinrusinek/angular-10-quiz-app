@@ -36,6 +36,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   @Input() question: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
+  quiz: Quiz = {};
   currentQuestion: QuizQuestion;
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
@@ -167,6 +168,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('currentQuestion$ is not initialized!');
     }
   
+    this.setQuizQuestion(this.quizId, this.currentQuestionIndex);
     this.quizStateService.currentQuestionSubject
     .pipe(
       // tap(() => console.log('Current question has changed')),
@@ -194,7 +196,26 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.updateMultipleAnswer();
     this.resetForm();
   }
-   
+
+  setQuizQuestion(quizId: string, questionId: number) {
+    this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
+      if (quiz && quiz.questions && quiz.questions.length > 0) {
+        this.quiz = quiz;
+        const question = quiz.questions.find((q: Quiz) => q.quizId === quizId);
+        if (question) {
+          this.currentQuestion = question;
+          this.options = this.currentQuestion.options;
+          this.quizService.setCurrentQuestion(this.currentQuestion);
+          this.quizService.setCurrentOptions(this.options);
+        } else {
+          console.error('Invalid Question ID');
+        }
+      } else {
+        console.error('Invalid Quiz object');
+      }
+    });
+  }
+     
   async getCurrentQuestion(): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
