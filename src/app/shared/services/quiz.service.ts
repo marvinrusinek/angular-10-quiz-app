@@ -16,6 +16,7 @@ import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizScore } from '../../shared/models/QuizScore.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizStateService } from '../../shared/services/quizstate.service';
 
 @Injectable({
   providedIn: 'root',
@@ -95,6 +96,7 @@ export class QuizService implements OnDestroy {
   constructor(
     private activatedRoute: ActivatedRoute,
     private quizDataService: QuizDataService,
+    private quizStateService: QuizStateService,
     private router: Router,
     private http: HttpClient
   ) {
