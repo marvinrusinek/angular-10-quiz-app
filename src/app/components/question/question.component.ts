@@ -14,7 +14,7 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { filter, map, startWith } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -140,22 +140,25 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     });
   
     if (this.quizStateService.currentQuestion$) {
-      this.quizStateService.currentQuestion$.pipe(
-        startWith(null)
-      ).subscribe(
-        (currentQuestion: QuizQuestion) => {
-          console.log('Current question:', currentQuestion);
-          this.currentQuestion = currentQuestion;
-          this.setOptions();
-          this.updateQuestionForm();
-        },
-        (error: any) => {
-          console.error(error);
-        }
-      );
+      this.quizStateService.currentQuestion$
+        .pipe(
+          startWith(null),
+          filter((currentQuestion: QuizQuestion) => !!currentQuestion)
+        )
+        .subscribe(
+          (currentQuestion: QuizQuestion) => {
+            console.log('Current question:', currentQuestion);
+            this.currentQuestion = currentQuestion;
+            this.setOptions();
+            this.updateQuestionForm();
+          },
+          (error: any) => {
+            console.error(error);
+          }
+        );
     } else {
       console.error('currentQuestion$ is not initialized!');
-    }    
+    } 
     
     this.questionForm = new FormGroup({
       answer: new FormControl('', Validators.required),
