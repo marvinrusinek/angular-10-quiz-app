@@ -98,11 +98,13 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
 
-    this.question$ = this.quizService.getCurrentQuestion().pipe(
+    this.quizService.getCurrentQuestion().pipe(
       tap((question: QuizQuestion) => {
         console.log('QUESTION', question);
       })
-    );
+    ).subscribe((question: QuizQuestion) => {
+      this.question$ = question;
+    });
     
     this.question$.subscribe((question: QuizQuestion) => {
       console.log('question: ', question);

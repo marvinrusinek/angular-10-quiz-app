@@ -233,7 +233,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  async getCurrentQuestion(): Promise<void> {
+  async getCurrentQuestion(): Observable<QuizQuestion> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
