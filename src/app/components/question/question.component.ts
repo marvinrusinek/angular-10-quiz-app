@@ -342,7 +342,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
   private clearSelection(): void {
     if (this.correctAnswers.length === 1) {
-      if (this.currentQuestion && this.currentQuestion.options) {
+      if (this.currentQuestion && this.currentQuestion?.options) {
         this.currentQuestion.options.forEach((option) => {
           option.selected = false;
           option.styleClass = '';
@@ -353,7 +353,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
 
   private updateSelection(optionIndex: number): void {
     const option = this.currentQuestion?.options[optionIndex];
-    if (option && this.currentQuestion && this.currentQuestion.options) {
+    if (option && this.currentQuestion && this.currentQuestion?.options) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
       option.selected = true;
       this.selectedOption = option;
@@ -370,7 +370,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
       this.currentQuestion &&
       this.currentQuestion.options
     ) {
-      this.optionSelected.styleClass = this.currentQuestion.options[
+      this.optionSelected.styleClass = this.currentQuestion?.options[
         optionIndex
       ]['correct']
         ? 'correct'
@@ -379,8 +379,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges {
   }
 
   private playSound(optionIndex: number): void {
-    if (this.currentQuestion && this.currentQuestion.options) {
-      if (this.currentQuestion.options[optionIndex]['correct']) {
+    if (this.currentQuestion && this.currentQuestion?.options) {
+      if (this.currentQuestion?.options[optionIndex]['correct']) {
         this.timerService.stopTimer();
         this.quizService.correctSound.play();
       } else {

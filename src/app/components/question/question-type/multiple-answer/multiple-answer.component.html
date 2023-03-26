@@ -7,12 +7,12 @@
       (click)="selectedOption = option; onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, option)"
       [class]="getOptionClass(option)"
-      [checked]="optionChecked[option.optionId]"
+      [checked]="optionChecked[option?.optionId]"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
-      <span class="option-text">{{ option.text }}</span>
+      <span class="option-text">{{ option?.text }}</span>
       <codelab-quiz-option-feedback
-        [correct]="option.correct"
+        [correct]="option?.correct"
         [selected]="selectedOption === option"
       >
       </codelab-quiz-option-feedback>
