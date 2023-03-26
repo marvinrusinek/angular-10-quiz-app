@@ -168,7 +168,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('currentQuestion$ is not initialized!');
     }
   
-    this.setQuizQuestion(this.quizId, this.currentQuestionIndex);
+    this.setQuizQuestion(this.quizId);
     this.quizStateService.currentQuestionSubject
     .pipe(
       // tap(() => console.log('Current question has changed')),
@@ -197,11 +197,11 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.resetForm();
   }
 
-  setQuizQuestion(quizId: string, questionId: number) {
+  setQuizQuestion(quizId: string) {
     this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
       if (quiz && quiz.questions && quiz.questions.length > 0) {
         this.quiz = quiz;
-        const question = quiz.questions.find((q: Quiz) => q.quizId === quizId);
+        const question = quiz.questions.find((q: QuizQuestion) => q.quizId === quizId);
         if (question) {
           this.currentQuestion = question;
           this.options = this.currentQuestion.options;
