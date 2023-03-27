@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, pipe, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, mergeMap, tap, toArray } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
@@ -233,7 +233,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  async getCurrentQuestion(): Observable<QuizQuestion> {
+  async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
