@@ -277,6 +277,8 @@ export class QuizService implements OnDestroy {
       this.currentQuestion = null;
       this.currentOptions = null;
     }
+
+    return of(question);
   }
         
   getPreviousQuestion(): QuizQuestion {
