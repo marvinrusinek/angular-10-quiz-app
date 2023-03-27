@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, from, Observable, of, Subject, Subscription, toPromise } from 'rxjs';
+import { BehaviorSubject, from, Observable, of, Subject, Subscription } from 'rxjs';
 import { filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -98,29 +98,12 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
 
-    /* this.quizService.getCurrentQuestion().pipe(
-      tap((question: QuizQuestion) => {
-        console.log('QUESTION', question);
-      })
-    ).subscribe((question: QuizQuestion) => {
-      this.question$ = question;
-    });
-    
-    this.question$.subscribe((question: QuizQuestion) => {
-      console.log('question: ', question);
-      this.question = question;
-      this.options = question.options;
-      this.answer = question.answer;
-      this.multipleAnswer = question.multipleAnswer;
-      this.setQuizQuestion(this.quizId);
-    }); */
-
     try {
-      const [question, options] = await this.quizService.getCurrentQuestion().toPromise();
+      const [question, options] = await this.quizService.getCurrentQuestion();
       this.question = question;
       this.options = options;
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error(err);
     }
   
     this.quizService.getSelectedQuiz().subscribe(
