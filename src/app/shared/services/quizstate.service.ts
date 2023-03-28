@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
@@ -13,14 +13,14 @@ export class QuizStateService {
   currentQuestion$ = this.currentQuestionSubject.asObservable();
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
-    if (question$ === this.currentQuestion) {
-      return;
+    if (question$) {
+      this.currentQuestion$ = question$.pipe(
+        tap((question) => {
+          this.question = question;
+          this.questionSubject.next(question);
+        })
+      );
     }
-
-    question$.pipe(filter(question => !!question)).subscribe(question => {
-      this.currentQuestion = question;
-      this.quizService.setCurrentQuestion(question);
-    });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
