@@ -246,14 +246,17 @@ export abstract class QuizQuestionComponent
 
   subscriptionToQuestion() {
     console.log('currentQuestion$::::', this.quizService.currentQuestion$);
-    if (this.quizService.currentQuestion$) {
-      this.quizService.currentQuestion$.subscribe((question) => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = this.currentQuestion?.options;
-        }
-      });
-    }
+    setTimeout(() => {
+      // check if currentQuestion$ is defined before subscribing to it
+      if (this.quizService.currentQuestion$) {
+        this.quizService.currentQuestion$.subscribe((question) => {
+          if (question) {
+            this.currentQuestion = question;
+            this.options = this.currentQuestion?.options;
+          }
+        });
+      }
+    }, 0);
   }
 
   subscriptionToOptions() {
