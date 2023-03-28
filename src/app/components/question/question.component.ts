@@ -114,21 +114,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     );
 
     this.quizStateService.setCurrentQuestion(of(this.question));
-    if (this.quizService.currentQuestion$) {
-      this.quizService.currentQuestion$.subscribe((question) => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = this.currentQuestion?.options;
-        }
-      });
-    }
+    this.handleCurrentQuestionSubscription();
 
     console.log("CO>>", this.quizService.currentOptions$);
-    this.quizService.currentOptions$.subscribe((options) => {
-      if (options) {
-        this.options = options;
-      }
-    });
+    this.handleCurrentOptionsSubscription();
   
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.quizId) {
@@ -227,6 +216,25 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
+  }
+
+  handleCurrentQuestionSubscription(): void {
+    if (this.quizService.currentQuestion$) {
+      this.quizService.currentQuestion$.subscribe((question) => {
+        if (question) {
+          this.currentQuestion = question;
+          this.options = this.currentQuestion?.options;
+        }
+      });
+    }
+  }
+
+  handleCurrentOptionsSubscription(): void {
+    this.quizService.currentOptions$.subscribe((options) => {
+      if (options) {
+        this.options = options;
+      }
+    });
   }
 
   async setQuizQuestion(quizId: string | null | undefined): Promise<void> {
