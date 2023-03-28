@@ -113,7 +113,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       }
     );
 
-    console.log("CQ>>", this.quizService.currentQuestion$);
+    this.quizStateService.setCurrentQuestion(of(this.question));
     this.quizService.currentQuestion$.subscribe((question) => {
       if (question) {
         this.currentQuestion = question;
