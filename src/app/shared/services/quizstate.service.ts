@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
@@ -10,9 +10,13 @@ export class QuizStateService {
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
 
-  setCurrentQuestion(question: QuizQuestion): void {
-    this.currentQuestion = question;
-    this.currentQuestionSubject.next(question);
+  setCurrentQuestion(question$: Observable<QuizQuestion>): void {
+    if (question$) {
+      question$.subscribe(question => {
+        this.currentQuestion = question;
+        this.currentQuestionSubject.next(question);
+      });
+    }
   }
 
   getCurrentQuestion(): QuizQuestion {
