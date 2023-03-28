@@ -229,7 +229,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  handleCurrentOptionsSubscription(): void {
+  private handleCurrentOptionsASubscription() {
     this.quizService.currentOptions$.subscribe((options) => {
       if (options) {
         this.options = options;
