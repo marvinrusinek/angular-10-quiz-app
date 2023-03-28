@@ -13,8 +13,22 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, from, Observable, of, Subject, Subscription } from 'rxjs';
-import { filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  from,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import {
+  filter,
+  map,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -29,7 +43,9 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export abstract class QuizQuestionComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   private quizService: QuizService;
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
@@ -97,11 +113,15 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   async ngOnInit(): Promise<void> {
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
-  
+
     this.quizService.getSelectedQuiz().subscribe(
       (selectedQuiz) => {
         this.selectedQuiz = selectedQuiz;
-        if (this.selectedQuiz && this.selectedQuiz?.questions && this.selectedQuiz?.questions.length > 0) {
+        if (
+          this.selectedQuiz &&
+          this.selectedQuiz?.questions &&
+          this.selectedQuiz?.questions.length > 0
+        ) {
           this.quizLoaded = true;
           this.setOptions();
         } else {
@@ -113,26 +133,27 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       }
     );
 
+    this.currentQuestion$ = this.quizService.currentQuestion$;
     this.quizStateService.setCurrentQuestion(of(this.question));
     this.subscriptionToQuestion();
 
-    console.log("CO>>", this.quizService.currentOptions$);
+    console.log('CO>>', this.quizService.currentOptions$);
     this.subscriptionToOptions();
-  
+
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.quizId) {
         const newQuizId = params.quizId;
         this.quizId = params['quizId'];
         console.log('TESTING quizId', this.quizId);
         this.quizDataService.setSelectedQuiz(
-          this.quizService.quizData.find(q => q.quizId === this.quizId)
+          this.quizService.quizData.find((q) => q.quizId === this.quizId)
         );
 
         if (this.quizId) {
           this.setQuizQuestion(this.quizId);
         }
 
-        this.quizDataService.getQuizData(this.quizId).subscribe(data => {
+        this.quizDataService.getQuizData(this.quizId).subscribe((data) => {
           this.questions = data;
         });
         this.quizDataService.getQuiz(this.quizId).subscribe(async (quiz) => {
@@ -142,7 +163,8 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
             this.question = quiz.questions[0];
             console.log('Question:', this.question);
             if (this.question?.options) {
-              this.answers = this.question?.options.map((option) => option.value) || [];
+              this.answers =
+                this.question?.options.map((option) => option.value) || [];
               this.currentQuestion = this.question;
               this.quizService.setCurrentQuestion(this.currentQuestion);
               this.quizService
@@ -150,7 +172,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
                 .subscribe((multipleAnswer) => {
                   this.multipleAnswerSubject.next(multipleAnswer);
                 });
-              this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+              this.correctAnswers = this.quizService.getCorrectAnswers(
+                this.question
+              );
               console.log('QuizService Correct Answers:', this.correctAnswers);
             } else {
               console.error('Question or question options not found');
@@ -161,7 +185,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
         });
       }
     });
-  
+
     if (this.quizStateService.currentQuestion$) {
       this.quizStateService.currentQuestion$
         .pipe(
@@ -190,18 +214,20 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
 
     // subscribe to currentQuestionSubject to update current question
     this.quizStateService.currentQuestionSubject
-    .pipe(
-      // tap(() => console.log('Current question has changed')),
-      filter(() => !!this.currentQuestion?.options?.length),
-      switchMap(() => this.quizService.isMultipleAnswer(this.currentQuestion)),
-      takeUntil(this.destroy$)
-    )
-    .subscribe((multipleAnswer) => {
-      this.currentQuestion = this.question;
-      this.multipleAnswerSubject.next(multipleAnswer);
-    }); 
+      .pipe(
+        // tap(() => console.log('Current question has changed')),
+        filter(() => !!this.currentQuestion?.options?.length),
+        switchMap(() =>
+          this.quizService.isMultipleAnswer(this.currentQuestion)
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((multipleAnswer) => {
+        this.currentQuestion = this.question;
+        this.multipleAnswerSubject.next(multipleAnswer);
+      });
   }
-        
+
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
@@ -210,7 +236,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.destroy$.next();
     this.destroy$.complete();
   }
-    
+
   updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
@@ -239,16 +265,16 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
 
   async setQuizQuestion(quizId: string | null | undefined): Promise<void> {
     if (!quizId) {
-      console.error("Quiz ID is undefined");
+      console.error('Quiz ID is undefined');
       return;
     }
 
     this.quizId = quizId;
-    const quiz = this.quizService.quizData.find(q => q.quizId === quizId);
+    const quiz = this.quizService.quizData.find((q) => q.quizId === quizId);
 
     if (quiz && quiz.questions && quiz.questions.length > 0) {
       this.quiz = quiz;
-      const question = quiz.questions.find(q => q.quizId === quizId);
+      const question = quiz.questions.find((q) => q.quizId === quizId);
 
       if (question) {
         this.currentQuestion = question;
@@ -262,24 +288,24 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error('Invalid Quiz object');
     }
   }
-         
+
   async getCurrentQuestion(): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
     }
-  
+
     if (this.questionsAndOptions[questionIndex]) {
       const [question, options] = this.questionsAndOptions[questionIndex];
       this.currentQuestion = question;
       this.currentOptions = options;
       return;
     }
-  
+
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, questionIndex)
       .toPromise();
-  
+
     if (question && options && options?.length > 0) {
       this.currentQuestion = question;
       this.currentOptions = options;
@@ -294,7 +320,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     console.log('QUESTION', this.currentQuestion$);
     return this.currentQuestion$;
   }
-
 
   ngDoCheck(): void {
     if (this.isChangeDetected) {
@@ -349,9 +374,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   public getCorrectAnswers(): void {
-    this.correctAnswers = this.quizService.getCorrectAnswers(
-      this.question
-    );
+    this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
@@ -404,15 +427,20 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       return;
     }
 
-    if (!this.selectedQuiz?.questions || !this.selectedQuiz?.questions[this.currentQuestionIndex]) {
+    if (
+      !this.selectedQuiz?.questions ||
+      !this.selectedQuiz?.questions[this.currentQuestionIndex]
+    ) {
       console.error('Question not found');
       return;
     }
 
-    const quizQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
+    const quizQuestion =
+      this.selectedQuiz?.questions[this.currentQuestionIndex];
     this.options = quizQuestion?.options;
 
-    const currentQuestion = this.selectedQuiz?.questions[this.currentQuestionIndex];
+    const currentQuestion =
+      this.selectedQuiz?.questions[this.currentQuestionIndex];
     if (currentQuestion) {
       this.currentQuestion = currentQuestion;
       this.currentOptions = currentQuestion.options;
@@ -442,17 +470,18 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
           selected: false,
         } as Option)
     );
-    this.quizService.setCurrentOptions(this.options)
+    this.quizService.setCurrentOptions(this.options);
 
     // shuffle options only if the shuffleOptions boolean is true
     if (this.shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
 
-    const correctOptions = this.options?.filter((option) => option.correct) ?? [];
+    const correctOptions =
+      this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(quizQuestion);
-    
+
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
     console.log('Options:>>', this.options);
   }
@@ -466,7 +495,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.alreadyAnswered = false;
   }
 
-  private updateSelectedOption(selectedOption: Option, optionIndex: number): void {
+  private updateSelectedOption(
+    selectedOption: Option,
+    optionIndex: number
+  ): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
     this.selectedOption = selectedOption;
