@@ -45,6 +45,7 @@ import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizStateService } from '../../shared/services/quizstate.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -140,6 +141,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizStateService: QuizStateService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -156,7 +158,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentQuestionIndex = 0;
     const currentQuestion = this.quizDataService.getQuestion(this.quizId, this.currentQuestionIndex);
-    this.quizService.setCurrentQuestion(currentQuestion);
+    this.quizStateService.setCurrentQuestion(currentQuestion);
 
     const currentOptions = currentQuestion.options;
     this.quizService.setCurrentOptions(currentOptions);
