@@ -244,7 +244,7 @@ export abstract class QuizQuestionComponent
     this.resetForm();
   }
 
-  subscriptionToQuestion() {
+  /* subscriptionToQuestion() {
     console.log('currentQuestion$::::', this.quizService.currentQuestion$);
     setTimeout(() => {
       // check if currentQuestion$ is defined before subscribing to it
@@ -257,6 +257,16 @@ export abstract class QuizQuestionComponent
         });
       }
     }, 0);
+  } */
+
+  subscriptionToQuestion() {
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((question) => {
+      if (question) {
+        this.currentQuestion = question;
+        this.options = this.currentQuestion.options;
+        console.log(this.quizService.currentQuestion$);
+      }
+    });
   }
 
   subscriptionToOptions() {
