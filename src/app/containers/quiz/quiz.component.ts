@@ -23,7 +23,6 @@ import {
   forkJoin,
   Observable,
   of,
-  PartialObserver,
   Subject,
   Subscription,
 } from 'rxjs';
@@ -33,7 +32,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  shareReplay,
   switchMap,
   tap
 } from 'rxjs/operators';
