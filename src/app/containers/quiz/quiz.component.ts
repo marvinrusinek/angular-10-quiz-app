@@ -149,12 +149,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
-    this.currentQuestionIndex = 0;
     this.quizService.getQuizzes();
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
   ngOnInit(): void {
+    this.currentQuestionIndex = 0;
+    const currentQuestion = this.quizDataService.getQuestion(this.quizId, this.currentQuestionIndex);
+    this.quizService.setCurrentQuestion(currentQuestion);
+
+    const currentOptions = currentQuestion.options;
+    this.quizService.setCurrentOptions(currentOptions);
+
     this.question$ = of(null).pipe(
       switchMap(() => this.quizService.getCurrentQuestion())
     );
