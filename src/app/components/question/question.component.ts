@@ -114,14 +114,16 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     );
 
     this.quizService.currentQuestion$.subscribe((question) => {
-      this.currentQuestion = question;
-      if (this.currentQuestion) {
+      if (question) {
+        this.currentQuestion = question;
         this.options = this.currentQuestion.options;
       }
     });
 
     this.quizService.currentOptions$.subscribe((options) => {
-      this.options = options;
+      if (options) {
+        this.options = options;
+      }
     });
   
     this.activatedRoute.params.subscribe(async (params) => {
@@ -132,7 +134,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
         this.quizDataService.setSelectedQuiz(
           this.quizService.quizData.find(q => q.quizId === this.quizId)
         );
-        this.setQuizQuestion(this.quizId);
+
+        if (this.quizId) {
+          this.setQuizQuestion(this.quizId);
+        }
 
         this.quizDataService.getQuizData(this.quizId).subscribe(data => {
           this.questions = data;
@@ -225,26 +230,27 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       console.error("Quiz ID is undefined");
       return;
     }
-  
+
     this.quizId = quizId;
-    this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
-      if (quiz && quiz.questions && quiz.questions.length > 0) {
-        this.quiz = quiz;
-        const question = quiz.questions.find((q: QuizQuestion) => q.quizId === quizId);
-        if (question) {
-          this.currentQuestion = question;
-          this.options = this.currentQuestion.options;
-          this.quizService.setCurrentQuestion(this.currentQuestion);
-          this.quizService.setCurrentOptions(this.options);
-        } else {
-          console.error('Invalid Question ID');
-        }
+    const quiz = this.quizService.quizData.find(q => q.quizId === quizId);
+
+    if (quiz && quiz.questions && quiz.questions.length > 0) {
+      this.quiz = quiz;
+      const question = quiz.questions.find(q => q.quizId === quizId);
+
+      if (question) {
+        this.currentQuestion = question;
+        this.options = this.currentQuestion.options;
+        this.quizService.setCurrentQuestion(this.currentQuestion);
+        this.quizService.setCurrentOptions(this.options);
       } else {
-        console.error('Invalid Quiz object');
+        console.error('Invalid Question ID');
       }
-    });
+    } else {
+      console.error('Invalid Quiz object');
+    }
   }
-       
+         
   async getCurrentQuestion(): Promise<void> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
