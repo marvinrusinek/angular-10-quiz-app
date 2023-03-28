@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
@@ -11,13 +12,24 @@ export class QuizStateService {
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
 
-  setCurrentQuestion(question$: Observable<QuizQuestion>): void {
+  /* setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$ === this.currentQuestion) {
       return;
     }
     question$.subscribe(question => {
       // this.currentQuestion = question;
       this.currentQuestion.next(question);
+    });
+  } */
+
+  setCurrentQuestion(question$: Observable<QuizQuestion>): void {
+    if (question$ === this.currentQuestion) {
+      return;
+    }
+
+    question$.pipe(filter(question => !!question)).subscribe(question => {
+      this.currentQuestion = question;
+      this.quizService.setCurrentQuestion(question);
     });
   }
 
