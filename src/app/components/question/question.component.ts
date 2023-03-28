@@ -97,14 +97,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   async ngOnInit(): Promise<void> {
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
-
-    try {
-      const [question, options] = await this.quizService.getCurrentQuestion();
-      this.question = question;
-      this.options = options;
-    } catch (err) {
-      console.error(err);
-    }
   
     this.quizService.getSelectedQuiz().subscribe(
       (selectedQuiz) => {
