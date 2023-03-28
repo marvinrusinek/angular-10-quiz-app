@@ -218,7 +218,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.resetForm();
   }
 
-  handleCurrentQuestionSubscription(): void {
+  private handleCurrentQuestionSubscription() {
     if (this.quizService.currentQuestion$) {
       this.quizService.currentQuestion$.subscribe((question) => {
         if (question) {
