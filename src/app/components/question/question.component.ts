@@ -245,6 +245,7 @@ export abstract class QuizQuestionComponent
   }
 
   subscriptionToQuestion() {
+    console.log('currentQuestion$::::', this.quizService.currentQuestion$);
     if (this.quizService.currentQuestion$) {
       this.quizService.currentQuestion$.subscribe((question) => {
         if (question) {
