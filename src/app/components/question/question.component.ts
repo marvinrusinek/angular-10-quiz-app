@@ -112,17 +112,28 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
         console.error(error);
       }
     );
+
+    this.quizService.currentQuestion$.subscribe((question) => {
+      this.currentQuestion = question;
+      if (this.currentQuestion) {
+        this.options = this.currentQuestion.options;
+      }
+    });
+
+    this.quizService.currentOptions$.subscribe((options) => {
+      this.options = options;
+    });
   
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.quizId) {
         const newQuizId = params.quizId;
-        if (this.quizId !== newQuizId) {
-          this.quizId = newQuizId;
-          console.log('TESTING quizId', this.quizId);
-          const newQuiz = this.quizService.quizData.find(q => q.quizId === this.quizId);
-          this.quizDataService.setSelectedQuiz(newQuiz);
-          this.setQuizQuestion(this.quizId);
-        }
+        this.quizId = params['quizId'];
+        console.log('TESTING quizId', this.quizId);
+        this.quizDataService.setSelectedQuiz(
+          this.quizService.quizData.find(q => q.quizId === this.quizId)
+        );
+        this.setQuizQuestion(this.quizId);
+
         this.quizDataService.getQuizData(this.quizId).subscribe(data => {
           this.questions = data;
         });
@@ -217,25 +228,19 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   
     this.quizId = quizId;
     this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
-      if (!quiz) {
-        console.error('Quiz object is null or undefined');
-        return;
-      }
-  
-      if (!quiz.questions || quiz.questions.length === 0) {
-        console.error('Quiz has no questions');
-        return;
-      }
-  
-      this.quiz = quiz;
-      const question = quiz.questions.find((q: QuizQuestion) => q.quizId === quizId);
-      if (question) {
-        this.currentQuestion = question;
-        this.options = this.currentQuestion.options;
-        this.quizService.setCurrentQuestion(this.currentQuestion);
-        this.quizService.setCurrentOptions(this.options);
+      if (quiz && quiz.questions && quiz.questions.length > 0) {
+        this.quiz = quiz;
+        const question = quiz.questions.find((q: QuizQuestion) => q.quizId === quizId);
+        if (question) {
+          this.currentQuestion = question;
+          this.options = this.currentQuestion.options;
+          this.quizService.setCurrentQuestion(this.currentQuestion);
+          this.quizService.setCurrentOptions(this.options);
+        } else {
+          console.error('Invalid Question ID');
+        }
       } else {
-        console.error('Invalid Question ID');
+        console.error('Invalid Quiz object');
       }
     });
   }
