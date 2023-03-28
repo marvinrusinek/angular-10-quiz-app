@@ -142,7 +142,6 @@ export class QuizDataService implements OnInit {
   }
 
   getQuizById(quizId: string): Observable<Quiz> {
-    console.log("QI", quizId);
     if (!quizId) {
       throw new Error(`Quiz ID is undefined`);
     }

@@ -4,11 +4,11 @@ import {
   EventEmitter,
   OnDestroy,
   OnInit,
-  Output
+  Output,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription, throwError } from 'rxjs';
-import { startWith, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -51,28 +51,33 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        const quizId = params.get('quizId');
-        return quizId ? this.quizDataService.getQuizById(quizId) : throwError('Quiz ID is null or undefined');
-      })
-    ).subscribe((quiz) => {
-      this.quizDataService.setSelectedQuiz(quiz);
-      this.questions$ = this.quizDataService.getQuestionsForQuiz(quiz.quizId);
-    });
-  
+    this.activatedRoute.paramMap
+      .pipe(
+        switchMap((params: ParamMap) => {
+          const quizId = params.get('quizId');
+          return quizId
+            ? this.quizDataService.getQuizById(quizId)
+            : throwError('Quiz ID is null or undefined');
+        })
+      )
+      .subscribe((quiz) => {
+        this.quizDataService.setSelectedQuiz(quiz);
+        this.questions$ = this.quizDataService.getQuestionsForQuiz(quiz.quizId);
+      });
+
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.selectedQuizId = quizzes?.[0]?.quizId || null;
     });
 
-    this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-    });
-    
+    this.selectedQuizSubscription =
+      this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
+        this.selectedQuiz = selectedQuiz;
+      });
+
     // get initial value
-    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();    
+    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
-  
+
   ngOnDestroy(): void {
     this.selectedQuizSubscription.unsubscribe();
   }
@@ -81,7 +86,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     if ($event.checked === true) {
       this.quizService.setChecked($event.checked);
     }
-  }  
+  }
 
   onStartQuiz(quizId: string) {
     if (!quizId || !this.selectedQuiz || !this.selectedQuizId) {
@@ -100,6 +105,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       });
     } else {
       console.log('Quiz ID is null or undefined');
-    } 
+    }
   }
 }
