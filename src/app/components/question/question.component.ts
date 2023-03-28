@@ -114,7 +114,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     );
   
     this.activatedRoute.params.subscribe(async (params) => {
-      if (params && params.id) {
+      if (params && params.quizId) {
         this.quizId = params['quizId'];
         this.quizDataService.setSelectedQuiz(null);
         this.quizDataService.getQuizData(this.quizId).subscribe(data => {
