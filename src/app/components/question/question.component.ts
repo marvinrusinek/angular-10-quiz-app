@@ -114,10 +114,10 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     );
 
     this.quizStateService.setCurrentQuestion(of(this.question));
-    this.handleCurrentQuestionSubscription();
+    this.subscriptionToQuestion();
 
     console.log("CO>>", this.quizService.currentOptions$);
-    this.handleCurrentOptionsSubscription();
+    this.subscriptionToOptions();
   
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.quizId) {
@@ -218,7 +218,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.resetForm();
   }
 
-  private handleCurrentQuestionSubscription() {
+  subscriptionToQuestion() {
     if (this.quizService.currentQuestion$) {
       this.quizService.currentQuestion$.subscribe((question) => {
         if (question) {
@@ -229,7 +229,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }
 
-  private handleCurrentOptionsSubscription() {
+  subscriptionToOptions() {
     this.quizService.currentOptions$.subscribe((options) => {
       if (options) {
         this.options = options;
