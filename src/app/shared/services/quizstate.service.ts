@@ -6,20 +6,19 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class QuizStateService {
-  private currentQuestion: QuizQuestion;
+  // private currentQuestion: QuizQuestion;
+  private currentQuestion: BehaviorSubject<QuizQuestion|null> = new BehaviorSubject<QuizQuestion|null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
-    if (question$) {
-      question$.subscribe(question => {
-        this.currentQuestion = question;
-        this.currentQuestionSubject.next(question);
-      });
-    }
+    question$.subscribe(question => {
+      // this.currentQuestion = question;
+      this.currentQuestion.next(question);
+    });
   }
 
-  getCurrentQuestion(): QuizQuestion {
-    return this.currentQuestion;
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    return this.currentQuestion$;
   }
 }
