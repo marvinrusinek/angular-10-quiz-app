@@ -264,7 +264,7 @@ export abstract class QuizQuestionComponent
       if (question) {
         this.currentQuestion = question;
         this.options = this.currentQuestion.options;
-        console.log(this.quizService.currentQuestion$);
+        console.log("STQ", this.quizService.currentQuestion$);
       }
     });
   }
