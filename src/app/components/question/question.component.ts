@@ -116,7 +116,9 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.quizId) {
         this.quizId = params['quizId'];
-        this.quizDataService.setSelectedQuiz(null);
+        console.log('TESTING quizId', this.quizId);
+        this.quizDataService.setSelectedQuiz(this.quizId);
+        this.setQuizQuestion(this.quizId);
         this.quizDataService.getQuizData(this.quizId).subscribe(data => {
           this.questions = data;
         });
@@ -172,8 +174,6 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
     } else {
       console.error('currentQuestion$ is not initialized!');
     }
-  
-    this.setQuizQuestion(this.quizId);
 
     // subscribe to currentQuestionSubject to update current question
     this.quizStateService.currentQuestionSubject
