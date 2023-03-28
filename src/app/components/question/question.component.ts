@@ -113,6 +113,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       }
     );
 
+    console.log("CQ>>", this.quizService.currentQuestion$);
     this.quizService.currentQuestion$.subscribe((question) => {
       if (question) {
         this.currentQuestion = question;
@@ -120,6 +121,7 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
       }
     });
 
+    console.log("CO>>", this.quizService.currentOptions$);
     this.quizService.currentOptions$.subscribe((options) => {
       if (options) {
         this.options = options;
