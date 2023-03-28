@@ -115,12 +115,14 @@ export abstract class QuizQuestionComponent implements OnInit, OnChanges, OnDest
   
     this.activatedRoute.params.subscribe(async (params) => {
       if (params && params.quizId) {
-        this.quizId = params['quizId'];
-        console.log('TESTING quizId', this.quizId);
-        this.quizDataService.setSelectedQuiz(
-          this.quizService.quizData.find(q => q.quizId === this.quizId)
-        );
-        this.setQuizQuestion(this.quizId);
+        const newQuizId = params.quizId;
+        if (this.quizId !== newQuizId) {
+          this.quizId = newQuizId;
+          console.log('TESTING quizId', this.quizId);
+          const newQuiz = this.quizService.quizData.find(q => q.quizId === this.quizId);
+          this.quizDataService.setSelectedQuiz(newQuiz);
+          this.setQuizQuestion(this.quizId);
+        }
         this.quizDataService.getQuizData(this.quizId).subscribe(data => {
           this.questions = data;
         });
