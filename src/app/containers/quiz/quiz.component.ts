@@ -174,8 +174,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.handleParamMap(params);
     });
 
-    this.quizDataService.selectedQuiz$.subscribe((quizId: string) => {
-      this.quizId = quizId;
+    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+      this.quizId = quiz.quizId;
     });
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
