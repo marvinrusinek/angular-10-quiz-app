@@ -1,8 +1,25 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, pipe, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap, shareReplay, switchMap, tap, toArray, toPromise } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  Observable,
+  of,
+  pipe,
+  Subject,
+  throwError,
+} from 'rxjs';
+import {
+  catchError,
+  filter,
+  map,
+  mergeMap,
+  shareReplay,
+  switchMap,
+  tap,
+  toArray,
+  toPromise,
+} from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 import { isEqual } from 'lodash';
@@ -243,19 +260,21 @@ export class QuizService implements OnDestroy {
     if (this.isGettingQuestion) {
       return this.currentQuestionPromise;
     }
-  
+
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       let currentQuestion = await this.currentQuestion$.toPromise();
       console.log('getCurrentQuestion:::', currentQuestion);
-  
+
       const questionIndex = this.currentQuestionIndex;
       if (!questionIndex && questionIndex !== 0) {
         this.currentQuestionIndex = 0;
       }
-  
-      console.log('questionsAndOptions before retrieval:', this.questionsAndOptions);
-  
+
+      console.log('currentQuestion:', currentQuestion);
+      console.log('options:', this.options);
+      console.log('questionsAndOptions:', this.questionsAndOptions);
+
       if (this.questionsAndOptions[questionIndex]) {
         const [question, options] = this.questionsAndOptions[questionIndex];
         this.currentQuestion = question;
@@ -264,8 +283,12 @@ export class QuizService implements OnDestroy {
         resolve([question, options]);
         return;
       }
-  
-      if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+
+      if (
+        !this.quizId ||
+        !this.quizQuestions ||
+        this.quizQuestions.length === 0
+      ) {
         console.error('Quiz or questions array is null or undefined');
         this.currentQuestion = null;
         this.options = null;
@@ -273,7 +296,7 @@ export class QuizService implements OnDestroy {
         reject(new Error('Quiz or questions array is null or undefined'));
         return;
       }
-  
+
       const [question, options] = await this.quizDataService
         .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .pipe(
@@ -282,13 +305,13 @@ export class QuizService implements OnDestroy {
               throw new Error('Response is null');
             }
             console.log('Response:', response);
-            return [
-              response[0] as QuizQuestion,
-              response[1] as Option[]
-            ];
+            return [response[0] as QuizQuestion, response[1] as Option[]];
           }),
           catchError((error) => {
-            console.error('Error occurred while retrieving question and options:', error);
+            console.error(
+              'Error occurred while retrieving question and options:',
+              error
+            );
             this.currentQuestion = null;
             this.options = null;
             this.isGettingQuestion = false;
@@ -297,16 +320,19 @@ export class QuizService implements OnDestroy {
           })
         )
         .toPromise();
-  
+
       console.log('Question:', question);
       console.log('Options:', options);
-  
+
       if (question && options && options.length > 0) {
         console.log('Inside if statement');
         this.currentQuestion = question;
         this.options = options;
         this.questionsAndOptions[questionIndex] = [question, options];
-        console.log('questionsAndOptions after retrieval:', this.questionsAndOptions);
+        console.log(
+          'questionsAndOptions after retrieval:',
+          this.questionsAndOptions
+        );
         this.isGettingQuestion = false;
         resolve([question, options]);
       } else {
@@ -317,10 +343,10 @@ export class QuizService implements OnDestroy {
         reject(new Error('Question or options array is null or undefined'));
       }
     });
-  
+
     return this.currentQuestionPromise;
   }
-               
+
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
@@ -554,7 +580,7 @@ export class QuizService implements OnDestroy {
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
   }
-  
+
   setResources(value: Resource[]): void {
     this.resources = value;
   }
