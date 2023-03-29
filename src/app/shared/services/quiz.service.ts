@@ -82,6 +82,8 @@ export class QuizService implements OnDestroy {
   private _multipleAnswer: boolean;
   checkedShuffle: boolean;
   private isGettingQuestion = false;
+  private isGettingCurrentQuestion = false;
+  private currentQuestionPromise: Promise<[QuizQuestion, Option[]]> = null;
 
   score: number = 0;
   quizScore: QuizScore;
@@ -238,37 +240,36 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
-    if (this.isGettingQuestion) {
-      return [this.currentQuestion, this.currentOptions];
+    if (this.isGettingCurrentQuestion) {
+      console.log('getCurrentQuestion is already in progress');
+      return this.currentQuestionPromise;
     }
 
-    console.log("TESTING");
-    let currentQuestion = await this.currentQuestion$.toPromise();
-    console.log('getCurrentQuestion:::', currentQuestion);
+    console.log('getCurrentQuestion is starting');
+    this.isGettingCurrentQuestion = true;
 
-    const questionIndex = this.currentQuestionIndex;
-    if (!questionIndex && questionIndex !== 0) {
-      this.currentQuestionIndex = 0;
-    }
-
-    if (this.questionsAndOptions[questionIndex]) {
-      const [question, options] = this.questionsAndOptions[questionIndex];
-      this.currentQuestion = question;
-      this.currentOptions = options;
-      return [question, options];
-    }
-
-    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
-      console.error('Quiz or questions array is null or undefined');
-      this.currentQuestion = null;
-      this.currentOptions = null;
-      return [null, null];
-    }
-
-    this.isGettingQuestion = true;
     try {
-      const [question, options] = await this.quizDataService
-        .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      const questionIndex = this.currentQuestionIndex;
+
+      if (!questionIndex && questionIndex !== 0) {
+        this.currentQuestionIndex = 0;
+      }
+
+      if (this.questionsAndOptions[questionIndex]) {
+        const [question, options] = this.questionsAndOptions[questionIndex];
+        this.currentQuestion = question;
+        this.currentOptions = options;
+        return [question, options];
+      }
+
+      if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+        console.error('Quiz or questions array is null or undefined');
+        this.currentQuestion = null;
+        this.currentOptions = null;
+        return null;
+      }
+
+      this.currentQuestionPromise = this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .pipe(
           map((response: any) => {
             if (!response) {
@@ -287,7 +288,9 @@ export class QuizService implements OnDestroy {
             throw error;
           })
         )
-        .toPromise() as [QuizQuestion, Option[]];
+        .toPromise() as Promise<[QuizQuestion, Option[]]>;
+
+      const [question, options] = await this.currentQuestionPromise;
 
       console.log('Question:', question);
       console.log('Options:', options);
@@ -302,16 +305,11 @@ export class QuizService implements OnDestroy {
         this.currentQuestion = null;
         this.currentOptions = null;
       }
-    
-      console.log("TEST2");
+
       return [question, options];
-    } catch (error) {
-      console.error('Error occurred while retrieving question and options:', error);
-      this.currentQuestion = null;
-      this.currentOptions = null;
-      return [null, null];
     } finally {
-      this.isGettingQuestion = false;
+      console.log('getCurrentQuestion is finished');
+      this.isGettingCurrentQuestion = false;
     }
   }
          
