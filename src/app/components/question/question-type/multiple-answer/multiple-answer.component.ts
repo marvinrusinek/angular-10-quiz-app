@@ -47,7 +47,7 @@ export class MultipleAnswerComponent
   optionChecked: { [optionId: number]: boolean } = {};
 
   constructor(
-    private quizService: QuizService,
+    protected quizService: QuizService,
     private quizDataService: QuizDataService,
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
