@@ -14,16 +14,11 @@
       />
       <div class="header-titles" *ngIf="quiz$ | async as quiz">
         <mat-card-title i18n
-          >{{
-            quiz?.milestone || 'No questions found'
-          }}
-          Quiz</mat-card-title
+          >{{ quiz?.milestone || 'No questions found' }} Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
-          {{
-            quiz?.milestone || 'No questions found'
-          }}</mat-card-subtitle
+          {{ quiz?.milestone || 'No questions found' }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
@@ -43,7 +38,7 @@
           [question$]="question$"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
-          [explanationText]="explanationText" 
+          [explanationText]="explanationText"
         ></codelab-quiz-explanation>
       </section>
 
