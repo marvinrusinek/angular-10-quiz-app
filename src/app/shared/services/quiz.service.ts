@@ -32,6 +32,7 @@ export class QuizService implements OnDestroy {
   questions: QuizQuestion[];
   question$: Observable<QuizQuestion>;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
+  quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion = null;
   currentQuestion$: Observable<QuizQuestion> = null;
   options: Option[] = [];
@@ -246,6 +247,14 @@ export class QuizService implements OnDestroy {
       const [question, options] = this.questionsAndOptions[questionIndex];
       this.currentQuestion = question;
       this.currentOptions = options;
+      return;
+    }
+
+    // Check if the quiz is defined and has questions
+    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+      console.error('Quiz or questions array is null or undefined');
+      this.currentQuestion = null;
+      this.currentOptions = null;
       return;
     }
   
