@@ -234,6 +234,9 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
+    let currentQuestion = await this.currentQuestion$.toPromise();
+    console.log('getCurrentQuestion:::', currentQuestion);
+  
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
@@ -261,12 +264,12 @@ export class QuizService implements OnDestroy {
         })
       )
       .toPromise() as [QuizQuestion, Option[]];
-
-      this.question$ = of(question).pipe(
-        tap((question: QuizQuestion) => {
-          console.log('QUESTION:::::', question);
-        })
-      );
+  
+    this.question$ = of(question).pipe(
+      tap((question: QuizQuestion) => {
+        console.log('QUESTION:::::>>>', question);
+      })
+    );
   
     if (question && options && options.length > 0) {
       this.currentQuestion = question;
@@ -277,10 +280,10 @@ export class QuizService implements OnDestroy {
       this.currentQuestion = null;
       this.currentOptions = null;
     }
-
+  
     return [question, options];
   }
-        
+         
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;

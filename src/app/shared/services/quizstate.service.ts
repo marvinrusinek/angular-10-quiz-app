@@ -16,8 +16,8 @@ export class QuizStateService {
     if (question$) {
       this.currentQuestion$ = question$.pipe(
         tap((question) => {
-          this.question = question;
-          this.questionSubject.next(question);
+          // this.question = question;
+          this.currentQuestionSubject.next(question);
         })
       );
     }
