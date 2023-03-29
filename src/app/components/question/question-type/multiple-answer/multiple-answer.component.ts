@@ -105,6 +105,7 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option): string {
+    console.log('getOptionClass called with option:', option);
     if (this.selectedOption.value === option.value && option.correct) {
       return 'correct';
     } else if (this.selectedOption.value === option.value && !option.correct) {
