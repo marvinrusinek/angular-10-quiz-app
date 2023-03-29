@@ -77,7 +77,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizLength: number;
   quizQuestions: QuizQuestion[];
   question: QuizQuestion;
-  question$: Observable<QuizQuestion>;
+  question$: Observable<[QuizQuestion, Option[]]>;
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   currentQuiz: Quiz;
@@ -166,7 +166,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.question$ = of(null).pipe(
       switchMap(() => this.quizService.getCurrentQuestion())
     );
-    console.log(this.question$);
+    this.question$.subscribe(([question, options]) => {
+      this.currentQuestion = question;
+      this.currentOptions = options;
+    });
 
     this.activatedRoute.paramMap.subscribe(params => {
       this.handleParamMap(params);
