@@ -237,6 +237,7 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
+    console.log("TESTING");
     let currentQuestion = await this.currentQuestion$.toPromise();
     console.log('getCurrentQuestion:::', currentQuestion);
   
@@ -262,20 +263,15 @@ export class QuizService implements OnDestroy {
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
       .pipe(
-        tap((response) => {
-          console.log('Response before map operator:', response);
-        }),
         map((response: any) => {
           if (!response) {
             throw new Error('Response is null');
           }
+          console.log('Response:', response);
           return [
             response[0] as QuizQuestion,
             response[1] as Option[]
           ];
-        }),
-        tap((mappedResponse) => {
-          console.log('Response after map operator:', mappedResponse);
         }),
         catchError((error) => {
           console.error('Error occurred while retrieving question and options:', error);
@@ -285,14 +281,12 @@ export class QuizService implements OnDestroy {
         })
       )
       .toPromise() as [QuizQuestion, Option[]];
-  
-    this.question$ = of(question).pipe(
-      tap((question: QuizQuestion) => {
-        console.log('QUESTION:::::>>>', question);
-      })
-    );
-  
+
+    console.log('Question:', question);
+    console.log('Options:', options);
+
     if (question && options && options.length > 0) {
+      console.log('Inside if statement');
       this.currentQuestion = question;
       this.currentOptions = options;
       this.questionsAndOptions[questionIndex] = [question, options];
@@ -302,6 +296,7 @@ export class QuizService implements OnDestroy {
       this.currentOptions = null;
     }
   
+    console.log("TEST2");
     return [question, options];
   }
          
