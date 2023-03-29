@@ -99,12 +99,14 @@ export class MultipleAnswerComponent
       this.options.forEach((option) => {
         this.optionChecked[option.optionId] =
           this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(option.optionId.toString()) !== -1;
+          this.currentQuestion.selectedOptions.indexOf(
+            option.optionId.toString()
+          ) !== -1;
       });
     }
   }
 
-  getOptionClass(option): string {
+  getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
     if (this.selectedOption.value === option.value && option.correct) {
       return 'correct';
