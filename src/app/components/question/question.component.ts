@@ -133,17 +133,19 @@ export abstract class QuizQuestionComponent
       }
     );
 
-    const [question, options] = await this.quizService.getCurrentQuestion();
-    this.currentQuestion$ = of(question);
-
     if (!this.currentQuestion$) {
-      console.error('Current question is undefined or null');
-      return;
+      throw new Error('Current question is undefined or null');
     }
     
-    // this.quizStateService.setCurrentQuestion(of(this.question));
-    this.quizStateService.setCurrentQuestion(this.currentQuestion$);
-    this.subscriptionToQuestion();
+    try {
+      const question = await this.quizService.getCurrentQuestion().toPromise();
+      this.currentQuestion$ = of(question);
+      // this.quizStateService.setCurrentQuestion(of(this.question));
+      this.quizStateService.setCurrentQuestion(this.currentQuestion$);
+      this.subscriptionToQuestion();
+    } catch (error) {
+      console.error("Error getting current question:", error);
+    }
 
     console.log('CO>>', this.quizService.currentOptions$);
     this.subscriptionToOptions();
