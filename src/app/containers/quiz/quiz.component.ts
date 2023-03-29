@@ -243,7 +243,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         tap((quiz) => {
           this.quizId = quiz.quizId;
           // console.log('QuizComponent initialized with quizId: ', this.quizId);
-          this.getCurrentQuestion();
+          // this.getCurrentQuestion();
         }),
         catchError((error) => {
           console.error('Error occurred:', error);
