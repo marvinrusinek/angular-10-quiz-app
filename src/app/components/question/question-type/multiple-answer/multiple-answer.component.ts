@@ -99,7 +99,7 @@ export class MultipleAnswerComponent
       this.options.forEach((option) => {
         this.optionChecked[option.optionId] =
           this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(option.optionId) !== -1;
+          this.currentQuestion.selectedOptions.indexOf(option.optionId.toString()) !== -1;
       });
     }
   }
