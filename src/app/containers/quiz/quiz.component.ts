@@ -174,10 +174,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.handleParamMap(params);
     });
 
-    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-      this.quizId = quiz.quizId;
-    });
-
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
@@ -185,6 +181,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
     });
+
+    if (this.quizDataService.selectedQuiz$) {
+      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+        this.quizId = quiz.quizId;
+      });
+    }
 
     this.subscribeRouterAndInit();
     this.getCurrentQuiz();
