@@ -5,6 +5,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -12,7 +13,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
@@ -33,7 +34,7 @@ import { QuizDataService } from '../../../../shared/services/quizdata.service';
 })
 export class MultipleAnswerComponent
   extends QuizQuestionComponent
-  implements AfterViewInit, OnInit, OnChanges
+  implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -46,6 +47,7 @@ export class MultipleAnswerComponent
   form: FormGroup;
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
+  currentQuestionSubscription: Subscription;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
@@ -57,6 +59,13 @@ export class MultipleAnswerComponent
   ) {
     super();
     console.log('TEST');
+    this.currentQuestion$ = this.quizService.getCurrentQuestion();
+    this.currentQuestionSubscription = this.currentQuestion$.subscribe(
+      ([question, options]) => {
+        this.currentQuestion = question;
+        this.options = options;
+      }
+    );
   }
 
   async ngOnInit(): Promise<void> {
@@ -75,7 +84,7 @@ export class MultipleAnswerComponent
         tap(([question, options]) => {
           this.currentQuestion = question;
           this.options = options;
-          console.log("current question:", this.currentQuestion);
+          console.log('current question:', this.currentQuestion);
         })
       );
       this.currentQuestion$.subscribe();
@@ -100,6 +109,10 @@ export class MultipleAnswerComponent
         option.selected = selectedOptions.includes(option.value);
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.currentQuestionSubscription.unsubscribe();
   }
 
   trackByFn(index: number, question: any) {
