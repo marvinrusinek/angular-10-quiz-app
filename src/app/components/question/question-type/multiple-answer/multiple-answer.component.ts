@@ -59,6 +59,7 @@ export class MultipleAnswerComponent
     console.log('ngOnInit called test');
     console.log('options:', this.options);
     super.ngOnInit();
+    this.selectedOption = null;
     await new Promise<void>(async (resolve, reject) => {
       this.form = this.formBuilder.group({
         answer: [null, Validators.required],
