@@ -133,11 +133,19 @@ export abstract class QuizQuestionComponent
       }
     );
 
+    if (!this.currentQuestion$) {
+      throw new Error('Current question is undefined or null');
+    }
+
     const [question, options] = await this.quizService.getCurrentQuestion();
     this.currentQuestion$ = of(question);
-    // this.quizStateService.setCurrentQuestion(of(this.question));
-    this.quizStateService.setCurrentQuestion(this.currentQuestion$);
-    this.subscriptionToQuestion();
+    if (this.currentQuestion$) {
+      // this.quizStateService.setCurrentQuestion(of(this.question));
+      this.quizStateService.setCurrentQuestion(this.currentQuestion$);
+      this.subscriptionToQuestion();
+    } else {
+      console.error("Current question is undefined or null");
+    }
 
     console.log('CO>>', this.quizService.currentOptions$);
     this.subscriptionToOptions();

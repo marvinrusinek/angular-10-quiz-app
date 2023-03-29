@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, pipe, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, mergeMap, tap, toArray } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, tap, toArray, toPromise } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 import { isEqual } from 'lodash';
