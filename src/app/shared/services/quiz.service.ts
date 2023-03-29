@@ -247,6 +247,7 @@ export class QuizService implements OnDestroy {
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       let currentQuestion = await this.currentQuestion$.toPromise();
+      console.log('getCurrentQuestion:::', currentQuestion);
   
       const questionIndex = this.currentQuestionIndex;
       if (!questionIndex && questionIndex !== 0) {
@@ -274,11 +275,13 @@ export class QuizService implements OnDestroy {
       const [question, options] = await this.quizDataService
         .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .pipe(
-          tap(response => console.log('Response:', response)),
-          map((response: any) => {
+          tap((response: any) => {
             if (!response) {
               throw new Error('Response is null');
             }
+            console.log('Response:', response);
+          }),
+          map((response: any) => {
             return [
               response[0] as QuizQuestion,
               response[1] as Option[]
@@ -294,9 +297,12 @@ export class QuizService implements OnDestroy {
           })
         )
         .toPromise() as [QuizQuestion, Option[]];
-
-
+  
+      console.log('Question:', question);
+      console.log('Options:', options);
+  
       if (question && options && options.length > 0) {
+        console.log('Inside if statement');
         this.currentQuestion = question;
         this.currentOptions = options;
         this.questionsAndOptions[questionIndex] = [question, options];
@@ -313,7 +319,7 @@ export class QuizService implements OnDestroy {
   
     return this.currentQuestionPromise;
   }
-             
+               
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
