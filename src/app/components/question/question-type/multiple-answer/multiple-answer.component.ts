@@ -20,7 +20,6 @@ import { Option } from '../../../../shared/models/Option.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 
-
 @Component({
   selector: 'codelab-question-multiple-answer',
   templateUrl: './multiple-answer.component.html',
@@ -31,7 +30,9 @@ import { QuizDataService } from '../../../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges
+export class MultipleAnswerComponent
+  extends QuizQuestionComponent
+  implements AfterViewInit, OnInit, OnChanges
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -43,7 +44,8 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   questions: QuizQuestion[];
   form: FormGroup;
   currentQuestion: QuizQuestion;
-  currentQuestion$: BehaviorSubject<QuizQuestion>;
+  currentQuestion$: BehaviorSubject<QuizQuestion | undefined> =
+    new BehaviorSubject<QuizQuestion | undefined>(undefined);
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
@@ -54,7 +56,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     private formBuilder: FormBuilder
   ) {
     super();
-    console.log("TEST");
+    console.log('TEST');
   }
 
   async ngOnInit(): Promise<void> {
@@ -75,7 +77,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       this.currentQuestion = this.question;
 
       this.currentQuestion$ = this.quizService.getCurrentQuestion();
-      this.currentQuestion$.subscribe(question => {
+      this.currentQuestion$.subscribe((question) => {
         this.currentQuestion = question;
         console.log('currentQuestion:', this.currentQuestion);
       });
@@ -132,10 +134,18 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
     console.log('this.selectedOption:', this.selectedOption);
-    if (this.selectedOption && this.selectedOption.value === option.value && option.correct) {
+    if (
+      this.selectedOption &&
+      this.selectedOption.value === option.value &&
+      option.correct
+    ) {
       console.log('option is correct');
       return 'correct';
-    } else if (this.selectedOption && this.selectedOption.value === option.value && !option.correct) {
+    } else if (
+      this.selectedOption &&
+      this.selectedOption.value === option.value &&
+      !option.correct
+    ) {
       console.log('option is incorrect');
       return 'incorrect';
     } else {
@@ -177,11 +187,16 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   } */
 
   onSelectionChange(question: QuizQuestion, option: Option): void {
-    console.log('onSelectionChange called with question:', question, 'and option:', option);
+    console.log(
+      'onSelectionChange called with question:',
+      question,
+      'and option:',
+      option
+    );
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-  
+
     const index = question.selectedOptions.findIndex(
       (o) => o === option.value.toString()
     );
@@ -190,17 +205,17 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     } else {
       question.selectedOptions.splice(index, 1);
     }
-  
+
     const selectedOptionIds = question.selectedOptions.map((o) => {
       const selectedOption = question.options.find(
         (option) => option.value.toString() === o
       );
       return selectedOption ? selectedOption.value.toString() : null;
     });
-  
+
     console.log('selectedOptionIds:', selectedOptionIds);
     console.log('question.answer:', question.answer);
-  
+
     if (
       selectedOptionIds.sort().join(',') ===
       question.answer
@@ -210,7 +225,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     ) {
       this.incrementScore();
     }
-  
+
     console.log('this.selectedOption before:', this.selectedOption);
     this.selectedOption = option;
     console.log('this.selectedOption after:', this.selectedOption);
