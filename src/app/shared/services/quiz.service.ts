@@ -257,6 +257,7 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
+    console.log('TESTING');
     if (this.isGettingQuestion) {
       return this.currentQuestionPromise;
     }
