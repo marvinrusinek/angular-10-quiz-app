@@ -18,6 +18,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -49,10 +50,12 @@ export class MultipleAnswerComponent
   constructor(
     protected quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizStateService: QuizStateService,
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
-    super(quizService);
+    super(quizService, quizDataService, quizStateService, timerService, activatedRoute, cdRef);
+    console.log("TEST");
   }
 
   async ngOnInit(): Promise<void> {
