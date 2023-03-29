@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -30,9 +31,7 @@ import { QuizDataService } from '../../../../shared/services/quizdata.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent
-  extends QuizQuestionComponent
-  implements AfterViewInit, OnInit, OnChanges
+export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -44,6 +43,7 @@ export class MultipleAnswerComponent
   questions: QuizQuestion[];
   form: FormGroup;
   currentQuestion: QuizQuestion;
+  currentQuestion$: BehaviorSubject<QuizQuestion>;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
@@ -53,7 +53,7 @@ export class MultipleAnswerComponent
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
-    super(quizService, quizDataService, quizStateService, timerService, activatedRoute, cdRef);
+    super();
     console.log("TEST");
   }
 
@@ -73,7 +73,15 @@ export class MultipleAnswerComponent
         .getQuestionsForQuiz(quizId)
         .toPromise();
       this.currentQuestion = this.question;
+
+      this.currentQuestion$ = this.quizService.getCurrentQuestion();
+      this.currentQuestion$.subscribe(question => {
+        this.currentQuestion = question;
+        console.log('currentQuestion:', this.currentQuestion);
+      });
+
       this.quizService.getCorrectAnswers(this.currentQuestion);
+
       resolve();
     });
   }
