@@ -262,10 +262,15 @@ export class QuizService implements OnDestroy {
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
       .pipe(
-        map((response: any) => [
-          response[0] as QuizQuestion,
-          response[1] as Option[]
-        ]),
+        map((response: any) => {
+          if (!response) {
+            throw new Error('Response is null');
+          }
+          return [
+            response[0] as QuizQuestion,
+            response[1] as Option[]
+          ];
+        }),
         catchError((error) => {
           console.error('Error occurred while retrieving question and options:', error);
           this.currentQuestion = null;
