@@ -107,7 +107,7 @@ export class MultipleAnswerComponent
     }
   }
 
-  getOptionClass(option: Option): string {
+  /* getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
     if (this.selectedOption.value === option.value && option.correct) {
       return 'correct';
@@ -116,9 +116,24 @@ export class MultipleAnswerComponent
     } else {
       return '';
     }
+  } */
+
+  getOptionClass(option: Option): string {
+    console.log('getOptionClass called with option:', option);
+    console.log('this.selectedOption:', this.selectedOption);
+    if (this.selectedOption && this.selectedOption.value === option.value && option.correct) {
+      console.log('option is correct');
+      return 'correct';
+    } else if (this.selectedOption && this.selectedOption.value === option.value && !option.correct) {
+      console.log('option is incorrect');
+      return 'incorrect';
+    } else {
+      console.log('option is not selected');
+      return '';
+    }
   }
 
-  onSelectionChange(question: QuizQuestion, option: Option): void {
+  /* onSelectionChange(question: QuizQuestion, option: Option): void {
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
@@ -148,5 +163,45 @@ export class MultipleAnswerComponent
     ) {
       this.incrementScore();
     }
+  } */
+
+  onSelectionChange(question: QuizQuestion, option: Option): void {
+    console.log('onSelectionChange called with question:', question, 'and option:', option);
+    if (!question.selectedOptions) {
+      question.selectedOptions = [];
+    }
+  
+    const index = question.selectedOptions.findIndex(
+      (o) => o === option.value.toString()
+    );
+    if (index === -1) {
+      question.selectedOptions.push(option.value.toString());
+    } else {
+      question.selectedOptions.splice(index, 1);
+    }
+  
+    const selectedOptionIds = question.selectedOptions.map((o) => {
+      const selectedOption = question.options.find(
+        (option) => option.value.toString() === o
+      );
+      return selectedOption ? selectedOption.value.toString() : null;
+    });
+  
+    console.log('selectedOptionIds:', selectedOptionIds);
+    console.log('question.answer:', question.answer);
+  
+    if (
+      selectedOptionIds.sort().join(',') ===
+      question.answer
+        .map((a) => a.value.toString())
+        .sort()
+        .join(',')
+    ) {
+      this.incrementScore();
+    }
+  
+    console.log('this.selectedOption before:', this.selectedOption);
+    this.selectedOption = option;
+    console.log('this.selectedOption after:', this.selectedOption);
   }
 }
