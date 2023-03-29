@@ -240,24 +240,20 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
-    console.log("getCurrentQuestion is starting");
-    
     if (this.isGettingQuestion) {
-      console.log("getCurrentQuestion is already running, returning existing promise");
       return this.currentQuestionPromise;
     }
-    
-    console.log("getCurrentQuestion is not running, creating new promise");
+  
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       let currentQuestion = await this.currentQuestion$.toPromise();
       console.log('getCurrentQuestion:::', currentQuestion);
-    
+  
       const questionIndex = this.currentQuestionIndex;
       if (!questionIndex && questionIndex !== 0) {
         this.currentQuestionIndex = 0;
       }
-    
+  
       if (this.questionsAndOptions[questionIndex]) {
         const [question, options] = this.questionsAndOptions[questionIndex];
         this.currentQuestion = question;
@@ -266,7 +262,7 @@ export class QuizService implements OnDestroy {
         resolve([question, options]);
         return;
       }
-    
+  
       if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
         console.error('Quiz or questions array is null or undefined');
         this.currentQuestion = null;
@@ -275,15 +271,15 @@ export class QuizService implements OnDestroy {
         reject(new Error('Quiz or questions array is null or undefined'));
         return;
       }
-    
+  
       const [question, options] = await this.quizDataService
         .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .pipe(
+          tap((response: any) => console.log('Response:', response)),
           map((response: any) => {
             if (!response) {
               throw new Error('Response is null');
             }
-            console.log('Response:', response);
             return [
               response[0] as QuizQuestion,
               response[1] as Option[]
@@ -299,10 +295,10 @@ export class QuizService implements OnDestroy {
           })
         )
         .toPromise() as [QuizQuestion, Option[]];
-    
+  
       console.log('Question:', question);
       console.log('Options:', options);
-    
+  
       if (question && options && options.length > 0) {
         console.log('Inside if statement');
         this.currentQuestion = question;
@@ -318,10 +314,10 @@ export class QuizService implements OnDestroy {
         reject(new Error('Question or options array is null or undefined'));
       }
     });
-    console.log("getCurrentQuestion is finished");
+  
     return this.currentQuestionPromise;
   }
-           
+             
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
