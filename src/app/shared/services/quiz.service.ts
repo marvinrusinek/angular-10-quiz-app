@@ -257,7 +257,7 @@ export class QuizService implements OnDestroy {
       if (this.questionsAndOptions[questionIndex]) {
         const [question, options] = this.questionsAndOptions[questionIndex];
         this.currentQuestion = question;
-        this.currentOptions = options;
+        this.options = options;
         this.isGettingQuestion = false;
         resolve([question, options]);
         return;
@@ -266,7 +266,7 @@ export class QuizService implements OnDestroy {
       if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
         console.error('Quiz or questions array is null or undefined');
         this.currentQuestion = null;
-        this.currentOptions = null;
+        this.options = null;
         this.isGettingQuestion = false;
         reject(new Error('Quiz or questions array is null or undefined'));
         return;
@@ -288,28 +288,28 @@ export class QuizService implements OnDestroy {
           catchError((error) => {
             console.error('Error occurred while retrieving question and options:', error);
             this.currentQuestion = null;
-            this.currentOptions = null;
+            this.options = null;
             this.isGettingQuestion = false;
             reject(error);
             return of(null);
           })
         )
         .toPromise();
-
+  
       console.log('Question:', question);
       console.log('Options:', options);
   
       if (question && options && options.length > 0) {
         console.log('Inside if statement');
         this.currentQuestion = question;
-        this.currentOptions = options;
+        this.options = options;
         this.questionsAndOptions[questionIndex] = [question, options];
         this.isGettingQuestion = false;
         resolve([question, options]);
       } else {
         console.error('Question or options array is null or undefined');
         this.currentQuestion = null;
-        this.currentOptions = null;
+        this.options = null;
         this.isGettingQuestion = false;
         reject(new Error('Question or options array is null or undefined'));
       }
