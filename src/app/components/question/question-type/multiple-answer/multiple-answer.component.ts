@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -44,8 +44,7 @@ export class MultipleAnswerComponent
   questions: QuizQuestion[];
   form: FormGroup;
   currentQuestion: QuizQuestion;
-  currentQuestion$: BehaviorSubject<QuizQuestion | undefined> =
-    new BehaviorSubject<QuizQuestion | undefined>(undefined);
+  currentQuestion$: Observable<QuizQuestion>;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
