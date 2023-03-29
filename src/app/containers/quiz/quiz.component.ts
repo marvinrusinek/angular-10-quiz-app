@@ -162,13 +162,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizService.setCurrentOptions([]);
 
-    this.question$ = this.quizService.getCurrentQuestion().pipe(
-      map(([question, options]) => {
-        this.currentQuestion = question;
-        this.currentOptions = options;
-      })
+    this.question$ = of(null).pipe(
+      switchMap(() => this.quizService.getCurrentQuestion())
     );
-    this.question$.subscribe();
+    this.question$.subscribe(([question, options]) => {
+      this.currentQuestion = question;
+      this.currentOptions = options;
+    });
 
     this.activatedRoute.paramMap.subscribe(params => {
       this.handleParamMap(params);
