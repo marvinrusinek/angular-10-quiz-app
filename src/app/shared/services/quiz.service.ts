@@ -262,6 +262,9 @@ export class QuizService implements OnDestroy {
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
       .pipe(
+        tap((response: any) => {
+          console.log('RESPONSE:::::>>>', response);
+        }),
         map((response: any) => {
           if (!response) {
             throw new Error('Response is null');
