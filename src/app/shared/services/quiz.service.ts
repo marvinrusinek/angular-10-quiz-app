@@ -53,6 +53,7 @@ export class QuizService implements OnDestroy {
   currentQuestion: QuizQuestion = null;
   currentQuestion$: Observable<QuizQuestion> = null;
   options: Option[] = [];
+  options$: Observable<Option[]>;
   currentOptions: Option[];
   resources: Resource[];
   quizId: string = '';

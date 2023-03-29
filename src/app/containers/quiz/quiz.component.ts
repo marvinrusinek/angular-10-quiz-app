@@ -173,6 +173,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.options$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
       map(([currentQuestion, options]) => currentQuestion?.options?.[options] || [])
     );
+    this.options$.subscribe(options => console.log('OPTIONS', options));
 
     this.activatedRoute.paramMap.subscribe(params => {
       this.handleParamMap(params);
