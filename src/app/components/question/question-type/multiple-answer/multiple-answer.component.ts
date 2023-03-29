@@ -37,7 +37,7 @@ export class MultipleAnswerComponent
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
-  @Input() options: any[];
+  @Input() options: Option[];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   questions: QuizQuestion[];
@@ -79,6 +79,9 @@ export class MultipleAnswerComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.question) {
+      this.options = this.question.options;
+    }
     if (changes.selectedOptions && !changes.selectedOptions.firstChange) {
       const selectedOptions = changes.selectedOptions.currentValue;
       this.options.forEach((option) => {
