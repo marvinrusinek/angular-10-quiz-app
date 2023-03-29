@@ -73,7 +73,10 @@ export class MultipleAnswerComponent
       const quizId = this.activatedRoute.snapshot.params.quizId;
       this.questions = await this.quizDataService
         .getQuestionsForQuiz(quizId)
-        .toPromise();
+        .toPromise()
+        .then((questions) => {
+          this.currentQuestion$.next(questions[0]);
+        });;
       this.currentQuestion = this.question;
 
       this.currentQuestion$ = this.quizService.getCurrentQuestion();
