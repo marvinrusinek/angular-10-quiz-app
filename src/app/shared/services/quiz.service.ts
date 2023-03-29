@@ -275,13 +275,11 @@ export class QuizService implements OnDestroy {
       const [question, options] = await this.quizDataService
         .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .pipe(
-          tap((response: any) => {
+          map((response: any) => {
             if (!response) {
               throw new Error('Response is null');
             }
             console.log('Response:', response);
-          }),
-          map((response: any) => {
             return [
               response[0] as QuizQuestion,
               response[1] as Option[]
@@ -296,8 +294,8 @@ export class QuizService implements OnDestroy {
             return of(null);
           })
         )
-        .toPromise() as [QuizQuestion, Option[]];
-  
+        .toPromise();
+
       console.log('Question:', question);
       console.log('Options:', options);
   
