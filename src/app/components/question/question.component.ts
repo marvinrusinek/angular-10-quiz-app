@@ -133,7 +133,11 @@ export abstract class QuizQuestionComponent
       }
     );
 
-    this.currentQuestion$ = this.quizService.currentQuestion$;
+    this.currentQuestion$ = this.quizService.getCurrentQuestion().pipe(
+      tap(([question, options]) => {
+        console.log('Current question and options:', question, options);
+      })
+    );
     this.quizStateService.setCurrentQuestion(of(this.question));
     this.subscriptionToQuestion();
 
