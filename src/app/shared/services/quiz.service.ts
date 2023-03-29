@@ -139,6 +139,8 @@ export class QuizService implements OnDestroy {
     }
 
     this.quizResources = QUIZ_RESOURCES || [];
+
+    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
   ngOnDestroy(): void {
