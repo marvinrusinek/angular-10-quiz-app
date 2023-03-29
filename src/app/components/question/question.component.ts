@@ -51,6 +51,7 @@ export abstract class QuizQuestionComponent
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
+  @Input() options: Option[];
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   quiz: Quiz = {};
@@ -75,7 +76,6 @@ export abstract class QuizQuestionComponent
   answers;
   quizId: string;
   correctOptionIndex: number;
-  options: Option[];
   shuffleOptions = true;
   shuffledOptions: Option[];
   isChangeDetected = false;
@@ -143,10 +143,12 @@ export abstract class QuizQuestionComponent
       this.currentQuestion$ = of(question);
       this.quizStateService.setCurrentQuestion(this.currentQuestion$);
       this.subscriptionToQuestion();
-      const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
+      const isMultipleAnswer = await this.quizService
+        .isMultipleAnswer(question)
+        .toPromise();
       this.multipleAnswer = isMultipleAnswer;
     } catch (error) {
-      console.error("Error getting current question:", error);
+      console.error('Error getting current question:', error);
     }
 
     console.log('CO>>', this.quizService.currentOptions$);
