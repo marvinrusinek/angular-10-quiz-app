@@ -1,7 +1,7 @@
 <ng-container i18n>
   <div
     class="options"
-    *ngFor="let option of options; index as i; trackBy: trackByFn"
+    *ngFor="let answer of answers; index as i; trackBy: trackByFn"
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
