@@ -240,82 +240,86 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
-    if (this.currentQuestionPromise) {
+    if (this.isGettingCurrentQuestion) {
       return this.currentQuestionPromise;
     }
-    console.log('getCurrentQuestion is starting');
-    this.currentQuestionPromise = new Promise<[QuizQuestion, Option[]]>(async (resolve, reject) => {
-      const questionIndex = this.currentQuestionIndex;
-      if (!questionIndex && questionIndex !== 0) {
-        this.currentQuestionIndex = 0;
-      }
 
-      if (this.questionsAndOptions[questionIndex]) {
-        const [question, options] = this.questionsAndOptions[questionIndex];
-        this.currentQuestion = question;
-        this.currentOptions = options;
-        resolve([question, options]);
-        return;
-      }
+    this.isGettingCurrentQuestion = true;
+    console.log("getCurrentQuestion is starting");
+    
+    // Try to get the current question from the cache
+    let currentQuestion = await this.currentQuestion$.toPromise();
+    console.log('getCurrentQuestion:::', currentQuestion);
+    
+    // If the current question is already cached, return it immediately
+    if (currentQuestion) {
+      this.isGettingCurrentQuestion = false;
+      return [currentQuestion, this.currentOptions];
+    }
 
-      if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
-        console.error('Quiz or questions array is null or undefined');
-        this.currentQuestion = null;
-        this.currentOptions = null;
-        reject('Quiz or questions array is null or undefined');
-        return;
-      }
+    const questionIndex = this.currentQuestionIndex;
+    if (!questionIndex && questionIndex !== 0) {
+      this.currentQuestionIndex = 0;
+    }
 
-      try {
-        const [question, options] = await this.quizDataService
-          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-          .pipe(
-            map((response: any) => {
-              if (!response) {
-                throw new Error('Response is null');
-              }
-              console.log('Response:', response);
-              return [
-                response[0] as QuizQuestion,
-                response[1] as Option[]
-              ];
-            }),
-            catchError((error) => {
-              console.error('Error occurred while retrieving question and options:', error);
-              this.currentQuestion = null;
-              this.currentOptions = null;
-              reject(error);
-              throw error;
-            })
-          )
-          .toPromise() as [QuizQuestion, Option[]];
+    if (this.questionsAndOptions[questionIndex]) {
+      const [question, options] = this.questionsAndOptions[questionIndex];
+      this.currentQuestion = question;
+      this.currentOptions = options;
+      this.isGettingCurrentQuestion = false;
+      return [question, options];
+    }
 
-        console.log('Question:', question);
-        console.log('Options:', options);
+    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+      console.error('Quiz or questions array is null or undefined');
+      this.currentQuestion = null;
+      this.currentOptions = null;
+      this.isGettingCurrentQuestion = false;
+      throw new Error('Quiz or questions array is null or undefined');
+    }
 
-        if (question && options && options.length > 0) {
-          console.log('Inside if statement');
-          this.currentQuestion = question;
-          this.currentOptions = options;
-          this.questionsAndOptions[questionIndex] = [question, options];
-        } else {
-          console.error('Question or options array is null or undefined');
+    // Set up the promise for the current question and options
+    this.currentQuestionPromise = this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      .pipe(
+        map((response: any) => {
+          if (!response) {
+            throw new Error('Response is null');
+          }
+          console.log('Response:', response);
+          return [
+            response[0] as QuizQuestion,
+            response[1] as Option[]
+          ];
+        }),
+        catchError((error) => {
+          console.error('Error occurred while retrieving question and options:', error);
           this.currentQuestion = null;
           this.currentOptions = null;
-        }
+          throw error;
+        })
+      )
+      .toPromise() as Promise<[QuizQuestion, Option[]]>;
 
-        resolve([question, options]);
-      } catch (error) {
-        console.error('ERROR', error);
-        reject(error);
-      } finally {
-        console.log('getCurrentQuestion is finished');
-        this.currentQuestionPromise = null;
-      }
-    });
+    // Get the current question and options from the promise
+    const [question, options] = await this.currentQuestionPromise;
 
-    return this.currentQuestionPromise;
+    if (question && options && options.length > 0) {
+      console.log('Inside if statement');
+      this.currentQuestion = question;
+      this.currentOptions = options;
+      this.questionsAndOptions[questionIndex] = [question, options];
+      this.isGettingCurrentQuestion = false;
+      return [question, options];
+    } else {
+      console.error('Question or options array is null or undefined');
+      this.currentQuestion = null;
+      this.currentOptions = null;
+      this.isGettingCurrentQuestion = false;
+      throw new Error('Question or options array is null or undefined');
+    }
   }
+
          
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
