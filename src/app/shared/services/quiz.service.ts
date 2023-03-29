@@ -254,6 +254,8 @@ export class QuizService implements OnDestroy {
         this.currentQuestionIndex = 0;
       }
   
+      console.log('questionsAndOptions before retrieval:', this.questionsAndOptions);
+  
       if (this.questionsAndOptions[questionIndex]) {
         const [question, options] = this.questionsAndOptions[questionIndex];
         this.currentQuestion = question;
@@ -304,6 +306,7 @@ export class QuizService implements OnDestroy {
         this.currentQuestion = question;
         this.options = options;
         this.questionsAndOptions[questionIndex] = [question, options];
+        console.log('questionsAndOptions after retrieval:', this.questionsAndOptions);
         this.isGettingQuestion = false;
         resolve([question, options]);
       } else {
