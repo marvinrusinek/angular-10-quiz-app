@@ -13,6 +13,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -70,19 +71,14 @@ export class MultipleAnswerComponent
       this.formReady.emit(this.form);
 
       const quizId = this.activatedRoute.snapshot.params.quizId;
-      this.questions = await this.quizDataService
-        .getQuestionsForQuiz(quizId)
-        .toPromise()
-        .then((questions) => {
-          this.currentQuestion$.next(questions[0]);
-        });;
-      this.currentQuestion = this.question;
-
-      this.currentQuestion$ = this.quizService.getCurrentQuestion();
-      this.currentQuestion$.subscribe((question) => {
-        this.currentQuestion = question;
-        console.log('currentQuestion:', this.currentQuestion);
-      });
+      this.currentQuestion$ = this.quizService.getCurrentQuestion().pipe(
+        tap(([question, options]) => {
+          this.currentQuestion = question;
+          this.options = options;
+          console.log("current question:", this.currentQuestion);
+        })
+      );
+      this.currentQuestion$.subscribe();
 
       this.quizService.getCorrectAnswers(this.currentQuestion);
 
