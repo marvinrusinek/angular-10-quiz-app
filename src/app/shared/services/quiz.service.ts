@@ -250,7 +250,6 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    // Check if the quiz is defined and has questions
     if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
       console.error('Quiz or questions array is null or undefined');
       this.currentQuestion = null;
