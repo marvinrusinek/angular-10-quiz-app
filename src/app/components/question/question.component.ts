@@ -133,12 +133,10 @@ export abstract class QuizQuestionComponent
       }
     );
 
-    this.currentQuestion$ = this.quizService.getCurrentQuestion().pipe(
-      tap(([question, options]) => {
-        console.log('Current question and options:', question, options);
-      })
-    );
-    this.quizStateService.setCurrentQuestion(of(this.question));
+    const [question, options] = await this.quizService.getCurrentQuestion();
+    this.currentQuestion$ = of(question);
+    // this.quizStateService.setCurrentQuestion(of(this.question));
+    this.quizStateService.setCurrentQuestion(this.currentQuestion$);
     this.subscriptionToQuestion();
 
     console.log('CO>>', this.quizService.currentOptions$);
