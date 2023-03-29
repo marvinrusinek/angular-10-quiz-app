@@ -239,12 +239,12 @@ export class QuizService implements OnDestroy {
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
     let currentQuestion = await this.currentQuestion$.toPromise();
     console.log('getCurrentQuestion:::', currentQuestion);
-
+  
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
     }
-
+  
     if (this.questionsAndOptions[questionIndex]) {
       const [question, options] = this.questionsAndOptions[questionIndex];
       this.currentQuestion = question;
@@ -258,21 +258,40 @@ export class QuizService implements OnDestroy {
       this.currentOptions = null;
       return;
     }
-
-    const quizData = await this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex).toPromise();
-    console.log('quizData:', quizData);
-
-    const [question, options] = [
-      quizData[0] as QuizQuestion,
-      quizData[1] as Option[],
-    ];
-
+  
+    const [question, options] = await this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      .pipe(
+        tap((response) => {
+          console.log('Response before map operator:', response);
+        }),
+        map((response: any) => {
+          if (!response) {
+            throw new Error('Response is null');
+          }
+          return [
+            response[0] as QuizQuestion,
+            response[1] as Option[]
+          ];
+        }),
+        tap((mappedResponse) => {
+          console.log('Response after map operator:', mappedResponse);
+        }),
+        catchError((error) => {
+          console.error('Error occurred while retrieving question and options:', error);
+          this.currentQuestion = null;
+          this.currentOptions = null;
+          throw error;
+        })
+      )
+      .toPromise() as [QuizQuestion, Option[]];
+  
     this.question$ = of(question).pipe(
       tap((question: QuizQuestion) => {
         console.log('QUESTION:::::>>>', question);
       })
     );
-
+  
     if (question && options && options.length > 0) {
       this.currentQuestion = question;
       this.currentOptions = options;
@@ -282,7 +301,7 @@ export class QuizService implements OnDestroy {
       this.currentQuestion = null;
       this.currentOptions = null;
     }
-
+  
     return [question, options];
   }
          
