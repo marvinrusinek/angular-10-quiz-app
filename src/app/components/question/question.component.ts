@@ -26,6 +26,7 @@ import {
   map,
   startWith,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from 'rxjs/operators';
@@ -136,13 +137,14 @@ export abstract class QuizQuestionComponent
     if (!this.currentQuestion$) {
       throw new Error('Current question is undefined or null');
     }
-    
+
     try {
-      const question = await this.quizService.getCurrentQuestion().toPromise();
+      const [question] = await this.quizService.getCurrentQuestion();
       this.currentQuestion$ = of(question);
-      // this.quizStateService.setCurrentQuestion(of(this.question));
       this.quizStateService.setCurrentQuestion(this.currentQuestion$);
       this.subscriptionToQuestion();
+      const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
+      this.multipleAnswer = isMultipleAnswer;
     } catch (error) {
       console.error("Error getting current question:", error);
     }
@@ -270,13 +272,14 @@ export abstract class QuizQuestionComponent
   } */
 
   subscriptionToQuestion() {
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((question) => {
-      if (question) {
-        this.currentQuestion = question;
-        this.options = this.currentQuestion.options;
-        console.log("STQ", this.quizService.currentQuestion$);
-      }
-    });
+    this.currentQuestionSubscription =
+      this.quizService.currentQuestion$.subscribe((question) => {
+        if (question) {
+          this.currentQuestion = question;
+          this.options = this.currentQuestion.options;
+          console.log('STQ', this.quizService.currentQuestion$);
+        }
+      });
   }
 
   subscriptionToOptions() {
