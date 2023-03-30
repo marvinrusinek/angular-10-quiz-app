@@ -1,8 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "src", 
-    // "baseUrl": "./",
+    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -20,8 +19,8 @@
       "dom"
     ],
     "paths": {
-      "@codelab-quiz/shared/models/*": ["src/app/shared/models/*"],
-      "@codelab-quiz/shared/services/*": ["src/app/shared/services/*"]
+      "@codelab-quiz/shared/models/*": ["app/shared/models/*"],
+      "@codelab-quiz/shared/services/*": ["app/shared/services/*"]
     },
     "rootDir": "src"
   },
