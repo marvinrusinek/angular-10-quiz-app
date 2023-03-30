@@ -1,7 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "src", 
+    // "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -21,7 +22,8 @@
     "paths": {
       "@codelab-quiz/shared/models/*": ["src/app/shared/models/*"],
       "@codelab-quiz/shared/services/*": ["src/app/shared/services/*"]
-    }
+    },
+    "rootDir": "src"
   },
   "angularCompilerOptions": {
     "enableIvy": false,
