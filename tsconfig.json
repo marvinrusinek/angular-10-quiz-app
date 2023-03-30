@@ -17,7 +17,11 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@codelab/shared/models/*": ["app/shared/models/*"],
+      "@codelab/shared/services/*": ["app/shared/services/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableIvy": false,
