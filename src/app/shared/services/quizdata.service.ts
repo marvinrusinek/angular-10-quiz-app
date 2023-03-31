@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
@@ -36,6 +36,9 @@ export class QuizDataService implements OnInit {
 
   selectedQuizIdSubject = new BehaviorSubject<string>(null);
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+
+  currentQuestion$: QuizQuestion;
+  options$: Option[];
 
   private quizUrl = 'assets/data/quiz.json';
 
@@ -179,33 +182,23 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map((quizzes: Quiz[]) => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error('Selected quiz not found');
+    const currentQuestion$ = this.currentQuestion$.pipe(tap(currentQuestion => console.log('currentQuestion:', currentQuestion)));
+    const options$ = this.options$.pipe(tap(options => console.log('options:', options)));
+  
+    return combineLatest([
+      currentQuestion$,
+      options$,
+    ]).pipe(
+      map(([currentQuestion, options]) => {
+        if (!currentQuestion) {
+          throw new Error('Current question not found');
         }
-
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Selected quiz has no questions');
-        }
-
-        const questions = quiz.questions;
-        const question = questions[questionIndex];
-        if (!question || question.options === undefined) {
-          throw new Error('Question not found');
-        }
-
-        const options = question.options;
+  
         if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
           throw new Error('Question options not found');
         }
-
-        if (questionIndex >= quiz.questions.length) {
-          throw new Error('Question index out of bounds');
-        }
-
-        const result = [question, options] as [QuizQuestion, Option[]];
+  
+        const result = [currentQuestion, options] as [QuizQuestion, Option[]];
         return result;
       }),
       catchError(err => {
@@ -217,7 +210,7 @@ export class QuizDataService implements OnInit {
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-    
+  
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
