@@ -338,7 +338,7 @@ export abstract class QuizQuestionComponent
       .getQuestionAndOptions(this.quizId, questionIndex)
       .toPromise();
 
-    this.quizService.getQuestionAndOptions('quizId', 0).subscribe(([currentQuestion, options]) => {
+    this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex).subscribe(([currentQuestion, options]) => {
       console.log('currentQuestion:', currentQuestion);
       console.log('options:', options);
     });
