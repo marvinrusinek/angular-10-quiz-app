@@ -31,16 +31,16 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { Option, Quiz, QuizQuestion } from '@codelab-quiz-models/*';
-import { QuizService, QuizDataService, QuizStateService, TimerService } from '@codelab-quiz-services/*';
+/* import { Option, Quiz, QuizQuestion } from '@codelab-quiz-models/*';
+import { QuizService, QuizDataService, QuizStateService, TimerService } from '@codelab-quiz-services/*'; */
 
-/* import { Option } from '../../shared/models/Option.model';
+import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
-import { TimerService } from '../../shared/services/timer.service'; */
+import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-quiz-question',
