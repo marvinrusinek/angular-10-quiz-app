@@ -338,6 +338,11 @@ export abstract class QuizQuestionComponent
       .getQuestionAndOptions(this.quizId, questionIndex)
       .toPromise();
 
+    this.quizService.getQuestionAndOptions('quizId', 0).subscribe(([currentQuestion, options]) => {
+      console.log('currentQuestion:', currentQuestion);
+      console.log('options:', options);
+    });
+
     if (question && options && options?.length > 0) {
       this.currentQuestion = question;
       this.currentOptions = options;
