@@ -169,10 +169,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = options;
     });
 
-    this.options$ = combineLatest([this.quizService.currentQuestion$, this.quizService.options$]).pipe(
-      map(([currentQuestion, options]) => currentQuestion?.options?.[options] || [])
-    );
-    this.options$.subscribe((options) => console.log(options));
+    if (this.quizService.currentQuestion$ && this.quizService.options$) {
+      this.options$ = combineLatest([
+        this.quizService.currentQuestion$.pipe(tap(currentQuestion => console.log('currentQuestion:', currentQuestion))),
+        this.quizService.options$.pipe(tap(options => console.log('options:', options)))
+      ]).pipe(
+        map(([currentQuestion, options]) => currentQuestion?.options?.[options.toString()] || [])
+      );
+      this.options$.subscribe((options) => console.log(options));
+    }
 
     this.activatedRoute.paramMap.subscribe(params => {
       this.handleParamMap(params);
