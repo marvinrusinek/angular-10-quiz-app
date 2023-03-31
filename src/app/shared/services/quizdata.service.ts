@@ -182,35 +182,66 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    const currentQuestion$ = this.currentQuestion$.pipe(tap(currentQuestion => console.log('currentQuestion:', currentQuestion)));
-    const options$ = this.options$.pipe(tap(options => console.log('options:', options)));
-  
-    return combineLatest([
-      currentQuestion$,
-      options$,
-    ]).pipe(
-      map(([currentQuestion, options]) => {
-        if (!currentQuestion) {
-          throw new Error('Current question not found');
-        }
-  
-        if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
-          throw new Error('Question options not found');
-        }
-  
-        const result = [currentQuestion, options] as [QuizQuestion, Option[]];
-        return result;
-      }),
+    const quiz$ = this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError(err => {
         console.log('Error:', err);
         return of(null);
       }),
       retryWhen((errors) => errors.pipe(delay(1000), take(3))),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    const currentQuestion$ = quiz$.pipe(
+      map(quizzes => {
+        const quiz = quizzes.find(q => q.quizId === quizId);
+        if (!quiz) {
+          throw new Error('Selected quiz not found');
+        }
+
+        if (!quiz.questions || quiz.questions.length === 0) {
+          throw new Error('Selected quiz has no questions');
+        }
+
+        const questions = quiz.questions;
+        const question = questions[questionIndex];
+        if (!question || question.options === undefined) {
+          throw new Error('Question not found');
+        }
+
+        if (questionIndex >= quiz.questions.length) {
+          throw new Error('Question index out of bounds');
+        }
+
+        return question;
+      }),
+      catchError(err => {
+        console.log('Error:', err);
+        return of(null);
+      }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    const options$ = currentQuestion$.pipe(
+      map(question => {
+        const options = question.options;
+        if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
+          throw new Error('Question options not found');
+        }
+
+        return options;
+      }),
+      catchError(err => {
+        console.log('Error:', err);
+        return of(null);
+      }),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    return combineLatest([currentQuestion$, options$]);
   }
-  
+ 
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
