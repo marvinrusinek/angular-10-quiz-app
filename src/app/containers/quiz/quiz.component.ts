@@ -180,7 +180,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
       this.options$.subscribe((options) => console.log(options));
     }
-
+    
     this.activatedRoute.paramMap.subscribe(params => {
       this.handleParamMap(params);
     });
