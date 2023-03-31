@@ -20,6 +20,7 @@ import {
 
 import {
   BehaviorSubject,
+  combineLatest,
   forkJoin,
   Observable,
   of,
@@ -28,7 +29,6 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  combineLatest,
   distinctUntilChanged,
   filter,
   map,
