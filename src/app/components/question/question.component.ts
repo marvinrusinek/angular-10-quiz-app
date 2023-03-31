@@ -31,8 +31,8 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { Option, Quiz, QuizQuestion } from '@codelab-quiz/shared/models/*';
-import { QuizService, QuizDataService, QuizStateService, TimerService } from '@codelab-quiz/shared/services/*';
+import { Option, Quiz, QuizQuestion } from '@codelab-quiz-models';
+import { QuizService, QuizDataService, QuizStateService, TimerService } from '@codelab-quiz-services';
 
 /* import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
