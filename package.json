@@ -23,6 +23,7 @@
     "@fortawesome/fontawesome-svg-core": "1.2.32",
     "@ng-bootstrap/ng-bootstrap": "7.0.0",
     "bootstrap": "4.5.3",
+    "codelab-quiz-models/*": "*",
     "core-js": "3.6.5",
     "hammerjs": "^2.0.8",
     "hover.css": "2.3.2",
