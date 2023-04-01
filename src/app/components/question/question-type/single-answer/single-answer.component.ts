@@ -31,9 +31,11 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   selectedOption: Option;
   options$: Observable<Option[]>;
 
-  constructor(private quizStateService: QuizStateService) { }
+  constructor(private quizStateService: QuizStateService) { 
+    super();
+  }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
       map((question) => question.options)
     );
