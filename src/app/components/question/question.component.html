@@ -6,7 +6,7 @@
     <codelab-question-single-answer
       *ngSwitchCase="!multipleAnswer"
       [question]="currentQuestion"
-      [options]="currentQuestion?.options"
+      [options]="options$ | async"
       [currentQuestionIndex]="currentQuestionIndex"
       (answer)="updateSelectedOption(selectedOption, i)"
     >
@@ -17,7 +17,7 @@
       [form]="questionForm"
       [question]="currentQuestion"
       [currentQuestionIndex]="currentQuestionIndex"
-      [options]="currentQuestion?.options"
+      [options]="options$ | async"
       [selectedOption]="selectedOption"
       [correctAnswers]="correctAnswers"
       [correctMessage]="correctMessage"
