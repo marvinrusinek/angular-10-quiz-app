@@ -59,13 +59,13 @@ export class MultipleAnswerComponent
   ) {
     super();
     console.log('TEST');
-    this.currentQuestion$ = this.quizService.getCurrentQuestion();
+    /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
       ([question, options]) => {
         this.currentQuestion = question;
         this.options = options;
       }
-    );
+    ); */
   }
 
   async ngOnInit(): Promise<void> {

@@ -1,6 +1,6 @@
 <div *ngIf="questionForm">
   <ng-content *ngIf="questionForm.valid"></ng-content>
-  <form *ngIf="currentQuestion$ | async as currentQuestion" 
+  <form *ngIf="currentQuestion$ | async as currentQuestion"
         [formGroup]="questionForm"
         [ngSwitch]="multipleAnswer">
     <codelab-question-single-answer

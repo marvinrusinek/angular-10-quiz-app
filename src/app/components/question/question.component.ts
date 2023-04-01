@@ -112,6 +112,7 @@ export abstract class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log("TEST");
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
 
@@ -124,7 +125,9 @@ export abstract class QuizQuestionComponent
           this.selectedQuiz?.questions.length > 0
         ) {
           this.quizLoaded = true;
+          console.log('before setOptions');
           this.setOptions();
+          console.log('after setOptions');
         } else {
           console.error('Invalid Quiz object');
         }
@@ -153,7 +156,9 @@ export abstract class QuizQuestionComponent
         console.log('currentQuestion:', currentQuestion);
         console.log('options:', options);
         this.currentQuestion = currentQuestion;
+        console.log('before setOptions');
         this.setOptions();
+        console.log('after setOptions');
       });
     } catch (error) {
       console.error('Error getting current question:', error);
@@ -218,6 +223,7 @@ export abstract class QuizQuestionComponent
           (currentQuestion: QuizQuestion) => {
             console.log('Current question:', currentQuestion);
             this.currentQuestion = currentQuestion;
+            console.log('currentQuestion:', this.currentQuestion);
             if (this.currentQuestion?.options.length > 0) {
               this.questionForm = new FormGroup({
                 answer: new FormControl('', Validators.required),
@@ -260,6 +266,9 @@ export abstract class QuizQuestionComponent
   }
 
   updateQuestionForm(): void {
+    this.questionForm.patchValue({ answer: '' });
+    console.log('Options:', this.currentQuestion?.options);
+
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
@@ -447,6 +456,7 @@ export abstract class QuizQuestionComponent
   }
 
   async setOptions(): Promise<void> {
+    console.log('setOptions() called');
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
@@ -485,6 +495,8 @@ export abstract class QuizQuestionComponent
         } as Option)
     );
     this.quizService.setCurrentOptions(this.options);
+
+    console.log('Options after mapping:', this.options);
   
     // shuffle options only if the shuffleOptions boolean is true
     if (this.shuffleOptions) {
@@ -497,7 +509,7 @@ export abstract class QuizQuestionComponent
     this.quizService.isMultipleAnswer(currentQuestion);
   
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
-    console.log('Options:>>', this.options);
+    console.log('Options after shuffling and setting multiple answers:', this.options);
   }
       
   private resetForm(): void {
