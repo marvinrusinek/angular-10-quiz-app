@@ -44,7 +44,7 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export abstract class QuizQuestionComponent
+export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
   private quizService: QuizService;
@@ -149,6 +149,9 @@ export abstract class QuizQuestionComponent
 
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.currentQuestion$.subscribe(currentQuestion => console.log('QuizQuestionComponent currentQuestion:', currentQuestion));
+    this.quizStateService.getCurrentQuestion().subscribe(question => {
+      this.options = question.options;
+    });
 
     this.options$ = this.currentQuestion$.pipe(
       filter(question => question != null),
