@@ -21,6 +21,9 @@ export class QuizStateService {
         this.currentQuestionSubject.next(question);
         if (question && question.options) {
           this.optionsSubject.next(question.options);
+          console.log('options:', question.options);
+        } else {
+          console.log('No options found');
         }
       });
     } else {
@@ -28,7 +31,7 @@ export class QuizStateService {
       this.currentQuestionSubject.next(null);
       this.optionsSubject.next(null);
     }
-  }  
+  }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;

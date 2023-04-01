@@ -182,6 +182,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    console.log('my test');
     const quiz$ = this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError(err => {
         console.log('Error:', err);
