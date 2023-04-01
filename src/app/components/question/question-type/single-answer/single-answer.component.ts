@@ -2,12 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  ViewEncapsulation,
+  OnInit,
+  ViewEncapsulation
 } from '@angular/core';
 
 import { QuizQuestionComponent } from '../../question.component';
-import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
 
 @Component({
   selector: 'codelab-question-single-answer',
@@ -19,12 +21,21 @@ import { Option } from '../../../../shared/models/Option.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent {
+export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
   @Input() selected: string;
   selectedOption: Option;
+  options$: Observable<Option[]>;
+
+  constructor(private quizStateService: QuizStateService) { }
+
+  ngOnInit(): void {
+    this.options$ = this.quizStateService.getCurrentQuestion().pipe(
+      map((question) => question.options)
+    );
+  }
 
   onOptionSelected(selectedOption: Option): void {
     this.selectedOption = selectedOption;

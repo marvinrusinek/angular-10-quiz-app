@@ -13,14 +13,15 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, pipe,Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
+import { QuizStateService } from '../../shared/services/quizstate.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -50,10 +51,12 @@ export class MultipleAnswerComponent
   currentQuestionSubscription: Subscription;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   optionChecked: { [optionId: number]: boolean } = {};
+  options$: Observable<Option[]>;
 
   constructor(
     protected quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizStateService: QuizStateService,
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
@@ -69,10 +72,12 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log(this.question.options);
     console.log('ngOnInit called test');
     console.log('options:', this.options);
     super.ngOnInit();
     this.selectedOption = null;
+
     await new Promise<void>(async (resolve, reject) => {
       this.form = this.formBuilder.group({
         answer: [null, Validators.required],
@@ -88,6 +93,10 @@ export class MultipleAnswerComponent
         })
       );
       this.currentQuestion$.subscribe();
+
+      this.options$ = this.quizStateService.getCurrentQuestion().pipe(
+        map((question) => question.options)
+      );
 
       this.quizService.getCorrectAnswers(this.currentQuestion);
 
