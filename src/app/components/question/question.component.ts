@@ -116,6 +116,7 @@ export class QuizQuestionComponent
     this.questionForm = this.fb.group({
       selectedOption: ['']
     });
+    console.log('QuizQuestionComponent constructor called');
   }
 
   async ngOnInit(): Promise<void> {
