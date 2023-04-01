@@ -152,6 +152,8 @@ export abstract class QuizQuestionComponent
       .subscribe(([currentQuestion, options]) => {
         console.log('currentQuestion:', currentQuestion);
         console.log('options:', options);
+        this.currentQuestion = currentQuestion;
+        this.setOptions(options);
       });
     } catch (error) {
       console.error('Error getting current question:', error);
@@ -221,7 +223,7 @@ export abstract class QuizQuestionComponent
                 answer: new FormControl('', Validators.required),
               });
               this.updateQuestionForm();
-              this.setOptions();
+              // this.setOptions();
             }
           },
           (error: any) => {
@@ -367,18 +369,6 @@ export abstract class QuizQuestionComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    /* if (changes.quizId && changes.quizId.currentValue && this.quizLoaded) {
-      const quizId = changes.quizId.currentValue;
-      const quiz = this.quizDataService.getQuizById(quizId);
-      if (quiz) {
-        console.log('Current Quiz Questions:', quiz.questions);
-        this.quizService.setQuiz(quiz);
-        this.quizStateService.setCurrentQuestion(quiz.questions[0].questionId);
-      } else {
-        console.error('Invalid Quiz ID');
-      }
-    } */
-
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
@@ -456,7 +446,7 @@ export abstract class QuizQuestionComponent
     this.multipleAnswer = this.correctAnswers?.length > 1;
   }
 
-  async setOptions(): Promise<void> {
+  /* async setOptions(options: Option[]): Promise<void> {
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
@@ -519,6 +509,18 @@ export abstract class QuizQuestionComponent
 
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
     console.log('Options:>>', this.options);
+  } */
+
+  setOptions(options: Option[]): void {
+    this.options = options.map((option, index) => {
+      return {
+        text: option.text,
+        correct: index === this.correctOptionIndex,
+        value: option.value,
+        answer: option.value,
+        selected: false
+      };
+    });
   }
 
   private resetForm(): void {
