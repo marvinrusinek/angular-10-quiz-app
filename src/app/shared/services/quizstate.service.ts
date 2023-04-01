@@ -27,4 +27,8 @@ export class QuizStateService {
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
   }
+
+  getOptions(): Observable<Option[]> {
+    return this.optionsSubject.asObservable();
+  }
 }
