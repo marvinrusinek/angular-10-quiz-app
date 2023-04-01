@@ -31,9 +31,6 @@ import {
   tap,
 } from 'rxjs/operators';
 
-/* import { Option, Quiz, QuizQuestion } from '@codelab-quiz-models/*';
-import { QuizService, QuizDataService, QuizStateService, TimerService } from '@codelab-quiz-services/*'; */
-
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -150,6 +147,12 @@ export abstract class QuizQuestionComponent
         .isMultipleAnswer(question)
         .toPromise();
       this.multipleAnswer = isMultipleAnswer;
+
+      this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      .subscribe(([currentQuestion, options]) => {
+        console.log('currentQuestion:', currentQuestion);
+        console.log('options:', options);
+      });
     } catch (error) {
       console.error('Error getting current question:', error);
     }
@@ -337,11 +340,6 @@ export abstract class QuizQuestionComponent
     const [question, options] = await this.quizDataService
       .getQuestionAndOptions(this.quizId, questionIndex)
       .toPromise();
-
-    this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex).subscribe(([currentQuestion, options]) => {
-      console.log('currentQuestion:', currentQuestion);
-      console.log('options:', options);
-    });
 
     if (question && options && options?.length > 0) {
       this.currentQuestion = question;
