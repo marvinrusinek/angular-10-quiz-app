@@ -515,7 +515,7 @@ export abstract class QuizQuestionComponent
     this.options = options.map((option, index) => {
       return {
         text: option.text,
-        correct: index === this.correctOptionIndex,
+        correct: option.correct,
         value: option.value,
         answer: option.value,
         selected: false
