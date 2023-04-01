@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -18,6 +18,7 @@ export class QuizStateService {
     if (question$) {
       this.currentQuestion$ = question$.pipe(
         tap((question) => {
+          this.currentQuestion.next(question);
           this.currentQuestionSubject.next(question);
           this.optionsSubject.next(question.options);
         })
