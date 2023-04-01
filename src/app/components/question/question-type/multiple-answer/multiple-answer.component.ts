@@ -97,6 +97,9 @@ export class MultipleAnswerComponent
       this.options$ = this.quizStateService.getCurrentQuestion().pipe(
         map((question) => question.options)
       );
+      this.quizStateService.optionsSubject.subscribe((options) => {
+        this.options = options;
+      });
 
       this.quizService.getCorrectAnswers(this.currentQuestion);
 
