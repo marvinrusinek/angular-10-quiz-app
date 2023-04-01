@@ -21,7 +21,7 @@
       [selectedOption]="selectedOption"
       [correctAnswers]="correctAnswers"
       [correctMessage]="correctMessage"
-      (answer)="updateClassName(selectedOption, i)"
+      (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
     ></codelab-question-multiple-answer>
   </form>
 </div>

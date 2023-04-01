@@ -11,7 +11,7 @@ import {
   Output,
   SimpleChanges
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
@@ -105,12 +105,17 @@ export class QuizQuestionComponent
     private quizStateService: QuizStateService,
     private timerService: TimerService,
     public activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private fb: FormBuilder,
+    private cdRef: ChangeDetectorRef,
   ) {
     console.log('Component instantiated');
     // this.quizService = quizService;
     this.correctMessage = '';
     this.multipleAnswer = false;
+
+    this.questionForm = this.fb.group({
+      selectedOption: ['']
+    });
   }
 
   async ngOnInit(): Promise<void> {
