@@ -1,4 +1,4 @@
-<ng-container i18n>
+<ng-container i18n *ngIf="options$ | async as options">
   <div
     class="options"
     *ngFor="let option of options; index as i; trackBy: trackByFn"
