@@ -109,6 +109,7 @@ export abstract class QuizQuestionComponent
     this.quizService = quizService;
     this.correctMessage = '';
     this.multipleAnswer = false;
+    console.log('Component instantiated');
   }
 
   async ngOnInit(): Promise<void> {
