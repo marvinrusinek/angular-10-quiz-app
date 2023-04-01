@@ -21,7 +21,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { Option } from '../../../../shared/models/Option.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
-import { QuizStateService } from '../../shared/services/quizstate.service';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
