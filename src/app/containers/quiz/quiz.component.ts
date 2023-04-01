@@ -24,6 +24,7 @@ import {
   forkJoin,
   Observable,
   of,
+  pipe,
   Subject,
   Subscription,
 } from 'rxjs';
