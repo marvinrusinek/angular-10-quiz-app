@@ -446,12 +446,12 @@ export abstract class QuizQuestionComponent
     this.multipleAnswer = this.correctAnswers?.length > 1;
   }
 
-  /* async setOptions(options: Option[]): Promise<void> {
+  async setOptions(opts: Option[]): Promise<void> {
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
     }
-
+  
     if (
       !this.selectedQuiz?.questions ||
       !this.selectedQuiz?.questions[this.currentQuestionIndex]
@@ -459,33 +459,22 @@ export abstract class QuizQuestionComponent
       console.error('Question not found');
       return;
     }
-
+  
     const quizQuestion =
       this.selectedQuiz?.questions[this.currentQuestionIndex];
-    this.options = quizQuestion?.options;
-
-    const currentQuestion =
-      this.selectedQuiz?.questions[this.currentQuestionIndex];
-    if (currentQuestion) {
-      this.currentQuestion = currentQuestion;
-      this.currentOptions = currentQuestion.options;
-
-      // Update the quiz service with the current question and options
-      this.quizService.setCurrentQuestion(currentQuestion);
-      this.quizService.setCurrentOptions(currentQuestion.options);
-    } else {
-      console.error('Invalid question index');
-    }
-    console.log('Options:', this.currentOptions);
-
+  
     const { options, answer } = quizQuestion;
-
+  
     const answerValue = answer?.values().next().value;
     this.correctOptionIndex = options.findIndex(
       (option) => option.value === answerValue
     );
-
-    this.options = options.map(
+  
+    const optionsCopy = [...opts]; // create a copy of the options array
+    if (this.shuffleOptions) {
+      this.quizService.shuffle(optionsCopy);
+    }
+    this.options = optionsCopy.map(
       (option, index) =>
         ({
           text: option.text,
@@ -496,33 +485,18 @@ export abstract class QuizQuestionComponent
         } as Option)
     );
     this.quizService.setCurrentOptions(this.options);
-
-    // shuffle options only if the shuffleOptions boolean is true
-    if (this.shuffleOptions) {
-      this.quizService.shuffle(this.options);
-    }
-
+  
     const correctOptions =
       this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(quizQuestion);
-
+  
+    this.currentOptions = opts; // set currentOptions to opts passed in the function
+  
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
     console.log('Options:>>', this.options);
-  } */
-
-  setOptions(options: Option[]): void {
-    this.options = options.map((option, index) => {
-      return {
-        text: option.text,
-        correct: option.correct,
-        value: option.value,
-        answer: option.value,
-        selected: false
-      };
-    });
   }
-
+  
   private resetForm(): void {
     if (!this.questionForm) {
       return;
