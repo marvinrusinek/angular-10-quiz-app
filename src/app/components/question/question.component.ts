@@ -147,6 +147,15 @@ export class QuizQuestionComponent
 
     this.question$.subscribe(question => console.log('QuizQuestionComponent question:', question));
 
+    this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
+    this.currentQuestion$.subscribe(currentQuestion => console.log('QuizQuestionComponent currentQuestion:', currentQuestion));
+
+    this.options$ = this.currentQuestion$.pipe(
+      filter(question => question != null),
+      map(question => question.options)
+    );
+    this.options$.subscribe(options => console.log('QuizQuestionComponent options:', options));
+
     if (!this.currentQuestion$) {
       throw new Error('Current question is undefined or null');
     }
