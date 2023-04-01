@@ -10,14 +10,15 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizStateService {
   private currentQuestion: BehaviorSubject<QuizQuestion|null> = new BehaviorSubject<QuizQuestion|null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  optionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
       this.currentQuestion$ = question$.pipe(
         tap((question) => {
-          // this.question = question;
           this.currentQuestionSubject.next(question);
+          this.optionsSubject.next(question.options);
         })
       );
     }
