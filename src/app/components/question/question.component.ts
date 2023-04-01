@@ -44,7 +44,7 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent
+export abstract class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
   private quizService: QuizService;
