@@ -9,7 +9,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -62,7 +62,7 @@ export abstract class QuizQuestionComponent
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   question$: Observable<QuizQuestion>;
   currentOptions: Option[];
-  questionForm: FormGroup;
+  questionForm: FormGroup = new FormGroup({});
   selectedQuiz: Quiz;
   optionSelected: Option;
   correctAnswers: number[] = [];
@@ -267,9 +267,6 @@ export abstract class QuizQuestionComponent
   }
 
   updateQuestionForm(): void {
-    this.questionForm.patchValue({ answer: '' });
-    console.log('Options:', this.currentQuestion?.options);
-
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
@@ -468,7 +465,7 @@ export abstract class QuizQuestionComponent
       return;
     }
   
-    const currentQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+    const currentQuestion = this.selectedQuiz.questions[+this.currentQuestionIndex];
     this.currentQuestion = currentQuestion;
     this.currentOptions = currentQuestion.options;
   
@@ -485,7 +482,7 @@ export abstract class QuizQuestionComponent
       (option) => option.value === answerValue
     );
   
-    this.options = options.map(
+    this.currentOptions = options.map(
       (option, index) =>
         ({
           text: option.text,
