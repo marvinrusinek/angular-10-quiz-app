@@ -165,6 +165,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.question$ = of(null).pipe(
         switchMap(() => this.quizService.getCurrentQuestion())
       );
+      this.question$ = this.quizService.currentQuestion!.pipe(
+        tap(question => console.log('question:', question))
+      );
       this.question$.subscribe(([question, options]) => {
         this.currentQuestion = question;
         this.currentOptions = options;

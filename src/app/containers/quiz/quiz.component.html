@@ -35,7 +35,7 @@
         <codelab-quiz-explanation
           *ngIf="isAnswered() && showExplanation"
           [isAnswered]="isAnswered()"
-          [question$]="question$"
+          [question]="question"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanationText]="explanationText"
@@ -45,8 +45,8 @@
       <!-- the options -->
       <codelab-quiz-question
         *ngIf="quizService.currentQuestion"
-        [question$]="question$"
-        [options$]="options$"
+        [question]="question"
+        [options]="options"
         (answer)="selectedAnswer($event)"
         [answers]="answers"
         (onOptionSelected)="onOptionSelected($event)"

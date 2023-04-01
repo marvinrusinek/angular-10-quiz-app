@@ -139,6 +139,8 @@ export class QuizQuestionComponent
       }
     );
 
+    this.question$.subscribe(question => console.log('QuizQuestionComponent question:', question));
+
     if (!this.currentQuestion$) {
       throw new Error('Current question is undefined or null');
     }
