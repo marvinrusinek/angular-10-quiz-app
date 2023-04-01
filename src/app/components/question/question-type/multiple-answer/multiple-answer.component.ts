@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, pipe,Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, pipe, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';

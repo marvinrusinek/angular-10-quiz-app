@@ -5,6 +5,8 @@ import {
   OnInit,
   ViewEncapsulation
 } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
