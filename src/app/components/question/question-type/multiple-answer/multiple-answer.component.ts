@@ -61,7 +61,6 @@ export class MultipleAnswerComponent
     private formBuilder: FormBuilder
   ) {
     super();
-    console.log('TEST');
     /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
       ([question, options]) => {
