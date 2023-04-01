@@ -17,9 +17,9 @@ export class QuizStateService {
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
       question$.subscribe((question) => {
+        this.optionsSubject.next(question.options);
         this.currentQuestion.next(question);
         this.currentQuestionSubject.next(question);
-        this.optionsSubject.next(question.options);
       });
     }
   }
