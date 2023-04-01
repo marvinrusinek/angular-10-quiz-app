@@ -16,13 +16,11 @@ export class QuizStateService {
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
-      this.currentQuestion$ = question$.pipe(
-        tap((question) => {
-          this.currentQuestion.next(question);
-          this.currentQuestionSubject.next(question);
-          this.optionsSubject.next(question.options);
-        })
-      );
+      question$.subscribe((question) => {
+        this.currentQuestion.next(question);
+        this.currentQuestionSubject.next(question);
+        this.optionsSubject.next(question.options);
+      });
     }
   }
 
