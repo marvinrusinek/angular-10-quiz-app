@@ -163,6 +163,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setCurrentOptions([]);
 
     if (this.question$) {
+      this.questionSubscription = this.question$
+        .subscribe(([question, options]) => {
+          console.log("Question received: ", question);
+          console.log("Options received: ", options);
+  
+          this.currentQuestion = question;
+          this.currentOptions = options;
+        });
+    }
+
+    /* if (this.question$) {
       this.question$ = of(null).pipe(
         switchMap(() => this.quizService.getCurrentQuestion())
       );
@@ -173,7 +184,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestion = question;
         this.currentOptions = options;
       });
-    }
+    } */
 
     if (this.quizService.currentQuestion$ && this.quizService.options$) {
       this.options$ = combineLatest([
