@@ -44,7 +44,7 @@ import { TimerService } from '../../shared/services/timer.service';
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export abstract class QuizQuestionComponent
+export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
   private quizService: QuizService;
@@ -113,6 +113,7 @@ export abstract class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log("ngOnInit: questionForm:", this.questionForm);
     console.log("TEST");
     console.log('question$: ', this.question$);
     this.currentQuestionIndex = 0;
@@ -492,6 +493,7 @@ export abstract class QuizQuestionComponent
           selected: false,
         } as Option)
     );
+    console.log("setOptions: options:", this.options);
     this.quizService.setCurrentOptions(this.options);
 
     console.log('Options after mapping:', this.options);
