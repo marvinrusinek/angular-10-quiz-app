@@ -21,6 +21,10 @@ export class QuizStateService {
         this.currentQuestionSubject.next(question);
         this.optionsSubject.next(question.options);
       });
+    } else {
+      this.currentQuestion.next(null);
+      this.currentQuestionSubject.next(null);
+      this.optionsSubject.next(null);
     }
   }  
 
