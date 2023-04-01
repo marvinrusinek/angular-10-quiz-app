@@ -51,7 +51,9 @@ export class QuizQuestionComponent
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
+  @Input() question$: Observable<QuizQuestion>;
   @Input() options: Option[];
+  @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   quiz: Quiz = {};
@@ -60,7 +62,6 @@ export class QuizQuestionComponent
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
-  question$: Observable<QuizQuestion>;
   currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz: Quiz;
