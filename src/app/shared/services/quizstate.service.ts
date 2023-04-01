@@ -19,7 +19,9 @@ export class QuizStateService {
       question$.subscribe((question) => {
         this.currentQuestion.next(question);
         this.currentQuestionSubject.next(question);
-        this.optionsSubject.next(question.options);
+        if (question && question.options) {
+          this.optionsSubject.next(question.options);
+        }
       });
     } else {
       this.currentQuestion.next(null);
