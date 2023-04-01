@@ -106,10 +106,10 @@ export class QuizQuestionComponent
     public activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
   ) {
-    this.quizService = quizService;
+    console.log('Component instantiated');
+    // this.quizService = quizService;
     this.correctMessage = '';
     this.multipleAnswer = false;
-    console.log('Component instantiated');
   }
 
   async ngOnInit(): Promise<void> {
