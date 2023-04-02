@@ -41,6 +41,7 @@ import { TimerService } from '../../shared/services/timer.service';
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
+  providers: [QuizService, QuizDataService, QuizStateService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent
