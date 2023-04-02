@@ -86,7 +86,7 @@ export class QuizQuestionComponent
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
 
   private _multipleAnswer: boolean;
-  private questionAndOptionsLoaded: false;
+  private hasQuestionAndOptionsLoaded: false;
 
   get multipleAnswer(): boolean {
     let result = false;
@@ -128,9 +128,8 @@ export class QuizQuestionComponent
         .isMultipleAnswer(question)
         .toPromise();
       this.multipleAnswer = isMultipleAnswer;
-  
-      if (!this.questionAndOptionsLoaded) {
-        this.questionAndOptionsLoaded = true;
+
+      if (!this.hasQuestionAndOptionsLoaded) {
         this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
             console.log('currentQuestion:', currentQuestion);
@@ -139,7 +138,10 @@ export class QuizQuestionComponent
             this.options = options;
             this.setOptions();
           });
+      } else {
+        this.setOptions();
       }
+
     } catch (error) {
       console.error('Error getting current question:', error);
     }

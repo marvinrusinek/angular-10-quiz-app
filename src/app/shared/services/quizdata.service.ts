@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, throwError } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
@@ -41,6 +41,9 @@ export class QuizDataService implements OnInit {
   options$: Option[];
 
   private quizUrl = 'assets/data/quiz.json';
+
+  private hasQuestionAndOptionsLoaded = false;
+  private questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
@@ -182,6 +185,10 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    if (this.hasQuestionAndOptionsLoaded) {
+      return this.questionAndOptionsSubject.asObservable();
+    }
+
     console.log('my test');
     const quiz$ = this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError(err => {
@@ -240,7 +247,20 @@ export class QuizDataService implements OnInit {
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    return combineLatest([currentQuestion$, options$]);
+    const questionAndOptionsObj: [QuizQuestion, Option[]] = [null, null];
+
+    combineLatest([currentQuestion$, options$]).pipe(
+      switchMap(([currentQuestion, options]) => {
+        questionAndOptionsObj[0] = currentQuestion;
+        questionAndOptionsObj[1] = options;
+        this.hasQuestionAndOptionsLoaded = true;
+        return of(questionAndOptionsObj);
+      })
+    ).subscribe(questionAndOptions => {
+      this.questionAndOptionsSubject.next(questionAndOptions);
+    });
+
+    return this.questionAndOptionsSubject.asObservable();
   }
  
   selectQuiz(quiz: Quiz): void {
