@@ -122,6 +122,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    this.currentQuestion = this.questions[0];
     console.log('ngOnInit');
     console.log('question', this.question);
     console.log('options', this.options);
