@@ -111,7 +111,7 @@ export class QuizQuestionComponent
     private cdRef: ChangeDetectorRef,
   ) {
     console.log('Component instantiated');
-    // this.quizService = quizService;
+    this.quizService = quizService;
     this.correctMessage = '';
     this.multipleAnswer = false;
 
