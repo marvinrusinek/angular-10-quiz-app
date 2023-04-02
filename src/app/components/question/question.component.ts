@@ -130,24 +130,12 @@ export class QuizQuestionComponent
       const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
       this.multipleAnswer = isMultipleAnswer;
   
-      if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-        this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-          .subscribe(([currentQuestion, options]) => {
-            console.log('currentQuestion:', currentQuestion);
-            console.log('options:', options);
-            this.currentQuestion = currentQuestion;
-            this.options = options;
-            this.setOptions();
-          });
-      } else {
-        const [currentQuestion, options] = this.quizDataService.questionAndOptions;
-        console.log('currentQuestion:', currentQuestion);
-        console.log('options:', options);
-        this.currentQuestion = currentQuestion;
-        this.options = options;
+      this.quizStateService.currentQuestion$.subscribe(question => {
+        this.currentQuestion = question;
         this.setOptions();
-      }
+      });
   
+      this.loadCurrentQuestion();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
@@ -167,6 +155,28 @@ export class QuizQuestionComponent
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
+  }
+
+  private loadCurrentQuestion(): void {
+    if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+      this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+        .subscribe(([currentQuestion, options]) => {
+          console.log('currentQuestion:', currentQuestion);
+          console.log('options:', options);
+          this.setCurrentQuestionAndOptions(currentQuestion, options);
+        });
+    } else {
+      const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+      console.log('currentQuestion:', currentQuestion);
+      console.log('options:', options);
+      this.setCurrentQuestionAndOptions(currentQuestion, options);
+    }
+  }
+
+  private setCurrentQuestionAndOptions(question: QuizQuestion, options: Option[]): void {
+    this.currentQuestion = question;
+    this.options = options;
+    this.setOptions();
   }
 
   /* subscriptionToQuestion() {
