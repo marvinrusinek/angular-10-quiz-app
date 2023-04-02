@@ -1,7 +1,7 @@
-<ng-container i18n *ngIf="options$ | async as options">
+<ng-container i18n *ngIf="currentQuestion">
   <div
     class="options"
-    *ngFor="let option of currentQuestion.options; index as i; trackBy: trackByFn"
+    *ngFor="let option of currentQuestion?.options; index as i; trackBy: trackByFn"
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
