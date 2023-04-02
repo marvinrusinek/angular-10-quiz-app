@@ -8,6 +8,7 @@ import {
   map,
   mergeMap,
   retryWhen,
+  share,
   shareReplay,
   switchMap,
   take,
@@ -196,7 +197,7 @@ export class QuizDataService implements OnInit {
         return of(null);
       }),
       retryWhen((errors) => errors.pipe(delay(1000), take(3))),
-      shareReplay({ bufferSize: 1, refCount: true })
+      share()
     );
   
     const currentQuestion$ = quiz$.pipe(
@@ -227,7 +228,7 @@ export class QuizDataService implements OnInit {
         return of(null);
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      shareReplay({ bufferSize: 1, refCount: true })
+      take(1)
     );
   
     const options$ = currentQuestion$.pipe(
@@ -244,7 +245,7 @@ export class QuizDataService implements OnInit {
         return of(null);
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      shareReplay({ bufferSize: 1, refCount: true })
+      take(1)
     );
   
     const questionAndOptionsObj: [QuizQuestion, Option[]] = [null, null];
@@ -254,7 +255,7 @@ export class QuizDataService implements OnInit {
         questionAndOptionsObj[0] = currentQuestion;
         questionAndOptionsObj[1] = options;
         this.hasQuestionAndOptionsLoaded = true;
-        return of(questionAndOptionsObj).pipe(take(1)); // Use take(1) to ensure only 1 subscription is active
+        return of(questionAndOptionsObj);
       })
     ).subscribe(questionAndOptions => {
       this.questionAndOptionsSubject.next(questionAndOptions);
@@ -262,7 +263,7 @@ export class QuizDataService implements OnInit {
   
     return this.questionAndOptionsSubject.asObservable();
   }
-   
+     
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
