@@ -59,7 +59,6 @@ export class QuizQuestionComponent
   @Input() inputData: string;
   quiz: Quiz = {};
   quizLoaded = false;
-  currentQuestion: QuizQuestion;
   currentQuestionSubscription: Subscription;
   questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
@@ -88,6 +87,10 @@ export class QuizQuestionComponent
 
   private _multipleAnswer: boolean;
   private hasQuestionAndOptionsLoaded: false;
+
+  get currentQuestion(): QuizQuestion {
+    return this.questions[this.currentQuestionIndex];
+  }
 
   get multipleAnswer(): boolean {
     let result = false;
