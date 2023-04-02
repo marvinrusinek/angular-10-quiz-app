@@ -50,7 +50,7 @@ export class MultipleAnswerComponent
   currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
-  selectedOptions: Option[] = [];
+  selectedOptions: Option[];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
 
@@ -202,8 +202,10 @@ export class MultipleAnswerComponent
     }
   } */
 
-  onOptionSelected(option): void {
+  onOptionSelected(option: Option): void {
+    super.onOptionSelected(option);
     console.log('Option selected:', option);
+
     if (!this.selectedOptions) {
       this.selectedOptions = [];
     }
@@ -214,6 +216,7 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
     }
     this.optionSelected.emit(this.selectedOptions);
+    this.optionChecked[option.optionId] = true;
   }
 
   onSelectionChange(question: QuizQuestion, option: Option): void {

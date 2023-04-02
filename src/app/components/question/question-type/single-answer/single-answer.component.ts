@@ -30,6 +30,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() selected: string;
   selectedOption: Option | null = null;
   options$: Observable<Option[]>;
+  optionChecked: { [optionId: number]: boolean } = {};
 
   constructor(private quizStateService: QuizStateService) { 
     super();
@@ -43,7 +44,9 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     );
   }
 
-  onOptionSelected(selectedOption: Option): void {
-    this.selectedOption = selectedOption;
+  onOptionSelected(option: Option): void {
+    super.onOptionSelected(option);
+    this.selectedOption = option;
+    this.optionChecked[option.optionId] = true;
   }
 }
