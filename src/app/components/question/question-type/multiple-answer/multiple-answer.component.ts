@@ -37,6 +37,7 @@ export abstract class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
+  @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
@@ -54,6 +55,7 @@ export abstract class MultipleAnswerComponent
   optionChecked: { [optionId: number]: boolean } = {};
   selectionChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   options$: Observable<Option[]>;
+  isMultiple = true;
 
   constructor(
     protected quizService: QuizService,
@@ -173,56 +175,27 @@ export abstract class MultipleAnswerComponent
     }
   }
 
-  /* onSelectionChange(question: QuizQuestion, option: Option): void {
-    if (!question.selectedOptions) {
-      question.selectedOptions = [];
-    }
+  onOptionSelected(selectedOption: Option) {
+    super.onOptionSelected(selectedOption);
+    console.log('Option selected:', selectedOption);
 
-    const index = question.selectedOptions.findIndex(
-      (o) => o === option.value.toString()
-    );
-    if (index === -1) {
-      question.selectedOptions.push(option.value.toString());
+    if (!this.isMultiple) {
+      this.selectedOptions = [selectedOption];
     } else {
-      question.selectedOptions.splice(index, 1);
+      const index = this.selectedOptions.findIndex(option => option.optionId === selectedOption.optionId);
+      if (index >= 0) {
+        this.selectedOptions.splice(index, 1);
+      } else {
+        this.selectedOptions.push(selectedOption);
+      }
     }
-
-    const selectedOptionIds = question.selectedOptions.map((o) => {
-      const selectedOption = question.options.find(
-        (option) => option.value.toString() === o
-      );
-      return selectedOption ? selectedOption.value.toString() : null;
-    });
-
-    if (
-      selectedOptionIds.sort().join(',') ===
-      question.answer
-        .map((a) => a.value.toString())
-        .sort()
-        .join(',')
-    ) {
-      this.incrementScore();
-    }
-  } */
-
-  onOptionSelected(option: Option): void {
-    super.onOptionSelected(option);
-    console.log('Option selected:', option);
-
-    if (!this.selectedOptions) {
-      this.selectedOptions = [];
-    }
-    const index = this.selectedOptions.findIndex(selectedOption => selectedOption.id === option.id);
-    if (index !== -1) {
-      this.selectedOptions.splice(index, 1);
-    } else {
-      this.selectedOptions.push(option);
-    }
-    this.optionSelected.emit(option); // emit selectedOptions??
-    this.optionChecked[option.optionId] = true;
+    this.selectionChanged.emit(this.selectedOptions);
+    this.optionChecked[selectedOption.optionId] = true;
   }
 
   onSelectionChange(question: QuizQuestion, option: Option): void {
+    super.onSelectionChange(question, option);
+    
     console.log(
       'onSelectionChange called with question:',
       question,
@@ -266,6 +239,5 @@ export abstract class MultipleAnswerComponent
     console.log('this.selectedOption before:', this.selectedOption);
     this.selectedOption = option;
     console.log('this.selectedOption after:', this.selectedOption);
-    super.onSelectionChange(question, option);
   }
 }
