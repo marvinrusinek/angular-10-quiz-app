@@ -136,10 +136,6 @@ export abstract class MultipleAnswerComponent
     this.currentQuestionSubscription.unsubscribe();
   }
 
-  trackByFn(index: number, question: any) {
-    return question.id;
-  }
-
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
@@ -154,17 +150,15 @@ export abstract class MultipleAnswerComponent
 
   getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
-    console.log('this.selectedOption:', this.selectedOption);
+    console.log('this.selectedOptions:', this.selectedOptions);
     if (
-      this.selectedOption &&
-      this.selectedOption.value === option.value &&
+      this.selectedOptions.includes(option) &&
       option.correct
     ) {
       console.log('option is correct');
       return 'correct';
     } else if (
-      this.selectedOption &&
-      this.selectedOption.value === option.value &&
+      this.selectedOptions.includes(option) &&
       !option.correct
     ) {
       console.log('option is incorrect');

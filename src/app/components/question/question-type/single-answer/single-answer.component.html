@@ -1,5 +1,5 @@
 <ng-container *ngIf="options$ | async as options"> 
-  <div class="options" *ngFor="let option of currentQuestion?.options; let i = index;">
+  <div class="options" *ngFor="let option of currentQuestion?.options; let i = index">
     <mat-radio-button
       [id]="'option' + i"
       [class]="option.styleClass"
@@ -12,7 +12,6 @@
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text" i18n>{{ option.text }}</span>
       <codelab-quiz-option-feedback
-        #feedback
         [correct]="option.correct"
         [selected]="option.selected"
       >

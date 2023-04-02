@@ -1,10 +1,10 @@
 <ng-container i18n *ngIf="currentQuestion">
   <div
     class="options"
-    *ngFor="let option of currentQuestion?.options; index as i; trackBy: trackByFn"
+    *ngFor="let option of currentQuestion?.options; index as i"
   >
     <mat-checkbox
-      (click)="selectedOption = option; onOptionSelected(option)"
+      (click)="selectedOption = option; super.onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, option)"
       [class]="getOptionClass(option)"
       [checked]="optionChecked[option?.optionId]"

@@ -60,6 +60,7 @@ export class QuizQuestionComponent
   @Input() currentQuestionIndex: number;
   @Input() inputData: string;
   selectedOption: Option;
+  selectedOptions: Option[] = [];
   // currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
   quizLoaded = false;
