@@ -124,12 +124,10 @@ export class QuizQuestionComponent
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = await this.quizService
-        .isMultipleAnswer(question)
-        .toPromise();
+      const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
       this.multipleAnswer = isMultipleAnswer;
-
-      if (!this.hasQuestionAndOptionsLoaded) {
+  
+      if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
         this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
             console.log('currentQuestion:', currentQuestion);
@@ -139,14 +137,19 @@ export class QuizQuestionComponent
             this.setOptions();
           });
       } else {
+        const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+        console.log('currentQuestion:', currentQuestion);
+        console.log('options:', options);
+        this.currentQuestion = currentQuestion;
+        this.options = options;
         this.setOptions();
       }
-
+  
     } catch (error) {
       console.error('Error getting current question:', error);
     }
   }
-  
+    
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();

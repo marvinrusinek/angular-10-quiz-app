@@ -40,10 +40,10 @@ export class QuizDataService implements OnInit {
   currentQuestion$: QuizQuestion;
   options$: Option[];
 
-  private quizUrl = 'assets/data/quiz.json';
+  hasQuestionAndOptionsLoaded = false;
+  questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
 
-  private hasQuestionAndOptionsLoaded = false;
-  private questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
+  private quizUrl = 'assets/data/quiz.json';
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
