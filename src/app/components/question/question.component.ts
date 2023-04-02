@@ -86,7 +86,7 @@ export class QuizQuestionComponent
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
 
   private _multipleAnswer: boolean;
-  private questionOptionsLoaded = false;
+  private questionAndOptionsLoaded: false;
 
   get multipleAnswer(): boolean {
     let result = false;
@@ -121,168 +121,30 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log("ngOnInit: questionForm:", this.questionForm);
-    console.log("TEST");
-    console.log('question$: ', this.question$);
-    this.currentQuestionIndex = 0;
-
-    this.quizService.getSelectedQuiz().subscribe(
-      (selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz;
-        if (
-          this.selectedQuiz &&
-          this.selectedQuiz?.questions &&
-          this.selectedQuiz?.questions.length > 0
-        ) {
-          this.quizLoaded = true;
-          console.log('before setOptions');
-          this.setOptions();
-          console.log('after setOptions');
-        } else {
-          console.error('Invalid Quiz object');
-        }
-      },
-      (error: any) => {
-        console.error(error);
-      }
-    );
-
-    this.question$.subscribe(question => console.log('QuizQuestionComponent question:', question));
-
-    this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    this.currentQuestion$.subscribe(currentQuestion => console.log('QuizQuestionComponent currentQuestion:', currentQuestion));
-    this.quizStateService.getCurrentQuestion().subscribe(question => {
-      this.options = question.options;
-    });
-
-    this.options$ = this.currentQuestion$.pipe(
-      filter(question => question != null),
-      map(question => question.options)
-    );
-    this.options$.subscribe(options => console.log('QuizQuestionComponent options:', options));
-
-    if (!this.currentQuestion$) {
-      throw new Error('Current question is undefined or null');
-    }
-
     try {
       const [question] = await this.quizService.getCurrentQuestion();
-      this.currentQuestion$ = of(question);
-      this.quizStateService.setCurrentQuestion(this.currentQuestion$);
-      this.subscriptionToQuestion();
+      this.quizStateService.setCurrentQuestion(of(question));
       const isMultipleAnswer = await this.quizService
         .isMultipleAnswer(question)
         .toPromise();
       this.multipleAnswer = isMultipleAnswer;
-
-      if (!this.questionOptionsLoaded) {
-        this.questionOptionsLoaded = true;
+  
+      if (!this.questionAndOptionsLoaded) {
+        this.questionAndOptionsLoaded = true;
         this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-        .subscribe(([currentQuestion, options]) => {
-          console.log('currentQuestion:', currentQuestion);
-          console.log('options:', options);
-          this.currentQuestion = currentQuestion;
-          console.log('before setOptions');
-          this.setOptions();
-          console.log('after setOptions');
-        });
+          .subscribe(([currentQuestion, options]) => {
+            console.log('currentQuestion:', currentQuestion);
+            console.log('options:', options);
+            this.currentQuestion = currentQuestion;
+            this.options = options;
+            this.setOptions();
+          });
       }
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-
-    console.log('CO>>', this.quizService.currentOptions$);
-    this.subscriptionToOptions();
-
-    this.activatedRoute.params.subscribe(async (params) => {
-      if (params && params.quizId) {
-        const newQuizId = params.quizId;
-        this.quizId = params['quizId'];
-        console.log('TESTING quizId', this.quizId);
-        this.quizDataService.setSelectedQuiz(
-          this.quizService.quizData.find((q) => q.quizId === this.quizId)
-        );
-
-        if (this.quizId) {
-          this.setQuizQuestion(this.quizId);
-        }
-
-        this.quizDataService.getQuizData(this.quizId).subscribe((data) => {
-          this.questions = data;
-        });
-        this.quizDataService.getQuiz(this.quizId).subscribe(async (quiz) => {
-          if (quiz) {
-            this.quizDataService.setSelectedQuiz(quiz);
-            this.quizDataService.setCurrentQuestionIndex(0);
-            this.question = quiz.questions[0];
-            console.log('Question:', this.question);
-            if (this.question?.options) {
-              this.answers =
-                this.question?.options.map((option) => option.value) || [];
-              this.currentQuestion = this.question;
-              this.quizService.setCurrentQuestion(this.currentQuestion);
-              this.quizService
-                .isMultipleAnswer(this.currentQuestion)
-                .subscribe((multipleAnswer) => {
-                  this.multipleAnswerSubject.next(multipleAnswer);
-                });
-              this.correctAnswers = this.quizService.getCorrectAnswers(
-                this.question
-              );
-              console.log('QuizService Correct Answers:', this.correctAnswers);
-            } else {
-              console.error('Question or question options not found');
-            }
-          } else {
-            console.error('Selected quiz not found');
-          }
-        });
-      }
-    });
-
-    if (this.quizStateService.currentQuestion$) {
-      this.quizStateService.currentQuestion$
-        .pipe(
-          startWith(null),
-          filter((currentQuestion: QuizQuestion) => !!currentQuestion)
-        )
-        .subscribe(
-          (currentQuestion: QuizQuestion) => {
-            console.log('Current question:', currentQuestion);
-            this.currentQuestion = currentQuestion;
-            console.log('currentQuestion:', this.currentQuestion);
-            if (this.currentQuestion?.options.length > 0) {
-              this.questionForm = new FormGroup({
-                answer: new FormControl('', Validators.required),
-              });
-              this.updateQuestionForm();
-              // this.setOptions();
-            }
-          },
-          (error: any) => {
-            console.error(error);
-          }
-        );
-    } else {
-      console.error('currentQuestion$ is not initialized!');
-    }
-
-    // subscribe to currentQuestionSubject to update current question
-    this.quizStateService.currentQuestionSubject
-      .pipe(
-        // tap(() => console.log('Current question has changed')),
-        filter(() => !!this.currentQuestion?.options?.length),
-        switchMap(() =>
-          this.quizService.isMultipleAnswer(this.currentQuestion)
-        ),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((multipleAnswer) => {
-        this.currentQuestion = this.question;
-        this.multipleAnswerSubject.next(multipleAnswer);
-      });
   }
-
+  
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
