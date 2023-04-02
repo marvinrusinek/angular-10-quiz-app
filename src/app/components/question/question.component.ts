@@ -129,13 +129,18 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-    this.currentQuestion = this.questions[0];
-    console.log('Quiz questions:', this.questions);
-
     console.log('ngOnInit');
     console.log('question', this.question);
     console.log('options', this.options);
+
+    if (this.quizId) {
+      this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+      this.currentQuestion = this.questions[0];
+      console.log('Quiz questions:', this.questions$);
+    } else {
+      console.error('quizId parameter is null or undefined');
+    }
+
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
