@@ -120,6 +120,9 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('ngOnInit');
+    console.log('question', this.question);
+    console.log('options', this.options);
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
@@ -268,6 +271,11 @@ export class QuizQuestionComponent
   } */
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges');
+    console.log('changes', changes);
+    if (changes.options) {
+      console.log('Options changed: ', this.options);
+    }
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
@@ -346,7 +354,8 @@ export class QuizQuestionComponent
   }
 
   async setOptions(): Promise<void> {
-    console.log('setOptions() called');
+    console.log('setOptions');
+    console.log('setOptions called with options', this.options);
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;

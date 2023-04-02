@@ -28,6 +28,7 @@ export class QuizDataService implements OnInit {
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId: string = '';
+  questionAndOptions: [QuizQuestion, Option[]] | null = null;
 
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
@@ -186,6 +187,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    console.log('getQuestionAndOptions called with quizId', quizId, 'and questionIndex', questionIndex);
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
       return this.questionAndOptionsSubject.asObservable();
     }
