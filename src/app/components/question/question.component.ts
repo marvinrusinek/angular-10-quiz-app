@@ -58,8 +58,8 @@ export class QuizQuestionComponent
   @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
-  @Input() selectedOption: Option | null = null;
   @Input() inputData: string;
+  selectedOption: Option;
   // currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
   quizLoaded = false;
@@ -511,7 +511,7 @@ export class QuizQuestionComponent
     } else {
       this.selectedOption = option;
     }
-    this.optionSelected.emit(this.selectedOption);
+    this.optionSelected.emit(option);
   }
 
   onSelectionChange(question: QuizQuestion, selectedOption: Option): void {

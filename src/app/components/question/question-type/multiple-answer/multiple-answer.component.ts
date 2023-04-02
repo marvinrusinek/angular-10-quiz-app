@@ -175,27 +175,27 @@ export abstract class MultipleAnswerComponent
     }
   }
 
-  onOptionSelected(selectedOption: Option) {
-    super.onOptionSelected(selectedOption);
-    console.log('Option selected:', selectedOption);
+  isOptionSelected(option: Option): boolean {
+    return this.selectedOptions.indexOf(option) > -1;
+  }
 
-    if (!this.isMultiple) {
-      this.selectedOptions = [selectedOption];
+  onOptionSelected(option: Option) {
+    super.onOptionSelected(option);
+    console.log('Option selected:', option);
+
+    const index = this.selectedOptions.indexOf(option);
+    if (index > -1) {
+      this.selectedOptions.splice(index, 1);
     } else {
-      const index = this.selectedOptions.findIndex(option => option.optionId === selectedOption.optionId);
-      if (index >= 0) {
-        this.selectedOptions.splice(index, 1);
-      } else {
-        this.selectedOptions.push(selectedOption);
-      }
+      this.selectedOptions.push(option);
     }
     this.selectionChanged.emit(this.selectedOptions);
-    this.optionChecked[selectedOption.optionId] = true;
+    this.optionChecked[option.optionId] = true;
   }
 
   onSelectionChange(question: QuizQuestion, option: Option): void {
     super.onSelectionChange(question, option);
-    
+
     console.log(
       'onSelectionChange called with question:',
       question,
