@@ -295,7 +295,7 @@ export class QuizService implements OnDestroy {
           return;
         }
   
-        const [question, options] = await this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex).toPromise();
+        const [question, options] = this.quizQuestions[questionIndex].value;
         if (question && options && options.length > 0) {
           this.currentQuestion = question;
           this.options = options;
@@ -320,7 +320,7 @@ export class QuizService implements OnDestroy {
   
     return await this.currentQuestionPromise;
   }
-  
+    
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
