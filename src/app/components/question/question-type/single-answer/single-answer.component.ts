@@ -36,6 +36,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   }
 
   async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+    console.log('SingleAnswerComponent initialized');
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
       map((question) => question.options)
     );

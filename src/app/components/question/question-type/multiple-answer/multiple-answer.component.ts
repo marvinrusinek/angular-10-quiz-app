@@ -71,6 +71,9 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+    console.log('MultipleAnswerComponent initialized');
+
     console.log("CQ", this.currentQuestion);
     console.log(this.question.options);
     console.log('ngOnInit called test');

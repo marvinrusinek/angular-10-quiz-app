@@ -58,7 +58,7 @@ export class QuizQuestionComponent
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   @Input() inputData: string;
-  currentQuestion: QuizQuestion = {} as QuizQuestion;
+  // currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
@@ -139,7 +139,10 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    this.questions = this.quizDataService.getQuestionsForQuiz(this.quizId);
     this.currentQuestion = this.questions[0];
+    console.log('Quiz questions:', this.questions);
+
     console.log('ngOnInit');
     console.log('question', this.question);
     console.log('options', this.options);
