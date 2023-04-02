@@ -93,6 +93,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   options: Option[] = [];
   optionsSubscription: Subscription;
   private routerSubscription: Subscription;
+  inputData: string = 'Initial value';
 
   selectedQuiz$: BehaviorSubject<Quiz>;
 
@@ -155,6 +156,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.inputData = 'New value';
     this.currentQuestionIndex = 0;
     
     this.currentQuestion$ = this.quizService.currentQuestion$;

@@ -55,6 +55,7 @@ export class QuizQuestionComponent
   @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
+  @Input() inputData: string;
   quiz: Quiz = {};
   quizLoaded = false;
   currentQuestion: QuizQuestion;
@@ -271,6 +272,7 @@ export class QuizQuestionComponent
   } */
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('Input data changed:', changes.inputData.currentValue);
     console.log('ngOnChanges');
     console.log('changes', changes);
     if (changes.options) {
