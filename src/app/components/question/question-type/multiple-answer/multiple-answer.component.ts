@@ -40,13 +40,13 @@ export class MultipleAnswerComponent
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
+  // @Input() questions: QuizQuestion[];
   @Input() currentQuestionIndex: number;
   @Input() options: Option[];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
-  questions: QuizQuestion[];
   form: FormGroup;
-  currentQuestion: QuizQuestion;
+  // currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
