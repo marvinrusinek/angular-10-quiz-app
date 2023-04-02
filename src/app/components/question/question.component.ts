@@ -48,6 +48,7 @@ export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
   private quizService: QuizService;
+  @Output() optionSelected = new EventEmitter<string>();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
@@ -506,6 +507,7 @@ export class QuizQuestionComponent
 
   onOptionSelected(option) {
     this.selectedOption = option;
+    this.optionSelected.emit(this.selectedOption);
   }
 
   private updateClassName(selectedOption: Option, optionIndex: number): void {
