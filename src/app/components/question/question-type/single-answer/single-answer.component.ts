@@ -47,6 +47,11 @@ export abstract class SingleAnswerComponent extends QuizQuestionComponent implem
   onOptionSelected(option: Option): void {
     super.onOptionSelected(option);
     this.selectedOption = option;
+    this.optionSelected.emit(option); // emit selectedOptions??
+    this.optionChecked[option.optionId] = true;
+  }
+
+  onSelectionChange(question: QuizQuestion, option: Option) {
     this.optionChecked[option.optionId] = true;
   }
 }

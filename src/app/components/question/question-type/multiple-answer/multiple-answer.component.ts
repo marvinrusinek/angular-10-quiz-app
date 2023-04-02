@@ -46,7 +46,7 @@ export abstract class MultipleAnswerComponent
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   form: FormGroup;
-  // currentQuestion: QuizQuestion;
+  currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
@@ -74,6 +74,8 @@ export abstract class MultipleAnswerComponent
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
     console.log('MultipleAnswerComponent initialized');
+
+    this.currentQuestion = this.questions[this.currentQuestionIndex];
 
     console.log("CQ", this.currentQuestion);
     console.log(this.question.options);
@@ -215,7 +217,7 @@ export abstract class MultipleAnswerComponent
     } else {
       this.selectedOptions.push(option);
     }
-    this.optionSelected.emit(this.selectedOptions);
+    this.optionSelected.emit(option); // emit selectedOptions??
     this.optionChecked[option.optionId] = true;
   }
 
@@ -258,6 +260,8 @@ export abstract class MultipleAnswerComponent
     ) {
       this.incrementScore();
     }
+
+    this.optionChecked[option.optionId] = true;
 
     console.log('this.selectedOption before:', this.selectedOption);
     this.selectedOption = option;

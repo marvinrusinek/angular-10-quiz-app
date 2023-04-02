@@ -500,7 +500,11 @@ export class QuizQuestionComponent
   }
 
   onOptionSelected(option: Option) {
-    this.selectedOption = option;
+    if (this.selectedOption === option) {
+      this.selectedOption = null;
+    } else {
+      this.selectedOption = option;
+    }
     this.optionSelected.emit(this.selectedOption);
   }
 
