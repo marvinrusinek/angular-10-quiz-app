@@ -187,34 +187,24 @@ export abstract class MultipleAnswerComponent
     this.optionChecked[option.optionId] = true;
   }
 
-  onSelectionChange(question: QuizQuestion, option: Option): void {
-    super.onSelectionChange(question, option);
+  onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
+    super.onSelectionChange(question, selectedOptions);
 
     console.log(
       'onSelectionChange called with question:',
       question,
-      'and option:',
-      option
+      'and selectedOptions:',
+      selectedOptions
     );
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
 
-    const index = question.selectedOptions.findIndex(
-      (o) => o === option.value.toString()
-    );
-    if (index === -1) {
-      question.selectedOptions.push(option.value.toString());
-    } else {
-      question.selectedOptions.splice(index, 1);
-    }
+    const selectedOptionValues = selectedOptions.map((o) => o.value.toString());
 
-    const selectedOptionIds = question.selectedOptions.map((o) => {
-      const selectedOption = question.options.find(
-        (option) => option.value.toString() === o
-      );
-      return selectedOption ? selectedOption.value.toString() : null;
-    });
+    const selectedOptionIds = question.options
+      .filter((o) => selectedOptionValues.includes(o.value.toString()))
+      .map((o) => o.optionId);
 
     console.log('selectedOptionIds:', selectedOptionIds);
     console.log('question.answer:', question.answer);
@@ -222,16 +212,19 @@ export abstract class MultipleAnswerComponent
     if (
       selectedOptionIds.sort().join(',') ===
       question.answer
-        .map((a) => a.value.toString())
+        .map((a) => a.optionId.toString())
         .sort()
         .join(',')
     ) {
       this.incrementScore();
     }
 
-    this.optionChecked[option?.optionId] = !this.optionChecked[option?.optionId];
+    selectedOptions.forEach((option) => {
+      this.optionChecked[option.optionId] = !this.optionChecked[option.optionId];
+    });
     console.log('this.selectedOption before:', this.selectedOption);
-    this.selectedOption = option;
+    this.selectedOption = selectedOptions[0];
     console.log('this.selectedOption after:', this.selectedOption);
+    this.selectionChanged.emit(selectedOptions);
   }
 }
