@@ -129,6 +129,7 @@ export class QuizQuestionComponent
   ) {
     console.log('Component instantiated');
     this.quizService = quizService;
+    this.questions = [];
     this.correctMessage = '';
     this.multipleAnswer = false;
 
@@ -509,7 +510,7 @@ export class QuizQuestionComponent
     }
   }
 
-  onOptionSelected(option) {
+  onOptionSelected(option: Option) {
     this.selectedOption = option;
     this.optionSelected.emit(this.selectedOption);
   }

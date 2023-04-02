@@ -23,7 +23,7 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
+export abstract class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
