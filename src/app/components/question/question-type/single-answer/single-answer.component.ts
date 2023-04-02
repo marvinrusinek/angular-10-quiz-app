@@ -52,6 +52,8 @@ export abstract class SingleAnswerComponent extends QuizQuestionComponent implem
   }
 
   onSelectionChange(question: QuizQuestion, option: Option) {
-    this.optionChecked[option.optionId] = true;
+    this.optionChecked[option?.optionId] = !this.optionChecked[option?.optionId];
+    this.selectedOption = option;
+    super.onSelectionChange(question, option);
   }
 }

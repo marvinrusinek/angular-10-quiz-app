@@ -52,6 +52,7 @@ export abstract class MultipleAnswerComponent
   selectedOption: Option = { text: '', correct: false, value: null } as Option;
   selectedOptions: Option[];
   optionChecked: { [optionId: number]: boolean } = {};
+  selectionChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   options$: Observable<Option[]>;
 
   constructor(
@@ -261,10 +262,10 @@ export abstract class MultipleAnswerComponent
       this.incrementScore();
     }
 
-    this.optionChecked[option.optionId] = true;
-
+    this.optionChecked[option?.optionId] = !this.optionChecked[option?.optionId];
     console.log('this.selectedOption before:', this.selectedOption);
     this.selectedOption = option;
     console.log('this.selectedOption after:', this.selectedOption);
+    super.onSelectionChange(question, option);
   }
 }

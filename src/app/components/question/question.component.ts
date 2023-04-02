@@ -77,6 +77,7 @@ export class QuizQuestionComponent
   alreadyAnswered = false;
   optionList: Option[];
   hasSelectedOptions = false;
+  optionChecked: { [optionId: number]: boolean } = {};
   answers;
   quizId: string;
   correctOptionIndex: number;
@@ -512,6 +513,18 @@ export class QuizQuestionComponent
     }
     this.optionSelected.emit(this.selectedOption);
   }
+
+  onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
+    // Update the selected option in the component state
+    this.selectedOption = selectedOption;
+  
+    // Update the optionChecked object with the selection state of the current option
+    this.optionChecked[selectedOption.optionId] = selectedOption.checked;
+  
+    // Emit an event to the parent component to notify of the selection change
+    this.selectionChanged.emit({ question, selectedOption });
+  }
+  
 
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
