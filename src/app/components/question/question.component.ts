@@ -53,10 +53,12 @@ export class QuizQuestionComponent
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
+  @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
+  @Input() selectedOption: Option | null = null;
   @Input() inputData: string;
   // currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
@@ -74,7 +76,6 @@ export class QuizQuestionComponent
   answer;
   alreadyAnswered = false;
   optionList: Option[];
-  selectedOption: Option | null = null;
   hasSelectedOptions = false;
   answers;
   quizId: string;
@@ -89,18 +90,6 @@ export class QuizQuestionComponent
 
   private _multipleAnswer: boolean;
   private hasQuestionAndOptionsLoaded: false;
-
-  private _questions: any[];
-
-  @Input()
-  set questions(value: any[]) {
-    this._questions = value;
-    this.currentQuestionIndex = 0;
-  }
-
-  get questions(): any[] {
-    return this._questions;
-  }
 
   get currentQuestion(): QuizQuestion {
     return this.questions[this.currentQuestionIndex];
@@ -140,7 +129,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    this.questions = this.quizDataService.getQuestionsForQuiz(this.quizId);
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
     this.currentQuestion = this.questions[0];
     console.log('Quiz questions:', this.questions);
 
