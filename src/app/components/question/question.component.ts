@@ -49,6 +49,7 @@ export class QuizQuestionComponent
 {
   private quizService: QuizService;
   @Output() optionSelected = new EventEmitter<Option>();
+  @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
@@ -515,18 +516,11 @@ export class QuizQuestionComponent
     this.optionSelected.emit(option);
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOption: Option): void {
-    // Update the selected option in the component state
-    this.selectedOption = selectedOption;
-  
-    // Update the optionChecked object with the selection state of the current option
-    this.optionChecked[selectedOption.optionId] = selectedOption.checked;
-  
-    // Emit an event to the parent component to notify of the selection change
-    this.selectionChanged.emit({ question, selectedOption });
+  onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
+    this.selectedOptions = selectedOptions;
+    this.selectionChanged.emit({ question, selectedOptions });
   }
   
-
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&

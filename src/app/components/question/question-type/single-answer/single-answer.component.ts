@@ -3,6 +3,7 @@ import {
   Component,
   Input,
   OnInit,
+  Output,
   ViewEncapsulation
 } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -24,6 +25,7 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export abstract class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
+  @Output() selectionChanged = new EventEmitter<Option[]>();
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
@@ -48,6 +50,7 @@ export abstract class SingleAnswerComponent extends QuizQuestionComponent implem
     super.onOptionSelected(selectedOption);
     this.selectedOption = selectedOption;
     this.optionSelected.emit(this.selectedOption);
+    this.selectionChanged.emit(this.selectedOption);
     this.optionChecked[selectedOption.optionId] = true;
   }
 
