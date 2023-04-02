@@ -58,6 +58,7 @@ export class QuizQuestionComponent
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   @Input() inputData: string;
+  currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
@@ -73,7 +74,7 @@ export class QuizQuestionComponent
   answer;
   alreadyAnswered = false;
   optionList: Option[];
-  selectedOption: Option;
+  selectedOption: Option | null = null;
   hasSelectedOptions = false;
   answers;
   quizId: string;
