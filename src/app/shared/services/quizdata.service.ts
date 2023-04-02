@@ -250,15 +250,12 @@ export class QuizDataService implements OnInit {
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    const questionAndOptionsObj: [QuizQuestion, Option[]] = [null, null];
-
     combineLatest([currentQuestion$, options$]).pipe(
       switchMap(([currentQuestion, options]) => {
-        questionAndOptionsObj[0] = currentQuestion;
-        questionAndOptionsObj[1] = options;
+        this.questionAndOptions = [currentQuestion, options];
         this.currentQuestionIndex = questionIndex;
         this.hasQuestionAndOptionsLoaded = true;
-        return of(questionAndOptionsObj);
+        return of(this.questionAndOptions);
       })
     ).subscribe(questionAndOptions => {
       this.questionAndOptionsSubject.next(questionAndOptions);
