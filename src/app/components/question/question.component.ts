@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  DoCheck,
   EventEmitter,
   Input,
   OnChanges,
@@ -258,7 +257,7 @@ export class QuizQuestionComponent
     return this.currentQuestion$;
   }
 
-  ngDoCheck(): void {
+  /* ngDoCheck(): void {
     if (this.isChangeDetected) {
       this.correctMessage = this.quizService.setCorrectMessage(
         this.currentQuestion,
@@ -266,7 +265,7 @@ export class QuizQuestionComponent
       );
       this.isChangeDetected = false;
     }
-  }
+  } */
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
