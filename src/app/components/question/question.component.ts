@@ -60,7 +60,7 @@ export class QuizQuestionComponent
   quiz: Quiz = {};
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
-  questions: QuizQuestion[];
+  // questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
@@ -87,6 +87,18 @@ export class QuizQuestionComponent
 
   private _multipleAnswer: boolean;
   private hasQuestionAndOptionsLoaded: false;
+
+  private _questions: any[];
+
+  @Input()
+  set questions(value: any[]) {
+    this._questions = value;
+    this.currentQuestionIndex = 0;
+  }
+
+  get questions(): any[] {
+    return this._questions;
+  }
 
   get currentQuestion(): QuizQuestion {
     return this.questions[this.currentQuestionIndex];
