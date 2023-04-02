@@ -157,21 +157,41 @@ export class QuizQuestionComponent
     this.resetForm();
   }
 
-  private loadCurrentQuestion(): void {
-    if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-      this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-        .subscribe(([currentQuestion, options]) => {
-          console.log('currentQuestion:', currentQuestion);
-          console.log('options:', options);
-          this.setCurrentQuestionAndOptions(currentQuestion, options);
-        });
-    } else {
-      const [currentQuestion, options] = this.quizDataService.questionAndOptions;
-      console.log('currentQuestion:', currentQuestion);
-      console.log('options:', options);
-      this.setCurrentQuestionAndOptions(currentQuestion, options);
+  async loadCurrentQuestion(): Promise<void> {
+    console.log('loadCurrentQuestion');
+    console.log('quizId:', this.quizId);
+    console.log('currentQuestionIndex:', this.currentQuestionIndex);
+    try {
+      const [question] = await this.quizService.getCurrentQuestion();
+      console.log('question:', question);
+      this.quizStateService.setCurrentQuestion(of(question));
+      const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
+      this.multipleAnswer = isMultipleAnswer;
+  
+      if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+        console.log('hasQuestionAndOptionsLoaded is false');
+        this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+          .subscribe(([currentQuestion, options]) => {
+            console.log('getQuestionAndOptions - currentQuestion:', currentQuestion);
+            console.log('getQuestionAndOptions - options:', options);
+            this.currentQuestion = currentQuestion;
+            this.options = options;
+            this.setOptions();
+          });
+      } else {
+        console.log('hasQuestionAndOptionsLoaded is true');
+        const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+        console.log('questionAndOptions - currentQuestion:', currentQuestion);
+        console.log('questionAndOptions - options:', options);
+        this.currentQuestion = currentQuestion;
+        this.options = options;
+        this.setOptions();
+      }
+  
+    } catch (error) {
+      console.error('Error getting current question:', error);
     }
-  }
+  }  
 
   private setCurrentQuestionAndOptions(question: QuizQuestion, options: Option[]): void {
     this.currentQuestion = question;
