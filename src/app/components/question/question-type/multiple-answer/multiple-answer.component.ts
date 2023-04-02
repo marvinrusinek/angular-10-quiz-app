@@ -198,6 +198,12 @@ export class MultipleAnswerComponent
     }
   } */
 
+  onOptionSelected(option: Option) {
+    console.log('Option selected:', option);
+    this.selectedOption = option;
+    this.optionSelected.emit(this.selectedOption);
+  }
+
   onSelectionChange(question: QuizQuestion, option: Option): void {
     console.log(
       'onSelectionChange called with question:',

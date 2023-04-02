@@ -28,7 +28,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
   @Input() selected: string;
-  selectedOption: Option;
+  selectedOption: Option | null = null;
   options$: Observable<Option[]>;
 
   constructor(private quizStateService: QuizStateService) { 
