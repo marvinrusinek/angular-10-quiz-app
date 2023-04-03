@@ -55,7 +55,7 @@ export class MultipleAnswerComponent
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
-  selectedOption: Option = { text: '', correct: false, value: null } as Option;
+  // selectedOption: Option = { text: '', correct: false, value: null } as Option;
   selectedOptions: Option[];
   optionChecked: { [optionId: number]: boolean } = {};
   selectionChanged: EventEmitter<boolean> = new EventEmitter<boolean>();

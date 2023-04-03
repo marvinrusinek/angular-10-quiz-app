@@ -58,7 +58,7 @@ export class QuizQuestionComponent
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   @Input() inputData: string;
-  selectedOption: Option;
+  selectedOption: Option = { text: '', correct: false, value: null } as Option;
   selectedOptions: Option[] = [];
   // currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
