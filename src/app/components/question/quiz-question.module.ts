@@ -2,6 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
@@ -19,6 +20,7 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
+    MatIconModule,
     MatRadioModule,
     MatCheckboxModule
   ],
