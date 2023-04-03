@@ -24,7 +24,7 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export abstract class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
+export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;

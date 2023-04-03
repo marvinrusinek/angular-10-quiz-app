@@ -33,7 +33,7 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export abstract class MultipleAnswerComponent
+export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
@@ -58,7 +58,7 @@ export abstract class MultipleAnswerComponent
   isMultiple = true;
 
   constructor(
-    protected quizService: QuizService,
+    private readonly quizService: QuizService,
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     public activatedRoute: ActivatedRoute,
