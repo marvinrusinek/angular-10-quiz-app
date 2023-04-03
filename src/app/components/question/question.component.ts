@@ -46,9 +46,9 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy {
-  protected quizService: QuizService;
-  protected quizDataService: QuizDataService;
-  protected quizStateService: QuizStateService;
+  // protected quizService: QuizService;
+  // protected quizDataService: QuizDataService;
+  // protected quizStateService: QuizStateService;
 
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
@@ -113,9 +113,9 @@ export class QuizQuestionComponent
   }
 
   constructor(
-    quizService: QuizService,
-    quizDataService: QuizDataService,
-    quizStateService: QuizStateService,
+    protected quizService: QuizService,
+    protected quizDataService: QuizDataService,
+    protected quizStateService: QuizStateService,
     private timerService: TimerService,
     public activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
@@ -123,6 +123,8 @@ export class QuizQuestionComponent
   ) {
     console.log('Component instantiated');
     this.quizService = quizService;
+    this.quizDataService = quizDataService;
+    this.quizStateService = quizStateService;
     this.questions = [];
     this.correctMessage = '';
     this.multipleAnswer = false;
