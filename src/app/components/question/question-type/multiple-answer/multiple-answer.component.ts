@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  Injector,
   Input,
   OnChanges,
   OnDestroy,
@@ -37,6 +38,7 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
+  public quizService: QuizService;
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
@@ -58,13 +60,14 @@ export class MultipleAnswerComponent
   isMultiple = true;
 
   constructor(
-    private readonly quizService: QuizService,
+    private readonly injector: Injector,
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
-    super();
+    super(injector);
+    this.quizService = injector.get(QuizService);
     /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
       ([question, options]) => {
