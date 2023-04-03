@@ -22,6 +22,10 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
     MatRadioModule,
     MatCheckboxModule
   ],
+  entryComponents: [
+    MultipleAnswerComponent,
+    SingleAnswerComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class QuizQuestionModule {}
