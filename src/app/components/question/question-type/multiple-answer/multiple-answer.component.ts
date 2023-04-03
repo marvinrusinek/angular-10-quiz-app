@@ -14,8 +14,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, pipe, Subscription } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, pipe, Subject, Subscription } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
@@ -61,6 +61,7 @@ export class MultipleAnswerComponent
   selectionChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   options$: Observable<Option[]>;
   isMultiple = true;
+  private destroyed$ = new Subject<void>();
 
   constructor(
     private readonly injector: Injector,
@@ -86,7 +87,7 @@ export class MultipleAnswerComponent
 
     this.currentQuestion = this.questions[this.currentQuestionIndex];
 
-    console.log("CQ", this.currentQuestion);
+    console.log('CQ', this.currentQuestion);
     console.log(this.question.options);
     console.log('ngOnInit called test');
     console.log('options:', this.options);
@@ -110,7 +111,8 @@ export class MultipleAnswerComponent
       this.currentQuestion$.subscribe();
 
       this.options$ = this.quizStateService.getCurrentQuestion().pipe(
-        map((question) => question.options)
+        map((question) => question.options),
+        takeUntil(this.destroyed$)
       );
       this.quizStateService.optionsSubject.subscribe((options) => {
         this.options = options;
@@ -140,6 +142,8 @@ export class MultipleAnswerComponent
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription.unsubscribe();
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   initializeOptionChecked(): void {
@@ -157,16 +161,10 @@ export class MultipleAnswerComponent
   getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
     console.log('this.selectedOptions:', this.selectedOptions);
-    if (
-      this.selectedOptions.includes(option) &&
-      option.correct
-    ) {
+    if (this.selectedOptions.includes(option) && option.correct) {
       console.log('option is correct');
       return 'correct';
-    } else if (
-      this.selectedOptions.includes(option) &&
-      !option.correct
-    ) {
+    } else if (this.selectedOptions.includes(option) && !option.correct) {
       console.log('option is incorrect');
       return 'incorrect';
     } else {
@@ -209,18 +207,21 @@ export class MultipleAnswerComponent
 
     selectedOptions.forEach((selectedOption: Option) => {
       if (selectedOption instanceof Option) {
-        const index = question.selectedOptions.findIndex(
-          (o) => {
-            if (typeof o === 'string') {
-              return false;
-            }
-            return (o as Option).value.toString() === (selectedOption as Option).value.toString();
+        const index = question.selectedOptions.findIndex((o) => {
+          if (typeof o === 'string') {
+            return false;
           }
-        );
+          return (
+            (o as Option).value.toString() ===
+            (selectedOption as Option).value.toString()
+          );
+        });
         if (index >= 0) {
           question.selectedOptions.splice(index, 1);
         } else {
-          question.selectedOptions.push((selectedOption as Option).value.toString());
+          question.selectedOptions.push(
+            (selectedOption as Option).value.toString()
+          );
         }
       }
     });
@@ -246,9 +247,10 @@ export class MultipleAnswerComponent
     }
 
     selectedOptions.forEach((selectedOption) => {
-      this.optionChecked[selectedOption?.optionId] = !this.optionChecked[selectedOption?.optionId];
+      this.optionChecked[selectedOption?.optionId] =
+        !this.optionChecked[selectedOption?.optionId];
     });
-    
+
     console.log('this.selectedOptions before:', this.selectedOptions);
     this.selectedOptions = selectedOptions;
     console.log('this.selectedOptions after:', this.selectedOptions);
