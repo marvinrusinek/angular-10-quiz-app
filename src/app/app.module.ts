@@ -94,7 +94,14 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
   ],
   exports: [MatExpansionModule, QuizQuestionComponent, MultipleAnswerComponent, SingleAnswerComponent],
   bootstrap: [AppComponent],
-  providers: [QuizService, QuizDataService, QuizStateService, TimerService, CountdownService, StopwatchService],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  providers: [QuizDataService, QuizStateService, TimerService, CountdownService, StopwatchService],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule {}
+
+@NgModule({
+  declarations: [QuizQuestionComponent],
+  imports: [CommonModule],
+  providers: [QuizService]
+})
+export class QuizQuestionModule {}
