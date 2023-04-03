@@ -9,8 +9,9 @@
       [questions]="questions"
       [options]="currentQuestion.options"
       [selectedOption]="currentQuestion.selectedOption"
+      [currentQuestion]="currentQuestion"
       [currentQuestionIndex]="currentQuestionIndex"
-      (answer)="updateSelectedOption(selectedOption, i)"
+      (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
     >
     </codelab-question-single-answer>
 
@@ -19,6 +20,7 @@
       [form]="questionForm"
       [question]="currentQuestion"
       [questions]="questions"
+      [currentQuestion]="currentQuestion"
       [currentQuestionIndex]="currentQuestionIndex"
       [options]="currentQuestion.options"
       [selectedOptions]="currentQuestion.selectedOptions"
