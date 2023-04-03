@@ -14,7 +14,8 @@ import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
-import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 
