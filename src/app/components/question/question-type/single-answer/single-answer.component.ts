@@ -52,7 +52,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.quizStateService = injector.get(QuizStateService);
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     super.ngOnInit();
     console.log('SingleAnswerComponent initialized');
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
