@@ -9,12 +9,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { QuizQuestionComponent } from './question.component';
 import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
+import { FeedbackComponent } from './feedback/feedback.component';
+import { OptionFeedbackComponent } from './option-feedback/option-feedback.component';
 
 @NgModule({
   declarations: [
     QuizQuestionComponent,
     MultipleAnswerComponent,
     SingleAnswerComponent,
+    FeedbackComponent,
+    OptionFeedbackComponent
   ],
   imports: [
     CommonModule,
@@ -26,7 +30,9 @@ import { SingleAnswerComponent } from './question-type/single-answer/single-answ
   ],
   entryComponents: [
     MultipleAnswerComponent,
-    SingleAnswerComponent
+    SingleAnswerComponent,
+    FeedbackComponent,
+    OptionFeedbackComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
