@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
+  Injector,
   Input,
   OnInit,
   Output,
@@ -11,8 +13,10 @@ import { map } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
-import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
+import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+
 
 @Component({
   selector: 'codelab-question-single-answer',
@@ -25,6 +29,10 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
+  protected quizService: QuizService;
+  protected quizDataService: QuizDataService;
+  protected quizStateService: QuizStateService;
+
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Input() question: QuizQuestion;
   @Input() currentQuestionIndex: number;
@@ -34,8 +42,11 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
 
-  constructor(private quizStateService: QuizStateService) { 
-    super();
+  constructor(private readonly injector: Injector) { 
+    super(injector);
+    this.quizService = injector.get(QuizService);
+    this.quizDataService = injector.get(QuizDataService);
+    this.quizStateService = injector.get(QuizStateService);
   }
 
   async ngOnInit(): Promise<void> {
