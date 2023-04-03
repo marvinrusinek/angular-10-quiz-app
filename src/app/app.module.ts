@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizRoutingModule } from './router/quiz-routing.module';
+import { QuizQuestionModule } from './components/quiz-question.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
@@ -20,7 +21,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
-import { QuizQuestionComponent } from './components/question/question.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
 import { QuizExplanationComponent } from './containers/quiz/explanation/explanation.component';
 import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';
@@ -28,7 +28,6 @@ import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
 import { TimeComponent } from './containers/scoreboard/time/time.component';
-import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizStateService } from './shared/services/quizstate.service';
 import { TimerService } from './shared/services/timer.service';
@@ -53,7 +52,6 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     IntroductionComponent,
     QuizComponent,
     QuizExplanationComponent,
-    QuizQuestionComponent,
     QuizSelectionComponent,
     ResultsComponent,
     ScoreboardComponent,
@@ -78,6 +76,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     BrowserAnimationsModule,
     HttpClientModule,
     QuizRoutingModule,
+    QuizQuestionModule,
     ReactiveFormsModule,
     MatCardModule,
     MatRadioModule,
@@ -94,14 +93,13 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
   ],
   exports: [MatExpansionModule, MultipleAnswerComponent, SingleAnswerComponent],
   bootstrap: [AppComponent],
-  providers: [QuizDataService, QuizStateService, TimerService, CountdownService, StopwatchService],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  providers: [
+    QuizDataService,
+    QuizStateService,
+    TimerService,
+    CountdownService,
+    StopwatchService,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}
-
-@NgModule({
-  declarations: [QuizQuestionComponent],
-  imports: [CommonModule],
-  providers: [QuizService]
-})
-export class QuizQuestionModule {}
