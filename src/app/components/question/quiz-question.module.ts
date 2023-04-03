@@ -10,6 +10,8 @@ import { QuizQuestionComponent } from './question/question.component';
 import { MultipleAnswerComponent } from './question/question-type/multiple-answer.component';
 import { SingleAnswerComponent } from './question/question-type/single-answer.component';
 
+export { QuizQuestionModule } from './components/quiz-question.module';
+
 @NgModule({
   declarations: [
     QuizQuestionComponent,
