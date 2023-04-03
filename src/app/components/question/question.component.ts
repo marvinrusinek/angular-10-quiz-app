@@ -49,7 +49,7 @@ export class QuizQuestionComponent
 {
   protected quizService: QuizService;
   protected quizDataService: QuizDataService;
-  protected quizStateService: QuizDataService;
+  protected quizStateService: QuizStateService;
 
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
