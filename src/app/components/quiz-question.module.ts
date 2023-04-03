@@ -7,8 +7,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 import { QuizQuestionComponent } from './question/question.component';
-import { MultipleAnswerComponent } from './question-type/multiple-answer.component';
-import { SingleAnswerComponent } from './question-type/single-answer.component';
+import { MultipleAnswerComponent } from './question/question-type/multiple-answer.component';
+import { SingleAnswerComponent } from './question/question-type/single-answer.component';
 
 @NgModule({
   declarations: [
