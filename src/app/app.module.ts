@@ -34,8 +34,6 @@ import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
 import { JoinPipe } from './pipes/join.pipe';
-import { MultipleAnswerComponent } from './components/question/question-type/multiple-answer/multiple-answer.component';
-import { SingleAnswerComponent } from './components/question/question-type/single-answer/single-answer.component';
 import { FeedbackComponent } from './components/question/feedback/feedback.component';
 import { OptionFeedbackComponent } from './components/question/option-feedback/option-feedback.component';
 import { AccordionComponent } from './containers/results/accordion/accordion.component';
@@ -58,8 +56,6 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     ScoreComponent,
     TimeComponent,
     JoinPipe,
-    MultipleAnswerComponent,
-    SingleAnswerComponent,
     FeedbackComponent,
     OptionFeedbackComponent,
     AccordionComponent,
@@ -91,7 +87,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     NgbModule,
     FontAwesomeModule,
   ],
-  exports: [MatExpansionModule, MultipleAnswerComponent, SingleAnswerComponent],
+  exports: [MatExpansionModule],
   bootstrap: [AppComponent],
   providers: [
     QuizDataService,
