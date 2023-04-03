@@ -44,7 +44,7 @@ import { TimerService } from '../../shared/services/timer.service';
   providers: [QuizService, QuizDataService, QuizStateService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export abstract class QuizQuestionComponent
+export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
