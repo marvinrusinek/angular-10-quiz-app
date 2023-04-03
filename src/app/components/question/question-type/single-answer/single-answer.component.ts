@@ -4,12 +4,13 @@ import {
   EventEmitter,
   Injector,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewEncapsulation
 } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
@@ -28,7 +29,7 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit {
+export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
   protected quizService: QuizService;
   protected quizDataService: QuizDataService;
   protected quizStateService: QuizStateService;
@@ -42,6 +43,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
 
+  private destroyed$ = new Subject<void>();
+
   constructor(private readonly injector: Injector) { 
     super(injector);
     this.quizService = injector.get(QuizService);
@@ -53,8 +56,15 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     super.ngOnInit();
     console.log('SingleAnswerComponent initialized');
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
-      map((question) => question.options)
+      map((question) => question.options),
+      takeUntil(this.destroyed$)
     );
+  }
+
+  ngOnDestroy(): void {
+    // this.currentQuestionSubscription.unsubscribe();
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   onOptionSelected(selectedOption: Option): void {
