@@ -193,18 +193,31 @@ export abstract class MultipleAnswerComponent
     console.log(
       'onSelectionChange called with question:',
       question,
-      'and selectedOptions:',
+      'and selected options:',
       selectedOptions
     );
+
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
 
-    const selectedOptionValues = selectedOptions.map((o) => o.value.toString());
+    selectedOptions.forEach((selectedOption) => {
+      const index = question.selectedOptions.findIndex(
+        (o) => (o as Option).value.toString() === selectedOption.value.toString()
+      );
+      if (index === -1) {
+        question.selectedOptions.push(selectedOption.value.toString());
+      } else {
+        question.selectedOptions.splice(index, 1);
+      }
+    });
 
-    const selectedOptionIds = question.options
-      .filter((o) => selectedOptionValues.includes(o.value.toString()))
-      .map((o) => o.optionId);
+    const selectedOptionIds = question.selectedOptions.map((o) => {
+      const selectedOption = question.options.find(
+        (option) => option.value.toString() === o
+      );
+      return selectedOption ? selectedOption.value.toString() : null;
+    });
 
     console.log('selectedOptionIds:', selectedOptionIds);
     console.log('question.answer:', question.answer);
@@ -212,19 +225,20 @@ export abstract class MultipleAnswerComponent
     if (
       selectedOptionIds.sort().join(',') ===
       question.answer
-        .map((a) => a.optionId.toString())
+        .map((a) => a.value.toString())
         .sort()
         .join(',')
     ) {
       this.incrementScore();
     }
 
-    selectedOptions.forEach((option) => {
-      this.optionChecked[option.optionId] = !this.optionChecked[option.optionId];
+    selectedOptions.forEach((selectedOption) => {
+      this.optionChecked[selectedOption?.optionId] = !this.optionChecked[selectedOption?.optionId];
     });
-    console.log('this.selectedOption before:', this.selectedOption);
-    this.selectedOption = selectedOptions[0];
-    console.log('this.selectedOption after:', this.selectedOption);
-    this.selectionChanged.emit(selectedOptions);
+    
+    console.log('this.selectedOptions before:', this.selectedOptions);
+    this.selectedOptions = selectedOptions;
+    console.log('this.selectedOptions after:', this.selectedOptions);
+    this.selectionChanged.emit(this.selectedOptions);
   }
 }
