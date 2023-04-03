@@ -45,8 +45,7 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent
-  implements OnInit, OnChanges, OnDestroy
-{
+  implements OnInit, OnChanges, OnDestroy {
   protected quizService: QuizService;
   protected quizDataService: QuizDataService;
   protected quizStateService: QuizStateService;
