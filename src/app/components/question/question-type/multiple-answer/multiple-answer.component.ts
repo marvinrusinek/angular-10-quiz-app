@@ -38,7 +38,7 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
-  public quizService: QuizService;
+  protected quizService: QuizService;
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
