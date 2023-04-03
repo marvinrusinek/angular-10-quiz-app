@@ -92,7 +92,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     NgbModule,
     FontAwesomeModule,
   ],
-  exports: [MatExpansionModule, QuizQuestionComponent, MultipleAnswerComponent, SingleAnswerComponent],
+  exports: [MatExpansionModule, MultipleAnswerComponent, SingleAnswerComponent],
   bootstrap: [AppComponent],
   providers: [QuizDataService, QuizStateService, TimerService, CountdownService, StopwatchService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
