@@ -40,7 +40,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
   @Input() selected: string;
-  selectedOption: Option | null = null;
+  selectedOption: Option = { text: '', correct: false, value: null } as Option;
   options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
 
