@@ -40,6 +40,7 @@ export class MultipleAnswerComponent
 {
   protected quizService: QuizService;
   protected quizDataService: QuizDataService;
+  protected quizStateService: QuizStateService;
 
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() formReady = new EventEmitter<FormGroup>();
@@ -63,13 +64,13 @@ export class MultipleAnswerComponent
 
   constructor(
     private readonly injector: Injector,
-    private quizStateService: QuizStateService,
     public activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder
   ) {
     super(injector);
     this.quizService = injector.get(QuizService);
     this.quizDataService = injector.get(QuizDataService);
+    this.quizStateService = injector.get(QuizStateService);
     /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
       ([question, options]) => {

@@ -49,6 +49,7 @@ export class QuizQuestionComponent
 {
   protected quizService: QuizService;
   protected quizDataService: QuizDataService;
+  protected quizStateService: QuizDataService;
 
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
@@ -115,7 +116,7 @@ export class QuizQuestionComponent
   constructor(
     quizService: QuizService,
     quizDataService: QuizDataService,
-    private quizStateService: QuizStateService,
+    quizStateService: QuizStateService,
     private timerService: TimerService,
     public activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
