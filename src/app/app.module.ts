@@ -33,9 +33,6 @@ import { QuizStateService } from './shared/services/quizstate.service';
 import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
-import { JoinPipe } from './pipes/join.pipe';
-import { FeedbackComponent } from './components/question/feedback/feedback.component';
-import { OptionFeedbackComponent } from './components/question/option-feedback/option-feedback.component';
 import { AccordionComponent } from './containers/results/accordion/accordion.component';
 import { ReturnComponent } from './containers/results/return/return.component';
 import { StatisticsComponent } from './containers/results/statistics/statistics.component';
@@ -43,6 +40,7 @@ import { SummaryReportComponent } from './containers/results/summary-report/summ
 import { SummaryIconsComponent } from './containers/results/summary-report/summary-icons/summary-icons.component';
 import { SummaryStatsComponent } from './containers/results/summary-report/summary-stats/summary-stats.component';
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
+import { JoinPipe } from './pipes/join.pipe';
 
 @NgModule({
   declarations: [
@@ -55,9 +53,6 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     ScoreboardComponent,
     ScoreComponent,
     TimeComponent,
-    JoinPipe,
-    FeedbackComponent,
-    OptionFeedbackComponent,
     AccordionComponent,
     ReturnComponent,
     StatisticsComponent,
@@ -65,6 +60,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
     SummaryIconsComponent,
     SummaryStatsComponent,
     ChallengeComponent,
+    JoinPipe
   ],
   imports: [
     CommonModule,
