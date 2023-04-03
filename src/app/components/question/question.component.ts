@@ -47,7 +47,9 @@ import { TimerService } from '../../shared/services/timer.service';
 export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  public quizService: QuizService;
+  protected quizService: QuizService;
+  protected quizDataService: QuizDataService;
+
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() answer = new EventEmitter<number>();
@@ -112,7 +114,7 @@ export class QuizQuestionComponent
 
   constructor(
     quizService: QuizService,
-    private quizDataService: QuizDataService,
+    quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private timerService: TimerService,
     public activatedRoute: ActivatedRoute,
