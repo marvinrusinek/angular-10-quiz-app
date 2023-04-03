@@ -46,10 +46,6 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy {
-  // protected quizService: QuizService;
-  // protected quizDataService: QuizDataService;
-  // protected quizStateService: QuizStateService;
-
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() answer = new EventEmitter<number>();
@@ -136,6 +132,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log("TESTING");
     console.log('ngOnInit');
     console.log('question', this.question);
     console.log('options', this.options);
