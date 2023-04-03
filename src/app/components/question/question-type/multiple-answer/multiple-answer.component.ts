@@ -42,7 +42,6 @@ export class MultipleAnswerComponent
   protected quizDataService: QuizDataService;
   protected quizStateService: QuizStateService;
 
-  @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
@@ -52,7 +51,6 @@ export class MultipleAnswerComponent
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   form: FormGroup;
-  currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
   // selectedOption: Option = { text: '', correct: false, value: null } as Option;
