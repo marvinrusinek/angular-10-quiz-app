@@ -58,7 +58,6 @@ export class MultipleAnswerComponent
   // selectedOption: Option = { text: '', correct: false, value: null } as Option;
   selectedOptions: Option[];
   optionChecked: { [optionId: number]: boolean } = {};
-  selectionChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   options$: Observable<Option[]>;
   isMultiple = true;
   private destroyed$ = new Subject<void>();
