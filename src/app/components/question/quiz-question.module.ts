@@ -9,22 +9,19 @@ import { QuizQuestionComponent } from './question.component';
 import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
 
-// export { QuizQuestionModule } from './quiz-question.module';
-
 @NgModule({
   declarations: [
     QuizQuestionComponent,
     MultipleAnswerComponent,
     SingleAnswerComponent,
   ],
-  exports: [QuizQuestionComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
     MatRadioModule,
-    MatCheckboxModule,
+    MatCheckboxModule
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class QuizQuestionModule {}
