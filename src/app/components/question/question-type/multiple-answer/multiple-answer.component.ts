@@ -201,14 +201,21 @@ export abstract class MultipleAnswerComponent
       question.selectedOptions = [];
     }
 
-    selectedOptions.forEach((selectedOption) => {
-      const index = question.selectedOptions.findIndex(
-        (o) => (o as Option).value.toString() === selectedOption.value.toString()
-      );
-      if (index === -1) {
-        question.selectedOptions.push(selectedOption.value.toString());
-      } else {
-        question.selectedOptions.splice(index, 1);
+    selectedOptions.forEach((selectedOption: Option) => {
+      if (selectedOption instanceof Option) {
+        const index = question.selectedOptions.findIndex(
+          (o) => {
+            if (typeof o === 'string') {
+              return false;
+            }
+            return (o as Option).value.toString() === (selectedOption as Option).value.toString();
+          }
+        );
+        if (index >= 0) {
+          question.selectedOptions.splice(index, 1);
+        } else {
+          question.selectedOptions.push((selectedOption as Option).value.toString());
+        }
       }
     });
 
