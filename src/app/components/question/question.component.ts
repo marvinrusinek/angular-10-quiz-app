@@ -57,8 +57,6 @@ export class QuizQuestionComponent
   @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
-  @Input() multipleAnswer: boolean;
-  @Input() inputData: string;
   // selectedOption: Option = { text: '', correct: false, value: null };
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -107,6 +105,7 @@ export class QuizQuestionComponent
     return this.questions[this.currentQuestionIndex];
   } */
 
+  @Input()
   get multipleAnswer(): boolean {
     let result = false;
     this.quizService.isMultipleAnswer(this.question).subscribe((res) => {
@@ -116,6 +115,9 @@ export class QuizQuestionComponent
   }
 
   set multipleAnswer(value: boolean) {
+    if (typeof value !== "boolean") {
+      throw new Error("Value must be a boolean");
+    }
     this._multipleAnswer = value;
   }
 
@@ -344,7 +346,6 @@ export class QuizQuestionComponent
   } */
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('Input data changed:', changes.inputData.currentValue);
     console.log('ngOnChanges');
     console.log('changes', changes);
     if (changes.options) {
