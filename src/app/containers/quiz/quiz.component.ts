@@ -668,7 +668,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHideProgressBar(): boolean {
-    return this.question && this.questionIndex > 1;
+    return this.totalQuestions < 1;
   }
 
   shouldDisableButton(): boolean {
