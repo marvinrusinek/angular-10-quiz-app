@@ -73,8 +73,9 @@ mat-card {
 
   mat-card-footer {
     display: block;
+    clear: left;
     margin-top: 200px !important;
-
+    
     .selection-message,
     .next-message {
       font-family: $font-stack;
