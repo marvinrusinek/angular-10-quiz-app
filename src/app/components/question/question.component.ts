@@ -61,6 +61,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   // selectedOption: Option = { text: '', correct: false, value: null };
+  questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   // currentQuestion: QuizQuestion = {} as QuizQuestion;
@@ -138,7 +139,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
-    this.questions = [];
     this.selectedOption = this.getSelectedOption();
     this.correctMessage = '';
     // this.multipleAnswer = false;
@@ -146,6 +146,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
+    this.questions$ = this.quizService.questions$;
+
     console.log('QuizQuestionComponent constructor called');
   }
 
@@ -166,12 +168,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('question', this.question);
     console.log('options', this.options);
 
-    this.multipleAnswer = this.quizService.isMultipleAnswer(this.question);
+    this.quizService.isMultipleAnswer(this.question).subscribe((isMultipleAnswer) => {
+      this.multipleAnswer = isMultipleAnswer;
+    });
 
     if (this.quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-      this.currentQuestion = this.questions[0];
-      console.log('Quiz questions:', this.questions$);
+      this.questions$.subscribe((questions: QuizQuestion[]) => {
+        this.currentQuestion = this.questions[0];
+        console.log('Quiz questions:', this.questions);
+      });
     } else {
       console.error('quizId parameter is null or undefined');
     }
