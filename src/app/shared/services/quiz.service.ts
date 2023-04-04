@@ -333,7 +333,8 @@ export class QuizService implements OnDestroy {
   getTotalQuestions(): number {
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz && currentQuiz.questions) {
-      return currentQuiz.questions.length;
+      this.totalQuestions = currentQuiz.questions.length;
+      return this.totalQuestions;
     }
     return 0;
   }
