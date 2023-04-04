@@ -54,7 +54,7 @@ export class MultipleAnswerComponent
   currentQuestion$: Observable<QuizQuestion>;
   currentQuestionSubscription: Subscription;
   // selectedOption: Option = { text: '', correct: false, value: null } as Option;
-  selectedOptions: Option[];
+  selectedOptions: Option[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
   isMultiple = true;
@@ -82,7 +82,7 @@ export class MultipleAnswerComponent
   async ngOnInit(): Promise<void> {
     console.log('MultipleAnswerComponent initialized');
     super.ngOnInit();
-        
+
     console.log('CQ', this.currentQuestion);
     console.log(this.question.options);
     console.log('ngOnInit called test');
@@ -178,11 +178,12 @@ export class MultipleAnswerComponent
     console.log('Option selected:', option);
 
     const index = this.selectedOptions.indexOf(option);
-    if (index > -1) {
+    if (index >= 0) {
       this.selectedOptions.splice(index, 1);
     } else {
       this.selectedOptions.push(option);
     }
+    this.quizDataService.currentOptionsSubject.next(this.selectedOptions);
     this.selectionChanged.emit(this.selectedOptions);
     this.optionChecked[option.optionId] = true;
   }

@@ -52,10 +52,21 @@ export class QuizDataService implements OnInit {
 
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
+  
+  private quizUrl = 'assets/data/quiz.json';
+
+  currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
-  private quizUrl = 'assets/data/quiz.json';
+  currentQuestionAndOptions$ = combineLatest([this.currentQuestionSubject.asObservable(), this.currentOptionsSubject.asObservable()]).pipe(
+    map(([currentQuestion, currentOptions]) => {
+      return {
+        question: currentQuestion,
+        options: currentOptions
+      };
+    })
+  );
 
   constructor(private http: HttpClient) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
