@@ -8,9 +8,14 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
@@ -41,11 +46,9 @@ import { TimerService } from '../../shared/services/timer.service';
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  providers: [QuizService, QuizDataService, QuizStateService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent
-  implements OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Output() answer = new EventEmitter<number>();
@@ -98,7 +101,8 @@ export class QuizQuestionComponent
   }
   @Input() set currentQuestion(value: QuizQuestion) {
     this._currentQuestion = value;
-    this.selectedOption = value.selectedOptions.find((option: Option) => option.correct) || null;
+    this.selectedOption =
+      value.selectedOptions.find((option: Option) => option.correct) || null;
   }
 
   /* get currentQuestion(): QuizQuestion {
@@ -115,8 +119,8 @@ export class QuizQuestionComponent
   }
 
   set multipleAnswer(value: boolean) {
-    if (typeof value !== "boolean") {
-      throw new Error("Value must be a boolean");
+    if (typeof value !== 'boolean') {
+      throw new Error('Value must be a boolean');
     }
     this._multipleAnswer = value;
   }
@@ -128,7 +132,7 @@ export class QuizQuestionComponent
     private timerService: TimerService,
     public activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
-    private cdRef: ChangeDetectorRef,
+    private cdRef: ChangeDetectorRef
   ) {
     console.log('Component instantiated');
     this.quizService = quizService;
@@ -140,13 +144,14 @@ export class QuizQuestionComponent
     // this.multipleAnswer = false;
 
     this.questionForm = this.fb.group({
-      selectedOption: ['']
+      selectedOption: [''],
     });
     console.log('QuizQuestionComponent constructor called');
   }
 
   async ngOnInit(): Promise<void> {
-    console.log("TESTING");
+    console.log('QuizQuestionComponent initialized');
+    console.log('TESTING');
     console.log('ngOnInit');
     console.log('question', this.question);
     console.log('options', this.options);
@@ -164,20 +169,22 @@ export class QuizQuestionComponent
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
+      const isMultipleAnswer = await this.quizService
+        .isMultipleAnswer(question)
+        .toPromise();
       this.multipleAnswer = isMultipleAnswer;
-  
-      this.quizStateService.currentQuestion$.subscribe(question => {
+
+      this.quizStateService.currentQuestion$.subscribe((question) => {
         this.currentQuestion = question;
         this.setOptions();
       });
-  
+
       this.loadCurrentQuestion();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
   }
-    
+
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
@@ -202,14 +209,20 @@ export class QuizQuestionComponent
       const [question] = await this.quizService.getCurrentQuestion();
       console.log('question:', question);
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
+      const isMultipleAnswer = await this.quizService
+        .isMultipleAnswer(question)
+        .toPromise();
       this.multipleAnswer = isMultipleAnswer;
-  
+
       if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
         console.log('hasQuestionAndOptionsLoaded is false');
-        this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+        this.quizDataService
+          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
-            console.log('getQuestionAndOptions - currentQuestion:', currentQuestion);
+            console.log(
+              'getQuestionAndOptions - currentQuestion:',
+              currentQuestion
+            );
             console.log('getQuestionAndOptions - options:', options);
             this.currentQuestion = currentQuestion;
             this.options = options;
@@ -217,27 +230,34 @@ export class QuizQuestionComponent
           });
       } else {
         console.log('hasQuestionAndOptionsLoaded is true');
-        const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+        const [currentQuestion, options] =
+          this.quizDataService.questionAndOptions;
         console.log('questionAndOptions - currentQuestion:', currentQuestion);
         console.log('questionAndOptions - options:', options);
         this.currentQuestion = currentQuestion;
         this.options = options;
         this.setOptions();
       }
-  
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-  }  
+  }
 
   private getSelectedOption(): Option | null {
-    const option = this.selectedOptions.find((option: Option): option is Option => {
-      return option.hasOwnProperty('correct') && option.hasOwnProperty('text');
-    }) as Option | undefined;
+    const option = this.selectedOptions.find(
+      (option: Option): option is Option => {
+        return (
+          option.hasOwnProperty('correct') && option.hasOwnProperty('text')
+        );
+      }
+    ) as Option | undefined;
     return option ?? null;
   }
 
-  private setCurrentQuestionAndOptions(question: QuizQuestion, options: Option[]): void {
+  private setCurrentQuestionAndOptions(
+    question: QuizQuestion,
+    options: Option[]
+  ): void {
     this.currentQuestion = question;
     this.options = options;
     this.setOptions();
@@ -435,29 +455,33 @@ export class QuizQuestionComponent
       console.error('Selected quiz not found');
       return;
     }
-  
-    if (!this.selectedQuiz.questions || !this.selectedQuiz.questions[this.currentQuestionIndex]) {
+
+    if (
+      !this.selectedQuiz.questions ||
+      !this.selectedQuiz.questions[this.currentQuestionIndex]
+    ) {
       console.error('Question not found');
       return;
     }
-  
-    const currentQuestion = this.selectedQuiz.questions[+this.currentQuestionIndex];
+
+    const currentQuestion =
+      this.selectedQuiz.questions[+this.currentQuestionIndex];
     this.currentQuestion = currentQuestion;
     this.currentOptions = currentQuestion.options;
-  
+
     // Update the quiz service with the current question and options
     this.quizService.setCurrentQuestion(currentQuestion);
     this.quizService.setCurrentOptions(currentQuestion.options);
-  
+
     console.log('Options:', this.currentOptions);
-  
+
     const { options, answer } = currentQuestion;
-  
+
     const answerValue = answer?.values().next().value;
     this.correctOptionIndex = options.findIndex(
       (option) => option.value === answerValue
     );
-  
+
     this.currentOptions = options.map(
       (option, index) =>
         ({
@@ -468,25 +492,28 @@ export class QuizQuestionComponent
           selected: false,
         } as Option)
     );
-    console.log("setOptions: options:", this.options);
+    console.log('setOptions: options:', this.options);
     this.quizService.setCurrentOptions(this.options);
 
     console.log('Options after mapping:', this.options);
-  
+
     // shuffle options only if the shuffleOptions boolean is true
     if (this.shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
-  
+
     const correctOptions =
       this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(currentQuestion);
-  
+
     await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
-    console.log('Options after shuffling and setting multiple answers:', this.options);
+    console.log(
+      'Options after shuffling and setting multiple answers:',
+      this.options
+    );
   }
-      
+
   private resetForm(): void {
     if (!this.questionForm) {
       return;
@@ -543,7 +570,7 @@ export class QuizQuestionComponent
     this.selectedOptions = selectedOptions;
     this.selectionChanged.emit({ question, selectedOptions });
   }
-  
+
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&

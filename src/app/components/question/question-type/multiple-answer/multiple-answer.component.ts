@@ -79,8 +79,8 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
-    super.ngOnInit();
     console.log('MultipleAnswerComponent initialized');
+    super.ngOnInit();
 
     this.currentQuestion = this.questions[this.currentQuestionIndex];
 

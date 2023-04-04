@@ -7,7 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewEncapsulation
+  ViewEncapsulation,
 } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -19,7 +19,6 @@ import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 
-
 @Component({
   selector: 'codelab-question-single-answer',
   templateUrl: './single-answer.component.html',
@@ -30,7 +29,10 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
+export class SingleAnswerComponent
+  extends QuizQuestionComponent
+  implements OnInit, OnDestroy
+{
   protected quizService: QuizService;
   protected quizDataService: QuizDataService;
   protected quizStateService: QuizStateService;
@@ -46,7 +48,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
 
   private destroyed$ = new Subject<void>();
 
-  constructor(private readonly injector: Injector) { 
+  constructor(private readonly injector: Injector) {
     super(injector);
     this.quizService = injector.get(QuizService);
     this.quizDataService = injector.get(QuizDataService);
@@ -54,8 +56,9 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   }
 
   ngOnInit(): void {
-    super.ngOnInit();
     console.log('SingleAnswerComponent initialized');
+    super.ngOnInit();
+
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
       map((question) => question.options),
       takeUntil(this.destroyed$)
@@ -77,7 +80,8 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
   }
 
   onSelectionChange(question: QuizQuestion, option: Option) {
-    this.optionChecked[option?.optionId] = !this.optionChecked[option?.optionId];
+    this.optionChecked[option?.optionId] =
+      !this.optionChecked[option?.optionId];
     this.selectedOption = option;
     this.selectionChanged.emit([option]);
     super.onSelectionChange(question, option);
