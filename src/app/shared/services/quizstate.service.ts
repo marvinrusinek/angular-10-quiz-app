@@ -10,15 +10,17 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   providedIn: 'root',
 })
 export class QuizStateService {
-  private currentQuestion: BehaviorSubject<QuizQuestion|null> = new BehaviorSubject<QuizQuestion|null>(null);
+  private currentQuestion: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   optionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
+  
+  private currentQuizIdSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  currentQuizId$ = this.currentQuizIdSubject.asObservable();
 
-  private currentQuizId$ = new BehaviorSubject<string|null>(null);
-
-  constructor(private quizDataService: QuizDataService) {}
+  constructor(private quizDataService: QuizDataService) { }
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
@@ -48,12 +50,12 @@ export class QuizStateService {
   }
 
   getOptions(currentQuestionIndex: number): Observable<Option[]> {
-    return this.currentQuizId$.pipe(
-      switchMap((currentQuizId: string) => {
-        return this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
+    return this.currentOptions$ = this.currentQuizId$.pipe(
+      switchMap((currentQuizId) =>
+        this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
           map(([question, options]) => options)
-        );
-      })
+        )
+      )
     );
   }
 }

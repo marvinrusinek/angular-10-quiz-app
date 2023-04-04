@@ -1,6 +1,13 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  of,
+  ReplaySubject,
+  throwError,
+} from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
@@ -12,7 +19,7 @@ import {
   shareReplay,
   switchMap,
   take,
-  tap
+  tap,
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -28,6 +35,7 @@ export class QuizDataService implements OnInit {
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId: string = '';
+  currentQuizId: string;
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
 
   currentQuestionIndex: number = 1;
@@ -75,16 +83,14 @@ export class QuizDataService implements OnInit {
   } */
 
   getQuizData(quizId: string): Observable<QuizQuestion[]> {
-    return this.http
-      .get<Quiz[]>(this.quizUrl)
-      .pipe(
-        map((quizzes) => {
-          const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
-          return selectedQuiz.questions;
-        })
-      );
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      map((quizzes) => {
+        const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
+        return selectedQuiz.questions;
+      })
+    );
   }
-  
+
   getQuizzes(): Observable<Quiz[]> {
     this.http.get<Quiz[]>(this.quizUrl).subscribe((quizzes) => {
       this.quizzes = quizzes;
@@ -186,15 +192,27 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
-    console.log('getQuestionAndOptions called with quizId', quizId, 'and questionIndex', questionIndex);
-    if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
+  getQuestionAndOptions(
+    quizId: string,
+    questionIndex: number
+  ): Observable<[QuizQuestion, Option[]]> {
+    console.log(
+      'getQuestionAndOptions called with quizId',
+      quizId,
+      'and questionIndex',
+      questionIndex
+    );
+
+    if (
+      this.hasQuestionAndOptionsLoaded &&
+      this.currentQuestionIndex === questionIndex
+    ) {
       return this.questionAndOptionsSubject.asObservable();
     }
 
     console.log('my test');
     const quiz$ = this.http.get<Quiz[]>(this.quizUrl).pipe(
-      catchError(err => {
+      catchError((err) => {
         console.log('Error:', err);
         return of(null);
       }),
@@ -203,8 +221,8 @@ export class QuizDataService implements OnInit {
     );
 
     const currentQuestion$ = quiz$.pipe(
-      map(quizzes => {
-        const quiz = quizzes.find(q => q.quizId === quizId);
+      map((quizzes) => {
+        const quiz = quizzes.find((q) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Selected quiz not found');
         }
@@ -225,45 +243,56 @@ export class QuizDataService implements OnInit {
 
         return question;
       }),
-      catchError(err => {
+      catchError((err) => {
         console.log('Error:', err);
         return of(null);
       }),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      distinctUntilChanged(
+        (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+      ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
     const options$ = currentQuestion$.pipe(
-      map(question => {
+      map((question) => {
         const options = question.options;
-        if (!options || !Array.isArray(options) || options.length === 0 || typeof options[Symbol.iterator] !== 'function') {
+        if (
+          !options ||
+          !Array.isArray(options) ||
+          options.length === 0 ||
+          typeof options[Symbol.iterator] !== 'function'
+        ) {
           throw new Error('Question options not found');
         }
 
         return options;
       }),
-      catchError(err => {
+      catchError((err) => {
         console.log('Error:', err);
         return of(null);
       }),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      distinctUntilChanged(
+        (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+      ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    combineLatest([currentQuestion$, options$]).pipe(
-      switchMap(([currentQuestion, options]) => {
-        this.questionAndOptions = [currentQuestion, options];
-        this.currentQuestionIndex = questionIndex;
-        this.hasQuestionAndOptionsLoaded = true;
-        return of(this.questionAndOptions);
-      })
-    ).subscribe(questionAndOptions => {
-      this.questionAndOptionsSubject.next(questionAndOptions);
-    });
+    combineLatest([currentQuestion$, options$])
+      .pipe(
+        switchMap(([currentQuestion, options]) => {
+          this.questionAndOptions = [currentQuestion, options];
+          this.currentQuestionIndex = questionIndex;
+          this.hasQuestionAndOptionsLoaded = true;
+          return of(this.questionAndOptions);
+        })
+      )
+      .subscribe((questionAndOptions) => {
+        this.questionAndOptionsSubject.next(questionAndOptions);
+      });
 
     return this.questionAndOptionsSubject.asObservable();
   }
-     
+
   selectQuiz(quiz: Quiz): void {
     this.selectedQuizSubject.next(quiz);
   }
