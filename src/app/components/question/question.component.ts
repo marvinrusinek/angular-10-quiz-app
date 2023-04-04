@@ -99,10 +99,7 @@ export class QuizQuestionComponent
   }
   @Input() set currentQuestion(value: QuizQuestion) {
     this._currentQuestion = value;
-    this.selectedOption = value.selectedOptions.find((option): option is Option => {
-      return option.hasOwnProperty('correct') && option.hasOwnProperty('text');
-    }) || null;
-    
+    this.selectedOption = value.selectedOptions.find((option: Option) => option.correct) || null;
   }
 
   /* get currentQuestion(): QuizQuestion {
