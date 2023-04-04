@@ -52,7 +52,6 @@ export class QuizDataService implements OnInit {
 
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
-
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
