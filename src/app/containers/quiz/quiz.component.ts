@@ -162,12 +162,26 @@ export class QuizComponent implements OnInit, OnDestroy {
       const questionIndex = params['questionIndex'];
       this.currentQuestionIndex = Number(questionIndex);
         
-      if (this.quizStateService.currentQuestion$ && this.quizDataService.questions$) {
-        this.question$ = this.quizStateService.currentQuestion$;
-        this.quizService.setQuestions(this.quizDataService.getQuestions(quizId));
+      if (this.quizStateService.currentQuestion$ && this.quizService.questions$) {
+        this.currentQuestion$ = combineLatest([
+          this.quizStateService.currentQuestion$,
+          this.quizStateService.getOptions()
+        ]).pipe(
+          map(([question, options]) => {
+            return {
+              ...question,
+              options
+            };
+          })
+        );
+        this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
+          this.quizService.setQuestions(questions);
+        });
         this.questions$ = this.quizService.questions$;
       }
-    });    
+    });
+
+    this.options$ = this.quizStateService.currentOptions$;
     
     if (this.quizId) {
       this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {

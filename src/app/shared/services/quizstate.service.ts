@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -13,6 +13,7 @@ export class QuizStateService {
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   optionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
+  currentOptions$: Observable<Option[]> = of(null);
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
@@ -35,6 +36,10 @@ export class QuizStateService {
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
+  }
+
+  public setCurrentOptions(options: Option[]): void {
+    this.currentOptions$ = of(options);
   }
 
   getOptions(): Observable<Option[]> {
