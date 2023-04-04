@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
 @Injectable({
@@ -17,10 +16,9 @@ export class QuizStateService {
   currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
 
-  constructor(
-    private quizService: QuizService,
-    private quizDataService: QuizDataService
-  ) {}
+  private currentQuizId$ = new BehaviorSubject<string|null>(null);
+
+  constructor(private quizDataService: QuizDataService) {}
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
@@ -50,11 +48,12 @@ export class QuizStateService {
   }
 
   getOptions(currentQuestionIndex: number): Observable<Option[]> {
-    let currentQuizId: string;
-    this.quizService.currentQuiz$.subscribe(quiz => currentQuizId = quiz.quizId);
-  
-    return this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
-      map(([question, options]) => options)
+    return this.currentQuizId$.pipe(
+      switchMap((currentQuizId: string) => {
+        return this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
+          map(([question, options]) => options)
+        );
+      })
     );
   }
 }
