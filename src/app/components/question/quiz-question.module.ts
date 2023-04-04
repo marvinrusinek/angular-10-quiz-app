@@ -29,6 +29,7 @@ import { OptionFeedbackComponent } from './option-feedback/option-feedback.compo
     MatCheckboxModule
   ],
   entryComponents: [
+    QuizQuestionComponent,
     MultipleAnswerComponent,
     SingleAnswerComponent,
     FeedbackComponent,
