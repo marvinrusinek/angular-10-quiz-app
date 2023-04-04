@@ -10,8 +10,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   providedIn: 'root',
 })
 export class QuizStateService {
-  private currentQuestion: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   optionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();

@@ -69,6 +69,7 @@ export class MultipleAnswerComponent
     this.quizService = injector.get(QuizService);
     this.quizDataService = injector.get(QuizDataService);
     this.quizStateService = injector.get(QuizStateService);
+
     /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
       ([question, options]) => {
@@ -81,9 +82,8 @@ export class MultipleAnswerComponent
   async ngOnInit(): Promise<void> {
     console.log('MultipleAnswerComponent initialized');
     super.ngOnInit();
-
-    this.currentQuestion = this.questions[this.currentQuestionIndex];
-
+    this.currentQuestion = this.quizStateService.currentQuestion;
+    
     console.log('CQ', this.currentQuestion);
     console.log(this.question.options);
     console.log('ngOnInit called test');
