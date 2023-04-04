@@ -59,7 +59,6 @@ export class QuizService implements OnDestroy {
   quizId: string = '';
   answers: number[];
   totalQuestions: number;
-  currentQuizIndex: number = 0;
   currentQuestionIndex: number = 1;
   quizLength: number;
   quizStartTime: Date;
@@ -203,7 +202,7 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuiz(): Quiz {
-    return this.quizData[this.currentQuizIndex];
+    return this.quizData[this.currentQuestionIndex];
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {
