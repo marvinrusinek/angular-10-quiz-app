@@ -260,7 +260,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.setOptions();
   }
 
-  subscriptionToQuestion() {
+  subscriptionToQuestion(): void {
     this.currentQuestionSubscription =
       this.quizService.currentQuestion$.subscribe((question) => {
         if (question) {
@@ -271,7 +271,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  subscriptionToOptions() {
+  subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
       if (options) {
         this.options = options;
