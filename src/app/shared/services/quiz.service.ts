@@ -105,6 +105,9 @@ export class QuizService implements OnDestroy {
   currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
 
+  private currentQuizSubject = new BehaviorSubject<Quiz>(null);
+  currentQuiz$ = this.currentQuizSubject.asObservable();
+
   score: number = 0;
   quizScore: QuizScore;
   highScores: QuizScore[];
@@ -205,6 +208,15 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuestionIndex];
+  }
+
+  setCurrentQuiz(quiz: Quiz): void {
+    this.currentQuizSubject.next(quiz);
+    this.setQuestions(quiz.questions);
+  }
+
+  setCurrentQuestionIndex(index: number): void {
+    this.currentQuestionIndexSubject.next(index);
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {

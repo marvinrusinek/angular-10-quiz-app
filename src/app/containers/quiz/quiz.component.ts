@@ -160,12 +160,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       const quizId = params['quizId'];
       const questionIndex = params['questionIndex'];
-      this.currentQuestionIndex = Number(questionIndex);
-        
+      this.quizService.setCurrentQuestionIndex(Number(questionIndex));
+      this.quizService.setCurrentQuiz(quizId);
+      
       if (this.quizStateService.currentQuestion$ && this.quizService.questions$) {
-        this.currentQuestion$ = combineLatest([
+        combineLatest([
           this.quizStateService.currentQuestion$,
-          this.quizStateService.getOptions()
+          this.quizStateService.getOptions(this.currentQuestionIndex)
         ]).pipe(
           map(([question, options]) => {
             return {
@@ -173,7 +174,12 @@ export class QuizComponent implements OnInit, OnDestroy {
               options
             };
           })
-        );
+        ).subscribe(questionWithOptions => {
+          console.log(questionWithOptions); // Log the question with its options
+          this.currentQuestionWithOptions = questionWithOptions;
+          this.cdRef.detectChanges(); // Trigger change detection
+        });
+
         this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
           this.quizService.setQuestions(questions);
         });
