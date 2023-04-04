@@ -85,8 +85,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   @Input() set currentQuestion(value: QuizQuestion) {
     this._currentQuestion = value;
-    this.selectedOption =
-      value.selectedOptions.find((option: Option) => option.correct) || null;
+    this.selectedOption = value.selectedOptions.find((option: Option) => option.correct) || null;
   }
 
   @Input()
@@ -261,27 +260,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.setOptions();
   }
 
-  /* subscriptionToQuestion() {
-    console.log('currentQuestion$::::', this.quizService.currentQuestion$);
-    setTimeout(() => {
-      // check if currentQuestion$ is defined before subscribing to it
-      if (this.quizService.currentQuestion$) {
-        this.quizService.currentQuestion$.subscribe((question) => {
-          if (question) {
-            this.currentQuestion = question;
-            this.options = this.currentQuestion?.options;
-          }
-        });
-      }
-    }, 0);
-  } */
-
   subscriptionToQuestion() {
     this.currentQuestionSubscription =
       this.quizService.currentQuestion$.subscribe((question) => {
         if (question) {
           this.currentQuestion = question;
-          this.options = this.currentQuestion.options;
+          this.options = this.currentQuestion?.options;
           console.log('STQ', this.quizService.currentQuestion$);
         }
       });
@@ -382,17 +366,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getQuestion(index: number): Observable<QuizQuestion> {
+  public getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {
         return selectedQuiz.questions[index];
       })
     );
   }
-
-  /* setMultipleAnswer(multipleAnswer: boolean) {
-    this.multipleAnswer = multipleAnswer;
-  } */
 
   public incrementScore(): void {
     this.quizService.score++;
