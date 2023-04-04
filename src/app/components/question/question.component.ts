@@ -155,6 +155,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.question = question;
     });
 
+    this.quizDataService.currentOptions$.subscribe((options) => {
+      this.options = options;
+    });
+
     console.log('QuizQuestionComponent initialized');
     console.log('TESTING');
     console.log('ngOnInit');
