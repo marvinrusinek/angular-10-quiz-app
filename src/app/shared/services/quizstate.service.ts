@@ -4,6 +4,7 @@ import { map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { QuizDataService } from '../../shared/services/quizdata.service';
 
 @Injectable({
   providedIn: 'root',
