@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -14,6 +14,8 @@ export class QuizStateService {
   optionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
+
+  constructor(private quizDataService: QuizDataService) {}
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
@@ -42,7 +44,13 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  getOptions(): Observable<Option[]> {
-    return this.optionsSubject.asObservable();
+  getOptions(currentQuestionIndex: number): Observable<Option[]> {
+    return this.quizDataService.getQuestionAndOptions(currentQuestionIndex).pipe(
+      map(([question, options]) => options),
+      tap((options) => {
+        console.log(options);
+        this.optionsSubject.next(options);
+      })
+    );
   }
 }

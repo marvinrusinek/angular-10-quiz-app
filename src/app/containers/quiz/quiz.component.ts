@@ -82,6 +82,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
+  currentQuestionWithOptions$: Observable<QuizQuestion>;
   currentOptions: Option[];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
@@ -164,7 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.setCurrentQuiz(quizId);
       
       if (this.quizStateService.currentQuestion$ && this.quizService.questions$) {
-        combineLatest([
+        this.currentQuestionWithOptions$ = combineLatest([
           this.quizStateService.currentQuestion$,
           this.quizStateService.getOptions(this.currentQuestionIndex)
         ]).pipe(
@@ -174,11 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
               options
             };
           })
-        ).subscribe(questionWithOptions => {
-          console.log(questionWithOptions); // Log the question with its options
-          this.currentQuestionWithOptions = questionWithOptions;
-          this.cdRef.detectChanges(); // Trigger change detection
-        });
+        );
 
         this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
           this.quizService.setQuestions(questions);
