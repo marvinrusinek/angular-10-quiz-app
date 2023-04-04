@@ -151,6 +151,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('question$', this.question$);
+
     this.question$.subscribe((question) => {
       this.question = question;
     });
@@ -189,6 +190,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
 
       this.loadCurrentQuestion();
+      this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
@@ -521,6 +523,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       'Options after shuffling and setting multiple answers:',
       this.options
     );
+  }
+
+  toggleOptions(): void {
+    this.quizDataService.currentOptions$.subscribe((options) => {
+      this.options = options;
+    });
   }
 
   private resetForm(): void {
