@@ -44,8 +44,8 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  getOptions(currentQuestionIndex: number): Observable<Option[]> {
-    return this.quizDataService.getQuestionAndOptions(currentQuestionIndex).pipe(
+  getOptions(questionIndex: number): Observable<Option[]> {
+    return this.quizDataService.getQuestionAndOptions(questionIndex).pipe(
       map(([question, options]) => options),
       tap((options) => {
         console.log(options);
