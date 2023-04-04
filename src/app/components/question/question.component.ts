@@ -8,11 +8,18 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, from, Observable, of, Subject, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  from,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+} from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -44,20 +51,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
-  // currentQuestion: QuizQuestion = {} as QuizQuestion;
-  quiz: Quiz = {};
+  quiz: Quiz;
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
-  // questions: QuizQuestion[];
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz: Quiz;
-  // optionSelected: Option;
   correctAnswers: number[] = [];
   correctMessage: string = '';
-  // multipleAnswer: boolean;
-  answer;
   alreadyAnswered = false;
   optionList: Option[];
   hasSelectedOptions = false;
@@ -77,6 +79,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private hasQuestionAndOptionsLoaded: false;
 
   private _currentQuestion: QuizQuestion;
+
   get currentQuestion(): QuizQuestion {
     return this._currentQuestion;
   }
@@ -85,10 +88,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption =
       value.selectedOptions.find((option: Option) => option.correct) || null;
   }
-
-  /* get currentQuestion(): QuizQuestion {
-    return this.questions[this.currentQuestionIndex];
-  } */
 
   @Input()
   get multipleAnswer(): boolean {
@@ -148,9 +147,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('question', this.question);
     console.log('options', this.options);
 
-    this.quizService.isMultipleAnswer(this.question).subscribe((isMultipleAnswer) => {
-      this.multipleAnswer = isMultipleAnswer;
-    });
+    this.quizService
+      .isMultipleAnswer(this.question)
+      .subscribe((isMultipleAnswer) => {
+        this.multipleAnswer = isMultipleAnswer;
+      });
 
     if (this.quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
