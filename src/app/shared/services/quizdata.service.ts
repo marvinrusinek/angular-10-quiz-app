@@ -289,8 +289,8 @@ export class QuizDataService implements OnInit {
         })
       )
       .subscribe((questionAndOptions) => {
-        this.questionAndOptionsSubject.next(questionAndOptions);
         this.currentOptionsSubject.next(questionAndOptions[1]);
+        this.questionAndOptionsSubject.next(questionAndOptions);
       });
   
     return this.questionAndOptionsSubject.asObservable();
