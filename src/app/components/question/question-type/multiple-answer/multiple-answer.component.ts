@@ -110,8 +110,8 @@ export class MultipleAnswerComponent
         map((question) => question.options),
         takeUntil(this.destroyed$)
       );
-      this.quizStateService.optionsSubject.subscribe((options) => {
-        this.options = options;
+      this.options$.subscribe((options) => {
+        console.log('options:', options);
       });
 
       this.quizService.getCorrectAnswers(this.currentQuestion);

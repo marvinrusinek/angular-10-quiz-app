@@ -1,7 +1,7 @@
 <ng-container i18n *ngIf="(currentQuestion$ | async) as currentQuestion">
   <div
     class="options"
-    *ngFor="let option of currentQuestion?.options; index as i"
+    *ngFor="let option of options$ | async; index as i"
   >
     <mat-checkbox
       (click)="selectedOption = option; super.onOptionSelected(option)"
