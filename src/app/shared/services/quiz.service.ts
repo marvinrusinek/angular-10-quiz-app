@@ -48,6 +48,7 @@ export class QuizService implements OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   question$: Observable<QuizQuestion>;
+  questions$: Observable<QuizQuestion[]>;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion = null;
@@ -101,7 +102,8 @@ export class QuizService implements OnDestroy {
   private isGettingQuestion = false;
   private isGettingCurrentQuestion = false;
   private currentQuestionPromise: Promise<[QuizQuestion, Option[]]> = null;
-  currentQuestionSubject: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  currentQuestionSubject: BehaviorSubject<QuizQuestion> =
+    new BehaviorSubject<QuizQuestion>(null);
 
   score: number = 0;
   quizScore: QuizScore;
@@ -261,21 +263,21 @@ export class QuizService implements OnDestroy {
     if (this.currentQuestionSubject.value) {
       return [this.currentQuestionSubject.value, this.options];
     }
-  
+
     if (this.isGettingQuestion) {
       return await this.currentQuestionPromise;
     }
-  
+
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       try {
         let currentQuestion = await this.currentQuestion$.toPromise();
-  
+
         const questionIndex = this.currentQuestionIndex;
         if (!questionIndex && questionIndex !== 0) {
           this.currentQuestionIndex = 0;
         }
-  
+
         if (this.questionsAndOptions[questionIndex]) {
           const [question, options] = this.questionsAndOptions[questionIndex];
           this.currentQuestion = question;
@@ -284,8 +286,12 @@ export class QuizService implements OnDestroy {
           resolve([question, options]);
           return;
         }
-  
-        if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+
+        if (
+          !this.quizId ||
+          !this.quizQuestions ||
+          this.quizQuestions.length === 0
+        ) {
           console.error('Quiz or questions array is null or undefined');
           this.currentQuestion = null;
           this.options = null;
@@ -293,7 +299,7 @@ export class QuizService implements OnDestroy {
           reject(new Error('Quiz or questions array is null or undefined'));
           return;
         }
-  
+
         const [question, options] = this.quizQuestions[questionIndex].value;
         if (question && options && options.length > 0) {
           this.currentQuestion = question;
@@ -316,10 +322,10 @@ export class QuizService implements OnDestroy {
         reject(error);
       }
     });
-  
+
     return await this.currentQuestionPromise;
   }
-    
+
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
@@ -528,6 +534,7 @@ export class QuizService implements OnDestroy {
 
   setQuestions(value: QuizQuestion[]): void {
     this.questions = value;
+    this.questions$ = of(this.questions);
   }
 
   setTotalQuestions(value: number): void {
