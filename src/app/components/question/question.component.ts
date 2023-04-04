@@ -58,7 +58,8 @@ export class QuizQuestionComponent
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   @Input() inputData: string;
-  selectedOption: Option = { text: '', correct: false, value: null } as Option;
+  // selectedOption: Option = { text: '', correct: false, value: null };
+  selectedOption: Option | null;
   selectedOptions: Option[] = [];
   // currentQuestion: QuizQuestion = {} as QuizQuestion;
   quiz: Quiz = {};
@@ -92,9 +93,21 @@ export class QuizQuestionComponent
   private _multipleAnswer: boolean;
   private hasQuestionAndOptionsLoaded: false;
 
+  private _currentQuestion: QuizQuestion;
   get currentQuestion(): QuizQuestion {
-    return this.questions[this.currentQuestionIndex];
+    return this._currentQuestion;
   }
+  @Input() set currentQuestion(value: QuizQuestion) {
+    this._currentQuestion = value;
+    this.selectedOption = value.selectedOptions.find((option): option is Option => {
+      return option.hasOwnProperty('correct') && option.hasOwnProperty('text');
+    }) || null;
+    
+  }
+
+  /* get currentQuestion(): QuizQuestion {
+    return this.questions[this.currentQuestionIndex];
+  } */
 
   get multipleAnswer(): boolean {
     let result = false;
