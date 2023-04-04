@@ -132,6 +132,7 @@ export class QuizQuestionComponent
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
     this.questions = [];
+    this.selectedOption = this.getSelectedOption();
     this.correctMessage = '';
     this.multipleAnswer = false;
 
@@ -223,6 +224,13 @@ export class QuizQuestionComponent
       console.error('Error getting current question:', error);
     }
   }  
+
+  private getSelectedOption(): Option | null {
+    const option = this.selectedOptions.find((option: Option): option is Option => {
+      return option.hasOwnProperty('correct') && option.hasOwnProperty('text');
+    }) as Option | undefined;
+    return option ?? null;
+  }
 
   private setCurrentQuestionAndOptions(question: QuizQuestion, options: Option[]): void {
     this.currentQuestion = question;
