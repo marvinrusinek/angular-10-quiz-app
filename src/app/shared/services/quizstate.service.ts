@@ -50,7 +50,7 @@ export class QuizStateService {
 
   getOptions(currentQuestionIndex: number): Observable<Option[]> {
     let currentQuizId: string;
-    this.quizService.currentQuiz$.subscribe(quiz => currentQuizId = quiz.id);
+    this.quizService.currentQuiz$.subscribe(quiz => currentQuizId = quiz.quizId);
   
     return this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
       map(([question, options]) => options)
