@@ -57,6 +57,7 @@ export class QuizQuestionComponent
   @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
+  @Input() multipleAnswer: boolean;
   @Input() inputData: string;
   // selectedOption: Option = { text: '', correct: false, value: null };
   selectedOption: Option | null;
@@ -134,7 +135,7 @@ export class QuizQuestionComponent
     this.questions = [];
     this.selectedOption = this.getSelectedOption();
     this.correctMessage = '';
-    this.multipleAnswer = false;
+    // this.multipleAnswer = false;
 
     this.questionForm = this.fb.group({
       selectedOption: ['']
@@ -147,6 +148,8 @@ export class QuizQuestionComponent
     console.log('ngOnInit');
     console.log('question', this.question);
     console.log('options', this.options);
+
+    this.multipleAnswer = this.quizService.isMultipleAnswer(this.question);
 
     if (this.quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
