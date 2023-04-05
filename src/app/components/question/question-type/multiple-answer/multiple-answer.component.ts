@@ -77,9 +77,14 @@ export class MultipleAnswerComponent
         this.options = options;
       }
     ); */
+
+    console.log('OPTIONS:', this.options);
+    console.log('CQI:', this.currentQuestionIndex);
+    console.log('QUESTIONS:', this.questions);
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('options:', this.options);
     console.log('MultipleAnswerComponent initialized');
     super.ngOnInit();
 

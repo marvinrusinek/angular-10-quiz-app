@@ -129,12 +129,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('QuizQuestionComponent constructor called');
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    console.log("OPTIONS:", this.options);
+    console.log("CQI:", this.currentQuestionIndex);
+    console.log("QUESTIONS:", this.questions);
+    console.log("currentQuestion:", this.currentQuestion);
+    console.log("options:", this.options);
+
     console.log('question$', this.question$);
 
     if (this.currentQuestionIndex !== undefined && this.questions) {
       this.currentQuestion = this.questions[this.currentQuestionIndex];
+      this.options = this.currentQuestion.options;
     }
+    // this.multipleAnswer = this.currentQuestion?.multipleAnswer;
 
     this.question$.subscribe((question: QuizQuestion) => {
       this.question = question;
@@ -167,11 +175,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     try {
-      const [question] = await this.quizService.getCurrentQuestion();
+      const [question] = this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = await this.quizService
-        .isMultipleAnswer(question)
-        .toPromise();
+      const isMultipleAnswer = this.quizService
+        .isMultipleAnswer(question);
+        // .toPromise();
       this.multipleAnswer = isMultipleAnswer;
 
       /* this.quizStateService.currentQuestion$.subscribe((question) => {
@@ -202,17 +210,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  async loadCurrentQuestion(): Promise<void> {
+  loadCurrentQuestion(): void {
     console.log('loadCurrentQuestion');
     console.log('quizId:', this.quizId);
     console.log('currentQuestionIndex:', this.currentQuestionIndex);
     try {
-      const [question] = await this.quizService.getCurrentQuestion();
+      const [question] = this.quizService.getCurrentQuestion();
       console.log('question:', question);
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = await this.quizService
-        .isMultipleAnswer(question)
-        .toPromise();
+      const isMultipleAnswer = this.quizService
+        .isMultipleAnswer(question);
+        // .toPromise();
       this.multipleAnswer = isMultipleAnswer;
 
       if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
@@ -283,7 +291,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  async setQuizQuestion(quizId: string | null | undefined): Promise<void> {
+  setQuizQuestion(quizId: string | null | undefined): void {
     if (!quizId) {
       console.error('Quiz ID is undefined');
       return;
@@ -309,7 +317,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async getCurrentQuestion(): Promise<void> {
+  getCurrentQuestion(): void {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
@@ -322,9 +330,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const [question, options] = await this.quizDataService
-      .getQuestionAndOptions(this.quizId, questionIndex)
-      .toPromise();
+    const [question, options] = this.quizDataService
+      .getQuestionAndOptions(this.quizId, questionIndex);
+      // .toPromise();
 
     if (question && options && options?.length > 0) {
       this.currentQuestion = question;
@@ -336,7 +344,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentOptions = null;
     }
 
-    this.currentQuestion$ = await this.quizService.getCurrentQuestion();
+    this.currentQuestion$ = this.quizService.getCurrentQuestion();
     console.log('QUESTION', this.currentQuestion$);
     return this.currentQuestion$;
   }
@@ -401,17 +409,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async updateCorrectMessage(): Promise<void> {
+  private updateCorrectMessage(): void {
     if (this.question && this.currentQuestion) {
       try {
         console.log(
           'QSSCM::',
-          await this.quizService.setCorrectMessage(
+          this.quizService.setCorrectMessage(
             this.question,
             this.correctAnswers
           )
         );
-        this.correctMessage = await this.quizService.setCorrectMessage(
+        this.correctMessage = this.quizService.setCorrectMessage(
           this.question,
           this.correctAnswers
         );
@@ -430,7 +438,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.multipleAnswer = this.correctAnswers?.length > 1;
   }
 
-  async setOptions(): Promise<void> {
+  setOptions(): void {
     console.log('setOptions');
     console.log('setOptions called with options', this.options);
     if (!this.selectedQuiz) {
@@ -489,7 +497,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(currentQuestion);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
+    // await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
     console.log(
       'Options after shuffling and setting multiple answers:',
       this.options

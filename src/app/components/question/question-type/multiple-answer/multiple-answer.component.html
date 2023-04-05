@@ -1,8 +1,5 @@
-<ng-container i18n *ngIf="(currentQuestion$ | async) as currentQuestion">
-  <div
-    class="options"
-    *ngFor="let option of options$ | async; index as i"
-  >
+<div>
+  <label class="options" *ngFor="let option of options; index as i">
     <mat-checkbox
       (click)="selectedOption = option; super.onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, option)"
@@ -24,5 +21,6 @@
       [selectedOption]="selectedOption"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>
-  </div>
-</ng-container>
+  </label>
+  <pre>{{ options | json }}</pre>
+</div>
