@@ -423,6 +423,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionIndex = currentQuestionIndex;
     this.question = quiz.questions[currentQuestionIndex];
     this.setOptions();
+    this.updateProgressValue(); // move later
   }
 
   private handleSelectedQuiz(selectedQuiz: Quiz): void {
