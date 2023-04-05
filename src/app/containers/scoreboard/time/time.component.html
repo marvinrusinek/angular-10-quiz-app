@@ -1,7 +1,7 @@
 <ng-container class="timer-container">
   <div class="timer-menu-container">
     <button mat-button [matMenuTriggerFor]="timerMenu" aria-label="timer menu">
-      <span class="timer-menu-button-text" i18n>Timer &#x25BC;</span>
+      <span class="timer-menu-button-text leader" i18n>Timer &#x25BC;</span>
     </button>
     <mat-menu #timerMenu="matMenu">
       <button
@@ -21,7 +21,7 @@
     </mat-menu>
   </div>
   <section class="scoreboard-timer">
-    <span class="scoreboard-timer-text" i18n>{{
+    <span class="scoreboard" i18n>0:{{
       timeLeft$ | async | number: '2.0-0'
     }}</span>
   </section>
