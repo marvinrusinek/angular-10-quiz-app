@@ -1,5 +1,5 @@
-<div *ngIf="questionForm">
-  <ng-content *ngIf="questionForm.valid"></ng-content>
+<div>
+  <ng-content *ngIf="questionForm && questionForm.valid"></ng-content>
   <form *ngIf="currentQuestion$ | async as currentQuestion"
         [formGroup]="questionForm"
         [ngSwitch]="multipleAnswer">

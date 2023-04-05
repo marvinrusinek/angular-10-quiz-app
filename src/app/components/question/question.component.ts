@@ -132,6 +132,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('question$', this.question$);
 
+    if (this.currentQuestionIndex !== undefined && this.questions) {
+      this.currentQuestion = this.questions[this.currentQuestionIndex];
+    }
+
     this.question$.subscribe((question: QuizQuestion) => {
       this.question = question;
     });
@@ -170,10 +174,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         .toPromise();
       this.multipleAnswer = isMultipleAnswer;
 
-      this.quizStateService.currentQuestion$.subscribe((question) => {
+      /* this.quizStateService.currentQuestion$.subscribe((question) => {
         this.currentQuestion = question;
         this.setOptions();
-      });
+      }); */
 
       this.loadCurrentQuestion();
       this.toggleOptions();
