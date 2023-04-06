@@ -319,7 +319,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getCurrentQuestion(): void {
+  getCurrentQuestion(): Observable<QuizQuestion> {
     const questionIndex = this.currentQuestionIndex;
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
@@ -332,22 +332,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const [question, options] = this.quizDataService
-      .getQuestionAndOptions(this.quizId, questionIndex);
-      // .toPromise();
-
-    if (question && options && options?.length > 0) {
+    this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex).subscribe(([question, options]) => {
       this.currentQuestion = question;
       this.currentOptions = options;
-      this.questionsAndOptions[questionIndex] = [question, options];
-    } else {
-      console.error('Question or options array is null or undefined');
-      this.currentQuestion = null;
-      this.currentOptions = null;
-    }
+      console.log('Question:', this.currentQuestion);
+      console.log('Options:', this.currentOptions);
 
-    this.currentQuestion$ = this.quizService.getCurrentQuestion();
-    console.log('QUESTION', this.currentQuestion$);
+      if (question && options && options?.length > 0) {
+        this.questionsAndOptions[questionIndex] = [question, options];
+      } else {
+        console.error('Question or options array is null or undefined');
+        this.currentQuestion = null;
+        this.currentOptions = null;
+      }
+    });
+
+    if (!this.currentQuestion$) {
+      this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(map(([question, _]) => question));
+    }
     return this.currentQuestion$;
   }
 
