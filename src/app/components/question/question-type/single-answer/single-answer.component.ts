@@ -75,15 +75,13 @@ export class SingleAnswerComponent
     super.onOptionSelected(selectedOption);
     this.selectedOption = selectedOption;
     this.optionSelected.emit(this.selectedOption);
-    this.selectionChanged.emit(this.selectedOption);
+    this.selectionChanged.emit([this.selectedOption]);
     this.optionChecked[selectedOption.optionId] = true;
   }
 
-  onSelectionChange(question: QuizQuestion, option: Option) {
-    this.optionChecked[option?.optionId] =
-      !this.optionChecked[option?.optionId];
-    this.selectedOption = option;
-    this.selectionChanged.emit([option]);
-    super.onSelectionChange(question, [option]);
+  onSelectionChange(question: QuizQuestion, selectedOptions: Option[]) {
+    this.selectedOption = selectedOptions[0];
+    this.optionChecked[this.selectedOption?.optionId] = true;
+    super.onSelectionChange(question, [this.selectedOption]);
   }
 }
