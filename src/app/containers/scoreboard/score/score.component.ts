@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import 'rxjs/add/observable/of';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -33,7 +32,7 @@ export class ScoreComponent implements OnInit {
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
         this.score = `${this.correctAnswersCount}/${this.totalQuestions}`;
-        this.currentScore$ = Observable.of(this.score);
+        this.currentScore$ = of(this.score);
       });
   }
 
@@ -46,7 +45,7 @@ export class ScoreComponent implements OnInit {
           Math.round(
             (this.correctAnswersCount / this.totalQuestions) * 100
           ).toString() + '%';
-        this.currentScore$ = Observable.of(this.score);
+        this.currentScore$ = of(this.score);
       });
   }
 }

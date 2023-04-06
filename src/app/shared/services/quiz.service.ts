@@ -16,9 +16,7 @@ import {
   mergeMap,
   shareReplay,
   switchMap,
-  tap,
-  toArray,
-  toPromise,
+  tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
