@@ -186,7 +186,7 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
     }
     this.quizDataService.currentOptionsSubject.next(this.selectedOptions);
-    this.selectionChanged.emit(this.selectedOptions);
+    this.selectionChanged.emit({ question: this.question, selectedOptions: this.selectedOptions });
     this.optionChecked[option.optionId] = true;
   }
 
