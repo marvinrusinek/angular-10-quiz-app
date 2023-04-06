@@ -253,6 +253,6 @@ export class MultipleAnswerComponent
     console.log('this.selectedOptions before:', this.selectedOptions);
     this.selectedOptions = selectedOptions;
     console.log('this.selectedOptions after:', this.selectedOptions);
-    this.selectionChanged.emit(this.selectedOptions);
+    this.selectionChanged.emit({ question: this.currentQuestion, selectedOptions: this.selectedOptions });
   }
 }

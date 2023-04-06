@@ -37,7 +37,9 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Output() selectionChanged = new EventEmitter<Option[]>();
+  @Output() selectionChanged:
+    EventEmitter<{question: QuizQuestion, selectedOptions: Option[] }> 
+    = new EventEmitter();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
