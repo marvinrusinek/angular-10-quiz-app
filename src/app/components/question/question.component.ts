@@ -47,6 +47,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
+  @Input() quizId: string;
   // selectedOption: Option = { text: '', correct: false, value: null };
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
@@ -65,7 +66,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   hasSelectedOptions = false;
   optionChecked: { [optionId: number]: boolean } = {};
   answers;
-  quizId: string;
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
