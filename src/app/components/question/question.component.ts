@@ -573,7 +573,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestion &&
       this.currentQuestion?.options
     ) {
-      this.optionSelected.styleClass = this.currentQuestion?.options[
+      this.optionSelected['styleClass'] = this.currentQuestion?.options[
         optionIndex
       ]['correct']
         ? 'correct'
