@@ -84,6 +84,6 @@ export class SingleAnswerComponent
       !this.optionChecked[option?.optionId];
     this.selectedOption = option;
     this.selectionChanged.emit([option]);
-    super.onSelectionChange(question, option);
+    super.onSelectionChange(question, [option]);
   }
 }
