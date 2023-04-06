@@ -80,8 +80,9 @@ export class SingleAnswerComponent
   }
 
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]) {
+    this.optionChecked[selectedOptions[0]?.optionId] =
+      !this.optionChecked[selectedOptions[0]?.optionId];
     this.selectedOption = selectedOptions[0];
-    this.optionChecked[this.selectedOption?.optionId] = true;
-    super.onSelectionChange(question, [this.selectedOption]);
+    super.onSelectionChange(question, selectedOptions);
   }
 }
