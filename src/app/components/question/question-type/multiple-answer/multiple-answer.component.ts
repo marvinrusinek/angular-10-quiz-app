@@ -102,14 +102,11 @@ export class MultipleAnswerComponent
       this.formReady.emit(this.form);
 
       const quizId = this.activatedRoute.snapshot.params.quizId;
-      this.currentQuestion$ = this.quizService.getCurrentQuestion().pipe(
-        tap(([question, options]) => {
-          this.currentQuestion = question;
-          this.options = options;
-          console.log('current question:', this.currentQuestion);
-        })
-      );
-      this.currentQuestion$.subscribe();
+      this.quizService.getCurrentQuestion().then(([question, options]) => {
+        this.currentQuestion = question;
+        this.options = options;
+        console.log('current question:', this.currentQuestion);
+      });
 
       this.options$ = this.quizStateService.getCurrentQuestion().pipe(
         map((question) => question.options),
