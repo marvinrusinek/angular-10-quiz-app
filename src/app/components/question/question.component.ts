@@ -303,7 +303,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (quiz && quiz.questions && quiz.questions.length > 0) {
       this.quiz = quiz;
-      const question = quiz.questions.find((q) => q.quizId === quizId);
+      const question = quiz.questions[this.currentQuestionIndex];
 
       if (question) {
         this.currentQuestion = question;
