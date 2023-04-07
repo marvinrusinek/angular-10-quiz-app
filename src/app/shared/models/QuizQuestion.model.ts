@@ -4,7 +4,7 @@ export interface QuizQuestion {
   questionText: string;
   options: Option[];
   explanation: string;
-  selectedOptions?: string[];
+  selectedOptions?: Option[];
   answer?: Option[];
   selectedOptionIds?: number[];
 }
