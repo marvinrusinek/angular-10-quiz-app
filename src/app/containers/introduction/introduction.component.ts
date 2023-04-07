@@ -89,26 +89,23 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   onStartQuiz(quizId: string) {
-    if (!quizId || !this.selectedQuiz || !this.selectedQuizId) {
+    if (!this.selectedQuizId) {
       console.error('No quiz selected');
       return;
     }
-    this.selectedQuizId = quizId;
-
-    if (this.selectedQuizId) {
-      this.quizDataService.getQuizById(this.selectedQuizId).subscribe((quiz) => {
+  
+    this.quizDataService.getQuizById(this.selectedQuizId).subscribe((quiz) => {
+      const foundQuiz = this.quizDataService.quizzes.find((q) => q.id === this.selectedQuizId);
+      if (foundQuiz) {
+        this.quizDataService.setSelectedQuiz(foundQuiz);
+        this.quizDataService.selectedQuizSubject.next(foundQuiz);
         this.quizSelected.emit(this.selectedQuizId);
-
-        if (quiz) {
-          this.quizDataService.selectedQuizSubject.next(quiz);
-          this.quizDataService.setSelectedQuiz(quiz);
-          this.router.navigate(['/question/', this.selectedQuizId, 1]);
-        } else {
-          console.log('Quiz object is null or undefined');
-        }
-      });
-    } else {
-      console.log('Quiz ID is null or undefined');
-    }
-  }
+        this.router.navigate(['/question/', this.selectedQuizId, 1]);
+      } else {
+        console.error(`Quiz with ID ${this.selectedQuizId} not found`);
+      }
+    }, (error) => {
+      console.error(`Error fetching quiz: ${error}`);
+    });
+  }   
 }
