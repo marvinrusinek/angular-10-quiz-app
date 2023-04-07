@@ -131,7 +131,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('QuizQuestionComponent constructor called');
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     console.log("OPTIONS:", this.options);
     console.log("CQI:", this.currentQuestionIndex);
     console.log("QUESTIONS:", this.questions);
@@ -177,11 +177,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     try {
-      const [question] = this.quizService.getCurrentQuestion();
+      const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
       const isMultipleAnswer = this.quizService
-        .isMultipleAnswer(question);
-        // .toPromise();
+        .isMultipleAnswer(question).toPromise();
       this.multipleAnswer = isMultipleAnswer;
 
       /* this.quizStateService.currentQuestion$.subscribe((question) => {
