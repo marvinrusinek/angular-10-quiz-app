@@ -95,7 +95,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
   
     this.quizDataService.getQuizById(this.selectedQuizId).subscribe((quiz) => {
-      const foundQuiz = this.quizDataService.quizzes.find((q) => q.id === this.selectedQuizId);
+      const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === this.selectedQuizId);
       if (foundQuiz) {
         this.quizDataService.setSelectedQuiz(foundQuiz);
         this.quizDataService.selectedQuizSubject.next(foundQuiz);
