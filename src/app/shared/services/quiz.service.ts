@@ -16,7 +16,7 @@ import {
   mergeMap,
   shareReplay,
   switchMap,
-  tap
+  tap,
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
@@ -30,8 +30,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizScore } from '../../shared/models/QuizScore.model';
 import { Resource } from '../../shared/models/Resource.model';
-import { QuizDataService } from '../../shared/services/quizdata.service';
-import { QuizStateService } from '../../shared/services/quizstate.service';
 
 @Injectable({
   providedIn: 'root',
@@ -123,21 +121,11 @@ export class QuizService implements OnDestroy {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private quizDataService: QuizDataService,
-    private quizStateService: QuizStateService,
     private router: Router,
     private http: HttpClient
   ) {
     this.getQuizData().subscribe((data) => {
       this._quizData$.next(data);
-    });
-
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-      if (this.quizzes.length > 0) {
-        this.selectedQuiz = this.quizzes[0];
-        this.selectedQuiz$.next(this.selectedQuiz);
-      }
     });
 
     this.quizzes$ = this.getQuizzes().pipe(
@@ -198,10 +186,6 @@ export class QuizService implements OnDestroy {
 
   getResources(): QuizResource[] {
     return this.quizResources;
-  }
-
-  getQuizzes(): Observable<Quiz[]> {
-    return this.quizDataService.getQuizzes();
   }
 
   getCurrentQuiz(): Quiz {
@@ -565,7 +549,7 @@ export class QuizService implements OnDestroy {
     console.log('setCurrentQuestion called with question:', question);
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
-      this.quizStateService.currentQuestionSubject.next(this.currentQuestion);
+      this.currentQuestionSubject.next(this.currentQuestion);
     }
   }
 

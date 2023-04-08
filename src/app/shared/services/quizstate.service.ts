@@ -4,7 +4,6 @@ import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-import { QuizDataService } from '../../shared/services/quizdata.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +19,7 @@ export class QuizStateService {
   private currentQuizIdSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   currentQuizId$ = this.currentQuizIdSubject.asObservable();
 
-  constructor(private quizDataService: QuizDataService) { }
+  constructor() { }
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (question$) {
