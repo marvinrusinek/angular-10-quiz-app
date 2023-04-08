@@ -183,9 +183,9 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
+  getQuestion(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      map(([question, options]) => question)
+      map(([question, options]) => [question, options])
     );
   }
 
