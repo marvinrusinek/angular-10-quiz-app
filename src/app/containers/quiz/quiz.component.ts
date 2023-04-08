@@ -78,6 +78,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizLength: number;
   quizQuestions: QuizQuestion[];
   question: QuizQuestion;
+  questions: QuizQuestion[];
   // question$: Observable<[QuizQuestion, Option[]]>;
   question$: Observable<QuizQuestion>;
   questions$: Observable<QuizQuestion[]>;
@@ -134,10 +135,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   get numberOfCorrectAnswers(): number {
     return this.quizService.numberOfCorrectAnswers;
   }
-  get questions(): QuizQuestion[] {
+  /* get questions(): QuizQuestion[] {
     const selectedQuiz = this.selectedQuiz$.getValue();
     return selectedQuiz ? selectedQuiz.questions : [];
-  }
+  } */
 
   constructor(
     private quizService: QuizService,
