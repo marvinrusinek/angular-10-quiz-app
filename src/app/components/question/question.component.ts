@@ -146,10 +146,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     // this.multipleAnswer = this.currentQuestion?.multipleAnswer;
 
-    this.question$.subscribe((question: QuizQuestion) => {
-      this.question = question;
-    });
-
+    if (this.question$) {
+      this.question$.subscribe((question: QuizQuestion) => {
+        this.question = question;
+      });
+    }
+    
     this.quizDataService.currentOptions$.subscribe((options: Option[]) => {
       this.options = options;
     });
