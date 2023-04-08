@@ -78,9 +78,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
 
-  private _multipleAnswer: boolean;
-  private hasQuestionAndOptionsLoaded: false;
-
   private _currentQuestion: QuizQuestion;
 
   get currentQuestion(): QuizQuestion {

@@ -163,8 +163,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       const quizId = params['quizId'];
       const questionIndex = params['questionIndex'];
-      this.quizService.setCurrentQuestionIndex(Number(questionIndex));
-      this.quizService.setCurrentQuiz(quizId);
+      this.quizService.getQuestionsForQuiz(quizId).subscribe(questions => {
+        this.quizService.loadQuestions();
+        this.quizService.setCurrentQuestionIndex(Number(questionIndex));
+        this.quizService.setCurrentQuiz(quizId);
+        this.quizService.isMultipleAnswer(this.quizService.getCurrentQuestion()).subscribe(multipleAnswer => {
+          this.multipleAnswer = multipleAnswer;
+        });
+      });
       
       if (this.quizStateService.currentQuestion$ && this.quizService.questions$) {
         this.currentQuestionWithOptions$ = combineLatest([
