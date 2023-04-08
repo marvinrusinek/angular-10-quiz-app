@@ -37,9 +37,10 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Output() selectionChanged:
-    EventEmitter<{question: QuizQuestion, selectedOptions: Option[] }> 
-    = new EventEmitter();
+  @Output() selectionChanged: EventEmitter<{
+    question: QuizQuestion;
+    selectedOptions: Option[];
+  }> = new EventEmitter();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Input() question: QuizQuestion;
@@ -87,7 +88,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   @Input() set currentQuestion(value: QuizQuestion) {
     this._currentQuestion = value;
-    this.selectedOption = value.selectedOptions.find((option: Option) => option.correct) || null;
+    this.selectedOption =
+      value?.selectedOptions?.find(
+        (option) => this.isOption(option) && option?.correct
+      ) || null;
   }
 
   @Input()
@@ -131,12 +135,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('QuizQuestionComponent constructor called');
   }
 
+  isOption(option: Option | string): option is Option {
+    return (option as Option).optionId !== undefined;
+  }
+
   async ngOnInit(): Promise<void> {
-    console.log("OPTIONS:", this.options);
-    console.log("CQI:", this.currentQuestionIndex);
-    console.log("QUESTIONS:", this.questions);
-    console.log("currentQuestion:", this.currentQuestion);
-    console.log("options:", this.options);
+    console.log('OPTIONS:', this.options);
+    console.log('CQI:', this.currentQuestionIndex);
+    console.log('QUESTIONS:', this.questions);
+    console.log('currentQuestion:', this.currentQuestion);
+    console.log('options:', this.options);
 
     console.log('question$', this.question$);
 
@@ -151,7 +159,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.question = question;
       });
     }
-    
+
     this.quizDataService.currentOptions$.subscribe((options: Option[]) => {
       this.options = options;
     });
@@ -170,10 +178,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-      this.questions$.subscribe((questions: QuizQuestion[]) => {
-        this.currentQuestion = this.questions[0];
-        console.log('Quiz questions:', this.questions);
-      });
+      this.questions$.subscribe(
+        (questions: QuizQuestion[]) => {
+          if (questions && questions.length > 0) {
+            this.currentQuestion = questions[0];
+            console.log('Quiz questions:', questions);
+          } else {
+            console.error('No questions found for quiz with ID:', this.quizId);
+          }
+        },
+        (error) => {
+          console.error('Error while loading quiz questions:', error);
+        }
+      );
     } else {
       console.error('quizId parameter is null or undefined');
     }
@@ -182,7 +199,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
       const isMultipleAnswer = this.quizService
-        .isMultipleAnswer(question).toPromise();
+        .isMultipleAnswer(question)
+        .toPromise();
       this.multipleAnswer = isMultipleAnswer;
 
       /* this.quizStateService.currentQuestion$.subscribe((question) => {
@@ -221,9 +239,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const [question] = this.quizService.getCurrentQuestion();
       console.log('question:', question);
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = this.quizService
-        .isMultipleAnswer(question);
-        // .toPromise();
+      const isMultipleAnswer = this.quizService.isMultipleAnswer(question);
+      // .toPromise();
       this.multipleAnswer = isMultipleAnswer;
 
       if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
@@ -333,23 +350,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    this.quizDataService.getQuestionAndOptions(this.quizId, questionIndex).subscribe(([question, options]) => {
-      this.currentQuestion = question;
-      this.currentOptions = options;
-      console.log('Question:', this.currentQuestion);
-      console.log('Options:', this.currentOptions);
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, questionIndex)
+      .subscribe(([question, options]) => {
+        this.currentQuestion = question;
+        this.currentOptions = options;
+        console.log('Question:', this.currentQuestion);
+        console.log('Options:', this.currentOptions);
 
-      if (question && options && options?.length > 0) {
-        this.questionsAndOptions[questionIndex] = [question, options];
-      } else {
-        console.error('Question or options array is null or undefined');
-        this.currentQuestion = null;
-        this.currentOptions = null;
-      }
-    });
+        if (question && options && options?.length > 0) {
+          this.questionsAndOptions[questionIndex] = [question, options];
+        } else {
+          console.error('Question or options array is null or undefined');
+          this.currentQuestion = null;
+          this.currentOptions = null;
+        }
+      });
 
     if (!this.currentQuestion$) {
-      this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(map(([question, _]) => question));
+      this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
+        map(([question, _]) => question)
+      );
     }
     return this.currentQuestion$;
   }
@@ -419,10 +440,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       try {
         console.log(
           'QSSCM::',
-          this.quizService.setCorrectMessage(
-            this.question,
-            this.correctAnswers
-          )
+          this.quizService.setCorrectMessage(this.question, this.correctAnswers)
         );
         this.correctMessage = this.quizService.setCorrectMessage(
           this.question,
