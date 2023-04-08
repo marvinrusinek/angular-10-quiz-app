@@ -12,6 +12,7 @@ import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { QuizDataService } from '../../shared/services/quizdata.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
@@ -33,15 +34,14 @@ export class QuizSelectionComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private router: Router
   ) {
     this.quizzes$ = this.quizService.getQuizzes();
   }
 
   ngOnInit(): void {
-    // this.quizzes$ = this.quizService.getQuizzes();
-
-    this.quizService.getQuizzes().subscribe((quizzes) => {
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
 
