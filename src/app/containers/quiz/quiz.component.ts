@@ -169,7 +169,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (this.quizStateService.currentQuestion$ && this.quizService.questions$) {
         this.currentQuestionWithOptions$ = combineLatest([
           this.quizStateService.currentQuestion$,
-          this.quizStateService.getOptions(this.currentQuestionIndex)
+          this.quizStateService.currentOptions$
         ]).pipe(
           map(([question, options]) => {
             return {

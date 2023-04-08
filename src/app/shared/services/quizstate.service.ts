@@ -49,7 +49,7 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  getOptions(currentQuestionIndex: number): Observable<Option[]> {
+  /* getOptions(currentQuestionIndex: number): Observable<Option[]> {
     return this.currentOptions$ = this.currentQuizId$.pipe(
       switchMap((currentQuizId) =>
         this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
@@ -57,5 +57,5 @@ export class QuizStateService {
         )
       )
     );
-  }
+  } */
 }
