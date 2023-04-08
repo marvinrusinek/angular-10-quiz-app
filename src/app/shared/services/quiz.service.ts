@@ -114,7 +114,7 @@ export class QuizService implements OnDestroy {
   unsubscribe$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
-  correctSound = new Howl({
+  correctSound = new Howl(
     src: 'http://www.marvinrusinek.com/sound-correct.mp3',
   });
   incorrectSound = new Howl({

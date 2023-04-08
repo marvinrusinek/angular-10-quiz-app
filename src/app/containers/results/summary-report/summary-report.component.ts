@@ -42,7 +42,7 @@ export class SummaryReportComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.quizzes$ = this.quizService.getQuizzes();
+    this.quizzes$ = this.quizDataService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
