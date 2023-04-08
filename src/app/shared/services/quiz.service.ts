@@ -128,13 +128,6 @@ export class QuizService implements OnDestroy {
       this._quizData$.next(data);
     });
 
-    this.quizzes$ = this.getQuizzes().pipe(
-      catchError((error) => {
-        console.error(error);
-        return of(null);
-      })
-    ) as Observable<Quiz[]>;
-
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
       this.indexOfQuizId = this.quizData.findIndex(
