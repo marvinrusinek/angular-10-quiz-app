@@ -36,11 +36,10 @@ export class QuizSelectionComponent implements OnInit {
     private quizService: QuizService,
     private quizDataService: QuizDataService,
     private router: Router
-  ) {
-    this.quizzes$ = this.quizService.getQuizzes();
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.quizzes$ = this.quizDataService.getQuizzes();
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
