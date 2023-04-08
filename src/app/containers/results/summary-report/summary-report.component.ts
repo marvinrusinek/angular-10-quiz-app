@@ -7,6 +7,7 @@ import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizMetadata } from '../../../shared/models/QuizMetadata.model';
 import { QuizScore } from '../../../shared/models/QuizScore.model';
 import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { TimerService } from '../../../shared/services/timer.service';
 
 @Component({
@@ -37,6 +38,7 @@ export class SummaryReportComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {}
