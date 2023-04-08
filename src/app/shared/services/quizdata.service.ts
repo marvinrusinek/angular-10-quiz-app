@@ -294,20 +294,6 @@ export class QuizDataService implements OnInit {
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    /* combineLatest([currentQuestion$, options$])
-      .pipe(
-        switchMap(([currentQuestion, options]) => {
-          this.questionAndOptions = [currentQuestion, options];
-          this.currentQuestionIndex = questionIndex;
-          this.hasQuestionAndOptionsLoaded = true;
-          return of(this.questionAndOptions);
-        })
-      )
-      .subscribe((questionAndOptions) => {
-        this.currentOptionsSubject.next(questionAndOptions[1]);
-        this.questionAndOptionsSubject.next(questionAndOptions);
-      }); */
-
     combineLatest([currentQuestion$, options$])
       .pipe(
         map(([question, options]) => ({ question, options })),
@@ -348,4 +334,3 @@ export class QuizDataService implements OnInit {
     );
   }
 }
-  
