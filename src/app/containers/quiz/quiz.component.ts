@@ -200,12 +200,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.question$) {
       this.questionSubscription = this.question$
-        .subscribe(([question, options]) => {
+        .subscribe((question) => {
           console.log("Question received: ", question);
-          console.log("Options received: ", options);
-  
+
           this.currentQuestion = question;
-          this.currentOptions = options;
+          this.currentOptions = question.options;
         });
     }
 
