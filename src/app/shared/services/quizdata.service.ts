@@ -53,18 +53,21 @@ export class QuizDataService implements OnInit {
 
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
-  
+
   private quizUrl = 'assets/data/quiz.json';
 
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
-  currentQuestionAndOptions$ = combineLatest([this.currentQuestionSubject.asObservable(), this.currentOptionsSubject.asObservable()]).pipe(
+  currentQuestionAndOptions$ = combineLatest([
+    this.currentQuestionSubject.asObservable(),
+    this.currentOptionsSubject.asObservable(),
+  ]).pipe(
     map(([currentQuestion, currentOptions]) => {
       return {
         question: currentQuestion,
-        options: currentOptions
+        options: currentOptions,
       };
     })
   );
@@ -183,9 +186,9 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getQuestion(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      map(([question, options]) => [question, options])
+      map(([question, options]) => question)
     );
   }
 
@@ -216,14 +219,14 @@ export class QuizDataService implements OnInit {
       'and questionIndex',
       questionIndex
     );
-  
+
     if (
       this.hasQuestionAndOptionsLoaded &&
       this.currentQuestionIndex === questionIndex
     ) {
       return this.questionAndOptionsSubject.asObservable();
     }
-  
+
     console.log('my test');
     const quiz$ = this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((err) => {
@@ -233,28 +236,28 @@ export class QuizDataService implements OnInit {
       retryWhen((errors) => errors.pipe(delay(1000), take(3))),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
+
     const currentQuestion$ = quiz$.pipe(
       map((quizzes) => {
         const quiz = quizzes.find((q) => q.quizId === quizId);
         if (!quiz) {
           throw new Error('Selected quiz not found');
         }
-  
+
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Selected quiz has no questions');
         }
-  
+
         const questions = quiz.questions;
         const question = questions[questionIndex];
         if (!question || question.options === undefined) {
           throw new Error('Question not found');
         }
-  
+
         if (questionIndex >= quiz.questions.length) {
           throw new Error('Question index out of bounds');
         }
-  
+
         return question;
       }),
       catchError((err) => {
@@ -266,7 +269,7 @@ export class QuizDataService implements OnInit {
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
+
     const options$ = currentQuestion$.pipe(
       map((question) => {
         const options = question.options;
@@ -278,7 +281,7 @@ export class QuizDataService implements OnInit {
         ) {
           throw new Error('Question options not found');
         }
-  
+
         return options;
       }),
       catchError((err) => {
@@ -290,7 +293,7 @@ export class QuizDataService implements OnInit {
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
+
     combineLatest([currentQuestion$, options$])
       .pipe(
         switchMap(([currentQuestion, options]) => {
@@ -304,7 +307,7 @@ export class QuizDataService implements OnInit {
         this.currentOptionsSubject.next(questionAndOptions[1]);
         this.questionAndOptionsSubject.next(questionAndOptions);
       });
-  
+
     return this.questionAndOptionsSubject.asObservable();
   }
 
