@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizMetadata } from '../../../shared/models/QuizMetadata.model';
 import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { TimerService } from '../../../shared/services/timer.service';
 
 @Component({
@@ -30,12 +31,13 @@ export class ChallengeComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.quizzes$ = this.quizService.getQuizzes();
+    this.quizzes$ = this.quizDataService.getQuizzes();
     this.quizName$ = this.activatedRoute.url.pipe(
       map((segments) => this.quizService.getQuizName(segments))
     );
