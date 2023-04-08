@@ -51,6 +51,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex: number;
   @Input() quizId: string;
+  @Input() multipleAnswer: boolean;
   // selectedOption: Option = { text: '', correct: false, value: null };
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
@@ -94,7 +95,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ) || null;
   }
 
-  @Input()
+  /* @Input()
   get multipleAnswer(): boolean {
     let result = false;
     this.quizService.isMultipleAnswer(this.question).subscribe((res) => {
@@ -108,7 +109,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       throw new Error('Value must be a boolean');
     }
     this._multipleAnswer = value;
-  }
+  } */
 
   constructor(
     protected quizService: QuizService,
