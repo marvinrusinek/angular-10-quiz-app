@@ -153,7 +153,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
-    this.quizService.getQuizzes();
+    this.quizDataService.getQuizzes();
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
