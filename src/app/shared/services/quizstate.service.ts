@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -44,17 +43,7 @@ export class QuizStateService {
     return this.currentQuestion$;
   }
 
-  public setCurrentOptions(options: Option[]): void {
+  setCurrentOptions(options: Option[]): void {
     this.currentOptions$ = of(options);
   }
-
-  /* getOptions(currentQuestionIndex: number): Observable<Option[]> {
-    return this.currentOptions$ = this.currentQuizId$.pipe(
-      switchMap((currentQuizId) =>
-        this.quizDataService.getQuestionAndOptions(currentQuizId, currentQuestionIndex).pipe(
-          map(([question, options]) => options)
-        )
-      )
-    );
-  } */
 }
