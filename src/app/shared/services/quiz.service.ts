@@ -212,27 +212,21 @@ export class QuizService implements OnDestroy {
 
   private updateQuestions(quizId: string): void {
     const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+  
     if (quiz) {
-      const questions = quiz.questions;
-      if (questions) {
-        this.questions = questions;
-        this.setCurrentQuestion(this.questions[0]);
-        this.totalQuestionsSubject.next(this.questions.length);
-      } else {
-        console.error(`No questions found for quiz ID ${quizId}`);
-      }
+      this.questions = quiz.questions;
+      this.setCurrentQuestion(this.questions[0]);
+      this.setTotalQuestions(this.questions.length); // Move this line here
     } else {
-      console.error(`Quiz ID ${quizId} not found`);
+      console.error(`No questions found for quiz ID ${quizId}`);
     }
   }
-  
     
   loadQuestions(): Observable<QuizQuestion[]> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
         const quizId = this.getCurrentQuizId();
         this.updateQuestions(quizId);
-        this.updateTotalQuestions(this.questions.length);
       }),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
