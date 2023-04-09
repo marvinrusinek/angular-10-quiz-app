@@ -11,6 +11,9 @@ import { QuizService } from '../../../shared/services/quiz.service';
 })
 export class ScoreComponent implements OnInit, OnDestroy {
   score: string;
+  numericalScore: string;
+  percentageScore: string;
+
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>("");
   currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -57,22 +60,19 @@ export class ScoreComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.score = `${this.correctAnswersCount}/${totalQuestions}`;
-        this.currentScore$.next(this.score.toString());
-        this.currentScoreSubject.next(this.score);
+        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+        this.currentScore$.next(this.numericalScore);
+        this.currentScoreSubject.next(this.numericalScore);
       });
-  }  
-
+  }
+  
   displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.score =
-          Math.round(
-            (this.correctAnswersCount / this.totalQuestions) * 100
-          ).toString() + '%';
-        this.currentScore$.next(this.score.toString());
+        this.percentageScore = ((parseInt(this.numericalScore) / this.totalQuestions) * 100).toFixed(0) + '%';
+        this.currentScore$.next(this.percentageScore);
       });
   }
 }
