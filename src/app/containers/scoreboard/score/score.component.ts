@@ -51,7 +51,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
       this.totalQuestions = totalQuestions;
-      this.displayNumericalScore(this.totalQuestions);
+      this.displayNumericalScore();
     });
   }
 
