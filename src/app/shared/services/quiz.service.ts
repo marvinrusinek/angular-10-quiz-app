@@ -231,6 +231,7 @@ export class QuizService implements OnDestroy {
   loadQuestions(): Observable<QuizQuestion[]> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
+        console.log('Fetched questions:', questions);
         const quizId = this.getCurrentQuizId();
         this.updateQuestions(quizId);
       }),
