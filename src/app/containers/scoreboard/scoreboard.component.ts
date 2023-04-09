@@ -4,19 +4,19 @@ import {
   OnInit,
   OnChanges,
   OnDestroy,
-  SimpleChanges
-} from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+  SimpleChanges,
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { QuizService } from "../../shared/services/quiz.service";
-import { TimerService } from "../../shared/services/timer.service";
+import { QuizService } from '../../shared/services/quiz.service';
+import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
-  selector: "codelab-scoreboard",
-  templateUrl: "./scoreboard.component.html",
-  styleUrls: ["./scoreboard.component.scss"]
+  selector: 'codelab-scoreboard',
+  templateUrl: './scoreboard.component.html',
+  styleUrls: ['./scoreboard.component.scss'],
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
@@ -33,11 +33,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.selectedAnswer = this.answer;
-    this.totalQuestions = this.quizService.getTotalQuestions();
+    this.totalQuestions = this.quizService.totalQuestions;
 
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(params => {
+      .subscribe((params) => {
         if (params.questionIndex) {
           this.badgeQuestionNumber = params.questionIndex;
           this.timerService.resetTimer();

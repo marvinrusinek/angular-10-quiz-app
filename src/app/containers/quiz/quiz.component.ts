@@ -167,6 +167,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.loadQuestions();
         this.quizService.setCurrentQuestionIndex(Number(questionIndex));
         this.quizService.setCurrentQuiz(quizId);
+        this.quizService.setTotalQuestions(quizId);
         this.quizService.isMultipleAnswer(this.quizService.getCurrentQuestion()).subscribe(multipleAnswer => {
           this.multipleAnswer = multipleAnswer;
         });

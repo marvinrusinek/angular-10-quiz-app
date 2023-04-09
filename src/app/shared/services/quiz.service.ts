@@ -49,13 +49,14 @@ export class QuizService implements OnDestroy {
   quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion = null;
   currentQuestion$: Observable<QuizQuestion> = null;
+  currentQuizQuestions: QuizQuestion[];
   options: Option[] = [];
   options$: Observable<Option[]>;
   currentOptions: Option[];
   resources: Resource[];
   quizId: string = '';
   answers: number[];
-  totalQuestions: number;
+  totalQuestions: number = 0;
   currentQuestionIndex: number = 1;
   quizLength: number;
   quizStartTime: Date;
@@ -192,7 +193,6 @@ export class QuizService implements OnDestroy {
       if (quiz.quizId === this.quizId) {
         this.indexOfQuizId = index;
         this.questions = quiz.questions;
-        this.updateTotalQuestions();
       }
     });
 
@@ -203,9 +203,28 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndexSubject.next(index);
   }
 
+  getCurrentQuizId(): string {
+    return this.quizId;
+  }
+
+  private updateQuestions(quizId: string): void {
+    const questions = this.quizData.find((quiz) => quiz.quizId === quizId)?.questions;
+  
+    if (questions) {
+      this.questions = questions;
+      this.setCurrentQuestion(this.questions[0]);
+      this.setTotalQuestions(this.questions.length);
+    } else {
+      console.error(`No questions found for quiz ID ${quizId}`);
+    }
+  }
+  
   loadQuestions(): Observable<QuizQuestion[]> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      tap((data) => console.log('Data received:', data)),
+      tap((questions) => {
+        const quizId = this.getCurrentQuizId();
+        this.updateQuestions(quizId);
+      }),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
         return throwError(error);
@@ -213,12 +232,39 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  private updateTotalQuestions(): void {
+  public setTotalQuestions(totalQuestions: number): void {
+    this.totalQuestions = totalQuestions;
+    /* quizId: string;
+    const quizQuestions = this.quizData.find((quiz) => quiz.quizId === quizId)?.questions;
+    if (quizQuestions) {
+      this.totalQuestions = quizQuestions.length;
+    } else {
+      console.error(`Could not find questions for quiz with ID ${quizId}`);
+    } */
+  }
+
+  getTotalQuestions(): number {
+    return this.totalQuestions;
+    /* const currentQuiz = this.getCurrentQuiz();
+    if (currentQuiz && currentQuiz.questions) {
+      this.totalQuestions = currentQuiz.questions.length;
+      return this.totalQuestions;
+    }
+    return 0; */
+  }
+
+  /* private updateTotalQuestions(): void {
+    const quizId = this.getCurrentQuizId();
+    this.quizService.getQuestionsForQuiz(quizId).subscribe(questions => {
+      this.totalQuestions = questions.length;
+      this.quizService.setTotalQuestions(this.totalQuestions);
+    });
+
     const currentQuiz = this.getCurrentQuiz();
     if (currentQuiz) {
       this.totalQuestions = currentQuiz.questions.length;
     }
-  }
+  } */
 
   submitQuiz(): Observable<void> {
     const quizScore: QuizScore = {
@@ -337,15 +383,6 @@ export class QuizService implements OnDestroy {
       this.currentQuestionIndex--;
       return currentQuiz.questions[previousIndex];
     }
-  }
-
-  getTotalQuestions(): number {
-    const currentQuiz = this.getCurrentQuiz();
-    if (currentQuiz && currentQuiz.questions) {
-      this.totalQuestions = currentQuiz.questions.length;
-      return this.totalQuestions;
-    }
-    return 0;
   }
 
   getFirstQuestion(): QuizQuestion {
