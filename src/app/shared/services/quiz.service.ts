@@ -29,6 +29,7 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizScore } from '../../shared/models/QuizScore.model';
+import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 
 @Injectable({
@@ -214,9 +215,11 @@ export class QuizService implements OnDestroy {
     const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
     if (quiz) {
-      this.questions = quiz.questions;
-      this.setCurrentQuestion(this.questions[0]);
-      this.setTotalQuestions(this.questions.length); // Move this line here
+      if (this.questions !== null) {
+        this.questions = quiz.questions;
+        this.setCurrentQuestion(this.questions[0]);
+        this.setTotalQuestions(this.questions.length);
+      }
     } else {
       console.error(`No questions found for quiz ID ${quizId}`);
     }
@@ -258,7 +261,7 @@ export class QuizService implements OnDestroy {
   }
 
   updateTotalQuestions(totalQuestions: number): void {
-    this.totalQuestionsSubject.next(this.questions.length);
+    this.totalQuestionsSubject.next(totalQuestions);
   }
 
   /* private updateTotalQuestions(): void {
