@@ -498,12 +498,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.selectedQuiz$.next(quiz);
   }
 
-  private updateTotalQuestions(): void {
-    this.updateQuestionIndex();
-    this.totalQuestions = this.quizData[this.indexOfQuizId].questions.length;
-    this.quizService.setTotalQuestions(this.totalQuestions);
-  }
-
   private updateQuestionIndex(): void {
     this.questionIndex =
       parseInt(this.activatedRoute.snapshot.params.questionIndex, 10) || 0;

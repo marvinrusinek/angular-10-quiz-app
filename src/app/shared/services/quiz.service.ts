@@ -186,8 +186,17 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuiz(quiz: Quiz): void {
+    this.currentQuestionIndex = 0;
+
+    this.quizData.forEach((quiz, index) => {
+      if (quiz.quizId === this.quizId) {
+        this.indexOfQuizId = index;
+        this.questions = quiz.questions;
+        this.updateTotalQuestions();
+      }
+    });
+
     this.currentQuizSubject.next(quiz);
-    this.setQuestions(quiz.questions);
   }
 
   setCurrentQuestionIndex(index: number): void {
@@ -202,6 +211,13 @@ export class QuizService implements OnDestroy {
         return throwError(error);
       })
     );
+  }
+
+  private updateTotalQuestions(): void {
+    const currentQuiz = this.getCurrentQuiz();
+    if (currentQuiz) {
+      this.totalQuestions = currentQuiz.questions.length;
+    }
   }
 
   submitQuiz(): Observable<void> {
@@ -523,10 +539,6 @@ export class QuizService implements OnDestroy {
   setQuestions(value: QuizQuestion[]): void {
     this.questions = value;
     this.questions$ = of(this.questions);
-  }
-
-  setTotalQuestions(value: number): void {
-    this.totalQuestions = value;
   }
 
   setChecked(value: boolean): void {
