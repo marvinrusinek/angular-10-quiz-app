@@ -44,6 +44,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.totalQuestionsSubscription.unsubscribe();
     this.correctAnswersCountSubscription.unsubscribe();
+    this.currentScoreSubscription.unsubscribe();
   }
 
   displayNumericalScore(): void {
