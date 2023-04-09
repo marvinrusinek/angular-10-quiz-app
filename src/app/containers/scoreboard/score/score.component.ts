@@ -41,6 +41,12 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.totalQuestions = totalQuestions;
       this.displayNumericalScore(this.totalQuestions);
     });
+
+    this.currentScoreSubscription = this.currentScore$
+    .pipe(takeUntil(this.unsubscribeTrigger$))
+    .subscribe((currentScore: string) => {
+      this.currentScore = currentScore;
+    });
   }
 
   ngOnDestroy(): void {
