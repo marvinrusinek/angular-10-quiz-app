@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, of, Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable, of, pipe, Subject, Subscription } from 'rxjs';
+import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 
 @Component({
@@ -24,11 +25,11 @@ export class ScoreComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
-    this.totalQuestionsSubscription = this.quizService.totalQuestionsSubject.subscribe(
+    /* this.totalQuestionsSubscription = this.quizService.totalQuestionsSubject.subscribe(
       (totalQuestions) => {
         this.totalQuestions = totalQuestions;
       }
-    );
+    ); */
 
     this.displayNumericalScore();
   }
@@ -40,13 +41,18 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   displayNumericalScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((correctAnswersCount: number) => {
-        this.correctAnswersCount = correctAnswersCount;
+      .pipe(
+        switchMap(() => {
+          return of(this.quizService.getTotalQuestions());
+        }),
+        takeUntil(this.unsubscribeTrigger$)
+      )
+      .subscribe((totalQuestions: number) => {
+        this.totalQuestions = totalQuestions; // set the totalQuestions variable
         this.score = `${this.correctAnswersCount}/${this.totalQuestions}`;
         this.currentScore$ = of(this.score);
       });
-  }
+  }  
 
   displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
