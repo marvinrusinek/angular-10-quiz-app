@@ -162,36 +162,33 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentQuestionIndex = 0;
-    this.activatedRoute.params.subscribe(params => {
-      const quizId = params['quizId'];
-      const questionIndex = params['questionIndex'];
-      this.quizService.loadQuestions().subscribe(() => {
-        this.quizService.setCurrentQuiz(quizId);
-        this.quizService.setCurrentQuestionIndex(Number(questionIndex));
-        this.quizStateService.getCurrentQuestion().subscribe(question => {
-          this.quizService.isMultipleAnswer(question).subscribe(multipleAnswer => {
-            this.multipleAnswer = multipleAnswer;
-          });
-        });
-        this.questions$ = this.quizService.questions$;
-        this.quizService.setTotalQuestions(this.quizService.getQuestions().length);
-      });
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      this.quizService.setQuestions(questions);
+      this.quizService.setCurrentQuestionIndex(Number(questionIndex));
+      this.quizService.setCurrentQuiz(quizId);
+      this.quizService.setTotalQuestions(questions.length);
     });
-  
-    this.options$ = this.quizStateService.currentOptions$;
+
     this.currentQuestion$ = this.quizService.currentQuestion$;
     this.quizStateService.setCurrentQuestion(this.currentQuestion$);
     this.quizService.setCurrentOptions([]);
-  
-    if (this.question$) {
-      this.questionSubscription = this.question$
-        .subscribe((question) => {
-          console.log("Question received: ", question);
-          this.currentQuestion = question;
-          this.currentOptions = question.options;
-        });
-    }
-  
+
+    this.options$ = this.quizStateService.currentOptions$;
+    this.currentQuestionWithOptions$ = combineLatest([
+      this.quizStateService.currentQuestion$,
+      this.quizStateService.currentOptions$,
+    ]).pipe(
+      map(([question, options]) => {
+        return {
+          ...question,
+          options,
+        };
+      })
+    );
+
     if (this.quizService.currentQuestion$ && this.quizService.options$) {
       this.options$ = combineLatest([
         this.quizService.currentQuestion$.pipe(tap(currentQuestion => console.log('currentQuestion:', currentQuestion))),
@@ -201,19 +198,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
       this.options$.subscribe((options) => console.log(options));
     }
-  
-    this.activatedRoute.paramMap.subscribe(params => {
+
+    this.activatedRoute.paramMap.subscribe((params) => {
       this.handleParamMap(params);
     });
-  
+
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
-  
+
     this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
       this.selectedQuiz = selectedQuiz;
     });
-  
+
     if (this.quizDataService.selectedQuiz$) {
       this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
         if (quiz) {
@@ -221,14 +218,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
     }
-  
+
     this.subscribeRouterAndInit();
     this.getCurrentQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
   }
-  
+
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
