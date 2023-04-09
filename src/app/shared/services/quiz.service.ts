@@ -258,7 +258,7 @@ export class QuizService implements OnDestroy {
   }
 
   updateTotalQuestions(totalQuestions: number): void {
-    this.totalQuestionsSubject.next(totalQuestions);
+    this.totalQuestionsSubject.next(this.questions.length);
   }
 
   /* private updateTotalQuestions(): void {
