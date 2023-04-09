@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, of, pipe, Subject, Subscription } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -18,48 +18,50 @@ export class ScoreComponent implements OnInit, OnDestroy {
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
   totalQuestions: number = 0;
+  totalQuestions$: Observable<number>;
   totalQuestionsSubscription: Subscription;
   unsubscribeTrigger$ = new Subject<void>();
   currentScoreSubscription: Subscription;
+  scoreSubscription: Subscription;
 
-  constructor(private quizService: QuizService) {}
+  constructor(private quizService: QuizService) {
+    this.totalQuestions$ = this.correctAnswersCount$.pipe(
+      switchMap(() => of(this.quizService.getTotalQuestions())),
+      tap(totalQuestions => this.totalQuestions = totalQuestions),
+    );
+    this.currentScore$ = this.correctAnswersCount$.pipe(
+      map(correctAnswersCount => `${correctAnswersCount}/${this.totalQuestions}`),
+    );
+  }
 
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
-    /* this.totalQuestionsSubscription = this.quizService.totalQuestionsSubject.subscribe(
-      (totalQuestions) => {
-        this.totalQuestions = totalQuestions;
-      }
-    ); */
-
-    this.displayNumericalScore();
-    this.currentScore$ = this.quizService.currentScore$;
-    this.currentScoreSubscription = this.currentScore$.subscribe(
-      (score: string) => {
-        this.currentScore = score;
-      }
-    );
+    this.totalQuestionsSubscription = this.totalQuestions$.subscribe(totalQuestions => {
+      this.displayNumericalScore(totalQuestions);
+    });
   }
 
   ngOnDestroy(): void {
     this.totalQuestionsSubscription.unsubscribe();
     this.correctAnswersCountSubscription.unsubscribe();
     this.currentScoreSubscription.unsubscribe();
+    this.scoreSubscription.unsubscribe();
   }
 
-  displayNumericalScore(): void {
+  displayNumericalScore(totalQuestions: number): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(
         takeUntil(this.unsubscribeTrigger$),
-        map(correctAnswersCount => `${correctAnswersCount}/${this.quizService.getTotalQuestions()}`)
+        map(correctAnswersCount => `${correctAnswersCount}/${totalQuestions}`)
       )
       .subscribe((score: string) => {
         this.score = score;
         this.currentScore$ = of(this.score);
       });
-  }  
+  }
 
+      
   displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribeTrigger$))
