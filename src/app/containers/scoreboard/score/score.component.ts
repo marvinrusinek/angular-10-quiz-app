@@ -12,19 +12,17 @@ import { QuizService } from '../../../shared/services/quiz.service';
 export class ScoreComponent implements OnInit, OnDestroy {
   score: string;
   currentScore: string;
-  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('0/0');
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScoreSubscription: Subscription;
+
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
+
   totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
-  totalQuestionsSubscription: Subscription;
   unsubscribeTrigger$ = new Subject<void>();
-  currentScoreSubscription: Subscription;
-  scoreSubscription: Subscription;
 
   constructor(private quizService: QuizService) {
     this.currentScoreSubject = new BehaviorSubject<string>('');
@@ -50,10 +48,8 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.totalQuestionsSubscription.unsubscribe();
     this.correctAnswersCountSubscription.unsubscribe();
     this.currentScoreSubscription.unsubscribe();
-    this.scoreSubscription.unsubscribe();
   }
 
   displayNumericalScore(totalQuestions: number): void {
