@@ -56,6 +56,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
         this.score = `${this.correctAnswersCount}/${totalQuestions}`;
+        this.currentScore$.next(this.score.toString());
         this.currentScoreSubject.next(this.score);
       });
   }  
