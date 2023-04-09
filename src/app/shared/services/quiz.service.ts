@@ -213,6 +213,7 @@ export class QuizService implements OnDestroy {
     if (quiz) {
       this.questions = quiz.questions;
       this.setCurrentQuestion(this.questions[0]);
+      this.setTotalQuestions(this.questions.length);
     } else {
       console.error(`No quiz found for ID ${quizId}`);
     }
@@ -233,6 +234,7 @@ export class QuizService implements OnDestroy {
 
   public setTotalQuestions(totalQuestions: number): void {
     this.totalQuestions = totalQuestions;
+    this.totalQuestionsSubject.next(totalQuestions);
     /* quizId: string;
     const quizQuestions = this.quizData.find((quiz) => quiz.quizId === quizId)?.questions;
     if (quizQuestions) {
