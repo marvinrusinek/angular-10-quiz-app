@@ -25,21 +25,12 @@ export class ScoreComponent implements OnInit, OnDestroy {
   scoreSubscription: Subscription;
 
   constructor(private quizService: QuizService) {
-    this.totalQuestions$ = this.correctAnswersCount$.pipe(
-      switchMap(() => of(this.quizService.getTotalQuestions())),
-      tap(totalQuestions => this.totalQuestions = totalQuestions),
-    );
-    this.currentScore$ = this.correctAnswersCount$.pipe(
-      map(correctAnswersCount => `${correctAnswersCount}/${this.totalQuestions}`),
-    );
+    this.totalQuestions = this.quizService.getTotalQuestions();
+    this.displayNumericalScore(this.totalQuestions);
   }
 
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
-
-    this.totalQuestionsSubscription = this.totalQuestions$.subscribe(totalQuestions => {
-      this.displayNumericalScore(totalQuestions);
-    });
   }
 
   ngOnDestroy(): void {
@@ -60,7 +51,6 @@ export class ScoreComponent implements OnInit, OnDestroy {
         this.currentScore$ = of(this.score);
       });
   }
-
       
   displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
