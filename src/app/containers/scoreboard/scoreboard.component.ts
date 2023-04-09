@@ -33,7 +33,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.selectedAnswer = this.answer;
-    this.totalQuestions = this.quizService.totalQuestions;
+    this.totalQuestions = this.quizService.getTotalQuestions();
 
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
