@@ -34,7 +34,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.selectedAnswer = this.answer;
 
-    this.quizService.totalQuestionsSubject.subscribe((total) => {
+    this.quizService.totalQuestions$.subscribe((total) => {
       this.totalQuestions = total;
       }
     );
