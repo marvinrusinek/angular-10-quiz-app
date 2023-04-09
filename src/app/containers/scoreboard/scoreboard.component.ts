@@ -21,7 +21,7 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
-  totalQuestions: number;
+  totalQuestions: number = 0;
   badgeQuestionNumber: number;
   unsubscribe$ = new Subject<void>();
 

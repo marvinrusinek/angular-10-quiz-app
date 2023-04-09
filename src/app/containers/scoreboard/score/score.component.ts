@@ -15,7 +15,7 @@ export class ScoreComponent implements OnInit {
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
-  totalQuestions: number;
+  totalQuestions: number = 0;
   unsubscribeTrigger$ = new Subject<void>();
 
   constructor(private quizService: QuizService) {}
