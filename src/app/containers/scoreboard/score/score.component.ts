@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { map, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -15,9 +15,13 @@ export class ScoreComponent implements OnInit, OnDestroy {
   percentageScore: string = '';
 
   currentScore: string;
-  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>("");
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
   currentScoreSubscription: Subscription;
+
+  numericalScoreSubscription: Subscription;
 
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
@@ -25,7 +29,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
-  unsubscribeTrigger$ = new Subject<void>();
+  private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
   isPercentage: boolean = false;
 
@@ -34,10 +38,10 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.currentScore$ = new BehaviorSubject<string>('');
 
     this.currentScoreSubscription = this.currentScore$
-    .pipe(takeUntil(this.unsubscribeTrigger$))
-    .subscribe((currentScore: string) => {
-      this.currentScore = currentScore;
-    });
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((currentScore: string) => {
+        this.currentScore = currentScore;
+      });
   }
 
   ngOnInit(): void {
@@ -45,67 +49,73 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
     this.currentScoreSubject = new BehaviorSubject<string>('0');
 
-    this.quizService.getTotalQuestions()
-    .subscribe((totalQuestions: number) => {
+    this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
       this.totalQuestions = totalQuestions;
       this.displayNumericalScore(this.totalQuestions);
     });
   }
 
   ngOnDestroy(): void {
+    this.unsubscribeTrigger$.next();
+    this.unsubscribeTrigger$.complete();
     this.correctAnswersCountSubscription.unsubscribe();
     this.currentScoreSubscription.unsubscribe();
   }
 
-  displayPercentageScore(totalQuestions: number): void {
-    this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((correctAnswersCount: number) => {
-        this.correctAnswersCount = correctAnswersCount;
-        this.percentageScore = ((this.correctAnswersCount / totalQuestions) * 100).toFixed(0);
-        this.currentScoreSubject.next(this.percentageScore.toString());
-        this.currentScoreSubject.next(`${this.percentageScore}%`);
-        this.isPercentage = true; // set isPercentage to true
-      });
+  setCorrectAnswersCount(count: number): void {
+    this.correctAnswersCount = count;
+    this.correctAnswersCount$.next(count);
   }
 
-  displayNumericalScore(totalQuestions: number): void {
-    this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((correctAnswersCount: number) => {
-        this.correctAnswersCount = correctAnswersCount;
-        this.score = `${this.correctAnswersCount}/${totalQuestions}`;
-        this.numericalScore = this.correctAnswersCount + '/' + totalQuestions;
-        this.currentScore$.next(this.numericalScore.toString());
-        this.currentScoreSubject.next(this.score);
-      });
+  setTotalQuestions(count: number): void {
+    this.totalQuestions = count;
+  }
+
+  calculateNumericalScore(totalQuestions: number): string {
+    const numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+    this.currentScore$.next(numericalScore);
+    return numericalScore;
   }
 
   calculatePercentageScore(totalQuestions: number): void {
-    this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((correctAnswersCount: number) => {
-        this.correctAnswersCount = correctAnswersCount;
-        this.percentageScore = ((this.correctAnswersCount / totalQuestions) * 100).toFixed(0) + '%';
-        if (this.isPercentage) {
-          this.currentScore$.next(this.percentageScore);
-        } else {
-          this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-          this.currentScore$.next(this.numericalScore.toString());
-        }
-      });
-  }  
+    if (totalQuestions !== 0) {
+      const percentage = (this.correctAnswersCount / totalQuestions) * 100;
+      this.percentageScore = Math.round(percentage) + '%';
+      this.currentScoreSubject.next(this.percentageScore);
+    }
+  }
 
-  switchDisplay() {
+  displayNumericalScore(): void {
+    this.numericalScoreSubscription = this.currentScore$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((score) => {
+        this.numericalScore = score;
+      });
+  }
+
+  displayPercentageScore(totalQuestions: number): void {
+    this.correctAnswersCount$
+      .pipe(
+        takeUntil(this.unsubscribeTrigger$),
+        tap((correctAnswersCount: number) => {
+          this.correctAnswersCount = correctAnswersCount;
+          if (totalQuestions !== 0) {
+            const percentage =
+              (this.correctAnswersCount / totalQuestions) * 100;
+            this.percentageScore = Math.round(percentage) + '%';
+            this.currentScore$.next(this.percentageScore);
+          }
+        })
+      )
+      .subscribe();
+  }
+
+  toggleScoreDisplay(): void {
     this.isPercentage = !this.isPercentage;
     if (this.isPercentage) {
       this.displayPercentageScore(this.totalQuestions);
     } else {
-      if (this.percentageScore) {
-        this.displayPercentageScore(this.totalQuestions);
-      } else {
-        this.displayNumericalScore(this.totalQuestions);
-      }
+      this.displayNumericalScore();
     }
   }
 }
