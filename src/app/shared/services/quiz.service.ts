@@ -85,6 +85,9 @@ export class QuizService implements OnDestroy {
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
+  private totalQuestionsSubject = new BehaviorSubject<number>(0);
+  totalQuestions$ = this.totalQuestionsSubject.asObservable();
+
   userAnswers = [];
   previousAnswers = [];
   previousAnswersMultipleTextArray: string[] = [];
