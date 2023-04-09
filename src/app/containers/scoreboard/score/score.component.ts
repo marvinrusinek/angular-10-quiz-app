@@ -29,6 +29,12 @@ export class ScoreComponent implements OnInit, OnDestroy {
   constructor(private quizService: QuizService) {
     this.currentScoreSubject = new BehaviorSubject<string>('');
     this.currentScore$ = new BehaviorSubject<string>('');
+
+    this.currentScoreSubscription = this.currentScore$
+    .pipe(takeUntil(this.unsubscribeTrigger$))
+    .subscribe((currentScore: string) => {
+      this.currentScore = currentScore;
+    });
   }
 
   ngOnInit(): void {
@@ -40,12 +46,6 @@ export class ScoreComponent implements OnInit, OnDestroy {
     .subscribe((totalQuestions: number) => {
       this.totalQuestions = totalQuestions;
       this.displayNumericalScore(this.totalQuestions);
-    });
-
-    this.currentScoreSubscription = this.currentScore$
-    .pipe(takeUntil(this.unsubscribeTrigger$))
-    .subscribe((currentScore: string) => {
-      this.currentScore = currentScore;
     });
   }
 
