@@ -72,7 +72,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
           Math.round(
             (this.correctAnswersCount / this.totalQuestions) * 100
           ).toString() + '%';
-        this.currentScore$ = of(this.score);
+        this.currentScore$.next(this.score.toString());
       });
   }
 }
