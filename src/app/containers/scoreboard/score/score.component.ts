@@ -19,6 +19,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
   totalQuestions: number = 0;
   totalQuestionsSubscription: Subscription;
   unsubscribeTrigger$ = new Subject<void>();
+  currentScoreSubscription: Subscription;
 
   constructor(private quizService: QuizService) {}
 
@@ -32,6 +33,12 @@ export class ScoreComponent implements OnInit, OnDestroy {
     ); */
 
     this.displayNumericalScore();
+    this.currentScore$ = this.quizService.currentScore$;
+    this.currentScoreSubscription = this.currentScore$.subscribe(
+      (score: string) => {
+        this.currentScore = score;
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -42,14 +49,11 @@ export class ScoreComponent implements OnInit, OnDestroy {
   displayNumericalScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(
-        switchMap(() => {
-          return of(this.quizService.getTotalQuestions());
-        }),
-        takeUntil(this.unsubscribeTrigger$)
+        takeUntil(this.unsubscribeTrigger$),
+        map(correctAnswersCount => `${correctAnswersCount}/${this.quizService.getTotalQuestions()}`)
       )
-      .subscribe((totalQuestions: number) => {
-        this.totalQuestions = totalQuestions; // set the totalQuestions variable
-        this.score = `${this.correctAnswersCount}/${this.totalQuestions}`;
+      .subscribe((score: string) => {
+        this.score = score;
         this.currentScore$ = of(this.score);
       });
   }  
