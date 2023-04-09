@@ -11,8 +11,8 @@ import { QuizService } from '../../../shared/services/quiz.service';
 })
 export class ScoreComponent implements OnInit, OnDestroy {
   score: string;
-  numericalScore: string;
-  percentageScore: string;
+  numericalScore: string = '';
+  percentageScore: string = '';
 
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>("");
@@ -26,6 +26,8 @@ export class ScoreComponent implements OnInit, OnDestroy {
   totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
   unsubscribeTrigger$ = new Subject<void>();
+
+  isPercentage: boolean = false;
 
   constructor(private quizService: QuizService) {
     this.currentScoreSubject = new BehaviorSubject<string>('');
@@ -55,24 +57,55 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.currentScoreSubscription.unsubscribe();
   }
 
+  displayPercentageScore(totalQuestions: number): void {
+    this.correctAnswersCountSubscription = this.correctAnswersCount$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((correctAnswersCount: number) => {
+        this.correctAnswersCount = correctAnswersCount;
+        this.percentageScore = ((this.correctAnswersCount / totalQuestions) * 100).toFixed(0);
+        this.currentScoreSubject.next(this.percentageScore.toString());
+        this.currentScoreSubject.next(`${this.percentageScore}%`);
+        this.isPercentage = true; // set isPercentage to true
+      });
+  }
+
   displayNumericalScore(totalQuestions: number): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-        this.currentScore$.next(this.numericalScore);
-        this.currentScoreSubject.next(this.numericalScore);
+        this.score = `${this.correctAnswersCount}/${totalQuestions}`;
+        this.numericalScore = this.correctAnswersCount + '/' + totalQuestions;
+        this.currentScore$.next(this.numericalScore.toString());
+        this.currentScoreSubject.next(this.score);
       });
   }
-  
-  displayPercentageScore(): void {
+
+  calculatePercentageScore(totalQuestions: number): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.percentageScore = ((parseInt(this.numericalScore) / this.totalQuestions) * 100).toFixed(0) + '%';
-        this.currentScore$.next(this.percentageScore);
+        this.percentageScore = ((this.correctAnswersCount / totalQuestions) * 100).toFixed(0) + '%';
+        if (this.isPercentage) {
+          this.currentScore$.next(this.percentageScore);
+        } else {
+          this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+          this.currentScore$.next(this.numericalScore.toString());
+        }
       });
+  }  
+
+  switchDisplay() {
+    this.isPercentage = !this.isPercentage;
+    if (this.isPercentage) {
+      this.displayPercentageScore(this.totalQuestions);
+    } else {
+      if (this.percentageScore) {
+        this.displayPercentageScore(this.totalQuestions);
+      } else {
+        this.displayNumericalScore(this.totalQuestions);
+      }
+    }
   }
 }
