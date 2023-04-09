@@ -211,15 +211,13 @@ export class QuizService implements OnDestroy {
     return this.quizId;
   }
 
-  private updateQuestions(quizId: string): void {
+  updateQuestions(quizId: string): void {
     const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
-    if (quiz) {
-      if (this.questions !== null) {
-        this.questions = quiz.questions;
-        this.setCurrentQuestion(this.questions[0]);
-        this.setTotalQuestions(this.questions.length);
-      }
+    if (quiz && this.questions !== null) {
+      this.questions = quiz.questions;
+      this.setCurrentQuestion(this.questions[0]);
+      this.setTotalQuestions(this.questions?.length);
     } else {
       console.error(`No questions found for quiz ID ${quizId}`);
     }
@@ -238,44 +236,19 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  public setTotalQuestions(totalQuestions: number): void {
-    this.totalQuestions = totalQuestions;
-    this.totalQuestionsSubject.next(totalQuestions);
-    /* quizId: string;
-    const quizQuestions = this.quizData.find((quiz) => quiz.quizId === quizId)?.questions;
-    if (quizQuestions) {
-      this.totalQuestions = quizQuestions.length;
-    } else {
-      console.error(`Could not find questions for quiz with ID ${quizId}`);
-    } */
+  setTotalQuestions(totalQuestions: number): void {
+    if (this.questions) {
+      this.totalQuestionsSubject.next(totalQuestions);
+    }
   }
 
   getTotalQuestions(): number {
     return this.totalQuestions;
-    /* const currentQuiz = this.getCurrentQuiz();
-    if (currentQuiz && currentQuiz.questions) {
-      this.totalQuestions = currentQuiz.questions.length;
-      return this.totalQuestions;
-    }
-    return 0; */
   }
 
   updateTotalQuestions(totalQuestions: number): void {
     this.totalQuestionsSubject.next(totalQuestions);
   }
-
-  /* private updateTotalQuestions(): void {
-    const quizId = this.getCurrentQuizId();
-    this.quizService.getQuestionsForQuiz(quizId).subscribe(questions => {
-      this.totalQuestions = questions.length;
-      this.quizService.setTotalQuestions(this.totalQuestions);
-    });
-
-    const currentQuiz = this.getCurrentQuiz();
-    if (currentQuiz) {
-      this.totalQuestions = currentQuiz.questions.length;
-    }
-  } */
 
   submitQuiz(): Observable<void> {
     const quizScore: QuizScore = {
