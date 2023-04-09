@@ -232,8 +232,7 @@ export class QuizService implements OnDestroy {
       tap((questions) => {
         const quizId = this.getCurrentQuizId();
         this.updateQuestions(quizId);
-        const totalQuestions = this.questions.length;
-        this.updateTotalQuestions(totalQuestions);
+        this.updateTotalQuestions(this.questions.length);
       }),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
