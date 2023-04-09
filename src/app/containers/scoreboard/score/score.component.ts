@@ -32,7 +32,11 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
-    this.displayNumericalScore();
+    
+    this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
+      this.totalQuestions = totalQuestions;
+      this.displayNumericalScore();
+    });
 
     /* this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribeTrigger$))
@@ -66,16 +70,13 @@ export class ScoreComponent implements OnInit, OnDestroy {
   } */
 
   displayNumericalScore(): void {
-    this.totalQuestionsSubscription = this.quizService.getTotalQuestions()
-      .subscribe((totalQuestions: number) => {
-        this.totalQuestions = totalQuestions;
-        this.correctAnswersCountSubscription = this.correctAnswersCount$
-          .pipe(takeUntil(this.unsubscribeTrigger$))
-          .subscribe((correctAnswersCount: number) => {
-            this.correctAnswersCount = correctAnswersCount;
-            this.score = `${this.correctAnswersCount}/${this.totalQuestions}`;
-            this.currentScore$ = of(this.score);
-          });
+    this.correctAnswersCountSubscription = this.correctAnswersCount$
+      .pipe(
+        takeUntil(this.unsubscribeTrigger$),
+        map(correctAnswersCount => `${correctAnswersCount}/${this.totalQuestions}`)
+      )
+      .subscribe((score: string) => {
+        this.currentScore$ = of(score);
       });
   }
           
