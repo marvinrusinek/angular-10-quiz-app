@@ -227,6 +227,8 @@ export class QuizService implements OnDestroy {
       tap((questions) => {
         const quizId = this.getCurrentQuizId();
         this.updateQuestions(quizId);
+        const totalQuestions = this.questions.length;
+        this.updateTotalQuestions(totalQuestions);
       }),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
@@ -255,6 +257,10 @@ export class QuizService implements OnDestroy {
       return this.totalQuestions;
     }
     return 0; */
+  }
+
+  updateTotalQuestions(totalQuestions: number): void {
+    this.totalQuestionsSubject.next(totalQuestions);
   }
 
   /* private updateTotalQuestions(): void {
