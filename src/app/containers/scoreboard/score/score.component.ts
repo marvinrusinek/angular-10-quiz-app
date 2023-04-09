@@ -12,8 +12,10 @@ import { QuizService } from '../../../shared/services/quiz.service';
 export class ScoreComponent implements OnInit, OnDestroy {
   score: string;
   currentScore: string;
-  currentScore$: Observable<string>;
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('0/0');
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
@@ -24,14 +26,17 @@ export class ScoreComponent implements OnInit, OnDestroy {
   currentScoreSubscription: Subscription;
   scoreSubscription: Subscription;
 
-  constructor(private quizService: QuizService) {}
+  constructor(private quizService: QuizService) {
+    this.currentScoreSubject = new BehaviorSubject<string>('');
+    this.currentScore$ = new BehaviorSubject<string>('');
+  }
 
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
-    
+
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
       this.totalQuestions = totalQuestions;
-      this.displayNumericalScore();
+      this.displayNumericalScore(this.totalQuestions);
     });
   }
 
@@ -42,17 +47,16 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.scoreSubscription.unsubscribe();
   }
 
-  displayNumericalScore(): void {
+  displayNumericalScore(totalQuestions: number): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(
-        takeUntil(this.unsubscribeTrigger$),
-        map(correctAnswersCount => `${correctAnswersCount}/${this.totalQuestions}`)
-      )
-      .subscribe((score: string) => {
-        this.currentScore$ = of(score);
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((correctAnswersCount: number) => {
+        this.correctAnswersCount = correctAnswersCount;
+        this.score = `${this.correctAnswersCount}/${totalQuestions}`;
+        this.currentScore$.next(this.score);
       });
   }
-          
+
   displayPercentageScore(): void {
     this.correctAnswersCountSubscription = this.correctAnswersCount$
       .pipe(takeUntil(this.unsubscribeTrigger$))
