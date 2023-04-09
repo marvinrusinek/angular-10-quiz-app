@@ -253,6 +253,10 @@ export class QuizService implements OnDestroy {
   } */
 
   getTotalQuestions(): Observable<number> {
+    if (!this.questions$) {
+      return of(0);
+    }
+  
     return this.questions$.pipe(
       take(1),
       map(questions => questions.length)
