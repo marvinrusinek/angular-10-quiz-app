@@ -23,7 +23,7 @@ export class ScoreComponent implements OnInit {
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
-    this.quizService.totalQuestionsSubject.subscribe((total) => {
+    this.quizService.totalQuestions$.subscribe((total) => {
       this.totalQuestions = total;
       }
     );
