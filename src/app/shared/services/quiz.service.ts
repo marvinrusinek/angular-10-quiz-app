@@ -97,7 +97,6 @@ export class QuizService implements OnDestroy {
   correctOptions: string;
   correctMessage: string;
 
-  multipleAnswer: boolean;
   private _multipleAnswer: boolean;
   checkedShuffle: boolean;
   private isGettingQuestion = false;
@@ -209,6 +208,10 @@ export class QuizService implements OnDestroy {
 
   getCurrentQuizId(): string {
     return this.quizId;
+  }
+
+  getQuestions(): QuizQuestion[] {
+    return this.questions;
   }
 
   updateQuestions(quizId: string): void {

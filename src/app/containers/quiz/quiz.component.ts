@@ -123,9 +123,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
-  get multipleAnswer(): boolean {
+  private multipleAnswer$ = new BehaviorSubject<boolean>(false);
+  multipleAnswer = this.multipleAnswer$.asObservable();
+
+  /* get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
-  }
+  } */
   get correctOptions(): string {
     return this.quizService.correctOptions;
   }
@@ -164,12 +167,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizId = params['quizId'];
       const questionIndex = params['questionIndex'];
       this.quizDataService.getQuestionsForQuiz(quizId).subscribe(questions => {
-        this.quizService.loadQuestions();
-        this.quizService.setCurrentQuestionIndex(Number(questionIndex));
-        this.quizService.setCurrentQuiz(quizId);
-        this.quizService.setTotalQuestions(this.questions.length);
-        this.quizService.isMultipleAnswer(this.quizService.getCurrentQuestion()).subscribe(multipleAnswer => {
-          this.multipleAnswer = multipleAnswer;
+        this.quizService.loadQuestions().subscribe(() => {
+          this.quizService.setCurrentQuestionIndex(Number(questionIndex));
+          this.quizService.setCurrentQuiz(quizId);
+          this.quizService.setTotalQuestions(this.quizService.getQuestions().length);
+          this.quizStateService.getCurrentQuestion().subscribe(question => {
+            this.quizService.isMultipleAnswer(question).subscribe(multipleAnswer => {
+                this.multipleAnswer = multipleAnswer;
+            });
+          });
         });
       });
       
