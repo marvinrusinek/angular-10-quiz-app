@@ -12,6 +12,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 })
 export class ScoreComponent implements OnInit, OnDestroy {
   score: string;
+  currentScore: string;
   currentScore$: Observable<string>;
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
