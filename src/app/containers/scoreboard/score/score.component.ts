@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, of, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -9,13 +9,14 @@ import { QuizService } from '../../../shared/services/quiz.service';
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
 })
-export class ScoreComponent implements OnInit {
+export class ScoreComponent implements OnInit, OnDestroy {
   score: string;
   currentScore$: Observable<string>;
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
-  totalQuestions: number;
+  totalQuestions: number = 0;
+  totalQuestionsSubscription: Subscription;
   unsubscribeTrigger$ = new Subject<void>();
 
   constructor(private quizService: QuizService) {}
@@ -23,12 +24,18 @@ export class ScoreComponent implements OnInit {
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
-    /* this.quizService.totalQuestions$.subscribe((totalQuestions) => {
-      this.totalQuestions = totalQuestions;
-    }); */
-    this.totalQuestions = this.quizService.getTotalQuestions();
+    this.totalQuestionsSubscription = this.quizService.totalQuestionsSubject.subscribe(
+      (totalQuestions) => {
+        this.totalQuestions = totalQuestions;
+      }
+    );
 
     this.displayNumericalScore();
+  }
+
+  ngOnDestroy(): void {
+    this.totalQuestionsSubscription.unsubscribe();
+    this.correctAnswersCountSubscription.unsubscribe();
   }
 
   displayNumericalScore(): void {
