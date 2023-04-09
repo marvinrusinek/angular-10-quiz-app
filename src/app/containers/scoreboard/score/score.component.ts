@@ -15,7 +15,7 @@ export class ScoreComponent implements OnInit {
   correctAnswersCount: number;
   correctAnswersCount$: Observable<number>;
   correctAnswersCountSubscription: Subscription;
-  totalQuestions: number = 0;
+  totalQuestions: number;
   unsubscribeTrigger$ = new Subject<void>();
 
   constructor(private quizService: QuizService) {}
@@ -23,10 +23,11 @@ export class ScoreComponent implements OnInit {
   ngOnInit(): void {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
-    this.quizService.totalQuestions$.subscribe((totalQuestions) => {
+    /* this.quizService.totalQuestions$.subscribe((totalQuestions) => {
       this.totalQuestions = totalQuestions;
-    });
-    
+    }); */
+    this.totalQuestions = this.quizService.getTotalQuestions();
+
     this.displayNumericalScore();
   }
 
