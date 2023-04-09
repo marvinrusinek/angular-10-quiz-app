@@ -109,7 +109,7 @@ export class QuizService implements OnDestroy {
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
   score: number = 0;
-  currentScore: Observable<number>;
+  currentScore$: Observable<number>;
   quizScore: QuizScore;
   highScores: QuizScore[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
