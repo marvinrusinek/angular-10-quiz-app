@@ -1,10 +1,10 @@
 import {
   Component,
   Input,
-  OnInit,
   OnChanges,
   OnDestroy,
-  SimpleChanges,
+  OnInit,
+  SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -22,7 +22,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
   totalQuestions: number;
-  badgeQuestionNumber: number;
+  questionNumber: number;
   unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -38,13 +38,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       this.totalQuestions = totalQuestions;
     });
 
-    // this.totalQuestions = this.quizService.getTotalQuestions();
-
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
         if (params.questionIndex) {
-          this.badgeQuestionNumber = params.questionIndex;
+          this.questionNumber = params.questionIndex;
           this.timerService.resetTimer();
         }
       });
