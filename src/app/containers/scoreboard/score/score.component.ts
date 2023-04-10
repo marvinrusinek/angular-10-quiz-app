@@ -20,11 +20,11 @@ export class ScoreComponent implements OnInit, OnDestroy {
     ''
   );
   currentScoreSubscription: Subscription;
-
   numericalScoreSubscription: Subscription;
+  percentageScore$: BehaviorSubject<string>;
 
   correctAnswersCount: number;
-  correctAnswersCount$: Observable<number>;
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   correctAnswersCountSubscription: Subscription;
 
   totalQuestions: number = 0;
@@ -94,20 +94,15 @@ export class ScoreComponent implements OnInit, OnDestroy {
   }
 
   displayPercentageScore(totalQuestions: number): void {
-    this.correctAnswersCount$
-      .pipe(
-        takeUntil(this.unsubscribeTrigger$),
-        tap((correctAnswersCount: number) => {
-          this.correctAnswersCount = correctAnswersCount;
-          if (totalQuestions !== 0) {
-            const percentage =
-              (this.correctAnswersCount / totalQuestions) * 100;
-            this.percentageScore = Math.round(percentage) + '%';
-            this.currentScore$.next(this.percentageScore);
-          }
-        })
-      )
-      .subscribe();
+    this.percentageScore$ = new BehaviorSubject<string>(this.percentageScore);
+    this.correctAnswersCountSubscription = this.correctAnswersCount$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((correctAnswersCount: number) => {
+        this.correctAnswersCount = correctAnswersCount;
+        this.percentageScore = `${Math.round((this.correctAnswersCount / totalQuestions) * 100)}%`;
+        this.percentageScore$.next(this.percentageScore);
+        this.currentScoreSubject.next(this.isPercentage ? this.percentageScore : `${this.correctAnswersCount}/${totalQuestions}`);
+      });
   }
 
   toggleScoreDisplay(): void {
