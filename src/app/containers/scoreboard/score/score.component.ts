@@ -128,9 +128,9 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   displayPercentageScore(): void {
-      const percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
-      this.percentageScore = percentage.toFixed(0) + '%';
-      this.percentageScore$.next(this.percentageScore);
+    const percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
+    this.percentageScore = percentage.toFixed(0) + '%';
+    this.percentageScore$.next(this.percentageScore);
   }
   
   toggleScoreDisplay(displayType: string): void {
