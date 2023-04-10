@@ -126,19 +126,13 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
     this.currentScore$.next(this.numericalScore);
   }
-  
-  displayPercentageScore(totalQuestions: number): void {
-    this.percentageScore$ = new BehaviorSubject<string>(this.percentageScore);
-    this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((correctAnswersCount: number) => {
-        this.correctAnswersCount = correctAnswersCount;
-        this.percentageScore = `${Math.round((this.correctAnswersCount / totalQuestions) * 100)}%`;
-        this.calculatePercentageScore(this.totalQuestions);
-        this.currentScoreSubject.next(this.isPercentage ? this.percentageScore : `${this.correctAnswersCount}/${totalQuestions}`);
-      });
-  }
 
+  displayPercentageScore(): void {
+      const percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
+      this.percentageScore = percentage.toFixed(0) + '%';
+      this.percentageScore$.next(this.percentageScore);
+  }
+  
   toggleScoreDisplay(displayType: string): void {
     this.isPercentage = (displayType === 'percentage');
     if (this.isPercentage) {
