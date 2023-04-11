@@ -28,14 +28,15 @@ export class ScoreComponent
     0
   );
   score: string;
-  numericalScore: string;
+  numericalScore: string = '0/0';
   percentageScore: string;
   isPercentage: boolean = false;
   percentage: number = 0;
 
   currentScore: string;
   // currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('0/0');
+  // currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('0/0');
+  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(this.numericalScore);
   currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
