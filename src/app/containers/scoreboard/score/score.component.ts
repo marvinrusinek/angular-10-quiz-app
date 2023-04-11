@@ -17,7 +17,8 @@ import { QuizService } from '../../../shared/services/quiz.service';
   styleUrls: ['./score.component.scss'],
 })
 export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
-  @Input() totalQuestions: number;
+  @Input() correctAnswersCount: number = 0;
+  @Input() totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
   score: string;
   numericalScore: string;
