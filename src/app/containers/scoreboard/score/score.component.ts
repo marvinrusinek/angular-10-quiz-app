@@ -85,9 +85,11 @@ export class ScoreComponent
       });
 
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
-      // this.totalQuestions = totalQuestions;
+      this.totalQuestions = totalQuestions;
       this.numericalScore = `0/${totalQuestions}`;
-      this.displayNumericalScore();
+      setTimeout(() => {
+        this.displayNumericalScore();
+      }, 0);
     });
 
     /* this.quizService.totalQuestions$
