@@ -91,12 +91,12 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.unsubscribeTrigger$.next();
-    this.unsubscribeTrigger$.complete();
     this.correctAnswersCountSubscription.unsubscribe();
     this.currentScoreSubscription.unsubscribe();
     this.numericalScoreSubscription.unsubscribe();
     this.percentageScoreSubscription.unsubscribe();
+    this.unsubscribeTrigger$.next();
+    this.unsubscribeTrigger$.complete();
   }
 
   displayNumericalScore(): void {
