@@ -5,17 +5,8 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { concat, Observable, timer } from 'rxjs';
-import {
-  first,
-  repeatWhen,
-  scan,
-  skip,
-  switchMapTo,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { concat, Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { TimerService } from '../../../shared/services/timer.service';
 import { CountdownService } from '../../../shared/services/countdown.service';
@@ -32,10 +23,9 @@ enum TimerType {
   styleUrls: ['./time.component.scss'],
 })
 export class TimeComponent implements OnInit, OnChanges {
+  @Input() selectedAnswer: number;
   timerType = TimerType;
   timeLeft$: Observable<number>;
-
-  @Input() selectedAnswer: number;
   answer: number;
   timePerQuestion = 30;
   time$: Observable<number>;
@@ -59,6 +49,15 @@ export class TimeComponent implements OnInit, OnChanges {
     this.timeLeft$ = this.countdownService.startCountdown(30);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes.selectedAnswer &&
+      changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange
+    ) {
+      this.answer = changes.selectedAnswer.currentValue;
+    }
+  }
+
   setTimerType(type: TimerType) {
     switch (type) {
       case TimerType.Countdown:
@@ -69,15 +68,6 @@ export class TimeComponent implements OnInit, OnChanges {
         break;
       default:
         console.error(`Invalid timer type: ${type}`);
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes.selectedAnswer &&
-      changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange
-    ) {
-      this.answer = changes.selectedAnswer.currentValue;
     }
   }
 }
