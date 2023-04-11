@@ -115,10 +115,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('QuizQuestionComponent constructor called');
   }
 
-  isOption(option: Option | string): option is Option {
-    return (option as Option).optionId !== undefined;
-  }
-
   async ngOnInit(): Promise<void> {
     console.log('QuizQuestionComponent initialized');
   
@@ -216,6 +212,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  isOption(option: Option | string): option is Option {
+    return (option as Option).optionId !== undefined;
+  }
+  
   private getSelectedOption(): Option | null {
     const option = this.selectedOptions.find(
       (option: Option): option is Option => {

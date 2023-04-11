@@ -4,11 +4,9 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -24,7 +22,6 @@ import {
   forkJoin,
   Observable,
   of,
-  pipe,
   Subject,
   Subscription,
 } from 'rxjs';
@@ -33,8 +30,7 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  switchMap,
-  tap
+  tap,
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -191,10 +187,19 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.quizService.currentQuestion$ && this.quizService.options$) {
       this.options$ = combineLatest([
-        this.quizService.currentQuestion$.pipe(tap(currentQuestion => console.log('currentQuestion:', currentQuestion))),
-        this.quizService.options$.pipe(tap(options => console.log('options:', options)))
+        this.quizService.currentQuestion$.pipe(
+          tap((currentQuestion) =>
+            console.log('currentQuestion:', currentQuestion)
+          )
+        ),
+        this.quizService.options$.pipe(
+          tap((options) => console.log('options:', options))
+        ),
       ]).pipe(
-        map(([currentQuestion, options]) => currentQuestion?.options?.[options.toString()] || [])
+        map(
+          ([currentQuestion, options]) =>
+            currentQuestion?.options?.[options.toString()] || []
+        )
       );
       this.options$.subscribe((options) => console.log(options));
     }
@@ -285,28 +290,39 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-  
-    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
-    this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
-  
-    const [question, options] = await forkJoin([this.question$, this.options$]).toPromise();
-  
+
+    this.question$ = this.quizDataService.getQuestion(
+      quizId,
+      currentQuestionIndex
+    );
+    this.options$ = this.quizDataService.getOptions(
+      quizId,
+      currentQuestionIndex
+    );
+
+    const [question, options] = await forkJoin([
+      this.question$,
+      this.options$,
+    ]).toPromise();
+
     if (!question) {
       console.error('QuizDataService returned null question');
       return;
     }
-  
+
     if (!options || options.length === 0) {
       console.error('QuizDataService returned null or empty options');
       return;
     }
-  
+
     this.handleQuestion(question);
     this.handleOptions(options);
-  
-    const isMultiple = await this.quizService.isMultipleAnswer(question).toPromise();
+
+    const isMultiple = await this.quizService
+      .isMultipleAnswer(question)
+      .toPromise();
     this.quizService.setMultipleAnswer(isMultiple);
-  
+
     this.cdRef.detectChanges();
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
   }
@@ -583,7 +599,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.getCurrentQuestion();
     return this.currentQuestion$;
   }
-            
+
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
