@@ -100,20 +100,6 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.percentageScoreSubscription.unsubscribe();
   }
 
-  calculateNumericalScore(totalQuestions: number): string {
-    if (this.totalQuestions !== 0) {
-      const numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-      this.currentScore$.next(numericalScore);
-      return numericalScore;
-    }
-  }
-
-  calculatePercentageScore(): number {
-    if (this.totalQuestions !== 0) {
-      return (this.correctAnswersCount / this.totalQuestions) * 100;
-    }
-  }
-
   displayNumericalScore(): void {
     this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
     this.currentScore$.next(this.numericalScore);
