@@ -45,12 +45,6 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   ) {
     this.currentScoreSubject = new BehaviorSubject<string>('');
     this.currentScore$ = new BehaviorSubject<string>('');
-
-    this.currentScoreSubscription = this.currentScore$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((currentScore: string) => {
-        this.currentScore = currentScore;
-      });
   }
 
   ngOnInit(): void {
@@ -62,6 +56,12 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.currentScoreSubject.next(
       `${this.correctAnswersCount}/${this.totalQuestions}`
     );
+
+    this.currentScoreSubscription = this.currentScore$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((currentScore: string) => {
+        this.currentScore = currentScore;
+      });
 
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
       this.totalQuestions = totalQuestions;
