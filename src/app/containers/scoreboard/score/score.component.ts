@@ -34,7 +34,8 @@ export class ScoreComponent
   percentage: number = 0;
 
   currentScore: string;
-  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  // currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('0/0');
   currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
@@ -84,15 +85,16 @@ export class ScoreComponent
       });
 
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
-      this.totalQuestions = totalQuestions;
+      // this.totalQuestions = totalQuestions;
+      this.numericalScore = `0/${totalQuestions}`;
       this.displayNumericalScore();
     });
 
-    this.quizService.totalQuestions$
+    /* this.quizService.totalQuestions$
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
-      });
+      }); */
   }
 
   ngOnChanges(changes: SimpleChanges): void {
