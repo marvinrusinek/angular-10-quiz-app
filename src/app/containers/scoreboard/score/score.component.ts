@@ -25,16 +25,21 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
 
   correctAnswersCountSubscription: Subscription;
   currentScoreSubscription: Subscription;
   numericalScoreSubscription: Subscription;
   percentageScoreSubscription: Subscription;
   percentageScore$: BehaviorSubject<string>;
+  numericalScore$: BehaviorSubject<string>;
 
   correctAnswersCount: number;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
+    0
+  );
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
@@ -43,7 +48,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef
   ) {
     this.currentScore$ = new BehaviorSubject<string>('');
-    this.currentScoreSubject = new BehaviorSubject<string>('');
+    // this.currentScoreSubject = new BehaviorSubject<string>('');
   }
 
   ngOnInit(): void {
@@ -55,6 +60,13 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.currentScoreSubject.next(
       `${this.correctAnswersCount}/${this.totalQuestions}`
     );
+
+    this.correctAnswersCountSubscription = this.correctAnswersCount$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((correctAnswersCount: number) => {
+        this.correctAnswersCount = correctAnswersCount;
+        this.displayNumericalScore();
+      });
 
     this.currentScoreSubscription = this.currentScore$
       .pipe(takeUntil(this.unsubscribeTrigger$))
@@ -77,6 +89,15 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
       .subscribe((percentageScore: string) => {
         this.percentageScore = percentageScore;
         this.isPercentage = true;
+        this.changeDetectorRef.detectChanges();
+      });
+
+    this.numericalScoreSubscription = this.numericalScore$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((numericalScore: string) => {
+        this.numericalScore = numericalScore;
+        this.currentScore$.next(this.numericalScore);
+        this.isPercentage = false;
         this.changeDetectorRef.detectChanges();
       });
 
@@ -106,7 +127,8 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   displayPercentageScore(): void {
     this.percentageScore = `${(
-      (this.correctAnswersCount / this.totalQuestions) * 100
+      (this.correctAnswersCount / this.totalQuestions) *
+      100
     ).toFixed(2)}%`;
     this.currentScore$.next(this.percentageScore);
   }
