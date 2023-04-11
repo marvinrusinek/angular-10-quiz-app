@@ -30,7 +30,7 @@
   </div>
   <section class="scoreboard-score">
     <span class="scoreboard" i18n>
-      {{ currentScore$ | async }}
+      {{ (currentScore$ | async) || 0 }}
     </span>
   </section>
 </ng-container>

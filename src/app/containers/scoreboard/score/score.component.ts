@@ -26,9 +26,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   correctAnswersCountSubscription: Subscription;
   currentScoreSubscription: Subscription;
@@ -38,9 +36,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   numericalScore$: BehaviorSubject<string>;
 
   correctAnswersCount: number;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
-    0
-  );
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
