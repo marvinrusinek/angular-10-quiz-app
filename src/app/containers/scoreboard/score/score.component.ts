@@ -30,9 +30,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   correctAnswersCountSubscription: Subscription;
   currentScoreSubscription: Subscription;
@@ -53,7 +51,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.currentScore$ = new BehaviorSubject<string>('');
     this.totalQuestions$ = this.quizService.getTotalQuestions();
     this.percentageScore$ = new BehaviorSubject<string>('');
-    
+
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
