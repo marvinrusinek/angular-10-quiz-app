@@ -145,8 +145,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = this.quizService.isMultipleAnswer(question).toPromise();
-      this.multipleAnswer = isMultipleAnswer;
+      this.multipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
   
       this.loadCurrentQuestion();
       this.toggleOptions();
@@ -309,16 +308,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     return this.currentQuestion$;
   }
-
-  /* ngDoCheck(): void {
-    if (this.isChangeDetected) {
-      this.correctMessage = this.quizService.setCorrectMessage(
-        this.currentQuestion,
-        this.correctAnswers
-      );
-      this.isChangeDetected = false;
-    }
-  } */
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges');

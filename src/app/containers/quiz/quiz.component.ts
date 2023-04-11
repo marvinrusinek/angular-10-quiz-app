@@ -152,22 +152,98 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
-    this.quizDataService.getQuizzes();
     this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
   ngOnInit(): void {
     this.currentQuestionIndex = 0;
-    const quizId = this.activatedRoute.snapshot.params['quizId'];
-    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      this.quizService.setQuestions(questions);
-      this.quizService.setCurrentQuestionIndex(Number(questionIndex));
-      this.quizService.setCurrentQuiz(quizId);
-      this.quizService.setTotalQuestions(questions.length);
+    this.quizDataService.getQuizzes().subscribe((quizzes) => {
+      this.quizzes = quizzes;
     });
 
+    this.subscribeRouterAndInit();
+    this.setObservables();
+    this.getSelectedQuiz();
+    this.getQuestion();
+    this.getCurrentQuestion();
+    this.fetchQuestions();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
+
+    this.questionSubscription.unsubscribe();
+    this.subscription.unsubscribe();
+    this.routerSubscription.unsubscribe();
+  }
+
+  getSelectedQuiz(): void {
+    this.subscription = this.quizDataService.getSelectedQuiz()
+      .pipe(
+        filter((selectedQuiz) => !!selectedQuiz),
+        tap((selectedQuiz) => {
+          this.selectedQuiz = selectedQuiz;
+          this.quiz = selectedQuiz;
+          this.quizId = selectedQuiz.quizId;
+          this.quizDataService.setCurrentQuestionIndex(0);
+          this.question = selectedQuiz.questions[this.currentQuestionIndex];
+          this.setOptions();
+          this.handleQuizData(
+            selectedQuiz,
+            selectedQuiz.quizId,
+            this.currentQuestionIndex
+          );
+        }),
+        catchError((error) => {
+          console.error('Error occurred:', error);
+          return of(null);
+        })
+      )
+      .subscribe();
+  
+    this.quizDataService.selectedQuiz$
+      .pipe(
+        filter((quiz) => !!quiz),
+        distinctUntilChanged(),
+        tap((quiz) => {
+          this.quizId = quiz.quizId;
+        }),
+        catchError((error) => {
+          console.error('Error occurred:', error);
+          return of(null);
+        })
+      )
+      .subscribe();
+  }  
+
+  subscribeRouterAndInit(): void {
+    // Initialize the previous quizId and questionIndex values to the current values
+    let prevQuizId = this.quizId;
+    let prevQuestionIndex = this.questionIndex;
+
+    // Subscribe to the router events to detect changes in the quizId or questionIndex
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+        this.quizId = quizId;
+        this.questionIndex = 0;
+
+        // Update the previous quizId and questionIndex values to the current values
+        prevQuizId = this.quizId;
+        prevQuestionIndex = this.questionIndex;
+
+        // Handle paramMap changes
+        this.activatedRoute.paramMap.subscribe((params) => {
+          this.handleParamMap(params);
+        });
+      });
+  }
+
+  setObservables(): void {
     this.currentQuestion$ = this.quizService.currentQuestion$;
     this.quizStateService.setCurrentQuestion(this.currentQuestion$);
     this.quizService.setCurrentOptions([]);
@@ -203,88 +279,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
       this.options$.subscribe((options) => console.log(options));
     }
-
-    this.activatedRoute.paramMap.subscribe((params) => {
-      this.handleParamMap(params);
-    });
-
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-    });
-
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-    });
-
-    if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
-        if (quiz) {
-          this.quizId = quiz.quizId;
-        }
-      });
-    }
-
-    this.subscribeRouterAndInit();
-    this.getCurrentQuiz();
-    this.getSelectedQuiz();
-    this.getQuestion();
-    this.getCurrentQuestion();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
-
-    this.questionSubscription.unsubscribe();
-    this.subscription.unsubscribe();
-    this.routerSubscription.unsubscribe();
-  }
-
-  getCurrentQuiz(): void {
-    const quizId = this.activatedRoute.snapshot.params.quizId;
-
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined');
-      return;
-    }
-
-    this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
-      if (!quiz) {
-        console.error('Quiz not found');
-        return;
-      }
-
-      this.handleQuizData(quiz, quizId, this.currentQuestionIndex);
-      this.quizDataService.setCurrentQuestionIndex(0);
-    });
-  }
-
-  getSelectedQuiz(): void {
-    this.quizDataService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.quiz = selectedQuiz;
-        this.quizDataService.setCurrentQuestionIndex(0);
-      } else {
-        console.error('Selected quiz not found');
-      }
-    });
-
-    this.subscription = this.quizDataService.selectedQuiz$
-      .pipe(
-        filter((quiz) => !!quiz),
-        distinctUntilChanged(),
-        tap((quiz) => {
-          this.quizId = quiz.quizId;
-          // console.log('QuizComponent initialized with quizId: ', this.quizId);
-          // this.getCurrentQuestion();
-        }),
-        catchError((error) => {
-          console.error('Error occurred:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
   }
 
   async getQuestion(): Promise<void> {
@@ -327,23 +321,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
   }
 
-  subscribeRouterAndInit(): void {
-    // Initialize the previous quizId and questionIndex values to the current values
-    let prevQuizId = this.quizId;
-    let prevQuestionIndex = this.questionIndex;
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    this.currentQuestion$ = this.quizService.currentQuestion$;
+    this.quizService.getCurrentQuestion();
+    return this.currentQuestion$;
+  }
 
-    // Subscribe to the router events to detect changes in the quizId or questionIndex
-    this.routerSubscription = this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        this.quizId = quizId;
-        this.questionIndex = 0;
-
-        // Update the previous quizId and questionIndex values to the current values
-        prevQuizId = this.quizId;
-        prevQuestionIndex = this.questionIndex;
-      });
+  fetchQuestions(): void {
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      this.quizService.setCurrentQuiz(quizId);
+      this.quizService.setQuestions(questions);
+      this.quizService.setCurrentQuestionIndex(Number(questionIndex));
+      this.quizService.setTotalQuestions(questions.length);
+    });
   }
 
   handleOptions(options: Option[]): void {
@@ -410,28 +402,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateProgressValue(); // move later
   }
 
-  private handleSelectedQuiz(selectedQuiz: Quiz): void {
-    console.log('Selected Quiz:', selectedQuiz);
-    if (selectedQuiz) {
-      this.selectedQuiz = selectedQuiz;
-
-      if (
-        !this.selectedQuiz.questions ||
-        this.selectedQuiz.questions.length === 0
-      ) {
-        console.error('Selected quiz questions not found');
-        return;
-      }
-
-      this.currentQuestionIndex = 0;
-      this.question = this.selectedQuiz.questions[this.currentQuestionIndex];
-      this.setOptions();
-    } else {
-      console.error('Selected quiz not found');
-      return;
-    }
-  }
-
   private handleQuestion(question: QuizQuestion): void {
     if (!question) {
       console.error('Question not found');
@@ -454,6 +424,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  selectQuiz(quiz: Quiz): void {
+    this.quizDataService.selectedQuiz$.next(quiz);
+  }
+
   setOptions() {
     this.answers =
       this.question && this.question.options
@@ -469,10 +443,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.cardFooterClass = '';
     }
-  }
-
-  selectQuiz(quiz: Quiz): void {
-    this.quizDataService.selectedQuiz$.next(quiz);
   }
 
   private updateQuestionIndex(): void {
@@ -592,12 +562,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ) {
       this.sendCorrectCountToQuizService(this.correctCount + 1);
     }
-  }
-
-  getCurrentQuestion(): Observable<QuizQuestion> {
-    this.currentQuestion$ = this.quizService.currentQuestion$;
-    this.quizService.getCurrentQuestion();
-    return this.currentQuestion$;
   }
 
   async onSubmit(): Promise<void> {
