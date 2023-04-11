@@ -152,13 +152,13 @@ export class ScoreComponent
   }
 
   displayNumericalScore(): void {
-    //this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
-    //this.currentScore$.next(this.numericalScore);
-    this.quizService.getTotalQuestions().subscribe((totalQuestions) => {
+    this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
+    this.currentScore$.next(this.numericalScore);
+    /* this.quizService.getTotalQuestions().subscribe((totalQuestions) => {
       this.totalQuestions = totalQuestions;
       this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
       this.currentScore$.next(this.numericalScore);
-    });
+    }); */
   }
 
   displayPercentageScore(): void {
