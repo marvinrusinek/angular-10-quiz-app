@@ -3,10 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  OnChanges,
   OnInit,
-  OnDestroy,
-  SimpleChanges,
+  OnDestroy
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,14 +17,12 @@ import { QuizService } from '../../../shared/services/quiz.service';
   styleUrls: ['./score.component.scss'],
 })
 export class ScoreComponent
-  implements AfterViewInit, OnInit, OnChanges, OnDestroy
+  implements AfterViewInit, OnInit, OnDestroy
 {
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
-    0
-  );
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   score: string;
   numericalScore: string = '0/0';
   percentageScore: string;
@@ -34,12 +30,8 @@ export class ScoreComponent
   percentage: number = 0;
 
   currentScore: string;
-  // currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  // currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('0/0');
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(this.numericalScore);
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   correctAnswersCountSubscription: Subscription;
   currentScoreSubscription: Subscription;
@@ -60,9 +52,8 @@ export class ScoreComponent
   ngOnInit(): void {
     this.isPercentage = true;
     this.currentScore$ = new BehaviorSubject<string>('');
-    this.totalQuestions$ = this.quizService.getTotalQuestions();
-    this.percentageScore$ = new BehaviorSubject<string>('');
     this.numericalScore$ = new BehaviorSubject<string>('');
+    this.percentageScore$ = new BehaviorSubject<string>('');
 
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
@@ -76,7 +67,6 @@ export class ScoreComponent
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        // this.displayNumericalScore();
       });
 
     this.currentScoreSubscription = this.currentScore$
@@ -87,30 +77,11 @@ export class ScoreComponent
 
     this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
       this.totalQuestions = totalQuestions;
-      this.numericalScore = `0/${totalQuestions}`;
+      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
       setTimeout(() => {
         this.displayNumericalScore();
       }, 0);
     });
-
-    /* this.quizService.totalQuestions$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((totalQuestions: number) => {
-        this.totalQuestions = totalQuestions;
-      }); */
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // Check if correctAnswersCount and totalQuestions inputs have changed
-    if (
-      changes.correctAnswersCount &&
-      changes.totalQuestions &&
-      changes.correctAnswersCount.currentValue !== undefined &&
-      changes.totalQuestions.currentValue !== undefined
-    ) {
-      // Calculate percentage
-      this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
-    }
   }
 
   ngAfterViewInit(): void {
@@ -150,18 +121,13 @@ export class ScoreComponent
     this.unsubscribeTrigger$.next();
     this.unsubscribeTrigger$.complete();
     this.currentScore$.complete();
-    this.percentageScore$.complete();
     this.numericalScore$.complete();
+    this.percentageScore$.complete();
   }
 
   displayNumericalScore(): void {
     this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
     this.currentScore$.next(this.numericalScore);
-    /* this.quizService.getTotalQuestions().subscribe((totalQuestions) => {
-      this.totalQuestions = totalQuestions;
-      this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
-      this.currentScore$.next(this.numericalScore);
-    }); */
   }
 
   displayPercentageScore(): void {
