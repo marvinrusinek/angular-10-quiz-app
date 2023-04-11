@@ -39,6 +39,7 @@ export class SingleAnswerComponent
 
   @Output() selectionChanged = new EventEmitter<Option[]>();
   @Input() question: QuizQuestion;
+  @Input() options: Option[];
   @Input() currentQuestionIndex: number;
   @Input() correctMessage: string;
   @Input() selected: string;
