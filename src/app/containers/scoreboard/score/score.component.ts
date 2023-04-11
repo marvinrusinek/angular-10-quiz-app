@@ -75,7 +75,7 @@ export class ScoreComponent
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((correctAnswersCount: number) => {
         this.correctAnswersCount = correctAnswersCount;
-        this.displayNumericalScore();
+        // this.displayNumericalScore();
       });
 
     this.currentScoreSubscription = this.currentScore$
