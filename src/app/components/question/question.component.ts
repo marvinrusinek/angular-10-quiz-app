@@ -227,15 +227,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return option ?? null;
   }
 
-  private setCurrentQuestionAndOptions(
-    question: QuizQuestion,
-    options: Option[]
-  ): void {
-    this.currentQuestion = question;
-    this.options = options;
-    this.setOptions();
-  }
-
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription =
       this.quizService.currentQuestion$.subscribe((question) => {
