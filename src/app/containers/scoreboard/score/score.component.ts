@@ -3,8 +3,10 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
+  OnChanges,
   OnInit,
   OnDestroy,
+  SimpleChanges
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -16,19 +18,24 @@ import { QuizService } from '../../../shared/services/quiz.service';
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
 })
-export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
+export class ScoreComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
+    0
+  );
   score: string;
   numericalScore: string;
   percentageScore: string;
   isPercentage: boolean = false;
+  percentage: number = 0;
 
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
 
   correctAnswersCountSubscription: Subscription;
   currentScoreSubscription: Subscription;
@@ -82,6 +89,19 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Check if correctAnswersCount and totalQuestions inputs have changed
+    if (
+      changes.correctAnswersCount &&
+      changes.totalQuestions &&
+      changes.correctAnswersCount.currentValue !== undefined &&
+      changes.totalQuestions.currentValue !== undefined
+    ) {
+      // Calculate percentage
+      this.percentage = (this.correctAnswersCount / this.totalQuestions) * 100;
+    }
   }
 
   ngAfterViewInit(): void {
