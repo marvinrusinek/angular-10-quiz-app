@@ -1,5 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, pipe } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
 import { CountdownService } from './countdown.service';
