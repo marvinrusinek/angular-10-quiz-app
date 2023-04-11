@@ -7,7 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { startWith, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -53,6 +53,10 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.totalQuestions$ = this.quizService.getTotalQuestions();
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
+
+    // Update the observables to use startWith operator
+    this.correctAnswersCount$.pipe(startWith(0));
+    this.totalQuestions$.pipe(startWith(0));
 
     this.currentScoreSubject = new BehaviorSubject<string>('0');
     this.currentScoreSubject.next(
