@@ -107,8 +107,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   displayPercentageScore(): void {
     this.percentageScore = `${(
-      (this.correctAnswersCount / this.totalQuestions) *
-      100
+      (this.correctAnswersCount / this.totalQuestions) * 100
     ).toFixed(2)}%`;
     this.currentScore$.next(this.percentageScore);
   }
