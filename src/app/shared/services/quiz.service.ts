@@ -218,7 +218,7 @@ export class QuizService implements OnDestroy {
 
   updateQuestions(quizId: string): void {
     const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-  
+
     if (quiz && this.questions !== null) {
       this.questions = quiz.questions;
       this.setCurrentQuestion(this.questions[0]);
@@ -227,7 +227,7 @@ export class QuizService implements OnDestroy {
       console.error(`No questions found for quiz ID ${quizId}`);
     }
   }
-    
+
   loadQuestions(): Observable<QuizQuestion[]> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
@@ -254,13 +254,9 @@ export class QuizService implements OnDestroy {
   } */
 
   getTotalQuestions(): Observable<number> {
-    if (!this.questions$) {
-      return of(0);
-    }
-  
     return this.questions$.pipe(
       take(1),
-      map(questions => questions.length)
+      map((questions) => questions.length)
     );
   }
 
