@@ -18,6 +18,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 })
 export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() totalQuestions: number;
+  totalQuestions$: Observable<number>;
   score: string;
   numericalScore: string;
   percentageScore: string;
@@ -53,6 +54,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isPercentage = true;
+    this.totalQuestions$ = this.quizService.getTotalQuestions();
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
