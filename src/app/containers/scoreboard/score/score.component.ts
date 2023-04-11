@@ -4,7 +4,7 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
+  OnDestroy
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,8 +20,8 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() totalQuestions: number;
   totalQuestions$: Observable<number>;
   score: string;
-  numericalScore: string = '';
-  percentageScore: string = '';
+  numericalScore: string;
+  percentageScore: string;
   isPercentage: boolean = false;
 
   currentScore: string;
