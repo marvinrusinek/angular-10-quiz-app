@@ -20,9 +20,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
-    0
-  );
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   score: string;
   numericalScore: string;
   percentageScore: string;
