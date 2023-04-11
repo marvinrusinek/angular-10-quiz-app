@@ -120,42 +120,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('OPTIONS:', this.options);
-    console.log('CQI:', this.currentQuestionIndex);
-    console.log('QUESTIONS:', this.questions);
-    console.log('currentQuestion:', this.currentQuestion);
-    console.log('options:', this.options);
-
-    console.log('question$', this.question$);
-
-    if (this.currentQuestionIndex !== undefined && this.questions) {
-      this.currentQuestion = this.questions[this.currentQuestionIndex];
-      this.options = this.currentQuestion.options;
-    }
-    // this.multipleAnswer = this.currentQuestion?.multipleAnswer;
-
-    if (this.question$) {
-      this.question$.subscribe((question: QuizQuestion) => {
-        this.question = question;
-      });
-    }
-
-    this.quizDataService.currentOptions$.subscribe((options: Option[]) => {
-      this.options = options;
-    });
-
     console.log('QuizQuestionComponent initialized');
-    console.log('TESTING');
-    console.log('ngOnInit');
-    console.log('question', this.question);
-    console.log('options', this.options);
-
-    this.quizService
-      .isMultipleAnswer(this.question)
+  
+    this.quizService.isMultipleAnswer(this.question)
       .subscribe((isMultipleAnswer) => {
         this.multipleAnswer = isMultipleAnswer;
       });
-
+  
     if (this.quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
       this.questions$.subscribe(
@@ -174,27 +145,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId parameter is null or undefined');
     }
-
+  
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = this.quizService
-        .isMultipleAnswer(question)
-        .toPromise();
+      const isMultipleAnswer = this.quizService.isMultipleAnswer(question).toPromise();
       this.multipleAnswer = isMultipleAnswer;
-
-      /* this.quizStateService.currentQuestion$.subscribe((question) => {
-        this.currentQuestion = question;
-        this.setOptions();
-      }); */
-
+  
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
   }
-
+  
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription.unsubscribe();
