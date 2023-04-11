@@ -7,7 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -49,6 +49,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.currentScore$ = new BehaviorSubject<string>('');
     this.totalQuestions$ = this.quizService.getTotalQuestions();
     this.percentageScore$ = new BehaviorSubject<string>('');
+    this.numericalScore$ = new BehaviorSubject<string>('');
 
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
@@ -75,6 +76,12 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
       this.totalQuestions = totalQuestions;
       this.displayNumericalScore();
     });
+
+    this.quizService.totalQuestions$
+      .pipe(takeUntil(this.unsubscribeTrigger$))
+      .subscribe((totalQuestions: number) => {
+        this.totalQuestions = totalQuestions;
+      });
   }
 
   ngAfterViewInit(): void {
@@ -113,6 +120,9 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     this.percentageScoreSubscription.unsubscribe();
     this.unsubscribeTrigger$.next();
     this.unsubscribeTrigger$.complete();
+    this.currentScore$.complete();
+    this.percentageScore$.complete();
+    this.numericalScore$.complete();
   }
 
   displayNumericalScore(): void {
