@@ -20,7 +20,9 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
-  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
+    0
+  );
   score: string;
   numericalScore: string;
   percentageScore: string;
@@ -28,7 +30,9 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
   currentScore: string;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
 
   correctAnswersCountSubscription: Subscription;
   currentScoreSubscription: Subscription;
@@ -42,14 +46,14 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   constructor(
     private quizService: QuizService,
     private changeDetectorRef: ChangeDetectorRef
-  ) {
-    this.currentScore$ = new BehaviorSubject<string>('');
-    // this.currentScoreSubject = new BehaviorSubject<string>('');
-  }
+  ) {}
 
   ngOnInit(): void {
     this.isPercentage = true;
+    this.currentScore$ = new BehaviorSubject<string>('');
     this.totalQuestions$ = this.quizService.getTotalQuestions();
+    this.percentageScore$ = new BehaviorSubject<string>('');
+    
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
@@ -75,8 +79,6 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
       this.totalQuestions = totalQuestions;
       this.displayNumericalScore();
     });
-
-    this.percentageScore$ = new BehaviorSubject<string>('');
   }
 
   ngAfterViewInit(): void {
