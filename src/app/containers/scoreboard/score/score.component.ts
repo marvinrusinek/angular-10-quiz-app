@@ -4,7 +4,7 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy
+  OnDestroy,
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -33,7 +33,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   numericalScoreSubscription: Subscription;
   percentageScoreSubscription: Subscription;
   percentageScore$: BehaviorSubject<string>;
-  
+
   correctAnswersCount: number;
   correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
@@ -43,8 +43,8 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
     private quizService: QuizService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-    this.currentScoreSubject = new BehaviorSubject<string>('');
     this.currentScore$ = new BehaviorSubject<string>('');
+    this.currentScoreSubject = new BehaviorSubject<string>('');
   }
 
   ngOnInit(): void {
