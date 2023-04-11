@@ -6,7 +6,7 @@ import {
   OnChanges,
   OnInit,
   OnDestroy,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -18,7 +18,9 @@ import { QuizService } from '../../../shared/services/quiz.service';
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
 })
-export class ScoreComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
+export class ScoreComponent
+  implements AfterViewInit, OnInit, OnChanges, OnDestroy
+{
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
   totalQuestions$: Observable<number>;
@@ -49,7 +51,9 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnChanges, OnDestr
   constructor(
     private quizService: QuizService,
     private changeDetectorRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.totalQuestions$ = this.quizService.getTotalQuestions();
+  }
 
   ngOnInit(): void {
     this.isPercentage = true;
@@ -146,8 +150,13 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnChanges, OnDestr
   }
 
   displayNumericalScore(): void {
-    this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
-    this.currentScore$.next(this.numericalScore);
+    //this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
+    //this.currentScore$.next(this.numericalScore);
+    this.quizService.getTotalQuestions().subscribe((totalQuestions) => {
+      this.totalQuestions = totalQuestions;
+      this.numericalScore = `${this.correctAnswersCount}/${this.totalQuestions}`;
+      this.currentScore$.next(this.numericalScore);
+    });
   }
 
   displayPercentageScore(): void {
