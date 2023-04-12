@@ -84,6 +84,7 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('Options:', this.options);
     console.log('options:', this.options);
     console.log('MultipleAnswerComponent initialized');
     super.ngOnInit();
@@ -123,6 +124,7 @@ export class MultipleAnswerComponent
   }
 
   ngAfterViewInit(): void {
+    console.log('Options:', this.options);
     this.initializeOptionChecked();
   }
 
