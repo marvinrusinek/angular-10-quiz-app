@@ -181,7 +181,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getSelectedQuiz(): void {
-    this.subscription = this.quizDataService.getSelectedQuiz()
+    this.subscription = this.quizDataService
+      .getSelectedQuiz()
       .pipe(
         filter((selectedQuiz) => !!selectedQuiz),
         tap((selectedQuiz) => {
@@ -203,7 +204,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
-  
+
     this.quizDataService.selectedQuiz$
       .pipe(
         filter((quiz) => !!quiz),
@@ -217,7 +218,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
-  }  
+  }
 
   subscribeRouterAndInit(): void {
     // Initialize the previous quizId and questionIndex values to the current values
@@ -309,14 +310,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.handleQuestion(question);
-    this.handleOptions(options);
-
     const isMultiple = await this.quizService
       .isMultipleAnswer(question)
       .toPromise();
     this.quizService.setMultipleAnswer(isMultiple);
 
+    this.handleQuestion(question);
+    this.handleOptions(options);
     this.cdRef.detectChanges();
     this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
   }
@@ -330,6 +330,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuestions(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+    
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
