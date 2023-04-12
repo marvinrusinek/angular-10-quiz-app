@@ -48,7 +48,6 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   );
 
   correctAnswersCountSubscription: Subscription;
-  // currentScoreSubscription: Subscription;
   numericalScoreSubscription: Subscription;
   percentageScoreSubscription: Subscription;
   percentageScore$: BehaviorSubject<string>;
