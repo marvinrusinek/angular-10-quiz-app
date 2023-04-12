@@ -1,10 +1,11 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Input,
   OnInit,
-  OnDestroy
+  OnDestroy,
 } from '@angular/core';
 import {
   BehaviorSubject,
@@ -13,7 +14,7 @@ import {
   of,
   Subject,
   Subscription,
-  timer
+  timer,
 } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
@@ -24,6 +25,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
   selector: 'codelab-scoreboard-score',
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() correctAnswersCount: number = 0;
