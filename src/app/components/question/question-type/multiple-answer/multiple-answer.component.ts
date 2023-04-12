@@ -1,9 +1,9 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
-  Injector,
   Input,
   OnChanges,
   OnDestroy,
@@ -23,6 +23,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-question-multiple-answer',
@@ -61,12 +62,23 @@ export class MultipleAnswerComponent
   private destroyed$ = new Subject<void>();
 
   constructor(
-    private readonly injector: Injector,
-    public activatedRoute: ActivatedRoute,
-    private formBuilder: FormBuilder
+    quizService: QuizService,
+    quizDataService: QuizDataService,
+    quizStateService: QuizStateService,
+    timerService: TimerService,
+    activatedRoute: ActivatedRoute,
+    cdRef: ChangeDetectorRef,
+    fb: FormBuilder
   ) {
-    super(injector);
-    this.quizService = injector.get(QuizService);
+    super(
+      quizService,
+      quizDataService,
+      quizStateService,
+      timerService,
+      activatedRoute,
+      cdRef,
+      fb
+    );
     this.quizDataService = injector.get(QuizDataService);
     this.quizStateService = injector.get(QuizStateService);
 
@@ -156,7 +168,6 @@ export class MultipleAnswerComponent
     }
   }
   
-
   getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
     console.log('this.selectedOptions:', this.selectedOptions);

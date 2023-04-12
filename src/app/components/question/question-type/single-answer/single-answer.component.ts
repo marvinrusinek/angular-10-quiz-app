@@ -1,14 +1,16 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
-  Injector,
   Input,
   OnDestroy,
   OnInit,
   Output,
   ViewEncapsulation,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
@@ -18,6 +20,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-question-single-answer',
@@ -49,11 +52,27 @@ export class SingleAnswerComponent
 
   private destroyed$ = new Subject<void>();
 
-  constructor(private readonly injector: Injector) {
-    super(injector);
-    this.quizService = injector.get(QuizService);
-    this.quizDataService = injector.get(QuizDataService);
-    this.quizStateService = injector.get(QuizStateService);
+  constructor(
+    quizService: QuizService,
+    quizDataService: QuizDataService,
+    quizStateService: QuizStateService,
+    timerService: TimerService,
+    activatedRoute: ActivatedRoute,
+    cdRef: ChangeDetectorRef,
+    fb: FormBuilder
+  ) {
+    super(
+      quizService,
+      quizDataService,
+      quizStateService,
+      timerService,
+      activatedRoute,
+      cdRef,
+      fb
+    );
+    this.quizService = quizService;
+    this.quizDataService = quizDataService;
+    this.quizStateService = quizStateService;
   }
 
   ngOnInit(): void {

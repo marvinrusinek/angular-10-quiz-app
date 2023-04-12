@@ -94,10 +94,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
-    private timerService: TimerService,
-    public activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
-    private cdRef: ChangeDetectorRef
+    protected timerService: TimerService,
+    protected activatedRoute: ActivatedRoute,
+    protected fb: FormBuilder,
+    protected cdRef: ChangeDetectorRef
   ) {
     console.log('Component instantiated');
     this.quizService = quizService;
