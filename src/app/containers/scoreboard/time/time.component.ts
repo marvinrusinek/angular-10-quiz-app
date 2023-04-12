@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   Input,
   OnChanges,
@@ -21,6 +22,7 @@ enum TimerType {
   selector: 'codelab-scoreboard-time',
   templateUrl: './time.component.html',
   styleUrls: ['./time.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimeComponent implements OnInit, OnChanges {
   @Input() selectedAnswer: number;
