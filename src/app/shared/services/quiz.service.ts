@@ -213,7 +213,12 @@ export class QuizService implements OnDestroy {
 
   getQuestions(): Observable<QuizQuestion[]> {
     if (!this.questions$) {
-      this.questions$ = of(this.questions);
+      this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+        tap(questions => {
+          this.questions = questions;
+        }),
+        catchError(() => of([]))
+      );
     }
     return this.questions$;
   }
@@ -249,12 +254,6 @@ export class QuizService implements OnDestroy {
       this.totalQuestionsSubject.next(totalQuestions);
     }
   }
-
-  /* getTotalQuestions(): Observable<number> {
-    return this.getQuestions().pipe(
-      map((questions) => questions?.length || 0)
-    );
-  } */
 
   getTotalQuestions(): Observable<number> {
     return this.getQuestions().pipe(

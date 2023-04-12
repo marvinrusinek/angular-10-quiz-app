@@ -99,7 +99,11 @@ export class ScoreComponent
       });
     }); */
     
+    // Initialize this.questions$ with an empty array
+    this.questions$ = of([]);
+
     this.quizService.getQuestions().pipe(
+      tap(questions => this.questions$ = of(questions)),
       switchMap(questions => combineLatest([of(questions), this.quizService.getTotalQuestions()]))
     ).subscribe(([questions, totalQuestions]) => {
       this.totalQuestions = totalQuestions;
@@ -107,8 +111,7 @@ export class ScoreComponent
       timer(0).subscribe(() => {
         this.displayNumericalScore();
       });
-    });
-    
+    });    
   }
 
   ngAfterViewInit(): void {
