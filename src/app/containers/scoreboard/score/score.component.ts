@@ -6,7 +6,7 @@ import {
   OnInit,
   OnDestroy
 } from '@angular/core';
-import { BehaviorSubject, Observable, pipe, Subject, Subscription, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, pipe, Subject, Subscription, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -79,13 +79,21 @@ export class ScoreComponent
 
     this.questions$ = this.quizService.getQuestions();
 
-    this.questions$.subscribe((questions) => {
+    /* this.questions$.subscribe((questions) => {
       this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
         this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
         timer(0).subscribe(() => {
           this.displayNumericalScore();
         });
+      });
+    }); */
+
+    combineLatest([this.questions$, this.quizService.getTotalQuestions()]).subscribe(([questions, totalQuestions]) => {
+      this.totalQuestions = totalQuestions;
+      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+      timer(0).subscribe(() => {
+        this.displayNumericalScore();
       });
     });
   }
