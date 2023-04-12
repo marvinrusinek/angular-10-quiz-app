@@ -211,15 +211,11 @@ export class QuizService implements OnDestroy {
     return this.quizId;
   }
 
-  /* getQuestions(): QuizQuestion[] {
-    return this.questions;
-  } */
-
   getQuestions(): Observable<QuizQuestion[]> {
-    if (this.questions$) {
+    if (!this.questions$) {
       this.questions$ = of(this.questions);
-      return this.questions$;
     }
+    return this.questions$;
   }
 
   updateQuestions(quizId: string): void {
@@ -254,11 +250,18 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getTotalQuestions(): Observable<number> {
+  /* getTotalQuestions(): Observable<number> {
     return this.getQuestions().pipe(
       map((questions) => questions?.length || 0)
     );
-  }  
+  } */
+
+  getTotalQuestions(): Observable<number> {
+    return this.getQuestions().pipe(
+      map((questions) => questions?.length || 0),
+      catchError(() => of(0))
+    );
+  }
 
   updateTotalQuestions(totalQuestions: number): void {
     this.totalQuestionsSubject.next(totalQuestions);

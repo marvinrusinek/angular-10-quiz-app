@@ -6,8 +6,8 @@ import {
   OnInit,
   OnDestroy
 } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, pipe, Subject, Subscription, timer } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, pipe, Subject, Subscription, timer } from 'rxjs';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -89,7 +89,7 @@ export class ScoreComponent
       });
     }); */
 
-    combineLatest([this.questions$, this.quizService.getTotalQuestions()]).pipe(
+    /* combineLatest([this.questions$, this.quizService.getTotalQuestions()]).pipe(
       tap(([questions, totalQuestions]) => console.log('Questions:', questions))
     ).subscribe(([questions, totalQuestions]) => {
       this.totalQuestions = totalQuestions;
@@ -97,7 +97,18 @@ export class ScoreComponent
       timer(0).subscribe(() => {
         this.displayNumericalScore();
       });
-    });    
+    }); */
+    
+    this.quizService.getQuestions().pipe(
+      switchMap(questions => combineLatest([of(questions), this.quizService.getTotalQuestions()]))
+    ).subscribe(([questions, totalQuestions]) => {
+      this.totalQuestions = totalQuestions;
+      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+      timer(0).subscribe(() => {
+        this.displayNumericalScore();
+      });
+    });
+    
   }
 
   ngAfterViewInit(): void {
