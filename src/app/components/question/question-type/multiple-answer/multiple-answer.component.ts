@@ -67,8 +67,8 @@ export class MultipleAnswerComponent
     quizStateService: QuizStateService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
-    cdRef: ChangeDetectorRef,
-    fb: FormBuilder
+    fb: FormBuilder,
+    cdRef: ChangeDetectorRef
   ) {
     super(
       quizService,
@@ -76,8 +76,8 @@ export class MultipleAnswerComponent
       quizStateService,
       timerService,
       activatedRoute,
-      cdRef,
-      fb
+      fb,
+      cdRef
     );
 
 

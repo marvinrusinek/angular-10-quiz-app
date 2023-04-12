@@ -58,8 +58,8 @@ export class SingleAnswerComponent
     quizStateService: QuizStateService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
-    cdRef: ChangeDetectorRef,
-    fb: FormBuilder
+    fb: FormBuilder,
+    cdRef: ChangeDetectorRef
   ) {
     super(
       quizService,
@@ -67,8 +67,8 @@ export class SingleAnswerComponent
       quizStateService,
       timerService,
       activatedRoute,
-      cdRef,
-      fb
+      fb,
+      cdRef
     );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
