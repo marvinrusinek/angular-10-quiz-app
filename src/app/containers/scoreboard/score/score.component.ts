@@ -85,15 +85,16 @@ export class ScoreComponent
   }
 
   ngAfterViewInit(): void {
-    // Subscribe to the percentageScore$ Observable
-    this.percentageScoreSubscription = this.percentageScore$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((percentageScore: string) => {
-        this.percentageScore = percentageScore;
-        this.isPercentage = true;
-        this.changeDetectorRef.detectChanges();
-      });
+    // Subscribe to the currentScore$ Observable
+    this.currentScoreSubscription = this.currentScore$
+    .pipe(takeUntil(this.unsubscribeTrigger$))
+    .subscribe((score: string) => {
+      this.currentScore = score;
+      this.isPercentage = false;
+      this.changeDetectorRef.detectChanges();
+    });
 
+    // Subscribe to the numericalScore$ Observable
     this.numericalScoreSubscription = this.numericalScore$
       .pipe(takeUntil(this.unsubscribeTrigger$))
       .subscribe((numericalScore: string) => {
@@ -103,12 +104,12 @@ export class ScoreComponent
         this.changeDetectorRef.detectChanges();
       });
 
-    // Subscribe to the currentScore$ Observable
-    this.currentScoreSubscription = this.currentScore$
+    // Subscribe to the percentageScore$ Observable
+    this.percentageScoreSubscription = this.percentageScore$
       .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((score: string) => {
-        this.currentScore = score;
-        this.isPercentage = false;
+      .subscribe((percentageScore: string) => {
+        this.percentageScore = percentageScore;
+        this.isPercentage = true;
         this.changeDetectorRef.detectChanges();
       });
   }
