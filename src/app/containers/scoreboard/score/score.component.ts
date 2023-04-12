@@ -6,8 +6,8 @@ import {
   OnInit,
   OnDestroy
 } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, zip } from 'rxjs';
+import { map, startWith, take, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../../shared/services/quiz.service';
 
@@ -75,13 +75,13 @@ export class ScoreComponent
         this.currentScore = currentScore;
       });
 
-    this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
-      this.totalQuestions = totalQuestions;
-      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-      setTimeout(() => {
-        this.displayNumericalScore();
-      }, 0);
-    });
+      this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
+        this.totalQuestions = totalQuestions;
+        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+        setTimeout(() => {
+          this.displayNumericalScore();
+        }, 0);
+      });
   }
 
   ngAfterViewInit(): void {

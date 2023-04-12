@@ -16,7 +16,6 @@ import {
   mergeMap,
   shareReplay,
   switchMap,
-  take,
   tap,
 } from 'rxjs/operators';
 import { Howl } from 'howler';
@@ -255,7 +254,6 @@ export class QuizService implements OnDestroy {
 
   getTotalQuestions(): Observable<number> {
     return this.questions$.pipe(
-      take(1),
       map((questions) => questions.length)
     );
   }
