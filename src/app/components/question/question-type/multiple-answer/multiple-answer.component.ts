@@ -151,9 +151,7 @@ export class MultipleAnswerComponent
       this.options.forEach((option) => {
         this.optionChecked[option.optionId] =
           this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.indexOf(
-            option.optionId.toString()
-          ) !== -1;
+          this.currentQuestion.selectedOptions.indexOf(option.optionId) !== -1;
       });
     }
   }
@@ -194,67 +192,44 @@ export class MultipleAnswerComponent
 
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
-
-    console.log(
-      'onSelectionChange called with question:',
-      question,
-      'and selected options:',
-      selectedOptions
-    );
-
+  
+    console.log('onSelectionChange called with question:', question, 'and selected options:', selectedOptions);
+  
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-
+  
     selectedOptions.forEach((selectedOption: Option) => {
-      if (selectedOption instanceof Option) {
-        const index = question.selectedOptions.findIndex((o) => {
-          if (typeof o === 'string') {
-            return false;
-          }
-          return (
-            (o as Option).value.toString() ===
-            (selectedOption as Option).value.toString()
-          );
-        });
-        if (index >= 0) {
-          question.selectedOptions.splice(index, 1);
-        } else {
-          question.selectedOptions.push(
-            (selectedOption as Option).value.toString()
-          );
-        }
+      const index = question.selectedOptions.findIndex((o) => {
+        return typeof o === 'string' ? false : o.value === selectedOption.value;
+      });
+      if (index >= 0) {
+        question.selectedOptions.splice(index, 1);
+      } else {
+        question.selectedOptions.push(selectedOption);
       }
     });
-
+  
     const selectedOptionIds = question.selectedOptions.map((o) => {
-      const selectedOption = question.options.find(
-        (option) => option.value.toString() === o
-      );
-      return selectedOption ? selectedOption.value.toString() : null;
+      const selectedOption = question.options.find((option) => option.value === o.value);
+      return selectedOption ? selectedOption.value : null;
     });
-
+  
     console.log('selectedOptionIds:', selectedOptionIds);
     console.log('question.answer:', question.answer);
-
-    if (
-      selectedOptionIds.sort().join(',') ===
-      question.answer
-        .map((a) => a.value.toString())
-        .sort()
-        .join(',')
-    ) {
+  
+    if (selectedOptionIds.sort().join(',') ===
+        question.answer.map((a) => a.value).sort().join(',')) {
       this.incrementScore();
     }
-
+  
     selectedOptions.forEach((selectedOption) => {
-      this.optionChecked[selectedOption?.optionId] =
-        !this.optionChecked[selectedOption?.optionId];
+      this.optionChecked[selectedOption.optionId] = !this.optionChecked[selectedOption.optionId];
     });
-
+  
     console.log('this.selectedOptions before:', this.selectedOptions);
     this.selectedOptions = selectedOptions;
     console.log('this.selectedOptions after:', this.selectedOptions);
     this.selectionChanged.emit({ question: this.currentQuestion, selectedOptions: this.selectedOptions });
-  }
+  }  
 }
