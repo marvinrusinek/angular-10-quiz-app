@@ -6,7 +6,7 @@ import {
   OnInit,
   OnDestroy
 } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of, pipe, Subject, Subscription, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -76,31 +76,6 @@ export class ScoreComponent
       .subscribe((currentScore: string) => {
         this.currentScore = currentScore;
       });
-
-    this.questions$ = this.quizService.getQuestions();
-
-    /* this.questions$.subscribe((questions) => {
-      this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
-        this.totalQuestions = totalQuestions;
-        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-        timer(0).subscribe(() => {
-          this.displayNumericalScore();
-        });
-      });
-    }); */
-
-    /* combineLatest([this.questions$, this.quizService.getTotalQuestions()]).pipe(
-      tap(([questions, totalQuestions]) => console.log('Questions:', questions))
-    ).subscribe(([questions, totalQuestions]) => {
-      this.totalQuestions = totalQuestions;
-      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-      timer(0).subscribe(() => {
-        this.displayNumericalScore();
-      });
-    }); */
-    
-    // Initialize this.questions$ with an empty array
-    this.questions$ = of([]);
 
     this.quizService.getQuestions().pipe(
       tap(questions => this.questions$ = of(questions)),
