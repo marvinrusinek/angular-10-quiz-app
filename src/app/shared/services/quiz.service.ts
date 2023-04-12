@@ -211,8 +211,12 @@ export class QuizService implements OnDestroy {
     return this.quizId;
   }
 
-  getQuestions(): QuizQuestion[] {
+  /* getQuestions(): QuizQuestion[] {
     return this.questions;
+  } */
+
+  getQuestions(): Observable<QuizQuestion[]> {
+    return of(this.questions);
   }
 
   updateQuestions(quizId: string): void {
