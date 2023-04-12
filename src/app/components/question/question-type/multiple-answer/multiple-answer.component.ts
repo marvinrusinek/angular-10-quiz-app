@@ -39,10 +39,6 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
-  protected quizService: QuizService;
-  protected quizDataService: QuizDataService;
-  protected quizStateService: QuizStateService;
-
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
@@ -79,7 +75,9 @@ export class MultipleAnswerComponent
       fb,
       cdRef
     );
-
+    this.quizService = quizService;
+    this.quizDataService = quizDataService;
+    this.quizStateService = quizStateService;
 
     /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
