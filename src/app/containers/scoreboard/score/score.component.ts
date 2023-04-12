@@ -9,6 +9,7 @@ import {
 import { BehaviorSubject, Observable, pipe, Subject, Subscription, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 
 @Component({
@@ -21,6 +22,7 @@ export class ScoreComponent
 {
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
+  questions$: Observable<QuizQuestion[]>;
   totalQuestions$: Observable<number>;
   correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   score: string;
@@ -75,6 +77,9 @@ export class ScoreComponent
         this.currentScore = currentScore;
       });
 
+    this.questions$ = this.quizService.getQuestions();
+
+    this.questions$.subscribe((questions) => {
       this.quizService.getTotalQuestions().subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
         this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
@@ -82,6 +87,7 @@ export class ScoreComponent
           this.displayNumericalScore();
         });
       });
+    });
   }
 
   ngAfterViewInit(): void {
