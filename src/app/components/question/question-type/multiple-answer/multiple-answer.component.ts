@@ -79,8 +79,7 @@ export class MultipleAnswerComponent
       cdRef,
       fb
     );
-    this.quizDataService = injector.get(QuizDataService);
-    this.quizStateService = injector.get(QuizStateService);
+
 
     /* this.currentQuestion$ = this.quizService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe(
