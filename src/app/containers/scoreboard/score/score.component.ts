@@ -7,7 +7,7 @@ import {
   OnDestroy
 } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, pipe, Subject, Subscription, timer } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -89,13 +89,15 @@ export class ScoreComponent
       });
     }); */
 
-    combineLatest([this.questions$, this.quizService.getTotalQuestions()]).subscribe(([questions, totalQuestions]) => {
+    combineLatest([this.questions$, this.quizService.getTotalQuestions()]).pipe(
+      tap(([questions, totalQuestions]) => console.log('Questions:', questions))
+    ).subscribe(([questions, totalQuestions]) => {
       this.totalQuestions = totalQuestions;
       this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
       timer(0).subscribe(() => {
         this.displayNumericalScore();
       });
-    });
+    });    
   }
 
   ngAfterViewInit(): void {
