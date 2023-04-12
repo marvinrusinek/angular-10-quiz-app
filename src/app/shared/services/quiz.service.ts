@@ -13,10 +13,7 @@ import {
   catchError,
   filter,
   map,
-  mergeMap,
-  shareReplay,
-  switchMap,
-  tap,
+  tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
