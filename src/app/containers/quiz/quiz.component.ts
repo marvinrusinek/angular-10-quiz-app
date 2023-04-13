@@ -84,7 +84,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentOptions: Option[];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
-  subscription: Subscription;
   questionSubscription: Subscription;
   selectedQuizSubscription: Subscription;
   resources: Resource[];
@@ -175,13 +174,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
 
-    this.questionSubscription.unsubscribe();
-    this.subscription.unsubscribe();
-    this.routerSubscription.unsubscribe();
+    this.questionSubscription?.unsubscribe();
+    this.selectedQuizSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
   }
 
   getSelectedQuiz(): void {
-    this.subscription = this.quizDataService
+    this.selectedQuizSubscription = this.quizDataService
       .getSelectedQuiz()
       .pipe(
         filter((selectedQuiz) => !!selectedQuiz),
