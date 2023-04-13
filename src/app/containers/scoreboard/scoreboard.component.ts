@@ -6,7 +6,7 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  NgZone,
+  NgZone
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -32,7 +32,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
