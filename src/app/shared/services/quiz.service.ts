@@ -62,7 +62,6 @@ export class QuizService implements OnDestroy {
   quizName$ = new BehaviorSubject<string>('');
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedQuiz: any;
-  selectedQuizId: string;
   indexOfQuizId: number;
   startedQuizId: string;
   continueQuizId: string;
