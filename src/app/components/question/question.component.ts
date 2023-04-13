@@ -116,8 +116,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('QuizQuestionComponent initialized');
-  
     this.quizService.isMultipleAnswer(this.question)
       .subscribe((isMultipleAnswer) => {
         this.multipleAnswer = isMultipleAnswer;
