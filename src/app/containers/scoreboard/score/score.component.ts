@@ -1,7 +1,5 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
@@ -27,7 +25,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
   styleUrls: ['./score.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
+export class ScoreComponent implements OnInit, OnDestroy {
   @Input() correctAnswersCount: number = 0;
   @Input() totalQuestions: number = 0;
   questions$: Observable<QuizQuestion[]>;
@@ -58,8 +56,7 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
   constructor(
-    private quizService: QuizService,
-    private changeDetectorRef: ChangeDetectorRef
+    private quizService: QuizService
   ) {
     this.totalQuestions$ = this.quizService.getTotalQuestions();
   }
@@ -93,27 +90,6 @@ export class ScoreComponent implements AfterViewInit, OnInit, OnDestroy {
         timer(0).subscribe(() => {
           this.displayNumericalScore();
         });
-      });
-  }
-
-  ngAfterViewInit(): void {
-    // Subscribe to the numericalScore$ Observable
-    this.numericalScoreSubscription = this.numericalScore$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((numericalScore: string) => {
-        this.numericalScore = numericalScore;
-        this.currentScore$.next(this.numericalScore);
-        this.isPercentage = false;
-        this.changeDetectorRef.detectChanges();
-      });
-
-    // Subscribe to the percentageScore$ Observable
-    this.percentageScoreSubscription = this.percentageScore$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((percentageScore: string) => {
-        this.percentageScore = percentageScore;
-        this.isPercentage = true;
-        this.changeDetectorRef.detectChanges();
       });
   }
 
