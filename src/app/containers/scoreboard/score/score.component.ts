@@ -47,7 +47,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
     ''
   );
 
-  correctAnswersCountSubscription: Subscription;
+  subscription: Subscription;
   numericalScoreSubscription: Subscription;
   percentageScoreSubscription: Subscription;
   percentageScore$: BehaviorSubject<string>;
@@ -70,33 +70,28 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
-    this.correctAnswersCountSubscription = this.correctAnswersCount$
-      .pipe(takeUntil(this.unsubscribeTrigger$))
-      .subscribe((correctAnswersCount: number) => {
-        this.correctAnswersCount = correctAnswersCount;
-      });
-
-    this.quizService
-      .getQuestions()
-      .pipe(
+    this.subscription = combineLatest([
+      this.correctAnswersCount$.pipe(takeUntil(this.unsubscribeTrigger$)),
+      this.quizService.getQuestions().pipe(
         tap((questions) => (this.questions$ = of(questions))),
         switchMap((questions) =>
           combineLatest([of(questions), this.quizService.getTotalQuestions()])
         )
       )
-      .subscribe(([questions, totalQuestions]) => {
-        this.totalQuestions = totalQuestions;
-        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-        timer(0).subscribe(() => {
-          this.displayNumericalScore();
-        });
+    ]).subscribe(([correctAnswersCount, [questions, totalQuestions]]) => {
+      this.correctAnswersCount = correctAnswersCount;
+      this.totalQuestions = totalQuestions;
+      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+      timer(0).subscribe(() => {
+        this.displayNumericalScore();
       });
+    });
   }
 
   ngOnDestroy(): void {
-    this.correctAnswersCountSubscription.unsubscribe();
-    this.numericalScoreSubscription.unsubscribe();
-    this.percentageScoreSubscription.unsubscribe();
+    this.subscription?.unsubscribe();
+    this.numericalScoreSubscription?.unsubscribe();
+    this.percentageScoreSubscription?.unsubscribe();
     this.unsubscribeTrigger$.next();
     this.unsubscribeTrigger$.complete();
     this.currentScore$.complete();
