@@ -3,16 +3,17 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
+  OnDestroy
 } from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
+  distinctUntilChanged,
   Observable,
   of,
   Subject,
   Subscription,
-  timer,
+  timer
 } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
@@ -71,7 +72,10 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
     this.subscription = combineLatest([
-      this.correctAnswersCount$.pipe(takeUntil(this.unsubscribeTrigger$)),
+      this.correctAnswersCount$.pipe(
+        takeUntil(this.unsubscribeTrigger$), 
+        distinctUntilChanged()
+      ),
       this.quizService.getQuestions().pipe(
         tap((questions) => (this.questions$ = of(questions))),
         switchMap((questions) =>
