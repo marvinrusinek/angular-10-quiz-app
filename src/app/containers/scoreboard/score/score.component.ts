@@ -18,8 +18,7 @@ import {
 import {
   distinctUntilChanged,
   switchMap,
-  takeUntil,
-  tap,
+  takeUntil
 } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
