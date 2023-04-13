@@ -27,7 +27,7 @@ import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selecti
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
 import { ScoreComponent } from './containers/scoreboard/score/score.component';
-import { TimeComponent } from './containers/scoreboard/time/time.component';
+import { TimerComponent } from './containers/scoreboard/timer/timer.component';
 import { AccordionComponent } from './containers/results/accordion/accordion.component';
 import { ReturnComponent } from './containers/results/return/return.component';
 import { StatisticsComponent } from './containers/results/statistics/statistics.component';
@@ -52,7 +52,7 @@ import { JoinPipe } from './pipes/join.pipe';
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
-    TimeComponent,
+    TimerComponent,
     AccordionComponent,
     ReturnComponent,
     StatisticsComponent,
@@ -60,7 +60,7 @@ import { JoinPipe } from './pipes/join.pipe';
     SummaryIconsComponent,
     SummaryStatsComponent,
     ChallengeComponent,
-    JoinPipe
+    JoinPipe,
   ],
   imports: [
     CommonModule,

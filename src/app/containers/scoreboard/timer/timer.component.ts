@@ -20,11 +20,11 @@ enum TimerType {
 
 @Component({
   selector: 'codelab-scoreboard-time',
-  templateUrl: './time.component.html',
-  styleUrls: ['./time.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './timer.component.html',
+  styleUrls: ['./timer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimeComponent implements OnInit, OnChanges {
+export class TimerComponent implements OnInit, OnChanges {
   @Input() selectedAnswer: number;
   timerType = TimerType;
   timeLeft$: Observable<number>;
