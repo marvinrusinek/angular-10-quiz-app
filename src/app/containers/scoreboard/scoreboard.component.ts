@@ -24,7 +24,7 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
-  totalQuestions: number = -1;
+  totalQuestions: number;
   questionNumber: number;
   badge: string;
   unsubscribe$ = new Subject<void>();
@@ -75,6 +75,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       changes.selectedAnswer.currentValue !== changes.selectedAnswer.firstChange
     ) {
       this.answer = changes.selectedAnswer.currentValue;
+    }
+
+    // Update totalQuestions$ BehaviorSubject with the current totalQuestions value
+    if (changes.totalQuestions) {
+      this.totalQuestions$.next(changes.totalQuestions.currentValue);
     }
   }
 
