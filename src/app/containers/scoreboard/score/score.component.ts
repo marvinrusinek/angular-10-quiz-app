@@ -41,18 +41,15 @@ export class ScoreComponent implements OnInit, OnDestroy {
   percentage: number = 0;
 
   currentScore: string;
+  numericalScore$: BehaviorSubject<string>;
+  percentageScore$: BehaviorSubject<string>;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
     this.numericalScore
   );
   currentScoreSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
-
   subscription: Subscription;
-  numericalScoreSubscription: Subscription;
-  percentageScoreSubscription: Subscription;
-  percentageScore$: BehaviorSubject<string>;
-  numericalScore$: BehaviorSubject<string>;
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
@@ -97,8 +94,6 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
-    this.numericalScoreSubscription?.unsubscribe();
-    this.percentageScoreSubscription?.unsubscribe();
     this.unsubscribeTrigger$.next();
     this.unsubscribeTrigger$.complete();
     this.currentScore$.complete();
