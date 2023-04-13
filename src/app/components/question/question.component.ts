@@ -112,17 +112,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.quizId = this.quizService.quizId;
+    const quizId = this.quizService.quizId;
   
-    if (this.quizId) {
-      this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+    if (quizId) {
+      this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
       this.questions$.subscribe(
         (questions: QuizQuestion[]) => {
           if (questions && questions.length > 0) {
             this.currentQuestion = questions[0];
-            console.log('Quiz questions:', questions);
           } else {
-            console.error('No questions found for quiz with ID:', this.quizId);
+            console.error('No questions found for quiz with ID:', quizId);
           }
         },
         (error) => {
