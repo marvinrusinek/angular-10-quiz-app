@@ -52,13 +52,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe();
 
-    this.totalQuestions$
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((totalQuestions) => {
-        this.totalQuestions = totalQuestions;
-        this.updateBadge();
-      });
-
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
@@ -77,7 +70,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       this.answer = changes.selectedAnswer.currentValue;
     }
 
-    // Update totalQuestions$ BehaviorSubject with the current totalQuestions value
+    // Update totalQuestions$ ReplaySubject with the current totalQuestions value
     if (changes.totalQuestions) {
       this.totalQuestions$.next(changes.totalQuestions.currentValue);
     }
