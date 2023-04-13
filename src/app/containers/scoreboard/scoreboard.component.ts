@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -10,7 +9,7 @@ import {
   NgZone,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 import { delay, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
@@ -29,14 +28,13 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   questionNumber: number;
   badge: string;
   unsubscribe$ = new Subject<void>();
-  private totalQuestions$ = new BehaviorSubject<number>(-1);
+  private totalQuestions$ = new ReplaySubject<number>(1);
 
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
-    private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -82,7 +80,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     // Update totalQuestions$ BehaviorSubject with the current totalQuestions value
     if (changes.totalQuestions) {
       this.totalQuestions$.next(changes.totalQuestions.currentValue);
-      this.cdr.detectChanges();
     }
   }
 
