@@ -4,7 +4,7 @@ import {
   Input,
   OnInit,
   OnDestroy,
-  NgZone
+  NgZone,
 } from '@angular/core';
 import {
   BehaviorSubject,
@@ -13,9 +13,14 @@ import {
   of,
   Subject,
   Subscription,
-  timer
+  timer,
 } from 'rxjs';
-import { distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
+import {
+  distinctUntilChanged,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -24,7 +29,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
   selector: 'codelab-scoreboard-score',
   templateUrl: './score.component.html',
   styleUrls: ['./score.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScoreComponent implements OnInit, OnDestroy {
   @Input() correctAnswersCount: number = 0;
@@ -53,25 +58,20 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
-  constructor(
-    private quizService: QuizService,
-    private ngZone: NgZone
-  ) {
+  constructor(private quizService: QuizService, private ngZone: NgZone) {
     this.totalQuestions$ = this.quizService.getTotalQuestions();
   }
 
   ngOnInit(): void {
     this.isPercentage = true;
     this.currentScore$ = new BehaviorSubject<string>('');
-    this.numericalScore$ = new BehaviorSubject<string>('');
-    this.percentageScore$ = new BehaviorSubject<string>('');
 
     this.correctAnswersCount = 0;
     this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
     this.subscription = combineLatest([
       this.correctAnswersCount$.pipe(
-        takeUntil(this.unsubscribeTrigger$), 
+        takeUntil(this.unsubscribeTrigger$),
         distinctUntilChanged()
       ),
       this.quizService.getQuestions().pipe(
@@ -79,7 +79,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
         switchMap((questions) =>
           combineLatest([of(questions), this.quizService.getTotalQuestions()])
         )
-      )
+      ),
     ]).subscribe(([correctAnswersCount, [questions, totalQuestions]]) => {
       this.correctAnswersCount = correctAnswersCount;
       this.totalQuestions = totalQuestions;
