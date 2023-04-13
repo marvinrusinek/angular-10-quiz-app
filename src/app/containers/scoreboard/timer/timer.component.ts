@@ -19,7 +19,7 @@ enum TimerType {
 }
 
 @Component({
-  selector: 'codelab-scoreboard-time',
+  selector: 'codelab-scoreboard-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

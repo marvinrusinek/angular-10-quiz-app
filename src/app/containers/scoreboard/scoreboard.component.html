@@ -1,13 +1,5 @@
 <section class="scoreboard">
-  <codelab-scoreboard-score
-    class="scoreboard-score"
-    [correctAnswersCount]="correctAnswersCount"
-    [totalQuestions]="totalQuestions">
-  </codelab-scoreboard-score>
-
-  <span class="badge" i18n>Question {{ questionNumber }} of {{ totalQuestions }}</span>
-  
-  <codelab-scoreboard-time 
-    class="scoreboard-time">
-  </codelab-scoreboard-time>
+  <codelab-scoreboard-score class="scoreboard-score"></codelab-scoreboard-score>
+  <span class="badge" i18n>{{ badge }}</span>
+  <codelab-scoreboard-timer class="scoreboard-timer"></codelab-scoreboard-timer>
 </section>

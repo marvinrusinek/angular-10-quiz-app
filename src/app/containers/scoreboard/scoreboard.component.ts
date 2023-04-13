@@ -5,11 +5,12 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges
+  SimpleChanges,
+  NgZone,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { delay, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -18,13 +19,14 @@ import { TimerService } from '../../shared/services/timer.service';
   selector: 'codelab-scoreboard',
   templateUrl: './scoreboard.component.html',
   styleUrls: ['./scoreboard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
   totalQuestions: number;
   questionNumber: number;
+  badge: string;
   unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -36,9 +38,17 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.selectedAnswer = this.answer;
 
-    this.quizService.totalQuestions$.subscribe((totalQuestions) => {
-      this.totalQuestions = totalQuestions;
-    });
+    this.quizService.totalQuestions$
+      .pipe(
+        delay(10),
+        tap((totalQuestions) => {
+          this.totalQuestions = totalQuestions;
+          this.ngZone.run(() => {
+            this.updateBadge();
+          });
+        })
+      )
+      .subscribe();
 
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
@@ -62,5 +72,14 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  updateBadge(): void {
+    this.totalQuestions = this.quizService.totalQuestions;
+
+    if (this.questionNumber && this.totalQuestions > 0) {
+      this.badge =
+        'Question ' + this.questionNumber + ' of ' + this.totalQuestions;
+    }
   }
 }
