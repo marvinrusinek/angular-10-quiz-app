@@ -43,8 +43,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         delay(10),
         tap((totalQuestions) => {
-          this.totalQuestions = totalQuestions;
           this.ngZone.run(() => {
+            this.totalQuestions = totalQuestions;
             this.updateBadge();
           });
         })
