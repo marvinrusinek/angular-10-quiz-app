@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -34,7 +35,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -80,6 +82,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     // Update totalQuestions$ BehaviorSubject with the current totalQuestions value
     if (changes.totalQuestions) {
       this.totalQuestions$.next(changes.totalQuestions.currentValue);
+      this.cdr.detectChanges();
     }
   }
 
