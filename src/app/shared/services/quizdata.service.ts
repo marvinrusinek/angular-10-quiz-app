@@ -182,7 +182,11 @@ export class QuizDataService implements OnInit {
 
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      map(([question, options]) => question)
+      map(([question, options]) => question),
+      catchError((error) => {
+        console.error('Error getting quiz question:', error);
+        return throwError(error);
+      })
     );
   }
 
