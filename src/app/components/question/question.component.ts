@@ -113,7 +113,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     const quizId = this.quizService.quizId;
-  
     if (quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
       this.questions$.subscribe(
@@ -131,17 +130,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId parameter is null or undefined');
     }
-  
+
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
       this.multipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
-  
+
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
+
+    this.updateQuestionForm();
   }
   
   ngOnDestroy(): void {
@@ -160,44 +161,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  loadCurrentQuestion(): void {
-    console.log('loadCurrentQuestion');
-    console.log('quizId:', this.quizId);
-    console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    try {
-      const [question] = this.quizService.getCurrentQuestion();
-      console.log('question:', question);
-      this.quizStateService.setCurrentQuestion(of(question));
-      const isMultipleAnswer = this.quizService.isMultipleAnswer(question);
-      // .toPromise();
-      this.multipleAnswer = isMultipleAnswer;
-
-      if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-        console.log('hasQuestionAndOptionsLoaded is false');
-        this.quizDataService
-          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-          .subscribe(([currentQuestion, options]) => {
-            console.log(
-              'getQuestionAndOptions - currentQuestion:',
-              currentQuestion
-            );
-            console.log('getQuestionAndOptions - options:', options);
-            this.currentQuestion = currentQuestion;
-            this.options = options;
-            this.setOptions();
-          });
-      } else {
-        console.log('hasQuestionAndOptionsLoaded is true');
-        const [currentQuestion, options] =
-          this.quizDataService.questionAndOptions;
-        console.log('questionAndOptions - currentQuestion:', currentQuestion);
-        console.log('questionAndOptions - options:', options);
-        this.currentQuestion = currentQuestion;
-        this.options = options;
-        this.setOptions();
-      }
-    } catch (error) {
-      console.error('Error getting current question:', error);
+  async loadCurrentQuestion(): Promise<void> {
+    if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+      console.log('hasQuestionAndOptionsLoaded is false');
+      this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+        .subscribe(([currentQuestion, options]) => {
+          console.log('getQuestionAndOptions - currentQuestion:', currentQuestion);
+          console.log('getQuestionAndOptions - options:', options);
+          this.currentQuestion = currentQuestion;
+          this.options = options;
+          this.setOptions();
+        });
+    } else {
+      console.log('hasQuestionAndOptionsLoaded is true');
+      const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+      console.log('questionAndOptions - currentQuestion:', currentQuestion);
+      console.log('questionAndOptions - options:', options);
+      this.currentQuestion = currentQuestion;
+      this.options = options;
+      this.setOptions();
     }
   }
 
