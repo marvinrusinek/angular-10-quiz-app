@@ -77,6 +77,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   updateBadge(): void {
     this.totalQuestions = this.quizService.totalQuestions;
+    console.log('TQ', this.totalQuestions);
+    console.log('QN', this.questionNumber);
 
     if (this.questionNumber && this.totalQuestions > 0) {
       this.badge =
