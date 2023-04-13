@@ -3,19 +3,19 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy
+  OnDestroy,
+  NgZone
 } from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
-  distinctUntilChanged,
   Observable,
   of,
   Subject,
   Subscription,
   timer
 } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -57,7 +57,8 @@ export class ScoreComponent implements OnInit, OnDestroy {
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
   constructor(
-    private quizService: QuizService
+    private quizService: QuizService,
+    private ngZone: NgZone
   ) {
     this.totalQuestions$ = this.quizService.getTotalQuestions();
   }
@@ -86,8 +87,10 @@ export class ScoreComponent implements OnInit, OnDestroy {
       this.correctAnswersCount = correctAnswersCount;
       this.totalQuestions = totalQuestions;
       this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-      timer(0).subscribe(() => {
-        this.displayNumericalScore();
+      this.ngZone.run(() => {
+        timer(0).subscribe(() => {
+          this.displayNumericalScore();
+        });
       });
     });
   }
