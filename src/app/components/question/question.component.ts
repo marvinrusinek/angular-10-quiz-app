@@ -99,20 +99,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    console.log('Component instantiated');
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
     this.selectedOption = this.getSelectedOption();
     this.correctMessage = '';
-    // this.multipleAnswer = false;
 
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
     this.questions$ = this.quizService.questions$;
-
-    console.log('QuizQuestionComponent constructor called');
   }
 
   async ngOnInit(): Promise<void> {
