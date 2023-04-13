@@ -9,7 +9,7 @@ import {
   NgZone,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { delay, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
@@ -24,11 +24,11 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
-  totalQuestions: number;
+  totalQuestions: number = -1;
   questionNumber: number;
   badge: string;
   unsubscribe$ = new Subject<void>();
-  private totalQuestions$ = new ReplaySubject<number>(1);
+  private totalQuestions$ = new BehaviorSubject<number>(-1);
 
   constructor(
     private quizService: QuizService,
@@ -85,8 +85,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   updateBadge(): void {
     this.totalQuestions = this.quizService.totalQuestions;
-    console.log('TQ', this.totalQuestions);
-    console.log('QN', this.questionNumber);
+    console.log('Total Questions', this.totalQuestions);
+    console.log('Question Number', this.questionNumber);
 
     if (this.questionNumber && this.totalQuestions > 0) {
       this.badge =
