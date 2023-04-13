@@ -46,7 +46,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         tap((totalQuestions) => {
           this.totalQuestions$.next(totalQuestions);
           this.ngZone.run(() => {
-            this.updateBadge();
+            this.updateBadge(totalQuestions);
           });
         })
       )
@@ -88,14 +88,10 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  updateBadge(): void {
-    this.totalQuestions = this.quizService.totalQuestions;
-    console.log('Total Questions', this.totalQuestions);
-    console.log('Question Number', this.questionNumber);
-
-    if (this.questionNumber && this.totalQuestions > 0) {
+  updateBadge(totalQuestions: number): void {
+    if (this.questionNumber && totalQuestions > 0) {
       this.badge =
-        'Question ' + this.questionNumber + ' of ' + this.totalQuestions;
+        'Question ' + this.questionNumber + ' of ' + totalQuestions;
     }
   }
 }
