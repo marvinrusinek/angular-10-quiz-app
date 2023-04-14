@@ -79,7 +79,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.selectedQuizSubscription.unsubscribe();
+    this.selectedQuizSubscription?.unsubscribe();
   }
 
   onChange($event): void {

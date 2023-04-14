@@ -150,7 +150,7 @@ export class MultipleAnswerComponent
   }
 
   ngOnDestroy(): void {
-    this.currentQuestionSubscription.unsubscribe();
+    this.currentQuestionSubscription?.unsubscribe();
     this.destroyed$.next();
     this.destroyed$.complete();
   }
