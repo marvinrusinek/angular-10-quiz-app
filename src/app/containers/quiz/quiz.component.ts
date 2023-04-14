@@ -327,7 +327,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuestions(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-    
+
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
@@ -593,7 +593,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHidePrevQuestionNav(): boolean {
-    return this.questionIndex <= 1;
+    return this.questionIndex === 0;
   }
 
   shouldHideRestartNav(): boolean {
