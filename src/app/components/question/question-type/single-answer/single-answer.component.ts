@@ -75,7 +75,7 @@ export class SingleAnswerComponent
     this.quizStateService = quizStateService;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): void {
     console.log('SingleAnswerComponent initialized');
     super.ngOnInit();
 
@@ -86,7 +86,6 @@ export class SingleAnswerComponent
   }
 
   ngOnDestroy(): void {
-    // this.currentQuestionSubscription.unsubscribe();
     this.destroyed$.next();
     this.destroyed$.complete();
   }
