@@ -593,11 +593,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHidePrevQuestionNav(): boolean {
-    return this.questionIndex === 0;
+    return this.currentQuestionIndex === 0;
   }
 
   shouldHideRestartNav(): boolean {
-    return this.questionIndex <= 1 || this.questionIndex >= this.totalQuestions;
+    return this.currentQuestionIndex <= 1 || this.questionIndex >= this.totalQuestions;
   }
 
   shouldHideNextQuestionNav(): boolean {
@@ -605,7 +605,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHideShowScoreNav(): boolean {
-    return this.questionIndex !== this.totalQuestions;
+    return this.questionIndex === this.totalQuestions;
   }
 
   shouldHideProgressBar(): boolean {
