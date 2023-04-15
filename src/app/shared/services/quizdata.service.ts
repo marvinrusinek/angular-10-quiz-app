@@ -288,16 +288,12 @@ export class QuizDataService implements OnInit {
 
     const options$ = currentQuestion$.pipe(
       filter((question) => !!question),
-      tap((question) => {
-        console.log('Current question:', question);
-      }),
       map((question) => {
         if (!question) {
           throw new Error('Question object is null');
         }
 
         const options = question?.options;
-        console.log('Question options:', options);
         if (
           !options ||
           !Array.isArray(options) ||
