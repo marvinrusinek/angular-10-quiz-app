@@ -249,7 +249,6 @@ export class QuizDataService implements OnInit {
       switchMap((quizId) => {
         return quiz$.pipe(
           map((quizzes) => quizzes.find((q) => q.quizId === quizId)),
-          tap((quiz) => console.log('Current Quiz:', quiz)),
           switchMap((quiz) => {
             if (!quiz) {
               throw new Error('Selected quiz not found');
