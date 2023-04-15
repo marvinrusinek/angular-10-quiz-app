@@ -210,7 +210,7 @@ export class QuizDataService implements OnInit {
       }),
       catchError(error => {
         console.error('Error fetching question:', error);
-        throw error; // Rethrow the error to propagate it to the caller
+        throw error;
       })
     );
   }  
