@@ -208,13 +208,13 @@ export class QuizDataService implements OnInit {
         }
         return options;
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Error fetching question:', error);
         throw error; // Rethrow the error to propagate it to the caller
       })
     );
   }
-  
+
   getQuestionAndOptions(
     quizId: string,
     questionIndex: number
@@ -274,8 +274,8 @@ export class QuizDataService implements OnInit {
         if (
           !options ||
           !Array.isArray(options) ||
-          options.length === 0 ||
-          typeof options[Symbol.iterator] !== 'function'
+          (options && options.length === 0) ||
+          (options && typeof options[Symbol.iterator] !== 'function')
         ) {
           throw new Error('Question options not found');
         }
