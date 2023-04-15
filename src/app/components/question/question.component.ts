@@ -20,7 +20,7 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -112,12 +112,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.options$ = this.quizDataService.getOptions().pipe(
+      tap(options => console.log('Options:', options))
+    );
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
       this.questions$.subscribe(
         (questions: QuizQuestion[]) => {
-          if (questions && questions.length > 0) {
+          if (questions && questions?.length > 0) {
             this.currentQuestion = questions[0];
           } else {
             console.error('No questions found for quiz with ID:', quizId);
