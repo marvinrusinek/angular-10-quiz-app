@@ -211,13 +211,6 @@ export class QuizDataService implements OnInit {
     quizId: string,
     questionIndex: number
   ): Observable<[QuizQuestion, Option[]]> {
-    console.log(
-      'getQuestionAndOptions called with quizId',
-      quizId,
-      'and questionIndex',
-      questionIndex
-    );
-
     if (
       this.hasQuestionAndOptionsLoaded &&
       this.currentQuestionIndex === questionIndex
@@ -225,7 +218,6 @@ export class QuizDataService implements OnInit {
       return this.questionAndOptionsSubject.asObservable();
     }
 
-    console.log('my test');
     const quiz$ = this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((err) => {
         console.log('Error:', err);
