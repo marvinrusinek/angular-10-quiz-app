@@ -10,8 +10,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizStateService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
-  currentOptionsSubject = new BehaviorSubject<Option[]>([]);
-  optionsSubject = new BehaviorSubject<Option[]>(null);
+  currentOptionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
   
@@ -26,7 +25,7 @@ export class QuizStateService {
         this.currentQuestion.next(question);
         this.currentQuestionSubject.next(question);
         if (question && question.options) {
-          this.optionsSubject.next(question.options);
+          this.currentOptionsSubject.next(question.options);
           console.log('options:', question.options);
         } else {
           console.log('No options found');
@@ -35,7 +34,7 @@ export class QuizStateService {
     } else {
       this.currentQuestion.next(null);
       this.currentQuestionSubject.next(null);
-      this.optionsSubject.next(null);
+      this.currentOptionsSubject.next(null);
     }
   }
 

@@ -233,7 +233,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (question) {
         this.currentQuestion = question;
         this.options = this.currentQuestion.options;
-        this.quizService.setCurrentQuestion(this.currentQuestion);
+        // this.quizService.setCurrentQuestion(this.currentQuestion);
         this.quizService.setCurrentOptions(this.options);
       } else {
         console.error('Invalid Question ID');
@@ -374,7 +374,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentOptions = currentQuestion.options;
 
     // Update the quiz service with the current question and options
-    this.quizService.setCurrentQuestion(currentQuestion);
+    // this.quizService.setCurrentQuestion(currentQuestion);
     this.quizService.setCurrentOptions(currentQuestion.options);
 
     console.log('Options:', this.currentOptions);
