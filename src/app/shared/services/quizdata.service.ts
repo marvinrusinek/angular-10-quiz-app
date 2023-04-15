@@ -303,9 +303,9 @@ export class QuizDataService implements OnInit {
         map(({ question }) => question)
       )
       .subscribe((question) => {
-        if (question && question.options) {
+        if (question && question?.options) {
           this.currentOptionsSubject.next(question.options);
-          this.questionAndOptionsSubject.next([question, question?.options]);
+          this.questionAndOptionsSubject.next([question, question.options]);
         }
       });
     return this.questionAndOptionsSubject.asObservable();
