@@ -106,7 +106,7 @@ export class MultipleAnswerComponent
     this.selectedOption = null;
 
     await new Promise<void>(async (resolve, reject) => {
-      this.form = this.formBuilder.group({
+      this.form = this.fb.group({
         answer: [null, Validators.required],
       });
       this.formReady.emit(this.form);
@@ -119,7 +119,7 @@ export class MultipleAnswerComponent
       });
 
       this.options$ = this.quizStateService.getCurrentQuestion().pipe(
-        map((question) => question.options),
+        map((question) => question?.options),
         takeUntil(this.destroyed$)
       );
       this.options$.subscribe((options) => {
