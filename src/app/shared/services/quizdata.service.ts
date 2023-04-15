@@ -196,22 +196,24 @@ export class QuizDataService implements OnInit {
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuestion(quizId, questionIndex).pipe(
-      filter((question) => !!question),
       map((question) => {
+        if (!question) {
+          console.error('Question is null or undefined');
+          throw new Error('Question is null or undefined');
+        }
         const options = question?.options;
         if (!options || options?.length === 0) {
-          console.error('Invalid question options>>');
+          console.error('Invalid question options');
           throw new Error('Invalid question options');
         }
         return options;
       }),
-      tap(options => console.log('Options:', options)),
-      catchError((error) => {
-        console.error('Error fetching options:', error);
-        throw error;
+      catchError(error => {
+        console.error('Error fetching question:', error);
+        throw error; // Rethrow the error to propagate it to the caller
       })
     );
-  }
+  }  
 
   getQuestionAndOptions(
     quizId: string,
