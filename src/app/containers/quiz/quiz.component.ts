@@ -287,10 +287,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       quizId,
       currentQuestionIndex
     );
-    this.options$ = this.quizDataService.getOptions(
+    /* this.options$ = this.quizDataService.getOptions(
       quizId,
       currentQuestionIndex
+    ); */
+    this.options$ = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex).pipe(
+      tap(options => console.log('Options:', options))
     );
+    this.options$.subscribe();
 
     const [question, options] = await forkJoin([
       this.question$,

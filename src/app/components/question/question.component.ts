@@ -20,7 +20,7 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, share, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -112,9 +112,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.options$ = this.quizDataService.getOptions().pipe(
-      tap(options => console.log('Options:', options))
-    );
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
