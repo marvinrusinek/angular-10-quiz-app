@@ -119,6 +119,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   private multipleAnswer$ = new BehaviorSubject<boolean>(false);
   multipleAnswer = this.multipleAnswer$.asObservable();
 
+  private optionsSubscription: Subscription;
+
   /* get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
   } */
@@ -173,6 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$.next(null);
 
     this.questionSubscription?.unsubscribe();
+    this.optionsSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
   }
@@ -287,8 +290,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       quizId,
       currentQuestionIndex
     );
-    this.options$ = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex).pipe(
-      tap(options => console.log('Options:', options))
+    this.optionsSubscription = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex).subscribe(
+      options => {
+        console.log('Options:', options)
+      },
+      error => {
+        console.error('Error fetching options:', error);
+      }
     );
     this.options$.subscribe();
 
