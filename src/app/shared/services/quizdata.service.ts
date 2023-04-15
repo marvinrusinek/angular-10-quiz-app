@@ -1,5 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
@@ -72,7 +73,10 @@ export class QuizDataService implements OnInit {
     })
   );
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private activatedRoute: ActivatedRoute
+  ) {
     this.selectedQuiz$ = new BehaviorSubject<Quiz | null>(this.selectedQuiz);
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
@@ -235,28 +239,42 @@ export class QuizDataService implements OnInit {
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    const currentQuestion$ = quiz$.pipe(
-      map((quizzes) => {
-        const quiz = quizzes.find((q) => q.quizId === quizId);
-        if (!quiz) {
-          throw new Error('Selected quiz not found');
-        }
+    const quizId$ = this.activatedRoute.params.pipe(
+      map((params) => params.quizId),
+      filter((quizId) => !!quizId),
+      take(1)
+    );
 
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Selected quiz has no questions');
-        }
+    const currentQuestion$ = quizId$.pipe(
+      switchMap((quizId) => {
+        return quiz$.pipe(
+          map((quizzes) => quizzes.find((q) => q.quizId === quizId)),
+          tap((quiz) => console.log('Current Quiz:', quiz)),
+          switchMap((quiz) => {
+            if (!quiz) {
+              throw new Error('Selected quiz not found');
+            }
 
-        const questions = quiz.questions;
-        const question = questions[questionIndex];
-        if (!question || question.options === undefined) {
-          throw new Error('Question not found');
-        }
+            if (!quiz.questions || quiz.questions.length === 0) {
+              throw new Error('Selected quiz has no questions');
+            }
 
-        if (questionIndex >= quiz.questions.length) {
-          throw new Error('Question index out of bounds');
-        }
+            const questions = quiz.questions;
+            const question = questions[questionIndex];
+            console.log('Question:', question);
+            const options = question?.options;
 
-        return question;
+            if (!question || question.options === undefined) {
+              throw new Error('Question not found');
+            }
+
+            if (questionIndex >= quiz.questions.length) {
+              throw new Error('Question index out of bounds');
+            }
+
+            return of(question);
+          })
+        );
       }),
       catchError((err) => {
         console.log('Error:', err);
@@ -269,8 +287,17 @@ export class QuizDataService implements OnInit {
     );
 
     const options$ = currentQuestion$.pipe(
+      filter((question) => !!question),
+      tap((question) => {
+        console.log('Current question:', question);
+      }),
       map((question) => {
-        const options = question.options;
+        if (!question) {
+          throw new Error('Question object is null');
+        }
+
+        const options = question?.options;
+        console.log('Question options:', options);
         if (
           !options ||
           !Array.isArray(options) ||
@@ -296,18 +323,26 @@ export class QuizDataService implements OnInit {
       .pipe(
         map(([question, options]) => ({ question, options })),
         tap(({ question, options }) => {
-          this.questionAndOptions = [question, options];
-          this.currentQuestionIndex = questionIndex;
-          this.hasQuestionAndOptionsLoaded = true;
+          if (
+            question &&
+            question.questionText &&
+            question.options &&
+            question.explanation
+          ) {
+            this.questionAndOptions = [question, options];
+            this.currentQuestionIndex = questionIndex;
+            this.hasQuestionAndOptionsLoaded = true;
+          }
         }),
         map(({ question }) => question)
       )
-      .subscribe((question) => {
-        if (question && question?.options) {
+      .subscribe((question: QuizQuestion | undefined) => {
+        if (question && question.options) {
           this.currentOptionsSubject.next(question.options);
           this.questionAndOptionsSubject.next([question, question.options]);
         }
       });
+
     return this.questionAndOptionsSubject.asObservable();
   }
 
