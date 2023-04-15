@@ -196,6 +196,7 @@ export class QuizDataService implements OnInit {
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuestion(quizId, questionIndex).pipe(
+      filter((question) => !!question),
       map((question) => {
         const options = question?.options;
         if (!options || options?.length === 0) {
