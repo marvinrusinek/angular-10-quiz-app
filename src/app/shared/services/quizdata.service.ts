@@ -204,6 +204,7 @@ export class QuizDataService implements OnInit {
         }
         return options;
       }),
+      tap(options => console.log('Options:', options)),
       catchError((error) => {
         console.error('Error fetching options:', error);
         throw error;
