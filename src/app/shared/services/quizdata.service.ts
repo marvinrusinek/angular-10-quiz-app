@@ -210,11 +210,11 @@ export class QuizDataService implements OnInit {
       }),
       catchError(error => {
         console.error('Error fetching question:', error);
-        throw error;
+        throw error; // Rethrow the error to propagate it to the caller
       })
     );
-  }  
-
+  }
+  
   getQuestionAndOptions(
     quizId: string,
     questionIndex: number
@@ -303,8 +303,10 @@ export class QuizDataService implements OnInit {
         map(({ question }) => question)
       )
       .subscribe((question) => {
-        this.currentOptionsSubject.next(question.options);
-        this.questionAndOptionsSubject.next([question, question.options]);
+        if (question && question.options) {
+          this.currentOptionsSubject.next(question.options);
+          this.questionAndOptionsSubject.next([question, question?.options]);
+        }
       });
     return this.questionAndOptionsSubject.asObservable();
   }
