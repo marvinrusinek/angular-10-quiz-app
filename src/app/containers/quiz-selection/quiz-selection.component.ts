@@ -10,6 +10,12 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
+enum QuizRoutes {
+  INTRO = '/intro/',
+  QUESTION = '/question/',
+  RESULTS = '/results/'
+}
+
 @Component({
   selector: 'codelab-quiz-selection',
   templateUrl: './quiz-selection.component.html',
@@ -33,27 +39,26 @@ export class QuizSelectionComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.currentQuestionIndex = this.quizService.currentQuestionIndex;
+    this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.quizzes$ = this.quizDataService.getQuizzes();
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-    });
 
     this.quizService.selectedQuiz$.subscribe((quiz) => {
       this.selectedQuiz = this.quizService.selectedQuiz$.getValue();
     });
-
-    this.currentQuestionIndex = this.quizService.currentQuestionIndex;
-    this.selectionParams = this.quizService.returnQuizSelectionParams();
   }
 
-  onSelect(quizId): void {
-    if (!quizId) {
-      console.error('Quiz ID is null or undefined');
-      return;
+  onSelect(quizId: string): void {
+    try {
+      if (!quizId) {
+        throw new Error('Quiz ID is null or undefined');
+      }
+  
+      this.quizService.quizId = quizId;
+      this.router.navigate([QuizRoutes.INTRO, quizId]);
+    } catch (error) {
+      console.error(error.message);
     }
-
-    this.quizService.quizId = quizId;
-    this.router.navigate(['/intro/', quizId]);
   }
 
   selectQuiz(quiz: Quiz): void {
@@ -125,11 +130,11 @@ export class QuizSelectionComponent implements OnInit {
     const quizId = quiz.quizId;
     switch (quiz.status) {
       case 'Started':
-        return ['/intro/', quizId];
+        return [QuizRoutes.INTRO, quizId];
       case 'Continue':
-        return ['/question/', quizId, this.currentQuestionIndex];
+        return [QuizRoutes.QUESTION, quizId, this.currentQuestionIndex];
       case 'Completed':
-        return ['/results/', quizId];
+        return [QuizRoutes.RESULTS, quizId];
     }
   }
 
