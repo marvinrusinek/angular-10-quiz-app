@@ -85,9 +85,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   @Input() set currentQuestion(value: QuizQuestion) {
     this._currentQuestion = value;
-    this.selectedOption = value?.selectedOptions?.find(
-      option => this.isOption(option) && option?.correct
-    ) || null;
+    this.selectedOption =
+      value?.selectedOptions?.find(
+        (option) => this.isOption(option) && option?.correct
+      ) || null;
   }
 
   constructor(
@@ -133,7 +134,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      this.multipleAnswer = await this.quizService.isMultipleAnswer(question).toPromise();
+      this.multipleAnswer = await this.quizService
+        .isMultipleAnswer(question)
+        .toPromise();
 
       this.loadCurrentQuestion();
       this.toggleOptions();
@@ -143,7 +146,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.updateQuestionForm();
   }
-  
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
+      (changes.selectedOptions && !changes.selectedOptions.firstChange)
+    ) {
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.currentQuestion,
+        this.correctAnswers
+      );
+      this.cdRef.detectChanges(); // manually trigger change detection
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription?.unsubscribe();
@@ -162,16 +178,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async loadCurrentQuestion(): Promise<void> {
     if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-      this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      this.quizDataService
+        .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .subscribe(([currentQuestion, options]) => {
-          console.log('getQuestionAndOptions - currentQuestion:', currentQuestion);
-          console.log('getQuestionAndOptions - options:', options);
           this.currentQuestion = currentQuestion;
           this.options = options;
           this.setOptions();
         });
     } else {
-      const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+      const [currentQuestion, options] =
+        this.quizDataService.questionAndOptions;
       this.currentQuestion = currentQuestion;
       this.options = options;
       this.setOptions();
@@ -181,7 +197,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
-  
+
   private getSelectedOption(): Option | null {
     const option = this.selectedOptions.find(
       (option: Option): option is Option => {
@@ -199,7 +215,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (question) {
           this.currentQuestion = question;
           this.options = this.currentQuestion?.options;
-          console.log('STQ', this.quizService.currentQuestion$);
         }
       });
   }
@@ -219,7 +234,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.quizId = quizId;
-    const quiz = this.quizService.quizData.find((q) => q.quizId === quizId);
+    const quiz = this.quizService.quizData.find(
+      (q: Quiz) => q.quizId === quizId
+    );
 
     if (quiz && quiz.questions && quiz.questions.length > 0) {
       this.quiz = quiz;
@@ -228,7 +245,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (question) {
         this.currentQuestion = question;
         this.options = this.currentQuestion.options;
-        // this.quizService.setCurrentQuestion(this.currentQuestion);
         this.quizService.setCurrentOptions(this.options);
       } else {
         console.error('Invalid Question ID');
@@ -256,8 +272,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(([question, options]) => {
         this.currentQuestion = question;
         this.currentOptions = options;
-        console.log('Question:', this.currentQuestion);
-        console.log('Options:', this.currentOptions);
 
         if (question && options && options?.length > 0) {
           this.questionsAndOptions[questionIndex] = [question, options];
@@ -274,20 +288,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     }
     return this.currentQuestion$;
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (
-      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
-      (changes.selectedOptions && !changes.selectedOptions.firstChange)
-    ) {
-      console.log('CA1::', this.correctAnswers);
-      this.correctMessage = this.quizService.setCorrectMessage(
-        this.currentQuestion,
-        this.correctAnswers
-      );
-      this.cdRef.detectChanges(); // manually trigger change detection
-    }
   }
 
   public getQuestion(index: number): Observable<QuizQuestion> {
@@ -307,9 +307,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
-    console.log('UCQ', question);
     this.currentQuestion = question;
-    console.log('CURRQUEST: ', this.currentQuestion);
   }
 
   private updateCorrectAnswers(): void {
@@ -343,8 +341,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setOptions(): void {
-    console.log('setOptions');
-    console.log('setOptions called with options', this.options);
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
@@ -363,11 +359,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestion = currentQuestion;
     this.currentOptions = currentQuestion.options;
 
-    // Update the quiz service with the current question and options
-    // this.quizService.setCurrentQuestion(currentQuestion);
     this.quizService.setCurrentOptions(currentQuestion.options);
-
-    console.log('Options:', this.currentOptions);
 
     const { options, answer } = currentQuestion;
 
@@ -386,10 +378,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           selected: false,
         } as Option)
     );
-    console.log('setOptions: options:', this.options);
     this.quizService.setCurrentOptions(this.options);
-
-    console.log('Options after mapping:', this.options);
 
     // shuffle options only if the shuffleOptions boolean is true
     if (this.shuffleOptions) {
@@ -400,12 +389,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.options?.filter((option) => option.correct) ?? [];
     this.quizService.setMultipleAnswer(correctOptions.length > 1);
     this.quizService.isMultipleAnswer(currentQuestion);
-
-    // await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
-    console.log(
-      'Options after shuffling and setting multiple answers:',
-      this.options
-    );
   }
 
   toggleOptions(): void {
