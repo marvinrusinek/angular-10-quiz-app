@@ -88,9 +88,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   onChange($event): void {
-    if ($event.checked === true) {
-      this.quizService.setChecked($event.checked);
-    }
+    this.quizService.setChecked($event.checked);
   }
 
   onStartQuiz(quizId: string) {
