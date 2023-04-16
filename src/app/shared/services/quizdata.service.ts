@@ -318,9 +318,9 @@ export class QuizDataService implements OnInit {
         tap(({ question, options }) => {
           if (
             question &&
-            question.questionText &&
-            question.options &&
-            question.explanation
+            question?.questionText &&
+            question?.options &&
+            question?.explanation
           ) {
             this.questionAndOptions = [question, options];
             this.currentQuestionIndex = questionIndex;
@@ -330,9 +330,9 @@ export class QuizDataService implements OnInit {
         map(({ question }) => question)
       )
       .subscribe((question: QuizQuestion | undefined) => {
-        if (question && question.options) {
-          this.currentOptionsSubject.next(question.options);
-          this.questionAndOptionsSubject.next([question, question.options]);
+        if (question && question?.options) {
+          this.currentOptionsSubject.next(question?.options);
+          this.questionAndOptionsSubject.next([question, question?.options]);
         }
       });
 
