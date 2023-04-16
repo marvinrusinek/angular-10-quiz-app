@@ -108,7 +108,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
-    this.questions$ = this.quizService.questions$;
   }
 
   async ngOnInit(): Promise<void> {
@@ -322,17 +321,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.correctAnswers = this.question.options
         .filter((option) => option.correct)
         .map((option) => option.value);
-      console.log('CA:::', this.correctAnswers);
     }
   }
 
   private updateCorrectMessage(): void {
     if (this.question && this.currentQuestion) {
       try {
-        console.log(
-          'QSSCM::',
-          this.quizService.setCorrectMessage(this.question, this.correctAnswers)
-        );
         this.correctMessage = this.quizService.setCorrectMessage(
           this.question,
           this.correctAnswers
