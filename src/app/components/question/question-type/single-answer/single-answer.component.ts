@@ -106,6 +106,7 @@ export class SingleAnswerComponent
       !this.optionChecked[selectedOptions[0]?.optionId];
     this.selectedOption = selectedOptions[0];
     this.optionSelected = selectedOptions[0];
+    this.optionSelected.emit(selectedOptions[0]);
     this.selectionChanged.emit(selectedOptions);
   }
 }
