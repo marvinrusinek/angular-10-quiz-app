@@ -47,9 +47,9 @@
       <codelab-quiz-question
         *ngIf="quizStateService.currentQuestion"
         [quizId]="quizId"
-        [question]="currentQuestion"
+        [question]="question"
         [questions]="questions$ | async"
-        [options]="options"
+        [options]="question?.options"
         (answer)="selectedAnswer($event)"
         [answers]="answers"
         [selectedOption]="selectedOption$ | async"
