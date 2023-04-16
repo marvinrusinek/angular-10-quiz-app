@@ -261,11 +261,11 @@ export class QuizDataService implements OnInit {
             console.log('Question:', question);
             const options = question?.options;
 
-            if (!question || question.options === undefined) {
+            if (!question || question?.options === undefined) {
               throw new Error('Question not found');
             }
 
-            if (questionIndex >= quiz.questions.length) {
+            if (questionIndex >= quiz.questions?.length) {
               throw new Error('Question index out of bounds');
             }
 
