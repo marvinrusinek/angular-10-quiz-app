@@ -40,7 +40,8 @@ export class SingleAnswerComponent
   protected quizDataService: QuizDataService;
   protected quizStateService: QuizStateService;
 
-  @Output() selectionChanged = new EventEmitter<Option[]>();
+  @Output() selectionChanged: EventEmitter<{ question: QuizQuestion, selectedOptions: Option[] }> = new EventEmitter();
+  @Output() optionSelected: EventEmitter<Option> = new EventEmitter<Option>();
   @Input() question: QuizQuestion;
   @Input() options: Option[];
   @Input() currentQuestionIndex: number;
@@ -48,8 +49,6 @@ export class SingleAnswerComponent
   @Input() selected: string;
   // selectedOption: Option = { text: '', correct: false, value: null } as Option;
   options$: Observable<Option[]>;
-  optionSelected: Option;
-  // optionSelected: EventEmitter<Option> = new EventEmitter<Option>();
   optionChecked: { [optionId: number]: boolean } = {};
 
   private destroyed$ = new Subject<void>();
@@ -95,19 +94,17 @@ export class SingleAnswerComponent
   onOptionSelected(selectedOption: Option): void {
     super.onOptionSelected(selectedOption);
     this.selectedOption = selectedOption;
-    this.optionSelected = selectedOption;
     this.optionSelected.emit(selectedOption);
-    this.selectionChanged.emit({ question: this.question, selectedOptions: selectedOptions });
+    this.selectionChanged.emit({ question: this.question, selectedOptions: this.selectedOptions });
     this.optionChecked[selectedOption.optionId] = true;
   }
-  
+
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]) {
     super.onSelectionChange(question, selectedOptions);
     this.optionChecked[selectedOptions[0]?.optionId] =
       !this.optionChecked[selectedOptions[0]?.optionId];
     this.selectedOption = selectedOptions[0];
-    this.optionSelected = selectedOptions[0];
-    this.optionSelected.emit(selectedOption);
+    this.optionSelected.emit(this.selectedOption);
     this.selectionChanged.emit({ question: this.question, selectedOptions: selectedOptions });
-  }  
+  } 
 }
