@@ -14,8 +14,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, pipe, Subject, Subscription } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
@@ -93,7 +93,7 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('Options:', this.options);
+    console.log('Options::::::', this.options);
     console.log('options:', this.options);
     console.log('MultipleAnswerComponent initialized');
     super.ngOnInit();
@@ -160,11 +160,13 @@ export class MultipleAnswerComponent
       this.options.forEach((option) => {
         this.optionChecked[option.optionId] =
           this.currentQuestion.selectedOptions &&
-          this.currentQuestion.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId);
+          this.currentQuestion.selectedOptions.some(
+            (selectedOption) => selectedOption.optionId === option.optionId
+          );
       });
     }
   }
-  
+
   getOptionClass(option: Option): string {
     console.log('getOptionClass called with option:', option);
     console.log('this.selectedOptions:', this.selectedOptions);
@@ -195,19 +197,27 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
     }
     this.quizDataService.currentOptionsSubject.next(this.selectedOptions);
-    this.selectionChanged.emit({ question: this.question, selectedOptions: this.selectedOptions });
+    this.selectionChanged.emit({
+      question: this.question,
+      selectedOptions: this.selectedOptions,
+    });
     this.optionChecked[option.optionId] = true;
   }
 
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
-  
-    console.log('onSelectionChange called with question:', question, 'and selected options:', selectedOptions);
-  
+
+    console.log(
+      'onSelectionChange called with question:',
+      question,
+      'and selected options:',
+      selectedOptions
+    );
+
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-  
+
     selectedOptions.forEach((selectedOption: Option) => {
       const index = question.selectedOptions.findIndex((o) => {
         return typeof o === 'string' ? false : o.value === selectedOption.value;
@@ -218,27 +228,38 @@ export class MultipleAnswerComponent
         question.selectedOptions.push(selectedOption);
       }
     });
-  
+
     const selectedOptionIds = question.selectedOptions.map((o) => {
-      const selectedOption = question.options.find((option) => option.value === o.value);
+      const selectedOption = question.options.find(
+        (option) => option.value === o.value
+      );
       return selectedOption ? selectedOption.value : null;
     });
-  
+
     console.log('selectedOptionIds:', selectedOptionIds);
     console.log('question.answer:', question.answer);
-  
-    if (selectedOptionIds.sort().join(',') ===
-        question.answer.map((a) => a.value).sort().join(',')) {
+
+    if (
+      selectedOptionIds.sort().join(',') ===
+      question.answer
+        .map((a) => a.value)
+        .sort()
+        .join(',')
+    ) {
       this.incrementScore();
     }
-  
+
     selectedOptions.forEach((selectedOption) => {
-      this.optionChecked[selectedOption.optionId] = !this.optionChecked[selectedOption.optionId];
+      this.optionChecked[selectedOption.optionId] =
+        !this.optionChecked[selectedOption.optionId];
     });
-  
+
     console.log('this.selectedOptions before:', this.selectedOptions);
     this.selectedOptions = selectedOptions;
     console.log('this.selectedOptions after:', this.selectedOptions);
-    this.selectionChanged.emit({ question: this.currentQuestion, selectedOptions: this.selectedOptions });
-  }  
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  }
 }
