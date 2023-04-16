@@ -162,7 +162,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async loadCurrentQuestion(): Promise<void> {
     if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-      console.log('hasQuestionAndOptionsLoaded is false');
       this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
         .subscribe(([currentQuestion, options]) => {
           console.log('getQuestionAndOptions - currentQuestion:', currentQuestion);
@@ -172,10 +171,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.setOptions();
         });
     } else {
-      console.log('hasQuestionAndOptionsLoaded is true');
       const [currentQuestion, options] = this.quizDataService.questionAndOptions;
-      console.log('questionAndOptions - currentQuestion:', currentQuestion);
-      console.log('questionAndOptions - options:', options);
       this.currentQuestion = currentQuestion;
       this.options = options;
       this.setOptions();
