@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription, throwError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -37,19 +37,25 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz$: Observable<Quiz>;
   selectedQuizSubscription: Subscription;
 
-  imagePath = '../../../assets/images/milestones/'; // shorten variable, path
+  imagePath = '../../../assets/images/milestones/';
+  introImg: string = '';
 
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {
-    this.quizId = this.selectedQuiz?.quizId;
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.quizId = this.selectedQuiz?.quizId;
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    this.selectedQuiz$.subscribe((selectedQuiz) => {
+      if (selectedQuiz) {
+        this.introImg = this.imagePath + selectedQuiz?.image;
+      }
+    });
+
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) => {
@@ -94,19 +100,24 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
 
     this.selectedQuizId = quizId;
-  
-    this.quizDataService.getQuizById(this.selectedQuizId).subscribe((quiz) => {
-      const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === this.selectedQuizId);
-      if (foundQuiz) {
-        this.quizDataService.setSelectedQuiz(foundQuiz);
-        this.quizDataService.selectedQuizSubject.next(foundQuiz);
-        this.quizSelected.emit(this.selectedQuizId);
-        this.router.navigate(['/question/', this.selectedQuizId, 1]);
-      } else {
-        console.error(`Quiz with ID ${this.selectedQuizId} not found`);
-      }
-    }, (error) => {
-      console.error(`Error fetching quiz: ${error}`);
-    });
-  }   
+
+    this.quizDataService.getQuizById(this.selectedQuizId)
+      .pipe(
+        catchError((error) => {
+          console.error(`Error fetching quiz: ${error}`);
+          return throwError(error); // Rethrow the error to propagate it
+        })
+      )
+      .subscribe((quiz) => {
+        const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === this.selectedQuizId);
+        if (foundQuiz) {
+          this.quizDataService.setSelectedQuiz(foundQuiz);
+          this.quizDataService.selectedQuizSubject.next(foundQuiz);
+          this.quizSelected.emit(this.selectedQuizId);
+          this.router.navigate(['/question/', this.selectedQuizId, 1]);
+        } else {
+          console.error(`Quiz with ID ${this.selectedQuizId} not found`);
+        }
+      });
+  } 
 }
