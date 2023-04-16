@@ -246,7 +246,7 @@ export class QuizDataService implements OnInit {
     const currentQuestion$ = quizId$.pipe(
       switchMap((quizId) => {
         return quiz$.pipe(
-          map((quizzes) => quizzes.find((q) => q.quizId === quizId)),
+          map((quizzes) => quizzes.find((q: Quiz) => q.quizId === quizId)),
           switchMap((quiz) => {
             if (!quiz) {
               throw new Error('Selected quiz not found');
