@@ -20,7 +20,7 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { map, share, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
