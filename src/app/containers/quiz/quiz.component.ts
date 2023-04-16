@@ -292,7 +292,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
     this.optionsSubscription = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex).subscribe(
       options => {
-        console.log('Options:', options);
+        this.options = options;
         this.cdRef.detectChanges();
       },
       error => {

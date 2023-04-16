@@ -148,9 +148,7 @@ export class QuizDataService implements OnInit {
       return throwError('quizId parameter is null or undefined');
     }
 
-    const apiUrl = `${this.quizUrl}`;
-
-    return this.http.get<Quiz[]>(apiUrl).pipe(
+    return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
 
