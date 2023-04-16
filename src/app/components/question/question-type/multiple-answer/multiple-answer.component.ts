@@ -42,7 +42,6 @@ export class MultipleAnswerComponent
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   @Input() question: QuizQuestion;
-  // @Input() questions: QuizQuestion[];
   @Input() currentQuestionIndex: number;
   @Input() options: Option[];
   @Input() correctMessage: string;
@@ -96,8 +95,6 @@ export class MultipleAnswerComponent
     console.log('Options::::::', this.options);
     console.log('options:', this.options);
     console.log('MultipleAnswerComponent initialized');
-    super.ngOnInit();
-
     console.log('CQ', this.currentQuestion);
     console.log(this.question.options);
     console.log('ngOnInit called test');
@@ -116,6 +113,7 @@ export class MultipleAnswerComponent
         this.currentQuestion = question;
         this.options = options;
         console.log('current question:', this.currentQuestion);
+        this.quizService.getCorrectAnswers(this.currentQuestion);
       });
 
       this.options$ = this.quizStateService.getCurrentQuestion().pipe(
@@ -125,8 +123,6 @@ export class MultipleAnswerComponent
       this.options$.subscribe((options) => {
         console.log('options:', options);
       });
-
-      this.quizService.getCorrectAnswers(this.currentQuestion);
 
       resolve();
     });
@@ -143,7 +139,7 @@ export class MultipleAnswerComponent
     }
     if (changes.selectedOptions && !changes.selectedOptions.firstChange) {
       const selectedOptions = changes.selectedOptions.currentValue;
-      this.options.forEach((option) => {
+      this.options.forEach((option: Option) => {
         option.selected = selectedOptions.includes(option.value);
       });
     }
