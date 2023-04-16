@@ -48,6 +48,7 @@ export class SingleAnswerComponent
   @Input() selected: string;
   // selectedOption: Option = { text: '', correct: false, value: null } as Option;
   options$: Observable<Option[]>;
+  optionSelected: Option;
   optionChecked: { [optionId: number]: boolean } = {};
 
   private destroyed$ = new Subject<void>();
@@ -93,15 +94,18 @@ export class SingleAnswerComponent
   onOptionSelected(selectedOption: Option): void {
     super.onOptionSelected(selectedOption);
     this.selectedOption = selectedOption;
-    this.optionSelected.emit(this.selectedOption);
+    this.optionSelected = selectedOption;
+    this.optionSelected.emit(selectedOption);
     this.selectionChanged.emit([this.selectedOption]);
     this.optionChecked[selectedOption.optionId] = true;
   }
 
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]) {
+    super.onSelectionChange(question, selectedOptions);
     this.optionChecked[selectedOptions[0]?.optionId] =
       !this.optionChecked[selectedOptions[0]?.optionId];
     this.selectedOption = selectedOptions[0];
-    super.onSelectionChange(question, selectedOptions);
+    this.optionSelected = selectedOptions[0];
+    this.selectionChanged.emit(selectedOptions);
   }
 }
