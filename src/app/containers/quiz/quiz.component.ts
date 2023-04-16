@@ -46,10 +46,16 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
 
-enum Status {
-  Started = 'Started',
-  Continue = 'Continue',
-  Completed = 'Completed',
+enum QuizRoutes {
+  INTRO = '/quiz/intro/',
+  QUESTION = '/quiz/question/',
+  RESULTS = '/quiz/results/'
+}
+
+enum QuizStatus {
+  STARTED = 'started',
+  CONTINUE = 'continue',
+  COMPLETED = 'completed'
 }
 
 @Component({
@@ -75,7 +81,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizQuestions: QuizQuestion[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  // question$: Observable<[QuizQuestion, Option[]]>;
   question$: Observable<QuizQuestion>;
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
@@ -111,19 +116,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizId: string = '';
   quizName$: Observable<string>;
   indexOfQuizId: number;
-  status: Status;
+  status: QuizStatus;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
-  private multipleAnswer$ = new BehaviorSubject<boolean>(false);
-  multipleAnswer = this.multipleAnswer$.asObservable();
-
   private optionsSubscription: Subscription;
 
-  /* get multipleAnswer(): boolean {
+  get multipleAnswer(): boolean {
     return this.quizService.multipleAnswer;
-  } */
+  }
   get correctOptions(): string {
     return this.quizService.correctOptions;
   }
@@ -133,10 +135,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   get numberOfCorrectAnswers(): number {
     return this.quizService.numberOfCorrectAnswers;
   }
-  /* get questions(): QuizQuestion[] {
-    const selectedQuiz = this.selectedQuiz$.getValue();
-    return selectedQuiz ? selectedQuiz.questions : [];
-  } */
 
   constructor(
     private quizService: QuizService,
@@ -245,8 +243,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setObservables(): void {
-    this.currentQuestion$ = this.quizService.currentQuestion$;
-    // this.quizStateService.setCurrentQuestion(this.currentQuestion$);
+    this.currentQuestion$ = this.quizService.currentQuestion$;;
     this.quizService.setCurrentOptions([]);
 
     this.options$ = this.quizStateService.currentOptions$;
@@ -316,15 +313,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const isMultiple = await this.quizService
-      .isMultipleAnswer(question)
+    const isMultiple = await this.quizService.isMultipleAnswer(question)
       .toPromise();
     this.quizService.setMultipleAnswer(isMultiple);
 
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
-    this.router.navigate(['/question', quizId, currentQuestionIndex + 1]);
+    this.router.navigate([QuizRoutes.QUESTION, quizId, currentQuestionIndex + 1]);
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
@@ -380,7 +376,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
         if (quiz) {
           this.quiz = quiz;
-          // console.log("HPM", this.quiz);
           this.quizService.setQuiz(quiz);
           this.quizDataService.selectedQuiz$.next(quiz);
         }
@@ -423,7 +418,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuiz(id: string): Promise<void> {
     try {
       const quiz = await this.quizDataService.getQuiz(id).toPromise();
-      if (this.quiz.questions && this.quiz.questions.length > 0) {
+      if (this.quiz.questions && this.quiz.questions?.length > 0) {
         this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
       }
     } catch (error) {
@@ -438,7 +433,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setOptions() {
     this.answers =
       this.question && this.question.options
-        ? this.question.options?.map((option) => option.value)
+        ? this.question.options?.map((option) => option?.value)
         : [];
   }
 
@@ -471,7 +466,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private updateStatus(): void {
-    this.status = this.questionIndex === 1 ? Status.Started : Status.Continue;
+    this.status = this.questionIndex === 1 ? QuizStatus.STARTED : QuizStatus.CONTINUE;
     this.questionIndex === 1
       ? this.sendStartedQuizIdToQuizService()
       : this.sendContinueQuizIdToQuizService();
@@ -482,22 +477,22 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   isAnswered(): boolean {
-    return !!(this.answers && this.answers.length > 0);
+    return !!(this.answers && this.answers?.length > 0);
   }
 
   onOptionSelected(index: number) {
     this.answers = [index];
   }
 
-  onSelect(option) {
+  onSelect(option: Option): void {
     this.selectedOption = option;
   }
 
-  updateSelectedOption(selectedOption: Option) {
+  updateSelectedOption(selectedOption: Option): void {
     this.selectedOption = selectedOption;
   }
 
-  selectAnswer(id: number) {
+  selectAnswer(id: number): void {
     this.selectedAnswerField = id;
   }
 
@@ -583,7 +578,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers.push({
       question: this.currentQuestion,
       questionIndex: this.currentQuestionIndex,
-      selectedOption: selectedOption,
+      selectedOption: selectedOption
     });
 
     if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
@@ -597,6 +592,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  /************** template logic functions ******************/
   shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;
   }
@@ -641,13 +637,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.checkIfAnsweredCorrectly();
       this.answers = [];
-      this.status = Status.Continue;
+      this.status = QuizStatus.CONTINUE;
       this.animationState$.next('animationStarted');
 
       const isLastQuestion = this.currentQuestionIndex === this.quizLength - 1;
 
       if (isLastQuestion) {
-        this.status = Status.Completed;
+        this.status = QuizStatus.COMPLETED;
         this.submitQuiz();
       } else {
         this.quizService.navigateToNextQuestion();
@@ -659,7 +655,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   advanceToPreviousQuestion() {
     this.answers = [];
-    this.status = Status.Continue;
+    this.status = QuizStatus.CONTINUE;
     this.animationState$.next('animationStarted');
     this.quizService.navigateToPreviousQuestion();
   }
@@ -674,9 +670,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   submitQuiz() {
     this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
-      this.status = Status.Completed;
+      this.status = QuizStatus.COMPLETED;
       // this.quizService.resetQuiz(); ???
-      this.router.navigate(['/results']);
+      this.router.navigate([QuizRoutes.RESULTS]);
     });
   }
 
@@ -688,7 +684,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answers = null;
-    this.router.navigate(['/intro/', this.quizId]);
+    this.router.navigate([QuizRoutes.INTRO, this.quizId]);
   }
 
   sendValuesToQuizService(): void {
@@ -716,8 +712,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   sendQuizIdToQuizService(): void {
-    this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
-      this.quizService.setQuiz(quiz).subscribe((selectedQuiz) => {
+    this.quizDataService.getQuizById(this.quizId).subscribe((quiz: Quiz) => {
+      this.quizService.setQuiz(quiz).subscribe((selectedQuiz: Quiz) => {
         // this.router.navigate(['/quiz', this.quizId, 'question', 1]);
       });
     });
