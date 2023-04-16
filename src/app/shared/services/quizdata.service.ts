@@ -294,7 +294,7 @@ export class QuizDataService implements OnInit {
         if (
           !options ||
           !Array.isArray(options) ||
-          (options && options.length === 0) ||
+          (options && options?.length === 0) ||
           (options && typeof options[Symbol.iterator] !== 'function')
         ) {
           throw new Error('Question options not found');
