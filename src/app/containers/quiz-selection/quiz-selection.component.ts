@@ -16,12 +16,18 @@ enum QuizRoutes {
   RESULTS = '/results/'
 }
 
+enum QuizStatus {
+  STARTED = 'started',
+  CONTINUE = 'continue',
+  COMPLETED = 'completed'
+}
+
 @Component({
   selector: 'codelab-quiz-selection',
   templateUrl: './quiz-selection.component.html',
   styleUrls: ['./quiz-selection.component.scss'],
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
@@ -79,7 +85,7 @@ export class QuizSelectionComponent implements OnInit {
   getLinkClass(quiz: Quiz): string[] {
     const classes = ['status-link'];
     switch (quiz.status) {
-      case 'Started':
+      case QuizStatus.STARTED:
         if (
           !this.selectionParams.quizCompleted ||
           quiz.quizId === this.selectionParams.startedQuizId
@@ -87,12 +93,12 @@ export class QuizSelectionComponent implements OnInit {
           classes.push('link');
         }
         break;
-      case 'Continue':
+      case QuizStatus.CONTINUE:
         if (quiz.quizId === this.selectionParams.continueQuizId) {
           classes.push('link');
         }
         break;
-      case 'Completed':
+      case QuizStatus.COMPLETED:
         if (quiz.quizId === this.selectionParams.completedQuizId) {
           classes.push('link');
         }
@@ -103,25 +109,25 @@ export class QuizSelectionComponent implements OnInit {
 
   getTooltip(quiz: Quiz): string {
     switch (quiz.status) {
-      case 'Started':
+      case QuizStatus.STARTED:
         return 'Start';
-      case 'Continue':
+      case QuizStatus.CONTINUE:
         return 'Continue';
-      case 'Completed':
+      case QuizStatus.COMPLETED:
         return 'Completed';
     }
   }
 
   shouldShowLink(quiz: Quiz): boolean {
     switch (quiz.status) {
-      case 'Started':
+      case QuizStatus.STARTED:
         return (
           !this.selectionParams.quizCompleted ||
           quiz.quizId === this.selectionParams.startedQuizId
         );
-      case 'Continue':
+      case QuizStatus.CONTINUE:
         return quiz.quizId === this.selectionParams.continueQuizId;
-      case 'Completed':
+      case QuizStatus.COMPLETED:
         return quiz.quizId === this.selectionParams.completedQuizId;
     }
   }
@@ -129,22 +135,22 @@ export class QuizSelectionComponent implements OnInit {
   getLinkRouterLink(quiz: Quiz) {
     const quizId = quiz.quizId;
     switch (quiz.status) {
-      case 'Started':
+      case QuizStatus.STARTED:
         return [QuizRoutes.INTRO, quizId];
-      case 'Continue':
+      case QuizStatus.CONTINUE:
         return [QuizRoutes.QUESTION, quizId, this.currentQuestionIndex];
-      case 'Completed':
+      case QuizStatus.COMPLETED:
         return [QuizRoutes.RESULTS, quizId];
     }
   }
 
   getIconClass(quiz: Quiz): string {
     switch (quiz.status) {
-      case 'Started':
+      case QuizStatus.STARTED:
         return 'material-icons start-icon';
-      case 'Continue':
+      case QuizStatus.CONTINUE:
         return 'material-icons continue-icon';
-      case 'Completed':
+      case QuizStatus.COMPLETED:
         return 'material-icons completed-icon';
     }
   }
