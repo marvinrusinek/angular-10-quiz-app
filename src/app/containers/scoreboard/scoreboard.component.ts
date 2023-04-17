@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ReplaySubject, Subject } from 'rxjs';
-import { delay, takeUntil, tap } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -22,7 +22,7 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() selectedAnswer: number;
+  @Input() selectedAnswer: number = this.answer;
   answer: number;
   totalQuestions: number;
   questionNumber: number;
@@ -38,20 +38,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.selectedAnswer = this.answer;
-
-    this.quizService.totalQuestions$
-      .pipe(
-        delay(10),
-        tap((totalQuestions) => {
-          this.totalQuestions$.next(totalQuestions);
-          this.ngZone.run(() => {
-            this.updateBadge(totalQuestions);
-          });
-        })
-      )
-      .subscribe();
-
     this.activatedRoute.params
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((params) => {
@@ -60,6 +46,18 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
           this.timerService.resetTimer();
         }
       });
+
+    this.quizService.totalQuestions$
+      .pipe(
+        tap((totalQuestions) => {
+          this.totalQuestions$.next(totalQuestions);
+          this.ngZone.run(() => {
+            this.updateBadge(totalQuestions);
+          });
+        }),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
