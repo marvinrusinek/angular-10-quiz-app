@@ -12,8 +12,7 @@
       [currentQuestion]="currentQuestion"
       [currentQuestionIndex]="currentQuestionIndex"
       (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
-    >
-    </codelab-question-single-answer>
+    ></codelab-question-single-answer>
 
     <codelab-question-multiple-answer
       *ngSwitchCase="multipleAnswer"
