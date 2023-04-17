@@ -8,9 +8,9 @@ import {
   SimpleChanges,
   NgZone,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ReplaySubject, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { ActivatedRoute, Params } from '@angular/router';
+import { ReplaySubject, Subject, throwError } from 'rxjs';
+import { catchError, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -22,7 +22,7 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() selectedAnswer: number = this.answer;
+  @Input() selectedAnswer: number;
   answer: number;
   totalQuestions: number;
   questionNumber: number;
@@ -39,8 +39,14 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.activatedRoute.params
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((params) => {
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        catchError((error) => {
+          console.error('Failed to get question index', error);
+          return throwError('Failed to get question index');
+        })
+      )
+      .subscribe((params: Params) => {
         if (params.questionIndex) {
           this.questionNumber = params.questionIndex;
           this.timerService.resetTimer();
@@ -55,7 +61,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
             this.updateBadge(totalQuestions);
           });
         }),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
+        catchError((error) => {
+          console.error('Failed to get total questions', error);
+          return throwError('Failed to get total questions');
+        })
       )
       .subscribe();
   }
