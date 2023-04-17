@@ -15,11 +15,7 @@ import {
   Subscription,
   timer,
 } from 'rxjs';
-import {
-  distinctUntilChanged,
-  switchMap,
-  takeUntil
-} from 'rxjs/operators';
+import { catchError, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -38,13 +34,13 @@ export class ScoreComponent implements OnInit, OnDestroy {
   correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
     0
   );
-  score: string;
+  score: string = '';
   numericalScore: string = '0/0';
-  percentageScore: string;
+  percentageScore: string = '';
   isPercentage: boolean = false;
   percentage: number = 0;
 
-  currentScore: string;
+  currentScore: string = '';
   numericalScore$: BehaviorSubject<string>;
   percentageScore$: BehaviorSubject<string>;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
@@ -57,40 +53,44 @@ export class ScoreComponent implements OnInit, OnDestroy {
 
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
-  constructor(
-    private quizService: QuizService,
-    private ngZone: NgZone
-  ) {
+  constructor(private quizService: QuizService, private ngZone: NgZone) {
     this.totalQuestions$ = this.quizService.getTotalQuestions();
   }
 
   ngOnInit(): void {
     this.isPercentage = true;
-    this.currentScore$ = new BehaviorSubject<string>('');
-
-    this.correctAnswersCount = 0;
-    this.correctAnswersCount$ = this.quizService.correctAnswersCountSubject;
 
     this.subscription = combineLatest([
       this.correctAnswersCount$.pipe(
         takeUntil(this.unsubscribeTrigger$),
         distinctUntilChanged()
       ),
-      this.quizService.getQuestions().pipe(
-        switchMap((questions) =>
-          combineLatest([of(questions), this.quizService.getTotalQuestions()])
-        )
-      ),
-    ]).subscribe(([correctAnswersCount, [questions, totalQuestions]]) => {
-      this.correctAnswersCount = correctAnswersCount;
-      this.totalQuestions = totalQuestions;
-      this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
-      this.ngZone.run(() => {
-        timer(0).subscribe(() => {
-          this.displayNumericalScore();
+      this.quizService
+        .getQuestions()
+        .pipe(
+          switchMap((questions) =>
+            combineLatest([of(questions), this.quizService.getTotalQuestions()])
+          ),
+          catchError((error) => {
+            console.error('Error in getQuestions():', error);
+            return of([]);
+          })
+        ),
+    ]).subscribe(
+      ([correctAnswersCount, [questions, totalQuestions]]) => {
+        this.correctAnswersCount = correctAnswersCount;
+        this.totalQuestions = totalQuestions;
+        this.numericalScore = `${this.correctAnswersCount}/${totalQuestions}`;
+        this.ngZone.run(() => {
+          timer(0).subscribe(() => {
+            this.displayNumericalScore();
+          });
         });
-      });
-    });
+      },
+      (error) => {
+        console.error('Error in ScoreComponent subscription:', error);
+      }
+    );
   }
 
   ngOnDestroy(): void {
