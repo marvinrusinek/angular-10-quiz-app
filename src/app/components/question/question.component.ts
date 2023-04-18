@@ -112,8 +112,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('Multiple Answer:', this.multipleAnswer);
-    console.log('Multiple Answer:', this.multipleAnswer);
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
