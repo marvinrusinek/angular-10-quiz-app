@@ -35,6 +35,7 @@ import { OptionFeedbackComponent } from './option-feedback/option-feedback.compo
     FeedbackComponent,
     OptionFeedbackComponent
   ],
+  exports: [QuizQuestionComponent, MultipleAnswerComponent, SingleAnswerComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class QuizQuestionModule {}

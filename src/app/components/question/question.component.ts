@@ -109,14 +109,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
-
-    console.log("MYTEST");
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('QuizQuestionComponent ngOnInit called');
     console.log('Multiple Answer:', this.multipleAnswer);
-    console.log("TEST");
     console.log('Multiple Answer:', this.multipleAnswer);
     const quizId = this.quizService.quizId;
     if (quizId) {
@@ -152,7 +148,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }  
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('Multiple Answer changed:', changes.multipleAnswer);
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
