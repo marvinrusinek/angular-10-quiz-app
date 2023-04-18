@@ -20,24 +20,23 @@ export class QuizStateService {
   constructor() { }
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
-    if (question$) {
-      question$.subscribe((question) => {
-        this.currentQuestion.next(question);
-        this.currentQuestionSubject.next(question);
-        if (question && question.options) {
-          this.currentOptionsSubject.next(question.options);
-          console.log('options:', question.options);
-        } else {
-          console.log('No options found');
-        }
-      });
-    } else {
-      this.currentQuestion.next(null);
-      this.currentQuestionSubject.next(null);
-      this.currentOptionsSubject.next(null);
+    if (!question$) {
+      throwError('Question$ is null or undefined.');
+      return;
     }
+  
+    question$.subscribe((question) => {
+      this.currentQuestion.next(question);
+      this.currentQuestionSubject.next(question);
+      if (question && question.options) {
+        this.currentOptionsSubject.next(question.options);
+        console.log('options:', question.options);
+      } else {
+        console.log('No options found');
+      }
+    });
   }
-
+  
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
   }
