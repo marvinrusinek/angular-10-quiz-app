@@ -1,5 +1,5 @@
 <div>
-  <label class="options" *ngFor="let option of options; index as i">
+  <label class="options" *ngFor="let option of currentQuestion?.options; index as i">
     <mat-checkbox
       (click)="selectedOption = option; super.onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, option)"
