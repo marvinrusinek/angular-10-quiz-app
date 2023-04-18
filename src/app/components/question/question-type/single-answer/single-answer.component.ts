@@ -42,9 +42,9 @@ export class SingleAnswerComponent
 
   @Output() selectionChanged: EventEmitter<{ question: QuizQuestion, selectedOptions: Option[] }> = new EventEmitter();
   @Output() optionSelected: EventEmitter<Option> = new EventEmitter<Option>();
-  @Input() question: QuizQuestion;
+  @Input() question!: QuizQuestion;
   @Input() options: Option[];
-  @Input() currentQuestionIndex: number;
+  @Input() currentQuestionIndex!: number;
   @Input() correctMessage: string;
   @Input() selected: string;
   // selectedOption: Option = { text: '', correct: false, value: null } as Option;
