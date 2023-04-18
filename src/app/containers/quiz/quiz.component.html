@@ -55,11 +55,15 @@
         [selectedOption]="selectedOption$ | async"
         (onOptionSelected)="onOptionSelected($event)"
         (formReady)="form = $event"
-        [currentQuestion$]="currentQuestion$"
+        [currentQuestion$]="currentQuestion$ | async"
         [currentQuestionIndex]="currentQuestionIndex"
         [multipleAnswer]="isMultipleAnswer"
       >
       </codelab-quiz-question>
+
+      <div *ngIf="quizStateService.currentQuestion">
+        QuizQuestionComponent created!
+      </div>
     </mat-card-content>
 
     <mat-card-footer [ngClass]="cardFooterClass">
