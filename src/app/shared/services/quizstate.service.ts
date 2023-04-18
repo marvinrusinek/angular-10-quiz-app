@@ -25,7 +25,12 @@ export class QuizStateService {
       return;
     }
   
-    question$.subscribe((question) => {
+    question$.pipe(
+      catchError((error) => {
+        console.error(error);
+        return throwError(error);
+      })
+    ).subscribe((question) => {
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
       if (question && question.options) {
