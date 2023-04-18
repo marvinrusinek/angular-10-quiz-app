@@ -96,6 +96,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   resources: Resource[];
   answers = [];
   options: Option[] = [];
+  multipleAnswer: boolean = false;
 
   selectedOption: Option;
   selectedAnswers: number[] = [];
@@ -123,9 +124,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private optionsSubscription: Subscription;
 
-  get multipleAnswer(): boolean {
+  /* get multipleAnswer(): boolean {
     return this.quizService.isMultipleAnswer;
-  }
+  } */
   get correctOptions(): string {
     return this.quizService.correctOptions;
   }
@@ -163,7 +164,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (question && options) {
         this.quizStateService.setCurrentQuestion(of(question));
         this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-          console.log('MA', isMultipleAnswer);
+          this.multipleAnswer = isMultipleAnswer;
+          // console.log('MA', isMultipleAnswer);
         });
       } else {
         console.log('Question or options not found');

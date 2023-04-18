@@ -51,7 +51,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$!: Observable<QuizQuestion>;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
-  @Input() multipleAnswer: boolean;
+  @Input() multipleAnswer: boolean = false;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -130,6 +130,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId parameter is null or undefined');
     }
+
+    this.quizStateService.isMultipleAnswer(this.question).subscribe((isMultipleAnswer) => {
+      this.multipleAnswer = isMultipleAnswer;
+    });
 
     try {
       const [question] = await this.quizService.getCurrentQuestion();
