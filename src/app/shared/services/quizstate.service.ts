@@ -41,7 +41,7 @@ export class QuizStateService {
         this.currentOptionsSubject.next(question.options);
         console.log('options:', question.options);
       } else {
-        console.log('No options found');
+        console.log('No options found.');
       }
     });
   }
@@ -61,7 +61,7 @@ export class QuizStateService {
       this.setMultipleAnswer(isMultipleAnswer);
       return this.multipleAnswerSubject.asObservable();
     } else {
-      console.error('Question options not found');
+      console.error('Question options not found.');
       return of(false);
     }
   }
