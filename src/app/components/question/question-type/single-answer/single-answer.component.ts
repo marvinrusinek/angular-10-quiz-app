@@ -76,7 +76,7 @@ export class SingleAnswerComponent
     this.quizStateService = quizStateService;
   }
 
-  async ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
