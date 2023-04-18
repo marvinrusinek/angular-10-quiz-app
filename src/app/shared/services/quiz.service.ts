@@ -570,7 +570,13 @@ export class QuizService implements OnDestroy {
   setQuestions(value: QuizQuestion[]): void {
     this.questions = value;
     this.questions$ = of(this.questions);
+  
+    // set the first question as the current question
+    if (this.questions && this.questions.length > 0) {
+      this.quizStateService.setCurrentQuestion(this.questions[0]);
+    }
   }
+  
 
   setChecked(value: boolean): void {
     this.checkedShuffle = value;
