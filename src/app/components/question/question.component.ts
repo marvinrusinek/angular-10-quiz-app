@@ -51,7 +51,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$!: Observable<QuizQuestion>;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
-  @Input() multipleAnswer: boolean = false;
+  @Input() multipleAnswer: boolean;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -112,6 +112,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('Multiple Answer:', this.multipleAnswer);
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
@@ -152,6 +153,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('Multiple Answer changed:', changes.multipleAnswer);
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)

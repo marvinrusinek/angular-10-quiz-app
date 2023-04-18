@@ -165,7 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizStateService.setCurrentQuestion(of(question));
         this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
           this.multipleAnswer = isMultipleAnswer;
-          // console.log('MA', isMultipleAnswer);
+          console.log('MA', this.multipleAnswer);
         });
       } else {
         console.log('Question or options not found');
