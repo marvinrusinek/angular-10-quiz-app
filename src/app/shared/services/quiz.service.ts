@@ -274,21 +274,6 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    if (question && question.options) {
-      const correctOptions = question.options.filter((option) => option.correct);
-      const isMultipleAnswer = correctOptions.length > 1;
-      console.log("isMultipleAnswer function: ", isMultipleAnswer);
-      this.setMultipleAnswer(isMultipleAnswer);
-      console.log("multipleAnswerSubject value: ", this.multipleAnswerSubject.getValue());
-      return this.multipleAnswerSubject.asObservable();
-    } else {
-      console.error('Question options not found');
-      return of(false);
-    }
-  }
-  
-
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex;
@@ -570,23 +555,8 @@ export class QuizService implements OnDestroy {
   setQuestions(value: QuizQuestion[]): void {
     this.questions = value;
     this.questions$ = of(this.questions);
-  
-    // set the first question as the current question
-    if (this.questions && this.questions.length > 0) {
-      this.quizStateService.setCurrentQuestion(this.questions[0]);
-    }
   }
   
-
-  setChecked(value: boolean): void {
-    this.checkedShuffle = value;
-  }
-
-  setMultipleAnswer(value: boolean): void {
-    this.multipleAnswer = value;
-    this.multipleAnswerSubject.next(this.multipleAnswer);
-  }
-
   setCurrentQuestion(question: QuizQuestion) {
     console.log('setCurrentQuestion called with question:', question);
     if (question && !isEqual(question, this.currentQuestion)) {
@@ -597,6 +567,10 @@ export class QuizService implements OnDestroy {
 
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
+  }
+
+  setChecked(value: boolean): void {
+    this.checkedShuffle = value;
   }
 
   setResources(value: Resource[]): void {
