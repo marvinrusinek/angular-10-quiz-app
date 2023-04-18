@@ -137,25 +137,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('quizId parameter is null or undefined');
     }
 
-    this.quizStateService.isMultipleAnswer(this.question).subscribe((isMultipleAnswer) => {
-      this.multipleAnswer = isMultipleAnswer;
-    });
-
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.quizStateService.setCurrentQuestion(of(question));
-      this.multipleAnswer = await this.quizService
-        .isMultipleAnswer(question)
-        .toPromise();
-
+      this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
+        this.multipleAnswer = isMultipleAnswer;
+      });
+    
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-
-    this.updateQuestionForm();
-  }
+  }  
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('Multiple Answer changed:', changes.multipleAnswer);
