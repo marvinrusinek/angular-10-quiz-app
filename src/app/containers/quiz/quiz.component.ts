@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   private optionsSubscription: Subscription;
 
   get multipleAnswer(): boolean {
-    return this.quizService.multipleAnswer;
+    return this.quizService.isMultipleAnswer;
   }
   get correctOptions(): string {
     return this.quizService.correctOptions;
@@ -157,6 +157,17 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
+    });
+
+    console.log('QuizComponent ngOnInit');
+    this.quizStateService.currentQuestion.subscribe((question) => {
+      console.log('currentQuestion', question);
+      this.currentQuestion = question;
+      console.log('currentQuestion set', this.currentQuestion);
+    });
+
+    this.quizService.isMultipleAnswer(this.currentQuestion).subscribe((isMultipleAnswer) => {
+      console.log("MA", isMultipleAnswer);
     });
 
     this.subscribeRouterAndInit();

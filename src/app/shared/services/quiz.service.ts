@@ -78,6 +78,7 @@ export class QuizService implements OnDestroy {
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswerSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
+  multipleAnswer: boolean = false;
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
@@ -153,10 +154,6 @@ export class QuizService implements OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-
-  /* setMultipleAnswer(value: boolean) {
-    this._multipleAnswer = value;
-  } */
 
   getMultipleAnswer(): boolean {
     return this._multipleAnswer;
@@ -279,17 +276,18 @@ export class QuizService implements OnDestroy {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     if (question && question.options) {
-      const correctOptions = question.options.filter(
-        (option) => option.correct
-      );
+      const correctOptions = question.options.filter((option) => option.correct);
       const isMultipleAnswer = correctOptions.length > 1;
+      console.log("isMultipleAnswer function: ", isMultipleAnswer);
       this.setMultipleAnswer(isMultipleAnswer);
+      console.log("multipleAnswerSubject value: ", this.multipleAnswerSubject.getValue());
       return this.multipleAnswerSubject.asObservable();
     } else {
       console.error('Question options not found');
       return of(false);
     }
   }
+  
 
   getNextQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
