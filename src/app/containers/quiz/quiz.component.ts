@@ -79,12 +79,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
   quizQuestions: QuizQuestion[];
-  question: QuizQuestion;
+  question!: QuizQuestion;
   questions: QuizQuestion[];
-  question$: Observable<QuizQuestion>;
+  question$!: Observable<QuizQuestion>;
   questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
-  currentQuestion$: Observable<QuizQuestion>;
+  currentQuestion$!: Observable<QuizQuestion>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
   currentOptions: Option[];
   options$: Observable<Option[]>;
@@ -106,7 +106,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   errorMessage: string;
   cardFooterClass = '';
 
-  currentQuestionIndex = 0;
+  currentQuestionIndex!: number = 0;
   correctOptionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
@@ -114,7 +114,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctCount: number;
   score: number;
 
-  quizId: string = '';
+  quizId!: string = '';
   quizName$: Observable<string>;
   indexOfQuizId: number;
   status: QuizStatus;
