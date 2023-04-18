@@ -18,6 +18,9 @@ export class QuizStateService {
   private currentQuizIdSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   currentQuizId$ = this.currentQuizIdSubject.asObservable();
 
+  multipleAnswerSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  multipleAnswer: boolean = false;
+
   constructor() { }
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
