@@ -9,16 +9,15 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class QuizStateService {
-  currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion: BehaviorSubject<QuizQuestion | null> 
+    = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentOptionsSubject = new BehaviorSubject<Option[]>(null);
   currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
   
-  private currentQuizIdSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
-  currentQuizId$ = this.currentQuizIdSubject.asObservable();
-
-  multipleAnswerSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  multipleAnswerSubject: BehaviorSubject<boolean> 
+    = new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
 
   constructor() { }
