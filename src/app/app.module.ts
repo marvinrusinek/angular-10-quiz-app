@@ -54,6 +54,9 @@ import { JoinPipe } from './pipes/join.pipe';
     IntroductionComponent,
     QuizComponent,
     QuizExplanationComponent,
+    QuizQuestionComponent, 
+    MultipleAnswerComponent, 
+    SingleAnswerComponent,
     QuizSelectionComponent,
     ResultsComponent,
     ScoreboardComponent,
@@ -88,7 +91,12 @@ import { JoinPipe } from './pipes/join.pipe';
     NgbModule,
     FontAwesomeModule,
   ],
-  exports: [MatExpansionModule],
+  exports: [
+    MatExpansionModule, 
+    QuizQuestionComponent, 
+    MultipleAnswerComponent, 
+    SingleAnswerComponent
+  ],
   bootstrap: [AppComponent],
   providers: [
     QuizDataService,
