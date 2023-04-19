@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -30,7 +30,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({
   providedIn: 'root',
 })
-export class QuizDataService implements OnInit {
+export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
