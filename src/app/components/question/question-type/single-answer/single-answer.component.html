@@ -2,7 +2,7 @@
   <div class="options" *ngFor="let option of currentQuestion?.options; let i = index">
     <mat-radio-button
       [id]="'option' + i"
-      [class]="option.styleClass"
+      [class]="option?.styleClass"
       [value]="option"
       (change)="updateSelectedOption(option, i)"
       [checked]="option?.selected"
