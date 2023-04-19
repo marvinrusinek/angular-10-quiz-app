@@ -80,13 +80,11 @@ export class QuizDataService implements OnInit {
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
 
-    this.http.get<Quiz[]>(this.quizUrl).subscribe(
-      (quizzes) => this.quizzes$.next(quizzes),
-      (error) => console.error(error)
-    );
+    this.loadQuizzes();
+    this.loadQuizzesFromServer();
   }
 
-  ngOnInit(): void {
+  loadQuizzes(): void {
     this.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       if (this.quizzes.length > 0) {
@@ -94,6 +92,13 @@ export class QuizDataService implements OnInit {
         this.selectedQuiz$.next(this.selectedQuiz);
       }
     });
+  }
+
+  loadQuizzesFromServer() {
+    this.http.get<Quiz[]>(this.quizUrl).subscribe(
+      (quizzes) => this.quizzes$.next(quizzes),
+      (error) => console.error(error)
+    );
   }
 
   getQuizData(quizId: string): Observable<QuizQuestion[]> {
