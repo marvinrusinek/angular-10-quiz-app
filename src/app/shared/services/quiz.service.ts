@@ -133,7 +133,7 @@ export class QuizService implements OnDestroy {
     return this._multipleAnswer;
   }
 
-  get quizData$() {
+  get quizData$(): Observable<Quiz[]> {
     return this._quizData$.asObservable();
   }
 
