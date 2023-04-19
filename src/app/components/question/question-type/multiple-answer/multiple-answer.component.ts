@@ -79,7 +79,6 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('CORRMSG', this.correctMessage);
     try {
       const [question, options] = await this.quizService.getCurrentQuestion();
       this.currentQuestion = question;
