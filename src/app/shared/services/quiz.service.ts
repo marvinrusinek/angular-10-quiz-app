@@ -142,7 +142,7 @@ export class QuizService implements OnDestroy {
     return this._quizData$.asObservable();
   }
 
-  private loadData() {
+  loadData() {
     this.getQuizData().subscribe((data) => {
       this._quizData$.next(data);
     });
@@ -156,7 +156,7 @@ export class QuizService implements OnDestroy {
     });
   }
   
-  private initializeData() {
+  initializeData() {
     this.quizData = QUIZ_DATA || [];
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
