@@ -385,8 +385,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     const correctOptions =
       this.options?.filter((option) => option.correct) ?? [];
-    this.quizService.setMultipleAnswer(correctOptions.length > 1);
-    this.quizService.isMultipleAnswer(currentQuestion);
+    this.quizStateService.setMultipleAnswer(correctOptions.length > 1);
+    this.quizStateService.isMultipleAnswer(currentQuestion);
   }
 
   toggleOptions(): void {
@@ -478,6 +478,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   sendMultipleAnswerToQuizService(multipleAnswer: boolean): void {
-    this.quizService.setMultipleAnswer(multipleAnswer);
+    this.quizStateService.setMultipleAnswer(multipleAnswer);
   }
 }
