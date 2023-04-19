@@ -52,7 +52,7 @@ export class MultipleAnswerComponent
   selectedOptions: Option[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
-  isMultiple = true;
+  isMultiple: boolean = true;
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -88,7 +88,7 @@ export class MultipleAnswerComponent
       this.currentOptionsSubscription = this.quizStateService
         .getCurrentQuestion()
         .pipe(
-          map((question) => question?.options),
+          map((question: QuizQuestion) => question?.options),
           takeUntil(this.destroyed$)
         )
         .subscribe((options) => {
