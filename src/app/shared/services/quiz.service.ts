@@ -511,16 +511,10 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  /* setQuiz(quiz: Quiz): Observable<Quiz> {
-    this.selectedQuiz = quiz;
-    return of(this.selectedQuiz);
-  } */
-
   setQuiz(quiz: Quiz): Observable<Quiz> {
     this.selectedQuiz = quiz;
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
       tap((quiz: Quiz) => {
-        // do any additional processing here, such as setting the quiz state
         console.log('Quiz loaded successfully', quiz);
       }),
       catchError((err) => {
