@@ -158,10 +158,6 @@ export class QuizService implements OnDestroy {
     return this._multipleAnswer;
   }
 
-  /* get quizData$(): Observable<Quiz[]> {
-    return of(this.quizData);
-  } */
-
   get quizData$() {
     return this._quizData$.asObservable();
   }
@@ -290,58 +286,27 @@ export class QuizService implements OnDestroy {
     if (this.currentQuestionSubject.value) {
       return [this.currentQuestionSubject.value, this.options];
     }
-
+  
     if (this.isGettingQuestion) {
       return await this.currentQuestionPromise;
     }
-
+  
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       try {
         let currentQuestion = await this.currentQuestion$.toPromise();
-
+  
         const questionIndex = this.currentQuestionIndex;
         if (!questionIndex && questionIndex !== 0) {
           this.currentQuestionIndex = 0;
         }
-
-        if (this.questionsAndOptions[questionIndex]) {
-          const [question, options] = this.questionsAndOptions[questionIndex];
-          this.currentQuestion = question;
-          this.options = options;
-          this.isGettingQuestion = false;
-          resolve([question, options]);
-          return;
-        }
-
-        if (
-          !this.quizId ||
-          !this.quizQuestions ||
-          this.quizQuestions.length === 0
-        ) {
-          console.error('Quiz or questions array is null or undefined');
-          this.currentQuestion = null;
-          this.options = null;
-          this.isGettingQuestion = false;
-          reject(new Error('Quiz or questions array is null or undefined'));
-          return;
-        }
-
-        const question = this.quizQuestions[questionIndex];
-        const options = this.quizQuestions[questionIndex].options;
-        if (question && options && options.length > 0) {
-          this.currentQuestion = question;
-          this.options = options;
-          this.questionsAndOptions[questionIndex] = [question, options];
-          this.isGettingQuestion = false;
-          resolve([question, options]);
-        } else {
-          console.error('Question or options array is null or undefined');
-          this.currentQuestion = null;
-          this.options = null;
-          this.isGettingQuestion = false;
-          reject(new Error('Question or options array is null or undefined'));
-        }
+  
+        const [question, options] = await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
+  
+        this.currentQuestion = question;
+        this.options = options;
+        this.isGettingQuestion = false;
+        resolve([question, options]);
       } catch (error) {
         console.error('Error getting current question:', error);
         this.currentQuestion = null;
@@ -350,8 +315,37 @@ export class QuizService implements OnDestroy {
         reject(error);
       }
     });
-
+  
     return await this.currentQuestionPromise;
+  }
+
+  async getQuestionAndOptionsFromCacheOrFetch(questionIndex: number): Promise<[QuizQuestion, Option[]]> {
+    if (this.questionsAndOptions[questionIndex]) {
+      return this.questionsAndOptions[questionIndex];
+    }
+  
+    const [question, options] = await this.fetchQuestionAndOptions(questionIndex);
+  
+    this.questionsAndOptions[questionIndex] = [question, options];
+  
+    return [question, options];
+  }
+
+  async fetchQuestionAndOptions(questionIndex: number): Promise<[QuizQuestion, Option[]]> {
+    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+      console.error('Quiz or questions array is null or undefined');
+      throw new Error('Quiz or questions array is null or undefined');
+    }
+  
+    const question = this.quizQuestions[questionIndex];
+    const options = question.options;
+  
+    if (!question || !options || options.length === 0) {
+      console.error('Question or options array is null or undefined');
+      throw new Error('Question or options array is null or undefined');
+    }
+  
+    return [question, options];
   }
 
   getPreviousQuestion(): QuizQuestion {
