@@ -622,11 +622,4 @@ export class QuizService implements OnDestroy {
     this.explanationText = '';
     this.currentQuestionIndex = 0;
   }
-
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
-  }
 }

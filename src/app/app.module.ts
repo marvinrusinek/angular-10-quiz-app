@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizRoutingModule } from './router/quiz-routing.module';
-import { QuizQuestionModule } from './components/question/quiz-question.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
@@ -23,6 +22,13 @@ import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
 import { QuizExplanationComponent } from './containers/quiz/explanation/explanation.component';
+import { QuizQuestionComponent } from './components/question/question.component';
+import { MultipleAnswerComponent } from './components/question/question-type/multiple-answer/multiple-answer.component';
+import { SingleAnswerComponent } from './components/question/question-type/single-answer/single-answer.component';
+import { FeedbackComponent } from './components/question/feedback/feedback.component';
+import { OptionFeedbackComponent } from './components/question/option-feedback/option-feedback.component';
+
+
 import { QuizSelectionComponent } from './containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from './containers/results/results.component';
 import { ScoreboardComponent } from './containers/scoreboard/scoreboard.component';
@@ -68,7 +74,6 @@ import { JoinPipe } from './pipes/join.pipe';
     BrowserAnimationsModule,
     HttpClientModule,
     QuizRoutingModule,
-    QuizQuestionModule,
     ReactiveFormsModule,
     MatCardModule,
     MatRadioModule,
