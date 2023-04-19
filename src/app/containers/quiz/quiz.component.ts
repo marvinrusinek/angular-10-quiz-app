@@ -325,7 +325,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const isMultiple = await this.quizService.isMultipleAnswer(question)
+    const isMultiple = await this.quizStateService.isMultipleAnswer(question)
       .toPromise();
     this.quizService.setMultipleAnswer(isMultiple);
 
