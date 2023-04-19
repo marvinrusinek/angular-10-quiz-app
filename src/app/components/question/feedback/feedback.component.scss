@@ -3,7 +3,7 @@
 .message {
   display: flex;
   justify-content: center;
-  margin: 5px 15px 5px 0;
+  margin: -15px 15px 5px 0;
 
   i {
     font-size: 30px;
@@ -18,7 +18,7 @@
     font-size: 17px;
     font-style: italic;
     font-weight: bold;
-    margin: 10px 0 0 -15px !important;
+    margin: -100px 0 0 -15px !important;
     padding: 10px;
     width: 570px;
     display: inline-flex;
@@ -38,9 +38,10 @@
 
   .correct-message,
   .wrong-message {
-    margin: -5px 0 -5px 25px;
+    margin: -5px 0 15px 25px;
     border: 2px solid;
     border-radius: 10px;
+    height: 50px;
   }
 }
 
