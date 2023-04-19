@@ -49,7 +49,6 @@ export class MultipleAnswerComponent
   form: FormGroup;
   currentQuestion$: Observable<QuizQuestion>;
   currentOptionsSubscription: Subscription;
-  // selectedOption: Option = { text: '', correct: false, value: null } as Option;
   selectedOptions: Option[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
