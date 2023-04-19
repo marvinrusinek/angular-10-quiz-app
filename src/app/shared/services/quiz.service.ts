@@ -9,12 +9,7 @@ import {
   Subject,
   throwError,
 } from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  tap
-} from 'rxjs/operators';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 import { isEqual } from 'lodash';
@@ -125,8 +120,28 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.loadData();
-    this.initializeData();
+    this.getQuizData().subscribe((data) => {
+      this._quizData$.next(data);
+    });
+
+    this.activatedRoute.paramMap.subscribe((params) => {
+      this.quizId = params.get('quizId');
+      this.indexOfQuizId = this.quizData.findIndex(
+        (elem) => elem.quizId === this.quizId
+      );
+      this.returnQuizSelectionParams();
+    });
+
+    this.quizData = QUIZ_DATA || [];
+    if (QUIZ_DATA) {
+      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
+    } else {
+      console.log('QUIZ_DATA is undefined or null');
+    }
+
+    this.quizResources = QUIZ_RESOURCES || [];
+
+    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
   ngOnDestroy(): void {
@@ -140,33 +155,6 @@ export class QuizService implements OnDestroy {
 
   get quizData$() {
     return this._quizData$.asObservable();
-  }
-
-  loadData() {
-    this.getQuizData().subscribe((data) => {
-      this._quizData$.next(data);
-    });
-  
-    this.activatedRoute.paramMap.subscribe((params) => {
-      this.quizId = params.get('quizId');
-      this.indexOfQuizId = this.quizData.findIndex(
-        (elem) => elem.quizId === this.quizId
-      );
-      this.returnQuizSelectionParams();
-    });
-  }
-  
-  initializeData() {
-    this.quizData = QUIZ_DATA || [];
-    if (QUIZ_DATA) {
-      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
-    } else {
-      console.log('QUIZ_DATA is undefined or null');
-    }
-  
-    this.quizResources = QUIZ_RESOURCES || [];
-  
-    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
   private getQuizData(): Observable<Quiz[]> {
@@ -209,7 +197,7 @@ export class QuizService implements OnDestroy {
   getQuestions(): Observable<QuizQuestion[]> {
     if (!this.questions$) {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        tap(questions => {
+        tap((questions) => {
           this.questions = questions;
         }),
         catchError(() => of([]))
@@ -293,23 +281,24 @@ export class QuizService implements OnDestroy {
     if (this.currentQuestionSubject.value) {
       return [this.currentQuestionSubject.value, this.options];
     }
-  
+
     if (this.isGettingQuestion) {
       return await this.currentQuestionPromise;
     }
-  
+
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       try {
         let currentQuestion = await this.currentQuestion$.toPromise();
-  
+
         const questionIndex = this.currentQuestionIndex;
         if (!questionIndex && questionIndex !== 0) {
           this.currentQuestionIndex = 0;
         }
-  
-        const [question, options] = await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
-  
+
+        const [question, options] =
+          await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
+
         this.currentQuestion = question;
         this.options = options;
         this.isGettingQuestion = false;
@@ -322,36 +311,46 @@ export class QuizService implements OnDestroy {
         reject(error);
       }
     });
-  
+
     return await this.currentQuestionPromise;
   }
 
-  async getQuestionAndOptionsFromCacheOrFetch(questionIndex: number): Promise<[QuizQuestion, Option[]]> {
+  async getQuestionAndOptionsFromCacheOrFetch(
+    questionIndex: number
+  ): Promise<[QuizQuestion, Option[]]> {
     if (this.questionsAndOptions[questionIndex]) {
       return this.questionsAndOptions[questionIndex];
     }
-  
-    const [question, options] = await this.fetchQuestionAndOptions(questionIndex);
-  
+
+    const [question, options] = await this.fetchQuestionAndOptions(
+      questionIndex
+    );
+
     this.questionsAndOptions[questionIndex] = [question, options];
-  
+
     return [question, options];
   }
 
-  async fetchQuestionAndOptions(questionIndex: number): Promise<[QuizQuestion, Option[]]> {
-    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+  async fetchQuestionAndOptions(
+    questionIndex: number
+  ): Promise<[QuizQuestion, Option[]]> {
+    if (
+      !this.quizId ||
+      !this.quizQuestions ||
+      this.quizQuestions.length === 0
+    ) {
       console.error('Quiz or questions array is null or undefined');
       throw new Error('Quiz or questions array is null or undefined');
     }
-  
+
     const question = this.quizQuestions[questionIndex];
     const options = question.options;
-  
+
     if (!question || !options || options.length === 0) {
       console.error('Question or options array is null or undefined');
       throw new Error('Question or options array is null or undefined');
     }
-  
+
     return [question, options];
   }
 
@@ -556,7 +555,7 @@ export class QuizService implements OnDestroy {
     this.questions = value;
     this.questions$ = of(this.questions);
   }
-  
+
   setCurrentQuestion(question: QuizQuestion) {
     console.log('setCurrentQuestion called with question:', question);
     if (question && !isEqual(question, this.currentQuestion)) {
