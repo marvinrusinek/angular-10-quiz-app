@@ -224,10 +224,14 @@ export class QuizDataService implements OnInit {
     const quiz$ = this.loadQuizData();
     const currentQuestion$ = this.getCurrentQuestion(quiz$, quizId, questionIndex);
     const options$ = this.getQuestionOptions(currentQuestion$);
-    this.processQuestionAndOptions(currentQuestion$, options$, questionIndex);
+    
+    this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe((questionAndOptions) => {
+      this.questionAndOptionsSubject.next(questionAndOptions);
+    });
   
     return this.questionAndOptionsSubject.asObservable();
   }
+ 
 
   loadQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
