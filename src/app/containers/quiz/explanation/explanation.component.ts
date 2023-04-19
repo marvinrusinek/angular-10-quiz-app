@@ -7,9 +7,9 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizExplanationComponent {
-  @Input() isAnswered: boolean;
-  @Input() questionText: string;
+  @Input() isAnswered: boolean = false;
+  @Input() questionText: string = '';
   @Input() numberOfCorrectAnswers: number;
-  @Input() correctOptions: string;
-  @Input() explanationText: string;
+  @Input() correctOptions: string = '';
+  @Input() explanationText: string = '';
 }
