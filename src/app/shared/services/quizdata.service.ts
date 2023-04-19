@@ -222,7 +222,7 @@ export class QuizDataService implements OnInit {
     }
   
     const quiz$ = this.loadQuizData();
-    const currentQuestion$ = this.getCurrentQuestion(quiz$, quizId, questionIndex);
+    const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quiz$, quizId, questionIndex);
     const options$ = this.getQuestionOptions(currentQuestion$);
     
     this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe((questionAndOptions) => {
@@ -244,7 +244,7 @@ export class QuizDataService implements OnInit {
     );
   }
 
-  getCurrentQuestion(quiz$: Observable<Quiz[]>, quizId: string, questionIndex: number): Observable<QuizQuestion> {
+  getQuizQuestionByIdAndIndex(quiz$: Observable<Quiz[]>, quizId: string, questionIndex: number): Observable<QuizQuestion> {
     const quizId$ = this.activatedRoute.params.pipe(
       map((params) => params.quizId),
       filter((quizId) => !!quizId),
