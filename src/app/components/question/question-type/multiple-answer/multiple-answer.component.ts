@@ -79,6 +79,7 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('options in codelab-question-multiple-answer', this.options);
     try {
       const [question, options] = await this.quizService.getCurrentQuestion();
       this.currentQuestion = question;
@@ -138,15 +139,23 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option: Option): string {
-    if (Array.isArray(this.selectedOptions) && this.selectedOptions.includes(option) && option.correct) {
+    if (
+      Array.isArray(this.selectedOptions) &&
+      this.selectedOptions.includes(option) &&
+      option.correct
+    ) {
       return 'correct';
-    } else if (Array.isArray(this.selectedOptions) && this.selectedOptions.includes(option) && !option.correct) {
+    } else if (
+      Array.isArray(this.selectedOptions) &&
+      this.selectedOptions.includes(option) &&
+      !option.correct
+    ) {
       return 'incorrect';
     } else {
       return '';
     }
   }
- 
+
   isOptionSelected(option: Option): boolean {
     return this.selectedOptions.indexOf(option) > -1;
   }
