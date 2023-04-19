@@ -65,7 +65,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctAnswers: number[] = [];
   correctMessage: string = '';
   alreadyAnswered = false;
-  optionList: Option[];
   hasSelectedOptions = false;
   optionChecked: { [optionId: number]: boolean } = {};
   answers;
