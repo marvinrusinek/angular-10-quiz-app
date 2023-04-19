@@ -103,15 +103,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
-    this.selectedOption = this.getSelectedOption();
-    this.correctMessage = '';
 
+    this.selectedOption = this.getSelectedOption();
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
   }
 
   async ngOnInit(): Promise<void> {
+    this.currentQuestion = this.quizStateService.currentQuestion;
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
