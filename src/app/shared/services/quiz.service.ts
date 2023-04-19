@@ -97,7 +97,6 @@ export class QuizService implements OnDestroy {
   private _multipleAnswer: boolean;
   checkedShuffle: boolean;
   private isGettingQuestion = false;
-  private isGettingCurrentQuestion = false;
   private currentQuestionPromise: Promise<[QuizQuestion, Option[]]> = null;
   currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
