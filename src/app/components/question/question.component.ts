@@ -143,7 +143,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-  }  
+
+    this.updateQuestionForm();
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
