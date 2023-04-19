@@ -57,6 +57,8 @@ import { JoinPipe } from './pipes/join.pipe';
     QuizQuestionComponent, 
     MultipleAnswerComponent, 
     SingleAnswerComponent,
+    FeedbackComponent,
+    OptionFeedbackComponent, 
     QuizSelectionComponent,
     ResultsComponent,
     ScoreboardComponent,
@@ -95,7 +97,9 @@ import { JoinPipe } from './pipes/join.pipe';
     MatExpansionModule, 
     QuizQuestionComponent, 
     MultipleAnswerComponent, 
-    SingleAnswerComponent
+    SingleAnswerComponent,
+    FeedbackComponent,
+    OptionFeedbackComponent
   ],
   bootstrap: [AppComponent],
   providers: [
