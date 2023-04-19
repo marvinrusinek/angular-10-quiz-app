@@ -120,28 +120,8 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.getQuizData().subscribe((data) => {
-      this._quizData$.next(data);
-    });
-
-    this.activatedRoute.paramMap.subscribe((params) => {
-      this.quizId = params.get('quizId');
-      this.indexOfQuizId = this.quizData.findIndex(
-        (elem) => elem.quizId === this.quizId
-      );
-      this.returnQuizSelectionParams();
-    });
-
-    this.quizData = QUIZ_DATA || [];
-    if (QUIZ_DATA) {
-      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
-    } else {
-      console.log('QUIZ_DATA is undefined or null');
-    }
-
-    this.quizResources = QUIZ_RESOURCES || [];
-
-    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
+    this.loadData();
+    this.initializeData();
   }
 
   ngOnDestroy(): void {
@@ -159,6 +139,33 @@ export class QuizService implements OnDestroy {
 
   private getQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>('/assets/data/quiz.json');
+  }
+
+  private loadData() {
+    this.getQuizData().subscribe((data) => {
+      this._quizData$.next(data);
+    });
+  
+    this.activatedRoute.paramMap.subscribe((params) => {
+      this.quizId = params.get('quizId');
+      this.indexOfQuizId = this.quizData.findIndex(
+        (elem) => elem.quizId === this.quizId
+      );
+      this.returnQuizSelectionParams();
+    });
+  }
+  
+  private initializeData() {
+    this.quizData = QUIZ_DATA || [];
+    if (QUIZ_DATA) {
+      this.quizInitialState = _.cloneDeep(QUIZ_DATA);
+    } else {
+      console.log('QUIZ_DATA is undefined or null');
+    }
+  
+    this.quizResources = QUIZ_RESOURCES || [];
+  
+    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
   getQuizName(segments: any[]): string {
