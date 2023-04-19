@@ -94,7 +94,7 @@ export class QuizDataService implements OnInit {
     });
   }
 
-  loadQuizzesFromServer() {
+  loadQuizzesFromServer(): void {
     this.http.get<Quiz[]>(this.quizUrl).subscribe(
       (quizzes) => this.quizzes$.next(quizzes),
       (error) => console.error(error)
