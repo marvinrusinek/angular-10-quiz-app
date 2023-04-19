@@ -582,7 +582,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion() {
+  navigateToNextQuestion(): void {
     console.log('Navigating to next question...');
     console.log('quizId:', this.quizId);
     console.log('currentQuestionIndex:', this.currentQuestionIndex);
@@ -593,7 +593,7 @@ export class QuizService implements OnDestroy {
     this.resetAll();
   }
 
-  navigateToPreviousQuestion() {
+  navigateToPreviousQuestion(): void {
     this.quizCompleted = false;
     this.router.navigate([
       '/question/',
@@ -603,7 +603,7 @@ export class QuizService implements OnDestroy {
     this.resetAll();
   }
 
-  navigateToResults() {
+  navigateToResults(): void {
     this.quizCompleted = true;
     this.router.navigate(['/results/', this.quizId]);
   }
