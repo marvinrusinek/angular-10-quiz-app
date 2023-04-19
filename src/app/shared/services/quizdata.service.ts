@@ -80,23 +80,19 @@ export class QuizDataService implements OnInit {
     this.selectedQuizSubject = new BehaviorSubject<Quiz>(null);
     this.quizzes$ = new BehaviorSubject<Quiz[]>([]);
 
-    this.loadQuizzes();
-    this.loadQuizzesFromServer();
+    this.loadQuizzesData();
   }
 
-  loadQuizzes(): void {
-    this.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-      if (this.quizzes.length > 0) {
-        this.selectedQuiz = this.quizzes[0];
-        this.selectedQuiz$.next(this.selectedQuiz);
-      }
-    });
-  }
-
-  loadQuizzesFromServer(): void {
+  loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).subscribe(
-      (quizzes) => this.quizzes$.next(quizzes),
+      (quizzes) => {
+        this.quizzes$.next(quizzes);
+        this.quizzes = quizzes;
+        if (this.quizzes.length > 0) {
+          this.selectedQuiz = this.quizzes[0];
+          this.selectedQuiz$.next(this.selectedQuiz);
+        }
+      },
       (error) => console.error(error)
     );
   }
