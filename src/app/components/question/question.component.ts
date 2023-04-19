@@ -111,39 +111,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    // this.currentQuestion = this.quizStateService.currentQuestion;
     const quizId = this.quizService.quizId;
     if (quizId) {
-      this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
-      this.questions$.subscribe(
-        (questions: QuizQuestion[]) => {
-          if (questions && questions?.length > 0) {
-            this.currentQuestion = questions[0];
-          } else {
-            console.error('No questions found for quiz with ID:', quizId);
-          }
-        },
-        (error) => {
-          console.error('Error while loading quiz questions:', error);
-        }
-      );
+      this.loadQuestionsForQuiz(quizId);
     } else {
       console.error('quizId parameter is null or undefined');
     }
-
+  
     try {
       const [question] = await this.quizService.getCurrentQuestion();
-      this.quizStateService.setCurrentQuestion(of(question));
-      this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-        this.multipleAnswer = isMultipleAnswer;
-      });
-    
+      this.initializeQuizState(question);
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-
+  
     this.updateQuestionForm();
   }
 
@@ -167,6 +150,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private loadQuestionsForQuiz(quizId: string): void {
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
+    this.questions$.subscribe(
+      (questions: QuizQuestion[]) => {
+        if (questions && questions?.length > 0) {
+          this.currentQuestion = questions[0];
+        } else {
+          console.error('No questions found for quiz with ID:', quizId);
+        }
+      },
+      (error) => {
+        console.error('Error while loading quiz questions:', error);
+      }
+    );
+  }
+
+  private initializeQuizState(question: QuizQuestion): void {
+    this.quizStateService.setCurrentQuestion(of(question));
+    this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
+      this.multipleAnswer = isMultipleAnswer;
+    });
   }
 
   updateQuestionForm(): void {
