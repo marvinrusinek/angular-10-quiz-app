@@ -141,7 +141,7 @@ export class QuizService implements OnDestroy {
     return this.http.get<Quiz[]>('/assets/data/quiz.json');
   }
 
-  private loadData() {
+  private loadData(): void {
     this.getQuizData().subscribe((data) => {
       this._quizData$.next(data);
     });
@@ -155,7 +155,7 @@ export class QuizService implements OnDestroy {
     });
   }
   
-  private initializeData() {
+  private initializeData(): void {
     this.quizData = QUIZ_DATA || [];
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
