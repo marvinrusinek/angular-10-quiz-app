@@ -81,7 +81,11 @@ export class MultipleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('options in codelab-question-multiple-answer', this.options);
+    super.ngOnInit();
+    if (!this.currentQuestion.selectedOptions) {
+      this.currentQuestion.selectedOptions = [];
+    }
+
     try {
       const [question, options] = await this.quizService.getCurrentQuestion();
       this.currentQuestion = question;
@@ -159,65 +163,64 @@ export class MultipleAnswerComponent
   }
 
   isOptionSelected(option: Option): boolean {
-    return this.selectedOptions.some(
+    return this.currentQuestion.selectedOptions.some(
       (selectedOption) => selectedOption.value === option.value
     );
   }
   
   onOptionSelected(option: Option) {
-    if (!Array.isArray(this.selectedOptions)) {
-      this.selectedOptions = [];
-    }
-  
-    const index = this.selectedOptions.findIndex(
+    super.onOptionSelected(option);
+
+    const index = this.currentQuestion.selectedOptions.findIndex(
       (selectedOption) => selectedOption.value === option.value
     );
-  
+
     if (index >= 0) {
-      this.selectedOptions.splice(index, 1);
+      this.currentQuestion.selectedOptions.splice(index, 1);
     } else {
-      this.selectedOptions.push({ ...option });
+      this.currentQuestion.selectedOptions.push({ ...option });
     }
-  
-    this.quizDataService.currentOptionsSubject.next(this.selectedOptions);
+
+    this.quizDataService.currentOptionsSubject.next(
+      this.currentQuestion.selectedOptions
+    );
+
     this.selectionChanged.emit({
-      question: this.question,
-      selectedOptions: this.selectedOptions,
+      question: this.currentQuestion,
+      selectedOptions: this.currentQuestion.selectedOptions,
     });
+
     this.optionChecked[option.optionId] = true;
-  
-    super.onOptionSelected(option);
   }
   
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
-    if (!Array.isArray(this.selectedOptions)) {
-      this.selectedOptions = [];
-    }
-  
+    super.onSelectionChange(question, selectedOptions);
+
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-  
+
     if (selectedOptions && selectedOptions.length) {
       selectedOptions.forEach((selectedOption: Option) => {
-        const index = question.selectedOptions.findIndex(
-          (o) => typeof o === 'string' ? false : o.value === selectedOption.value
-        );
-  
-        if (index >= 0) {
-          question.selectedOptions.splice(index, 1);
-        } else {
-          question.selectedOptions.push(selectedOption);
+        if (Array.isArray(this.selectedOptions)) {
+          const index = question.selectedOptions && question.options && question.selectedOptions.findIndex((o) => {
+            return typeof o === 'string' ? false : o.value === selectedOption.value;
+          });
+          if (index >= 0) {
+            question.selectedOptions.splice(index, 1);
+          } else {
+            question.selectedOptions.push(selectedOption);
+          }
         }
       });
-  
+
       const selectedOptionIds = question.selectedOptions.map((o) => {
         const selectedOption = question.options.find(
           (option) => option.value === o.value
         );
         return selectedOption ? selectedOption.value : null;
       });
-  
+
       if (
         selectedOptionIds.sort().join(',') ===
         question.answer
@@ -227,17 +230,17 @@ export class MultipleAnswerComponent
       ) {
         this.incrementScore();
       }
-  
+
       selectedOptions.forEach((selectedOption) => {
         this.optionChecked[selectedOption.optionId] =
           !this.optionChecked[selectedOption.optionId];
       });
-  
+
       this.selectedOptions = selectedOptions;
       this.selectionChanged.emit({
         question: this.currentQuestion,
         selectedOptions: this.selectedOptions,
       });
     }
-  }  
+  }
 }
