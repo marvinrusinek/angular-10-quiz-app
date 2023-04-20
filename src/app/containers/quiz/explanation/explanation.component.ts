@@ -19,9 +19,9 @@ export class QuizExplanationComponent {
     }
     
     if (this.numberOfCorrectAnswers === 1) {
-      return 'Option ' + this.correctOptions + ' was correct because ' + this.explanationText;
+      return `Option ${this.correctOptions} was correct because ${this.explanationText}`;
     } else {
-      return 'Options ' + this.correctOptions + ' were correct because ' + this.explanationText;
+      return `Options ${this.correctOptions} were correct because ${this.explanationText}`;
     }
   }  
 }
