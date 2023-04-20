@@ -179,48 +179,37 @@ export class MultipleAnswerComponent
 
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
-
+  
     if (!question.selectedOptions) {
       question.selectedOptions = [];
     }
-
+  
+    // loop through each selected option and toggle its selection status
     selectedOptions.forEach((selectedOption: Option) => {
-      const index = question.selectedOptions.findIndex((o) => {
-        return typeof o === 'string' ? false : o.value === selectedOption.value;
-      });
-      if (index >= 0) {
-        question.selectedOptions.splice(index, 1);
+      const isSelected = question.selectedOptions.some((o) => o.value === selectedOption.value);
+      if (isSelected) {
+        question.selectedOptions = question.selectedOptions.filter((o) => o.value !== selectedOption.value);
       } else {
         question.selectedOptions.push(selectedOption);
       }
+  
+      // update the optionChecked object for the current option
+      this.optionChecked[selectedOption.optionId] = isSelected;
     });
-
-    const selectedOptionIds = question.selectedOptions.map((o) => {
-      const selectedOption = question.options.find(
-        (option) => option.value === o.value
-      );
-      return selectedOption ? selectedOption.value : null;
-    });
-
+  
+    // check if the selected options match the answer
+    const selectedOptionIds = question.selectedOptions.map((o) => o.value);
     if (
       selectedOptionIds.sort().join(',') ===
-      question.answer
-        .map((a) => a.value)
-        .sort()
-        .join(',')
+      question.answer.map((a) => a.value).sort().join(',')
     ) {
       this.incrementScore();
     }
-
-    selectedOptions.forEach((selectedOption) => {
-      this.optionChecked[selectedOption.optionId] =
-        !this.optionChecked[selectedOption.optionId];
-    });
-
+  
     this.selectedOptions = selectedOptions;
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
+  }  
 }
