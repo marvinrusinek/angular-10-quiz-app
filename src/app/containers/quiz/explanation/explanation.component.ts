@@ -19,5 +19,9 @@ export class QuizExplanationComponent {
     } else {
       return 'Options ' + this.correctOptions + ' were correct because ' + this.explanationText;
     }
-  }
+    
+    if (!this.explanationText) {
+      return 'No explanation available for this question.';
+    }
+  }  
 }
