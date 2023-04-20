@@ -169,14 +169,20 @@ export class MultipleAnswerComponent
   }
   
   onOptionSelected(option: Option) {
-    const index = this.currentQuestion.selectedOptions.findIndex((selectedOption) => {
-      return typeof selectedOption === 'string' ? false : selectedOption.value === option.value;
-    });
+    if (!option) {
+      return;
+    }
 
-    if (index >= 0) {
-      this.currentQuestion.selectedOptions.splice(index, 1);
-    } else {
-      this.currentQuestion.selectedOptions.push({ ...option });
+    if (this.question && Array.isArray(this.question.selectedOptions)) {
+      const index = this.currentQuestion.selectedOptions.findIndex((selectedOption) => {
+        return typeof selectedOption === 'string' ? false : selectedOption.value === option.value;
+      });
+
+      if (index >= 0) {
+        this.currentQuestion.selectedOptions.splice(index, 1);
+      } else {
+        this.currentQuestion.selectedOptions.push({ ...option });
+      }
     }
 
     this.quizDataService.currentOptionsSubject.next(
