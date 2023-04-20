@@ -14,11 +14,6 @@ export class QuizExplanationComponent {
   @Input() explanationText: string = '';
 
   getExplanationText(): string {
-    console.log('noca', this.numberOfCorrectAnswers);
-    if (!this.isAnswered) {
-      return '';
-    }
-
     if (this.numberOfCorrectAnswers === 1) {
       return 'Option ' + this.correctOptions + ' was correct because ' + this.explanationText;
     } else {
