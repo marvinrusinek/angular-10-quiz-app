@@ -39,7 +39,7 @@
           [questions]="questions$ | async"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
-          [explanationText]="explanationText"
+          [explanationText]="question?.explanationText"
         ></codelab-quiz-explanation>
       </section>
 
