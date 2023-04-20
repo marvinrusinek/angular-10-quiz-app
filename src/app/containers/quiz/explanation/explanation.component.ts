@@ -12,4 +12,16 @@ export class QuizExplanationComponent {
   @Input() numberOfCorrectAnswers: number;
   @Input() correctOptions: string = '';
   @Input() explanationText: string = '';
+
+  getExplanationText(): string {
+    if (!this.isAnswered) {
+      return '';
+    }
+
+    if (this.numberOfCorrectAnswers === 1) {
+      return 'Option ' + this.correctOptions + ' was correct because ' + this.explanationText;
+    } else {
+      return 'Options ' + this.correctOptions + ' were correct because ' + this.explanationText;
+    }
+  }
 }
