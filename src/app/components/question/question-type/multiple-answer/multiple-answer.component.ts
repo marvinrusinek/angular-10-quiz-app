@@ -171,7 +171,7 @@ export class MultipleAnswerComponent
       if (index >= 0) {
         this.selectedOptions.splice(index, 1);
       } else {
-        this.selectedOptions.push(option);
+        this.selectedOptions.push({ ...option });
       }
     }
     
