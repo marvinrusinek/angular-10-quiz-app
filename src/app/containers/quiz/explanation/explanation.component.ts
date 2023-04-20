@@ -14,14 +14,14 @@ export class QuizExplanationComponent {
   @Input() explanationText: string = '';
 
   getExplanationText(): string {
+    if (!this.explanationText) {
+      throw new Error('No explanation available for this question.');
+    }
+    
     if (this.numberOfCorrectAnswers === 1) {
       return 'Option ' + this.correctOptions + ' was correct because ' + this.explanationText;
     } else {
       return 'Options ' + this.correctOptions + ' were correct because ' + this.explanationText;
-    }
-    
-    if (!this.explanationText) {
-      return 'No explanation available for this question.';
     }
   }  
 }
