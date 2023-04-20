@@ -76,6 +76,8 @@ export class MultipleAnswerComponent
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+
+    this.selectedOptions = [];
   }
 
   async ngOnInit(): Promise<void> {
@@ -157,18 +159,22 @@ export class MultipleAnswerComponent
   }
 
   isOptionSelected(option: Option): boolean {
-    return this.selectedOptions.indexOf(option) > -1;
+    return this.selectedOptions.some((selectedOption) => selectedOption.value === option.value);
   }
-
+  
   onOptionSelected(option: Option) {
     super.onOptionSelected(option);
-
-    const index = this.selectedOptions.indexOf(option);
-    if (index >= 0) {
-      this.selectedOptions.splice(index, 1);
-    } else {
-      this.selectedOptions.push(option);
+  
+    if (Array.isArray(this.selectedOptions)) {
+      const index = this.selectedOptions && this.selectedOptions.findIndex((selectedOption) => selectedOption.value === option.value);
+      
+      if (index >= 0) {
+        this.selectedOptions.splice(index, 1);
+      } else {
+        this.selectedOptions.push(option);
+      }
     }
+    
     this.quizDataService.currentOptionsSubject.next(this.selectedOptions);
     this.selectionChanged.emit({
       question: this.question,
@@ -186,14 +192,16 @@ export class MultipleAnswerComponent
   
     if (selectedOptions && selectedOptions.length) {
       selectedOptions.forEach((selectedOption: Option) => {
-        const index = question.selectedOptions.findIndex((o) => {
-          return typeof o === 'string' ? false : o.value === selectedOption.value;
-        });
-        if (index >= 0) {
-          question.selectedOptions.splice(index, 1);
-        } else {
-          question.selectedOptions.push(selectedOption);
-        }
+        if (Array.isArray(this.selectedOptions)) {
+          const index = question.selectedOptions && question.selectedOptions.findIndex((o) => {
+            return typeof o === 'string' ? false : o.value === selectedOption.value;
+          });
+          if (index >= 0) {
+            question.selectedOptions.splice(index, 1);
+          } else {
+            question.selectedOptions.push(selectedOption);
+          }
+        }       
       });
   
       const selectedOptionIds = question.selectedOptions.map((o) => {
