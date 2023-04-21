@@ -163,13 +163,13 @@ export class MultipleAnswerComponent
   }
 
   isOptionSelected(option: Option): boolean {
-    return this.currentQuestion.selectedOptions.some(
+    return this.currentQuestion.selectedOptions && this.currentQuestion.selectedOptions.some(
       (selectedOption) => selectedOption.value === option.value
     );
   }
   
   onOptionSelected(option: Option) {
-    if (!option) {
+    if (!option || !this.currentQuestion.selectedOptions) {
       return;
     }
 
