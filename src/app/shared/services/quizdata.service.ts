@@ -36,7 +36,7 @@ export class QuizDataService {
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId: string = '';
-  currentQuizId: string;
+  currentQuizId: string = '';
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
 
   currentQuestionIndex: number = 1;

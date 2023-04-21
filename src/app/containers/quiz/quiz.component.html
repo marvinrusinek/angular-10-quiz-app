@@ -12,13 +12,13 @@
         matTooltip="back to Codelab Quiz Selection"
         matTooltipPosition="left"
       />
-      <div class="header-titles" *ngIf="selectedQuiz$ | async as selectedQuiz">
+      <div class="header-titles" *ngIf="currentQuiz">
         <mat-card-title i18n
-          >{{ selectedQuiz?.milestone || 'No questions found' }} Quiz</mat-card-title
+          >{{ currentQuiz?.milestone || 'No questions found' }} Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
-          {{ selectedQuiz?.milestone || 'No questions found' }}</mat-card-subtitle
+          {{ currentQuiz?.milestone || 'No questions found' }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
