@@ -151,6 +151,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
+  updateQuestionForm(): void {
+    this.updateCorrectMessage();
+    this.updateCorrectAnswers();
+    this.updateMultipleAnswer();
+    this.resetForm();
+  }
+
+  private initializeQuizState(question: QuizQuestion): void {
+    this.quizStateService.setCurrentQuestion(of(question));
+    this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
+      this.multipleAnswer = isMultipleAnswer;
+    });
+  }
+
   private loadQuestionsForQuiz(quizId: string): void {
     this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
     this.questions$.subscribe(
@@ -165,20 +179,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error while loading quiz questions:', error);
       }
     );
-  }
-
-  private initializeQuizState(question: QuizQuestion): void {
-    this.quizStateService.setCurrentQuestion(of(question));
-    this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-      this.multipleAnswer = isMultipleAnswer;
-    });
-  }
-
-  updateQuestionForm(): void {
-    this.updateCorrectMessage();
-    this.updateCorrectAnswers();
-    this.updateMultipleAnswer();
-    this.resetForm();
   }
 
   async loadCurrentQuestion(): Promise<void> {
