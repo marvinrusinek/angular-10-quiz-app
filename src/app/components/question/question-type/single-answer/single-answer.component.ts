@@ -47,7 +47,6 @@ export class SingleAnswerComponent
   @Input() currentQuestionIndex!: number;
   @Input() correctMessage: string;
   @Input() selected: string;
-  // selectedOption: Option = { text: '', correct: false, value: null } as Option;
   options$: Observable<Option[]>;
   optionChecked: { [optionId: number]: boolean } = {};
 
@@ -77,6 +76,7 @@ export class SingleAnswerComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('options in codelab-question-single-answer', this.options);
     super.ngOnInit();
 
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
