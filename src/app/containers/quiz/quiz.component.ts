@@ -160,37 +160,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentQuestionIndex = 0;
 
-    /* this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      this.selectedQuiz = selectedQuiz;
-      console.log("SQ", this.selectedQuiz);
-    }); */
-    // this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-
-    /* this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-      console.log('selectedQuiz:', selectedQuiz);
-    }); */
-
-
-    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-
-    this.activatedRoute.params.subscribe(params => {
-      const quizId = params['quizId'];
-      if (quizId) {
-        this.quizDataService.currentQuizId = quizId;
-      }
-    });
-
-    this.quizDataService.quizzes$.subscribe(quizzes => {
-      const currentQuiz = quizzes.find(quiz => quiz.quizId === this.quizDataService.currentQuizId);
-      this.currentQuiz = currentQuiz;
-      /* if (currentQuiz) {
-        this.quizDataService.setSelectedQuiz(currentQuiz);
-      } */
-    });
-
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
+
+    this.setCurrentQuizForQuizId();
 
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
       if (question && options) {
@@ -220,6 +194,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+  }
+
+  setCurrentQuizForQuizId(): void {
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    this.activatedRoute.params.subscribe(params => {
+      const quizId = params['quizId'];
+      if (quizId) {
+        this.quizDataService.currentQuizId = quizId;
+      }
+    });
+
+    this.quizDataService.quizzes$.subscribe(quizzes => {
+      const currentQuiz = quizzes.find(quiz => quiz.quizId === this.quizDataService.currentQuizId);
+      this.currentQuiz = currentQuiz;
+    });
   }
 
   getSelectedQuiz(): void {
