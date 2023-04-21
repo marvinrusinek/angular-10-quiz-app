@@ -178,10 +178,11 @@ export class QuizDataService {
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
-      })
+      }),
+      shareReplay()
     );
-  }
-
+  }  
+  
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       map(([question, options]) => question),
@@ -233,7 +234,6 @@ export class QuizDataService {
     return this.questionAndOptionsSubject.asObservable();
   }
  
-
   loadQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((err) => {
@@ -255,8 +255,15 @@ export class QuizDataService {
     return quizId$.pipe(
       switchMap((id) => {
         return quiz$.pipe(
-          map((quizzes) => quizzes.find((q: Quiz) => q.quizId === id)),
-          switchMap((quiz) => this.getQuestionFromQuiz(quiz, questionIndex))
+          map((quizzes) => {
+            console.log('map callback called');
+            return quizzes.find((q: Quiz) => q.quizId === id)
+          }),
+          take(1),
+          switchMap((quiz) => {
+            console.log(quiz);
+            return this.getQuestionFromQuiz(quiz, questionIndex);
+          })
         );
       }),
       catchError((err) => {
@@ -265,8 +272,8 @@ export class QuizDataService {
       }),
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
-  }
+    );     
+  } 
 
   getQuestionFromQuiz(quiz: Quiz, questionIndex: number): Observable<QuizQuestion> {
     if (!quiz) {
@@ -281,15 +288,16 @@ export class QuizDataService {
     const question = questions[questionIndex];
     const options = question?.options;
   
-    if (!question || options === undefined) {
+    console.log('my question', question);
+    if (!question || question?.options === undefined) {
       throw new Error('Question not found');
     }
-
-    if (!options || options.length === 0) {
+    console.log('my options', options);
+    if (!options || options?.length === 0) {
       throw new Error('Question has no options');
     }
   
-    if (questionIndex >= quiz?.questions?.length) {
+    if (questionIndex >= questions?.length) {
       throw new Error('Question index out of bounds');
     }
   
