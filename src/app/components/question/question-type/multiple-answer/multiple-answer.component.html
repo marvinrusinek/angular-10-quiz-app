@@ -1,4 +1,4 @@
-<ng-container *ngIf="currentQuestion">
+<ng-container>
   <label class="options" *ngFor="let option of currentQuestion?.options; let i = index">
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"

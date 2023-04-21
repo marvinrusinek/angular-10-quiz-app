@@ -281,11 +281,15 @@ export class QuizDataService {
     const question = questions[questionIndex];
     const options = question?.options;
   
-    if (!question || question?.options === undefined) {
+    if (!question || options === undefined) {
       throw new Error('Question not found');
     }
+
+    if (!options || options.length === 0) {
+      throw new Error('Question has no options');
+    }
   
-    if (questionIndex >= quiz.questions?.length) {
+    if (questionIndex >= quiz?.questions?.length) {
       throw new Error('Question index out of bounds');
     }
   

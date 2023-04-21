@@ -163,20 +163,27 @@ export class MultipleAnswerComponent
   }
 
   isOptionSelected(option: Option): boolean {
-    return this.currentQuestion.selectedOptions && this.currentQuestion.selectedOptions.some(
-      (selectedOption) => selectedOption.value === option.value
+    return (
+      this.currentQuestion.selectedOptions &&
+      this.currentQuestion.selectedOptions.some(
+        (selectedOption) => selectedOption.value === option.value
+      )
     );
   }
-  
+
   onOptionSelected(option: Option) {
     if (!option || !this.currentQuestion.selectedOptions) {
       return;
     }
 
     if (this.question && Array.isArray(this.question.selectedOptions)) {
-      const index = this.currentQuestion.selectedOptions.findIndex((selectedOption) => {
-        return typeof selectedOption === 'string' ? false : selectedOption.value === option.value;
-      });
+      const index = this.currentQuestion.selectedOptions.findIndex(
+        (selectedOption) => {
+          return typeof selectedOption === 'string'
+            ? false
+            : selectedOption.value === option.value;
+        }
+      );
 
       if (index >= 0) {
         this.currentQuestion.selectedOptions.splice(index, 1);
@@ -196,7 +203,7 @@ export class MultipleAnswerComponent
 
     this.optionChecked[option.optionId] = true;
   }
-  
+
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
 
@@ -207,9 +214,14 @@ export class MultipleAnswerComponent
     if (selectedOptions && selectedOptions.length) {
       selectedOptions.forEach((selectedOption: Option) => {
         if (Array.isArray(this.selectedOptions)) {
-          const index = question.selectedOptions && question.options && question.selectedOptions.findIndex((o) => {
-            return typeof o === 'string' ? false : o.value === selectedOption.value;
-          });
+          const index =
+            question.selectedOptions &&
+            question.options &&
+            question.selectedOptions.findIndex((o) => {
+              return typeof o === 'string'
+                ? false
+                : o.value === selectedOption.value;
+            });
           if (index >= 0) {
             question.selectedOptions.splice(index, 1);
           } else {
