@@ -54,6 +54,8 @@ export class ScoreComponent implements OnInit, OnDestroy {
   private unsubscribeTrigger$: Subject<void> = new Subject<void>();
 
   constructor(private quizService: QuizService, private ngZone: NgZone) {
+    this.numericalScore$ = new BehaviorSubject<string>(this.numericalScore);
+    this.percentageScore$ = new BehaviorSubject<string>(this.percentageScore);
     this.totalQuestions$ = this.quizService.getTotalQuestions();
   }
 

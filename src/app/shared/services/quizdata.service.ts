@@ -279,7 +279,6 @@ export class QuizDataService {
   
     const questions = quiz.questions;
     const question = questions[questionIndex];
-    console.log('Question:', question);
     const options = question?.options;
   
     if (!question || question?.options === undefined) {
