@@ -219,17 +219,20 @@ export class QuizDataService {
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
+    console.log('getQuestionAndOptions called');
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
       return this.questionAndOptionsSubject.asObservable();
     }
   
     const quiz$ = this.loadQuizData();
-    const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quiz$, quizId, questionIndex);
-    const options$ = this.getQuestionOptions(currentQuestion$);
+    const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quiz$, quizId, questionIndex).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+    const options$ = this.getQuestionOptions(currentQuestion$).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     
     this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe((questionAndOptions) => {
       this.questionAndOptionsSubject.next(questionAndOptions);
     });
+
+    console.log('getQuestionAndOptions completed');
   
     return this.questionAndOptionsSubject.asObservable();
   }
@@ -285,13 +288,17 @@ export class QuizDataService {
     }
   
     const questions = quiz.questions;
-    const question = questions[questionIndex];
-    const options = question?.options;
   
-    console.log('my question', question);
+    const question = quiz.questions.find((q: QuizQuestion) => q.questionIndex === questionIndex);
+    console.log('my question:', question);
+
+    const options = question?.options;
+    
     if (!question || question?.options === undefined) {
+      console.log("TEST");
       throw new Error('Question not found');
     }
+  
     console.log('my options', options);
     if (!options || options?.length === 0) {
       throw new Error('Question has no options');
@@ -303,7 +310,7 @@ export class QuizDataService {
   
     return of(question);
   }
-  
+    
   getQuestionOptions(currentQuestion$: Observable<QuizQuestion>): Observable<Option[]> {
     return currentQuestion$.pipe(
       filter((question) => !!question),
