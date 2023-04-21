@@ -150,11 +150,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
-    this.selectedQuiz$ = new BehaviorSubject<Quiz>(null);
   }
 
   ngOnInit(): void {
     this.currentQuestionIndex = 0;
+
+    this.setCurrentQuizForQuizId();
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
@@ -188,6 +189,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+  }
+
+  setCurrentQuizForQuizId(): void {
+    this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+    this.activatedRoute.params.subscribe(params => {
+      const quizId = params['quizId'];
+      if (quizId) {
+        this.quizDataService.currentQuizId = quizId;
+      }
+    });
+
+    this.quizDataService.quizzes$.subscribe(quizzes => {
+      const currentQuiz = quizzes.find(quiz => quiz.quizId === this.quizDataService.currentQuizId);
+      this.currentQuiz = currentQuiz;
+    });
   }
 
   getSelectedQuiz(): void {
