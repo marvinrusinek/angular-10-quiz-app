@@ -1,6 +1,6 @@
 <ng-container *ngIf="currentQuestion">
   <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
-    <codelab-question-multiple-answer 
+    <codelab-question-multiple-answer
       *ngSwitchCase="multipleAnswer"
       [form]="questionForm"
       [question]="currentQuestion"
