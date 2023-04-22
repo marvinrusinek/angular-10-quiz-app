@@ -125,6 +125,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       console.log('Successfully got current question:', question);
+      console.log("SCQ");
       this.quizService.setCurrentQuestion(question);
       this.initializeQuizState(question);
       console.log("before");
@@ -135,6 +136,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error getting current question:', error);
     }
 
+    console.log('Before subscribing to currentQuestion$');
     this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:', currentQuestion);
     });
