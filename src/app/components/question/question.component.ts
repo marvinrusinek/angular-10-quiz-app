@@ -112,6 +112,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('ngOnInit called in QuizQuestionComponent');
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.loadQuestionsForQuiz(quizId);
@@ -125,8 +126,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       console.log('Successfully got current question:', question);
-      console.log("SCQ");
+      console.log('Before calling setCurrentQuestion()');
       this.quizService.setCurrentQuestion(question);
+      console.log('After calling setCurrentQuestion()');
       this.initializeQuizState(question);
       console.log("before");
       this.loadCurrentQuestion();

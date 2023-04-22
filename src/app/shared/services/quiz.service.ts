@@ -563,7 +563,7 @@ export class QuizService implements OnDestroy {
   }
   
   setCurrentQuestion(question: QuizQuestion): void {
-    console.log('setCurrentQuestion called with question:', question);
+    console.log('setCurrentQuestion method called with question:', question);
     console.log('CHECK', question && !isEqual(question, this.currentQuestion));
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
