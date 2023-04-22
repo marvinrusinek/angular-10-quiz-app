@@ -19,9 +19,8 @@ import {
   of,
   Subject,
   Subscription,
-  tap
 } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -267,35 +266,36 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
     }
-  
+
     if (this.questionsAndOptions[questionIndex]) {
       const [question, options] = this.questionsAndOptions[questionIndex];
       this.currentQuestion = question;
       this.currentOptions = options;
       return of(question);
     }
-  
+
     if (!this.currentQuestion$) {
       this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
         map(([question, _]) => question),
-        tap((question) => {
+        switchMap((question) => {
+          return this.quizDataService
+            .getOptions(this.quizId, question.id)
+            .pipe(map((options) => [question, options]));
+        }),
+        tap(([question, options]) => {
+          if (question && options && options?.length > 0) {
+            this.questionsAndOptions[questionIndex] = [question, options];
+          } else {
+            console.error('Question or options array is null or undefined');
+            this.currentQuestion = null;
+            this.currentOptions = null;
+          }
           this.currentQuestion = question;
-          this.quizDataService
-            .getQuestionAndOptions(this.quizId, questionIndex)
-            .subscribe(([_, options]) => {
-              this.currentOptions = options;
-  
-              if (options && options?.length > 0) {
-                this.questionsAndOptions[questionIndex] = [question, options];
-              } else {
-                console.error('Options array is null or undefined');
-                this.currentOptions = null;
-              }
-            });
+          this.currentOptions = options;
         })
       );
     }
-    return this.currentQuestion$;
+    return this.currentQuestion$.pipe(map(([question, _]) => question));
   }
   
   public getQuestion(index: number): Observable<QuizQuestion> {
