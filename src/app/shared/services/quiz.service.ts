@@ -292,11 +292,13 @@ export class QuizService implements OnDestroy {
     }
 
     if (this.currentQuestionSubject.value) {
+      console.log('Current question already present in subject:', this.currentQuestionSubject.value);
       return [this.currentQuestionSubject.value, this.options];
     }
 
     if (this.isGettingQuestion) {
       console.warn('Already getting current question, waiting for promise to resolve');
+      console.log('Waiting for currentQuestionPromise to resolve:', this.currentQuestionPromise);
       return await this.currentQuestionPromise;
     }
 
