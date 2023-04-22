@@ -282,6 +282,7 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
+    console.log("MYTEST");
     if (this.currentQuestionSubject.value) {
       return [this.currentQuestionSubject.value, this.options];
     }
@@ -553,8 +554,9 @@ export class QuizService implements OnDestroy {
   setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with question:', question);
     if (question && !isEqual(question, this.currentQuestion)) {
-      console.log('emitting currentQuestionSubject with question:', question);
-      this.currentQuestionSubject.next(this.currentQuestion);
+      console.log('updating currentQuestion to:', question);
+      this.currentQuestion = question;
+      this.currentQuestionSubject.next(question);
     }
   }
 

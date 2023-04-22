@@ -20,7 +20,7 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { catchError, flatMap, map, switchMap, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -124,6 +124,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     try {
       const [question] = await this.quizService.getCurrentQuestion();
+      console.log('Successfully got current question:', question);
+      this.quizService.setCurrentQuestion(question);
       this.initializeQuizState(question);
       console.log("before");
       this.loadCurrentQuestion();
@@ -132,6 +134,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } catch (error) {
       console.error('Error getting current question:', error);
     }
+
+    this.quizService.currentQuestion$.subscribe((currentQuestion) => {
+      console.log('Current question:', currentQuestion);
+    });
   
     this.updateQuestionForm();
   }
@@ -277,24 +283,43 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getCurrentQuestion(): Observable<QuizQuestion> {
+  /* getCurrentQuestion(): Observable<QuizQuestion> {
+    console.log('getCurrentQuestion() called');
+    const quizId = this.quizId;
+    if (!quizId) {
+      console.error('quizId parameter is null or undefined');
+      throw new Error('quizId parameter is null or undefined');
+    }
+
     const questionIndex = this.currentQuestionIndex;
-    if (!questionIndex && questionIndex !== 0) {
-      this.currentQuestionIndex = 0;
+    if (questionIndex === undefined || questionIndex < 0) {
+      console.error('currentQuestionIndex parameter is null, undefined, or less than 0');
+      throw new Error('currentQuestionIndex parameter is null, undefined, or less than 0');
     }
-  
-    if (this.questionsAndOptions[questionIndex]) {
-      const [question, options] = this.questionsAndOptions[questionIndex];
-      this.currentQuestion = question;
-      this.currentOptions = options;
-      return of(question);
-    } else {
-      console.error('Question or options array is null or undefined');
-      this.currentQuestion = null;
-      this.currentOptions = null;
-      return of(null);
-    }
-  }
+
+    return this.quizDataService.getQuestion(quizId, questionIndex).pipe(
+      flatMap((question: QuizQuestion) => {
+        console.log('Successfully got current question:', question);
+        if (this.questionsAndOptions[questionIndex]) {
+          const [question, options] = this.questionsAndOptions[questionIndex];
+          this.currentQuestion = question;
+          this.currentOptions = options;
+          return of(question);
+        } else {
+          console.error('Question or options array is null or undefined');
+          this.currentQuestion = null;
+          this.currentOptions = null;
+          return of(null);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error getting current question:', error);
+        this.currentQuestion = null;
+        this.currentOptions = null;
+        return of(null);
+      })
+    );
+  } */
     
   public getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(

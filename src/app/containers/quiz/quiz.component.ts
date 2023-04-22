@@ -353,6 +353,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     this.currentQuestion$ = this.quizService.currentQuestion$;
+    console.log('getCurrentQuestion() called in QuizService'); 
     this.quizService.getCurrentQuestion();
     return this.currentQuestion$;
   }
