@@ -611,7 +611,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
       await this.quizDataService.submitQuiz(this.selectedQuiz).toPromise();
-      this.router.navigate(['quiz', 'result']);
+      this.router.navigate(['quiz', 'result']); // or just results?
     } else {
       this.currentQuestionIndex++;
       this.currentQuestion =
@@ -659,7 +659,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isDisabled = true;
 
-      if (!this.selectedOption) {
+      if (!selectedOption) {
         return;
       }
 
