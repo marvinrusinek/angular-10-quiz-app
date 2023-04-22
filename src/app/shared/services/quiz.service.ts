@@ -367,10 +367,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getFirstQuestion(): QuizQuestion {
-    return this.questions[0];
-  }
-
   getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
       return question.options
