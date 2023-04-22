@@ -5,11 +5,10 @@ import {
   BehaviorSubject,
   Observable,
   of,
-  pipe,
   Subject,
   throwError,
 } from 'rxjs';
-import { catchError, filter, map, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
 import { isEqual } from 'lodash';
