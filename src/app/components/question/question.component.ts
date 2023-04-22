@@ -19,6 +19,7 @@ import {
   of,
   Subject,
   Subscription,
+  tap
 } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -266,37 +267,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
     }
-
+  
     if (this.questionsAndOptions[questionIndex]) {
       const [question, options] = this.questionsAndOptions[questionIndex];
       this.currentQuestion = question;
       this.currentOptions = options;
-      return;
+      return of(question);
     }
-
-    this.quizDataService
-      .getQuestionAndOptions(this.quizId, questionIndex)
-      .subscribe(([question, options]) => {
-        this.currentQuestion = question;
-        this.currentOptions = options;
-
-        if (question && options && options?.length > 0) {
-          this.questionsAndOptions[questionIndex] = [question, options];
-        } else {
-          console.error('Question or options array is null or undefined');
-          this.currentQuestion = null;
-          this.currentOptions = null;
-        }
-      });
-
+  
     if (!this.currentQuestion$) {
       this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
-        map(([question, _]) => question)
+        map(([question, _]) => question),
+        tap((question) => {
+          this.currentQuestion = question;
+          this.quizDataService
+            .getQuestionAndOptions(this.quizId, questionIndex)
+            .subscribe(([_, options]) => {
+              this.currentOptions = options;
+  
+              if (options && options?.length > 0) {
+                this.questionsAndOptions[questionIndex] = [question, options];
+              } else {
+                console.error('Options array is null or undefined');
+                this.currentOptions = null;
+              }
+            });
+        })
       );
     }
     return this.currentQuestion$;
   }
-
+  
   public getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {
