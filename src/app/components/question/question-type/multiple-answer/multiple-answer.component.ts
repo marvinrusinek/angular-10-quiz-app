@@ -85,25 +85,18 @@ export class MultipleAnswerComponent
     if (!this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];
     }
+    this.options = this.currentQuestion.options;
+    this.quizService.getCorrectAnswers(this.currentQuestion);
 
-    try {
-      const [question, options] = await this.quizService.getCurrentQuestion();
-      this.currentQuestion = question;
-      this.options = options;
-      this.quizService.getCorrectAnswers(this.currentQuestion);
-
-      this.currentOptionsSubscription = this.quizStateService
-        .getCurrentQuestion()
-        .pipe(
-          map((question: QuizQuestion) => question?.options),
-          takeUntil(this.destroyed$)
-        )
-        .subscribe((options) => {
-          console.log('options:', options);
-        });
-    } catch (error) {
-      console.error('Error retrieving current question:', error);
-    }
+    this.currentOptionsSubscription = this.quizStateService
+      .getCurrentQuestion()
+      .pipe(
+        map((question: QuizQuestion) => question?.options),
+        takeUntil(this.destroyed$)
+      )
+      .subscribe((options) => {
+        console.log('options:', options);
+      });
   }
 
   ngAfterViewInit(): void {

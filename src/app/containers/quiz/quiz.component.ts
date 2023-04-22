@@ -153,12 +153,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.currentQuestionIndex = 0;
+    // this.currentQuestionIndex = 0;
 
     this.setCurrentQuizForQuizId();
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
+    });
+
+    this.quizService.getQuestions().subscribe((questions) => {
+      this.questions = questions;
+      this.currentQuestionIndex = 0;
+      this.currentQuestion = this.questions[this.currentQuestionIndex];
     });
 
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
