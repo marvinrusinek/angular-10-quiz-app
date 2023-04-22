@@ -118,18 +118,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId parameter is null or undefined');
     }
+
+    console.log('Current quizId:', quizId);
+    console.log('Current question index:', this.currentQuestionIndex);
   
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       this.initializeQuizState(question);
+      console.log("before");
       this.loadCurrentQuestion();
+      console.log("after");
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
   
     this.updateQuestionForm();
-  }  
+  }
+
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
@@ -184,21 +190,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-      this.quizDataService
-        .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-        .subscribe(([currentQuestion, options]) => {
+    console.log('loadCurrentQuestion() called again');
+    if (this.quizId && this.currentQuestionIndex >= 0) {
+        console.log("getQuestionAndOptions called with quizId:", this.quizId, "and questionIndex:", this.currentQuestionIndex);
+        console.log("BEFORE");
+        if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+          this.quizDataService
+            .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+            .subscribe(([currentQuestion, options]) => {
+              this.currentQuestion = currentQuestion;
+              this.options = options;
+              this.setOptions();
+            });
+        } else {
+          const [currentQuestion, options] =
+            this.quizDataService.questionAndOptions;
           this.currentQuestion = currentQuestion;
           this.options = options;
           this.setOptions();
-        });
+        }
+        console.log("AFTER");
     } else {
-      const [currentQuestion, options] =
-        this.quizDataService.questionAndOptions;
-      this.currentQuestion = currentQuestion;
-      this.options = options;
-      this.setOptions();
+        console.error('quizId or currentQuestionIndex is null or undefined');
     }
+    /* console.log("QUIZID::", this.quizId);
+    console.log("CQI::", this.currentQuestionIndex); */
   }
 
   isOption(option: Option | string): option is Option {
