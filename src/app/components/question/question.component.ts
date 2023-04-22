@@ -112,7 +112,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('ngOnInit called in QuizQuestionComponent');
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.loadQuestionsForQuiz(quizId);
@@ -120,9 +119,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('quizId parameter is null or undefined');
     }
 
-    console.log('Current quizId:', quizId);
-    console.log('Current question index:', this.currentQuestionIndex);
-  
     try {
       const [question] = await this.quizService.getCurrentQuestion();
       console.log('Successfully got current question:', question);
@@ -130,9 +126,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.setCurrentQuestion(question);
       console.log('After calling setCurrentQuestion()');
       this.initializeQuizState(question);
-      console.log("before");
+      console.log('before');
       this.loadCurrentQuestion();
-      console.log("after");
+      console.log('after');
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
@@ -142,10 +138,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:', currentQuestion);
     });
-  
+
     this.updateQuestionForm();
   }
-
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
@@ -178,18 +173,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeQuizState(question: QuizQuestion): void {
     this.quizStateService.setCurrentQuestion(of(question));
-    this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-      this.multipleAnswer = isMultipleAnswer;
-    });
+    this.quizStateService
+      .isMultipleAnswer(question)
+      .subscribe((isMultipleAnswer) => {
+        this.multipleAnswer = isMultipleAnswer;
+      });
   }
 
   private loadQuestionsForQuiz(quizId: string): void {
-    console.log('loadQuestionsForQuiz method called with quizId:', quizId);
     this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
     this.questions$.subscribe(
       (questions: QuizQuestion[]) => {
         if (questions && questions?.length > 0) {
-          console.log('Questions for quiz:', questions);
           this.currentQuestion = questions[0];
         } else {
           console.error('No questions found for quiz with ID:', quizId);
@@ -204,26 +199,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async loadCurrentQuestion(): Promise<void> {
     console.log('loadCurrentQuestion() called again');
     if (this.quizId && this.currentQuestionIndex >= 0) {
-        console.log("getQuestionAndOptions called with quizId:", this.quizId, "and questionIndex:", this.currentQuestionIndex);
-        console.log("BEFORE");
-        if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
-          this.quizDataService
-            .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-            .subscribe(([currentQuestion, options]) => {
-              this.currentQuestion = currentQuestion;
-              this.options = options;
-              this.setOptions();
-            });
-        } else {
-          const [currentQuestion, options] =
-            this.quizDataService.questionAndOptions;
-          this.currentQuestion = currentQuestion;
-          this.options = options;
-          this.setOptions();
-        }
-        console.log("AFTER");
+      console.log(
+        'getQuestionAndOptions called with quizId:',
+        this.quizId,
+        'and questionIndex:',
+        this.currentQuestionIndex
+      );
+      console.log('BEFORE');
+      if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+        this.quizDataService
+          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+          .subscribe(([currentQuestion, options]) => {
+            this.currentQuestion = currentQuestion;
+            this.options = options;
+            this.setOptions();
+          });
+      } else {
+        const [currentQuestion, options] =
+          this.quizDataService.questionAndOptions;
+        this.currentQuestion = currentQuestion;
+        this.options = options;
+        this.setOptions();
+      }
+      console.log('AFTER');
     } else {
-        console.error('quizId or currentQuestionIndex is null or undefined');
+      console.error('quizId or currentQuestionIndex is null or undefined');
     }
     /* console.log("QUIZID::", this.quizId);
     console.log("CQI::", this.currentQuestionIndex); */
@@ -326,7 +326,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       })
     );
   } */
-    
+
   public getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {

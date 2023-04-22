@@ -169,7 +169,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
       if (question && options) {
-        console.log("TESTING123");
         this.quizStateService.setCurrentQuestion(of(question));
         this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
           this.multipleAnswer = isMultipleAnswer;
@@ -359,8 +358,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
-    this.currentQuestion$ = this.quizService.currentQuestion$;
-    console.log('getCurrentQuestion() called in QuizService'); 
+    this.currentQuestion$ = this.quizService.currentQuestion$; 
     this.quizService.getCurrentQuestion();
     return this.currentQuestion$;
   }

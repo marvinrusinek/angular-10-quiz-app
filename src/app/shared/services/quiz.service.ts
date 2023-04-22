@@ -282,7 +282,6 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
-    console.log('getCurrentQuestion method called');
     if (!this.quizId) {
       throw new Error('quizId parameter is null or undefined');
     }
