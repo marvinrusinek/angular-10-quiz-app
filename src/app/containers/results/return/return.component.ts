@@ -5,7 +5,6 @@ import {
 } from "@angular/core";
 import { Router } from "@angular/router";
 
-
 import { QuizService } from "../../../shared/services/quiz.service";
 import { TimerService } from "../../../shared/services/timer.service";
 
