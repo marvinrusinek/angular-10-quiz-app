@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -564,6 +564,7 @@ export class QuizService implements OnDestroy {
   }
   
   setCurrentQuestion(question: QuizQuestion): void {
+    console.log('setCurrentQuestion() called in QuizService');
     console.log('setCurrentQuestion method called with question:', question);
     console.log('CHECK', question && !isEqual(question, this.currentQuestion));
     if (question && !isEqual(question, this.currentQuestion)) {
@@ -602,7 +603,15 @@ export class QuizService implements OnDestroy {
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question/', this.quizId, questionIndex]);
     this.resetAll();
+  
+    this.currentQuestion$ = this.questions$.pipe(
+      map(questions => questions[questionIndex]),
+      tap(question => this.currentQuestion = question),
+      shareReplay(1)
+    );
+    this.currentQuestion$.subscribe();
   }
+  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
