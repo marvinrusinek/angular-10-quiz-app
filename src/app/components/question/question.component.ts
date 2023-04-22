@@ -266,38 +266,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!questionIndex && questionIndex !== 0) {
       this.currentQuestionIndex = 0;
     }
-
+  
     if (this.questionsAndOptions[questionIndex]) {
       const [question, options] = this.questionsAndOptions[questionIndex];
       this.currentQuestion = question;
       this.currentOptions = options;
       return of(question);
+    } else {
+      console.error('Question or options array is null or undefined');
+      this.currentQuestion = null;
+      this.currentOptions = null;
+      return of(null);
     }
-
-    if (!this.currentQuestion$) {
-      this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
-        map(([question, _]) => question),
-        switchMap((question) => {
-          return this.quizDataService
-            .getOptions(this.quizId, question.id)
-            .pipe(map((options) => [question, options]));
-        }),
-        tap(([question, options]) => {
-          if (question && options && options?.length > 0) {
-            this.questionsAndOptions[questionIndex] = [question, options];
-          } else {
-            console.error('Question or options array is null or undefined');
-            this.currentQuestion = null;
-            this.currentOptions = null;
-          }
-          this.currentQuestion = question;
-          this.currentOptions = options;
-        })
-      );
-    }
-    return this.currentQuestion$.pipe(map(([question, _]) => question));
   }
-  
+    
   public getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz) => {
