@@ -163,6 +163,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
       if (question && options) {
+        console.log("TESTING123");
         this.quizStateService.setCurrentQuestion(of(question));
         this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
           this.multipleAnswer = isMultipleAnswer;

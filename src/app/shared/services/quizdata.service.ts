@@ -194,6 +194,7 @@ export class QuizDataService implements OnInit {
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    console.log("GQFQ");
     return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
   }
 

@@ -283,11 +283,20 @@ export class QuizService implements OnDestroy {
 
   async getCurrentQuestion(): Promise<[QuizQuestion, Option[]]> {
     console.log('getCurrentQuestion method called');
+    if (!this.quizId) {
+      throw new Error('quizId parameter is null or undefined');
+    }
+
+    if (!this.currentQuestionPromise) {
+      console.warn('Current question promise is not available, loading questions for quiz');
+    }
+
     if (this.currentQuestionSubject.value) {
       return [this.currentQuestionSubject.value, this.options];
     }
 
     if (this.isGettingQuestion) {
+      console.warn('Already getting current question, waiting for promise to resolve');
       return await this.currentQuestionPromise;
     }
 
@@ -295,7 +304,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       try {
         let currentQuestion = await this.currentQuestion$.toPromise();
-
+        console.log('Successfully got current question:', currentQuestion);
         const questionIndex = this.currentQuestionIndex;
         if (!questionIndex && questionIndex !== 0) {
           this.currentQuestionIndex = 0;
@@ -312,8 +321,10 @@ export class QuizService implements OnDestroy {
         console.error('Error getting current question:', error);
         this.currentQuestion = null;
         this.options = null;
-        this.isGettingQuestion = false;
+        // this.isGettingQuestion = false;
         reject(error);
+      } finally {
+        this.isGettingQuestion = false;
       }
     });
 

@@ -182,10 +182,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuestionsForQuiz(quizId: string): void {
+    console.log('loadQuestionsForQuiz method called with quizId:', quizId);
     this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
     this.questions$.subscribe(
       (questions: QuizQuestion[]) => {
         if (questions && questions?.length > 0) {
+          console.log('Questions for quiz:', questions);
           this.currentQuestion = questions[0];
         } else {
           console.error('No questions found for quiz with ID:', quizId);
