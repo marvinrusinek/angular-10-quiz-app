@@ -132,15 +132,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:', currentQuestion);
     });
-
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
-      console.log('Current question:', currentQuestion);
-      if (this.currentQuestionIndex !== (<any>currentQuestion).index) {
-        this.currentQuestionIndex = (<any>currentQuestion).index;
-        this.loadCurrentQuestion();
-      }
-      this.quizService.setCurrentQuestion(currentQuestion);
-    });    
     
     this.updateQuestionForm();
   }
@@ -218,16 +209,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.quizDataService
           .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
-            this.currentQuestion = currentQuestion;
-            this.options = options;
-            this.setOptions();
+            if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+              this.currentQuestion = currentQuestion;
+              this.options = options;
+              this.setOptions();
+            }
           });
       } else {
         const [currentQuestion, options] =
           this.quizDataService.questionAndOptions;
-        this.currentQuestion = currentQuestion;
-        this.options = options;
-        this.setOptions();
+        if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+          this.currentQuestion = currentQuestion;
+          this.options = options;
+          this.setOptions();
+        }
       }
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
