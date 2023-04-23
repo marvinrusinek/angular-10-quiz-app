@@ -114,6 +114,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     const quizId = this.quizService.quizId;
     if (quizId) {
+      this.quizId = quizId;
       this.loadQuestionsForQuiz(quizId);
     } else {
       console.error('quizId parameter is null or undefined');
