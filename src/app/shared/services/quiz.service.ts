@@ -225,6 +225,14 @@ export class QuizService implements OnDestroy {
         return;
       }
   
+      if (this.currentQuestionPromise) {
+        console.log('Already getting current question, waiting for promise to resolve');
+        this.currentQuestionPromise.then(() => {
+          this.updateQuestions(quizId).then(resolve).catch(reject);
+        });
+        return;
+      }
+  
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
       if (quiz && this.questions !== null) {
@@ -239,7 +247,7 @@ export class QuizService implements OnDestroy {
       }
     });
   }
-
+  
   loadQuestions(): Observable<QuizQuestion[]> {
     if (this.questions) {
       console.warn('Questions already loaded');
