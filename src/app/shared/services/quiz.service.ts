@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, shareReplay, tap } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
@@ -93,6 +93,9 @@ export class QuizService implements OnDestroy {
 
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
+
+  loadingQuestions: boolean = false;
+  questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
 
   score: number = 0;
   currentScore$: Observable<number>;
@@ -216,12 +219,18 @@ export class QuizService implements OnDestroy {
 
   private updateQuestions(quizId: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (quizId === this.quizId) {
+        resolve();
+        return;
+      }
+  
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
       if (quiz && this.questions !== null) {
         this.questions = quiz.questions;
         console.log('Updated questions array:', this.questions);
         this.setTotalQuestions(this.questions?.length);
+        this.quizId = quizId;
         resolve();
       } else {
         console.error(`No questions found for quiz ID ${quizId}`);
@@ -229,20 +238,33 @@ export class QuizService implements OnDestroy {
       }
     });
   }
-  
+
   loadQuestions(): Observable<QuizQuestion[]> {
     if (this.questions) {
       console.warn('Questions already loaded');
       return of(this.questions);
     }
+    if (this.loadingQuestions) {
+      console.warn('Questions already being loaded');
+      return this.questionLoadingSubject.pipe(
+        filter((loaded) => loaded),
+        take(1),
+        switchMap(() => of(this.questions))
+      );
+    }
+    this.loadingQuestions = true;
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
         console.log('Fetched questions:', questions);
         const quizId = this.getCurrentQuizId();
         this.updateQuestions(quizId);
+        this.questionLoadingSubject.next(true);
+        this.loadingQuestions = false;
       }),
       catchError((error) => {
         console.error('Error getting quiz questions:', error);
+        this.questionLoadingSubject.next(false);
+        this.loadingQuestions = false;
         return throwError(error);
       })
     );
