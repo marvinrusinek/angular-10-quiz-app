@@ -146,7 +146,7 @@ export class QuizService implements OnDestroy {
     this.getQuizData().subscribe((data) => {
       this._quizData$.next(data);
     });
-  
+
     this.activatedRoute.paramMap.subscribe((params) => {
       this.quizId = params.get('quizId');
       this.indexOfQuizId = this.quizData.findIndex(
@@ -155,7 +155,7 @@ export class QuizService implements OnDestroy {
       this.returnQuizSelectionParams();
     });
   }
-  
+
   private initializeData(): void {
     this.quizData = QUIZ_DATA || [];
     if (QUIZ_DATA) {
@@ -163,9 +163,9 @@ export class QuizService implements OnDestroy {
     } else {
       console.log('QUIZ_DATA is undefined or null');
     }
-  
+
     this.quizResources = QUIZ_RESOURCES || [];
-  
+
     this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
@@ -205,7 +205,7 @@ export class QuizService implements OnDestroy {
   getQuestions(): Observable<QuizQuestion[]> {
     if (!this.questions$) {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        tap(questions => {
+        tap((questions) => {
           this.questions = questions;
         }),
         catchError(() => of([]))
@@ -226,6 +226,10 @@ export class QuizService implements OnDestroy {
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {
+    if (this.questions) {
+      console.warn('Questions already loaded');
+      return of(this.questions);
+    }
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
         console.log('Fetched questions:', questions);
@@ -288,36 +292,52 @@ export class QuizService implements OnDestroy {
     if (!this.quizId) {
       throw new Error('quizId parameter is null or undefined');
     }
-  
+
     if (!this.currentQuestionPromise) {
-      console.warn('Current question promise is not available, loading questions for quiz');
-      await this.loadQuestions(); // load the questions if not already loaded
+      console.warn(
+        'Current question promise is not available, loading questions for quiz'
+      );
+      await this.loadQuestions();
     }
-  
-    if (!this.quiz || !this.questions) {
-      console.warn('Quiz or questions array is null or undefined');
-      throw new Error('Quiz or questions array is null or undefined');
+
+    if (!this.quiz) {
+      console.error('Quiz is null or undefined');
+      throw new Error('Quiz is null or undefined');
     }
-  
+
+    if (!this.questions) {
+      console.error('Questions array is null or undefined');
+      throw new Error('Questions array is null or undefined');
+    }
+
     if (this.currentQuestionSubject.value) {
-      console.log('Current question already present in subject:', this.currentQuestionSubject.value);
+      console.log(
+        'Current question already present in subject:',
+        this.currentQuestionSubject.value
+      );
       return [this.currentQuestionSubject.value, this.options];
     }
-  
+
     if (this.isGettingQuestion) {
-      console.warn('Already getting current question, waiting for promise to resolve');
-      console.log('Waiting for currentQuestionPromise to resolve:', this.currentQuestionPromise);
+      console.warn(
+        'Already getting current question, waiting for promise to resolve'
+      );
+      console.log(
+        'Waiting for currentQuestionPromise to resolve:',
+        this.currentQuestionPromise
+      );
       return await this.currentQuestionPromise;
     }
-  
+
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       try {
         let currentQuestion = await this.currentQuestion$.toPromise();
         console.log('Successfully got current question:', currentQuestion);
         const questionIndex = this.currentQuestionIndex ?? 0;
-        const [question, options] = await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
-  
+        const [question, options] =
+          await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
+
         this.currentQuestion = question;
         this.options = options;
         this.isGettingQuestion = false;
@@ -331,10 +351,10 @@ export class QuizService implements OnDestroy {
         this.isGettingQuestion = false;
       }
     });
-  
+
     return await this.currentQuestionPromise;
   }
-    
+
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
   ): Promise<[QuizQuestion, Option[]]> {
@@ -565,7 +585,7 @@ export class QuizService implements OnDestroy {
     this.questions = value;
     this.questions$ = of(this.questions);
   }
-  
+
   setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion() called in QuizService');
     console.log('setCurrentQuestion method called with question:', question);
@@ -575,11 +595,14 @@ export class QuizService implements OnDestroy {
       this.currentQuestion = question;
       this.currentQuestion$.next(question);
       this.currentQuestionSubject.next(this.currentQuestion);
-      console.log("TESTING");
+      console.log('TESTING');
     } else {
-      console.log('not emitting currentQuestionSubject with question:', question);
+      console.log(
+        'not emitting currentQuestionSubject with question:',
+        question
+      );
     }
-  }  
+  }
 
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
@@ -607,15 +630,14 @@ export class QuizService implements OnDestroy {
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question/', this.quizId, questionIndex]);
     this.resetAll();
-  
+
     this.currentQuestion$ = this.questions$.pipe(
-      map(questions => questions[questionIndex]),
-      tap(question => this.currentQuestion = question),
+      map((questions) => questions[questionIndex]),
+      tap((question) => (this.currentQuestion = question)),
       shareReplay(1)
     );
     this.currentQuestion$.subscribe();
   }
-  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
