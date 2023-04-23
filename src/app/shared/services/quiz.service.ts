@@ -50,7 +50,7 @@ export class QuizService implements OnDestroy {
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion = null;
-  currentQuestion$: BehaviorSubject<QuizQuestion> = null;
+  // currentQuestion$: BehaviorSubject<QuizQuestion> = null;
   currentQuestionPromise: Promise<QuizQuestion> = null;
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentQuizQuestions: QuizQuestion[];
@@ -84,6 +84,12 @@ export class QuizService implements OnDestroy {
   multipleAnswerSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
+
+  private currentQuestionSource = new BehaviorSubject<{
+    question: QuizQuestion;
+    quizId: string;
+  }>(null);
+  currentQuestion$ = this.currentQuestionSource.asObservable();
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
@@ -671,7 +677,8 @@ export class QuizService implements OnDestroy {
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
       this.currentQuestion = question;
-      this.currentQuestion$.next(question);
+      this.currentQuestionSource.next({ question, quizId });
+      // this.currentQuestion$.next(question);
       this.currentQuestionSubject.next(this.currentQuestion);
       console.log('TESTING');
     } else {
