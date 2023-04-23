@@ -96,6 +96,7 @@ export class QuizService implements OnDestroy {
 
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
+  private loadQuestionsLock: boolean = false;
 
   score: number = 0;
   currentScore$: Observable<number>;
@@ -269,7 +270,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-
+  
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
