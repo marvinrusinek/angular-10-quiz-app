@@ -218,7 +218,7 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  private updateQuestions(quizId: string): Promise<void> {
+  updateQuestions(quizId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (quizId === this.quizId) {
         resolve();
