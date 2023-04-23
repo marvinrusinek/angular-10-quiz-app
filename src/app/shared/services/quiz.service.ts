@@ -20,6 +20,7 @@ import { Resource } from '../../shared/models/Resource.model';
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
+  currentQuestionIndex: number = 0;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   quizData: Quiz[] = this.quizInitialState;
@@ -44,7 +45,6 @@ export class QuizService implements OnDestroy {
   quizId: string = '';
   answers: number[];
   totalQuestions: number = 0;
-  currentQuestionIndex: number = 1;
   quizLength: number;
   quizStartTime: Date;
 
@@ -295,7 +295,7 @@ export class QuizService implements OnDestroy {
     }
   
     if (!this.quiz || !this.questions) {
-      console.error('Quiz or questions array is null or undefined');
+      console.warn('Quiz or questions array is null or undefined');
       throw new Error('Quiz or questions array is null or undefined');
     }
   
@@ -315,13 +315,8 @@ export class QuizService implements OnDestroy {
       try {
         let currentQuestion = await this.currentQuestion$.toPromise();
         console.log('Successfully got current question:', currentQuestion);
-        const questionIndex = this.currentQuestionIndex;
-        if (!questionIndex && questionIndex !== 0) {
-          this.currentQuestionIndex = 0;
-        }
-  
-        const [question, options] =
-          await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
+        const questionIndex = this.currentQuestionIndex ?? 0;
+        const [question, options] = await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
   
         this.currentQuestion = question;
         this.options = options;
@@ -331,7 +326,6 @@ export class QuizService implements OnDestroy {
         console.error('Error getting current question:', error);
         this.currentQuestion = null;
         this.options = null;
-        // this.isGettingQuestion = false;
         reject(error);
       } finally {
         this.isGettingQuestion = false;
@@ -340,7 +334,7 @@ export class QuizService implements OnDestroy {
   
     return await this.currentQuestionPromise;
   }
-  
+    
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
   ): Promise<[QuizQuestion, Option[]]> {
