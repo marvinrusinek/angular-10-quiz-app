@@ -358,6 +358,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
+    console.log('MYTEST12345')
     this.currentQuestion$ = this.quizService.currentQuestion$; 
     this.quizService.getCurrentQuestion();
     return this.currentQuestion$;

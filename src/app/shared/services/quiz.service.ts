@@ -97,7 +97,7 @@ export class QuizService implements OnDestroy {
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   private loadQuestionsLock: boolean = false;
-  private questionsLoaded = false;
+  questionsLoaded = false;
 
   score: number = 0;
   currentScore$: Observable<number>;
@@ -220,10 +220,12 @@ export class QuizService implements OnDestroy {
   }
 
   updateQuestions(quizId: string): Promise<void> {
+    console.log('updateQuestions called');
     console.log('test update');
     this.questionsLoaded = true;
     return new Promise((resolve, reject) => {
       if (quizId === this.quizId) {
+        console.log('quizId is the same, no need to update');
         resolve();
         return;
       }
@@ -231,6 +233,7 @@ export class QuizService implements OnDestroy {
       if (this.currentQuestionPromise) {
         console.log('Already getting current question, waiting for promise to resolve');
         this.currentQuestionPromise.then(() => {
+          console.log('currentQuestionPromise resolved, updating questions');
           this.updateQuestions(quizId).then(resolve).catch(reject);
         });
         return;
@@ -255,22 +258,23 @@ export class QuizService implements OnDestroy {
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
       if (quiz) {
-        this.currentQuestionPromise = new Promise((resolve) => {
+        console.log('Updating questions array with quiz:', quiz);
+        this.currentQuestionPromise = this.getCurrentQuestion();
+        this.currentQuestionPromise.then(() => {
           this.questions = quiz.questions;
           console.log('Updated questions array:', this.questions);
           this.setTotalQuestions(this.questions?.length);
           this.quizId = quizId;
           this.currentQuestionPromise = null;
           resolve();
-        });
-        return this.currentQuestionPromise.then(resolve).catch(reject);
+        }).catch(reject);
       } else {
         console.error(`No questions found for quiz ID ${quizId}`);
         reject(new Error(`No questions found for quiz ID ${quizId}`));
       }
     });
   }
-    
+        
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('MYTEST');
     if (this.questions) {
@@ -359,7 +363,7 @@ export class QuizService implements OnDestroy {
       console.warn(
         'Current question promise is not available, loading questions for quiz'
       );
-      await this.loadQuestions();
+      await this.currentQuestionPromise;
     }
 
     if (!this.quiz) {
