@@ -54,6 +54,10 @@ mat-card {
     height: auto;
     vertical-align: middle;
 
+    h3 {
+      margin-top: 5px;
+    }
+
     .number-correct {
       color: $dark-green;
     }
