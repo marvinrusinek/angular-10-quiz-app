@@ -677,8 +677,7 @@ export class QuizService implements OnDestroy {
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
       this.currentQuestion = question;
-      this.currentQuestionSource.next({ question, quizId });
-      // this.currentQuestion$.next(question);
+      this.currentQuestionSource.next({ question, quizId: this.quizId });
       this.currentQuestionSubject.next(this.currentQuestion);
       console.log('TESTING');
     } else {
