@@ -224,7 +224,7 @@ export class QuizService implements OnDestroy {
     if (quizId) {
       const questions = await this.getAllQuestions().toPromise();
       const filteredQuestions = Array.from(questions).filter(
-        (question) => question.quizId === quizId
+        (question: any) => question.quizId === quizId
       );
       if (index >= 0 && index < filteredQuestions.length) {
         this.currentQuestionIndex = index;
