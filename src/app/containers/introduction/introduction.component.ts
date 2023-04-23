@@ -92,14 +92,12 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   onStartQuiz(quizId: string) {
-    if (!this.selectedQuizId) {
+    if (!quizId) {
       console.error('No quiz selected');
       return;
     }
-
-    this.selectedQuizId = quizId;
-
-    this.quizDataService.getQuizById(this.selectedQuizId)
+  
+    this.quizDataService.getQuizById(quizId)
       .pipe(
         catchError((error) => {
           console.error(`Error fetching quiz: ${error}`);
@@ -107,15 +105,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe((quiz) => {
-        const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === this.selectedQuizId);
+        const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === quizId);
         if (foundQuiz) {
           this.quizDataService.setSelectedQuiz(foundQuiz);
           this.quizDataService.selectedQuizSubject.next(foundQuiz);
-          this.quizSelected.emit(this.selectedQuizId);
-          this.router.navigate(['/question/', this.selectedQuizId, 1]);
+          this.quizSelected.emit(quizId);
+          this.router.navigate(['/question/', quizId, 1]);
         } else {
-          console.error(`Quiz with ID ${this.selectedQuizId} not found`);
+          console.error(`Quiz with ID ${quizId} not found`);
         }
       });
-  } 
+  }  
 }
