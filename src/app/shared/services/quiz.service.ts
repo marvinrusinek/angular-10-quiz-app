@@ -358,20 +358,24 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestion(): Promise<QuizQuestion> {
+  async getCurrentQuestion(): Promise<QuizQuestion> {
+    if (this.currentQuestion) {
+      console.log('Current question already available, returning cached question');
+      return this.currentQuestion;
+    }
+  
     if (this.currentQuestionPromise) {
       console.log('getCurrentQuestion locked, waiting for promise to resolve');
-      return this.currentQuestionPromise;
+      return this.currentQuestionPromise.then(() => {
+        return this.getCurrentQuestion();
+      });
     }
-
-    this.currentQuestionPromise = this.currentQuestionSubject
-      .pipe(filter((question) => !!question))
-      .toPromise();
-
+  
     const quizId = this.getCurrentQuizId();
+  
     console.log('Loading questions for quiz', quizId);
-    
-    const fetchQuestionsPromise = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+  
+    this.currentQuestionPromise = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
         console.log('Fetched questions:', questions);
         this.questions = questions;
@@ -389,17 +393,13 @@ export class QuizService implements OnDestroy {
       })
     ).toPromise().then((questions: QuizQuestion[]) => {
       const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-      this.currentQuestionSubject.next(questions[currentQuestionIndex]);
-      return questions[currentQuestionIndex];
+      this.currentQuestion = questions[currentQuestionIndex];
+      this.currentQuestionSubject.next(this.currentQuestion);
+      return this.currentQuestion;
     });
-
-    this.currentQuestionPromise = this.currentQuestionPromise.then(() => {
-      return fetchQuestionsPromise;
-    });
-
+  
     return this.currentQuestionPromise;
   }
-
     
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
