@@ -222,7 +222,7 @@ export class QuizService implements OnDestroy {
   async setCurrentQuestionIndex(index: number): Promise<void> {
     const quizId = this.quizId;
     if (quizId) {
-      const questions = await this.getAllQuestions().toPromise();
+      const questions = await this.getQuestionsForQuiz(quizId).toPromise();
       const filteredQuestions = Array.from(questions).filter(
         (question: any) => question.quizId === quizId
       );
@@ -241,6 +241,7 @@ export class QuizService implements OnDestroy {
     if (!this.questions$) {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions) => {
+          console.log('ALL QUESTIONS', questions);
           this.questions = questions;
         }),
         catchError(() => of([]))
@@ -249,18 +250,23 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string, questions: QuizQuestion[] }> {
+    console.log('GQFQ:>>', quizId);
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map((questions: any) =>
-        questions.filter((question) => question.quizId === quizId)
+        questions.filter((question) => {
+          console.log('QUESTION FILTER', question);
+          return question.quizId === String(quizId);
+        })
       ),
       catchError((error: HttpErrorResponse) => {
         console.error('An error occurred while loading questions:', error);
         return throwError('Something went wrong.');
-      })
+      }),
+      map((filteredQuestions) => ({ quizId, questions: filteredQuestions }))
     );
-  }
-
+  }  
+    
   updateQuestions(quizId: string): Promise<void> {
     console.log('updateQuestions called');
     console.log('test update');
@@ -694,6 +700,8 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
+    console.log("QQI", question.quizId);
+    console.log("QUIZID:>>", this.quizId);
     console.log('Q:>', question);
     console.log('CQ:>', this.currentQuestion);
     console.log('CHECK', question && !isEqual(question, this.currentQuestion));

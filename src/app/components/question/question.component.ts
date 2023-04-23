@@ -122,6 +122,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     try {
       const question = await this.quizService.getCurrentQuestion();
+      console.log('MY Q', question);
       this.quizService.setCurrentQuestion(question);
       this.initializeQuizState(question);
       this.loadCurrentQuestion();
