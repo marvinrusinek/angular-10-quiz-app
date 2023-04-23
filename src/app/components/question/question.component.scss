@@ -29,22 +29,19 @@
 
   .correct {
     background-color: $green;
-    border: 2px solid $vivid-blue;
   }
 
   .incorrect {
     background-color: $red;
+  }
+
+  .correct, .incorrect {
     border: 2px solid $vivid-blue;
   }
 
   span {
     white-space: normal;
     margin-top: 5px;
-  }
-
-  i {
-    position: absolute;
-    right: 40px;
   }
 }
 

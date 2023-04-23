@@ -24,6 +24,7 @@ div.mat-checkbox-inner-container {
     border: 2px solid $medium-gray;
     padding: 10px 5px 10px 30px;
     margin-left: -5px;
+    margin-bottom: 30px;
 
     &:hover {
       border: 2px solid $vivid-blue;
@@ -47,10 +48,12 @@ div.mat-checkbox-inner-container {
 
 .correct {
   background-color: $green;
-  border: 2px solid $vivid-blue;
 }
 
 .incorrect {
   background-color: $red;
+}
+
+.correct, .incorrect {
   border: 2px solid $vivid-blue;
 }

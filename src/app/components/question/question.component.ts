@@ -120,21 +120,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     try {
-      const [question] = await this.quizService.getCurrentQuestion();
-      console.log('Successfully got current question:', question);
-      console.log('Before calling setCurrentQuestion()');
+      const question = await this.quizService.getCurrentQuestion();
       this.quizService.setCurrentQuestion(question);
-      console.log('After calling setCurrentQuestion()');
       this.initializeQuizState(question);
-      console.log('before');
       this.loadCurrentQuestion();
-      console.log('after');
       this.toggleOptions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
 
-    console.log('Before subscribing to currentQuestion$');
     this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:', currentQuestion);
     });
@@ -197,7 +191,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    console.log('loadCurrentQuestion() called again');
     if (this.quizId && this.currentQuestionIndex >= 0) {
       console.log(
         'getQuestionAndOptions called with quizId:',
@@ -205,7 +198,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         'and questionIndex:',
         this.currentQuestionIndex
       );
-      console.log('BEFORE');
       if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
         this.quizDataService
           .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
@@ -221,7 +213,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options = options;
         this.setOptions();
       }
-      console.log('AFTER');
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
     }
