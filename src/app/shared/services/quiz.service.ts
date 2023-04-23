@@ -359,53 +359,47 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestion(): Promise<QuizQuestion> {
-    if (this.lock) {
+    if (this.currentQuestionPromise) {
       console.log('getCurrentQuestion locked, waiting for promise to resolve');
       return this.currentQuestionPromise;
-    }
-
-    this.lock = true;
-
-    if (this.currentQuestionPromise) {
-      console.log('Already getting current question, waiting for promise to resolve');
-      this.lock = false;
-      return this.currentQuestionPromise.then(() => {
-        return this.getCurrentQuestion();
-      });
     }
 
     this.currentQuestionPromise = this.currentQuestionSubject
       .pipe(filter((question) => !!question))
       .toPromise();
 
-    return this.currentQuestionPromise.then((currentQuestion) => {
-      const quizId = this.getCurrentQuizId();
-      console.log('Loading questions for quiz', quizId);
-      return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-        tap((questions) => {
-          console.log('Fetched questions:', questions);
-          this.questions = questions;
-          this.updateQuestions(quizId);
-          this.questionLoadingSubject.next(true);
-          this.loadingQuestions = false;
-          this.currentQuestionPromise = null;
-          this.lock = false;
-        }),
-        catchError((error) => {
-          console.error('Error getting quiz questions:', error);
-          this.questionLoadingSubject.next(false);
-          this.loadingQuestions = false;
-          this.currentQuestionPromise = null;
-          this.lock = false;
-          return throwError(error);
-        })
-      ).toPromise().then((questions: QuizQuestion[]) => {
-        const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-        this.currentQuestionSubject.next(questions[currentQuestionIndex]);
-        return questions[currentQuestionIndex];
-      });
+    const quizId = this.getCurrentQuizId();
+    console.log('Loading questions for quiz', quizId);
+    
+    const fetchQuestionsPromise = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      tap((questions) => {
+        console.log('Fetched questions:', questions);
+        this.questions = questions;
+        this.updateQuestions(quizId);
+        this.questionLoadingSubject.next(true);
+        this.loadingQuestions = false;
+        this.currentQuestionPromise = null;
+      }),
+      catchError((error) => {
+        console.error('Error getting quiz questions:', error);
+        this.questionLoadingSubject.next(false);
+        this.loadingQuestions = false;
+        this.currentQuestionPromise = null;
+        return throwError(error);
+      })
+    ).toPromise().then((questions: QuizQuestion[]) => {
+      const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+      this.currentQuestionSubject.next(questions[currentQuestionIndex]);
+      return questions[currentQuestionIndex];
     });
+
+    this.currentQuestionPromise = this.currentQuestionPromise.then(() => {
+      return fetchQuestionsPromise;
+    });
+
+    return this.currentQuestionPromise;
   }
+
     
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
