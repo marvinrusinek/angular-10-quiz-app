@@ -233,21 +233,38 @@ export class QuizService implements OnDestroy {
         return;
       }
   
+      if (this.questions === null || this.questions === undefined) {
+        console.log('Questions array is null or undefined, loading questions for quiz');
+        this.loadQuestions().subscribe((questions) => {
+          this.questions = questions;
+          console.log('Loaded questions array:', this.questions);
+          this.updateQuestions(quizId).then(resolve).catch(reject);
+        }, (error) => {
+          console.error('Error loading quiz questions:', error);
+          reject(error);
+        });
+        return;
+      }
+  
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
-      if (quiz && this.questions !== null) {
-        this.questions = quiz.questions;
-        console.log('Updated questions array:', this.questions);
-        this.setTotalQuestions(this.questions?.length);
-        this.quizId = quizId;
-        resolve();
+      if (quiz) {
+        this.currentQuestionPromise = new Promise((resolve) => {
+          this.questions = quiz.questions;
+          console.log('Updated questions array:', this.questions);
+          this.setTotalQuestions(this.questions?.length);
+          this.quizId = quizId;
+          this.currentQuestionPromise = null;
+          resolve();
+        });
+        return this.currentQuestionPromise.then(resolve).catch(reject);
       } else {
         console.error(`No questions found for quiz ID ${quizId}`);
         reject(new Error(`No questions found for quiz ID ${quizId}`));
       }
     });
   }
-  
+    
   loadQuestions(): Observable<QuizQuestion[]> {
     if (this.questions) {
       console.warn('Questions already loaded');
