@@ -20,7 +20,7 @@ import { Resource } from '../../shared/models/Resource.model';
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  quiz: Quiz;
+  quiz: Quiz = QUIZ_DATA;
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   quizData: Quiz[] = this.quizInitialState;
   private _quizData$ = new BehaviorSubject<Quiz[]>([]);
@@ -118,7 +118,6 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
-    this.quiz = {};
     this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
