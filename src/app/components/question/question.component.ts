@@ -194,33 +194,55 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
+    console.log('loadCurrentQuestion() called');
+    console.log('quizId:::::', this.quizId);
+    console.log('currentQuestionIndex:::::', this.currentQuestionIndex);
+  
     if (this.quizId && 
         this.currentQuestionIndex !== undefined && 
         this.currentQuestionIndex >= 0) {
+      console.log(
+        'getQuestionAndOptions called with quizId:',
+        this.quizId,
+        'and questionIndex:',
+        this.currentQuestionIndex
+      );
+  
       if (this.quizDataService.hasQuestionAndOptionsLoaded === false) {
         this.quizDataService
           .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
-            if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
-              this.currentQuestion = currentQuestion;
-              this.options = options;
-              this.setOptions();
+            if (currentQuestion.quizId !== this.quizId) {
+              console.error('Loaded question does not belong to selected quiz');
+            } else {
+              if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+                this.currentQuestion = currentQuestion;
+                this.options = options;
+                this.setOptions();
+              }
             }
           });
       } else {
         const [currentQuestion, options] =
           this.quizDataService.questionAndOptions;
-        if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
-          this.currentQuestion = currentQuestion;
-          this.options = options;
-          this.setOptions();
+        if (currentQuestion.quizId !== this.quizId) {
+          console.error('Loaded question does not belong to selected quiz');
+        } else {
+          if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+            this.currentQuestion = currentQuestion;
+            this.options = options;
+            this.setOptions();
+          }
         }
       }
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
     }
+  
+    console.log("QUIZID::", this.quizId);
+    console.log("CQI::", this.currentQuestionIndex);
   }
-
+  
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }

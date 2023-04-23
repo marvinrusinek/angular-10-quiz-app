@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
   from,
@@ -219,15 +219,27 @@ export class QuizService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  setCurrentQuestionIndex(index: number): void {
+  /* setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndexSubject.next(index);
+  } */
+
+  async setCurrentQuestionIndex(index: number): Promise<void> {
+    const quizId = this.quizId;
+    if (quizId) {
+      const questions = await this.getQuestions();
+      const filteredQuestions = questions.filter((question) => question.quizId === quizId);
+      if (index >= 0 && index < filteredQuestions.length) {
+        this.currentQuestionIndex = index;
+        this.setCurrentQuestion(filteredQuestions[index]);
+      }
+    }
   }
 
   getCurrentQuizId(): string {
     return this.quizId;
   }
 
-  getQuestions(): Observable<QuizQuestion[]> {
+  getAllQuestions(): Observable<QuizQuestion[]> {
     if (!this.questions$) {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions) => {
@@ -239,6 +251,18 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
+  getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
+    return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      map((questions: any) =>
+        questions.filter((question) => question.quizId === quizId)
+      ),
+      catchError((error: HttpErrorResponse) => {
+        console.error('An error occurred while loading questions:', error);
+        return throwError('Something went wrong.');
+      })
+    );
+  }
+  
   updateQuestions(quizId: string): Promise<void> {
     console.log('updateQuestions called');
     console.log('test update');
@@ -321,7 +345,6 @@ export class QuizService implements OnDestroy {
     return from(this.currentQuestionPromise).pipe(
       switchMap((currentQuestion) => {
         const quizId = this.getCurrentQuizId();
-        console.log('Loading questions for quiz', quizId);
         return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
           tap((questions) => {
             console.log('Fetched questions:', questions);
@@ -673,6 +696,8 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
+    console.log('Q:>', question);
+    console.log('CQ:>', this.currentQuestion);
     console.log('CHECK', question && !isEqual(question, this.currentQuestion));
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
@@ -686,7 +711,7 @@ export class QuizService implements OnDestroy {
         question
       );
     }
-  }
+  }  
 
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
