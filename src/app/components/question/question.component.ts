@@ -191,7 +191,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    if (this.quizId && this.currentQuestionIndex >= 0) {
+    if (this.quizId && 
+        this.currentQuestionIndex !== undefined && 
+        this.currentQuestionIndex >= 0) {
       console.log(
         'getQuestionAndOptions called with quizId:',
         this.quizId,

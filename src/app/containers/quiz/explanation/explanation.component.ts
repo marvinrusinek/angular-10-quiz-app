@@ -11,17 +11,21 @@ export class QuizExplanationComponent {
   @Input() questionText: string = '';
   @Input() numberOfCorrectAnswers: number;
   @Input() correctOptions: string = '';
-  @Input() explanationText: string = '';
+  @Input() explanationText: string;
 
   getExplanationText(): string {
+    console.log("isAnswered", this.isAnswered);
+    console.log("numberOfCorrectAnswers", this.numberOfCorrectAnswers);
     if (!this.explanationText) {
       throw new Error('No explanation available for this question.');
     }
-    
-    if (this.numberOfCorrectAnswers === 1) {
-      return `Option ${this.correctOptions} was correct because ${this.explanationText}`;
-    } else {
-      return `Options ${this.correctOptions} were correct because ${this.explanationText}`;
+
+    if (this.isAnswered === true) {
+      if (this.numberOfCorrectAnswers === 1) {
+        return `Option ${this.correctOptions} was correct because ${this.explanationText}`;
+      } else {
+        return `Options ${this.correctOptions} were correct because ${this.explanationText}`;
+      }
     }
   }
 }

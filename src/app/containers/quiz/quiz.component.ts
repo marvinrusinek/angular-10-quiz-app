@@ -95,6 +95,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   routerSubscription: Subscription;
   resources: Resource[];
   answers = [];
+  answered: boolean = false;
   options: Option[] = [];
   multipleAnswer: boolean = false;
 
@@ -542,6 +543,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   selectedAnswer(data): void {
     this.showExplanation = true;
+    this.answered = true;
 
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
