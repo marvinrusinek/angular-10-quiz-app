@@ -95,6 +95,7 @@ export class QuizService implements OnDestroy {
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   private loadQuestionsLock: boolean = false;
+  private lock: boolean = false;
   questionsLoaded = false;
 
   score: number = 0;
@@ -358,8 +359,16 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestion(): Promise<QuizQuestion> {
+    if (this.lock) {
+      console.log('getCurrentQuestion locked, waiting for promise to resolve');
+      return this.currentQuestionPromise;
+    }
+
+    this.lock = true;
+
     if (this.currentQuestionPromise) {
       console.log('Already getting current question, waiting for promise to resolve');
+      this.lock = false;
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
       });
@@ -368,6 +377,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionPromise = this.currentQuestionSubject
       .pipe(filter((question) => !!question))
       .toPromise();
+
     return this.currentQuestionPromise.then((currentQuestion) => {
       const quizId = this.getCurrentQuizId();
       console.log('Loading questions for quiz', quizId);
@@ -379,12 +389,14 @@ export class QuizService implements OnDestroy {
           this.questionLoadingSubject.next(true);
           this.loadingQuestions = false;
           this.currentQuestionPromise = null;
+          this.lock = false;
         }),
         catchError((error) => {
           console.error('Error getting quiz questions:', error);
           this.questionLoadingSubject.next(false);
           this.loadingQuestions = false;
           this.currentQuestionPromise = null;
+          this.lock = false;
           return throwError(error);
         })
       ).toPromise().then((questions: QuizQuestion[]) => {
@@ -394,7 +406,7 @@ export class QuizService implements OnDestroy {
       });
     });
   }
-
+    
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
   ): Promise<[QuizQuestion, Option[]]> {
