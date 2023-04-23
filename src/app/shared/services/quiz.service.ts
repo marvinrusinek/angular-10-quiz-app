@@ -97,6 +97,7 @@ export class QuizService implements OnDestroy {
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   private loadQuestionsLock: boolean = false;
+  private questionsLoaded = false;
 
   score: number = 0;
   currentScore$: Observable<number>;
@@ -219,6 +220,8 @@ export class QuizService implements OnDestroy {
   }
 
   updateQuestions(quizId: string): Promise<void> {
+    console.log('test update');
+    this.questionsLoaded = true;
     return new Promise((resolve, reject) => {
       if (quizId === this.quizId) {
         resolve();
@@ -233,8 +236,10 @@ export class QuizService implements OnDestroy {
         return;
       }
   
+      console.log('this.questions:', this.questions);
       if (this.questions === null || this.questions === undefined) {
         console.log('Questions array is null or undefined, loading questions for quiz');
+        console.log('Before loadQuestions');
         this.loadQuestions().subscribe((questions) => {
           this.questions = questions;
           console.log('Loaded questions array:', this.questions);
@@ -245,6 +250,7 @@ export class QuizService implements OnDestroy {
         });
         return;
       }
+      console.log('After loadQuestions');
   
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
   
@@ -266,6 +272,7 @@ export class QuizService implements OnDestroy {
   }
     
   loadQuestions(): Observable<QuizQuestion[]> {
+    console.log('MYTEST');
     if (this.questions) {
       console.warn('Questions already loaded');
       return of(this.questions);
@@ -281,6 +288,7 @@ export class QuizService implements OnDestroy {
     this.loadingQuestions = true;
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
+        console.log("MYTEST2");
         console.log('Fetched questions:', questions);
         const quizId = this.getCurrentQuizId();
         this.updateQuestions(quizId);
@@ -294,6 +302,7 @@ export class QuizService implements OnDestroy {
         return throwError(error);
       })
     );
+    console.log("MYTEST3");
   }
   
   setTotalQuestions(totalQuestions: number): void {
@@ -360,7 +369,6 @@ export class QuizService implements OnDestroy {
 
     if (!this.questions) {
       console.warn('Questions array is null or undefined, loading questions for quiz');
-      await this.updateQuestions(this.quizId);
     }
 
     if (this.currentQuestionSubject.value) {
