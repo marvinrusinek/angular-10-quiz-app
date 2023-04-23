@@ -66,7 +66,7 @@ export class ScoreComponent implements OnInit, OnDestroy {
         distinctUntilChanged()
       ),
       this.quizService
-        .getQuestions()
+        .getAllQuestions()
         .pipe(
           switchMap((questions) =>
             combineLatest([of(questions), this.quizService.getTotalQuestions()])
