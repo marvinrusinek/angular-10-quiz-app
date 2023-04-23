@@ -48,10 +48,13 @@ div.mat-checkbox-inner-container {
 
 .correct {
   background-color: $green;
-  border: 2px solid $vivid-blue;
 }
 
 .incorrect {
   background-color: $red;
+}
+
+.correct, .incorrect {
   border: 2px solid $vivid-blue;
 }
+
