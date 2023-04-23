@@ -133,6 +133,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Current question:', currentQuestion);
     });
 
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
+      console.log('Current question:', currentQuestion);
+      if (this.currentQuestionIndex !== (<any>currentQuestion).index) {
+        this.currentQuestionIndex = (<any>currentQuestion).index;
+        this.loadCurrentQuestion();
+      }
+      this.quizService.setCurrentQuestion(currentQuestion);
+    });    
+    
     this.updateQuestionForm();
   }
 
@@ -175,6 +184,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuestionsForQuiz(quizId: string): void {
+    console.log("QI:::>>>", quizId);
+    console.log("CQI:::>>>", this.currentQuestionIndex);
     this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
     this.questions$.subscribe(
       (questions: QuizQuestion[]) => {
@@ -191,6 +202,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
+    console.log('loadCurrentQuestion() called');
+    console.log('quizId:::::', this.quizId);
+    console.log('currentQuestionIndex:::::', this.currentQuestionIndex);
     if (this.quizId && 
         this.currentQuestionIndex !== undefined && 
         this.currentQuestionIndex >= 0) {
@@ -200,7 +214,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         'and questionIndex:',
         this.currentQuestionIndex
       );
-      if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+      if (this.quizDataService.hasQuestionAndOptionsLoaded === false) {
         this.quizDataService
           .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
