@@ -20,6 +20,7 @@ import { Resource } from '../../shared/models/Resource.model';
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
+  quiz: Quiz;
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   quizData: Quiz[] = this.quizInitialState;
   private _quizData$ = new BehaviorSubject<Quiz[]>([]);
@@ -117,6 +118,7 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
+    this.quiz = {};
     this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
@@ -287,22 +289,28 @@ export class QuizService implements OnDestroy {
     if (!this.quizId) {
       throw new Error('quizId parameter is null or undefined');
     }
-
+  
     if (!this.currentQuestionPromise) {
       console.warn('Current question promise is not available, loading questions for quiz');
+      await this.loadQuestions(); // load the questions if not already loaded
     }
-
+  
+    if (!this.quiz || !this.questions) {
+      console.error('Quiz or questions array is null or undefined');
+      throw new Error('Quiz or questions array is null or undefined');
+    }
+  
     if (this.currentQuestionSubject.value) {
       console.log('Current question already present in subject:', this.currentQuestionSubject.value);
       return [this.currentQuestionSubject.value, this.options];
     }
-
+  
     if (this.isGettingQuestion) {
       console.warn('Already getting current question, waiting for promise to resolve');
       console.log('Waiting for currentQuestionPromise to resolve:', this.currentQuestionPromise);
       return await this.currentQuestionPromise;
     }
-
+  
     this.isGettingQuestion = true;
     this.currentQuestionPromise = new Promise(async (resolve, reject) => {
       try {
@@ -312,10 +320,10 @@ export class QuizService implements OnDestroy {
         if (!questionIndex && questionIndex !== 0) {
           this.currentQuestionIndex = 0;
         }
-
+  
         const [question, options] =
           await this.getQuestionAndOptionsFromCacheOrFetch(questionIndex);
-
+  
         this.currentQuestion = question;
         this.options = options;
         this.isGettingQuestion = false;
@@ -330,10 +338,10 @@ export class QuizService implements OnDestroy {
         this.isGettingQuestion = false;
       }
     });
-
+  
     return await this.currentQuestionPromise;
   }
-
+  
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
   ): Promise<[QuizQuestion, Option[]]> {
