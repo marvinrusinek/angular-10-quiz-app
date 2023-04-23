@@ -216,8 +216,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
     }
-    /* console.log("QUIZID::", this.quizId);
-    console.log("CQI::", this.currentQuestionIndex); */
+    console.log("QUIZID::", this.quizId);
+    console.log("CQI::", this.currentQuestionIndex);
   }
 
   isOption(option: Option | string): option is Option {
