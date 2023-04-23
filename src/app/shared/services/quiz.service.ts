@@ -33,7 +33,8 @@ export class QuizService implements OnDestroy {
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion = null;
-  currentQuestion$: Observable<QuizQuestion> = null;
+  // currentQuestion$: Observable<QuizQuestion> = null;
+  currentQuestion$: BehaviorSubject<QuizQuestion>;
   currentQuizQuestions: QuizQuestion[];
   options: Option[] = [];
   options$: Observable<Option[]>;
@@ -115,6 +116,8 @@ export class QuizService implements OnDestroy {
   ) {
     this.loadData();
     this.initializeData();
+
+    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
   ngOnDestroy(): void {
@@ -215,7 +218,6 @@ export class QuizService implements OnDestroy {
 
     if (quiz && this.questions !== null) {
       this.questions = quiz.questions;
-      this.setCurrentQuestion(this.questions[0]);
       this.setTotalQuestions(this.questions?.length);
     } else {
       console.error(`No questions found for quiz ID ${quizId}`);
@@ -570,6 +572,7 @@ export class QuizService implements OnDestroy {
     if (question && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
       this.currentQuestion = question;
+      this.currentQuestion$.next(question);
       this.currentQuestionSubject.next(this.currentQuestion);
       console.log("TESTING");
     } else {

@@ -366,15 +366,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuestions(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-
+  
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
       this.quizService.setCurrentQuestionIndex(+questionIndex);
       this.quizService.setTotalQuestions(questions.length);
+      this.quizService.updateQuestions(quizId);
+      this.getCurrentQuestion();
     });
   }
-
+  
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
       console.error('Options not found');
