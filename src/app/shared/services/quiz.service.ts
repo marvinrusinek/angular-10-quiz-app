@@ -219,21 +219,19 @@ export class QuizService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
-  /* setCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndexSubject.next(index);
-  } */
-
   async setCurrentQuestionIndex(index: number): Promise<void> {
     const quizId = this.quizId;
     if (quizId) {
-      const questions = await this.getQuestions();
-      const filteredQuestions = questions.filter((question) => question.quizId === quizId);
+      const questions = await this.getAllQuestions().toPromise();
+      const filteredQuestions = Array.from(questions).filter(
+        (question) => question.quizId === quizId
+      );
       if (index >= 0 && index < filteredQuestions.length) {
         this.currentQuestionIndex = index;
         this.setCurrentQuestion(filteredQuestions[index]);
       }
     }
-  }
+  }  
 
   getCurrentQuizId(): string {
     return this.quizId;
@@ -262,7 +260,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
+
   updateQuestions(quizId: string): Promise<void> {
     console.log('updateQuestions called');
     console.log('test update');
@@ -373,7 +371,7 @@ export class QuizService implements OnDestroy {
   }
 
   getTotalQuestions(): Observable<number> {
-    return this.getQuestions().pipe(
+    return this.getAllQuestions().pipe(
       map((questions) => questions?.length || 0),
       catchError(() => of(0))
     );
@@ -711,7 +709,7 @@ export class QuizService implements OnDestroy {
         question
       );
     }
-  }  
+  }
 
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
