@@ -249,8 +249,7 @@ export class QuizService implements OnDestroy {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map((questions: any) =>
         questions.filter((question) => {
-          console.log('QUESTION FILTER', question);
-          return question.quizId === String(quizId);
+          return question.quizId === quizId;
         })
       ),
       catchError((error: HttpErrorResponse) => {
@@ -259,7 +258,7 @@ export class QuizService implements OnDestroy {
       }),
       map((filteredQuestions) => ({ quizId, questions: filteredQuestions }))
     );
-  }  
+  }
     
   updateQuestions(quizId: string): Promise<void> {
     console.log('updateQuestions called');
