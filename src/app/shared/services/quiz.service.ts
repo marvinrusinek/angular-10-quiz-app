@@ -85,7 +85,7 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean = false;
 
   private currentQuestionSource: Subject<{ question: QuizQuestion; quizId: string; }> = new Subject<{ question: QuizQuestion; quizId: string; }>();
-  public currentQuestion$ = this.currentQuestionSource.asObservable();
+  currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
@@ -138,8 +138,6 @@ export class QuizService implements OnDestroy {
   ) {
     this.loadData();
     this.initializeData();
-
-    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
   }
 
   ngOnDestroy(): void {
@@ -187,7 +185,7 @@ export class QuizService implements OnDestroy {
 
     this.quizResources = QUIZ_RESOURCES || [];
 
-    this.currentQuestion$ = new BehaviorSubject<QuizQuestion>(null);
+    this.currentQuestion$ = this.currentQuestionSource.asObservable();
   }
 
   getQuizName(segments: any[]): string {
