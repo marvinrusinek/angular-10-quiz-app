@@ -425,8 +425,7 @@ export class QuizService implements OnDestroy {
 
     const quizId = this.getCurrentQuizId();
 
-    this.currentQuestionPromise = this.http
-      .get<QuizQuestion[]>(this.quizUrl)
+    this.currentQuestionPromise = this.http.get<QuizQuestion[]>(this.quizUrl)
       .pipe(
         tap((questions) => {
           console.log('Fetched questions:', questions);
