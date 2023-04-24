@@ -20,7 +20,7 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { catchError, flatMap, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, flatMap, forkJoin, map, switchMap, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -125,6 +125,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('MY Q', question);
       this.quizService.setCurrentQuestion(question);
       this.initializeQuizState(question);
+      console.log('ONINITQI', this.quizId);
+      console.log('ONINITCQI', this.currentQuestionIndex);
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
@@ -195,36 +197,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    console.log('loadCurrentQuestion() called');
+    console.log('loadCurrentQuestion() called with quizId:', this.quizId, 'and questionIndex:', this.currentQuestionIndex);
   
-    if (this.quizId && 
-        this.currentQuestionIndex !== undefined && 
-        this.currentQuestionIndex >= 0) {
-      console.log(
-        'getQuestionAndOptions called with quizId:',
-        this.quizId,
-        'and questionIndex:',
-        this.currentQuestionIndex
-      );
-  
+    if (this.quizId && this.currentQuestionIndex !== undefined && this.currentQuestionIndex >= 0) {
       if (this.quizDataService.hasQuestionAndOptionsLoaded === false) {
-        this.quizDataService
-          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-          .subscribe(([currentQuestion, options]) => {
-            if (currentQuestion.quizId !== this.quizId) {
-              console.error('Loaded question does not belong to selected quiz');
-            } else {
-              if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
-                this.currentQuestion = currentQuestion;
-                this.options = options;
-                this.setOptions();
-              }
+        const currentQuiz$ = this.quizDataService.getQuiz(this.quizId);
+        const questionAndOptions$ = this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex);
+  
+        forkJoin([currentQuiz$, questionAndOptions$]).subscribe(([currentQuiz, [currentQuestion, options]]) => {
+          console.log('getQuestionAndOptions() returned with question:', currentQuestion, 'and options:', options);
+          if (currentQuestion.quizId !== currentQuiz.quizId) {
+            console.error('Loaded question does not belong to selected quiz');
+          } else {
+            if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+              this.currentQuestion = currentQuestion;
+              this.options = options;
+              this.setOptions();
             }
-          });
+          }
+        });
       } else {
-        const [currentQuestion, options] =
-          this.quizDataService.questionAndOptions;
-        if (currentQuestion.quizId !== this.quizId) {
+        const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+        const currentQuiz = this.quizDataService.getQuiz(this.quizId);
+        console.log('questionAndOptions already loaded with question:', currentQuestion, 'and options:', options);
+        if (currentQuestion.quizId !== currentQuiz.quizId) {
           console.error('Loaded question does not belong to selected quiz');
         } else {
           if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
@@ -237,7 +233,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
     }
+  
+    console.log("END OF FUNCTION");
   }
+  
   
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
