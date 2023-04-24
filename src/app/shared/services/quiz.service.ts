@@ -700,24 +700,18 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
-    console.log("QQI", question.quizId);
-    console.log("QUIZID:>>", this.quizId);
-    console.log('Q:>', question);
-    console.log('CQ:>', this.currentQuestion);
-    console.log('CHECK', question && !isEqual(question, this.currentQuestion));
-    if (question && !isEqual(question, this.currentQuestion)) {
+    const filteredQuestions = this.questions.filter(q => q.quizId === this.quizId);
+    const questionExists = filteredQuestions.some(q => q.id === question.id);
+  
+    if (questionExists && !isEqual(question, this.currentQuestion)) {
       console.log('emitting currentQuestionSubject with question:', question);
       this.currentQuestion = question;
       this.currentQuestionSource.next({ question, quizId: this.quizId });
       this.currentQuestionSubject.next(this.currentQuestion);
-      console.log('TESTING');
     } else {
-      console.log(
-        'not emitting currentQuestionSubject with question:',
-        question
-      );
+      console.log('not emitting currentQuestionSubject with question:', question);
     }
-  }
+  }  
 
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
