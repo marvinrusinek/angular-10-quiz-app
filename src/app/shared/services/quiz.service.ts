@@ -85,11 +85,8 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
 
-  private currentQuestionSource = new BehaviorSubject<{
-    question: QuizQuestion;
-    quizId: string;
-  }>(null);
-  currentQuestion$ = this.currentQuestionSource.asObservable();
+  private currentQuestionSource: Subject<{ question: QuizQuestion; quizId: string; }> = new Subject<{ question: QuizQuestion; quizId: string; }>();
+  public currentQuestion$ = this.currentQuestionSource.asObservable();
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
@@ -222,8 +219,8 @@ export class QuizService implements OnDestroy {
   async setCurrentQuestionIndex(index: number): Promise<void> {
     const quizId = this.quizId;
     if (quizId) {
-      const questions = await this.getQuestionsForQuiz(quizId).toPromise();
-      const filteredQuestions = Array.from(questions).filter(
+      const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
+      const filteredQuestions = questions.filter(
         (question: any) => question.quizId === quizId
       );
       if (index >= 0 && index < filteredQuestions.length) {
@@ -231,7 +228,7 @@ export class QuizService implements OnDestroy {
         this.setCurrentQuestion(filteredQuestions[index]);
       }
     }
-  }  
+  }
 
   getCurrentQuizId(): string {
     return this.quizId;
