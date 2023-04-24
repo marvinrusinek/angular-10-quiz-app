@@ -8,7 +8,7 @@
   mat-radio-button {
     cursor: pointer;
     display: inline-block;
-    width: 700px !important;
+    width: 580px !important;
     height: auto;
     font-family: $font-stack;
     font-size: 20px;
@@ -16,7 +16,7 @@
     background-color: $light-gray;
     border: 2px solid $medium-gray;
     padding: 10px 15px 10px 30px;
-    margin-left: -15px !important;
+    margin-left: -5px !important;
     padding-left: -25px !important;
 
     &:hover {
