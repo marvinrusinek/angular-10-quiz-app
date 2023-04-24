@@ -344,7 +344,6 @@ export class QuizService implements OnDestroy {
         const quizId = this.getCurrentQuizId();
         return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
           tap((questions) => {
-            console.log('Fetched questions:', questions);
             this.questions = questions;
             this.updateQuestions(quizId);
             this.questionLoadingSubject.next(true);
@@ -417,7 +416,6 @@ export class QuizService implements OnDestroy {
     }
 
     if (this.currentQuestionPromise) {
-      console.log('getCurrentQuestion locked, waiting for promise to resolve');
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
       });
@@ -428,7 +426,6 @@ export class QuizService implements OnDestroy {
     this.currentQuestionPromise = this.http.get<QuizQuestion[]>(this.quizUrl)
       .pipe(
         tap((questions) => {
-          console.log('Fetched questions:', questions);
           this.questions = questions;
           this.updateQuestions(quizId);
           this.questionLoadingSubject.next(true);
