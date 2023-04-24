@@ -425,8 +425,6 @@ export class QuizService implements OnDestroy {
 
     const quizId = this.getCurrentQuizId();
 
-    console.log('Loading questions for quiz', quizId);
-
     this.currentQuestionPromise = this.http
       .get<QuizQuestion[]>(this.quizUrl)
       .pipe(
