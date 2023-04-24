@@ -8,15 +8,16 @@
   mat-radio-button {
     cursor: pointer;
     display: inline-block;
-    width: 590px;
+    width: 700px !important;
     height: auto;
     font-family: $font-stack;
     font-size: 20px;
     color: $dark-brown;
     background-color: $light-gray;
     border: 2px solid $medium-gray;
-    padding: 10px 5px 10px 30px;
-    margin-left: -5px;
+    padding: 10px 15px 10px 30px;
+    margin-left: -15px !important;
+    padding-left: -25px !important;
 
     &:hover {
       border: 2px solid $vivid-blue;
