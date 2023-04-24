@@ -736,12 +736,15 @@ export class QuizService implements OnDestroy {
     this.router.navigate(['/question/', this.quizId, questionIndex]);
     this.resetAll();
 
-    this.currentQuestion$ = this.questions$.pipe(
+    const quizId = this.quizId;
+    this.questions$.pipe(
       map((questions) => questions[questionIndex]),
-      tap((question) => (this.currentQuestion = question)),
+      tap((question) => {
+        this.currentQuestion = question;
+        this.currentQuestionSource.next({ question, quizId });
+      }),
       shareReplay(1)
-    );
-    this.currentQuestion$.subscribe();
+    ).subscribe();
   }
 
   navigateToPreviousQuestion() {
