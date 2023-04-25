@@ -125,9 +125,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private optionsSubscription: Subscription;
 
-  /* get multipleAnswer(): boolean {
-    return this.quizService.isMultipleAnswer;
-  } */
   get correctOptions(): string {
     return this.quizService.correctOptions;
   }
@@ -344,10 +341,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('QuizDataService returned null or empty options');
       return;
     }
-
-    /* const isMultiple = await this.quizStateService.isMultipleAnswer(question)
-      .toPromise();
-    this.quizStateService.setMultipleAnswer(isMultiple); */
 
     this.handleQuestion(question);
     this.handleOptions(options);
