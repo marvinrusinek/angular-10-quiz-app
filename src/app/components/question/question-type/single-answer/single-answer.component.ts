@@ -107,3 +107,4 @@ export class SingleAnswerComponent
     this.selectionChanged.emit({ question: this.question, selectedOptions: selectedOptions });
   } 
 }
+

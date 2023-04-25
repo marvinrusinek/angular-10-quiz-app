@@ -22,8 +22,8 @@ import {
 } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
 import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
+import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
