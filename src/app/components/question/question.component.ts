@@ -430,11 +430,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
-
-    /* const correctOptions =
-      this.options?.filter((option) => option.correct) ?? [];
-    this.quizStateService.setMultipleAnswer(correctOptions.length > 1);
-    this.quizStateService.isMultipleAnswer(currentQuestion); */
   }
 
   toggleOptions(): void {
