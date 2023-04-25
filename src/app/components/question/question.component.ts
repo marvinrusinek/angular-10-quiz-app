@@ -51,6 +51,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
   @Input() multipleAnswer: Observable<boolean> = of(false);
+  isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -132,9 +133,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       // this.multipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
 
-      this.quizStateService.isMultipleAnswer(question).subscribe(isMultipleAnswer => {
-        this.multipleAnswer = isMultipleAnswer;
+      /* this.quizStateService.isMultipleAnswer(question).subscribe(isMultipleAnswer => {
+        this.multipleAnswer = of(isMultipleAnswer);
+        console.log('isMultipleAnswer:::', isMultipleAnswer);
+      }); */
+      
+      /* this.quizStateService.isMultipleAnswer().subscribe({
+        next: (isMultipleAnswer) => {
+          this.multipleAnswer = isMultipleAnswer;
+        },
+        error: (error) => {
+          console.error(error);
+        }
+      }); */
+
+      /* this.quizStateService.currentQuestion$.subscribe(question => {
+        this.currentQuestion = question;
+        this.quizStateService.isMultipleAnswer();
       });
+    
+      this.quizStateService.multipleAnswer$.subscribe(isMultipleAnswer => {
+        this.multipleAnswer = isMultipleAnswer;
+      }); */
+
+      this.isMultipleAnswer$ = this.quizStateService.isMultipleAnswer();
 
       this.loadCurrentQuestion();
       this.toggleOptions();
@@ -181,7 +203,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.quizStateService.setCurrentQuestion(of(question));
 
-    if (question.options) {
+    /* if (question.options) {
       this.quizStateService
         .isMultipleAnswer(question)
         .subscribe((isMultipleAnswer) => {
@@ -189,7 +211,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
     } else {
       console.error('Question options not found.', question);
-    }
+    } */
   }
 
   private loadQuestionsForQuiz(quizId: string): void {

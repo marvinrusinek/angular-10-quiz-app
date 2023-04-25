@@ -16,9 +16,12 @@ export class QuizStateService {
   currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
   
-  multipleAnswerSubject: BehaviorSubject<boolean> 
+  /* multipleAnswerSubject: BehaviorSubject<boolean> 
     = new BehaviorSubject<boolean>(false);
-  multipleAnswer: boolean = false;
+  multipleAnswer: boolean = false; */
+
+  private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
+  public multipleAnswer$ = this.multipleAnswerSubject.asObservable();
 
   constructor() { }
 
@@ -52,22 +55,31 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+  public isMultipleAnswer(): void {
     console.log('isMultipleAnswer called');
+    const question = this.currentQuestion.value;
+
+    if (!question) {
+      console.error('Question is not defined');
+      this.multipleAnswerSubject.next(false);
+      return;
+    }
+
+    console.log('question::::::>>>', question);
     if (question && question.options) {
+      console.log('options found');
       const correctOptions = question.options?.filter((option) => option.correct);
       const isMultipleAnswer = correctOptions.length > 1;
-      this.setMultipleAnswer(isMultipleAnswer);
-      return this.multipleAnswerSubject.asObservable();
+      console.log('isMultipleAnswer:', isMultipleAnswer);
+      this.multipleAnswerSubject.next(isMultipleAnswer);
     } else {
       console.error('Question options not found.', question);
-      return of(false);
+      this.multipleAnswerSubject.next(false);
     }
   }
   
-  
   setMultipleAnswer(value: boolean): void {
-    this.multipleAnswer = value;
-    this.multipleAnswerSubject.next(this.multipleAnswer);
-  }
+    this.multipleAnswer$ = of(value);
+    this.multipleAnswerSubject.next(value);
+  }  
 }
