@@ -279,7 +279,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('END OF FUNCTION');
   }
 
-  private setQuestionTypeBasedOnAnswerType() {
+  private setQuestionTypeBasedOnAnswerType(): void {
     this.quizStateService.isMultipleAnswer(this.question).subscribe(isMultipleAnswer => {
       this.multipleAnswer = isMultipleAnswer;
     });
