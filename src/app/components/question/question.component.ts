@@ -9,7 +9,6 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -22,8 +21,6 @@ import {
 } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
-import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -38,9 +35,6 @@ import { TimerService } from '../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChild(MultipleAnswerComponent) multipleAnswerComponent: MultipleAnswerComponent;
-  @ViewChild(SingleAnswerComponent) singleAnswerComponent: SingleAnswerComponent;
-
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
@@ -82,6 +76,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
+  multipleAnswer: boolean = false;
 
   private _currentQuestion: QuizQuestion;
 
@@ -121,20 +116,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit called');
 
-    const questionType = this.currentQuestion?.questionType;
-
-    switch (questionType) {
-      case 'MULTIPLE_ANSWER':
-        this.multipleAnswerComponent.ngOnInit();
-        break;
-      case 'SIMPLE_ANSWER':
-        this.simpleAnswerComponent.ngOnInit();
-        break;
-      default:
-        console.error('Unknown question type:', questionType);
-        break;
-    }
-
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.quizId = quizId;
@@ -149,6 +130,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.setCurrentQuestion(question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
+
+      this.quizStateService.isMultipleAnswer(this.question).subscribe(isMultipleAnswer => {
+        this.multipleAnswer = isMultipleAnswer;
+      });
+
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
