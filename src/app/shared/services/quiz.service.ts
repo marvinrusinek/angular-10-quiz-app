@@ -422,12 +422,12 @@ export class QuizService implements OnDestroy {
     }
   
     const quizId = this.getCurrentQuizId();
+    console.log('Fetching quiz questions for quizId:', quizId);
   
-    console.log('Fetching quiz questions from URL', this.quizUrl);
-    this.currentQuestionPromise = this.http.get<QuizQuestion[]>(this.quizUrl)
+    this.currentQuestionPromise = this.getQuestionsForQuiz(quizId)
       .pipe(
-        tap((questions) => {
-          console.log('Fetched quiz questions:', questions);
+        tap(({ quizId, questions }) => {
+          console.log('Received raw quiz questions:', questions);
           this.questions = questions;
           this.updateQuestions(quizId);
           this.questionLoadingSubject.next(true);
@@ -443,20 +443,21 @@ export class QuizService implements OnDestroy {
         })
       )
       .toPromise()
-      .then((questions: QuizQuestion[]) => {
+      .then(({ quizId, questions }: { quizId: string, questions: QuizQuestion[] }) => {
+        console.log('Received processed quiz questions:', questions);
+  
         if (Array.isArray(questions)) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
           this.currentQuestion = questions[currentQuestionIndex];
-          console.log('Setting current question:', this.currentQuestion);
-          this.currentQuestionSubject.next(this.currentQuestion); 
+          this.currentQuestionSubject.next(this.currentQuestion);
           return this.currentQuestion;
         } else {
           throw new Error('getCurrentQuestion() did not return an array');
         }
       });
-
+  
     return this.currentQuestionPromise;
-  }
+  }  
 
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
