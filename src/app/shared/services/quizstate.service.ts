@@ -56,26 +56,26 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  public isMultipleAnswer(): void {
+  isMultipleAnswer(): Observable<boolean> {
     console.log('isMultipleAnswer called');
     const question = this.currentQuestion.value;
-
     if (!question) {
       console.error('Question is not defined');
-      this.multipleAnswerSubject.next(false);
-      return;
+      return of(false);
     }
-
+  
     console.log('question::::::>>>', question);
     if (question && question.options) {
       console.log('options found');
       const correctOptions = question.options?.filter((option) => option.correct);
       const isMultipleAnswer = correctOptions.length > 1;
       console.log('isMultipleAnswer:', isMultipleAnswer);
-      this.multipleAnswerSubject.next(isMultipleAnswer);
+      this.setMultipleAnswer(isMultipleAnswer);
+      console.log('this.multipleAnswerSubject:', this.multipleAnswerSubject);
+      return this.multipleAnswerSubject.asObservable();
     } else {
       console.error('Question options not found.', question);
-      this.multipleAnswerSubject.next(false);
+      return of(false);
     }
   }
   
