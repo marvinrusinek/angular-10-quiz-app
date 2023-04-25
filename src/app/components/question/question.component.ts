@@ -131,10 +131,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
 
-      this.quizStateService.isMultipleAnswer(this.question).subscribe(isMultipleAnswer => {
-        this.multipleAnswer = isMultipleAnswer;
-      });
-
       this.loadCurrentQuestion();
       this.toggleOptions();
     } catch (error) {
@@ -220,6 +216,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestionIndex
     );
 
+    this.setQuestionTypeBasedOnAnswerType();
+
     const currentQuiz: Quiz = await this.quizDataService
       .getQuiz(this.quizId)
       .toPromise();
@@ -281,6 +279,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('END OF FUNCTION');
   }
 
+  private setQuestionTypeBasedOnAnswerType() {
+    this.quizStateService.isMultipleAnswer(this.question).subscribe(isMultipleAnswer => {
+      this.multipleAnswer = isMultipleAnswer;
+    });
+  }
+  
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
