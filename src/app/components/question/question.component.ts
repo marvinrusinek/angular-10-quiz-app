@@ -8,20 +8,18 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
-  forkJoin,
-  from,
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
-import { catchError, flatMap, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
