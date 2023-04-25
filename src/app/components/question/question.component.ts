@@ -134,10 +134,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error getting current question:', error);
     }
 
-    this.quizService.currentQuestion$.subscribe((currentQuestion) => {
-      console.log('Current question:', currentQuestion);
-    });
-    
+    this.subscriptionToQuestion();
     this.updateQuestionForm();
   }
 
@@ -171,14 +168,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private initializeQuizState(question: QuizQuestion): void {
+    console.log("initializeQuizState called");
     console.log("INIT QUESTION", question);
+  
     this.quizStateService.setCurrentQuestion(of(question));
-    this.quizStateService
-      .isMultipleAnswer(question)
-      .subscribe((isMultipleAnswer) => {
+  
+    if (question.options) {
+      this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
         this.multipleAnswer = isMultipleAnswer;
       });
-  }
+    } else {
+      console.error('Question options not found.', question);
+    }
+  }  
 
   private loadQuestionsForQuiz(quizId: string): void {
     console.log("QI:::>>>", quizId);
@@ -255,10 +257,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription =
-      this.quizService.currentQuestion$.subscribe((question) => {
+      this.quizService.currentQuestion$.subscribe(({ question }) => {
         if (question) {
           this.currentQuestion = question;
           this.options = this.currentQuestion?.options;
+          this.initializeQuizState(this.currentQuestion);
         }
       });
   }
