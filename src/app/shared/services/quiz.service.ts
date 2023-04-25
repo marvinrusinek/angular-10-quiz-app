@@ -247,6 +247,7 @@ export class QuizService implements OnDestroy {
   getQuestionsForQuiz(quizId: string): Observable<{ quizId: string, questions: QuizQuestion[] }> {
     console.log('GQFQ:>>', quizId);
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      tap(questions => console.log('Received raw quiz questions:', questions)),
       map((questions: any) =>
         questions.filter((question) => {
           return question.quizId === quizId;
@@ -691,7 +692,11 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
-    this.getQuestionsForQuiz(this.quizId).subscribe((result) => {
+    this.getQuestionsForQuiz(this.quizId).pipe(
+      tap({
+        error: (error) => console.error('An error occurred while setting the current question:', error)
+      })
+    ).subscribe((result) => {
       const filteredQuestions = result.questions;
       const questionExists = filteredQuestions.some((q) => q === question);
   
@@ -704,7 +709,7 @@ export class QuizService implements OnDestroy {
         console.log('not emitting currentQuestionSubject with question:', question);
       }
     });
-  }
+  }  
   
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);

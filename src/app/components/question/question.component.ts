@@ -125,7 +125,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const question = await this.quizService.getCurrentQuestion();
       console.log('MY Q', question);
       this.quizService.setCurrentQuestion(question);
-      this.initializeQuizState(question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
       this.loadCurrentQuestion();
@@ -256,15 +255,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   subscriptionToQuestion(): void {
-    this.currentQuestionSubscription =
-      this.quizService.currentQuestion$.subscribe(({ question }) => {
-        if (question) {
-          this.currentQuestion = question;
-          this.options = this.currentQuestion?.options;
-          this.initializeQuizState(this.currentQuestion);
-        }
-      });
-  }
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe(({ question }) => {
+      console.log('Question received:', question);
+      if (question) {
+        this.currentQuestion = question;
+        this.options = this.currentQuestion?.options;
+        this.initializeQuizState(this.currentQuestion);
+      }
+    });
+  }  
 
   subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
