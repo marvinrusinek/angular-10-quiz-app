@@ -184,15 +184,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private loadQuestionsForQuiz(quizId: string): void {
     console.log("QI:::>>>", quizId);
     console.log("CQI:::>>>", this.currentQuestionIndex);
-    this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId);
-    this.questions$.subscribe(
-      (questions: QuizQuestion[]) => {
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+      tap((questions: QuizQuestion[]) => {
         if (questions && questions?.length > 0) {
           this.currentQuestion = questions[0];
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
-      },
+      })
+    );
+    this.questions$.subscribe(
+      () => {},
       (error) => {
         console.error('Error while loading quiz questions:', error);
       }
@@ -255,15 +257,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   subscriptionToQuestion(): void {
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe(({ question }) => {
-      console.log('Question received:', question);
-      if (question) {
-        this.currentQuestion = question;
-        this.options = this.currentQuestion?.options;
-        this.initializeQuizState(this.currentQuestion);
-      }
-    });
-  }  
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.pipe(
+      tap(({ question }) => {
+        console.log('Question received:', question);
+        if (question) {
+          this.currentQuestion = question;
+          this.options = this.currentQuestion?.options;
+          this.initializeQuizState(this.currentQuestion);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error in currentQuestion$ subscription:', error);
+        return EMPTY;
+      })
+    ).subscribe();
+  }
 
   subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
