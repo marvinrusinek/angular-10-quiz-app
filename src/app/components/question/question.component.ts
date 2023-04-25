@@ -50,7 +50,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$!: Observable<QuizQuestion>;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
-  @Input() multipleAnswer: boolean = false;
+  @Input() multipleAnswer: boolean = Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -76,7 +76,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
-  multipleAnswer: boolean = false;
 
   private _currentQuestion: QuizQuestion;
 
@@ -130,6 +129,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.setCurrentQuestion(question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
+      
+      this.quizStateService.isMultipleAnswer(this.question).subscribe(isMultipleAnswer => {
+        this.multipleAnswer = isMultipleAnswer;
+      });
 
       this.loadCurrentQuestion();
       this.toggleOptions();
@@ -216,8 +219,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestionIndex
     );
 
-    this.setQuestionTypeBasedOnAnswerType();
-
     const currentQuiz: Quiz = await this.quizDataService
       .getQuiz(this.quizId)
       .toPromise();
@@ -279,12 +280,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('END OF FUNCTION');
   }
 
-  private setQuestionTypeBasedOnAnswerType(): void {
-    this.quizStateService.isMultipleAnswer(this.question).subscribe(isMultipleAnswer => {
-      this.multipleAnswer = isMultipleAnswer;
-    });
-  }
-  
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
