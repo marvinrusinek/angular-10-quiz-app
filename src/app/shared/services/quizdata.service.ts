@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -30,7 +30,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({
   providedIn: 'root',
 })
-export class QuizDataService implements OnInit {
+export class QuizDataService {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
@@ -38,6 +38,7 @@ export class QuizDataService implements OnInit {
   quizId: string = '';
   currentQuizId: string = '';
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
+  private currentQuestionAndOptions: [QuizQuestion, Option[]];
 
   currentQuestionIndex: number = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
@@ -220,23 +221,34 @@ export class QuizDataService implements OnInit {
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     console.log(`getQuestionAndOptions called with quizId: ${quizId} and questionIndex: ${questionIndex}`);
-    console.log('getQuestionAndOptions called');
+  
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
-      return this.questionAndOptionsSubject.asObservable();
+      return of(this.currentQuestionAndOptions);
     }
   
     const quiz$ = this.loadQuizData();
     const currentQuestion$ = this.getQuizQuestionByIdAndIndex(quiz$, quizId, questionIndex).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     const options$ = this.getQuestionOptions(currentQuestion$).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-    
-    this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe((questionAndOptions) => {
-      this.questionAndOptionsSubject.next(questionAndOptions);
-    });
-
-    console.log('getQuestionAndOptions completed');
   
-    return this.questionAndOptionsSubject.asObservable();
+    const questionAndOptions$ = combineLatest([currentQuestion$, options$]).pipe(
+      map(([question, options]) => [question, options]),
+      tap(questionAndOptions => {
+        console.log('Question and options retrieved from API.');
+        this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe((questionAndOptions) => {
+          console.log('Question and options processed');
+          this.questionAndOptionsSubject.next(questionAndOptions);
+        });
+        this.currentQuestionAndOptions = questionAndOptions;
+        this.hasQuestionAndOptionsLoaded = true;
+        this.currentQuestionIndex = questionIndex;
+      }),
+      switchMap(() => this.questionAndOptionsSubject.asObservable()),
+      shareReplay({ refCount: true, bufferSize: 1 })
+    );
+  
+    return questionAndOptions$;
   }
+  
 
   loadQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
