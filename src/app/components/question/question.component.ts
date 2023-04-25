@@ -110,9 +110,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
+
+    console.log("FROM CONSTRUCTOR");
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('ngOnInit called');
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.quizId = quizId;
@@ -167,23 +170,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private initializeQuizState(question: QuizQuestion): void {
-    console.log("initializeQuizState called");
-    console.log("INIT QUESTION", question);
-  
+    console.log('initializeQuizState called');
+    console.log('INIT QUESTION', question);
+
     this.quizStateService.setCurrentQuestion(of(question));
-  
+
     if (question.options) {
-      this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
-        this.multipleAnswer = isMultipleAnswer;
-      });
+      this.quizStateService
+        .isMultipleAnswer(question)
+        .subscribe((isMultipleAnswer) => {
+          this.multipleAnswer = isMultipleAnswer;
+        });
     } else {
       console.error('Question options not found.', question);
     }
-  }  
+  }
 
   private loadQuestionsForQuiz(quizId: string): void {
-    console.log("QI:::>>>", quizId);
-    console.log("CQI:::>>>", this.currentQuestionIndex);
+    console.log('start of lqfq');
+    console.log('QI:::>>>', quizId);
+    console.log('CQI:::>>>', this.currentQuestionIndex);
     this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       tap((questions: QuizQuestion[]) => {
         if (questions && questions?.length > 0) {
@@ -202,19 +208,39 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    console.log('loadCurrentQuestion() called with quizId:', this.quizId, 'and questionIndex:', this.currentQuestionIndex);
-  
-    const currentQuiz: Quiz = await this.quizDataService.getQuiz(this.quizId).toPromise();
-  
-    if (this.quizId && this.currentQuestionIndex !== undefined && this.currentQuestionIndex >= 0) {
+    console.log(
+      'loadCurrentQuestion() called with quizId:',
+      this.quizId,
+      'and questionIndex:',
+      this.currentQuestionIndex
+    );
+
+    const currentQuiz: Quiz = await this.quizDataService
+      .getQuiz(this.quizId)
+      .toPromise();
+
+    if (
+      this.quizId &&
+      this.currentQuestionIndex !== undefined &&
+      this.currentQuestionIndex >= 0
+    ) {
       if (this.quizDataService.hasQuestionAndOptionsLoaded === false) {
-        this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+        this.quizDataService
+          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .subscribe(([currentQuestion, options]) => {
-            console.log('getQuestionAndOptions() returned with question:', currentQuestion, 'and options:', options);
+            console.log(
+              'getQuestionAndOptions() returned with question:',
+              currentQuestion,
+              'and options:',
+              options
+            );
             if (this.quizId !== currentQuiz.quizId) {
               console.error('Loaded question does not belong to selected quiz');
             } else {
-              if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+              if (
+                JSON.stringify(currentQuestion) !==
+                JSON.stringify(this.currentQuestion)
+              ) {
                 this.currentQuestion = currentQuestion;
                 this.options = options;
                 this.setOptions();
@@ -222,12 +248,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             }
           });
       } else {
-        const [currentQuestion, options] = this.quizDataService.questionAndOptions;
-        console.log('questionAndOptions already loaded with question:', currentQuestion, 'and options:', options);
+        const [currentQuestion, options] =
+          this.quizDataService.questionAndOptions;
+        console.log(
+          'questionAndOptions already loaded with question:',
+          currentQuestion,
+          'and options:',
+          options
+        );
         if (this.quizId !== currentQuiz.quizId) {
           console.error('Loaded question does not belong to selected quiz');
         } else {
-          if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+          if (
+            JSON.stringify(currentQuestion) !==
+            JSON.stringify(this.currentQuestion)
+          ) {
             this.currentQuestion = currentQuestion;
             this.options = options;
             this.setOptions();
@@ -237,10 +272,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
     }
-  
-    console.log("END OF FUNCTION");
+
+    console.log('END OF FUNCTION');
   }
-  
+
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
@@ -257,20 +292,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   subscriptionToQuestion(): void {
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.pipe(
-      tap(({ question }) => {
-        console.log('Question received:', question);
-        if (question) {
-          this.currentQuestion = question;
-          this.options = this.currentQuestion?.options;
-          this.initializeQuizState(this.currentQuestion);
-        }
-      }),
-      catchError((error) => {
-        console.error('Error in currentQuestion$ subscription:', error);
-        return EMPTY;
-      })
-    ).subscribe();
+    this.currentQuestionSubscription = this.quizService.currentQuestion$
+      .pipe(
+        tap(({ question }) => {
+          console.log('Question received:', question);
+          if (question) {
+            this.currentQuestion = question;
+            this.options = this.currentQuestion?.options;
+            this.initializeQuizState(this.currentQuestion);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error in currentQuestion$ subscription:', error);
+          return EMPTY;
+        })
+      )
+      .subscribe();
   }
 
   subscriptionToOptions(): void {
@@ -307,44 +344,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Invalid Quiz object');
     }
   }
-
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
-    console.log('getCurrentQuestion() called');
-    const quizId = this.quizId;
-    if (!quizId) {
-      console.error('quizId parameter is null or undefined');
-      throw new Error('quizId parameter is null or undefined');
-    }
-
-    const questionIndex = this.currentQuestionIndex;
-    if (questionIndex === undefined || questionIndex < 0) {
-      console.error('currentQuestionIndex parameter is null, undefined, or less than 0');
-      throw new Error('currentQuestionIndex parameter is null, undefined, or less than 0');
-    }
-
-    return this.quizDataService.getQuestion(quizId, questionIndex).pipe(
-      flatMap((question: QuizQuestion) => {
-        console.log('Successfully got current question:', question);
-        if (this.questionsAndOptions[questionIndex]) {
-          const [question, options] = this.questionsAndOptions[questionIndex];
-          this.currentQuestion = question;
-          this.currentOptions = options;
-          return of(question);
-        } else {
-          console.error('Question or options array is null or undefined');
-          this.currentQuestion = null;
-          this.currentOptions = null;
-          return of(null);
-        }
-      }),
-      catchError((error) => {
-        console.error('Error getting current question:', error);
-        this.currentQuestion = null;
-        this.currentOptions = null;
-        return of(null);
-      })
-    );
-  } */
 
   public getQuestion(index: number): Observable<QuizQuestion> {
     return this.quizDataService.getSelectedQuiz().pipe(
