@@ -1,6 +1,6 @@
 <ng-container *ngIf="currentQuestion">
   <form [formGroup]="questionForm"
-  *ngIf="multipleAnswer | async; then multipleAnswerComponent else singleAnswerComponent">
+  *ngIf="(multipleAnswer | async); then multipleAnswerComponent else singleAnswerComponent">
     <ng-template #multipleAnswerOptions>
       <codelab-question-multiple-answer
         [form]="questionForm"
