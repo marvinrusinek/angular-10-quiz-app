@@ -171,6 +171,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private initializeQuizState(question: QuizQuestion): void {
+    console.log("INIT QUESTION", question);
     this.quizStateService.setCurrentQuestion(of(question));
     this.quizStateService
       .isMultipleAnswer(question)

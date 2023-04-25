@@ -414,18 +414,20 @@ export class QuizService implements OnDestroy {
       );
       return this.currentQuestion;
     }
-
+  
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
       });
     }
-
+  
     const quizId = this.getCurrentQuizId();
-
+  
+    console.log('Fetching quiz questions from URL', this.quizUrl);
     this.currentQuestionPromise = this.http.get<QuizQuestion[]>(this.quizUrl)
       .pipe(
         tap((questions) => {
+          console.log('Fetched quiz questions:', questions);
           this.questions = questions;
           this.updateQuestions(quizId);
           this.questionLoadingSubject.next(true);
@@ -445,7 +447,8 @@ export class QuizService implements OnDestroy {
         if (Array.isArray(questions)) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
           this.currentQuestion = questions[currentQuestionIndex];
-          this.currentQuestionSubject.next(this.currentQuestion);
+          console.log('Setting current question:', this.currentQuestion);
+          this.currentQuestionSubject.next(this.currentQuestion); 
           return this.currentQuestion;
         } else {
           throw new Error('getCurrentQuestion() did not return an array');

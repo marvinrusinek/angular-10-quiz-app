@@ -53,17 +53,19 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    console.log('isMultipleAnswer called');
     if (question && question.options) {
       const correctOptions = question.options?.filter((option) => option.correct);
       const isMultipleAnswer = correctOptions.length > 1;
       this.setMultipleAnswer(isMultipleAnswer);
       return this.multipleAnswerSubject.asObservable();
     } else {
-      console.error('Question options not found.');
+      console.error('Question options not found.', question);
       return of(false);
     }
   }
-
+  
+  
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswer = value;
     this.multipleAnswerSubject.next(this.multipleAnswer);
