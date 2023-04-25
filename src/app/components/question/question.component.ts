@@ -22,8 +22,8 @@ import {
 } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './question-type/single-answer/single-answer.component';
+import { MultipleAnswerComponent } from './question-type/multiple-answer/multiple-answer.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -39,7 +39,7 @@ import { TimerService } from '../../shared/services/timer.service';
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(MultipleAnswerComponent) multipleAnswerComponent: MultipleAnswerComponent;
-  @ViewChild(SingleAnswerComponent) simpleAnswerComponent: SingleAnswerComponent;
+  @ViewChild(SingleAnswerComponent) singleAnswerComponent: SingleAnswerComponent;
 
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged: EventEmitter<{
