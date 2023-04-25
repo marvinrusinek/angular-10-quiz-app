@@ -171,9 +171,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionAndOptions(this.quizId, this.questionIndex).subscribe(([question, options]) => {
       if (question && options) {
         this.quizStateService.setCurrentQuestion(of(question));
-        this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
+        /* this.quizStateService.isMultipleAnswer(question).subscribe((isMultipleAnswer) => {
           this.multipleAnswer = isMultipleAnswer;
-        });
+        }); */
       } else {
         console.log('Question or options not found');
       }
@@ -348,9 +348,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const isMultiple = await this.quizStateService.isMultipleAnswer(question)
+    /* const isMultiple = await this.quizStateService.isMultipleAnswer(question)
       .toPromise();
-    this.quizStateService.setMultipleAnswer(isMultiple);
+    this.quizStateService.setMultipleAnswer(isMultiple); */
 
     this.handleQuestion(question);
     this.handleOptions(options);
