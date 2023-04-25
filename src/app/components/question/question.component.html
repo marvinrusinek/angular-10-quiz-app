@@ -1,17 +1,6 @@
 <ng-container *ngIf="currentQuestion">
   <form [formGroup]="questionForm" 
     *ngIf="multipleAnswer; then multipleAnswerComponent else singleAnswerComponent">
-    <ng-template #singleAnswerComponent>
-      <codelab-question-single-answer
-        [question]="currentQuestion"
-        [questions]="questions"
-        [options]="currentQuestion.options"
-        [selectedOption]="currentQuestion.selectedOption"
-        [currentQuestion]="currentQuestion"
-        [currentQuestionIndex]="currentQuestionIndex"
-        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
-      ></codelab-question-single-answer>
-    </ng-template>
     <ng-template #multipleAnswerComponent>
       <codelab-question-multiple-answer
         [form]="questionForm"
@@ -25,6 +14,17 @@
         [correctMessage]="correctMessage"
         (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
       ></codelab-question-multiple-answer>
+    </ng-template>
+    <ng-template #singleAnswerComponent>
+      <codelab-question-single-answer
+        [question]="currentQuestion"
+        [questions]="questions"
+        [options]="currentQuestion.options"
+        [selectedOption]="currentQuestion.selectedOption"
+        [currentQuestion]="currentQuestion"
+        [currentQuestionIndex]="currentQuestionIndex"
+        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+      ></codelab-question-single-answer>
     </ng-template>
   </form>
 </ng-container>

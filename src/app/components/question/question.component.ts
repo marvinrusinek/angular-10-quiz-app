@@ -129,7 +129,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.setCurrentQuestion(question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
-      
+
       this.quizStateService.isMultipleAnswer(question).subscribe(isMultipleAnswer => {
         this.multipleAnswer = isMultipleAnswer;
       });
