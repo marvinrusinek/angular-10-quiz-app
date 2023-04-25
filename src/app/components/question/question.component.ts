@@ -156,7 +156,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.multipleAnswer = isMultipleAnswer;
       }); */
 
-      this.isMultipleAnswer$ = this.quizStateService.isMultipleAnswer();
+      // this.isMultipleAnswer$ = this.quizStateService.isMultipleAnswer();
+
+      this.quizStateService.multipleAnswer$.subscribe(isMultipleAnswer => {
+        this.multipleAnswer$ = isMultipleAnswer;
+      });
 
       this.loadCurrentQuestion();
       this.toggleOptions();
