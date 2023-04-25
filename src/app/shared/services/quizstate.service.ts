@@ -54,7 +54,7 @@ export class QuizStateService {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     if (question && question.options) {
-      const correctOptions = question.options.filter((option) => option.correct);
+      const correctOptions = question.options?.filter((option) => option.correct);
       const isMultipleAnswer = correctOptions.length > 1;
       this.setMultipleAnswer(isMultipleAnswer);
       return this.multipleAnswerSubject.asObservable();
