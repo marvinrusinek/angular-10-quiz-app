@@ -579,52 +579,25 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  setCorrectMessage(question: any, correctAnswersArray: number[]): string {
+  setCorrectMessage(question: any, correctAnswersArray: any[]): string {
     const correctOptionNumbers = correctAnswersArray
-      .filter((answer) => typeof answer === 'number')
-      .map((answer) => answer + 1);
-    const correctOptions = correctOptionNumbers
-      .map((optionNumber) => `Option ${optionNumber}`)
-      .join(' and ');
-
-    console.log('correctAnswersArray:', correctAnswersArray);
-    console.log('correctOptionNumbers:', correctOptionNumbers);
-
-    let correctMessage = 'Correct answers are not available yet.';
-
-    if (
-      question &&
-      question.options &&
-      correctAnswersArray &&
-      correctAnswersArray.length
-    ) {
-      switch (correctAnswersArray.length) {
-        case 1:
-          const option1 = question.options[correctAnswersArray[0] - 1];
-          correctMessage = `The correct answer is Option ${option1}.`;
-          break;
-        case 2:
-          const option2a = question.options[correctAnswersArray[0] - 1];
-          const option2b = question.options[correctAnswersArray[1] - 1];
-          correctMessage = `The correct answers are Options ${option2a} and ${option2b}.`;
-          break;
-        case 3:
-          const option3a = question.options[correctAnswersArray[0] - 1];
-          const option3b = question.options[correctAnswersArray[1] - 1];
-          const option3c = question.options[correctAnswersArray[2] - 1];
-          correctMessage = `The correct answers are Options ${option3a}, ${option3b}, and ${option3c}.`;
-          break;
-        case question.options.length:
-          correctMessage = 'ALL are correct!';
-          break;
-        default:
-          break;
-      }
+      .filter((answer) => typeof answer === 'number' || (typeof answer === 'object' && answer !== null && answer !== undefined))
+      .map((answer) => {
+        if (typeof answer === 'number') {
+          return answer + 1;
+        } else if (answer.hasOwnProperty('optionNumber')) {
+          return answer.optionNumber + 1;
+        }
+      });
+  
+    if (correctOptionNumbers.length === 0) {
+      return 'The correct answers are not available yet.';
     }
-
-    return correctMessage;
+  
+    const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
+    return `The correct answers are ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
   }
-
+  
   setExplanationText(question: QuizQuestion): void {
     this.explanationText = question.explanation;
   }

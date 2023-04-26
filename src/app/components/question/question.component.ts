@@ -146,6 +146,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
       this.loadCurrentQuestion();
       this.toggleOptions();
+      this.getCorrectAnswers();
+      this.updateCorrectMessage();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
@@ -159,6 +161,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
     ) {
+      this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.currentQuestion,
         this.correctAnswers
