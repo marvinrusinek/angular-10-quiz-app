@@ -580,21 +580,17 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(question: any, correctAnswersArray: number[]): string {
-    const correctOptionNumbers = correctAnswersArray
-      .filter((answer) => typeof answer === 'number')
-      .map((answer) => answer + 1);
-    const correctOptions = correctOptionNumbers
-      .map((optionNumber) => `Option ${optionNumber}`)
-      .join(' and ');
-
     let correctMessage = 'Correct answers are not available yet.';
 
-    if (
-      question &&
-      question.options &&
-      correctAnswersArray &&
-      correctAnswersArray.length
-    ) {
+    if (question && question.options && correctAnswersArray && correctAnswersArray.length) {
+      const correctOptionNumbers = correctAnswersArray
+        .filter((answer) => answer !== undefined)
+        .map((answer) => answer + 1);
+      
+      const correctOptions = correctOptionNumbers
+        .map((optionNumber) => `Option ${optionNumber}`)
+        .join(' and ');
+
       switch (correctAnswersArray.length) {
         case 1:
           const option1 = question.options[correctAnswersArray[0] - 1];
