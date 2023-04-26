@@ -162,7 +162,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.multipleAnswer$ = isMultipleAnswer;
       }); */
 
-      this.multipleAnswer$ = this.quizStateService.isMultipleAnswer();
+      /* this.multipleAnswer$ = this.quizStateService.multipleAnswer$;
+      this.multipleAnswer$.subscribe((value) => {
+        console.log('Multiple answer value:', value);
+      }); */
+
+      this.quizStateService.isMultipleAnswer();
+
+      this.quizStateService.currentQuestion$.subscribe((question) => {
+        this.currentQuestion = question;
+        console.log('currentQuestion:', this.currentQuestion);
+      });
+      
+      this.quizStateService.multipleAnswer$.subscribe((value) => {
+        console.log('Multiple answer value:', value);
+        this.multipleAnswer = value;
+      });
 
       this.loadCurrentQuestion();
       this.toggleOptions();
@@ -277,6 +292,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               ) {
                 this.currentQuestion = currentQuestion;
                 this.options = options;
+                console.log('options:::::>>', options);
                 this.setOptions();
               }
             }
@@ -299,6 +315,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           ) {
             this.currentQuestion = currentQuestion;
             this.options = options;
+            console.log('options:::::>>', options);
             this.setOptions();
           }
         }
@@ -308,6 +325,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     console.log('END OF FUNCTION');
+    console.log('options:', this.options);
   }
 
   isOption(option: Option | string): option is Option {
@@ -430,6 +448,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setOptions(): void {
+    console.log('setOptions() called');
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
@@ -561,9 +580,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.quizService.incorrectSound.play();
       }
     }
-  }
-
-  sendMultipleAnswerToQuizService(multipleAnswer: boolean): void {
-    this.quizStateService.setMultipleAnswer(multipleAnswer);
   }
 }

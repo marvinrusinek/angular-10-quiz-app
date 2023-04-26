@@ -57,6 +57,7 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(): Observable<boolean> {
+    console.log('isMultipleAnswer() called');
     console.log('isMultipleAnswer called');
     const question = this.currentQuestion.value;
     if (!question) {
@@ -80,8 +81,12 @@ export class QuizStateService {
   }
   
   setMultipleAnswer(value: boolean): void {
+    console.log('setMultipleAnswer() called');
+    console.log("MYTEST");
     this.multipleAnswer = value;
+    console.log('isMultipleAnswer:::>>', this.multipleAnswer);
     this.multipleAnswerSubject.next(this.multipleAnswer);
+    console.log('multipleAnswerSubject:::>>', this.multipleAnswerSubject.getValue());
     this.multipleAnswer$ = of(this.multipleAnswer);
   }
 }

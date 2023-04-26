@@ -1,7 +1,9 @@
 <ng-container *ngIf="currentQuestion">
-  <form [formGroup]="questionForm"
-  *ngIf="(multipleAnswer$ | async) === true; then multipleAnswerComponent else singleAnswerComponent">
-    <ng-template #multipleAnswerOptions>
+  <!--<div>currentQuestion: {{ currentQuestion | json }}</div>
+  <div>multipleAnswer$: {{ multipleAnswer$ | async }}</div>
+  <div>multipleAnswer$: {{ (multipleAnswer$ | async) === true }}</div>-->
+  <form [formGroup]="questionForm" *ngIf="multipleAnswer$ | async as multipleAnswer; then multipleAnswerComponent else singleAnswerComponent">
+    <ng-template #multipleAnswerComponent>
       <codelab-question-multiple-answer
         [form]="questionForm"
         [question]="currentQuestion"
@@ -15,7 +17,7 @@
         (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
       ></codelab-question-multiple-answer>
     </ng-template>
-    <ng-template #singleAnswerOptions>
+    <ng-template #singleAnswerComponent>
       <codelab-question-single-answer
         [question]="currentQuestion"
         [questions]="questions"
