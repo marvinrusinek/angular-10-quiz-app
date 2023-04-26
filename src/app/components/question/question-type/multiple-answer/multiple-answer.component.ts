@@ -105,7 +105,7 @@ export class MultipleAnswerComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.question) {
-      this.options = this.question.options;
+      this.options = this.question?.options;
     }
     if (
       changes.selectedOptions &&
