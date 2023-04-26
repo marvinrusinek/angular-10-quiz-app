@@ -17,6 +17,7 @@ export class QuizExplanationComponent implements OnInit {
   @Input() correctOptions: string = '';
   @Input() explanation: string;
   @Input() answers: any[] = [];
+  explanationText: string;
 
   ngOnInit(): void {
     this.getExplanationText();
@@ -26,14 +27,21 @@ export class QuizExplanationComponent implements OnInit {
   getExplanationText(): void {
     try {
       if (this.question?.explanation) {
-        const correctAnswers = this.question.options.filter(option => option.correct);
+        const correctOptions = this.question.options.filter(option => option.correct);
         const selectedCorrectOptions = this.question.options.filter(option => this.answers.includes(option.text) && option.correct);
   
-        if (correctAnswers.length === selectedCorrectOptions.length) {
-          const correctOptionsText = correctAnswers.map(option => option.text).join(' and ');
-          this.explanation = `Options ${correctOptionsText} are correct because ${this.question.explanation}`;
+        if (correctOptions.length === selectedCorrectOptions.length) {
+          const correctOptionsText = correctOptions.map(option => option.text);
+  
+          if (correctOptionsText.length === 1) {
+            this.explanationText = `Option ${correctOptionsText[0]} is correct because ${this.question.explanation}`;
+          } else if (correctOptionsText.length > 1) {
+            const lastOption = correctOptionsText.pop();
+            const correctOptionsString = correctOptionsText.join(', ') + ' and ' + lastOption;
+            this.explanationText = `Options ${correctOptionsString} are correct because ${this.question.explanation}`;
+          }
         } else {
-          this.explanation = 'Sorry, that is not correct.';
+          this.explanationText = 'Sorry, that is not correct.';
         }
       }
     } catch (error) {
