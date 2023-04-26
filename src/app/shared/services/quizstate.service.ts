@@ -81,12 +81,8 @@ export class QuizStateService {
   }
   
   setMultipleAnswer(value: boolean): void {
-    console.log('setMultipleAnswer() called');
-    console.log("MYTEST");
     this.multipleAnswer = value;
-    console.log('isMultipleAnswer:::>>', this.multipleAnswer);
     this.multipleAnswerSubject.next(this.multipleAnswer);
-    console.log('multipleAnswerSubject:::>>', this.multipleAnswerSubject.getValue());
     this.multipleAnswer$ = of(this.multipleAnswer);
   }
 }
