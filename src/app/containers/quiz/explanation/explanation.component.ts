@@ -34,7 +34,7 @@ export class QuizExplanationComponent implements OnInit {
     );
 
     const selectedOptions = this.question.options.filter(
-      (option) => this.answers.indexOf(option.id) !== -1
+      (option) => this.answers.indexOf(option.optionId) !== -1
     );
 
     const selectedCorrectOptions = selectedOptions.filter(
