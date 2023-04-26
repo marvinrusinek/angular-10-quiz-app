@@ -115,6 +115,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit called');
+    console.log('questionForm:', this.questionForm.value);
 
     const quizId = this.quizService.quizId;
     if (quizId) {
