@@ -82,11 +82,13 @@ export class MultipleAnswerComponent
 
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
-    if (!this.currentQuestion.selectedOptions) {
+    if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];
     }
-    this.options = this.currentQuestion.options;
-    this.quizService.getCorrectAnswers(this.currentQuestion);
+    if (this.currentQuestion && this.currentQuestion.options) {
+      this.options = this.currentQuestion.options;
+      this.quizService.getCorrectAnswers(this.currentQuestion);
+    }
 
     this.currentOptionsSubscription = this.quizStateService
       .getCurrentQuestion()
