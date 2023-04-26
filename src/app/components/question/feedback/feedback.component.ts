@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 
@@ -8,8 +8,12 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
   styleUrls: ['./feedback.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeedbackComponent {
+export class FeedbackComponent implements OnInit {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selectedOption: { correct: boolean };
+
+  ngOnInit(): void {
+    console.log("CORRECT MESSAGE:" , this.correctMessage);
+  }
 }
