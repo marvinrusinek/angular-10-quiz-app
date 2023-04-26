@@ -532,7 +532,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   selectedAnswer(data): void {
-    this.showExplanation = true;
     this.answered = true;
 
     const correctAnswers = this.question.options.filter(
@@ -580,6 +579,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.isAnswered()) {
       answers = this.answers.map((answer) => answer + 1);
       this.quizService.userAnswers.push(answers);
+      this.showExplanation = true;
     } else {
       answers = this.answers;
       this.quizService.userAnswers.push(this.answers);
@@ -598,7 +598,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onSubmit(): Promise<void> {
+  /* async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
     }
@@ -622,7 +622,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedQuiz.questions[this.currentQuestionIndex];
       this.setOptions();
     }
-  }
+  } */
 
   /************** template logic functions ******************/
   shouldApplyLastQuestionClass(): boolean {
