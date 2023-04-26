@@ -585,8 +585,8 @@ export class QuizService implements OnDestroy {
       .map((answer) => {
         if (typeof answer === 'number') {
           return answer + 1;
-        } else if (answer.hasOwnProperty('optionText')) {
-          return answer.optionText;
+        } else if (answer.hasOwnProperty('optionNumber')) {
+          return answer.optionNumber + 1;
         }
       });
 
@@ -595,11 +595,11 @@ export class QuizService implements OnDestroy {
     }
 
     const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
-    const answerText = correctOptionNumbers.length === 1 ? correctOptionNumbers[0] : correctOptionNumbers.join(' and ');
-    return `The correct answer${correctOptionNumbers.length > 1 ? 's' : ''} ${optionsText} ${answerText}.`;
+    const correctAnswerText = correctOptionNumbers.length === 1 ? `Option ${correctOptionNumbers[0]}` : `Options ${correctOptionNumbers.join(' and ')}`;
+    return `The correct answer${correctOptionNumbers.length > 1 ? 's' : ''} ${correctAnswerText} is${correctOptionNumbers.length > 1 ? '' : ' are'} correct.`;
   }
 
-  setExplanationText(question: QuizQuestion): void {
+setExplanationText(question: QuizQuestion): void {
     this.explanationText = question.explanation;
   }
 
