@@ -594,9 +594,14 @@ export class QuizService implements OnDestroy {
       return 'The correct answers are not available yet.';
     }
   
-    const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
-    const verbText = correctOptionNumbers.length === 1 ? 'is' : 'are';
-    return `The correct answers ${verbText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
+    let optionsText = 'Option';
+    if (correctOptionNumbers.length > 1) {
+      optionsText = 'Options';
+    }
+  
+    const correctAnswerText = correctOptionNumbers.length === 1 ? `is ${optionsText} ${correctOptionNumbers[0]}` : `are ${optionsText} ${correctOptionNumbers.join(' and ')}`;
+  
+    return `The correct answer ${correctAnswerText}.`;
   }
   
   setExplanationText(question: QuizQuestion): void {
