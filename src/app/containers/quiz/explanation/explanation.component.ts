@@ -15,7 +15,7 @@ export class QuizExplanationComponent implements OnInit {
   @Input() questionText: string = '';
   @Input() numberOfCorrectAnswers: number;
   @Input() correctOptions: string = '';
-  @Input() explanationText: string;
+  @Input() explanation: string;
   @Input() answers: any[] = [];
   explanation: string;
 

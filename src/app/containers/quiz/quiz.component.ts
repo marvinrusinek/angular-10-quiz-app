@@ -148,6 +148,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
+    this.showExplanation = false;
   }
 
   ngOnInit(): void {
