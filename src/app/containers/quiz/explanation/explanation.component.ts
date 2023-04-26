@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+
 @Component({
   selector: 'codelab-quiz-explanation',
   templateUrl: './explanation.component.html',
@@ -7,7 +9,8 @@ import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizExplanationComponent implements OnInit {
-  @Input() question: any;
+  @Input() question: QuizQuestion;
+  @Input() questions: QuizQuestion[];
   @Input() isAnswered: boolean = false;
   @Input() questionText: string = '';
   @Input() numberOfCorrectAnswers: number;
@@ -17,10 +20,12 @@ export class QuizExplanationComponent implements OnInit {
   explanation: string;
 
   ngOnInit(): void {
+    console.log("QEC check");
+    console.log("explanationText", this.explanationText);
     this.getExplanationText();
   }
 
-  getExplanationText(): string {
+  getExplanationText(): void {
     console.log("isAnswered", this.isAnswered);
     console.log("numberOfCorrectAnswers", this.numberOfCorrectAnswers);
 
@@ -36,15 +41,23 @@ export class QuizExplanationComponent implements OnInit {
       (option) => option.correct
     );
 
+    console.log("GET Q", this.question);
+    console.log("GET ET", this.question.explanationText);
+    console.log("GET CA", correctAnswers);
+    console.log("GET SCO", selectedCorrectOptions);
+
     if (!this.explanationText) {
       throw new Error('No explanation available for this question.');
     }
 
-    if (correctAnswers.length === selectedCorrectOptions.length) {
-      this.explanation = this.question.explanationText;
-    } else {
-      this.explanation = 'Sorry, that is not correct.';
-    }
+    if (this.question?.explanationText) {
+      if (correctAnswers.length === selectedCorrectOptions.length) {
+        this.explanation = this.question.explanationText;
+        console.log("MYEXPL", this.explanation);
+      } else {
+        this.explanation = 'Sorry, that is not correct.';
+      }
+    } 
 
     /* if (this.isAnswered === true) {
       if (this.numberOfCorrectAnswers === 1) {
@@ -54,6 +67,6 @@ export class QuizExplanationComponent implements OnInit {
       }
     } */
 
-    return '';
+    // return '';
   }
 }
