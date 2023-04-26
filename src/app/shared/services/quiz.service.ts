@@ -589,17 +589,17 @@ export class QuizService implements OnDestroy {
           return answer.optionNumber + 1;
         }
       });
-
+  
     if (correctOptionNumbers.length === 0) {
       return 'The correct answers are not available yet.';
     }
-
+  
     const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
-    const correctAnswerText = correctOptionNumbers.length === 1 ? `Option ${correctOptionNumbers[0]}` : `Options ${correctOptionNumbers.join(' and ')}`;
-    return `The correct answer${correctOptionNumbers.length > 1 ? 's' : ''} ${correctAnswerText} is${correctOptionNumbers.length > 1 ? '' : ' are'} correct.`;
+    const verbText = correctOptionNumbers.length === 1 ? 'is' : 'are';
+    return `The correct answers ${verbText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
   }
-
-setExplanationText(question: QuizQuestion): void {
+  
+  setExplanationText(question: QuizQuestion): void {
     this.explanationText = question.explanation;
   }
 
