@@ -25,48 +25,23 @@ export class QuizExplanationComponent implements OnInit {
     this.getExplanationText();
   }
 
-  getExplanationText(): void {
-    console.log("isAnswered", this.isAnswered);
-    console.log("numberOfCorrectAnswers", this.numberOfCorrectAnswers);
-
-    const correctAnswers = this.question.options.filter(
-      (option) => option.correct
-    );
-
-    const selectedOptions = this.question.options.filter(
-      (option) => this.answers.indexOf(option.optionId) !== -1
-    );
-
-    const selectedCorrectOptions = selectedOptions.filter(
-      (option) => option.correct
-    );
-
-    console.log("GET Q", this.question);
-    console.log("GET ET", this.question.explanationText);
-    console.log("GET CA", correctAnswers);
-    console.log("GET SCO", selectedCorrectOptions);
-
-    if (!this.explanationText) {
-      throw new Error('No explanation available for this question.');
+  getExplanationText(): string {
+    try {
+      if (this.question?.explanation) {
+        const correctAnswers = this.question.options.filter(option => option.correct);
+        const selectedCorrectOptions = this.question.options.filter(option => this.answers.includes(option.text) && option.correct);
+        
+        if (correctAnswers.length === selectedCorrectOptions.length) {
+          return this.question.explanation;
+        } else {
+          return 'Sorry, that is not correct.';
+        }
+      } else {
+        return '';
+      }
+    } catch (error) {
+      console.error('Error occurred while getting explanation text:', error);
+      return '';
     }
-
-    if (this.question?.explanationText) {
-      if (correctAnswers.length === selectedCorrectOptions.length) {
-        this.explanation = this.question.explanationText;
-        console.log("MYEXPL", this.explanation);
-      } else {
-        this.explanation = 'Sorry, that is not correct.';
-      }
-    } 
-
-    /* if (this.isAnswered === true) {
-      if (this.numberOfCorrectAnswers === 1) {
-        return `Option ${this.correctOptions} was correct because ${this.explanationText}`;
-      } else {
-        return `Options ${this.correctOptions} were correct because ${this.explanationText}`;
-      }
-    } */
-
-    // return '';
   }
 }
