@@ -585,19 +585,20 @@ export class QuizService implements OnDestroy {
       .map((answer) => {
         if (typeof answer === 'number') {
           return answer + 1;
-        } else if (answer.hasOwnProperty('optionNumber')) {
-          return answer.optionNumber + 1;
+        } else if (answer.hasOwnProperty('optionText')) {
+          return answer.optionText;
         }
       });
-  
+
     if (correctOptionNumbers.length === 0) {
       return 'The correct answers are not available yet.';
     }
-  
+
     const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
-    return `The correct answers are ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
+    const answerText = correctOptionNumbers.length === 1 ? correctOptionNumbers[0] : correctOptionNumbers.join(' and ');
+    return `The correct answer${correctOptionNumbers.length > 1 ? 's' : ''} ${optionsText} ${answerText}.`;
   }
-  
+
   setExplanationText(question: QuizQuestion): void {
     this.explanationText = question.explanation;
   }
