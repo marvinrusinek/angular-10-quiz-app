@@ -28,14 +28,13 @@ export class QuizExplanationComponent implements OnInit {
       if (this.question?.explanation) {
         const correctAnswers = this.question.options.filter(option => option.correct);
         const selectedCorrectOptions = this.question.options.filter(option => this.answers.includes(option.text) && option.correct);
-        
+  
         if (correctAnswers.length === selectedCorrectOptions.length) {
-          this.explanation = this.question.explanation;
+          const correctOptionsText = correctAnswers.map(option => option.text).join(' and ');
+          this.explanation = `Options ${correctOptionsText} are correct because ${this.question.explanation}`;
         } else {
           this.explanation = 'Sorry, that is not correct.';
         }
-      } else {
-        console.log('');
       }
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
