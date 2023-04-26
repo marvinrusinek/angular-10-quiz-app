@@ -30,7 +30,7 @@
       <!-- the question/explanation section -->
       <section id="question">
         <h3 *ngIf="!answered">{{ question?.questionText }}</h3>
-        <h3 *ngIf="answered && showExplanation">{{ getExplanationText() }}</h3>
+        <h3 *ngIf="answered && showExplanation">{{ explanation }}</h3>
         <codelab-quiz-explanation
           *ngIf="answered && showExplanation"
           [isAnswered]="isAnswered()"
@@ -39,7 +39,7 @@
           [answers]="answers"
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
-          [explanationText]="question?.explanationText"
+          [explanationText]="question?.explanation"
         ></codelab-quiz-explanation>
       </section>
 

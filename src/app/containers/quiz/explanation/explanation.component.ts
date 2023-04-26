@@ -20,28 +20,23 @@ export class QuizExplanationComponent implements OnInit {
   explanation: string;
 
   ngOnInit(): void {
-    console.log("QEC check");
-    console.log("explanationText", this.explanationText);
     this.getExplanationText();
   }
 
-  getExplanationText(): string {
+  getExplanationText(): void {
     try {
-      if (this.question?.explanation) {
+      if (this.explanationText) {
         const correctAnswers = this.question.options.filter(option => option.correct);
         const selectedCorrectOptions = this.question.options.filter(option => this.answers.includes(option.text) && option.correct);
         
         if (correctAnswers.length === selectedCorrectOptions.length) {
-          return this.question.explanation;
+          this.explanation = this.explanationText;
         } else {
-          return 'Sorry, that is not correct.';
+          this.explanation = 'Sorry, that is not correct.';
         }
-      } else {
-        return '';
       }
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
-      return '';
     }
   }
 }
