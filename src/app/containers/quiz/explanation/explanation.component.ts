@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'codelab-quiz-explanation',
@@ -6,14 +6,20 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   styleUrls: ['./explanation.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizExplanationComponent {
+export class QuizExplanationComponent implements OnInit {
+  @Input() question: any;
   @Input() isAnswered: boolean = false;
   @Input() questionText: string = '';
   @Input() numberOfCorrectAnswers: number;
   @Input() correctOptions: string = '';
   @Input() explanationText: string;
+  explanation: string;
 
-  getExplanationText(): string {
+  ngOnInit(): void {
+    this.getExplanationText();
+  }
+
+  getExplanationText(): void {
     console.log("isAnswered", this.isAnswered);
     console.log("numberOfCorrectAnswers", this.numberOfCorrectAnswers);
     if (!this.explanationText) {
@@ -22,9 +28,9 @@ export class QuizExplanationComponent {
 
     if (this.isAnswered === true) {
       if (this.numberOfCorrectAnswers === 1) {
-        return `Option ${this.correctOptions} was correct because ${this.explanationText}`;
+        this.explanation = `Option ${this.correctOptions} was correct because ${this.explanationText}`;
       } else {
-        return `Options ${this.correctOptions} were correct because ${this.explanationText}`;
+        this.explanation = `Options ${this.correctOptions} were correct because ${this.explanationText}`;
       }
     }
   }
