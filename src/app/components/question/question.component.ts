@@ -444,8 +444,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateMultipleAnswer(): void {
-    const hasMultipleAnswers = this.correctAnswers?.length > 1;
-    this.multipleAnswer.next(hasMultipleAnswers);
+    this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
   }
 
   setOptions(): void {
