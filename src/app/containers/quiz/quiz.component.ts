@@ -533,6 +533,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   selectedAnswer(data): void {
     this.answered = true;
+    this.checkIfAnsweredCorrectly();
 
     const correctAnswers = this.question.options.filter(
       (option) => option.correct

@@ -19,7 +19,7 @@ export class QuizExplanationComponent implements OnInit {
     this.getExplanationText();
   }
 
-  getExplanationText(): void {
+  getExplanationText(): string {
     console.log("isAnswered", this.isAnswered);
     console.log("numberOfCorrectAnswers", this.numberOfCorrectAnswers);
     if (!this.explanationText) {
@@ -28,10 +28,12 @@ export class QuizExplanationComponent implements OnInit {
 
     if (this.isAnswered === true) {
       if (this.numberOfCorrectAnswers === 1) {
-        this.explanation = `Option ${this.correctOptions} was correct because ${this.explanationText}`;
+        return `Option ${this.correctOptions} was correct because ${this.explanationText}`;
       } else {
-        this.explanation = `Options ${this.correctOptions} were correct because ${this.explanationText}`;
+        return `Options ${this.correctOptions} were correct because ${this.explanationText}`;
       }
     }
+
+    return '';
   }
 }
