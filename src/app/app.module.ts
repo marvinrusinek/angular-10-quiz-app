@@ -51,13 +51,13 @@ import { JoinPipe } from './pipes/join.pipe';
     AppComponent,
     IntroductionComponent,
     QuizComponent,
-    QuizExplanationComponent,
     QuizQuestionComponent,
     MultipleAnswerComponent,
     SingleAnswerComponent,
     FeedbackComponent,
     OptionFeedbackComponent,
     QuizSelectionComponent,
+    QuizExplanationComponent,
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
@@ -97,7 +97,8 @@ import { JoinPipe } from './pipes/join.pipe';
     MultipleAnswerComponent,
     SingleAnswerComponent,
     FeedbackComponent,
-    OptionFeedbackComponent
+    OptionFeedbackComponent,
+    QuizExplanationComponent
   ],
   bootstrap: [AppComponent],
   providers: [

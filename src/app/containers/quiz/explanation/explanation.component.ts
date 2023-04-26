@@ -21,6 +21,7 @@ export class QuizExplanationComponent implements OnInit {
 
   ngOnInit(): void {
     this.getExplanationText();
+    console.log("IS ANSWERED:", this.isAnswered);
   }
 
   getExplanationText(): void {
