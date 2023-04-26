@@ -1,13 +1,4 @@
 <ng-container *ngIf="currentQuestion">
-  <div>currentQuestion: {{ currentQuestion | json }}</div>
-  <div>multipleAnswer$: {{ multipleAnswer$ | async }}</div>
-  <div>multipleAnswer$: {{ (multipleAnswer$ | async) === true }}</div>
-  <div>currentQuestion.options: {{ currentQuestion.options | json }}</div>
-
-  <div>multipleAnswer$: {{ multipleAnswer$ | async }}</div>
-<div *ngIf="(multipleAnswer$ | async) === true">Displaying multiple answer component</div>
-<div *ngIf="(multipleAnswer$ | async) !== true">Displaying single answer component</div>
-
   <form [formGroup]="questionForm" *ngIf="(multipleAnswer$ | async) === true; then multipleAnswerComponent else singleAnswerComponent">
     <ng-template #multipleAnswerComponent>
       <codelab-question-multiple-answer

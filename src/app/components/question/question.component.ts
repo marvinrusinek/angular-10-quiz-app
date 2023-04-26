@@ -132,42 +132,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
 
-      // this.multipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
-
-      /* this.quizStateService.isMultipleAnswer(question).subscribe(isMultipleAnswer => {
-        this.multipleAnswer = of(isMultipleAnswer);
-        console.log('isMultipleAnswer:::', isMultipleAnswer);
-      }); */
-      
-      /* this.quizStateService.isMultipleAnswer().subscribe({
-        next: (isMultipleAnswer) => {
-          this.multipleAnswer = isMultipleAnswer;
-        },
-        error: (error) => {
-          console.error(error);
-        }
-      }); */
-
-      /* this.quizStateService.currentQuestion$.subscribe(question => {
-        this.currentQuestion = question;
-        this.quizStateService.isMultipleAnswer();
-      });
-    
-      this.quizStateService.multipleAnswer$.subscribe(isMultipleAnswer => {
-        this.multipleAnswer = isMultipleAnswer;
-      }); */
-
-      // this.isMultipleAnswer$ = this.quizStateService.isMultipleAnswer();
-
-      /* this.quizStateService.multipleAnswer$.subscribe(isMultipleAnswer => {
-        this.multipleAnswer$ = isMultipleAnswer;
-      }); */
-
-      /* this.multipleAnswer$ = this.quizStateService.multipleAnswer$;
-      this.multipleAnswer$.subscribe((value) => {
-        console.log('Multiple answer value:', value);
-      }); */
-
       this.quizStateService.isMultipleAnswer();
 
       this.quizStateService.currentQuestion$.subscribe((question) => {
