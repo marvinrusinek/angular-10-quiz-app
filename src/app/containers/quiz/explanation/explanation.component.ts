@@ -17,7 +17,6 @@ export class QuizExplanationComponent implements OnInit {
   @Input() correctOptions: string = '';
   @Input() explanation: string;
   @Input() answers: any[] = [];
-  explanation: string;
 
   ngOnInit(): void {
     this.getExplanationText();
@@ -26,15 +25,17 @@ export class QuizExplanationComponent implements OnInit {
 
   getExplanationText(): void {
     try {
-      if (this.explanationText) {
+      if (this.question?.explanation) {
         const correctAnswers = this.question.options.filter(option => option.correct);
         const selectedCorrectOptions = this.question.options.filter(option => this.answers.includes(option.text) && option.correct);
         
         if (correctAnswers.length === selectedCorrectOptions.length) {
-          this.explanation = this.explanationText;
+          this.explanation = this.question.explanation;
         } else {
           this.explanation = 'Sorry, that is not correct.';
         }
+      } else {
+        console.log('');
       }
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
