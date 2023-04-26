@@ -1,29 +1,27 @@
-<ng-container *ngIf="currentQuestion">
-  <form [formGroup]="questionForm" *ngIf="(multipleAnswer$ | async) === true; then multipleAnswerComponent else singleAnswerComponent">
-    <ng-template #multipleAnswerComponent>
-      <codelab-question-multiple-answer
-        [form]="questionForm"
-        [question]="currentQuestion"
-        [questions]="questions"
-        [currentQuestion]="currentQuestion"
-        [currentQuestionIndex]="currentQuestionIndex"
-        [options]="currentQuestion.options"
-        [selectedOptions]="currentQuestion.selectedOptions"
-        [correctAnswers]="correctAnswers"
-        [correctMessage]="correctMessage"
-        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
-      ></codelab-question-multiple-answer>
-    </ng-template>
-    <ng-template #singleAnswerComponent>
-      <codelab-question-single-answer
-        [question]="currentQuestion"
-        [questions]="questions"
-        [options]="currentQuestion.options"
-        [selectedOption]="currentQuestion.selectedOption"
-        [currentQuestion]="currentQuestion"
-        [currentQuestionIndex]="currentQuestionIndex"
-        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
-      ></codelab-question-single-answer>
-    </ng-template>
-  </form>
-</ng-container>
+<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
+  <ng-container *ngSwitchCase="multipleAnswer" #multipleAnswerComponent>
+    <codelab-question-multiple-answer
+      [form]="questionForm"
+      [question]="currentQuestion"
+      [questions]="questions"
+      [currentQuestion]="currentQuestion"
+      [currentQuestionIndex]="currentQuestionIndex"
+      [options]="currentQuestion.options"
+      [selectedOptions]="currentQuestion.selectedOptions"
+      [correctAnswers]="correctAnswers"
+      [correctMessage]="correctMessage"
+      (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+    ></codelab-question-multiple-answer>
+  </ng-container>
+  <ng-container *ngSwitchCase="!multipleAnswer" #singleAnswerComponent>
+    <codelab-question-single-answer
+      [question]="currentQuestion"
+      [questions]="questions"
+      [options]="currentQuestion.options"
+      [selectedOption]="currentQuestion.selectedOption"
+      [currentQuestion]="currentQuestion"
+      [currentQuestionIndex]="currentQuestionIndex"
+      (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+    ></codelab-question-single-answer>
+  </ng-container>
+</form>
