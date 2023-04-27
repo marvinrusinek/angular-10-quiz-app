@@ -58,6 +58,8 @@
         [currentQuestion$]="currentQuestion$ | async"
         [currentQuestionIndex]="currentQuestionIndex"
         [multipleAnswer]="multipleAnswer"
+        (answersChange)="checkIfAnsweredCorrectly()"
+        (explanationTextChange)="explanationText = $event"
       >
       </codelab-quiz-question>
     </mat-card-content>

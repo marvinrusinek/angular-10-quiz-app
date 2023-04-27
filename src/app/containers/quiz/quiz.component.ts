@@ -582,6 +582,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       answers = this.answers.map((answer) => answer + 1);
       this.quizService.userAnswers.push(answers);
       this.showExplanation = true;
+      // this.getExplanationText();
+      console.log('explanationText:', this.explanationText);
     } else {
       answers = this.answers;
       this.quizService.userAnswers.push(this.answers);

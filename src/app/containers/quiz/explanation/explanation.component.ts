@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 
@@ -9,6 +9,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizExplanationComponent implements OnInit {
+  @Output() explanationTextChange = new EventEmitter<string>();
   @Input() question: QuizQuestion;
   @Input() questions: QuizQuestion[];
   @Input() isAnswered: boolean = false;
@@ -47,5 +48,6 @@ export class QuizExplanationComponent implements OnInit {
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
     }
+    this.explanationTextChange.emit(explanation);
   }
 }
