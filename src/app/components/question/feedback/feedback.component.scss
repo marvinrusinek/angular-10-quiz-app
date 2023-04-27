@@ -7,12 +7,17 @@
   padding-bottom: 20px;
   width: 640px;
 
+  .feedback-message {
+    width: 400px;
+    text-align: center;
+  }
+
   i {
     font-size: 30px;
     color: $light-yellow;
     position: relative;
     top: 10px;
-    left: 25px;
+    left: 0;
   }
 
   span {
