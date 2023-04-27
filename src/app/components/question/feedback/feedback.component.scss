@@ -10,26 +10,14 @@
   .feedback-message {
     width: 400px;
     text-align: center;
-  }
 
-  i {
-    font-size: 30px;
-    color: $light-yellow;
-    position: relative;
-    top: 10px;
-    left: 0;
-  }
-
-  span {
-    font-family: $font-stack;
-    font-size: 17px;
-    font-style: italic;
-    font-weight: bold;
-    margin: -100px 0 0 -15px !important;
-    padding: 10px;
-    display: inline-flex;
-    justify-content: center;
-    background: transparentize($light-gray, 0.5);
+    i {
+      font-size: 30px;
+      color: $light-yellow;
+      position: relative;
+      top: 10px;
+      left: 0;
+    }
   }
 
   .correct-message {
