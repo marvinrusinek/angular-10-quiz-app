@@ -42,6 +42,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }> = new EventEmitter();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
+  @Output() answersChange = new EventEmitter<string[]>();
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;

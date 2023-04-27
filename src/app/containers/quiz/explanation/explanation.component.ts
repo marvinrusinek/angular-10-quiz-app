@@ -34,12 +34,16 @@ export class QuizExplanationComponent implements OnInit {
         if (correctOptions.length === selectedCorrectOptions.length) {
           const correctOptionsText = correctOptions.map(option => option.text);
   
-          if (correctOptionsText.length === 1) {
+          if (correctOptions.length === 1) {
             this.explanationText = `Option ${correctOptionsText[0]} is correct because ${this.question.explanation}`;
-          } else if (correctOptionsText.length > 1) {
+          } else if (correctOptions.length > 1) {
             const lastOption = correctOptionsText.pop();
             const correctOptionsString = correctOptionsText.join(', ') + ' and ' + lastOption;
-            this.explanationText = `Options ${correctOptionsString} are correct because ${this.question.explanation}`;
+            if (correctOptions.length === this.question.options.length) {
+              this.explanationText = `All options (${correctOptionsString}) are correct because ${this.question.explanation}`;
+            } else {
+              this.explanationText = `Options ${correctOptionsString} are correct because ${this.question.explanation}`;
+            }
           }
         } else {
           this.explanationText = 'Sorry, that is not correct.';
@@ -48,6 +52,5 @@ export class QuizExplanationComponent implements OnInit {
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
     }
-    this.explanationTextChange.emit(explanation);
   }
 }
