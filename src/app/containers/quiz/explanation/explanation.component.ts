@@ -9,7 +9,7 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizExplanationComponent implements OnInit {
-  @Output() explanationTextChange = new EventEmitter<string>();
+  @Output() explanationTextChanged = new EventEmitter<string>();
   @Input() question: QuizQuestion;
   @Input() questions: QuizQuestion[];
   @Input() isAnswered: boolean = false;
@@ -28,17 +28,24 @@ export class QuizExplanationComponent implements OnInit {
   getExplanationText(): void {
     try {
       if (this.question?.explanation) {
-        const correctOptions = this.question.options.filter(option => option.correct);
-        const selectedCorrectOptions = this.question.options.filter(option => this.answers.includes(option.text) && option.correct);
-  
+        const correctOptions = this.question.options.filter(
+          (option) => option.correct
+        );
+        const selectedCorrectOptions = this.question.options.filter(
+          (option) => this.answers.includes(option.text) && option.correct
+        );
+
         if (correctOptions.length === selectedCorrectOptions.length) {
-          const correctOptionsText = correctOptions.map(option => option.text);
-  
+          const correctOptionsText = correctOptions.map(
+            (option) => option.text
+          );
+
           if (correctOptions.length === 1) {
             this.explanationText = `Option ${correctOptionsText[0]} is correct because ${this.question.explanation}`;
           } else if (correctOptions.length > 1) {
             const lastOption = correctOptionsText.pop();
-            const correctOptionsString = correctOptionsText.join(', ') + ' and ' + lastOption;
+            const correctOptionsString =
+              correctOptionsText.join(', ') + ' and ' + lastOption;
             if (correctOptions.length === this.question.options.length) {
               this.explanationText = `All options (${correctOptionsString}) are correct because ${this.question.explanation}`;
             } else {
@@ -49,6 +56,7 @@ export class QuizExplanationComponent implements OnInit {
           this.explanationText = 'Sorry, that is not correct.';
         }
       }
+      this.explanationTextChanged.emit(this.explanationText);
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
     }

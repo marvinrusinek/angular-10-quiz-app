@@ -104,6 +104,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   isDisabled: boolean;
   showExplanation = false;
+  explanationText: string;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -128,9 +129,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   get correctOptions(): string {
     return this.quizService.correctOptions;
   }
-  get explanationText(): string {
+  /* get explanationText(): string {
     return this.quizService.explanationText;
-  }
+  } */
   get numberOfCorrectAnswers(): number {
     return this.quizService.numberOfCorrectAnswers;
   }
