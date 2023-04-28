@@ -93,6 +93,8 @@ export class QuizService implements OnDestroy {
   totalQuestionsSubject = new BehaviorSubject<number>(0);
   totalQuestions$ = this.totalQuestionsSubject.asObservable();
 
+  private explanationTextSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+
   userAnswers = [];
   previousAnswers = [];
   previousAnswersMultipleTextArray: string[] = [];
@@ -380,6 +382,45 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
+  /* setExplanationText(question: QuizQuestion): void {
+    this.explanationText = question.explanation;
+  } */
+
+  /* public setExplanationText(explanation: string): void {
+    this.explanationTextSubject.next(explanation);
+  } */
+
+  setExplanationText(selectedOptions: Option[], question: QuizQuestion): void {
+    try {
+      const correctOptions = question.options.filter((option) => option.correct);
+      const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
+  
+      if (correctOptions.length === selectedCorrectOptions.length) {
+        const correctOptionsText = correctOptions.map((option) => option.text);
+  
+        if (correctOptions.length === 1) {
+          this.explanationText = `Option ${correctOptionsText[0]} is correct because ${question.explanation}`;
+        } else if (correctOptions.length > 1) {
+          const lastOption = correctOptionsText.pop();
+          const correctOptionsString = correctOptionsText.join(', ') + ' and ' + lastOption;
+          if (correctOptions.length === question.options.length) {
+            this.explanationText = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
+          } else {
+            this.explanationText = `Options ${correctOptionsString} are correct because ${question.explanation}`;
+          }
+        }
+      } else {
+        this.explanationText = 'Sorry, that is not correct.';
+      }
+    } catch (error) {
+      console.error('Error occurred while getting explanation text:', error);
+    }
+  }
+    
+  public getExplanationText(): Observable<string> {
+    return this.explanationTextSubject.asObservable();
+  }  
+
   submitQuiz(): Observable<void> {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
@@ -597,10 +638,6 @@ export class QuizService implements OnDestroy {
     const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionNumbers.length === 1 ? 'is' : 'are';
     return `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
-  }
-          
-  setExplanationText(question: QuizQuestion): void {
-    this.explanationText = question.explanation;
   }
 
   // set the text of the previous user answers in an array to show in the following quiz

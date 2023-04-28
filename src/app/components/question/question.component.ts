@@ -73,6 +73,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
+  explanationText: string = '';
   isChangeDetected = false;
   destroy$: Subject<void> = new Subject<void>();
 
@@ -521,12 +522,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.optionSelected.emit(option);
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
+  /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     console.log('onSelectionChange() called');
     this.selectedOptions = selectedOptions;
     this.selectionChanged.emit({ question, selectedOptions });
-  }
+  } */
 
+  onSelectionChange(selectedOptions: Option[]): void {
+    console.log('onSelectionChange() called');
+    this.selectedOptions = selectedOptions;
+    this.quizService.setExplanationText(selectedOptions, this.question);
+    this.explanationText = this.quizService.explanationText;
+    this.selectionChanged.emit({ question: this.question, selectedOptions });
+  }
+  
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
