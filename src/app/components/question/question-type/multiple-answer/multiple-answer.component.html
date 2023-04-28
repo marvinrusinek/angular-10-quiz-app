@@ -5,7 +5,7 @@
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option); console.log('onSelectionChange called')"
-      (change)="onSelectionChange(currentQuestion, option)"
+      (change)="onSelectionChange(currentQuestion, [option])"
       [class]="getOptionClass(option)"
       [checked]="optionChecked[option?.optionId]"
     >
