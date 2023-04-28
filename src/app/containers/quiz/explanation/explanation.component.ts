@@ -32,20 +32,21 @@ export class QuizExplanationComponent implements OnInit {
           (option) => option.correct
         );
         const selectedCorrectOptions = this.question.options.filter(
-          (option) => this.answers.includes(option.text) && option.correct
+          (option) =>
+            this.answers.includes(option.text) && option.correct
         );
-
+  
         if (correctOptions.length === selectedCorrectOptions.length) {
           const correctOptionsText = correctOptions.map(
             (option) => option.text
           );
-
+  
           if (correctOptions.length === 1) {
             this.explanationText = `Option ${correctOptionsText[0]} is correct because ${this.question.explanation}`;
           } else if (correctOptions.length > 1) {
             const lastOption = correctOptionsText.pop();
             const correctOptionsString =
-              correctOptionsText.join(', ') + ' and ' + lastOption;
+              correctOptionsText.join(", ") + " and " + lastOption;
             if (correctOptions.length === this.question.options.length) {
               this.explanationText = `All options (${correctOptionsString}) are correct because ${this.question.explanation}`;
             } else {
@@ -53,12 +54,19 @@ export class QuizExplanationComponent implements OnInit {
             }
           }
         } else {
-          this.explanationText = 'Sorry, that is not correct.';
+          this.explanationText = "Sorry, that is not correct.";
         }
       }
-      this.explanationTextChanged.emit(this.explanationText);
+      this.onExplanationTextChange();
     } catch (error) {
-      console.error('Error occurred while getting explanation text:', error);
+      console.error(
+        "Error occurred while getting explanation text:",
+        error
+      );
     }
+  }
+  
+  onExplanationTextChange(): void {
+    this.explanationTextChanged.emit(this.explanationText);
   }
 }

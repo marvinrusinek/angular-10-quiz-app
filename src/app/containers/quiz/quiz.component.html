@@ -30,9 +30,9 @@
       <!-- the question/explanation section -->
       <section id="question">
         <h3 *ngIf="!answered">{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
-        <h3 *ngIf="answered && showExplanation && explanationText">{{ explanationText }}</h3>
+        <h3 *ngIf="answered && showExplanation && question?.explanation">{{ explanationText }}</h3>
         <codelab-quiz-explanation
-          *ngIf="answered && showExplanation && explanationText"
+          *ngIf="answered && showExplanation && question?.explanation"
           [isAnswered]="isAnswered()"
           [question]="question"
           [questions]="questions$ | async"
