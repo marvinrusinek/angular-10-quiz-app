@@ -234,8 +234,7 @@ export class MultipleAnswerComponent
 
       if (
         selectedOptionIds.sort().join(',') ===
-        question.answer
-          .map((a) => a.value)
+        question.answer?.map((a) => a.value)
           .sort()
           .join(',')
       ) {
