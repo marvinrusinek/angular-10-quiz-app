@@ -46,6 +46,7 @@ export class QuizExplanationComponent implements OnInit {
   }
 
   getExplanationText(): void {
+    console.log("FROM GET");
     try {
       if (this.question?.explanation) {
         const correctOptions = this.question.options.filter(
@@ -76,6 +77,7 @@ export class QuizExplanationComponent implements OnInit {
           this.explanationText = 'Sorry, that is not correct.';
         }
       }
+      console.log("EXPLTEXT:::>>>", this.explanationText);
       this.explanationTextChanged.emit(this.explanationText);
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
