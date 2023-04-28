@@ -18,7 +18,7 @@ export class QuizExplanationComponent implements OnInit {
   @Input() correctOptions: string = '';
   @Input() explanation: string;
   @Input() answers: any[] = [];
-  explanationText: string;
+  explanationText: string = '';
 
   ngOnInit(): void {
     this.getExplanationText();
@@ -46,7 +46,7 @@ export class QuizExplanationComponent implements OnInit {
           } else if (correctOptions.length > 1) {
             const lastOption = correctOptionsText.pop();
             const correctOptionsString =
-              correctOptionsText.join(", ") + " and " + lastOption;
+              correctOptionsText.join(', ') + ' and ' + lastOption;
             if (correctOptions.length === this.question.options.length) {
               this.explanationText = `All options (${correctOptionsString}) are correct because ${this.question.explanation}`;
             } else {
@@ -54,19 +54,12 @@ export class QuizExplanationComponent implements OnInit {
             }
           }
         } else {
-          this.explanationText = "Sorry, that is not correct.";
+          this.explanationText = 'Sorry, that is not correct.';
         }
       }
-      this.onExplanationTextChange();
+      this.explanationTextChanged.emit(this.explanationText);
     } catch (error) {
-      console.error(
-        "Error occurred while getting explanation text:",
-        error
-      );
+      console.error('Error occurred while getting explanation text:', error);
     }
-  }
-  
-  onExplanationTextChange(): void {
-    this.explanationTextChanged.emit(this.explanationText);
   }
 }
