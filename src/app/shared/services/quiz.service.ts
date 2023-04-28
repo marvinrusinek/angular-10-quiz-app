@@ -391,8 +391,18 @@ export class QuizService implements OnDestroy {
   } */
 
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): void {
+    /* console.log('setExplanationText() called');
+    console.log('selectedOptions:', selectedOptions);
+    console.log('typeof selectedOptions:', typeof selectedOptions); */
+
+    if (!Array.isArray(selectedOptions)) {
+      console.error('Error: selectedOptions is not an array');
+      return;
+    }
+    
     try {
       const correctOptions = question.options.filter((option) => option.correct);
+      console.log("SO", selectedOptions);
       const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
   
       if (correctOptions.length === selectedCorrectOptions.length) {
