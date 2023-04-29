@@ -390,7 +390,7 @@ export class QuizService implements OnDestroy {
     this.explanationTextSubject.next(explanation);
   } */
 
-  setExplanationText(selectedOptions: Option[], question: QuizQuestion): void {
+  setExplanationText(selectedOptions: Option[], question: QuizQuestion): string {
     console.log('setExplanationText() called');
     console.log('question.options:', question.options);
     console.log('selectedOptions:', selectedOptions);
