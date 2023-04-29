@@ -543,7 +543,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('selectedOptionArray:', selectedOptionArray);
   
       // call setExplanationText on QuizService with selected option and current question
-      this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion);
+      this.setExplanationText(selectedOptionArray, this.currentQuestion);
   
       // update explanationText subject with new explanation text from QuizService
       this.quizService.explanationText.subscribe((explanationText: string) => {
