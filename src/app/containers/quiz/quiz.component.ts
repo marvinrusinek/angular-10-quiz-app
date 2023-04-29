@@ -105,7 +105,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isDisabled: boolean;
   showExplanation = false;
   displayExplanation = false;
-  explanationText: string;
+  explanationText: string = '';
   errorMessage: string;
   cardFooterClass = '';
 
@@ -519,10 +519,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   onOptionSelected(index: number) {
-    this.quizQuestions.toArray()[this.currentQuestionIndex].selectedOption = index;
+    const selectedOptionArray = [this.currentQuestion.options[index]];
+    this.explanationText = this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion);
     this.displayExplanation = true;
   }
-  
+    
   onSelect(option: Option): void {
     this.selectedOption = option;
   }
