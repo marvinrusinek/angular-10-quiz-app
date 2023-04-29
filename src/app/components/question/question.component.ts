@@ -528,6 +528,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOptions = selectedOptions;
       this.quizService.setExplanationText(selectedOptions, question);
       this.explanationText = this.quizService.explanationText;
+      console.log('explanationText:', this.explanationText);
       this.selectionChanged.emit({ question, selectedOptions });
     } else {
       console.log('onSelectionChange(): selectedOptions is not an array');

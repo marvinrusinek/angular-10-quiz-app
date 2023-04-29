@@ -232,15 +232,12 @@ export class MultipleAnswerComponent
         return selectedOption ? selectedOption.value : null;
       });
 
-      if (
-        selectedOptionIds.sort().join(',') ===
-        question.answer?.map((a) => a.value)
-          .sort()
-          .join(',')
-      ) {
+      if (selectedOptionIds.sort().join(',') === (question.answer && question.answer.map((a) => a.value).sort().join(','))) {
         this.incrementScore();
+      } else {
+        this.explanationText = 'Sorry, that is not correct.';
       }
-
+      
       selectedOptions.forEach((selectedOption) => {
         this.optionChecked[selectedOption.optionId] =
           !this.optionChecked[selectedOption.optionId];
