@@ -521,10 +521,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.selectedOption = option;
       this.displayExplanation = true;
+      this.quizService.setExplanationText([option], this.question);
     }
     this.optionSelected.emit(option);
   }
-  
+      
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
     console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
     if (selectedOptions && Array.isArray(selectedOptions)) {

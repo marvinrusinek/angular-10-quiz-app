@@ -104,6 +104,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswerField: number;
   isDisabled: boolean;
   showExplanation = false;
+  displayExplanation = false;
   explanationText: string;
   errorMessage: string;
   cardFooterClass = '';
@@ -513,10 +514,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!(this.answers && this.answers?.length > 0);
   }
 
-  onOptionSelected(index: number) {
+  /* onOptionSelected(index: number) {
     this.answers = [index];
-  }
+  } */
 
+  onOptionSelected(index: number) {
+    this.quizQuestions.toArray()[this.currentQuestionIndex].selectedOption = index;
+    this.displayExplanation = true;
+  }
+  
   onSelect(option: Option): void {
     this.selectedOption = option;
   }
