@@ -50,11 +50,47 @@
         </ng-template>
       </section>-->
 
-      <section id="question">
+      <!--<section id="question">
         <h3 *ngIf="!answered">{{ question?.questionText }}<span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers }} answers are correct)</span></h3>
         <h3 *ngIf="answered">{{ explanationText | async }}</h3>
+      </section>-->
+
+      <!--<section id="question">
+        <ng-container *ngIf="question && !answered; else explanationBlock">
+          <h3>{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
+        </ng-container>
+        <ng-container *ngIf="!question && explanationText">
+          <h3>{{ explanationText | async }}</h3>
+        </ng-container>
+        <ng-template #explanationBlock>
+          <h3 *ngIf="explanationText">{{ explanationText | async }}</h3>
+        </ng-template>
+      </section>-->
+
+      <!--<section id="question">
+        <ng-container *ngIf="!showExplanationText">
+          <h3>{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
+        </ng-container>
+        <ng-container *ngIf="showExplanationText">
+          <h3>{{ explanationText | async }}</h3>
+        </ng-container>
+      </section>-->
+
+      <!--<section id="question">
+        <ng-container *ngIf="!answered; else explanationBlock">
+          <h3>{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
+        </ng-container>
+        <ng-template #explanationBlock>
+          <h3 *ngIf="displayExplanation">{{ explanationText }}</h3>
+        </ng-template>
+      </section> -->
+
+      <section id="question">
+        <h3 *ngIf="!showExplanationText">{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
+        <h3 *ngIf="showExplanationText">{{ explanationText }}</h3>
       </section>
-                        
+      
+                                          
       <!-- the options -->
       <codelab-quiz-question
         *ngIf="quizStateService.currentQuestion"

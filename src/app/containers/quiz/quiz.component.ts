@@ -530,6 +530,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   onOptionSelected(data: Option) {
+    console.log('onOptionSelected() called');
+    console.log('data:', data);
+  
     // add selected option to answers array
     this.answers.push({
       question: this.currentQuestion,
@@ -538,19 +541,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   
     this.selectedOption$.next(data);
-    this.selectedAnswer(data);
   
     if (this.currentQuestion) {
       const selectedOptionArray = this.currentQuestion.options.filter(option => option.selected);
+      console.log('selectedOptionArray:', selectedOptionArray);
   
       // call setExplanationText on QuizService with selected option and current question
-      this.setExplanationText(selectedOptionArray, this.currentQuestion);
-  
-      // update answered status and show explanation text
-      this.answered = true;
+      this.showExplanationText = false;
+      
+      this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion).subscribe((explanationText: string) => {
+        this.explanationText.next(explanationText);
+        console.log('this.explanationText:', this.explanationText.getValue());
+        this.showExplanationText = true;
+        this.displayExplanation = true;
+      });
+      
     }
   }
-                    
+                        
   onSelect(option: Option): void {
     this.selectedOption = option;
   }
