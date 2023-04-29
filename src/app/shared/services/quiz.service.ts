@@ -443,7 +443,7 @@ export class QuizService implements OnDestroy {
       return explanationText;
     }
   }
-    
+      
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  

@@ -519,10 +519,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   onOptionSelected(index: number) {
-    const selectedOptionArray = [this.currentQuestion.options[index]];
-    this.explanationText = this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion);
-    this.displayExplanation = true;
-  }
+    console.log('onOptionSelected() called');
+    console.log('this.currentQuestion:', this.currentQuestion);
+    
+    if (this.currentQuestion) {
+      const selectedOptionArray = [this.currentQuestion.options[index]];
+      console.log('selectedOptionArray:', selectedOptionArray);
+      
+      this.explanationText = this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion);
+      console.log('this.explanationText:', this.explanationText);
+      
+      this.displayExplanation = true;
+    }
+  }  
     
   onSelect(option: Option): void {
     this.selectedOption = option;
@@ -590,8 +599,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       answers = this.answers.map((answer) => answer + 1);
       this.quizService.userAnswers.push(answers);
       this.showExplanation = true;
-      // this.getExplanationText();
-      console.log('explanationText:', this.explanationText);
+      console.log('explanationText::::', this.explanationText);
     } else {
       answers = this.answers;
       this.quizService.userAnswers.push(this.answers);
