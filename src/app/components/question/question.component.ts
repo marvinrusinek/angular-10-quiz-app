@@ -520,8 +520,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.displayExplanation = false;
     } else {
       this.selectedOption = option;
-      this.displayExplanation = true;
       this.quizService.setExplanationText([option], this.question);
+      this.displayExplanation = true;
     }
     this.optionSelected.emit(option);
   }
