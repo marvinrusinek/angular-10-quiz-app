@@ -7,8 +7,10 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { QuizService } from '../../../shared/services/quiz.service';
 
 @Component({
   selector: 'codelab-quiz-explanation',
@@ -28,6 +30,7 @@ export class QuizExplanationComponent implements OnInit {
   @Input() answers: any[] = [];
   // explanationText: string = '';
   private _explanationText: string = '';
+  currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
 
   @Input() set explanationText(value: string) {
     this._explanationText = value;
@@ -38,14 +41,21 @@ export class QuizExplanationComponent implements OnInit {
     return this._explanationText;
   }
 
-  constructor(private cdr: ChangeDetectorRef) {}
-
-  ngOnInit(): void {
-    this.getExplanationText();
-    console.log('IS ANSWERED:', this.isAnswered);
+  constructor(
+    private quizService: QuizService,
+    private cdr: ChangeDetectorRef    
+  ) {
+    this.currentQuestion$ = this.quizService.currentQuestion$;
   }
 
-  getExplanationText(): void {
+  ngOnInit(): void {
+    this.quizService.currentQuestion$.subscribe((data) => {
+      const question = data.question;
+      this.explanationText = question.explanation;
+    });
+  }
+
+  /* getExplanationText(): void {
     console.log("FROM GET");
     try {
       if (this.question?.explanation) {
@@ -82,5 +92,5 @@ export class QuizExplanationComponent implements OnInit {
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
     }
-  }
+  } */
 }
