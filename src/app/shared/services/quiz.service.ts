@@ -99,7 +99,7 @@ export class QuizService implements OnDestroy {
   previousAnswers = [];
   previousAnswersMultipleTextArray: string[] = [];
 
-  explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  explanationText = new BehaviorSubject<string>('');
   correctOptions: string;
   correctMessage: string;
 
