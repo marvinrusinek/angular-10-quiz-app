@@ -396,18 +396,20 @@ export class QuizService implements OnDestroy {
     console.log('selectedOptions:', selectedOptions);
     console.log('typeof selectedOptions:', typeof selectedOptions);
   
+    if (!Array.isArray(selectedOptions)) {
+      console.error('Error: selectedOptions is not an array');
+      return;
+    }
+  
     try {
       const correctOptions = question.options.filter((option) => option.correct);
       console.log('correctOptions before filtering:', correctOptions);
       const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
       console.log('selectedCorrectOptions before filtering:', selectedCorrectOptions);
   
-      if (!Array.isArray(selectedOptions)) {
-        console.error('Error: selectedOptions is not an array');
-        return;
-      }
-  
-      if (correctOptions.length === selectedCorrectOptions.length) {
+      if (selectedOptions.length === 0) {
+        this.explanationText = '';
+      } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionsText = correctOptions.map((option) => option.text);
   
         if (correctOptions.length === 1) {
@@ -425,7 +427,8 @@ export class QuizService implements OnDestroy {
           }
         }
       } else {
-        this.explanationText = 'Sorry, that is not correct.';
+        const selectedOptionsText = selectedOptions.map((option) => option.text);
+        this.explanationText = `You selected ${selectedOptionsText.join(', ')}. The correct options are ${correctOptions.map((option) => option.text).join(', ')}. ${question.explanation}`;
       }
   
       console.log('correctOptions after filtering:', correctOptions);
@@ -435,7 +438,7 @@ export class QuizService implements OnDestroy {
       console.error('Error occurred while getting explanation text:', error);
     }
   }
-        
+          
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  
