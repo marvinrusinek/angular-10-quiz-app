@@ -73,7 +73,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  explanationText: string = '';
+  explanationText: Observable<string>;
   displayExplanation: boolean = false;
   isChangeDetected = false;
   destroy$: Subject<void> = new Subject<void>();
@@ -538,7 +538,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('onSelectionChange(): selectedOptions is not an array');
     }
   }
-  
+      
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&

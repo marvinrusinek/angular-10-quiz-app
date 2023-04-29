@@ -180,6 +180,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.quizService.explanationText.subscribe((explanationText: string) => {
+      this.explanationText.next(explanationText);
+    });
+
     this.subscribeRouterAndInit();
     this.setObservables();
     this.getSelectedQuiz();
