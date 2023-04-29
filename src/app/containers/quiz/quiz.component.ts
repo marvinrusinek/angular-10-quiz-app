@@ -100,6 +100,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   multipleAnswer: boolean = false;
 
   selectedOption: Option;
+  selectedOptions: Option[] = [];
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
@@ -107,6 +108,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanation = false;
   displayExplanation = false;
   explanationText = new BehaviorSubject<string>('');
+  showExplanationText = false;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -527,14 +529,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!(this.answers && this.answers?.length > 0);
   }
 
-  /* onOptionSelected(index: number) {
-    this.answers = [index];
-  } */
-
   onOptionSelected(data: Option) {
-    console.log('onOptionSelected() called');
-    console.log('data:', data);
-    
     // add selected option to answers array
     this.answers.push({
       question: this.currentQuestion,
@@ -547,21 +542,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     if (this.currentQuestion) {
       const selectedOptionArray = this.currentQuestion.options.filter(option => option.selected);
-      console.log('selectedOptionArray:', selectedOptionArray);
   
       // call setExplanationText on QuizService with selected option and current question
       this.setExplanationText(selectedOptionArray, this.currentQuestion);
   
-      // update explanationText subject with new explanation text from QuizService
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText.next(explanationText);
-        console.log('this.explanationText:', this.explanationText);
-      });
-  
-      this.displayExplanation = true;
+      // update answered status and show explanation text
+      this.answered = true;
     }
   }
-            
+                    
   onSelect(option: Option): void {
     this.selectedOption = option;
   }

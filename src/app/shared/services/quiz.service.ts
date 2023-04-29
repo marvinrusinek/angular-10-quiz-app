@@ -7,6 +7,7 @@ import {
   Observable,
   of,
   Subject,
+  Subscription,
   throwError,
 } from 'rxjs';
 import {
@@ -95,6 +96,9 @@ export class QuizService implements OnDestroy {
 
   private explanationTextSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  explanationTextSubscription: Subscription = null;
+  explanation: string;
+  currentExplanationText: string = '';
 
   userAnswers = [];
   previousAnswers = [];
@@ -140,11 +144,16 @@ export class QuizService implements OnDestroy {
   ) {
     this.loadData();
     this.initializeData();
+
+    this.explanationTextSubscription = this.explanationText.subscribe((text) => {
+      console.log('explanationText:', text);
+    });
   }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.explanationTextSubscription?.unsubscribe();
   }
 
   getMultipleAnswer(): boolean {
@@ -382,14 +391,6 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  /* setExplanationText(question: QuizQuestion): void {
-    this.explanationText = question.explanation;
-  } */
-
-  /* public setExplanationText(explanation: string): void {
-    this.explanationTextSubject.next(explanation);
-  } */
-
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): string {
     console.log('setExplanationText() called');
     console.log('question.options:', question.options);
@@ -410,14 +411,14 @@ export class QuizService implements OnDestroy {
       if (selectedOptions.length === 0) {
         this.explanationText.next('');
       } else if (correctOptions.length === selectedCorrectOptions.length) {
-        const correctOptionsText = correctOptions.map((option) => option.text);
+        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
   
         if (correctOptions.length === 1) {
-          this.explanationText.next(`Option ${correctOptionsText[0]} is correct because ${question.explanation}`);
+          this.explanationText.next(`Option ${correctOptionIndices[0]} is correct because ${question.explanation}`);
           console.log('single option', this.explanationText.getValue());
         } else if (correctOptions.length > 1) {
-          const lastOption = correctOptionsText.pop();
-          const correctOptionsString = correctOptionsText.join(', ') + ' and ' + lastOption;
+          const lastOptionIndex = correctOptionIndices.pop();
+          const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
           if (correctOptions.length === question.options.length) {
             this.explanationText.next(`All options (${correctOptionsString}) are correct because ${question.explanation}`);
             console.log('all options', this.explanationText.getValue());
@@ -427,21 +428,32 @@ export class QuizService implements OnDestroy {
           }
         }
       } else {
-        const correctOptionsText = correctOptions.map((option) => option.text);
-        this.explanationText.next(`Options ${correctOptionsText.join(', ')} are correct because ${question.explanation}`);
+        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
+        this.explanationText.next(`Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`);
         console.log('incorrect', this.explanationText.getValue());
       }
   
       console.log('correctOptions after filtering:', correctOptions);
       console.log('selectedCorrectOptions after filtering:', selectedCorrectOptions);
       console.log('explanationText:', this.explanationText.getValue());
+  
+      // Unsubscribe from existing subscription if it exists
+      if (this.explanationTextSubscription) {
+        this.explanationTextSubscription.unsubscribe();
+      }
+  
+      // Subscribe to the new value of explanationText
+      this.explanationTextSubscription = this.explanationText.subscribe((text) => {
+        console.log('New value of explanationText:', text);
+      });
+  
       return this.explanationText.getValue();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       return '';
     }
   }
-            
+    
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  
