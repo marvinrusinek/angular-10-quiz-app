@@ -74,6 +74,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffleOptions = true;
   shuffledOptions: Option[];
   explanationText: Observable<string>;
+  explanationSubscription: Subscription;
   displayExplanation: boolean = false;
   isChangeDetected = false;
   destroy$: Subject<void> = new Subject<void>();
@@ -147,6 +148,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.multipleAnswer = value;
       });
 
+      this.explanationSubscription = this.quizService.explanationText.subscribe((text) => {
+        console.log('explanationText:', text);
+      });
+
       this.loadCurrentQuestion();
       this.toggleOptions();
       this.getCorrectAnswers();
@@ -176,6 +181,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     if (this.currentQuestionSubscription) {
       this.currentQuestionSubscription?.unsubscribe();
+    }
+    if (this.explanationSubscription) {
+      this.explanationSubscription?.unsubscribe();
     }
 
     this.destroy$.next();
@@ -528,6 +536,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
     console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
+    const correctOptions = question.options.filter((option) => option.correct);
+
     if (selectedOptions && Array.isArray(selectedOptions)) {
       this.selectedOptions = selectedOptions;
       this.quizService.setExplanationText(selectedOptions, question);

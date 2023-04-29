@@ -427,15 +427,9 @@ export class QuizService implements OnDestroy {
           }
         }
       } else {
-        const selectedCorrectOptionsText = selectedCorrectOptions.map((option) => option.text);
         const correctOptionsText = correctOptions.map((option) => option.text);
-        if (correctOptions.length === 1) {
-          this.explanationText.next(`Option ${correctOptionsText[0]} is correct because ${question.explanation}`);
-        } else {
-          const correctOptionsString = correctOptionsText.slice(0, -1).join(', ') + ' and ' + correctOptionsText[correctOptionsText.length - 1];
-          this.explanationText.next(`Options ${correctOptionsString} are correct because ${question.explanation}`);
-        }
-        this.explanationText.next(`You selected ${selectedCorrectOptionsText.join(', ')}.`);
+        this.explanationText.next(`Options ${correctOptionsText.join(', ')} are correct because ${question.explanation}`);
+        console.log('incorrect', this.explanationText.getValue());
       }
   
       console.log('correctOptions after filtering:', correctOptions);
@@ -447,7 +441,7 @@ export class QuizService implements OnDestroy {
       return '';
     }
   }
-          
+            
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  
