@@ -27,11 +27,9 @@
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
-      <!-- the question/explanation section -->
       <section id="question">
         <h3 *ngIf="!answered">{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
-        <p>{{ explanationText }}</p>
-        <h3 *ngIf="answered && showExplanation && question?.explanation">{{ quizService.explanationText }}</h3>
+        <h3 *ngIf="answered && showExplanation && question?.explanation">{{ explanationText | async }}</h3>
         <codelab-quiz-explanation
           *ngIf="answered && showExplanation && question?.explanation"
           [isAnswered]="isAnswered()"
@@ -41,7 +39,7 @@
           [numberOfCorrectAnswers]="numberOfCorrectAnswers"
           [correctOptions]="correctOptions"
           [explanation]="question?.explanation"
-          (explanationTextChanged)="explanationText = $event"
+          (explanationTextChanged)="explanationText.next($event)"
         ></codelab-quiz-explanation>
       </section>
 

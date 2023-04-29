@@ -100,12 +100,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   multipleAnswer: boolean = false;
 
   selectedOption: Option;
+  selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
   isDisabled: boolean;
   showExplanation = false;
   displayExplanation = false;
-  explanationText: string = '';
+  explanationText = new BehaviorSubject<string>('');
   errorMessage: string;
   cardFooterClass = '';
 
@@ -174,7 +175,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         console.log('Question or options not found');
       }
-    });    
+    });
 
     this.subscribeRouterAndInit();
     this.setObservables();
@@ -464,6 +465,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.selectedQuiz$.next(quiz);
   }
 
+  setExplanationText(selectedOptions: Option[], question: QuizQuestion): void {
+    this.quizService.setExplanationText(selectedOptions, question);
+    this.explanationText = new BehaviorSubject<string>(this.quizService.explanationText);
+  }
+
   setOptions() {
     this.answers =
       this.question && this.question.options
@@ -518,21 +524,37 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answers = [index];
   } */
 
-  onOptionSelected(index: number) {
+  onOptionSelected(data: Option) {
     console.log('onOptionSelected() called');
-    console.log('this.currentQuestion:', this.currentQuestion);
+    console.log('data:', data);
     
+    // add selected option to answers array
+    this.answers.push({
+      question: this.currentQuestion,
+      questionIndex: this.currentQuestionIndex,
+      selectedOption: data
+    });
+  
+    this.selectedOption$.next(data);
+    this.selectedAnswer(data);
+  
     if (this.currentQuestion) {
-      const selectedOptionArray = [this.currentQuestion.options[index]];
+      const selectedOptionArray = this.currentQuestion.options.filter(option => option.selected);
       console.log('selectedOptionArray:', selectedOptionArray);
-      
-      this.explanationText = this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion);
-      console.log('this.explanationText:', this.explanationText);
-      
+  
+      // call setExplanationText on QuizService with selected option and current question
+      this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion);
+  
+      // update explanationText subject with new explanation text from QuizService
+      this.quizService.explanationText.subscribe((explanationText: string) => {
+        this.explanationText.next(explanationText);
+        console.log('this.explanationText:', this.explanationText);
+      });
+  
       this.displayExplanation = true;
     }
-  }  
-    
+  }
+            
   onSelect(option: Option): void {
     this.selectedOption = option;
   }
@@ -549,19 +571,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     return typeof this.selectedAnswerField === 'undefined';
   }
 
-  selectedAnswer(data): void {
+  selectedAnswer(option: Option): void {
     this.answered = true;
     this.checkIfAnsweredCorrectly();
+    console.log("ET", this.explanationText);
 
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
     );
 
-    if (correctAnswers.length > 1 && this.answers.indexOf(data) === -1) {
-      this.answers.push(data);
+    if (correctAnswers.length > 1 && this.answers.indexOf(option) === -1) {
+      this.answers.push(option);
     } else {
-      this.answers[0] = data;
+      this.answers[0] = option;
     }
+
+    this.selectedOption$.next(option);
   }
 
   shuffleQuestions(): void {
