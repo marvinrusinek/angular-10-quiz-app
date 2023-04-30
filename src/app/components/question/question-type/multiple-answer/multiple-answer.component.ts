@@ -140,10 +140,26 @@ export class MultipleAnswerComponent
     }
   }
 
-  getOptionClass(option: Option): string {
+  /* getOptionClass(option: Option): string {
     if (this.showExplanation && this.isOptionCorrect(option)) {
       return 'correct';
     } else if (this.isOptionSelected(option) && !this.isOptionCorrect(option)) {
+      return 'incorrect';
+    } else {
+      return '';
+    }
+  } */
+
+  getOptionClass(option: Option): string {
+    if (
+      this.isOptionSelected(option) &&
+      this.isOptionCorrect(option)
+    ) {
+      return 'correct';
+    } else if (
+      this.isOptionSelected(option) &&
+      !this.isOptionCorrect(option)
+    ) {
       return 'incorrect';
     } else {
       return '';
@@ -153,13 +169,11 @@ export class MultipleAnswerComponent
   isOptionCorrect(option: Option): boolean {
     return option.correct;
   }
-  
+
   isOptionSelected(option: Option): boolean {
     return (
-      this.currentQuestion.selectedOptions &&
-      this.currentQuestion.selectedOptions.some(
-        (selectedOption) => selectedOption.value === option.value
-      )
+      Array.isArray(this.selectedOptions) &&
+      this.selectedOptions.includes(option)
     );
   }
 
