@@ -28,16 +28,13 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <section id="question">
-        <h3 *ngIf="!showExplanation">{{
-          question?.questionText || 'No question text found'
-        }}
-          <span *ngIf="numberOfCorrectAnswers > 1">{{
-            numberOfCorrectAnswers
-          }} answers are correct</span
-          ></h3>
-        <p *ngIf="showExplanation">{{ explanationText$ | async }}</p>
+        <h3>
+          {{ question?.questionText || 'No question text found' }}
+          <span *ngIf="numberOfCorrectAnswers > 1">{{ numberOfCorrectAnswers }} answers are correct</span>
+        </h3>
+        <p *ngIf="showExplanation">{{ question?.explanation || 'No explanation found' }}</p>
       </section>
-                                                  
+                                                        
       <!-- the options -->
       <codelab-quiz-question
         *ngIf="quizStateService.currentQuestion"

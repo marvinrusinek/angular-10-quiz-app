@@ -105,9 +105,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
   isDisabled: boolean;
-  showExplanation = false;
-  displayExplanation = false;
-  showExplanationText = false;
+  showExplanation: boolean = false;
+  displayExplanation: boolean = false;
+  showExplanationText: boolean = false;
+  explanationText: string = '';
   explanationText$ = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
   errorMessage: string;
@@ -184,6 +185,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.explanationTextSubscription = this.quizService.explanationText$.subscribe((explanationText) => {
       this.explanationText$.next(explanationText);
+      this.showExplanationText = true;
       console.log('explanationText', explanationText);
     });
 

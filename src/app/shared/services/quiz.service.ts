@@ -395,9 +395,6 @@ export class QuizService implements OnDestroy {
   }
 
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): Observable<string> {
-    console.log("SO", selectedOptions );
-    console.log("Q", question);
-
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return;
