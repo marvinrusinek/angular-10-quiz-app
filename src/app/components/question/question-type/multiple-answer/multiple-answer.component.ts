@@ -52,7 +52,8 @@ export class MultipleAnswerComponent
   selectedOptions: Option[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
-  isMultiple = true;
+  isMultiple: boolean = true;
+  showExplanation: boolean = false;
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -140,23 +141,19 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option: Option): string {
-    if (
-      Array.isArray(this.selectedOptions) &&
-      this.selectedOptions.includes(option) &&
-      option.correct
-    ) {
+    if (this.showExplanation && this.isOptionCorrect(option)) {
       return 'correct';
-    } else if (
-      Array.isArray(this.selectedOptions) &&
-      this.selectedOptions.includes(option) &&
-      !option.correct
-    ) {
+    } else if (this.isOptionSelected(option) && !this.isOptionCorrect(option)) {
       return 'incorrect';
     } else {
       return '';
     }
   }
 
+  isOptionCorrect(option: Option): boolean {
+    return option.correct;
+  }
+  
   isOptionSelected(option: Option): boolean {
     return (
       this.currentQuestion.selectedOptions &&
