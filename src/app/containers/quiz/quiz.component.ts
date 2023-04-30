@@ -556,8 +556,7 @@ export class QuizComponent implements DoCheck, OnInit, OnDestroy {
         console.log('this.explanationText:', this.explanationText.getValue());
         this.showExplanationText = true;
         this.displayExplanation = true;
-      });
-  
+      });  
     }
   }
                           
