@@ -43,6 +43,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
+  @Output() showExplanationTextChange = new EventEmitter<boolean>();
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
@@ -51,7 +52,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$!: Observable<QuizQuestion>;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
-  @Input() multipleAnswer: Observable<boolean> = of(false);
+  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
@@ -73,9 +74,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  explanationText: BehaviorSubject<string> = new BehaviorSubject('');
+  // explanationText: BehaviorSubject<string> = new BehaviorSubject('');
+  explanationText$ = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
+  showExplanationText: boolean = false;
   isChangeDetected = false;
   destroy$: Subject<void> = new Subject<void>();
 
@@ -143,13 +146,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('currentQuestion:', this.currentQuestion);
       });
       
+      this.multipleAnswer = new BehaviorSubject<boolean>(false);
       this.quizStateService.multipleAnswer$.subscribe((value) => {
         console.log('Multiple answer value:', value);
         this.multipleAnswer.next(value);
       });
-
+      
       this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
-        this.explanationText.next(explanationText);
+        this.explanationText$.next(explanationText);
       });
 
       this.loadCurrentQuestion();
@@ -522,16 +526,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  onOptionSelected(option: Option) {
+  onOptionSelected(option: Option, question: QuizQuestion): void {
     if (this.selectedOptions.includes(option)) {
       this.selectedOptions = this.selectedOptions.filter((selectedOption) => selectedOption !== option);
-      this.displayExplanation = false;
+      this.showExplanationText = false;
+      this.explanationText$.next('');
     } else {
       this.selectedOptions.push(option);
+      this.showExplanationText = true;
+      this.explanationText$.next(question.explanation);
+      this.showExplanationTextChange.emit(this.showExplanationText);
     }
     this.optionSelected.emit(option);
   }
-      
+        
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
     console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
     const correctOptions = question.options.filter((option) => option.correct);
@@ -540,7 +548,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOptions = selectedOptions;
       this.quizService.setExplanationText(selectedOptions, question);
       this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText.next(explanationText);
+        this.explanationText$.next(explanationText);
       });
       this.displayExplanation = true;
       this.selectionChanged.emit({ question, selectedOptions });

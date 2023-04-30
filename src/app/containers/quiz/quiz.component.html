@@ -49,6 +49,7 @@
         [multipleAnswer]="multipleAnswer"
         (answersChange)="checkIfAnsweredCorrectly()"
         (explanationTextChange)="explanationText = $event"
+        (showExplanationTextChange)="showExplanationText = $event"
       >
       </codelab-quiz-question>
     </mat-card-content>
