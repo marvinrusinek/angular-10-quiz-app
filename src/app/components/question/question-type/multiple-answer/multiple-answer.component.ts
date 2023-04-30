@@ -87,7 +87,7 @@ export class MultipleAnswerComponent
       this.currentQuestion.selectedOptions = [];
     }
     if (this.currentQuestion && this.currentQuestion.options) {
-      this.options = this.currentQuestion.options;
+      this.options = this.currentQuestion?.options;
       this.quizService.getCorrectAnswers(this.currentQuestion);
     }
 
