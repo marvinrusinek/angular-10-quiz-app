@@ -595,7 +595,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       answers = this.answers.map((answer) => answer + 1);
       this.quizService.userAnswers.push(answers);
       this.showExplanation = true;
-      console.log('explanationText::::', this.explanationText);
+      console.log('explanationText::::', this.explanationText$);
     } else {
       answers = this.answers;
       this.quizService.userAnswers.push(this.answers);
@@ -612,6 +612,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     ) {
       this.sendCorrectCountToQuizService(this.correctCount + 1);
     }
+  }
+
+  displayExplanationText(show: boolean): void {
+    this.showExplanation = show;
   }
 
   /* async onSubmit(): Promise<void> {

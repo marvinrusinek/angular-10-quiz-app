@@ -44,6 +44,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() showExplanationTextChange = new EventEmitter<boolean>();
+  @Output() showExplanationText = new EventEmitter<boolean>();
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
@@ -75,10 +76,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffleOptions = true;
   shuffledOptions: Option[];
   // explanationText: BehaviorSubject<string> = new BehaviorSubject('');
-  explanationText$ = new BehaviorSubject<string>('');
+  explanationText$ = new Subject<string>();
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
-  showExplanationText: boolean = false;
   isChangeDetected = false;
   destroy$: Subject<void> = new Subject<void>();
 
@@ -152,6 +152,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.multipleAnswer.next(value);
       });
       
+      this.explanationText$.next('');
       this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
         this.explanationText$.next(explanationText);
       });
@@ -526,19 +527,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  onOptionSelected(option: Option, question: QuizQuestion): void {
+  onOptionSelected(option: Option): void {
     if (this.selectedOptions.includes(option)) {
-      this.selectedOptions = this.selectedOptions.filter((selectedOption) => selectedOption !== option);
-      this.showExplanationText = false;
-      this.explanationText$.next('');
+      this.selectedOptions = this.selectedOptions.filter(
+        (selectedOption) => selectedOption !== option
+      );
+      this.showExplanationText.emit(false);
     } else {
       this.selectedOptions.push(option);
-      this.showExplanationText = true;
-      this.explanationText$.next(question.explanation);
-      this.showExplanationTextChange.emit(this.showExplanationText);
+      this.showExplanationText.emit(true);
+      this.explanationText$.next(this.currentQuestion.explanation);
     }
     this.optionSelected.emit(option);
-  }
+  }  
         
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
     console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
