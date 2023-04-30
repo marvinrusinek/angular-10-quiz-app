@@ -73,7 +73,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctOptionIndex: number;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  explanationText: Observable<string>;
+  explanationText: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
   isChangeDetected = false;
@@ -528,8 +528,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.displayExplanation = false;
     } else {
       this.selectedOptions.push(option);
-      this.quizService.setExplanationText(this.selectedOptions, this.question);
-      this.displayExplanation = true;
     }
     this.optionSelected.emit(option);
   }
@@ -537,18 +535,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
     console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
     const correctOptions = question.options.filter((option) => option.correct);
-
+  
     if (selectedOptions && Array.isArray(selectedOptions)) {
       this.selectedOptions = selectedOptions;
       this.quizService.setExplanationText(selectedOptions, question);
-      this.explanationText = this.quizService.explanationText;
-      console.log('explanationText:', this.explanationText);
+      this.quizService.explanationText.subscribe((explanationText: string) => {
+        this.explanationText.next(explanationText);
+      });
+      this.displayExplanation = true;
       this.selectionChanged.emit({ question, selectedOptions });
     } else {
       console.log('onSelectionChange(): selectedOptions is not an array');
     }
   }
-      
+          
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&

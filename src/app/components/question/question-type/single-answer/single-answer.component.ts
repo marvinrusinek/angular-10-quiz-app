@@ -90,14 +90,6 @@ export class SingleAnswerComponent
     this.destroyed$.complete();
   }
 
-  onOptionSelected(selectedOption: Option): void {
-    super.onOptionSelected(selectedOption);
-    this.selectedOption = selectedOption;
-    this.optionSelected.emit(selectedOption);
-    this.selectionChanged.emit({ question: this.question, selectedOptions: this.selectedOptions });
-    this.optionChecked[selectedOption.optionId] = true;
-  }
-
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]) {
     super.onSelectionChange(question, selectedOptions);
     this.optionChecked[selectedOptions[0]?.optionId] =

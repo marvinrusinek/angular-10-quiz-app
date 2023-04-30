@@ -107,8 +107,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   isDisabled: boolean;
   showExplanation = false;
   displayExplanation = false;
-  explanationText = new BehaviorSubject<string>('');
   showExplanationText = false;
+  explanationText$ = new BehaviorSubject<string>('');
+  explanationTextSubscription: Subscription;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -150,15 +151,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private cdRef: ChangeDetectorRef
   ) {
+    console.log('QuizComponent constructor called');
     this.form = this.fb.group({
       selectedOption: [null],
-    });
-    this.showExplanation = false;
-
-    this.explanationText = new BehaviorSubject<string>('');
-    this.quizService.explanationText.subscribe((explanationText) => {
-      console.log('explanationText received in QuizComponent:', explanationText);
-      this.explanationText.next(explanationText);
     });
   }
 
@@ -185,8 +180,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.quizService.explanationText.subscribe((explanationText: string) => {
+    this.explanationTextSubscription = this.quizService.explanationText$.subscribe((explanationText) => {
       this.explanationText.next(explanationText);
+      console.log('explanationText', explanationText);
     });
 
     this.subscribeRouterAndInit();
@@ -206,6 +202,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
   }
 
   setCurrentQuizForQuizId(): void {
@@ -527,35 +524,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!(this.answers && this.answers?.length > 0);
   }
 
-  onOptionSelected(data: Option) {
-    console.log('onOptionSelected() called');
-    console.log('data:', data);
-  
-    // add selected option to answers array
-    this.answers.push({
-      question: this.currentQuestion,
-      questionIndex: this.currentQuestionIndex,
-      selectedOption: data
-    });
-  
-    this.selectedOption$.next(data);
-  
-    if (this.currentQuestion) {
-      const selectedOptionArray = this.currentQuestion.options.filter(option => option.selected);
-      console.log('selectedOptionArray:', selectedOptionArray);
-  
-      // call setExplanationText on QuizService with selected option and current question
-      this.showExplanationText = false;
-  
-      this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion).subscribe((explanationText: string) => {
-        this.explanationText.next(explanationText);
-        console.log('this.explanationText:', this.explanationText.getValue());
-        this.showExplanationText = true;
-        this.displayExplanation = true;
-      });  
-    }
-  }
-                          
   onSelect(option: Option): void {
     this.selectedOption = option;
   }

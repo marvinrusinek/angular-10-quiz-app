@@ -166,39 +166,6 @@ export class MultipleAnswerComponent
     );
   }
 
-  onOptionSelected(option: Option) {
-    if (!option || !this.currentQuestion.selectedOptions) {
-      return;
-    }
-
-    if (this.question && Array.isArray(this.question.selectedOptions)) {
-      const index = this.currentQuestion.selectedOptions.findIndex(
-        (selectedOption) => {
-          return typeof selectedOption === 'string'
-            ? false
-            : selectedOption.value === option.value;
-        }
-      );
-
-      if (index >= 0) {
-        this.currentQuestion.selectedOptions.splice(index, 1);
-      } else {
-        this.currentQuestion.selectedOptions.push({ ...option });
-      }
-    }
-
-    this.quizDataService.currentOptionsSubject.next(
-      this.currentQuestion.selectedOptions
-    );
-
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.currentQuestion.selectedOptions,
-    });
-
-    this.optionChecked[option.optionId] = true;
-  }
-
   onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
 

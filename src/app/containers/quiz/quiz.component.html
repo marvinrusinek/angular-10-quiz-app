@@ -29,7 +29,7 @@
 
       <section id="question">
         <h3 *ngIf="!showExplanationText">{{ question?.questionText || 'No question text found' }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
-        <h3 *ngIf="showExplanationText">{{ explanationText }}</h3>
+        <h3 *ngIf="showExplanationText">{{ explanationText$ | async }}</h3>
       </section>
                                             
       <!-- the options -->

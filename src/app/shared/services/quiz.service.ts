@@ -97,6 +97,8 @@ export class QuizService implements OnDestroy {
   private explanationTextSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
+  private explanationTextSource = new BehaviorSubject<string>('');
+  explanationText$ = this.explanationTextSource.asObservable();
   explanation: string;
   currentExplanationText: string = '';
   showExplanationText = false;
@@ -148,7 +150,7 @@ export class QuizService implements OnDestroy {
     this.initializeData();
 
     this.explanationTextSubscription = this.explanationText.subscribe((text) => {
-      console.log('explanationText:', text);
+      console.log('explanationText', text);
     });
   }
 
@@ -394,12 +396,8 @@ export class QuizService implements OnDestroy {
   }
 
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): Observable<string> {
-    this.explanationTextSubscription = null;
-    console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
-    console.log('setExplanationText() called');
-    console.log('question.options:', question.options);
-    console.log('selectedOptions:', selectedOptions);
-    console.log('typeof selectedOptions:', typeof selectedOptions);
+    console.log("SO", selectedOptions );
+    console.log("Q", question);
 
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
@@ -408,84 +406,59 @@ export class QuizService implements OnDestroy {
 
     try {
       const correctOptions = question.options.filter((option) => option.correct);
-      console.log('correctOptions before filtering:', correctOptions);
       const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
-      console.log('selectedCorrectOptions before filtering:', selectedCorrectOptions);
 
       if (selectedOptions.length === 0) {
-        console.log('No options selected');
-        this.explanationText.next('');
+        this.explanationText$.next('');
+        return this.explanationText$.asObservable();
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
 
         if (correctOptions.length === 1) {
-          console.log('Single correct option selected');
-          return of(`Option ${correctOptionIndices[0]} is correct because ${question.explanation}`).pipe(
-            map((text) => {
-              this.explanationText.next(text);
-              console.log('single option', this.explanationText.getValue());
-              return text;
-            })
-          );
+          const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+          this.explanationText$.next(text);
+          return this.explanationText$.asObservable();
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
           if (correctOptions.length === question.options.length) {
-            console.log('All options are correct');
-            return of(`All options (${correctOptionsString}) are correct because ${question.explanation}`).pipe(
-              map((text) => {
-                this.explanationText.next(text);
-                console.log('all options', this.explanationText.getValue());
-                return text;
-              })
-            );
+            const text = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
+            this.explanationText$.next(text);
+            return this.explanationText$.asObservable();
           } else {
-            console.log('Multiple correct options selected');
-            return of(`Options ${correctOptionsString} are correct because ${question.explanation}`).pipe(
-              map((text) => {
-                this.explanationText.next(text);
-                console.log('multiple options', this.explanationText.getValue());
-                return text;
-              })
-            );
+            const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
+            this.explanationText$.next(text);
+            return this.explanationText$.asObservable();
           }
         }
       } else {
-        console.log('Incorrect options selected');
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-        return of(`Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`).pipe(
-          map((text) => {
-            this.explanationText.next(text);
-            console.log('incorrect', this.explanationText.getValue());
-            return text;
-          })
-        );
+        const text = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+        this.explanationText$.next(text);
+        return this.explanationText$.asObservable();
       }
-
-      console.log('correctOptions after filtering:', correctOptions);
-      console.log('selectedCorrectOptions after filtering:', selectedCorrectOptions);
-      console.log('explanationText:', this.explanationText.getValue());
 
       // Unsubscribe from existing subscription if it exists
       if (this.explanationTextSubscription) {
         this.explanationTextSubscription.unsubscribe();
       }
-  
-      // Subscribe to the new value of explanationText
-      this.explanationTextSubscription = this.explanationText.subscribe((text) => {
+
+      // Subscribe to the new value of explanationText$
+      console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
+      this.explanationTextSubscription = this.explanationText$.subscribe((text) => {
         console.log('New value of explanationText:', text);
         // this.showExplanationText = true;
         this.displayExplanation = true;
         console.log('displayExplanation:', this.displayExplanation);
       });
-  
-      return this.explanationText.asObservable();
+
+      return this.explanationText$.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       return of('');
     }
   }
-    
+  
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  
