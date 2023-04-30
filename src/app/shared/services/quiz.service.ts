@@ -97,8 +97,7 @@ export class QuizService implements OnDestroy {
   private explanationTextSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
-  private explanationTextSource = new BehaviorSubject<string>('');
-  explanationText$ = this.explanationTextSource.asObservable();
+  explanationText$ = new BehaviorSubject<string>('');
   explanation: string;
   currentExplanationText: string = '';
   showExplanationText = false;
