@@ -456,7 +456,7 @@ export class QuizService implements OnDestroy {
       this.explanationTextSubscription = this.explanationText.subscribe((text) => {
         console.log('New value of explanationText:', text);
         this.explanationText.next(text);
-        this.showExplanationText = true;
+        // this.showExplanationText = true;
         this.displayExplanation = true;
       });
 
