@@ -393,7 +393,7 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  setExplanationText(selectedOptions: Option[], question: QuizQuestion): string {
+  setExplanationText(selectedOptions: Option[], question: QuizQuestion): Observable<string> {
     console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
     console.log('setExplanationText() called');
     console.log('question.options:', question.options);
@@ -417,31 +417,39 @@ export class QuizService implements OnDestroy {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
 
         if (correctOptions.length === 1) {
-          of(`Option ${correctOptionIndices[0]} is correct because ${question.explanation}`).subscribe((text) => {
-            this.explanationText.next(text);
-            console.log('single option', this.explanationText.getValue());
-          });
+          return of(`Option ${correctOptionIndices[0]} is correct because ${question.explanation}`).pipe(
+            tap((text) => {
+              this.explanationText.next(text);
+              console.log('single option', this.explanationText.getValue());
+            })
+          );
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
           if (correctOptions.length === question.options.length) {
-            of(`All options (${correctOptionsString}) are correct because ${question.explanation}`).subscribe((text) => {
-              this.explanationText.next(text);
-              console.log('all options', this.explanationText.getValue());
-            });
+            return of(`All options (${correctOptionsString}) are correct because ${question.explanation}`).pipe(
+              tap((text) => {
+                this.explanationText.next(text);
+                console.log('all options', this.explanationText.getValue());
+              })
+            );
           } else {
-            of(`Options ${correctOptionsString} are correct because ${question.explanation}`).subscribe((text) => {
-              this.explanationText.next(text);
-              console.log('multiple options', this.explanationText.getValue());
-            });
+            return of(`Options ${correctOptionsString} are correct because ${question.explanation}`).pipe(
+              tap((text) => {
+                this.explanationText.next(text);
+                console.log('multiple options', this.explanationText.getValue());
+              })
+            );
           }
         }
       } else {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-        of(`Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`).subscribe((text) => {
-          this.explanationText.next(text);
-          console.log('incorrect', this.explanationText.getValue());
-        });
+        return of(`Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`).pipe(
+          tap((text) => {
+            this.explanationText.next(text);
+            console.log('incorrect', this.explanationText.getValue());
+          })
+        );
       }
 
       console.log('correctOptions after filtering:', correctOptions);
@@ -456,15 +464,14 @@ export class QuizService implements OnDestroy {
       // Subscribe to the new value of explanationText
       this.explanationTextSubscription = this.explanationText.subscribe((text) => {
         console.log('New value of explanationText:', text);
-        this.explanationText.next(text);
         // this.showExplanationText = true;
         this.displayExplanation = true;
       });
 
-      return this.explanationText.getValue();
+      return this.explanationText.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
-      return '';
+      return of('');
     }
   }
     
