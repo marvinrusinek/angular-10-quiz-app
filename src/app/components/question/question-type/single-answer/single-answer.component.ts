@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
+
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
@@ -90,7 +91,7 @@ export class SingleAnswerComponent
     this.destroyed$.complete();
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOptions: Option[]) {
+  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     super.onSelectionChange(question, selectedOptions);
     this.optionChecked[selectedOptions[0]?.optionId] =
       !this.optionChecked[selectedOptions[0]?.optionId];

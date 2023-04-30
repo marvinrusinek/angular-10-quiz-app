@@ -28,11 +28,11 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <section id="question">
-        <h3>
+        <h3 *ngIf="!displayExplanation">
           {{ question?.questionText || 'No question text found' }}
           <span *ngIf="numberOfCorrectAnswers > 1">{{ numberOfCorrectAnswers }} answers are correct</span>
         </h3>
-        <p *ngIf="showExplanation">{{ question?.explanation || 'No explanation found' }}</p>
+        <p *ngIf="displayExplanation">{{ question?.explanation || 'No explanation found' }}</p>
       </section>
                                                         
       <!-- the options -->

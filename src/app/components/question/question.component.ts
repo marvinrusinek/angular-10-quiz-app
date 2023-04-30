@@ -11,6 +11,8 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatRadioChange } from '@angular/material/radio';
 import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
@@ -76,7 +78,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffleOptions = true;
   shuffledOptions: Option[];
   // explanationText: BehaviorSubject<string> = new BehaviorSubject('');
-  explanationText$ = new Subject<string>();
+  explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
   isChangeDetected = false;
@@ -541,7 +543,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.optionSelected.emit(option);
   }  
         
-  onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
+  /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
     console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
     const correctOptions = question.options.filter((option) => option.correct);
   
@@ -556,8 +558,42 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.log('onSelectionChange(): selectedOptions is not an array');
     }
+  } */
+
+  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
+    console.log('onSelectionChange() called with selectedOptions:', event.source.value);
+    const selectedOptions = question.options.filter(option => option.value === event.source.value);
+  
+    if (selectedOptions && Array.isArray(selectedOptions)) {
+      this.selectedOptions = selectedOptions;
+      this.quizService.setExplanationText(selectedOptions, question);
+      this.quizService.explanationText.subscribe((explanationText: string) => {
+        this.explanationText$.next(explanationText);
+      });
+      this.displayExplanation = true;
+      this.selectionChanged.emit({ question, selectedOptions });
+    } else {
+      console.log('onSelectionChange(): selectedOptions is not an array');
+    }
+  } */
+
+  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
+    console.log('onSelectionChange() called with selectedOption:', event.source.value);
+    const selectedOption = question.options.find((option) => option.value === event.source.value);
+
+    if (selectedOption) {
+      this.selectedOptions = [selectedOption];
+      this.quizService.setExplanationText([selectedOption], question);
+      this.quizService.explanationText.subscribe((explanationText: string) => {
+        this.explanationText$.next(explanationText);
+      });
+      this.displayExplanation = true;
+      this.selectionChanged.emit({ question, selectedOptions: this.selectedOptions });
+    } else {
+      console.log('onSelectionChange(): selected option not found');
+    }
   }
-          
+            
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
