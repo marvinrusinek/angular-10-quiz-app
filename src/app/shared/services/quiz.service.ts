@@ -394,6 +394,7 @@ export class QuizService implements OnDestroy {
   }
 
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): string {
+    console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
     console.log('setExplanationText() called');
     console.log('question.options:', question.options);
     console.log('selectedOptions:', selectedOptions);

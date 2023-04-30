@@ -481,11 +481,6 @@ export class QuizComponent implements DoCheck, OnInit, OnDestroy {
     this.quizDataService.selectedQuiz$.next(quiz);
   }
 
-  setExplanationText(selectedOptions: Option[], question: QuizQuestion): void {
-    this.quizService.setExplanationText(selectedOptions, question);
-    this.explanationText = new BehaviorSubject<string>(this.quizService.explanationText);
-  }
-
   setOptions() {
     this.answers =
       this.question && this.question.options
