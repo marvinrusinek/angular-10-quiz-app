@@ -74,10 +74,11 @@ export class QuizStateService {
   
     return this.multipleAnswerSubject.asObservable();
   }
-  
+
   setMultipleAnswer(value: boolean): void {
-    // this.multipleAnswer = value;
     this.multipleAnswerSubject.next(value);
-    this.multipleAnswer$.next(value);
+    this.multipleAnswer$.subscribe((value) => {
+      this.multipleAnswerSubject.next(value);
+    });
   }
 }
