@@ -394,29 +394,32 @@ export class QuizService implements OnDestroy {
   }
 
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): Observable<string> {
+    this.explanationTextSubscription = null;
     console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
     console.log('setExplanationText() called');
     console.log('question.options:', question.options);
     console.log('selectedOptions:', selectedOptions);
     console.log('typeof selectedOptions:', typeof selectedOptions);
-
+  
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return;
     }
-
+  
     try {
       const correctOptions = question.options.filter((option) => option.correct);
       console.log('correctOptions before filtering:', correctOptions);
       const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
       console.log('selectedCorrectOptions before filtering:', selectedCorrectOptions);
-
+  
       if (selectedOptions.length === 0) {
+        console.log('No options selected');
         this.explanationText.next('');
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-
+  
         if (correctOptions.length === 1) {
+          console.log('Single correct option selected');
           return of(`Option ${correctOptionIndices[0]} is correct because ${question.explanation}`).pipe(
             tap((text) => {
               this.explanationText.next(text);
@@ -427,6 +430,7 @@ export class QuizService implements OnDestroy {
           const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
           if (correctOptions.length === question.options.length) {
+            console.log('All options are correct');
             return of(`All options (${correctOptionsString}) are correct because ${question.explanation}`).pipe(
               tap((text) => {
                 this.explanationText.next(text);
@@ -434,6 +438,7 @@ export class QuizService implements OnDestroy {
               })
             );
           } else {
+            console.log('Multiple correct options selected');
             return of(`Options ${correctOptionsString} are correct because ${question.explanation}`).pipe(
               tap((text) => {
                 this.explanationText.next(text);
@@ -443,6 +448,7 @@ export class QuizService implements OnDestroy {
           }
         }
       } else {
+        console.log('Incorrect options selected');
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
         return of(`Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`).pipe(
           tap((text) => {
@@ -451,23 +457,24 @@ export class QuizService implements OnDestroy {
           })
         );
       }
-
+  
       console.log('correctOptions after filtering:', correctOptions);
       console.log('selectedCorrectOptions after filtering:', selectedCorrectOptions);
       console.log('explanationText:', this.explanationText.getValue());
-
+  
       // Unsubscribe from existing subscription if it exists
       if (this.explanationTextSubscription) {
         this.explanationTextSubscription.unsubscribe();
       }
-
+  
       // Subscribe to the new value of explanationText
       this.explanationTextSubscription = this.explanationText.subscribe((text) => {
         console.log('New value of explanationText:', text);
         // this.showExplanationText = true;
         this.displayExplanation = true;
+        console.log('displayExplanation:', this.displayExplanation);
       });
-
+  
       return this.explanationText.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);

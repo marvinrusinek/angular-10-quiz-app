@@ -156,7 +156,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.showExplanation = false;
 
     this.explanationText = new BehaviorSubject<string>('');
-    this.quizService.explanationText.subscribe(explanationText => this.explanationText.next(explanationText));
+    this.quizService.explanationText.subscribe((explanationText) => {
+      console.log('explanationText received in QuizComponent:', explanationText);
+      this.explanationText.next(explanationText);
+    });
   }
 
   ngOnInit(): void {
