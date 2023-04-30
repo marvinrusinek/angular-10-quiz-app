@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  DoCheck,
   EventEmitter,
   Input,
   OnDestroy,
@@ -67,7 +66,7 @@ enum QuizStatus {
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizComponent implements DoCheck, OnInit, OnDestroy {
+export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -193,12 +192,6 @@ export class QuizComponent implements DoCheck, OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
     this.fetchQuestions();
-  }
-
-  ngDoCheck() {
-    if (this.explanationText.getValue() && !this.showExplanationText) {
-      this.showExplanationText = true;
-    }
   }
 
   ngOnDestroy(): void {
