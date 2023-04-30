@@ -155,6 +155,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
+
+    this.explanationText$ = new BehaviorSubject<string>('');
   }
 
   ngOnInit(): void {
@@ -181,7 +183,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.explanationTextSubscription = this.quizService.explanationText$.subscribe((explanationText) => {
-      this.explanationText.next(explanationText);
+      this.explanationText$.next(explanationText);
       console.log('explanationText', explanationText);
     });
 

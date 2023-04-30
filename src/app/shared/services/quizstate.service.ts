@@ -21,8 +21,7 @@ export class QuizStateService {
   multipleAnswer: boolean = false; */
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
-  public multipleAnswer$ = this.multipleAnswerSubject.asObservable();
-  multipleAnswer: boolean;
+  multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   constructor() { }
 
@@ -77,8 +76,8 @@ export class QuizStateService {
   }
   
   setMultipleAnswer(value: boolean): void {
-    this.multipleAnswer = value;
-    this.multipleAnswerSubject.next(this.multipleAnswer);
-    this.multipleAnswer$ = of(this.multipleAnswer);
+    // this.multipleAnswer = value;
+    this.multipleAnswerSubject.next(value);
+    this.multipleAnswer$.next(value);
   }
 }

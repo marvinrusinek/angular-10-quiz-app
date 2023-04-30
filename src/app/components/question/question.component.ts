@@ -145,11 +145,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       
       this.quizStateService.multipleAnswer$.subscribe((value) => {
         console.log('Multiple answer value:', value);
-        this.multipleAnswer = value;
+        this.multipleAnswer.next(value);
       });
 
-      this.explanationTextSubscription = this.quizService.explanationText.subscribe((text) => {
-        console.log('explanationText:', text);
+      this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
+        this.explanationText.next(explanationText);
       });
 
       this.loadCurrentQuestion();
