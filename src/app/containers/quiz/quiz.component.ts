@@ -550,17 +550,17 @@ export class QuizComponent implements DoCheck, OnInit, OnDestroy {
   
       // call setExplanationText on QuizService with selected option and current question
       this.showExplanationText = false;
-      
+  
       this.quizService.setExplanationText(selectedOptionArray, this.currentQuestion).subscribe((explanationText: string) => {
         this.explanationText.next(explanationText);
         console.log('this.explanationText:', this.explanationText.getValue());
         this.showExplanationText = true;
         this.displayExplanation = true;
       });
-      
+  
     }
   }
-                        
+                          
   onSelect(option: Option): void {
     this.selectedOption = option;
   }
