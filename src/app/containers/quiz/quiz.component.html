@@ -36,7 +36,7 @@
 
       <!--<section id="question">
         <ng-container *ngIf="!answered">
-          <h3 *ngIf="!showExplanationText">{{ question?.questionText }}<span *ngIf="numberOfCorrectAnswers > 1"> ({{ numberOfCorrectAnswers }} answers are correct)</span></h3>
+          <h3 *ngIf="!showExplanationText">{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1"> ({{ numberOfCorrectAnswers }} answers are correct)</span></h3>
           <h3 *ngIf="showExplanationText">{{ explanationText | async }}</h3>
         </ng-container>
       </section>-->
@@ -86,7 +86,7 @@
       </section> -->
 
       <section id="question">
-        <h3 *ngIf="!showExplanationText">{{ question?.questionText }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
+        <h3 *ngIf="!showExplanationText">{{ question?.questionText || 'No question text found' }} <span *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers}} answers are correct)</span></h3>
         <h3 *ngIf="showExplanationText">{{ explanationText }}</h3>
       </section>
       
