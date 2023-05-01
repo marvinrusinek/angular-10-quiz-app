@@ -32,9 +32,8 @@
           {{ question?.questionText || 'No question text found' }}
           <span *ngIf="numberOfCorrectAnswers > 1">{{ numberOfCorrectAnswers }} answers are correct</span>
         </h3>
-        <p *ngIf="displayExplanation">{{ question?.explanation || 'No explanation found' }}</p>
-      </section>
-                                                        
+        <p *ngIf="displayExplanation">{{ explanationText || 'No explanation found' }}</p>
+      </section>                                                      
       <!-- the options -->
       <codelab-quiz-question
         *ngIf="quizStateService.currentQuestion"

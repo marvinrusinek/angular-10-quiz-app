@@ -393,7 +393,7 @@ export class QuizService implements OnDestroy {
   updateTotalQuestions(totalQuestions: number): void {
     this.totalQuestionsSubject.next(totalQuestions);
   }
-
+ 
   setExplanationText(selectedOptions: Option[], question: QuizQuestion): Observable<string> {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
@@ -402,7 +402,9 @@ export class QuizService implements OnDestroy {
 
     try {
       const correctOptions = question.options.filter((option) => option.correct);
-      const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
+
+      // Check if selectedOptions is not undefined before filtering it
+      const selectedCorrectOptions = selectedOptions ? selectedOptions.filter((option) => option.correct) : [];
 
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');
@@ -454,7 +456,7 @@ export class QuizService implements OnDestroy {
       return of('');
     }
   }
-  
+
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  

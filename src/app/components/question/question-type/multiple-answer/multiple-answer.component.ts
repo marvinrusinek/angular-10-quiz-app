@@ -140,25 +140,17 @@ export class MultipleAnswerComponent
     }
   }
 
-  /* getOptionClass(option: Option): string {
-    if (this.showExplanation && this.isOptionCorrect(option)) {
-      return 'correct';
-    } else if (this.isOptionSelected(option) && !this.isOptionCorrect(option)) {
-      return 'incorrect';
-    } else {
-      return '';
-    }
-  } */
-
   getOptionClass(option: Option): string {
     if (
-      this.isOptionSelected(option) &&
-      this.isOptionCorrect(option)
+      Array.isArray(this.selectedOptions) &&
+      this.selectedOptions.includes(option) &&
+      option.correct
     ) {
       return 'correct';
     } else if (
-      this.isOptionSelected(option) &&
-      !this.isOptionCorrect(option)
+      Array.isArray(this.selectedOptions) &&
+      this.selectedOptions.includes(option) &&
+      !option.correct
     ) {
       return 'incorrect';
     } else {
