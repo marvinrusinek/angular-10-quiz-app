@@ -195,7 +195,7 @@ export class QuizDataService {
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.quizDataService.getQuiz(quizId).pipe(
+    return this.getQuiz(quizId).pipe(
       map((quiz: Quiz) => {
         const questions = quiz.questions;
         questions.forEach(question => {
