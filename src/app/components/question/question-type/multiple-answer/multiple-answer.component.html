@@ -7,8 +7,9 @@
       (click)="selectedOption = option; onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, $event)"
       [class]="getOptionClass(option)"
+      [value]="option.text"
       [checked]="optionChecked[option?.optionId]"
-      [disabled]="option.disabled"
+      [disabled]="option.selected && !option.checked"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option?.text }}</span>
