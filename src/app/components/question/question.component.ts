@@ -124,6 +124,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
+    this.questionForm.valueChanges.subscribe(data => {
+      console.log('Form changes', data);
+      const formValue = this.questionForm.getRawValue();
+      this.question.questionText = formValue.text;
+      this.question.options = formValue.options;
+      this.question.explanation = formValue.explanation;
+    });
 
     console.log("FROM CONSTRUCTOR");
   }
