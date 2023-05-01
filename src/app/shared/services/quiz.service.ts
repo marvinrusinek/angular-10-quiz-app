@@ -394,24 +394,28 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
  
-  setExplanationText(selectedOptions: Option[], question: QuizQuestion): Observable<string> {
+  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): Observable<string> {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return;
     }
-
+  
+    if (!question) {
+      console.error('Error: question is undefined');
+      return;
+    }
+  
     try {
       const correctOptions = question.options.filter((option) => option.correct);
-
-      // Check if selectedOptions is not undefined before filtering it
-      const selectedCorrectOptions = selectedOptions ? selectedOptions.filter((option) => option.correct) : [];
-
+  
+      const selectedCorrectOptions = selectedOptions.filter((option) => option.correct);
+  
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');
         return this.explanationText$.asObservable();
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-
+  
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationText$.next(text);
@@ -435,28 +439,27 @@ export class QuizService implements OnDestroy {
         this.explanationText$.next(text);
         return this.explanationText$.asObservable();
       }
-
+  
       // Unsubscribe from existing subscription if it exists
       if (this.explanationTextSubscription) {
         this.explanationTextSubscription.unsubscribe();
       }
-
+  
       // Subscribe to the new value of explanationText$
       console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
       this.explanationTextSubscription = this.explanationText$.subscribe((text) => {
         console.log('New value of explanationText:', text);
-        // this.showExplanationText = true;
         this.displayExplanation = true;
         console.log('displayExplanation:', this.displayExplanation);
       });
-
+  
       return this.explanationText$.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       return of('');
     }
   }
-
+  
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }  
