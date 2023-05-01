@@ -7,4 +7,5 @@ export interface QuizQuestion {
   selectedOptions?: Option[];
   answer?: Option[];
   selectedOptionIds?: number[];
+  maxSelections?: number;
 }

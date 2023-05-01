@@ -543,39 +543,36 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.optionSelected.emit(option);
   }  
 
-  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    console.log('onSelectionChange() called with selectedOption:', event.source.value);
+  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
     const selectedOption = question.options.find((option) => option.text === event.source.value);
   
-    if (!selectedOption) {
-      console.log('onSelectionChange(): selectedOption is undefined');
-      return;
-    }
+    if (selectedOption) {
+      selectedOption.selected = event.checked;
   
-    selectedOption.selected = event.source.checked;
+      this.quizService.setExplanationText(question.options.filter(option => option.selected), question);
+      this.quizService.explanationText.subscribe((explanationText: string) => {
+        this.explanationText$.next(explanationText);
+      });
+      this.displayExplanation = true;
   
-    const correctOptions = question.options.filter((option) => option.correct);
-    const incorrectOptions = question.options.filter((option) => !option.correct);
-  
-    this.quizService.setExplanationText(
-      question.options.filter((option) => option.selected),
-      question
-    );
-  
-    this.quizService.explanationText.subscribe((explanationText: string) => {
-      this.explanationText$.next(explanationText);
-    });
-  
-    this.displayExplanation = true;
-  
-    // Disable all options except the selected one
-    incorrectOptions.forEach((option) => {
-      if (!option.selected) {
-        option.disabled = true;
+      // Disable options if the max number of selections is reached
+      const selectedOptions = question.options.filter(option => option.selected);
+      if (selectedOptions.length >= question.maxSelections) {
+        question.options.forEach(option => {
+          if (!option.selected) {
+            option.disabled = true;
+          }
+        });
+      } else {
+        question.options.forEach(option => {
+          option.disabled = false;
+        });
       }
-    });
+    } else {
+      console.log('onSelectionChange(): selectedOption is undefined');
+    }
   }
-            
+              
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
