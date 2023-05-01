@@ -408,7 +408,7 @@ export class QuizService implements OnDestroy {
     try {
       const correctOptions = question.options.filter((option) => option.correct);
   
-      const selectedCorrectOptions = selectedOptions ? selectedOptions.filter((option) => option.correct) : [];
+      const selectedCorrectOptions = selectedOptions && selectedOptions.filter((option) => option.correct) || [];
   
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');
