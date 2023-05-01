@@ -3,20 +3,21 @@
 .message {
   display: flex;
   justify-content: center;
-  margin: -15px 15px 5px 0;
+  margin: -15px 15px 5px -40px;
   padding-bottom: 30px;
-  width: 640px;
+  width: 760px;
 
   .feedback-message {
     width: 400px;
     text-align: center;
+    font-weight: 700;
 
     i {
       font-size: 30px;
       color: $light-yellow;
       position: relative;
       top: 10px;
-      left: 0;
+      left: 5px;
     }
   }
 
