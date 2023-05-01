@@ -625,21 +625,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const incorrectOptions = question.options.filter((option) => !option.correct);
 
     if (event.source.checked) {
-      this.quizService.setExplanationText([selectedOption], question);
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      });
-      this.displayExplanation = true;
+      if (selectedOption) {
+        this.quizService.setExplanationText([selectedOption], question);
+        this.quizService.explanationText.subscribe((explanationText: string) => {
+          this.explanationText$.next(explanationText);
+        });
+        this.displayExplanation = true;
 
-      // Disable all options except the selected one
-      incorrectOptions.forEach((option) => {
-        option.disabled = true;
-      });
+        // Disable all options except the selected one
+        incorrectOptions.forEach((option) => {
+          (option as any).disabled = true;
+        });
+      } else {
+        console.log('onSelectionChange(): selectedOption is undefined');
+      }
     } else {
       console.log('onSelectionChange(): selectedOption is undefined');
     }
   }
-                  
+                    
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
