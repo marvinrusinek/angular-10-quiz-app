@@ -27,6 +27,12 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
+enum QuestionType {
+  SingleAnswer = 'single_answer',
+  MultipleAnswer = 'multiple_answer',
+  TrueFalse = 'true_false',
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -380,8 +386,8 @@ export class QuizDataService {
 
   private setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter(option => option.correct).length;
-    question.type = numCorrectAnswers > 1 ? 'multipleAnswer' : 'singleAnswer';
-  }
+    question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+  }  
 
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
