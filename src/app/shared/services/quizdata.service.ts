@@ -195,7 +195,15 @@ export class QuizDataService {
   }
 
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuiz(quizId).pipe(map((quiz: Quiz) => quiz.questions));
+    return this.quizDataService.getQuiz(quizId).pipe(
+      map((quiz: Quiz) => {
+        const questions = quiz.questions;
+        questions.forEach(question => {
+          this.setQuestionType(question);
+        });
+        return questions;
+      })
+    );
   }
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
@@ -368,6 +376,11 @@ export class QuizDataService {
 
   getCurrentQuestionIndex(): Observable<number> {
     return this.currentQuestionIndex$.asObservable();
+  }
+
+  private setQuestionType(question: QuizQuestion): void {
+    const numCorrectAnswers = question.options.filter(option => option.correct).length;
+    question.type = numCorrectAnswers > 1 ? 'multipleAnswer' : 'singleAnswer';
   }
 
   setCurrentQuestionIndex(index: number): void {
