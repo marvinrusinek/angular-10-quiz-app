@@ -542,108 +542,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.optionSelected.emit(option);
   }  
-        
-  /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[] | undefined): void {
-    console.log('onSelectionChange() called with selectedOptions:', selectedOptions);
-    const correctOptions = question.options.filter((option) => option.correct);
-  
-    if (selectedOptions && Array.isArray(selectedOptions)) {
-      this.selectedOptions = selectedOptions;
-      this.quizService.setExplanationText(selectedOptions, question);
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      });
-      this.displayExplanation = true;
-      this.selectionChanged.emit({ question, selectedOptions });
-    } else {
-      console.log('onSelectionChange(): selectedOptions is not an array');
-    }
-  } */
-
-  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    console.log('onSelectionChange() called with selectedOptions:', event.source.value);
-    const selectedOptions = question.options.filter(option => option.value === event.source.value);
-  
-    if (selectedOptions && Array.isArray(selectedOptions)) {
-      this.selectedOptions = selectedOptions;
-      this.quizService.setExplanationText(selectedOptions, question);
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      });
-      this.displayExplanation = true;
-      this.selectionChanged.emit({ question, selectedOptions });
-    } else {
-      console.log('onSelectionChange(): selectedOptions is not an array');
-    }
-  } */
-
-  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    console.log('onSelectionChange() called with selectedOption:', event.source.value);
-    const selectedOption = question.options.find((option) => option.value === event.source.value);
-
-    if (selectedOption) {
-      this.selectedOptions = [selectedOption];
-      this.quizService.setExplanationText([selectedOption], question);
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      });
-      this.displayExplanation = true;
-      this.selectionChanged.emit({ question, selectedOptions: this.selectedOptions });
-    } else {
-      console.log('onSelectionChange(): selected option not found');
-    }
-  } */
-
-  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    console.log('onSelectionChange() called with selectedOption:', selectedOption);
-  
-    const correctOptions = question.options.filter((option) => option.correct);
-    const incorrectOptions = question.options.filter((option) => !option.correct);
-  
-    if (selectedOption) {
-      this.quizService.setExplanationText([selectedOption], question);
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      });
-      this.displayExplanation = true;
-  
-      // Disable all options except the selected one
-      incorrectOptions.forEach((option) => {
-        option.disabled = true;
-      });
-    } else {
-      console.log('onSelectionChange(): selectedOption is undefined');
-    }
-  } */
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     console.log('onSelectionChange() called with selectedOption:', event.source.value);
-
+  
     const selectedOption = question.options.find((option) => option.text === event.source.value);
-
+  
     const correctOptions = question.options.filter((option) => option.correct);
     const incorrectOptions = question.options.filter((option) => !option.correct);
-
+  
     if (event.source.checked) {
-      if (selectedOption) {
-        this.quizService.setExplanationText([selectedOption], question);
-        this.quizService.explanationText.subscribe((explanationText: string) => {
-          this.explanationText$.next(explanationText);
-        });
-        this.displayExplanation = true;
-
-        // Disable all options except the selected one
-        incorrectOptions.forEach((option) => {
-          (option as any).disabled = true;
-        });
-      } else {
-        console.log('onSelectionChange(): selectedOption is undefined');
-      }
+      this.quizService.setExplanationText([selectedOption], question);
+      this.quizService.explanationText.subscribe((explanationText: string) => {
+        this.explanationText$.next(explanationText);
+      });
+      this.displayExplanation = true;
+  
+      // Disable all options that are already selected
+      incorrectOptions.forEach((option) => {
+        if (option.selected) {
+          option.disabled = true;
+        }
+      });
+  
+      selectedOption.selected = true;
     } else {
-      console.log('onSelectionChange(): selectedOption is undefined');
+      selectedOption.selected = false;
+  
+      // Enable all options that are not correct
+      incorrectOptions.forEach((option) => {
+        option.disabled = false;
+      });
     }
   }
-                    
+      
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&

@@ -7,6 +7,7 @@ export interface Option {
   value?: number;
   answer?: Answer;
   selected?: boolean;
+  disabled?: boolean; 
   styleClass?: string;
 }
 type Options = Option[];
