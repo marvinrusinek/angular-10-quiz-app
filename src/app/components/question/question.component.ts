@@ -545,46 +545,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     console.log('onSelectionChange() called with selectedOption:', event.source.value);
-
     const selectedOption = question.options.find((option) => option.text === event.source.value);
-
+  
+    if (!selectedOption) {
+      console.log('onSelectionChange(): selectedOption is undefined');
+      return;
+    }
+  
+    selectedOption.selected = event.source.checked;
+  
     const correctOptions = question.options.filter((option) => option.correct);
     const incorrectOptions = question.options.filter((option) => !option.correct);
-
-    if (event.source.checked) {
-      if (selectedOption && !selectedOption.selected) {
-        this.quizService.setExplanationText([selectedOption], question);
-        this.quizService.explanationText.subscribe((explanationText: string) => {
-          this.explanationText$.next(explanationText);
-        });
-        this.displayExplanation = true;
-
-        // Disable all options except the selected one
-        incorrectOptions.forEach((option) => {
-          option.disabled = true;
-        });
-
-        // Set the selected property of the selected option to true
-        selectedOption.selected = true;
+  
+    this.quizService.setExplanationText(
+      question.options.filter((option) => option.selected),
+      question
+    );
+  
+    this.quizService.explanationText.subscribe((explanationText: string) => {
+      this.explanationText$.next(explanationText);
+    });
+  
+    this.displayExplanation = true;
+  
+    // Disable all options except the selected one
+    incorrectOptions.forEach((option) => {
+      if (!option.selected) {
+        option.disabled = true;
       }
-    } else {
-      if (selectedOption && selectedOption.selected) {
-        // Clear the explanation text if the selected option is deselected
-        // this.quizService.clearExplanationText();
-        this.explanationText$.next('');
-        this.displayExplanation = false;
-
-        // Enable all options
-        question.options.forEach((option) => {
-          option.disabled = false;
-        });
-
-        // Set the selected property of the selected option to false
-        selectedOption.selected = false;
-      }
-    }
+    });
   }
-          
+            
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&

@@ -6,7 +6,7 @@ export interface Option {
   correct?: boolean;
   value?: number;
   answer?: Answer;
-  selected?: boolean;
+  selected?: boolean = false;
   disabled?: boolean; 
   styleClass?: string;
 }
