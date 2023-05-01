@@ -31,6 +31,12 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { TimerService } from '../../shared/services/timer.service';
 
+enum QuestionType {
+  SingleAnswer = 'single_answer',
+  MultipleAnswer = 'multiple_answer',
+  TrueFalse = 'true_false',
+}
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -543,36 +549,45 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.optionSelected.emit(option);
   }  
 
-  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
+  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
+    console.log('onSelectionChange() called with selectedOption:', event.source.value);
+  
     const selectedOption = question.options.find((option) => option.text === event.source.value);
   
-    if (selectedOption) {
-      selectedOption.selected = event.checked;
+    const correctOptions = question.options.filter((option) => option.correct);
+    const incorrectOptions = question.options.filter((option) => !option.correct);
   
-      this.quizService.setExplanationText(question.options.filter(option => option.selected), question);
+    if (event.source.checked) {
+      if (question.type === 'multiple') {
+        const selectedOptions = question.options.filter((option) => option.selected);
+        if (selectedOptions.length >= question.maxSelections) {
+          // Disable unselected options
+          question.options.filter((option) => !option.selected && !option.disabled).forEach((option) => {
+            option.disabled = true;
+          });
+        }
+      }
+      selectedOption.selected = true;
+      this.quizService.setExplanationText([selectedOption], question);
       this.quizService.explanationText.subscribe((explanationText: string) => {
         this.explanationText$.next(explanationText);
       });
       this.displayExplanation = true;
   
-      // Disable options if the max number of selections is reached
-      const selectedOptions = question.options.filter(option => option.selected);
-      if (selectedOptions.length >= question.maxSelections) {
-        question.options.forEach(option => {
-          if (!option.selected) {
-            option.disabled = true;
-          }
-        });
-      } else {
-        question.options.forEach(option => {
-          option.disabled = false;
-        });
-      }
+      // Disable all options except the selected one
+      incorrectOptions.forEach((option) => {
+        option.disabled = true;
+      });
     } else {
-      console.log('onSelectionChange(): selectedOption is undefined');
+      selectedOption.selected = false;
+  
+      // Enable all options
+      question.options.forEach((option) => {
+        option.disabled = false;
+      });
     }
   }
-              
+                
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
