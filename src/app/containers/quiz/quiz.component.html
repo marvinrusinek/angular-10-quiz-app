@@ -35,12 +35,12 @@
         <div *ngIf="displayExplanation">
           <p>{{ explanationText || 'No explanation found' }}</p>
          </div>
-         <p>explanationText: {{explanationText}}</p>
-         <p>displayExplanation: {{displayExplanation}}</p>
+         <p>explanationText: {{ explanationText }}</p>
+         <p>displayExplanation: {{ displayExplanation }}</p>
       </section>                                                      
       <!-- the options -->
       <codelab-quiz-question
-        *ngIf="quizStateService.currentQuestion"
+        *ngIf="currentQuestion"
         [quizId]="quizId"
         [question]="question"
         [questions]="questions$ | async"
