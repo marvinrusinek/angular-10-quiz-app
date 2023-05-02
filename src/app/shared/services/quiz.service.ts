@@ -52,7 +52,8 @@ export class QuizService implements OnDestroy {
   quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion | undefined = null;
   currentQuestionPromise: Promise<QuizQuestion> = null;
-  private currentQuestionSubject: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
+    new BehaviorSubject<QuizQuestion>(null);
   currentQuizQuestions: QuizQuestion[];
   options: Option[] = [];
   options$: Observable<Option[]>;
@@ -85,8 +86,11 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
 
-  private currentQuestionSource: Subject<{ question: QuizQuestion; quizId: string; }> = new Subject<{ question: QuizQuestion; quizId: string; }>();
-  currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
+  private currentQuestionSource: Subject<{
+    question: QuizQuestion;
+    quizId: string;
+  }> = new Subject<{ question: QuizQuestion; quizId: string }>();
+  currentQuestion$: Observable<{ question: QuizQuestion; quizId: string }>;
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
@@ -94,7 +98,8 @@ export class QuizService implements OnDestroy {
   totalQuestionsSubject = new BehaviorSubject<number>(0);
   totalQuestions$ = this.totalQuestionsSubject.asObservable();
 
-  private explanationTextSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  private explanationTextSubject: BehaviorSubject<string> =
+    new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
   explanationText$ = new BehaviorSubject<string>('');
@@ -148,9 +153,11 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
-    this.explanationTextSubscription = this.explanationText.subscribe((text) => {
-      console.log('explanationText', text);
-    });
+    this.explanationTextSubscription = this.explanationText.subscribe(
+      (text) => {
+        console.log('explanationText', text);
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -258,10 +265,14 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string, questions: QuizQuestion[] }> {
+  getQuestionsForQuiz(
+    quizId: string
+  ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     console.log('GQFQ:>>', quizId);
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      tap(questions => console.log('Received raw quiz questions:', questions)),
+      tap((questions) =>
+        console.log('Received raw quiz questions:', questions)
+      ),
       map((questions: any) =>
         questions.filter((question) => {
           return question.quizId === quizId;
@@ -274,7 +285,7 @@ export class QuizService implements OnDestroy {
       map((filteredQuestions) => ({ quizId, questions: filteredQuestions }))
     );
   }
-    
+
   updateQuestions(quizId: string): Promise<void> {
     console.log('updateQuestions called');
     console.log('test update');
@@ -393,36 +404,58 @@ export class QuizService implements OnDestroy {
   updateTotalQuestions(totalQuestions: number): void {
     this.totalQuestionsSubject.next(totalQuestions);
   }
- 
-  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): Observable<string> {
+
+  calculateNumberOfCorrectAnswers() {
+    let numberOfCorrectAnswers = 0;
+    for (let i = 0; i < this.quiz.questions.length; i++) {
+      if (this.selectedAnswers[i] == this.correctAnswers[i]) {
+        numberOfCorrectAnswers++;
+      }
+    }
+    return numberOfCorrectAnswers;
+  }
+
+  setExplanationText(
+    selectedOptions: Option[],
+    question?: QuizQuestion
+  ): Observable<string> {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return;
     }
-  
+
     if (!question) {
       console.error('Error: question is undefined');
       return;
     }
-  
+
     try {
-      const correctOptions = question.options.filter((option) => option?.correct);
-  
-      const selectedCorrectOptions = selectedOptions ? selectedOptions.filter((option) => option?.correct !== undefined && option?.correct) : [];
-  
+      const correctOptions = question.options.filter(
+        (option) => option?.correct
+      );
+
+      const selectedCorrectOptions = selectedOptions
+        ? selectedOptions.filter(
+            (option) => option?.correct !== undefined && option?.correct
+          )
+        : [];
+
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');
         return this.explanationText$.asObservable();
       } else if (correctOptions.length === selectedCorrectOptions.length) {
-        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-  
+        const correctOptionIndices = correctOptions.map(
+          (option) => question.options.indexOf(option) + 1
+        );
+
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationText$.next(text);
           return this.explanationText$.asObservable();
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
-          const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
+          const correctOptionsString =
+            correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
           if (correctOptions.length === question.options.length) {
             const text = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
             this.explanationText$.next(text);
@@ -434,35 +467,46 @@ export class QuizService implements OnDestroy {
           }
         }
       } else {
-        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-        const text = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+        const correctOptionIndices = correctOptions.map(
+          (option) => question.options.indexOf(option) + 1
+        );
+        const text = `Options ${correctOptionIndices.join(
+          ' and '
+        )} are correct because ${question.explanation}`;
         this.explanationText$.next(text);
         return this.explanationText$.asObservable();
       }
-  
+
       // Unsubscribe from existing subscription if it exists
       if (this.explanationTextSubscription) {
         this.explanationTextSubscription.unsubscribe();
       }
-  
+
       // Subscribe to the new value of explanationText$
-      console.log('setExplanationText() called with selectedOptions:', selectedOptions, 'and question:', question);
-      this.explanationTextSubscription = this.explanationText$.subscribe((text) => {
-        console.log('New value of explanationText:', text);
-        this.displayExplanation = true;
-        console.log('displayExplanation:', this.displayExplanation);
-      });
-  
+      console.log(
+        'setExplanationText() called with selectedOptions:',
+        selectedOptions,
+        'and question:',
+        question
+      );
+      this.explanationTextSubscription = this.explanationText$.subscribe(
+        (text) => {
+          console.log('New value of explanationText:', text);
+          this.displayExplanation = true;
+          console.log('displayExplanation:', this.displayExplanation);
+        }
+      );
+
       return this.explanationText$.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       return of('');
     }
   }
-    
+
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
-  }  
+  }
 
   submitQuiz(): Observable<void> {
     const quizScore: QuizScore = {
@@ -499,13 +543,13 @@ export class QuizService implements OnDestroy {
       );
       return this.currentQuestion;
     }
-  
+
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
       });
     }
-  
+
     const quizId = this.getCurrentQuizId();
     this.currentQuestionPromise = this.getQuestionsForQuiz(quizId)
       .pipe(
@@ -526,21 +570,29 @@ export class QuizService implements OnDestroy {
         })
       )
       .toPromise()
-      .then(({ quizId, questions }: { quizId: string, questions: QuizQuestion[] }) => {
-        console.log('Received processed quiz questions:', questions);
-  
-        if (Array.isArray(questions)) {
-          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-          this.currentQuestion = questions[currentQuestionIndex];
-          this.currentQuestionSubject.next(this.currentQuestion);
-          return this.currentQuestion;
-        } else {
-          throw new Error('getCurrentQuestion() did not return an array');
+      .then(
+        ({
+          quizId,
+          questions,
+        }: {
+          quizId: string;
+          questions: QuizQuestion[];
+        }) => {
+          console.log('Received processed quiz questions:', questions);
+
+          if (Array.isArray(questions)) {
+            const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+            this.currentQuestion = questions[currentQuestionIndex];
+            this.currentQuestionSubject.next(this.currentQuestion);
+            return this.currentQuestion;
+          } else {
+            throw new Error('getCurrentQuestion() did not return an array');
+          }
         }
-      });
-  
+      );
+
     return this.currentQuestionPromise;
-  }  
+  }
 
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
@@ -665,7 +717,13 @@ export class QuizService implements OnDestroy {
 
   setCorrectMessage(question: any, correctAnswersArray: any[]): string {
     const correctOptionNumbers = correctAnswersArray
-      .filter((answer) => typeof answer === 'number' || (typeof answer === 'object' && answer !== null && answer !== undefined))
+      .filter(
+        (answer) =>
+          typeof answer === 'number' ||
+          (typeof answer === 'object' &&
+            answer !== null &&
+            answer !== undefined)
+      )
       .map((answer) => {
         if (typeof answer === 'number') {
           return answer + 1;
@@ -673,14 +731,17 @@ export class QuizService implements OnDestroy {
           return answer.optionNumber + 1;
         }
       });
-  
+
     if (correctOptionNumbers.length === 0) {
       return 'The correct answers are not available yet.';
     }
-  
-    const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
+
+    const optionsText =
+      correctOptionNumbers.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionNumbers.length === 1 ? 'is' : 'are';
-    return `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
+    return `The correct answer${
+      optionsText === 'Option' ? '' : 's'
+    } ${areIsText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
   }
 
   // set the text of the previous user answers in an array to show in the following quiz
@@ -747,25 +808,37 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
-    this.getQuestionsForQuiz(this.quizId).pipe(
-      tap({
-        error: (error) => console.error('An error occurred while setting the current question:', error)
-      })
-    ).subscribe((result) => {
-      const filteredQuestions = result.questions;
-      const questionExists = filteredQuestions.some((q) => q === question);
-  
-      if (questionExists && !isEqual(question, this.currentQuestion)) {
-        console.log('emitting currentQuestionSubject with question:', question);
-        this.currentQuestion = question;
-        this.currentQuestionSource.next({ question, quizId: result.quizId });
-        this.currentQuestionSubject.next(this.currentQuestion);
-      } else {
-        console.log('not emitting currentQuestionSubject with question:', question);
-      }
-    });
-  }  
-  
+    this.getQuestionsForQuiz(this.quizId)
+      .pipe(
+        tap({
+          error: (error) =>
+            console.error(
+              'An error occurred while setting the current question:',
+              error
+            ),
+        })
+      )
+      .subscribe((result) => {
+        const filteredQuestions = result.questions;
+        const questionExists = filteredQuestions.some((q) => q === question);
+
+        if (questionExists && !isEqual(question, this.currentQuestion)) {
+          console.log(
+            'emitting currentQuestionSubject with question:',
+            question
+          );
+          this.currentQuestion = question;
+          this.currentQuestionSource.next({ question, quizId: result.quizId });
+          this.currentQuestionSubject.next(this.currentQuestion);
+        } else {
+          console.log(
+            'not emitting currentQuestionSubject with question:',
+            question
+          );
+        }
+      });
+  }
+
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
   }
@@ -794,14 +867,16 @@ export class QuizService implements OnDestroy {
     this.resetAll();
 
     const quizId = this.quizId;
-    this.questions$.pipe(
-      map((questions) => questions[questionIndex]),
-      tap((question) => {
-        this.currentQuestion = question;
-        this.currentQuestionSource.next({ question, quizId });
-      }),
-      shareReplay(1)
-    ).subscribe();
+    this.questions$
+      .pipe(
+        map((questions) => questions[questionIndex]),
+        tap((question) => {
+          this.currentQuestion = question;
+          this.currentQuestionSource.next({ question, quizId });
+        }),
+        shareReplay(1)
+      )
+      .subscribe();
   }
 
   navigateToPreviousQuestion() {

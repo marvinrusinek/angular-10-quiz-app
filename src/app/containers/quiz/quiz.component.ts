@@ -120,6 +120,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionIndex: number;
   progressValue: number;
   correctCount: number;
+  numberOfCorrectAnswers: number;
   score: number;
 
   quizId!: string = '';
@@ -138,9 +139,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   /* get explanationText(): string {
     return this.quizService.explanationText;
   } */
-  get numberOfCorrectAnswers(): number {
-    return this.quizService.numberOfCorrectAnswers;
-  }
 
   constructor(
     private quizService: QuizService,
@@ -188,6 +186,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.showExplanationText = true;
       console.log('explanationText', explanationText);
     });
+
+    this.numberOfCorrectAnswers = this.quizService.calculateNumberOfCorrectAnswers();
 
     this.subscribeRouterAndInit();
     this.setObservables();
