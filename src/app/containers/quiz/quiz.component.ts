@@ -189,7 +189,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.selectedQuiz = this.quizDataService.getQuizById(this.quizId);
+    this.quizDataService.getQuizById(this.quizId).subscribe(
+      (quiz: Quiz) => {
+        this.selectedQuiz = quiz;
+        console.log('Selected quiz:', this.selectedQuiz);
+      },
+      (error: any) => {
+        console.error(error);
+      }
+    );
 
     this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
     console.log("Number of correct answers:", this.numberOfCorrectAnswers);
@@ -204,7 +212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   calculateNumberOfCorrectAnswers(): number {
     let numberOfCorrectAnswers = 0;
-    console.log("MYSQ", this.quizService.quiz);
+    console.log("MYSQ", this.selectedQuiz);
     if (this.selectedQuiz && this.selectedQuiz?.questions) {
       for (const question of this.selectedQuiz?.questions) {
         if (question?.options) {
