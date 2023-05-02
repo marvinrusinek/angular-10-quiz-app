@@ -200,6 +200,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   calculateNumberOfCorrectAnswers() {
     let numberOfCorrectAnswers = 0;
+    console.log("LENGTH", this.quiz.questions.length);
     for (let i = 0; i < this.quiz.questions.length; i++) {
       if (this.selectedAnswers[i] === this.correctAnswers[i]) {
         numberOfCorrectAnswers++;
