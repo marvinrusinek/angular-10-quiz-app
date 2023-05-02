@@ -405,16 +405,6 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  /* calculateNumberOfCorrectAnswers() {
-    let numberOfCorrectAnswers = 0;
-    for (let i = 0; i < this.quiz.questions.length; i++) {
-      if (this.selectedAnswers[i] == this.correctAnswers[i]) {
-        numberOfCorrectAnswers++;
-      }
-    }
-    return numberOfCorrectAnswers;
-  } */
-
   setExplanationText(
     selectedOptions: Option[],
     question?: QuizQuestion

@@ -104,6 +104,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
+  correctAnswers: any[] = [];
   isDisabled: boolean;
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
@@ -187,7 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('explanationText', explanationText);
     });
 
-    // this.numberOfCorrectAnswers = this.quizService.calculateNumberOfCorrectAnswers();
+    this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
 
     this.subscribeRouterAndInit();
     this.setObservables();
@@ -195,6 +196,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
     this.fetchQuestions();
+  }
+
+  calculateNumberOfCorrectAnswers() {
+    let numberOfCorrectAnswers = 0;
+    for (let i = 0; i < this.quiz.questions.length; i++) {
+      if (this.selectedAnswers[i] === this.correctAnswers[i]) {
+        numberOfCorrectAnswers++;
+      }
+    }
+    return numberOfCorrectAnswers;
   }
 
   ngOnDestroy(): void {
@@ -552,6 +563,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
     );
+    this.correctAnswers = correctAnswers;
 
     if (correctAnswers.length > 1 && this.answers.indexOf(option) === -1) {
       this.answers.push(option);
