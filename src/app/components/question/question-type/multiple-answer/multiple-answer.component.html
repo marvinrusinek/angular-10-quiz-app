@@ -1,13 +1,17 @@
 <ng-container>
   <label
     class="options"
-    *ngFor="let option of currentQuestion?.options; let i = index"
+    *ngFor="
+      let option of currentQuestion?.options;
+      let i = index;
+      trackBy: trackByFn
+    "
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
       (change)="onSelectionChange(currentQuestion, $event)"
       [class]="getOptionClass(option)"
-      [value]="option.text"
+      [value]="option.optionId"
       [checked]="optionChecked[option?.optionId]"
       [disabled]="option.disabled"
     >

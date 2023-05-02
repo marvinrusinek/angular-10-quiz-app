@@ -210,6 +210,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
+  trackByFn(index: number, option: any) {
+    return option.optionId;
+  }
+
   updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
