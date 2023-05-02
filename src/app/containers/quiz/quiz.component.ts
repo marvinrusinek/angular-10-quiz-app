@@ -187,7 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('explanationText', explanationText);
     });
 
-    this.numberOfCorrectAnswers = this.quizService.calculateNumberOfCorrectAnswers();
+    // this.numberOfCorrectAnswers = this.quizService.calculateNumberOfCorrectAnswers();
 
     this.subscribeRouterAndInit();
     this.setObservables();

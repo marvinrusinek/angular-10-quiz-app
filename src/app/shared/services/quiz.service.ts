@@ -405,7 +405,7 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  calculateNumberOfCorrectAnswers() {
+  /* calculateNumberOfCorrectAnswers() {
     let numberOfCorrectAnswers = 0;
     for (let i = 0; i < this.quiz.questions.length; i++) {
       if (this.selectedAnswers[i] == this.correctAnswers[i]) {
@@ -413,7 +413,7 @@ export class QuizService implements OnDestroy {
       }
     }
     return numberOfCorrectAnswers;
-  }
+  } */
 
   setExplanationText(
     selectedOptions: Option[],
