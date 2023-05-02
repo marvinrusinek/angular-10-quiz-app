@@ -29,10 +29,14 @@
 
       <section id="question">
         <h3 *ngIf="!displayExplanation">
-          {{ question?.questionText || 'No question text found' }}
+          {{ question?.questionText }}
           <span *ngIf="numberOfCorrectAnswers > 1">{{ numberOfCorrectAnswers }} answers are correct</span>
         </h3>
-        <p *ngIf="displayExplanation">{{ explanationText || 'No explanation found' }}</p>
+        <div *ngIf="displayExplanation">
+          <p>{{ explanationText || 'No explanation found' }}</p>
+         </div>
+         <p>explanationText: {{explanationText}}</p>
+         <p>displayExplanation: {{displayExplanation}}</p>
       </section>                                                      
       <!-- the options -->
       <codelab-quiz-question
