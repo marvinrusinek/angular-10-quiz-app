@@ -200,15 +200,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   calculateNumberOfCorrectAnswers() {
     let numberOfCorrectAnswers = 0;
-
     for (let i = 0; i < this.selectedQuiz?.questions?.length; i++) {
-      if (this.selectedAnswers[i] === this.correctAnswers[i]) {
-        numberOfCorrectAnswers++;
-      }
+      const question = this.quiz.questions[i];
+      numberOfCorrectAnswers += question.options.filter(option => option.correct).length;
     }
-    console.log("numberOfCorrectAnswers", numberOfCorrectAnswers);
     return numberOfCorrectAnswers;
   }
+  
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
