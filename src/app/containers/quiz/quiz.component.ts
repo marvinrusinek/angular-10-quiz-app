@@ -206,7 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         numberOfCorrectAnswers++;
       }
     }
-   
+    console.log("numberOfCorrectAnswers", numberOfCorrectAnswers);
     return numberOfCorrectAnswers;
   }
 
