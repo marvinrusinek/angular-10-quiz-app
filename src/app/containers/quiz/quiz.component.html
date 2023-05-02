@@ -30,12 +30,11 @@
       <section id="question">
         <h3 *ngIf="!displayExplanation">
           {{ question?.questionText }}
-          <span *ngIf="numberOfCorrectAnswers > 1">{{ numberOfCorrectAnswers }} answers are correct</span>
+          <span style="font-style: italic" *ngIf="numberOfCorrectAnswers > 1">({{ numberOfCorrectAnswers }} answers are correct)</span>
         </h3>
         <div *ngIf="displayExplanation">
           <p>{{ explanationText || 'No explanation found' }}</p>
          </div>
-         <p>Number of correct answers: {{ numberOfCorrectAnswers }}</p>
          <!--<p>explanationText: {{ explanationText }}</p>
          <p>displayExplanation: {{ displayExplanation }}</p>-->
       </section>                                                      

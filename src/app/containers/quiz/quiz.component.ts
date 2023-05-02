@@ -193,14 +193,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       (quiz: Quiz) => {
         this.selectedQuiz = quiz;
         console.log('Selected quiz:', this.selectedQuiz);
+        this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
+        console.log("Number of correct answers:", this.numberOfCorrectAnswers);
       },
       (error: any) => {
         console.error(error);
       }
     );
 
-    this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
-    console.log("Number of correct answers:", this.numberOfCorrectAnswers);
+    // this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
+    // console.log("Number of correct answers:", this.numberOfCorrectAnswers);
 
     this.subscribeRouterAndInit();
     this.setObservables();
@@ -212,12 +214,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   calculateNumberOfCorrectAnswers(): number {
     let numberOfCorrectAnswers = 0;
-    console.log("MYSQ", this.selectedQuiz);
+    
     if (this.selectedQuiz && this.selectedQuiz?.questions) {
       for (const question of this.selectedQuiz?.questions) {
         if (question?.options) {
           for (const option of question?.options) {
-            if (option.correct) {
+            if (!!option.correct) {
               numberOfCorrectAnswers++;
             }
           }
