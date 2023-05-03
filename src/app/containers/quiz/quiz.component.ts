@@ -160,7 +160,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.currentQuestionIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    this.quizService.setQuiz(this.quizId);
     this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
   }
 
