@@ -132,6 +132,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);
 
+    this.selectedQuiz = this.quizService.selectedQuiz.value;
+    console.log('ngOnInit() called. selectedQuiz:', this.selectedQuiz);
+    if (!this.selectedQuiz) {
+      this.quizDataService.loadQuizzesData();
+      this.quizService.selectedQuiz.next(this.quizService.quizzes[0]);
+      console.log('manual trigger. selectedQuiz:', this.quizService.selectedQuiz.value);
+    }
+    this.quizService.selectedQuiz.subscribe((quiz) => {
+      this.selectedQuiz = quiz;
+      console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
+      this.setOptions();
+    });
+
     const quizId = this.quizService.quizId;
     if (quizId) {
       this.quizId = quizId;
@@ -444,7 +457,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setOptions(): void {
-    console.log('setOptions() called');
+    console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;
@@ -569,7 +582,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (question.type === QuestionType.MultipleAnswer) {
         const selectedOptions = question.options.filter((option) => option.selected);
         if (selectedOptions.length >= question.maxSelections) {
-          // Disable unselected options
+          // disable unselected options
           question.options.filter((option) => !option.selected && !option.disabled).forEach((option) => {
             option.disabled = true;
           });
