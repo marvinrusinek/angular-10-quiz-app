@@ -158,9 +158,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.explanationText$ = new BehaviorSubject<string>('');
 
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.currentQuestionIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
+    // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    // this.currentQuestionIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    // this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
   }
 
   ngOnInit(): void {
