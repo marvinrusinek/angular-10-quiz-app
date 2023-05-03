@@ -47,9 +47,9 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 type AnimationState = 'animationStarted' | 'none';
 
 enum QuizRoutes {
-  INTRO = '/quiz/intro/',
-  QUESTION = '/quiz/question/',
-  RESULTS = '/quiz/results/',
+  INTRO = '/intro/',
+  QUESTION = '/question/',
+  RESULTS = '/results/',
 }
 
 enum QuizStatus {
