@@ -22,8 +22,8 @@
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
       <div *ngFor="let quiz of quizzes$ | async">
-        <button mat-menu-item name="milestone" [routerLink]="['/intro/', quiz.quizId]" data-i18n="quiz.milestone">
-          {{ quiz.milestone }}
+        <button mat-menu-item name="milestone" [routerLink]="['/intro/', quiz?.quizId]" data-i18n="quiz.milestone">
+          {{ quiz?.milestone || "Milestone not found" }}
         </button>
       </div>
     </mat-menu>
@@ -34,8 +34,8 @@
       [@slideLeftToRight]="animationState$ | async" (@slideLeftToRight.done)="animationDoneHandler()"
       (click)="onSelect(quiz.quizId)" [ngStyle]="getQuizTileStyles(quiz)" loading="lazy">
       <summary class="quiz-info">
-        <h5 class="quiz-title" i18n>{{ quiz.milestone }}</h5>
-        <h6 class="quiz-summary" i18n>{{ quiz.summary }}</h6>
+        <h5 class="quiz-title" i18n>{{ quiz?.milestone || "Milestone not found" }}</h5>
+        <h6 class="quiz-summary" i18n>{{ quiz?.summary || "Summary not found" }}</h6>
       </summary>
 
       <div class="status-icon">
