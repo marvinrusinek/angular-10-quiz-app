@@ -212,7 +212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuestions();
   }
 
-  calculateNumberOfCorrectAnswers(): number {
+  /* calculateNumberOfCorrectAnswers(): number {
     let numberOfCorrectAnswers = 0;
     
     if (this.selectedQuiz && this.selectedQuiz?.questions) {
@@ -227,10 +227,21 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }
     return numberOfCorrectAnswers;
-  }
+  } */
 
- 
-  
+  calculateNumberOfCorrectAnswers(): number {
+    let numberOfCorrectAnswers = 0;
+    const currentQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+    if (currentQuestion && currentQuestion.options) {
+      for (const option of currentQuestion.options) {
+        if (option.correct) {
+          numberOfCorrectAnswers++;
+        }
+      }
+    }
+    return numberOfCorrectAnswers;
+  }
+    
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
