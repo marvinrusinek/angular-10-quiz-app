@@ -555,6 +555,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     console.log('onSelectionChange() called with selectedOption:', event.source.value);
+
+    if (!question) {
+      return;
+    }
   
     const selectedOption = question.options.find((option) => option.text === event.source.value);
   
@@ -562,7 +566,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const incorrectOptions = question.options.filter((option) => !option.correct);
   
     if (event.source.checked) {
-      if (question.type === 'multiple') {
+      if (question.type === QuestionType.MultipleAnswer) {
         const selectedOptions = question.options.filter((option) => option.selected);
         if (selectedOptions.length >= question.maxSelections) {
           // Disable unselected options

@@ -118,7 +118,6 @@
             <button
               type="button"
               mat-icon-button
-              [disabled]="shouldDisableButton()"
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"

@@ -18,6 +18,7 @@
     padding: 10px 15px 10px 30px;
     margin-left: -5px !important;
     padding-left: -25px !important;
+    overflow: unset !important;
 
     &:hover {
       border: 2px solid $vivid-blue;

@@ -848,6 +848,7 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion() {
     console.log('Navigating to next question...');
+    console.log('Navigating to next question...');
     console.log('quizId:', this.quizId);
     console.log('currentQuestionIndex:', this.currentQuestionIndex);
     this.quizCompleted = false;
