@@ -192,17 +192,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuizById(this.quizId).subscribe(
       (quiz: Quiz) => {
         this.selectedQuiz = quiz;
-        console.log('Selected quiz:', this.selectedQuiz);
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
-        console.log("Number of correct answers:", this.numberOfCorrectAnswers);
       },
       (error: any) => {
         console.error(error);
       }
     );
-
-    // this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
-    // console.log("Number of correct answers:", this.numberOfCorrectAnswers);
 
     this.subscribeRouterAndInit();
     this.setObservables();
@@ -210,36 +205,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
     this.fetchQuestions();
-  }
-
-  /* calculateNumberOfCorrectAnswers(): number {
-    let numberOfCorrectAnswers = 0;
-    
-    if (this.selectedQuiz && this.selectedQuiz?.questions) {
-      for (const question of this.selectedQuiz?.questions) {
-        if (question?.options) {
-          for (const option of question?.options) {
-            if (!!option.correct) {
-              numberOfCorrectAnswers++;
-            }
-          }
-        }
-      }
-    }
-    return numberOfCorrectAnswers;
-  } */
-
-  calculateNumberOfCorrectAnswers(): number {
-    let numberOfCorrectAnswers = 0;
-    const currentQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
-    if (currentQuestion && currentQuestion.options) {
-      for (const option of currentQuestion.options) {
-        if (option.correct) {
-          numberOfCorrectAnswers++;
-        }
-      }
-    }
-    return numberOfCorrectAnswers;
   }
     
   ngOnDestroy(): void {
@@ -554,15 +519,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateCorrectCount(): void {
-    this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
-  }
-
   private updateStatus(): void {
     this.status = this.questionIndex === 1 ? QuizStatus.STARTED : QuizStatus.CONTINUE;
     this.questionIndex === 1
       ? this.sendStartedQuizIdToQuizService()
       : this.sendContinueQuizIdToQuizService();
+  }
+
+  private updateCorrectCount(): void {
+    this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
+  }
+
+  calculateNumberOfCorrectAnswers(): number {
+    let numberOfCorrectAnswers = 0;
+    const currentQuestion = this.selectedQuiz.questions[this.currentQuestionIndex];
+    if (currentQuestion && currentQuestion.options) {
+      for (const option of currentQuestion.options) {
+        if (option.correct) {
+          numberOfCorrectAnswers++;
+        }
+      }
+    }
+    return numberOfCorrectAnswers;
   }
 
   animationDoneHandler(): void {
