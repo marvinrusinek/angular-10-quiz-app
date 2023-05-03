@@ -846,7 +846,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion() {
+  /* navigateToNextQuestion() {
     console.log('Navigating to next question...');
     console.log('Navigating to next question...');
     console.log('quizId:', this.quizId);
@@ -870,6 +870,11 @@ export class QuizService implements OnDestroy {
         shareReplay(1)
       )
       .subscribe();
+  } */
+
+  navigateToNextQuestion(quizId: string) {
+    this.currentQuestionIndex++;
+    this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
   navigateToPreviousQuestion() {
