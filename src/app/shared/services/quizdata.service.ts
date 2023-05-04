@@ -121,7 +121,20 @@ export class QuizDataService {
     return this.quizzesSubject.asObservable();
   }
 
-  setSelectedQuiz(quiz: Quiz | null): void {
+  /* setSelectedQuiz(quiz: Quiz | null): void {
+    this.selectedQuiz = quiz;
+    this.selectedQuiz$.next(quiz);
+    this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
+      this.selectedQuizSubject.next(selectedQuiz);
+    });
+  } */
+
+  setSelectedQuiz(quizId: string): void {
+    const quiz = this.quizzes.find((q) => q.quizId === quizId);
+    if (!quiz) {
+      console.error(`Quiz not found with ID: ${quizId}`);
+      return;
+    }
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
     this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
