@@ -206,7 +206,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    /* this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.currentQuestionIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
   
     if (this.quizService.currentQuestion) {
@@ -226,7 +226,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizLength = quiz.questions.length;
     });
 
-    this.form = new FormGroup({});
+    this.form = new FormGroup({}); */
 
     this.subscribeRouterAndInit();
     this.setObservables();
