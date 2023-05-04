@@ -563,7 +563,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     console.log('onSelectionChange() called with selectedOption:', event.source.value);
-
+  
     if (!question) {
       return;
     }
@@ -583,27 +583,31 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           });
         }
       }
-      selectedOption.selected = true;
-      this.quizService.setExplanationText([selectedOption], question);
-      this.quizService.explanationText.subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      });
-      this.displayExplanation = true;
+      if (selectedOption) {
+        selectedOption.selected = true;
+        this.quizService.setExplanationText([selectedOption], question);
+        this.quizService.explanationText.subscribe((explanationText: string) => {
+          this.explanationText$.next(explanationText);
+        });
+        this.displayExplanation = true;
   
-      // Disable all options except the selected one
-      incorrectOptions.forEach((option) => {
-        option.disabled = true;
-      });
+        // Disable all options except the selected one
+        incorrectOptions.forEach((option) => {
+          option.disabled = true;
+        });
+      }
     } else {
-      selectedOption.selected = false;
+      if (selectedOption) {
+        selectedOption.selected = false;
   
-      // Enable all options
-      question.options.forEach((option) => {
-        option.disabled = false;
-      });
+        // Enable all options
+        question.options.forEach((option) => {
+          option.disabled = false;
+        });
+      }
     }
   }
-                
+                  
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
