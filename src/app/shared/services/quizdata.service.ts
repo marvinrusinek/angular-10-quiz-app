@@ -122,6 +122,8 @@ export class QuizDataService {
   }
 
   setSelectedQuiz(quiz: Quiz | null): void {
+    console.log('setSelectedQuiz() called with quiz:', quiz);
+    console.log('Selected quiz:::', quiz);
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
     this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
@@ -129,14 +131,30 @@ export class QuizDataService {
     });
   }
 
-  setSelectedQuizById(quizId: string): void {
+  /* setSelectedQuizById(quizId: string): void {
+    console.log('setSelectedQuizById() called with quizId:', quizId);
     const quiz = this.quizzes.find((q) => q.quizId === quizId);
+    console.log('Quiz found:', quiz);
     if (!quiz) {
       console.error('Selected quiz not found');
       return;
     }
     this.setSelectedQuiz(quiz);
-  }  
+  }  */
+
+  setSelectedQuizById(quizId: string): void {
+    console.log('setSelectedQuizById() called with quizId:', quizId);
+  
+    this.quizDataService.getQuizzes().subscribe((quizzes: Quiz[]) => {
+      const quiz = quizzes.find((q) => q.quizId === quizId);
+      console.log('Quiz found:', quiz);
+      if (!quiz) {
+        console.error('Selected quiz not found');
+        return;
+      }
+      this.setSelectedQuiz(quiz);
+    });
+  }
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
