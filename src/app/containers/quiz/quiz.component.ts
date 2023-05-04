@@ -785,7 +785,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  advanceToNextQuestion() {
+  /* advanceToNextQuestion() {
     console.log('advanceToNextQuestion() called');
     console.log('NEXT TESTING');
   
@@ -798,7 +798,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       console.log('Navigating to next question...');
       this.quizService.navigateToNextQuestion();
-      /* if (!selectedOption) {
+      if (!selectedOption) {
         return;
       }
   
@@ -817,9 +817,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.navigateToNextQuestion();
         // this.getCurrentQuestion();
         this.timerService.resetTimer();
-      } */
+      }
     }
-  }  
+  } */
+
+  advanceToNextQuestion() {
+    console.log('advanceToNextQuestion() called');
+    console.log('NEXT TESTING');
+    this.quizService.navigateToNextQuestion();
+    this.resetAll();
+  }
 
   advanceToPreviousQuestion() {
     this.answers = [];

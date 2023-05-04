@@ -879,7 +879,7 @@ export class QuizService implements OnDestroy {
     this.router.navigate(['/question', this.quizId, questionIndex]);
   } */
 
-  navigateToNextQuestion() { 
+  /* navigateToNextQuestion() { 
     console.log('Navigating to next question...');
     this.quizCompleted = false;
     this.currentQuestionIndex++;
@@ -899,7 +899,26 @@ export class QuizService implements OnDestroy {
         })
       )
       .subscribe();
-  }  
+  }  */
+
+  navigateToNextQuestion() {
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
+
+    const questionIndex = this.currentQuestionIndex;
+
+    const quizId = this.quizId;
+    this.questions$
+      .pipe(
+        map((questions) => questions[questionIndex]),
+        tap((question) => {
+          this.currentQuestion = question;
+          this.currentQuestionSource.next({ question, quizId });
+        }),
+        shareReplay(1)
+      )
+      .subscribe();
+  }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
