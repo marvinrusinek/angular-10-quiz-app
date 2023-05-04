@@ -825,7 +825,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('advanceToNextQuestion() called');
     console.log('NEXT TESTING');
     this.quizService.navigateToNextQuestion();
-    this.resetAll();
+    this.quizService.resetAll();
   }
 
   advanceToPreviousQuestion() {
