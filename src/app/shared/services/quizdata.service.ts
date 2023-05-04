@@ -129,18 +129,22 @@ export class QuizDataService {
     });
   } */
 
-  setSelectedQuiz(quizId: string): void {
-    const quiz = this.quizzes.find((q) => q.quizId === quizId);
-    if (!quiz) {
-      console.error(`Quiz not found with ID: ${quizId}`);
-      return;
-    }
+  setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
     this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
       this.selectedQuizSubject.next(selectedQuiz);
     });
   }
+
+  setSelectedQuizById(quizId: string): void {
+    const quiz = this.quizzes.find((q) => q.id === quizId);
+    if (!quiz) {
+      console.error('Selected quiz not found');
+      return;
+    }
+    this.setSelectedQuiz(quiz);
+  }  
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
