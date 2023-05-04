@@ -121,14 +121,6 @@ export class QuizDataService {
     return this.quizzesSubject.asObservable();
   }
 
-  /* setSelectedQuiz(quiz: Quiz | null): void {
-    this.selectedQuiz = quiz;
-    this.selectedQuiz$.next(quiz);
-    this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
-      this.selectedQuizSubject.next(selectedQuiz);
-    });
-  } */
-
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
@@ -138,7 +130,7 @@ export class QuizDataService {
   }
 
   setSelectedQuizById(quizId: string): void {
-    const quiz = this.quizzes.find((q) => q.id === quizId);
+    const quiz = this.quizzes.find((q) => q.quizId === quizId);
     if (!quiz) {
       console.error('Selected quiz not found');
       return;
