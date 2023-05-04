@@ -206,6 +206,28 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.currentQuestionIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
+  
+    if (this.quizService.currentQuestion) {
+      this.currentQuestion = this.quizService.currentQuestion;
+    } else {
+      this.quizDataService.getQuestionsForQuiz(this.quizId);
+      this.quizService.questions$.pipe(
+        map((questions) => questions[this.currentQuestionIndex]),
+        tap((question) => {
+          this.currentQuestion = question;
+          this.quizService.currentQuestion = question;
+        })
+      ).subscribe();
+    }
+  
+    this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
+      this.quizLength = quiz.questions.length;
+    });
+
+    this.form = new FormGroup({});
+
     this.subscribeRouterAndInit();
     this.setObservables();
     this.getSelectedQuiz();
