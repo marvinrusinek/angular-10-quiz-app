@@ -229,7 +229,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({}); */
 
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizService.setSelectedQuizById(quizId);
+    this.quizDataService.setSelectedQuizById(quizId);
 
     this.subscribeRouterAndInit();
     this.setObservables();
