@@ -145,7 +145,7 @@ export class QuizDataService {
   setSelectedQuizById(quizId: string): void {
     console.log('setSelectedQuizById() called with quizId:', quizId);
   
-    this.quizDataService.getQuizzes().subscribe((quizzes: Quiz[]) => {
+    this.getQuizzes().subscribe((quizzes: Quiz[]) => {
       const quiz = quizzes.find((q) => q.quizId === quizId);
       console.log('Quiz found:', quiz);
       if (!quiz) {
