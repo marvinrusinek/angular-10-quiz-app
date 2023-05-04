@@ -872,8 +872,10 @@ export class QuizService implements OnDestroy {
       .subscribe();
   } */
 
-  navigateToNextQuestion(quizId: string) {
+  navigateToNextQuestion() {
     this.currentQuestionIndex++;
+    this.quizId = this.selectedQuiz.id;
+    const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question', quizId, this.currentQuestionIndex]);
   }
 
