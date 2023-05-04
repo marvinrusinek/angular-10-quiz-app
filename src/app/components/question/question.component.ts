@@ -453,6 +453,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   setOptions(): void {
     console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
+
+    // Log the selectedQuiz just before checking if it is null or undefined
+    console.log('Value of this.selectedQuiz:', this.selectedQuiz);
+    
     if (!this.selectedQuiz) {
       console.error('Selected quiz not found');
       return;

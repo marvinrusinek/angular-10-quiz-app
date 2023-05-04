@@ -126,21 +126,11 @@ export class QuizDataService {
     console.log('Selected quiz:::', quiz);
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
+    console.log('Selected quiz:::>>>', quiz);
     this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
       this.selectedQuizSubject.next(selectedQuiz);
     });
   }
-
-  /* setSelectedQuizById(quizId: string): void {
-    console.log('setSelectedQuizById() called with quizId:', quizId);
-    const quiz = this.quizzes.find((q) => q.quizId === quizId);
-    console.log('Quiz found:', quiz);
-    if (!quiz) {
-      console.error('Selected quiz not found');
-      return;
-    }
-    this.setSelectedQuiz(quiz);
-  }  */
 
   setSelectedQuizById(quizId: string): void {
     console.log('setSelectedQuizById() called with quizId:', quizId);
@@ -151,6 +141,7 @@ export class QuizDataService {
       console.log('Quizzes retrieved:', quizzes);
       
       // Find the quiz with the given quizId
+      console.log('Looking for quiz with ID:', quizId);
       const quiz = this.quizzes.find((q) => q.quizId === quizId);
       console.log('Quiz found:', quiz);
       
