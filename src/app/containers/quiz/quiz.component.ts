@@ -724,7 +724,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  advanceToNextQuestion() {
+  /* advanceToNextQuestion() {
     console.log('advanceToNextQuestion() called');
     console.log('NEXT TESTING');
     if (!this.selectedQuiz) {
@@ -761,7 +761,43 @@ export class QuizComponent implements OnInit, OnDestroy {
         //this.timerService.resetTimer();
       }
     }
-  }
+  } */
+
+  advanceToNextQuestion() {
+    console.log('advanceToNextQuestion() called');
+    console.log('NEXT TESTING');
+  
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    const selectedOption = this.form.value.selectedOption;
+    console.log('Overall validity of form:', this.form.valid);
+    if (this.form.valid) {
+      console.log('Navigating to next question...');
+      this.quizService.navigateToNextQuestion();
+      /* if (!selectedOption) {
+        return;
+      }
+  
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+      this.animationState$.next('animationStarted');
+  
+      const isLastQuestion = this.currentQuestionIndex === this.quizService.getQuizLength() - 1;
+      console.log("GQL", this.quizService.getQuizLength());
+  
+      if (isLastQuestion) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
+      } else {
+        this.quizService.navigateToNextQuestion();
+        // this.getCurrentQuestion();
+        this.timerService.resetTimer();
+      } */
+    }
+  }  
 
   advanceToPreviousQuestion() {
     this.answers = [];

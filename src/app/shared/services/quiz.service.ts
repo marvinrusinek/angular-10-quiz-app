@@ -872,12 +872,34 @@ export class QuizService implements OnDestroy {
       .subscribe();
   } */
 
-  navigateToNextQuestion() {
+  /* navigateToNextQuestion() {
     this.currentQuestionIndex++;
     this.quizId = this.selectedQuiz.quizId;
     const questionIndex = this.currentQuestionIndex;
     this.router.navigate(['/question', this.quizId, questionIndex]);
-  }
+  } */
+
+  navigateToNextQuestion() { 
+    console.log('Navigating to next question...');
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
+    const questionIndex = this.currentQuestionIndex;
+    this.router.navigate(['/question/', this.quizId, questionIndex]);
+    this.resetAll();
+  
+    const quizId = this.quizId;
+    this.questions$
+      .pipe(
+        map((questions) => questions[questionIndex]),
+        tap((question) => {
+          this.currentQuestion = question;
+          this.currentQuestionSource.next({ question, quizId });
+          console.log(`questionText: ${question.questionText}`);
+          console.log(`questionIndex: ${questionIndex}`);
+        })
+      )
+      .subscribe();
+  }  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
