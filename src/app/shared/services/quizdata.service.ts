@@ -144,17 +144,24 @@ export class QuizDataService {
 
   setSelectedQuizById(quizId: string): void {
     console.log('setSelectedQuizById() called with quizId:', quizId);
-  
-    this.getQuizzes().subscribe((quizzes: Quiz[]) => {
-      const quiz = quizzes.find((q) => q.quizId === quizId);
+    
+    // Log the quizzes array after it is retrieved from the QuizDataService
+    this.getQuizzes().subscribe((quizzes) => {
+      this.quizzes = quizzes;
+      console.log('Quizzes retrieved:', quizzes);
+      
+      // Find the quiz with the given quizId
+      const quiz = this.quizzes.find((q) => q.quizId === quizId);
       console.log('Quiz found:', quiz);
+      
       if (!quiz) {
         console.error('Selected quiz not found');
         return;
       }
+      
       this.setSelectedQuiz(quiz);
     });
-  }
+  }  
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
