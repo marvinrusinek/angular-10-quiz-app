@@ -151,6 +151,7 @@ export class QuizDataService {
       }
       
       // Emit the selected quiz
+      console.log('Emitting selected quiz:', quiz);
       this.selectedQuiz$.next(quiz);
       
       this.setSelectedQuiz(quiz);
