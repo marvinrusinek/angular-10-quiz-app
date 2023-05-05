@@ -19,6 +19,7 @@ import {
   Observable,
   of,
   pipe,
+  ReplaySubject,
   Subject,
   Subscription
 } from 'rxjs';
@@ -73,7 +74,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
-  selectedQuiz: Quiz;
+  // selectedQuiz: Quiz;
+  selectedQuiz = new ReplaySubject<Quiz>(1);
   correctAnswers: number[] = [];
   correctMessage: string = '';
   alreadyAnswered = false;
@@ -135,8 +137,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.quizService.selectedQuiz) {
       this.quizService.selectedQuiz.subscribe((quiz) => {
-        this.selectedQuiz = quiz;
-        console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
+        console.log('selectedQuiz', quiz);
+        this.selectedQuiz.next(quiz);
         this.setOptions();
       });
     }
