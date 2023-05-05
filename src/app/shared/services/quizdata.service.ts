@@ -114,11 +114,18 @@ export class QuizDataService {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    this.http.get<Quiz[]>(this.quizUrl).subscribe((quizzes) => {
-      this.quizzes = quizzes;
-      this.quizzesSubject.next(quizzes);
-    });
-    return this.quizzesSubject.asObservable();
+    console.log('getQuizzes() called');
+    return this.http.get<Quiz[]>(this.quizUrl).pipe(
+      tap(quizzes => {
+        this.quizzes = quizzes;
+        this.quizzesSubject.next(quizzes);
+        console.log('Quizzes retrieved:', quizzes);
+      }),
+      catchError(error => {
+        console.error('Error retrieving quizzes:', error);
+        return of([]);
+      })
+    );
   }
 
   setSelectedQuiz(quiz: Quiz | null): void {
