@@ -453,55 +453,57 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   setOptions(): void {
     console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
-
+  
     // Log the selectedQuiz just before checking if it is null or undefined
     console.log('Value of this.selectedQuiz:', this.selectedQuiz);
-    
-    if (!this.selectedQuiz) {
-      console.error('Selected quiz not found');
-      return;
-    }
-
-    if (
-      !this.selectedQuiz.questions ||
-      !this.selectedQuiz.questions[this.currentQuestionIndex]
-    ) {
-      console.error('Question not found');
-      return;
-    }
-
-    const currentQuestion =
-      this.selectedQuiz.questions[+this.currentQuestionIndex];
-    this.currentQuestion = currentQuestion;
-    this.currentOptions = currentQuestion.options;
-
-    this.quizService.setCurrentOptions(currentQuestion.options);
-
-    const { options, answer } = currentQuestion;
-
-    const answerValue = answer?.values().next().value;
-    this.correctOptionIndex = options.findIndex(
-      (option) => option.value === answerValue
-    );
-
-    this.currentOptions = options.map(
-      (option, index) =>
-        ({
-          text: option.text,
-          correct: index === this.correctOptionIndex,
-          value: option.value,
-          answer: option.value,
-          selected: false,
-        } as Option)
-    );
-    this.quizService.setCurrentOptions(this.options);
-
-    // shuffle options only if the shuffleOptions boolean is true
-    if (this.shuffleOptions) {
-      this.quizService.shuffle(this.options);
-    }
+  
+    this.selectedQuiz.subscribe(quiz => {
+      if (!quiz) {
+        console.error('Selected quiz not found');
+        return;
+      }
+  
+      if (
+        !quiz.questions ||
+        !quiz.questions[this.currentQuestionIndex]
+      ) {
+        console.error('Question not found');
+        return;
+      }
+  
+      const currentQuestion =
+        quiz.questions[+this.currentQuestionIndex];
+      this.currentQuestion = currentQuestion;
+      this.currentOptions = currentQuestion.options;
+  
+      this.quizService.setCurrentOptions(currentQuestion.options);
+  
+      const { options, answer } = currentQuestion;
+  
+      const answerValue = answer?.values().next().value;
+      this.correctOptionIndex = options.findIndex(
+        (option) => option.value === answerValue
+      );
+  
+      this.currentOptions = options.map(
+        (option, index) =>
+          ({
+            text: option.text,
+            correct: index === this.correctOptionIndex,
+            value: option.value,
+            answer: option.value,
+            selected: false,
+          } as Option)
+      );
+      this.quizService.setCurrentOptions(this.options);
+  
+      // shuffle options only if the shuffleOptions boolean is true
+      if (this.shuffleOptions) {
+        this.quizService.shuffle(this.options);
+      }
+    });
   }
-
+  
   toggleOptions(): void {
     this.quizDataService.currentOptions$.subscribe((options) => {
       this.options = options;

@@ -150,6 +150,9 @@ export class QuizDataService {
         return;
       }
       
+      // Emit the selected quiz
+      this.selectedQuiz$.next(quiz);
+      
       this.setSelectedQuiz(quiz);
     });
   }  
