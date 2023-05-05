@@ -459,6 +459,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Value of this.selectedQuiz:', this.selectedQuiz);
   
     this.selectedQuiz.pipe(
+      take(1),
       filter(quiz => !!quiz)
     ).subscribe(quiz => {
       if (
@@ -491,8 +492,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             value: option.value,
             answer: option.value,
             selected: false,
-          } as Option)
-      );
+          } as Option));
       this.quizService.setCurrentOptions(this.options);
   
       // shuffle options only if the shuffleOptions boolean is true
