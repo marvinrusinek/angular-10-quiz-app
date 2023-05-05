@@ -457,12 +457,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Log the selectedQuiz just before checking if it is null or undefined
     console.log('Value of this.selectedQuiz:', this.selectedQuiz);
   
-    this.selectedQuiz.subscribe(quiz => {
-      if (!quiz) {
-        console.error('Selected quiz not found');
-        return;
-      }
-  
+    this.selectedQuiz.pipe(
+      filter(quiz => !!quiz)
+    ).subscribe(quiz => {
       if (
         !quiz.questions ||
         !quiz.questions[this.currentQuestionIndex]
@@ -503,7 +500,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
-  
+    
   toggleOptions(): void {
     this.quizDataService.currentOptions$.subscribe((options) => {
       this.options = options;
