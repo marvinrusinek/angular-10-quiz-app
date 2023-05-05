@@ -18,10 +18,11 @@ import {
   BehaviorSubject,
   Observable,
   of,
+  pipe,
   Subject,
   Subscription
 } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, filter, map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
