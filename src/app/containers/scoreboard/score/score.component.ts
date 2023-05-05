@@ -41,8 +41,6 @@ export class ScoreComponent implements OnInit, OnDestroy {
   percentage: number = 0;
 
   currentScore: string = '';
-  numericalScore$: BehaviorSubject<string>;
-  percentageScore$: BehaviorSubject<string>;
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
     this.numericalScore
   );
@@ -98,8 +96,6 @@ export class ScoreComponent implements OnInit, OnDestroy {
     this.unsubscribeTrigger$.next();
     this.unsubscribeTrigger$.complete();
     this.currentScore$.complete();
-    this.numericalScore$.complete();
-    this.percentageScore$.complete();
   }
 
   displayNumericalScore(): void {
