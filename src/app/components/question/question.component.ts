@@ -97,6 +97,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
+  multipleAnswerSubscription: Subscription;
 
   private _currentQuestion: QuizQuestion;
 
@@ -176,7 +177,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       
       this.multipleAnswer = new BehaviorSubject<boolean>(false);
       this.quizStateService.isMultipleAnswer();
-      this.quizStateService.multipleAnswer$.subscribe((value) => {
+      this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$.subscribe((value) => {
         console.log('Multiple answer value:', value);
         this.multipleAnswer.next(value);
       });
@@ -222,6 +223,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (this.explanationTextSubscription) {
       this.explanationTextSubscription?.unsubscribe();
+    }
+    if (this.multipleAnswerSubscription) {
+      this.multipleAnswerSubscription?.unsubscribe();
     }
 
     this.destroy$.next();
