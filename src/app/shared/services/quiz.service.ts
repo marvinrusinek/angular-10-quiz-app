@@ -257,7 +257,7 @@ export class QuizService implements OnDestroy {
     if (!this.questions$) {
       this.questions$ = this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
         tap((questions) => {
-          console.log('ALL QUESTIONS', questions);
+          // console.log('ALL QUESTIONS', questions);
           this.questions = questions;
         }),
         catchError(() => of([]))
