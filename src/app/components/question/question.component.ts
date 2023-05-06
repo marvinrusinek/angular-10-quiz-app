@@ -135,8 +135,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);
 
-    if (this.quizService.selectedQuiz) {
-      this.quizService.selectedQuiz.subscribe((quiz) => {
+    if (this.quizDataService.selectedQuiz$) {
+      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
         console.log('selectedQuiz', quiz);
         this.selectedQuiz.next(quiz);
         this.setOptions();
@@ -300,7 +300,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                 this.currentQuestion = currentQuestion;
                 this.options = options;
                 console.log('options:::::>>', options);
-                this.setOptions();
               }
             }
           });
@@ -323,7 +322,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.currentQuestion = currentQuestion;
             this.options = options;
             console.log('options:::::>>', options);
-            this.setOptions();
           }
         }
       }
