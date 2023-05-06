@@ -129,7 +129,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: [''],
     });
 
-    console.log('FROM CONSTRUCTOR: ', Date.now());
+    console.log('FROM CONSTRUCTOR:', new Date().getTime());
   }
 
   async ngOnInit(): Promise<void> {
