@@ -528,12 +528,12 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion> {
-    if (this.currentQuestion) {
+    /* if (this.currentQuestion) {
       console.log(
         'Current question already available, returning cached question'
       );
       return this.currentQuestion;
-    }
+    } */
 
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
@@ -547,7 +547,6 @@ export class QuizService implements OnDestroy {
         tap(({ quizId, questions }) => {
           // console.log('Received raw quiz questions:', questions);
           this.questions = questions;
-          this.updateQuestions(quizId);
           this.questionLoadingSubject.next(true);
           this.loadingQuestions = false;
           this.currentQuestionPromise = null;
