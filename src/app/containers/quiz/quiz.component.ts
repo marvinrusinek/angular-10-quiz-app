@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -7,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  ViewChild
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -33,6 +35,7 @@ import {
   tap,
 } from 'rxjs/operators';
 
+import { QuizQuestionComponent } from '../../components/question/question.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -66,7 +69,8 @@ enum QuizStatus {
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
+  @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent;
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -161,6 +165,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     // this.currentQuestionIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
     // this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
+  }
+
+  ngAfterViewInit(): void {
+    if (this.quizQuestionComponent) {
+      // The child component already exists, do something with it
+      console.log('Child component instance:', this.quizQuestionComponent);
+    } else {
+      // The child component doesn't exist, create it
+      console.log('Creating child component...');
+    }
   }
 
   ngOnInit(): void {
