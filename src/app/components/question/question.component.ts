@@ -137,7 +137,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('questionForm:', this.questionForm.value);
 
     if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+      this.quizDataService.selectedQuiz$.pipe(take(1)).subscribe((quiz) => {
         console.log('selectedQuiz', quiz);
         this.selectedQuiz.next(quiz);
         this.setOptions();
@@ -180,7 +180,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
         this.explanationText$.next(explanationText);
       });
-      this.loadCurrentQuestion();
+
+      await this.loadCurrentQuestion();
       this.toggleOptions();
       this.getCorrectAnswers();
       this.updateCorrectMessage();
