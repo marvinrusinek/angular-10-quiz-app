@@ -48,6 +48,14 @@ import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
 import { JoinPipe } from './pipes/join.pipe';
 
+const routes: Routes = [
+  { path: '', redirectTo: 'select', pathMatch: 'full' },
+  { path: 'select', component: QuizSelectionComponent, pathMatch: 'full' },
+  { path: 'intro/:quizId', component: IntroductionComponent, pathMatch: 'full' },
+  { path: 'question/:quizId/:questionIndex', component: QuizComponent, pathMatch: 'full' },
+  { path: 'results/:quizId', component: ResultsComponent, pathMatch: 'full' }
+];
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -74,6 +82,7 @@ import { JoinPipe } from './pipes/join.pipe';
     JoinPipe,
   ],
   imports: [
+    RouterModule.forRoot(routes),
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
