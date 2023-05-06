@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
+import { CustomReuseStrategy } from './shared/custom-reuse-strategy';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizRoutingModule } from './router/quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -90,8 +91,7 @@ import { JoinPipe } from './pipes/join.pipe';
     MatMenuModule,
     MatToolbarModule,
     NgbModule,
-    FontAwesomeModule,
-    RouterModule.forRoot(appRoutes)
+    FontAwesomeModule
   ],
   exports: [
     MatExpansionModule,
