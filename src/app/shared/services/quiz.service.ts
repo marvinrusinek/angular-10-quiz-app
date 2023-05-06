@@ -827,7 +827,7 @@ export class QuizService implements OnDestroy {
             'not emitting currentQuestionSubject with question:',
             question
           );
-          this.questionSubjectEmitted = true; // Set flag to true
+          this.questionSubjectEmitted = true;
         }
       });
   }
