@@ -284,7 +284,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizId = selectedQuiz.quizId;
           this.quizDataService.setCurrentQuestionIndex(0);
           this.question = selectedQuiz.questions[this.currentQuestionIndex];
-          this.setOptions();
           this.handleQuizData(
             selectedQuiz,
             selectedQuiz.quizId,
@@ -465,8 +464,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (shuffleOptions) {
       this.quizService.shuffle(this.options);
     }
-
-    this.setOptions();
   }
 
   handleParamMap(params: ParamMap): void {
@@ -503,7 +500,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionIndex = currentQuestionIndex;
     this.question = quiz.questions[currentQuestionIndex];
-    this.setOptions();
     this.updateProgressValue(); // move later
   }
 
@@ -713,7 +709,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex++;
       this.currentQuestion =
         this.selectedQuiz.questions[this.currentQuestionIndex];
-      this.setOptions();
     }
   } */
 
@@ -783,7 +778,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.navigateToNextQuestion();
         this.getCurrentQuestion();
         this.timerService.resetTimer();
-        this.setOptions();
         // this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex]);
         // this.quizService.navigateToNextQuestion(this.quizId);
         //this.quizService.navigateToNextQuestion();
