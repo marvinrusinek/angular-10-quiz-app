@@ -309,6 +309,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             JSON.stringify(this.currentQuestion)
           ) {
             this.currentQuestion = currentQuestion;
+            console.log('currentQuestion:', this.currentQuestion);
             this.options = options;
             console.log('options:::::>>', options);
             this.quizDataService.questionAndOptions = [currentQuestion, options];
