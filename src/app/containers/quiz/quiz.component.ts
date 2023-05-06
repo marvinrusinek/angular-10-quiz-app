@@ -3,12 +3,14 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ComponentFactoryResolver,
   EventEmitter,
   Input,
   OnDestroy,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -71,6 +73,7 @@ enum QuizStatus {
 })
 export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent;
+  @ViewChild('quizQuestionHost', { read: ViewContainerRef }) quizQuestionHost: ViewContainerRef;
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -83,6 +86,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
   quizQuestions: QuizQuestion[];
+  private quizQuestionComponentRef: any;
   question!: QuizQuestion;
   questions: QuizQuestion[];
   question$!: Observable<QuizQuestion>;
@@ -153,7 +157,8 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private componentFactoryResolver: ComponentFactoryResolver
   ) {
     console.log('QuizComponent constructor called');
     this.form = this.fb.group({
@@ -179,6 +184,12 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit(): void {
     // this.currentQuestionIndex = 0;
+
+    if (!this.quizQuestionComponentRef) {
+      console.log('Creating child component...');
+      const quizQuestionComponentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(quizQuestionComponentFactory);
+    }
 
     this.setCurrentQuizForQuizId();
 
