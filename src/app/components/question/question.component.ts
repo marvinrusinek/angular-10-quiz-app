@@ -92,6 +92,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
   isChangeDetected = false;
+  private initialized = false;
   destroy$: Subject<void> = new Subject<void>();
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
@@ -136,20 +137,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);
 
-    if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.pipe(take(1)).subscribe((quiz) => {
-        console.log('selectedQuiz', quiz);
-        this.selectedQuiz.next(quiz);
-        this.setOptions();
-      });
-    }
+    if (!this.initialized) {
+      if (this.quizDataService.selectedQuiz$) {
+        this.quizDataService.selectedQuiz$.pipe(take(1)).subscribe((quiz) => {
+          console.log('selectedQuiz', quiz);
+          this.selectedQuiz.next(quiz);
+          this.setOptions();
+        });
+      }
     
-    const quizId = this.quizService.quizId;
-    if (quizId) {
-      this.quizId = quizId;
-      this.loadQuestionsForQuiz(quizId);
-    } else {
-      console.error('quizId parameter is null or undefined');
+      const quizId = this.quizService.quizId;
+      if (quizId) {
+        this.quizId = quizId;
+        this.loadQuestionsForQuiz(quizId);
+      } else {
+        console.error('quizId parameter is null or undefined');
+      }
     }
 
     try {
