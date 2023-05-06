@@ -270,9 +270,9 @@ export class QuizService implements OnDestroy {
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     console.log('GQFQ:>>', quizId);
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      tap((questions) =>
+      /* tap((questions) =>
         console.log('Received raw quiz questions:', questions)
-      ),
+      ), */
       map((questions: any) =>
         questions.filter((question) => {
           return question.quizId === quizId;
@@ -544,7 +544,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionPromise = this.getQuestionsForQuiz(quizId)
       .pipe(
         tap(({ quizId, questions }) => {
-          console.log('Received raw quiz questions:', questions);
+          // console.log('Received raw quiz questions:', questions);
           this.questions = questions;
           this.updateQuestions(quizId);
           this.questionLoadingSubject.next(true);
