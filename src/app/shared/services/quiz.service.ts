@@ -49,6 +49,7 @@ export class QuizService implements OnDestroy {
   question$: Observable<QuizQuestion>;
   questions$: Observable<QuizQuestion[]>;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
+  questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   currentQuestion: QuizQuestion | undefined = null;
   currentQuestionPromise: Promise<QuizQuestion> = null;
@@ -820,11 +821,13 @@ export class QuizService implements OnDestroy {
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId: result.quizId });
           this.currentQuestionSubject.next(this.currentQuestion);
-        } else {
+          this.questionSubjectEmitted = true;
+        } else if (!this.questionSubjectEmitted) {
           console.log(
             'not emitting currentQuestionSubject with question:',
             question
           );
+          this.questionSubjectEmitted = true; // Set flag to true
         }
       });
   }
