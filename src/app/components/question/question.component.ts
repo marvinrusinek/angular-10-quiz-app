@@ -131,7 +131,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: [''],
     });
 
-    console.log('FROM CONSTRUCTOR:', new Date().getTime());
+    // console.log('FROM CONSTRUCTOR:', new Date().getTime());
+    console.log('QuizQuestionComponent constructor called');
   }
 
   async ngOnInit(): Promise<void> {
@@ -177,10 +178,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       
       this.multipleAnswer = new BehaviorSubject<boolean>(false);
       this.quizStateService.isMultipleAnswer();
-      this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$.subscribe((value) => {
-        console.log('Multiple answer value:', value);
-        this.multipleAnswer.next(value);
-      });
+      if (!this.multipleAnswerSubscription) {
+        this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$.subscribe((value) => {
+          console.log('Multiple answer value:', value);
+          this.multipleAnswer.next(value);
+        });
+      }
       
       this.explanationText$.next('');
       this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
