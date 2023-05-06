@@ -164,10 +164,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('currentQuestion:', this.currentQuestion);
       });
 
-      if (!this.currentQuestionLoaded) {
+      /* if (!this.currentQuestionLoaded) {
         await this.loadCurrentQuestion();
         this.currentQuestionLoaded = true;
-      }
+      } */
       
       this.multipleAnswer = new BehaviorSubject<boolean>(false);
       this.quizStateService.isMultipleAnswer();
@@ -180,7 +180,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
         this.explanationText$.next(explanationText);
       });
-      // this.loadCurrentQuestion();
+      this.loadCurrentQuestion();
       this.toggleOptions();
       this.getCorrectAnswers();
       this.updateCorrectMessage();
@@ -349,7 +349,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('quizId or currentQuestionIndex is null or undefined');
     }
-  
+
+    console.log('Current Question:', this.currentQuestion);
     console.log('END OF FUNCTION');
     console.log('options:', this.options);
   }
