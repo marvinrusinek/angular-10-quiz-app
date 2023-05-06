@@ -72,6 +72,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
+  currentQuestionLoaded = false;
   currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
   // selectedQuiz: Quiz;
@@ -158,14 +159,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
 
-      this.quizStateService.isMultipleAnswer();
-
       this.quizStateService.currentQuestion$.subscribe((question) => {
         this.currentQuestion = question;
         console.log('currentQuestion:', this.currentQuestion);
       });
+
+      if (!this.currentQuestionLoaded) {
+        await this.loadCurrentQuestion();
+        this.currentQuestionLoaded = true;
+      }
       
       this.multipleAnswer = new BehaviorSubject<boolean>(false);
+      this.quizStateService.isMultipleAnswer();
       this.quizStateService.multipleAnswer$.subscribe((value) => {
         console.log('Multiple answer value:', value);
         this.multipleAnswer.next(value);
@@ -176,7 +181,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.explanationText$.next(explanationText);
       });
 
-      this.loadCurrentQuestion();
       this.toggleOptions();
       this.getCorrectAnswers();
       this.updateCorrectMessage();
