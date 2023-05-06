@@ -169,7 +169,7 @@ export class MultipleAnswerComponent
     );
   }
 
-  onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
+  /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
 
     if (!question.selectedOptions) {
@@ -219,5 +219,5 @@ export class MultipleAnswerComponent
         selectedOptions: this.selectedOptions,
       });
     }
-  }
+  } */
 }

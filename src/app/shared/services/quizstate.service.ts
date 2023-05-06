@@ -37,7 +37,6 @@ export class QuizStateService {
         return throwError(error);
       })
     ).subscribe((question) => {
-      console.log('QuizStateService::: setCurrentQuestion(): question:', question);
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
       if (question && question.options) {
