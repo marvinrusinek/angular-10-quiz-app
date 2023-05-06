@@ -180,7 +180,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
         this.explanationText$.next(explanationText);
       });
-
+      // this.loadCurrentQuestion();
       this.toggleOptions();
       this.getCorrectAnswers();
       this.updateCorrectMessage();
@@ -353,7 +353,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('END OF FUNCTION');
     console.log('options:', this.options);
   }
-          
+              
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
