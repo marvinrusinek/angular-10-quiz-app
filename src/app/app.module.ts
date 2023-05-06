@@ -2,6 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizRoutingModule } from './router/quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -90,6 +91,7 @@ import { JoinPipe } from './pipes/join.pipe';
     MatToolbarModule,
     NgbModule,
     FontAwesomeModule,
+    RouterModule.forRoot(appRoutes)
   ],
   exports: [
     MatExpansionModule,
@@ -107,6 +109,7 @@ import { JoinPipe } from './pipes/join.pipe';
     TimerService,
     CountdownService,
     StopwatchService,
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy }
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
