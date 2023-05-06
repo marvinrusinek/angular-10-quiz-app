@@ -153,6 +153,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.error('quizId parameter is null or undefined');
       }
+
+      this.initialized = true;
     }
 
     try {
