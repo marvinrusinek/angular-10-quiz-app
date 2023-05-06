@@ -2,8 +2,6 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule, RouteReuseStrategy } from '@angular/router';
-import { CustomReuseStrategy } from './shared/custom-reuse-strategy';
 import { HttpClientModule } from '@angular/common/http';
 import { QuizRoutingModule } from './router/quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -48,14 +46,6 @@ import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
 import { JoinPipe } from './pipes/join.pipe';
 
-const routes: Routes = [
-  { path: '', redirectTo: 'select', pathMatch: 'full' },
-  { path: 'select', component: QuizSelectionComponent, pathMatch: 'full' },
-  { path: 'intro/:quizId', component: IntroductionComponent, pathMatch: 'full' },
-  { path: 'question/:quizId/:questionIndex', component: QuizComponent, pathMatch: 'full' },
-  { path: 'results/:quizId', component: ResultsComponent, pathMatch: 'full' }
-];
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -82,7 +72,6 @@ const routes: Routes = [
     JoinPipe,
   ],
   imports: [
-    RouterModule.forRoot(routes),
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
@@ -117,8 +106,7 @@ const routes: Routes = [
     QuizStateService,
     TimerService,
     CountdownService,
-    StopwatchService,
-    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy }
+    StopwatchService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
