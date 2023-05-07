@@ -37,9 +37,9 @@
          </div>
          <!--<p>explanationText: {{ explanationText }}</p>
          <p>displayExplanation: {{ displayExplanation }}</p>-->
-      </section>                                                      
+      </section>                                                <ng-container #quizQuestionHost></ng-container>      
       <!-- the options -->
-      <codelab-quiz-question #quizQuestionComponent
+      <codelab-quiz-question
         *ngIf="currentQuestion"
         [quizId]="quizId"
         [question]="question"

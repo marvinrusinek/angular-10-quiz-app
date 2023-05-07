@@ -99,7 +99,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   currentOptions: Option[];
   options$: Observable<Option[]>;
   currentQuiz: Quiz;
-  selectedQuiz$: BehaviorSubject<Quiz>;
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   selectedQuizSubscription: Subscription;
   questionSubscription: Subscription;
   routerSubscription: Subscription;
@@ -266,11 +266,10 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      if (this.selectedQuiz$) {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+      if (componentFactory) {
         this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
         this.quizQuestionComponentRef.instance.questionIndex = 0;
-  
         this.selectedQuiz$.subscribe(selectedQuiz => {
           if (selectedQuiz) {
             this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
@@ -279,7 +278,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     });
   }
-      
+        
   /* createQuizQuestionComponent() {
     // Get the component factory for the QuizQuestionComponent
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
