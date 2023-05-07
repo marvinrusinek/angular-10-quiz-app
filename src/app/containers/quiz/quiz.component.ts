@@ -174,73 +174,29 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     // this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
   }
 
-  ngAfterViewInit(): void {
-    /* setTimeout(() => {
-      this.createQuestionComponent();
-    }, 0); */
-    this.createQuizQuestionComponent();
-    if (this.quizQuestionHost) {
-      this.quizQuestionHost.clear();
-    }
-
-    /* if (this.quizQuestionComponent) {
-      // The child component already exists, do something with it
-      console.log('Child component instance:', this.quizQuestionComponent);
-    } else {
-      // The child component doesn't exist, create it
-      console.log('Creating child component...');
-    } */
-  }
-
-  createQuizQuestionComponent(): void {
-    console.log('Creating child component...');
-
-    // Check if component already exists
-    if (this.quizQuestionComponentRef) {
-      return;
-    }
-
-    if (!this.quizQuestionHost) {
-      console.error('Host container reference is not set');
-      return;
-    }
-
-    // Get the component factory
+  createQuizQuestionComponent() {
+    // Get the component factory for the QuizQuestionComponent
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-
-    /* if (this.quizQuestionComponentRef) {
-      this.quizQuestionComponentRef.destroy();
-    } */
-
-    if (!this.quizQuestionComponentRef) {
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-    }
-    
-    if (this.quizQuestionComponentRef) {
-      this.selectedQuiz$.asObservable().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
-        }
-      });      
-      this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
-    } else {
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory) as ComponentRef<QuizQuestionComponent>;
-      this.selectedQuiz$.asObservable().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
-        }
-      });
-      this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
-    }
-    
-    // Create the component instance
+  
+    // Create the component
     this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+  
+    // Set the input properties for the component
+    this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
+    this.quizQuestionComponentRef.instance.quizId = this.selectedQuiz.quizId;
+  }
+  
+  destroyQuizQuestionComponent() {
+    if (this.quizQuestionComponentRef) {
+      this.quizQuestionComponentRef.destroy();
+      this.quizQuestionComponentRef = null;
+    }
   }
 
   ngOnInit(): void {
     // this.currentQuestionIndex = 0;
+
+    this.createQuizQuestionComponent();
 
     if (!this.quizQuestionComponentRef) {
       console.log('Creating child component...');
@@ -335,7 +291,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
-    this.quizQuestionComponentRef.destroy();
+    this.destroyQuizQuestionComponent();
   }
 
   setCurrentQuizForQuizId(): void {
