@@ -4,6 +4,7 @@ import {
   ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
+  ComponentRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -74,6 +75,8 @@ enum QuizStatus {
 export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent;
   @ViewChild('quizQuestionHost', { read: ViewContainerRef }) quizQuestionHost: ViewContainerRef;
+  quizQuestionComponentRef: ComponentRef<QuizQuestionComponent>;
+
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -86,7 +89,6 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   quizzes$: Observable<Quiz[]>;
   quizLength: number;
   quizQuestions: QuizQuestion[];
-  private quizQuestionComponentRef: any;
   question!: QuizQuestion;
   questions: QuizQuestion[];
   question$!: Observable<QuizQuestion>;
@@ -173,14 +175,34 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (this.quizQuestionComponent) {
+    setTimeout(() => {
+      this.createQuestionComponent();
+    }, 0);
+
+    /* if (this.quizQuestionComponent) {
       // The child component already exists, do something with it
       console.log('Child component instance:', this.quizQuestionComponent);
     } else {
       // The child component doesn't exist, create it
       console.log('Creating child component...');
-    }
+    } */
   }
+
+  createQuestionComponent(): void {
+    console.log('Creating child component...');
+
+    // Check if component already exists
+    if (this.quizQuestionComponentRef) {
+      return;
+    }
+
+    // Get the component factory
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+
+    // Create the component instance
+    this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+  }
+
 
   ngOnInit(): void {
     // this.currentQuestionIndex = 0;
