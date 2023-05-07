@@ -162,40 +162,14 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef,
     private componentFactoryResolver: ComponentFactoryResolver
   ) {
-    console.log('QuizComponent constructor called');
     this.form = this.fb.group({
       selectedOption: [null],
     });
 
     this.explanationText$ = new BehaviorSubject<string>('');
-
-    // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    // this.currentQuestionIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    // this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
   }
 
   ngOnInit(): void {
-    // this.currentQuestionIndex = 0;
-
-    // this.createQuizQuestionComponent();
-
-    /* if (!this.quizQuestionComponentRef) {
-      console.log('Creating child component...');
-      const quizQuestionComponentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(quizQuestionComponentFactory);
-    } */
-
-    /* if (this.selectedQuiz$) {
-      this.selectedQuiz$.subscribe((selectedQuiz) => {
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-        this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-        this.quizQuestionComponentRef.instance.questionIndex = 0;
-        if (selectedQuiz) {
-          this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
-        }
-      });
-    } */
-
     this.setCurrentQuizForQuizId();
 
     this.quizDataService.getQuizzes().subscribe((quizzes) => {
@@ -235,7 +209,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
         console.error(error);
       }
     );
-
+  
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
     this.quizDataService.selectedQuiz$.subscribe((quiz) => {
@@ -267,11 +241,18 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   ngAfterViewInit(): void {
     setTimeout(() => {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-      this.quizQuestionComponentRef.instance.questionIndex = 0;
+      if (this.quizQuestionHost) {
+        this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+        this.quizQuestionComponentRef.instance.questionIndex = 0;
+        this.selectedQuiz$.subscribe(selectedQuiz => {
+          if (selectedQuiz) {
+            this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
+          }
+        });
+      }
     });
   }
-        
+          
   /* createQuizQuestionComponent() {
     // Get the component factory for the QuizQuestionComponent
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
