@@ -73,7 +73,7 @@ enum QuizStatus {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
-  @ViewChild('quizQuestionComponent') quizQuestionComponent: QuizQuestionComponent;
+  @ViewChild('quizQuestionComponent', { read: ViewContainerRef }) quizQuestionComponent: ViewContainerRef;
   @ViewChild('quizQuestionHost', { read: ViewContainerRef }) quizQuestionHost: ViewContainerRef;
   quizQuestionComponentRef: ComponentRef<QuizQuestionComponent>;
 
@@ -196,13 +196,39 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
       return;
     }
 
+    if (!this.quizQuestionHost) {
+      console.error('Host container reference is not set');
+      return;
+    }
+
     // Get the component factory
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
 
+    /* if (this.quizQuestionComponentRef) {
+      this.quizQuestionComponentRef.destroy();
+    } */
+
+    if (this.quizQuestionComponentRef) {
+      this.selectedQuiz$.asObservable().subscribe((selectedQuiz) => {
+        if (selectedQuiz) {
+          this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
+        }
+      });      
+      this.quizQuestionComponentRef.instance.questionIndex = index;
+    } else {
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory) as ComponentRef<QuizQuestionComponent>;
+      this.selectedQuiz$.asObservable().subscribe((selectedQuiz) => {
+        if (selectedQuiz) {
+          this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
+        }
+      });
+      this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
+    }
+    
     // Create the component instance
     this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
   }
-
 
   ngOnInit(): void {
     // this.currentQuestionIndex = 0;
@@ -295,12 +321,12 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
-
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
+    this.quizQuestionComponentRef.destroy();
   }
 
   setCurrentQuizForQuizId(): void {
