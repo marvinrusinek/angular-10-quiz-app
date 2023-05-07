@@ -128,11 +128,8 @@ export class QuizDataService {
   }
 
   setSelectedQuiz(quiz: Quiz | null): void {
-    console.log('setSelectedQuiz() called with quiz:', quiz);
-    console.log('Selected quiz:::', quiz);
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
-    console.log('Selected quiz:::>>>', quiz);
     this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
       this.selectedQuizSubject.next(selectedQuiz);
     });
