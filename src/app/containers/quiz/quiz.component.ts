@@ -214,7 +214,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
           this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
         }
       });      
-      this.quizQuestionComponentRef.instance.questionIndex = index;
+      this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
     } else {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
       this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory) as ComponentRef<QuizQuestionComponent>;
