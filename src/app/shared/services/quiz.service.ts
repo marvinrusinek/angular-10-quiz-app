@@ -568,8 +568,6 @@ export class QuizService implements OnDestroy {
           quizId: string;
           questions: QuizQuestion[];
         }) => {
-          console.log('Received processed quiz questions:', questions);
-
           if (Array.isArray(questions)) {
             const currentQuestionIndex = this.currentQuestionIndex ?? 0;
             this.currentQuestion = questions[currentQuestionIndex];
