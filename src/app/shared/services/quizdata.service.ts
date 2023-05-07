@@ -136,8 +136,6 @@ export class QuizDataService {
   }
 
   setSelectedQuizById(quizId: string): void {
-    console.log('setSelectedQuizById() called with quizId:', quizId);
-    
     // Log the quizzes array after it is retrieved from the QuizDataService
     this.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
