@@ -174,35 +174,27 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     // this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex);
   }
 
-  createQuizQuestionComponent() {
-    // Get the component factory for the QuizQuestionComponent
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-  
-    // Create the component
-    this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-  
-    // Set the input properties for the component
-    this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
-    this.quizQuestionComponentRef.instance.quizId = this.selectedQuiz.quizId;
-  }
-  
-  destroyQuizQuestionComponent() {
-    if (this.quizQuestionComponentRef) {
-      this.quizQuestionComponentRef.destroy();
-      this.quizQuestionComponentRef = null;
-    }
-  }
-
   ngOnInit(): void {
     // this.currentQuestionIndex = 0;
 
-    this.createQuizQuestionComponent();
+    // this.createQuizQuestionComponent();
 
-    if (!this.quizQuestionComponentRef) {
+    /* if (!this.quizQuestionComponentRef) {
       console.log('Creating child component...');
       const quizQuestionComponentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
       this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(quizQuestionComponentFactory);
-    }
+    } */
+
+    /* if (this.selectedQuiz$) {
+      this.selectedQuiz$.subscribe((selectedQuiz) => {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+        this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+        this.quizQuestionComponentRef.instance.questionIndex = 0;
+        if (selectedQuiz) {
+          this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
+        }
+      });
+    } */
 
     this.setCurrentQuizForQuizId();
 
@@ -244,28 +236,6 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
       }
     );
 
-    /* this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.currentQuestionIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
-  
-    if (this.quizService.currentQuestion) {
-      this.currentQuestion = this.quizService.currentQuestion;
-    } else {
-      this.quizDataService.getQuestionsForQuiz(this.quizId);
-      this.quizService.questions$.pipe(
-        map((questions) => questions[this.currentQuestionIndex]),
-        tap((question) => {
-          this.currentQuestion = question;
-          this.quizService.currentQuestion = question;
-        })
-      ).subscribe();
-    }
-  
-    this.quizDataService.getQuizById(this.quizId).subscribe((quiz) => {
-      this.quizLength = quiz.questions.length;
-    });
-
-    this.form = new FormGroup({}); */
-
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
     this.quizDataService.selectedQuiz$.subscribe((quiz) => {
@@ -292,6 +262,41 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.destroyQuizQuestionComponent();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      if (this.selectedQuiz$) {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+        this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+        this.quizQuestionComponentRef.instance.questionIndex = 0;
+  
+        this.selectedQuiz$.subscribe(selectedQuiz => {
+          if (selectedQuiz) {
+            this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
+          }
+        });
+      }
+    });
+  }
+      
+  /* createQuizQuestionComponent() {
+    // Get the component factory for the QuizQuestionComponent
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+  
+    // Create the component
+    this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+  
+    // Set the input properties for the component
+    this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
+    this.quizQuestionComponentRef.instance.quizId = this.selectedQuiz.quizId;
+  } */
+  
+  destroyQuizQuestionComponent() {
+    if (this.quizQuestionComponentRef) {
+      this.quizQuestionComponentRef.destroy();
+      this.quizQuestionComponentRef = null;
+    }
   }
 
   setCurrentQuizForQuizId(): void {
