@@ -74,8 +74,8 @@ enum QuizStatus {
 })
 export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('quizQuestionComponent', { read: ViewContainerRef }) quizQuestionComponent: ViewContainerRef;
-  @ViewChild('quizQuestionHost', { read: ViewContainerRef }) quizQuestionHost: ViewContainerRef;
-  quizQuestionComponentRef: ComponentRef<QuizQuestionComponent>;
+  @ViewChild('quizQuestionHost', { read: ViewContainerRef }) quizQuestionHost!: ViewContainerRef;
+  quizQuestionComponentRef!: ComponentRef<QuizQuestionComponent>;
 
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
@@ -175,9 +175,13 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
+    /* setTimeout(() => {
       this.createQuestionComponent();
-    }, 0);
+    }, 0); */
+    this.createQuizQuestionComponent();
+    if (this.quizQuestionHost) {
+      this.quizQuestionHost.clear();
+    }
 
     /* if (this.quizQuestionComponent) {
       // The child component already exists, do something with it
@@ -188,7 +192,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     } */
   }
 
-  createQuestionComponent(): void {
+  createQuizQuestionComponent(): void {
     console.log('Creating child component...');
 
     // Check if component already exists
@@ -208,6 +212,11 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
       this.quizQuestionComponentRef.destroy();
     } */
 
+    if (!this.quizQuestionComponentRef) {
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
+      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+    }
+    
     if (this.quizQuestionComponentRef) {
       this.selectedQuiz$.asObservable().subscribe((selectedQuiz) => {
         if (selectedQuiz) {
