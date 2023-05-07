@@ -172,10 +172,6 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   ngOnInit(): void {
     this.setCurrentQuizForQuizId();
 
-    /* REMOVE this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-    }); */
-
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
       this.currentQuestionIndex = 0;
