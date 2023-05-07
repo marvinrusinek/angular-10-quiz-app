@@ -141,17 +141,13 @@ export class QuizDataService {
       this.quizzes = quizzes;
       
       // Find the quiz with the given quizId
-      console.log('Looking for quiz with ID:', quizId);
-      const quiz = this.quizzes.find((q) => q.quizId === quizId);
-      console.log('Quiz found:', quiz);
-      
+      const quiz = this.quizzes.find((q) => q.quizId === quizId);      
       if (!quiz) {
         console.error('Selected quiz not found');
         return;
       }
       
       // Emit the selected quiz
-      console.log('Emitting selected quiz:', quiz);
       this.selectedQuiz$.next(quiz);
       
       this.setSelectedQuiz(quiz);
