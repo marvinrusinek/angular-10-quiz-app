@@ -267,15 +267,8 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
   ngAfterViewInit(): void {
     setTimeout(() => {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-      if (componentFactory) {
-        this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-        this.quizQuestionComponentRef.instance.questionIndex = 0;
-        this.selectedQuiz$.subscribe(selectedQuiz => {
-          if (selectedQuiz) {
-            this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
-          }
-        });
-      }
+      this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
+      this.quizQuestionComponentRef.instance.questionIndex = 0;
     });
   }
         
