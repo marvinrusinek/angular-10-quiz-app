@@ -114,12 +114,11 @@ export class QuizDataService {
   }
 
   getQuizzes(): Observable<Quiz[]> {
-    console.log('getQuizzes() called');
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       tap(quizzes => {
         this.quizzes = quizzes;
         this.quizzesSubject.next(quizzes);
-        console.log('Quizzes retrieved:', quizzes);
+        // console.log('Quizzes retrieved:', quizzes);
       }),
       catchError(error => {
         console.error('Error retrieving quizzes:', error);
