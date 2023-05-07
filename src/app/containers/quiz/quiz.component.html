@@ -40,7 +40,7 @@
       </section> 
       <ng-container #quizQuestionHost></ng-container>      
       <!-- the options -->
-      <!--<codelab-quiz-question
+      <codelab-quiz-question
         *ngIf="currentQuestion"
         [quizId]="quizId"
         [question]="question"
@@ -59,7 +59,7 @@
         (showExplanationTextChange)="showExplanationText = $event"
         (showExplanation)="displayExplanation($event)"
       >
-      </codelab-quiz-question>-->
+      </codelab-quiz-question>
     </mat-card-content>
 
     <mat-card-footer [ngClass]="cardFooterClass">
