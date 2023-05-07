@@ -139,7 +139,6 @@ export class QuizDataService {
     // Log the quizzes array after it is retrieved from the QuizDataService
     this.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
-      console.log('Quizzes retrieved:::', quizzes);
       
       // Find the quiz with the given quizId
       console.log('Looking for quiz with ID:', quizId);
