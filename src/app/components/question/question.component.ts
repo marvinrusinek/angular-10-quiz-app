@@ -239,16 +239,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     console.log('QuizQuestionComponent destroyed');
-    if (this.currentQuestionSubscription) {
-      this.currentQuestionSubscription?.unsubscribe();
-    }
-    if (this.explanationTextSubscription) {
-      this.explanationTextSubscription?.unsubscribe();
-    }
-    if (this.multipleAnswerSubscription) {
-      this.multipleAnswerSubscription?.unsubscribe();
-    }
-
+    this.currentQuestionSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
+    this.multipleAnswerSubscription?.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }
