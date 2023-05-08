@@ -71,7 +71,6 @@ import { JoinPipe } from './pipes/join.pipe';
     ChallengeComponent,
     JoinPipe,
   ],
-  entryComponents: [QuizQuestionComponent],
   imports: [
     CommonModule,
     BrowserModule,
