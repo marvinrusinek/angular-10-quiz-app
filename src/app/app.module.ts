@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 import { QuizRoutingModule } from './router/quiz-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -76,6 +77,7 @@ import { JoinPipe } from './pipes/join.pipe';
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    RouterModule,
     QuizRoutingModule,
     ReactiveFormsModule,
     MatCardModule,
