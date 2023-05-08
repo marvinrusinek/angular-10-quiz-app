@@ -12,7 +12,7 @@ import {
   SimpleChanges,
   ViewEncapsulation,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -63,7 +63,8 @@ export class MultipleAnswerComponent
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
-    cdRef: ChangeDetectorRef
+    cdRef: ChangeDetectorRef,
+    router: Router
   ) {
     super(
       quizService,
@@ -72,7 +73,8 @@ export class MultipleAnswerComponent
       timerService,
       activatedRoute,
       fb,
-      cdRef
+      cdRef, 
+      router
     );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
