@@ -1,17 +1,12 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ComponentFactoryResolver,
-  ComponentRef,
   EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
-  ViewChild,
-  ViewContainerRef
+  Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -72,11 +67,7 @@ enum QuizStatus {
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
-  @ViewChild('quizQuestionComponent', { read: ViewContainerRef }) quizQuestionComponent: ViewContainerRef;
-  @ViewChild('quizQuestionHost', { read: ViewContainerRef }) quizQuestionHost!: ViewContainerRef;
-  quizQuestionComponentRef!: ComponentRef<QuizQuestionComponent>;
-
+export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -159,8 +150,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private cdRef: ChangeDetectorRef,
-    private componentFactoryResolver: ComponentFactoryResolver
+    private cdRef: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       selectedOption: [null],
@@ -232,41 +222,6 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
-    this.destroyQuizQuestionComponent();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-      if (this.quizQuestionHost) {
-        this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-        this.quizQuestionComponentRef.instance.questionIndex = 0;
-        this.selectedQuiz$.subscribe(selectedQuiz => {
-          if (selectedQuiz) {
-            this.quizQuestionComponentRef.instance.quizId = selectedQuiz.quizId;
-          }
-        });
-      }
-    });
-  }
-          
-  /* createQuizQuestionComponent() {
-    // Get the component factory for the QuizQuestionComponent
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(QuizQuestionComponent);
-  
-    // Create the component
-    this.quizQuestionComponentRef = this.quizQuestionHost.createComponent(componentFactory);
-  
-    // Set the input properties for the component
-    this.quizQuestionComponentRef.instance.questionIndex = this.currentQuestionIndex;
-    this.quizQuestionComponentRef.instance.quizId = this.selectedQuiz.quizId;
-  } */
-  
-  destroyQuizQuestionComponent() {
-    if (this.quizQuestionComponentRef) {
-      this.quizQuestionComponentRef.destroy();
-      this.quizQuestionComponentRef = null;
-    }
   }
 
   setCurrentQuizForQuizId(): void {
