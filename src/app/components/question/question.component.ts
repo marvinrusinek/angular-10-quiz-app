@@ -140,6 +140,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);
 
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroyed$)
+      )
+      .subscribe(() => {
+        console.log('QuizQuestionComponent destroyed');
+        this.destroyed$.next();
+        this.destroyed$.complete();
+      });
+
     if (!this.initialized) {
       if (this.quizDataService.selectedQuiz$) {
         this.quizDataService.selectedQuiz$.subscribe((quiz) => {
