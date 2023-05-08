@@ -415,7 +415,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }),
         catchError((error) => {
           console.error('Error in currentQuestion$ subscription:', error);
-          return EMPTY;
+          return of(null);
         })
       )
       .subscribe();
