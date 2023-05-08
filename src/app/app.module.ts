@@ -92,13 +92,7 @@ import { JoinPipe } from './pipes/join.pipe';
     FontAwesomeModule
   ],
   exports: [
-    MatExpansionModule,
-    QuizQuestionComponent,
-    MultipleAnswerComponent,
-    SingleAnswerComponent,
-    FeedbackComponent,
-    OptionFeedbackComponent,
-    QuizExplanationComponent
+    MatExpansionModule
   ],
   bootstrap: [AppComponent],
   providers: [
