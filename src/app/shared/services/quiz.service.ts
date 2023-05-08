@@ -293,7 +293,6 @@ export class QuizService implements OnDestroy {
     this.questionsLoaded = true;
     return new Promise((resolve, reject) => {
       if (quizId === this.quizId) {
-        console.log('quizId is the same, no need to update');
         resolve();
         return;
       }
