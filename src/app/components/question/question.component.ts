@@ -74,7 +74,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentQuestionLoaded = false;
   currentOptions: Option[];
-  questionIndex: number;
   questionForm: FormGroup = new FormGroup({});
   // selectedQuiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
