@@ -34,32 +34,37 @@
         </h3>
         <div *ngIf="displayExplanation">
           <p>{{ explanationText || 'No explanation found' }}</p>
-         </div>
-         <!--<p>explanationText: {{ explanationText }}</p>
-         <p>displayExplanation: {{ displayExplanation }}</p>-->
+        </div>
+        <!--<p>explanationText: {{ explanationText }}</p>
+        <p>displayExplanation: {{ displayExplanation }}</p>-->
       </section> 
-      <ng-container #quizQuestionHost></ng-container>      
-      <!-- the options -->
-      <codelab-quiz-question
-        *ngIf="currentQuestion"
-        [quizId]="quizId"
-        [question]="question"
-        [questions]="questions$ | async"
-        [options]="question?.options"
-        (answer)="selectedAnswer($event)"
-        [answers]="answers"
-        [selectedOption]="selectedOption$ | async"
-        (onOptionSelected)="onOptionSelected($event)"
-        (formReady)="form = $event"
-        [currentQuestion$]="currentQuestion$ | async"
-        [currentQuestionIndex]="currentQuestionIndex"
-        [multipleAnswer]="multipleAnswer"
-        (answersChange)="checkIfAnsweredCorrectly()"
-        (explanationTextChange)="explanationText = $event"
-        (showExplanationTextChange)="showExplanationText = $event"
-        (showExplanation)="displayExplanation($event)"
-      >
-      </codelab-quiz-question>
+      <ng-container *ngIf="currentQuestion; then quizQuestion else noQuestion"></ng-container>
+        <ng-template #quizQuestion>     
+          <!-- the options -->
+          <codelab-quiz-question
+            *ngIf="currentQuestion"
+            [quizId]="quizId"
+            [question]="question"
+            [questions]="questions$ | async"
+            [options]="question?.options"
+            (answer)="selectedAnswer($event)"
+            [answers]="answers"
+            [selectedOption]="selectedOption$ | async"
+            (onOptionSelected)="onOptionSelected($event)"
+            (formReady)="form = $event"
+            [currentQuestion$]="currentQuestion$ | async"
+            [currentQuestionIndex]="currentQuestionIndex"
+            [multipleAnswer]="multipleAnswer"
+            (answersChange)="checkIfAnsweredCorrectly()"
+            (explanationTextChange)="explanationText = $event"
+            (showExplanationTextChange)="showExplanationText = $event"
+            (showExplanation)="displayExplanation($event)"
+          >
+          </codelab-quiz-question>
+      </ng-template>
+      <ng-template #noQuestion>
+        <p>No question available.</p>
+      </ng-template>
     </mat-card-content>
 
     <mat-card-footer [ngClass]="cardFooterClass">
