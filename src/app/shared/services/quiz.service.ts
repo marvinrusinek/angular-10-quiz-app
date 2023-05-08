@@ -269,7 +269,6 @@ export class QuizService implements OnDestroy {
   getQuestionsForQuiz(
     quizId: string
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
-    console.log('GQFQ:>>', quizId);
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       /* tap((questions) =>
         console.log('Received raw quiz questions:', questions)
