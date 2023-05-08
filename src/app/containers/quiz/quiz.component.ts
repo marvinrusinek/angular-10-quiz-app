@@ -33,7 +33,6 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { QuizQuestionComponent } from '../../components/question/question.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
