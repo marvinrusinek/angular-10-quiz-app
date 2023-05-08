@@ -13,7 +13,7 @@ import {
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioChange } from '@angular/material/radio';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
   BehaviorSubject,
   Observable,
@@ -23,7 +23,7 @@ import {
   Subject,
   Subscription
 } from 'rxjs';
-import { catchError, filter, map, take, tap } from 'rxjs/operators';
+import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -120,7 +120,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
-    protected cdRef: ChangeDetectorRef
+    protected cdRef: ChangeDetectorRef,
+    private router: Router
   ) {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
@@ -143,12 +144,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
-        takeUntil(this.destroyed$)
+        takeUntil(this.destroy$)
       )
       .subscribe(() => {
         console.log('QuizQuestionComponent destroyed');
-        this.destroyed$.next();
-        this.destroyed$.complete();
+        this.destroy$.next();
+        this.destroy$.complete();
       });
 
     if (!this.initialized) {
