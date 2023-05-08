@@ -121,7 +121,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
-    private router: Router
+    protected router: Router
   ) {
     this.quizService = quizService;
     this.quizDataService = quizDataService;

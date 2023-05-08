@@ -12,7 +12,7 @@ import {
   SimpleChanges,
   ViewEncapsulation,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -85,6 +85,13 @@ export class MultipleAnswerComponent
 
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        console.log('MultipleAnswerComponent destroyed');
+      }
+    });
+
     if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];
     }
