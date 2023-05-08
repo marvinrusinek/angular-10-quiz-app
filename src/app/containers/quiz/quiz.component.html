@@ -38,29 +38,28 @@
         <!--<p>explanationText: {{ explanationText }}</p>
         <p>displayExplanation: {{ displayExplanation }}</p>-->
       </section> 
-      <ng-container *ngIf="currentQuestion; then quizQuestion else noQuestion"></ng-container>
-        <ng-template #quizQuestion>     
-          <!-- the options -->
-          <codelab-quiz-question
-            [quizId]="quizId"
-            [question]="question"
-            [questions]="questions$ | async"
-            [options]="question?.options"
-            (answer)="selectedAnswer($event)"
-            [answers]="answers"
-            [selectedOption]="selectedOption$ | async"
-            (onOptionSelected)="onOptionSelected($event)"
-            (formReady)="form = $event"
-            [currentQuestion$]="currentQuestion$ | async"
-            [currentQuestionIndex]="currentQuestionIndex"
-            [multipleAnswer]="multipleAnswer"
-            (answersChange)="checkIfAnsweredCorrectly()"
-            (explanationTextChange)="explanationText = $event"
-            (showExplanationTextChange)="showExplanationText = $event"
-            (showExplanation)="displayExplanation($event)"
-          >
-          </codelab-quiz-question>
-      </ng-template>
+      <ng-container *ngIf="currentQuestion">
+        <!-- the options -->
+        <codelab-quiz-question
+          [quizId]="quizId"
+          [question]="question"
+          [questions]="questions$ | async"
+          [options]="question?.options"
+          (answer)="selectedAnswer($event)"
+          [answers]="answers"
+          [selectedOption]="selectedOption$ | async"
+          (onOptionSelected)="onOptionSelected($event)"
+          (formReady)="form = $event"
+          [currentQuestion$]="currentQuestion$ | async"
+          [currentQuestionIndex]="currentQuestionIndex"
+          [multipleAnswer]="multipleAnswer"
+          (answersChange)="checkIfAnsweredCorrectly()"
+          (explanationTextChange)="explanationText = $event"
+          (showExplanationTextChange)="showExplanationText = $event"
+          (showExplanation)="displayExplanation($event)"
+        >
+        </codelab-quiz-question>
+      </ng-container>
       <ng-template #noQuestion>
         <p>No question available.</p>
       </ng-template>
