@@ -270,7 +270,6 @@ export class QuizDataService {
     const options$ = this.getQuestionOptions(currentQuestion$).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     
     this.processQuestionAndOptions(currentQuestion$, options$, questionIndex).subscribe((questionAndOptions) => {
-      console.log('Question and options retrieved from API.');
       this.questionAndOptionsSubject.next(questionAndOptions);
     });
 
