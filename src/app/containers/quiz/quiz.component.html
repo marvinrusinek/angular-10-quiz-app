@@ -42,7 +42,6 @@
         <ng-template #quizQuestion>     
           <!-- the options -->
           <codelab-quiz-question
-            *ngIf="currentQuestion"
             [quizId]="quizId"
             [question]="question"
             [questions]="questions$ | async"

@@ -167,6 +167,7 @@ export class QuizComponent implements AfterViewInit, OnInit, OnDestroy {
     });
 
     this.explanationText$ = new BehaviorSubject<string>('');
+    console.log("QUIZCOMP CONSTRUCTOR");
   }
 
   ngOnInit(): void {
