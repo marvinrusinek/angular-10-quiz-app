@@ -68,6 +68,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
+  selectedOption$ = new BehaviorSubject<Option>(null);
   quiz: Quiz;
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
@@ -93,9 +94,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   displayExplanation: boolean = false;
   isChangeDetected = false;
   private initialized = false;
-  destroy$: Subject<void> = new Subject<void>();
+  private destroy$: Subject<void> = new Subject<void>();
 
-  private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
+  multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
 
@@ -147,6 +148,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.setOptions();
         });
       }
+    
+      of(this.selectedOption).pipe(
+        tap(option => this.selectedOption$.next(option))
+      ).subscribe();
     
       const quizId = this.quizService.quizId;
       if (quizId) {
