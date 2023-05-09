@@ -772,10 +772,13 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  isQuizSelected(): boolean {
-    return !!this.getSelectedQuiz();
+  isQuizSelected(): Observable<boolean> {
+    return this.selectedQuizId$.pipe(
+      map((quizId) => !!quizId),
+      take(1)
+    );
   }
-
+  
   getSelectedQuizId(): Observable<string> {
     return this.quizId$.asObservable();
   }
