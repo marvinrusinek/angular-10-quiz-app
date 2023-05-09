@@ -72,18 +72,15 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <ng-container *ngIf="!isAnswered(); else nextMessage">
-        <span i18n class="selection-message">
+      <ng-container [ngSwitch]="isAnswered()">
+        <span *ngSwitchCase="false" i18n class="selection-message">
           Please select an option to continue&hellip;
         </span>
-      </ng-container>
-      
-      <ng-template #nextMessage>
-        <span i18n class="next-message">
+        <span *ngSwitchDefault i18n class="next-message">
           Please click the next button to continue&hellip;
         </span>
-      </ng-template>
-      
+      </ng-container>
+      <div>{{ isAnswered() }}</div>
 
       <!-- paging -->
       <section class="paging">
