@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({
   providedIn: 'root'

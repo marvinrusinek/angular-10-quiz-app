@@ -5,7 +5,7 @@ import { IntroductionComponent } from '../containers/introduction/introduction.c
 import { QuizComponent } from '../containers/quiz/quiz.component';
 import { QuizSelectionComponent } from '../containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from '../containers/results/results.component';
-import { QuizGuard } from '../guards/quiz.guard';
+import { QuizGuard } from './guards/quiz.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'select', pathMatch: 'full' },
