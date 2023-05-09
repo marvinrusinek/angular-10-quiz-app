@@ -229,10 +229,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    /* console.log('ngOnChanges() called with changes:', changes);
-    if (changes.questionIndex) {
-      this.loadCurrentQuestion();
-    } */
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
