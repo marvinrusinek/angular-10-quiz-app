@@ -224,6 +224,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.error('Error getting current question:', error);
     }
 
+    console.log('Initializing component...');
     this.subscriptionToQuestion();
     this.updateQuestionForm();
   }
@@ -396,8 +397,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         tap(({ question }) => {
           console.log('Question received:', question);
-        }),
-        tap(({ question }) => {
           console.log('About to call initializeQuizState()...');
           if (question) {
             this.currentQuestion = question;
