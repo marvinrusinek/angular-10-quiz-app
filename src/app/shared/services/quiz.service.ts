@@ -772,18 +772,8 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  isQuizSelected(): Observable<boolean> {
-    return this.getSelectedQuizId().pipe(
-      map(selectedQuizId => !!selectedQuizId),
-      tap(isSelected => {
-        if (!isSelected) {
-          console.log('QuizGuard canActivate: quiz not selected');
-          this.router.navigate(['/select']);
-        } else {
-          console.log('QuizGuard canActivate: quiz selected');
-        }
-      })
-    );
+  isQuizSelected(): boolean {
+    return !!this.getSelectedQuiz();
   }
 
   getSelectedQuizId(): Observable<string> {

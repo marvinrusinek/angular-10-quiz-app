@@ -14,11 +14,8 @@ export class QuizGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean> {
-    console.log('QuizGuard canActivate: selectedQuizId', this.quizService.selectedQuizId);
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    // const quizId = route.paramMap.get('quizId');
     return this.quizService.isQuizSelected().pipe(
       tap(isSelected => {
         if (!isSelected) {
