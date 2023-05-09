@@ -106,7 +106,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizStateService,
     TimerService,
     CountdownService,
-    StopwatchService
+    StopwatchService,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

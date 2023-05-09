@@ -27,6 +27,7 @@ import {
 } from 'rxjs';
 import {
   catchError,
+  delay,
   distinctUntilChanged,
   filter,
   map,
@@ -198,11 +199,23 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
-    this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+    /* this.quizDataService.selectedQuiz$.subscribe((quiz) => {
       this.selectedQuiz = quiz;
       console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
       this.setOptions();
-    });
+    }); */
+
+    this.quizDataService.selectedQuiz$
+      .pipe(
+        delay(0),
+        tap((quiz) => {
+          this.selectedQuiz = quiz;
+          console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
+          this.setOptions();
+        })
+      )
+      .subscribe();
+
 
     this.subscribeRouterAndInit();
     this.setObservables();
