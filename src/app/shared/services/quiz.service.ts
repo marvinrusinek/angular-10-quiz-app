@@ -633,11 +633,11 @@ export class QuizService implements OnDestroy {
     if (question && question.options) {
       return question.options
         .map((option, index) => (option.correct ? index : null))
-        .filter((index) => index !== null);
+        .filter((index, i, arr) => index !== null && arr.indexOf(index) === i);
     }
     return [];
   }
-
+  
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
       (this.correctAnswersCountSubject.getValue() / this.totalQuestions) * 100
