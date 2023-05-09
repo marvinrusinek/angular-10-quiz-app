@@ -66,6 +66,7 @@ export class QuizService implements OnDestroy {
   quizLength: number;
   quizStartTime: Date;
 
+  private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
   quizName$ = new BehaviorSubject<string>('');
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedQuiz: any;
@@ -747,6 +748,8 @@ export class QuizService implements OnDestroy {
   }
 
   setQuiz(quiz: Quiz): Observable<Quiz> {
+    console.log('QUIZSERVICE setQuiz called with', quiz.quizId);
+    this.quizId$.next(quiz.quizId);
     this.selectedQuiz = quiz;
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
       tap((quiz: Quiz) => {
@@ -763,8 +766,10 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  isQuizSelected(): boolean {
-    return !!this.getSelectedQuiz();
+  isQuizSelected(): Observable<boolean> {
+    return this.quizId$.asObservable().pipe(
+      map((quizId) => !!quizId)
+    );
   }
 
   getSelectedQuiz(): Observable<Quiz> {

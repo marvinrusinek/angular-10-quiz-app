@@ -46,6 +46,7 @@ import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
 import { JoinPipe } from './pipes/join.pipe';
+import { QuizGuard } from './router/guards/quiz.guard';
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import { JoinPipe } from './pipes/join.pipe';
   ],
   bootstrap: [AppComponent],
   providers: [
+    QuizGuard,
     QuizDataService,
     QuizStateService,
     TimerService,
