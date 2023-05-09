@@ -164,6 +164,7 @@ export class QuizDataService {
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
+      distinctUntilChanged(),
       filter((selectedQuiz) => !!selectedQuiz),
       take(1),
       switchMap((selectedQuiz) => {
