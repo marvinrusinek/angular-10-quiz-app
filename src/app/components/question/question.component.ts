@@ -164,7 +164,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.quizDataService.selectedQuiz$.subscribe((quiz) => {
           console.log('selectedQuiz', quiz);
           this.selectedQuiz.next(quiz);
-          this.setOptions();
+          this.setQuestionOptions();
         });
       }
     
@@ -506,7 +506,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
   }
 
-  setOptions(): void {
+  setQuestionOptions(): void {
     console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
   
     // Log the selectedQuiz just before checking if it is null or undefined
