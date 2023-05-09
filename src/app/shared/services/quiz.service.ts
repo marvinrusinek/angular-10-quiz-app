@@ -266,7 +266,7 @@ export class QuizService implements OnDestroy {
           this.questions = questions;
         }),
         catchError(() => of([])),
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        // distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         shareReplay({ bufferSize: 1, refCount: true })
       );
     }
@@ -406,7 +406,6 @@ export class QuizService implements OnDestroy {
   getTotalQuestions(): Observable<number> {
     return this.getAllQuestions().pipe(
       map((questions) => questions?.length || 0),
-      distinctUntilChanged(),
       catchError(() => of(0))
     );
   }
