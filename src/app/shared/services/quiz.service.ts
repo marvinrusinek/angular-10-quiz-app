@@ -69,7 +69,9 @@ export class QuizService implements OnDestroy {
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
   quizName$ = new BehaviorSubject<string>('');
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  private selectedQuizId$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
   selectedQuiz: any;
+  selectedQuizId: string;
   indexOfQuizId: number;
   startedQuizId: string;
   continueQuizId: string;
@@ -749,6 +751,10 @@ export class QuizService implements OnDestroy {
 
   setQuiz(quiz: Quiz): Observable<Quiz> {
     console.log('QUIZSERVICE setQuiz called with', quiz.quizId);
+    this.selectedQuizId$.next(quiz.quizId);
+    this.selectedQuiz$.next(quiz);
+
+    this.quizId = quiz.quizId;
     this.quizId$.next(quiz.quizId);
     this.selectedQuiz = quiz;
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
@@ -767,9 +773,21 @@ export class QuizService implements OnDestroy {
   }
 
   isQuizSelected(): Observable<boolean> {
-    return this.quizId$.asObservable().pipe(
-      map((quizId) => !!quizId)
+    return this.getSelectedQuizId().pipe(
+      map(selectedQuizId => !!selectedQuizId),
+      tap(isSelected => {
+        if (!isSelected) {
+          console.log('QuizGuard canActivate: quiz not selected');
+          this.router.navigate(['/select']);
+        } else {
+          console.log('QuizGuard canActivate: quiz selected');
+        }
+      })
     );
+  }
+
+  getSelectedQuizId(): Observable<string> {
+    return this.quizId$.asObservable();
   }
 
   getSelectedQuiz(): Observable<Quiz> {
