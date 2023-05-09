@@ -114,6 +114,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ) || null;
   }
 
+  instanceId: number;
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
@@ -136,6 +138,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // console.log('FROM CONSTRUCTOR:', new Date().getTime());
     console.log('QuizQuestionComponent constructor called');
+    console.log(`QuizQuestionComponent constructor called (${this.instanceId})`);
   }
 
   async ngOnInit(): Promise<void> {
