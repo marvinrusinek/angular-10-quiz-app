@@ -53,8 +53,8 @@ import { QuizGuard } from './router/guards/quiz.guard';
   declarations: [
     AppComponent,
     IntroductionComponent,
-    QuizComponent,
     QuizQuestionComponent,
+    QuizComponent,
     MultipleAnswerComponent,
     SingleAnswerComponent,
     FeedbackComponent,
