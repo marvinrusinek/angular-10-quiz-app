@@ -248,22 +248,19 @@ export class QuizDataService {
         return questions;
       }),
       distinctUntilChanged((prevQuestions, currQuestions) => {
-        // Compare the length of the two arrays
+        // Compare arrays by their length and elements
         if (prevQuestions.length !== currQuestions.length) {
           return false;
         }
-        
-        // Compare each individual question in the two arrays
         for (let i = 0; i < prevQuestions.length; i++) {
-          if (prevQuestions[i].questionId !== currQuestions[i].questionId) {
+          if (prevQuestions[i] !== currQuestions[i]) {
             return false;
           }
         }
-        
         return true;
       })
     );
-  }
+  }  
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuestion(quizId, questionIndex).pipe(
