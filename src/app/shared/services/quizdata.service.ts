@@ -276,12 +276,14 @@ export class QuizDataService {
         }
         return options;
       }),
+      distinctUntilChanged(),
       catchError((error) => {
         console.error('Error fetching question:', error);
         throw error; // Rethrow the error to propagate it to the caller
       })
     );
   }
+
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     console.log(`getQuestionAndOptions called with quizId: ${quizId} and questionIndex: ${questionIndex}`);
