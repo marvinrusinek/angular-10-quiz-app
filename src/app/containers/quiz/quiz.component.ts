@@ -505,6 +505,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setOptions() {
+    this.optionsSet = true;
     this.answers =
       this.question && this.question.options
         ? this.question.options?.map((option) => option?.value)
