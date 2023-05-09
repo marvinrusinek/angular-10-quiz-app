@@ -89,6 +89,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestionWithOptions$: Observable<QuizQuestion>;
   currentOptions: Option[];
   options$: Observable<Option[]>;
+  optionsSet: boolean = false;
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   selectedQuizSubscription: Subscription;
