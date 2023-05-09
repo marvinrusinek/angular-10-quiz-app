@@ -64,7 +64,7 @@ enum QuizStatus {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
+  // providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();

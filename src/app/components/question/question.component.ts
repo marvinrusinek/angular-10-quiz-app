@@ -43,7 +43,7 @@ enum QuestionType {
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService]
+  // providers: [QuizService]
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
@@ -114,8 +114,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ) || null;
   }
 
-  instanceId: number;
-
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
@@ -138,7 +136,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // console.log('FROM CONSTRUCTOR:', new Date().getTime());
     console.log('QuizQuestionComponent constructor called');
-    console.log(`QuizQuestionComponent constructor called (${this.instanceId})`);
   }
 
   async ngOnInit(): Promise<void> {
