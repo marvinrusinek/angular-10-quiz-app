@@ -156,7 +156,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.explanationText$ = new BehaviorSubject<string>('');
-    console.log("QUIZCOMP CONSTRUCTOR");
+    console.log('QuizComponent constructor called');
   }
 
   ngOnInit(): void {
@@ -213,6 +213,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log('QuizComponent ngOnDestroy called');
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
