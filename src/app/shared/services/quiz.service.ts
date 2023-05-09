@@ -71,7 +71,7 @@ export class QuizService implements OnDestroy {
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   private selectedQuizId$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
   selectedQuiz: any;
-  selectedQuizId: string;
+  selectedQuizId: string | undefined;
   indexOfQuizId: number;
   startedQuizId: string;
   continueQuizId: string;
@@ -757,6 +757,7 @@ export class QuizService implements OnDestroy {
     //this.quizId = quiz.quizId;
     //this.quizId$.next(quiz.quizId);
     this.quizId$.next(quiz.quizId);
+    this.selectedQuizId = quiz.quizId;
     this.selectedQuiz = quiz;
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
       tap((quiz: Quiz) => {
@@ -774,9 +775,8 @@ export class QuizService implements OnDestroy {
   }
 
   isQuizSelected(): Observable<boolean> {
-    return this.quizId$.asObservable().pipe(
-      map((quizId) => !!quizId)
-    );
+    // Here, check if the selectedQuizId property is defined before returning true
+    return of(!!this.selectedQuizId).pipe(tap(_ => console.log(`QuizService: Quiz selected: ${!!this.selectedQuizId}`)));
   }
   
   getSelectedQuizId(): Observable<string> {

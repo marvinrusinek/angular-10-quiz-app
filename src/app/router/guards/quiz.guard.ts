@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
@@ -16,16 +16,13 @@ export class QuizGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    // const quizId = route.paramMap.get('quizId');
     return this.quizService.isQuizSelected().pipe(
-      tap(isSelected => {
-        if (!isSelected) {
+      tap(selected => {
+        if (!selected) {
           console.log('QuizGuard canActivate: quiz not selected');
-          this.router.navigate(['/select']);
-        } else {
-          console.log('QuizGuard canActivate: quiz selected');
+          this.router.navigateByUrl('/select');
         }
       })
     );
-  }   
+  }  
 }
