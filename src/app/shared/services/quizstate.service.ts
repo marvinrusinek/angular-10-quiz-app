@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -23,8 +23,16 @@ export class QuizStateService {
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+  selectedQuizIdSubject = new Subject<string>();
+  selectedQuizId = '';
+
   constructor() { 
     console.log("QUIZ-STATE-SERVICE");
+  }
+
+  setSelectedQuizId(quizId: string) {
+    this.selectedQuizId = quizId;
+    this.selectedQuizIdSubject.next(quizId);
   }
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {

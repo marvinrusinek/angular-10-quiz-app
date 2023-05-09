@@ -750,6 +750,7 @@ export class QuizService implements OnDestroy {
   }
 
   setQuiz(quiz: Quiz): Observable<Quiz> {
+    this.selectedQuizId = quiz.quizId;
     console.log('QUIZSERVICE setQuiz called with', quiz.quizId);
     //this.selectedQuizId$.next(quiz.quizId);
     //this.selectedQuiz$.next(quiz);
@@ -757,7 +758,6 @@ export class QuizService implements OnDestroy {
     //this.quizId = quiz.quizId;
     //this.quizId$.next(quiz.quizId);
     this.quizId$.next(quiz.quizId);
-    this.selectedQuizId = quiz.quizId;
     this.selectedQuiz = quiz;
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
       tap((quiz: Quiz) => {
@@ -774,11 +774,8 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  isQuizSelected(): Observable<boolean> {
-    return this.selectedQuizSubject.asObservable().pipe(
-      map((quiz) => !!quiz),
-      take(1)
-    );
+  isQuizSelected() {
+    return this.selectedQuizId !== null;
   }
     
   getSelectedQuizId(): Observable<string> {
