@@ -15,26 +15,17 @@ export class QuizGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const quizId = route.params.quizId;
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    // const quizId = route.paramMap.get('quizId');
     return this.quizService.isQuizSelected().pipe(
-      tap((isQuizSelected) => {
-        if (!isQuizSelected) {
+      tap(isSelected => {
+        if (!isSelected) {
           console.log('QuizGuard canActivate: quiz not selected');
           this.router.navigate(['/select']);
-        }
-      }),
-      switchMap(() => this.quizDataService.getQuizById(quizId)),
-      map((quiz) => {
-        if (quiz) {
-          console.log('QuizGuard canActivate: quiz selected');
-          return true;
         } else {
-          console.log(`QuizGuard canActivate: quiz not found with id ${quizId}`);
-          this.router.navigate(['/select']);
-          return false;
+          console.log('QuizGuard canActivate: quiz selected');
         }
       })
     );
-  }  
+  }   
 }
