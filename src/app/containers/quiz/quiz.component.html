@@ -14,11 +14,16 @@
       />
       <div class="header-titles" *ngIf="currentQuiz">
         <mat-card-title i18n
-          >{{ currentQuiz?.milestone || 'No questions found' }} Quiz</mat-card-title
+          >{{
+            currentQuiz?.milestone || 'No questions found'
+          }}
+          Quiz</mat-card-title
         >
         <mat-card-subtitle i18n
           >Assess your knowledge of
-          {{ currentQuiz?.milestone || 'No questions found' }}</mat-card-subtitle
+          {{
+            currentQuiz?.milestone || 'No questions found'
+          }}</mat-card-subtitle
         >
       </div>
     </mat-card-header>
@@ -30,12 +35,14 @@
       <section id="question">
         <h3 *ngIf="!displayExplanation">
           {{ question?.questionText }}
-          <span class="number-correct" *ngIf="isMultipleCorrectAnswers()">({{ numberOfCorrectAnswers }} answers are correct)</span>
+          <span class="number-correct" *ngIf="isMultipleCorrectAnswers()"
+            >({{ numberOfCorrectAnswers }} answers are correct)</span
+          >
         </h3>
         <div *ngIf="displayExplanation">
           <p>{{ explanationText || 'No explanation found' }}</p>
         </div>
-      </section> 
+      </section>
       <ng-container *ngIf="currentQuestion">
         <!-- the options -->
         <codelab-quiz-question
@@ -65,19 +72,18 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <ng-container [ngSwitch]="isAnswered()">
-        <span *ngSwitchCase="false" i18n class="selection-message">
+      <ng-container *ngIf="!isAnswered(); else nextMessage">
+        <span i18n class="selection-message">
           Please select an option to continue&hellip;
         </span>
-        <span
-          *ngSwitchCase="true"
-          i18n
-          class="next-message"
-          [hidden]="questionIndex === totalQuestions"
-        >
+      </ng-container>
+      
+      <ng-template #nextMessage>
+        <span i18n class="next-message">
           Please click the next button to continue&hellip;
         </span>
-      </ng-container>
+      </ng-template>
+      
 
       <!-- paging -->
       <section class="paging">

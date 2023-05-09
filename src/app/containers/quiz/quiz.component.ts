@@ -569,7 +569,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   isAnswered(): boolean {
-    return !!(this.answers && this.answers?.length > 0);
+    const optionSelected = this.answers?.some(answer => answer.selected);
+    return !!optionSelected;
   }
 
   onSelect(option: Option): void {
