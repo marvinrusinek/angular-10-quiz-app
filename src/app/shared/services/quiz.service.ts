@@ -264,7 +264,9 @@ export class QuizService implements OnDestroy {
           // console.log('ALL QUESTIONS', questions);
           this.questions = questions;
         }),
-        catchError(() => of([]))
+        catchError(() => of([])),
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        shareReplay({ bufferSize: 1, refCount: true })
       );
     }
     return this.questions$;
