@@ -775,10 +775,12 @@ export class QuizService implements OnDestroy {
   }
 
   isQuizSelected(): Observable<boolean> {
-    // Here, check if the selectedQuizId property is defined before returning true
-    return of(!!this.selectedQuizId).pipe(tap(_ => console.log(`QuizService: Quiz selected: ${!!this.selectedQuizId}`)));
+    return this.selectedQuizSubject.asObservable().pipe(
+      map((quiz) => !!quiz),
+      take(1)
+    );
   }
-  
+    
   getSelectedQuizId(): Observable<string> {
     return this.quizId$.asObservable();
   }
