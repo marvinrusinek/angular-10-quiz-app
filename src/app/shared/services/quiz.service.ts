@@ -151,6 +151,7 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
+    console.log("QUIZSERVICE");
     this.loadData();
     this.initializeData();
 

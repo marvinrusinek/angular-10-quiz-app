@@ -14,7 +14,7 @@ export class QuizGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const quizId = route.params.quizId;
 
-    if (this.quizService.isQuizSelected(quizId)) {
+    if (this.quizService.isQuizSelected()) {
       return true;
     } else {
       this.router.navigate(['/select']);
