@@ -537,13 +537,6 @@ export class QuizService implements OnDestroy {
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion> {
-    /* if (this.currentQuestion) {
-      console.log(
-        'Current question already available, returning cached question'
-      );
-      return this.currentQuestion;
-    } */
-
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
@@ -568,25 +561,22 @@ export class QuizService implements OnDestroy {
           return throwError(error);
         })
       )
-      .toPromise()
-      .then(
-        ({
-          quizId,
-          questions,
-        }: {
-          quizId: string;
-          questions: QuizQuestion[];
-        }) => {
+      .pipe(
+        switchMap(({ quizId, questions }) => {
           if (Array.isArray(questions)) {
             const currentQuestionIndex = this.currentQuestionIndex ?? 0;
             this.currentQuestion = questions[currentQuestionIndex];
             this.currentQuestionSubject.next(this.currentQuestion);
-            return this.currentQuestion;
+            return this.currentQuestionSubject.pipe(
+              distinctUntilChanged(),
+              take(1)
+            );
           } else {
             throw new Error('getCurrentQuestion() did not return an array');
           }
-        }
-      );
+        })
+      )
+      .toPromise();
 
     return this.currentQuestionPromise;
   }
