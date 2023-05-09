@@ -408,21 +408,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  /* getTotalQuestions(): Observable<number> {
-    return this.getAllQuestions().pipe(
-      map((questions) => questions?.length || 0),
-      catchError(() => of(0))
-    );
-  } */
-
-  /* getTotalQuestions(quizId: string): Observable<number> {
-    return this.getAllQuestions().pipe(
-      map((questions) => questions?.filter(question => question.quizId === quizId)?.length || 0),
-      distinctUntilChanged(),
-      catchError(() => of(0))
-    );
-  } */
-
   getTotalQuestions(): Observable<number> {
     return this.getQuizData().pipe(
       map((data) => {
@@ -433,7 +418,6 @@ export class QuizService implements OnDestroy {
       catchError(() => of(0))
     );
   }
-  
 
   updateTotalQuestions(totalQuestions: number): void {
     this.totalQuestionsSubject.next(totalQuestions);
