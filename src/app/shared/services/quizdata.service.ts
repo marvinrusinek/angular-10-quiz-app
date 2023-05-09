@@ -130,7 +130,10 @@ export class QuizDataService {
   setSelectedQuiz(quiz: Quiz | null): void {
     this.selectedQuiz = quiz;
     this.selectedQuiz$.next(quiz);
-    this.selectedQuiz$.pipe(take(1)).subscribe((selectedQuiz) => {
+    this.selectedQuiz$.pipe(
+      take(1),
+      distinctUntilChanged()
+    ).subscribe((selectedQuiz) => {
       this.selectedQuizSubject.next(selectedQuiz);
     });
   }
@@ -148,11 +151,16 @@ export class QuizDataService {
       }
       
       // Emit the selected quiz
-      this.selectedQuiz$.next(quiz);
+      this.selectedQuiz$.pipe(
+        distinctUntilChanged(),
+        take(1)
+      ).subscribe((selectedQuiz) => {
+        this.selectedQuizSubject.next(selectedQuiz);
+      });
       
       this.setSelectedQuiz(quiz);
     });
-  }  
+  }
 
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
