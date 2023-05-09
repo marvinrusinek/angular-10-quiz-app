@@ -207,9 +207,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.setOptions();
         this.optionsSet = true;
       }
-      /* if (this.quizStateService.getQuizQuestionCreated()) {
-        this.cdRef.detectChanges();
-      } */
     });
 
     this.subscribeRouterAndInit();
