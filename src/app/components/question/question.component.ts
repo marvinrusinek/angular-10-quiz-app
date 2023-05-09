@@ -394,22 +394,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription = this.quizService.currentQuestion$
-      .pipe(
-        tap(({ question }) => {
-          console.log('Question received:', question);
-          console.log('About to call initializeQuizState()...');
-          if (question) {
-            this.currentQuestion = question;
-            this.options = this.currentQuestion?.options;
-            this.initializeQuizState(this.currentQuestion);
-          }
-        }),
-        catchError((error) => {
-          console.error('Error in currentQuestion$ subscription:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
+    .pipe(
+      tap((data) => console.log('Data received:', data)),
+      tap(({ question }) => {
+        console.log('Question received:', question);
+        if (question) {
+          this.currentQuestion = question;
+          this.options = this.currentQuestion?.options;
+          this.initializeQuizState(this.currentQuestion);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error in currentQuestion$ subscription:', error);
+        return of(null);
+      })
+    )
+    .subscribe();
   }  
 
   subscriptionToOptions(): void {
