@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  forwardRef,
   Input,
   OnDestroy,
   OnInit,
@@ -34,6 +35,7 @@ import {
   tap,
 } from 'rxjs/operators';
 
+import { QuizQuestionComponent } from '../../components/question/question.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -65,7 +67,16 @@ enum QuizStatus {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
+  providers: [
+    FormBuilder, 
+    QuizService, 
+    QuizDataService, 
+    QuizStateService,
+    {
+      provide: QuizQuestionComponent,
+      useExisting: forwardRef(() => QuizQuestionComponent)
+    }
+  ]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
