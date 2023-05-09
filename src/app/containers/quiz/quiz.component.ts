@@ -62,9 +62,9 @@ enum QuizStatus {
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
   styleUrls: ['./quiz.component.scss'],
-  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();

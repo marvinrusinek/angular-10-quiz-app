@@ -43,6 +43,7 @@ enum QuestionType {
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [QuizService]
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();

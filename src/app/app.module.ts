@@ -40,6 +40,7 @@ import { SummaryReportComponent } from './containers/results/summary-report/summ
 import { SummaryIconsComponent } from './containers/results/summary-report/summary-icons/summary-icons.component';
 import { SummaryStatsComponent } from './containers/results/summary-report/summary-stats/summary-stats.component';
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
+import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizStateService } from './shared/services/quizstate.service';
 import { TimerService } from './shared/services/timer.service';
@@ -100,6 +101,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
   bootstrap: [AppComponent],
   providers: [
     QuizGuard,
+    QuizService,
     QuizDataService,
     QuizStateService,
     TimerService,
