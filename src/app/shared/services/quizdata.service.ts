@@ -188,31 +188,33 @@ export class QuizDataService {
     if (!quizId) {
       return throwError('quizId parameter is null or undefined');
     }
-
+  
     return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
+      distinctUntilChanged(),
       mergeMap((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
-
+  
         if (!quiz) {
           throw new Error('Invalid quizId');
         }
-
+  
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Quiz has no questions');
         }
-
+  
         return of(quiz);
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError('Error getting quiz\n' + error.message);
       })
     );
-  }
+  }  
 
   getQuizById(quizId: string): Observable<Quiz> {
     if (!quizId) {
       throw new Error(`Quiz ID is undefined`);
     }
+
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
       tap((quiz) => {
@@ -220,9 +222,10 @@ export class QuizDataService {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
       }),
+      distinctUntilChanged((prevQuiz, currQuiz) => JSON.stringify(prevQuiz) === JSON.stringify(currQuiz)),
       shareReplay()
     );
-  }  
+  }
 
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
@@ -230,10 +233,11 @@ export class QuizDataService {
       catchError((error) => {
         console.error('Error getting quiz question:', error);
         return throwError(error);
-      })
+      }),
+      distinctUntilChanged()
     );
   }
-
+  
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map((quiz: Quiz) => {
@@ -242,6 +246,21 @@ export class QuizDataService {
           this.setQuestionType(question);
         });
         return questions;
+      }),
+      distinctUntilChanged((prevQuestions, currQuestions) => {
+        // Compare the length of the two arrays
+        if (prevQuestions.length !== currQuestions.length) {
+          return false;
+        }
+        
+        // Compare each individual question in the two arrays
+        for (let i = 0; i < prevQuestions.length; i++) {
+          if (prevQuestions[i].questionId !== currQuestions[i].questionId) {
+            return false;
+          }
+        }
+        
+        return true;
       })
     );
   }
