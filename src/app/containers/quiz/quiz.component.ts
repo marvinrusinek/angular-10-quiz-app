@@ -65,7 +65,7 @@ enum QuizStatus {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
+  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
@@ -199,23 +199,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
-    /* this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+    this.quizDataService.selectedQuiz$.subscribe((quiz) => {
       this.selectedQuiz = quiz;
       console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
       this.setOptions();
-    }); */
-
-    this.quizDataService.selectedQuiz$
-      .pipe(
-        delay(0),
-        tap((quiz) => {
-          this.selectedQuiz = quiz;
-          console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
-          this.setOptions();
-        })
-      )
-      .subscribe();
-
+      if (this.quizStateService.getQuizQuestionCreated()) {
+        this.cdRef.detectChanges();
+      }
+    });
 
     this.subscribeRouterAndInit();
     this.setObservables();

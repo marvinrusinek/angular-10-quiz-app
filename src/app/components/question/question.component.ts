@@ -142,6 +142,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);
 
+    if (!this.quizStateService.getQuizQuestionCreated()) {
+      this.quizStateService.setQuizQuestionCreated();
+    }
+
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -154,6 +158,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     if (!this.initialized) {
+      this.initialized = true;
+
       if (this.quizDataService.selectedQuiz$) {
         this.quizDataService.selectedQuiz$.subscribe((quiz) => {
           console.log('selectedQuiz', quiz);
@@ -173,8 +179,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.error('quizId parameter is null or undefined');
       }
-
-      this.initialized = true;
     }
 
     try {

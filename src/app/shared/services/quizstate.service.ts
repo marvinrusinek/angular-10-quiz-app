@@ -23,6 +23,8 @@ export class QuizStateService {
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+  private quizQuestionCreated = false;
+
   constructor() { 
     console.log("QUIZ-STATE-SERVICE");
   }
@@ -81,5 +83,13 @@ export class QuizStateService {
     this.multipleAnswer$.subscribe((value) => {
       this.multipleAnswerSubject.next(value);
     });
+  }
+
+  setQuizQuestionCreated() {
+    this.quizQuestionCreated = true;
+  }
+
+  getQuizQuestionCreated() {
+    return this.quizQuestionCreated;
   }
 }
