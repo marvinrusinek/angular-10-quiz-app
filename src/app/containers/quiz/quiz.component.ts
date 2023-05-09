@@ -35,7 +35,6 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { QuizQuestionComponent } from '../../components/question/question.component';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -71,11 +70,7 @@ enum QuizStatus {
     FormBuilder, 
     QuizService, 
     QuizDataService, 
-    QuizStateService,
-    {
-      provide: QuizQuestionComponent,
-      useExisting: forwardRef(() => QuizQuestionComponent)
-    }
+    QuizStateService
   ]
 })
 export class QuizComponent implements OnInit, OnDestroy {
