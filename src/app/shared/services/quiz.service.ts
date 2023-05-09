@@ -12,6 +12,7 @@ import {
 } from 'rxjs';
 import {
   catchError,
+  distinctUntilChanged,
   filter,
   map,
   shareReplay,
@@ -288,7 +289,8 @@ export class QuizService implements OnDestroy {
         console.error('An error occurred while loading questions:', error);
         return throwError('Something went wrong.');
       }),
-      map((filteredQuestions) => ({ quizId, questions: filteredQuestions }))
+      map((filteredQuestions) => ({ quizId, questions: filteredQuestions })),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     );
   }
 
@@ -317,7 +319,9 @@ export class QuizService implements OnDestroy {
           'Questions array is null or undefined, loading questions for quiz'
         );
         console.log('Before loadQuestions');
-        this.loadQuestions().subscribe(
+        this.loadQuestions().pipe(
+          distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+        ).subscribe(
           (questions) => {
             this.questions = questions;
             console.log('Loaded questions array:', this.questions);
