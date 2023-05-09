@@ -360,6 +360,7 @@ export class QuizService implements OnDestroy {
 
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
+  
     if (!this.currentQuestionPromise) {
       return this.currentQuestionSubject.pipe(
         switchMap(() => {
@@ -367,11 +368,11 @@ export class QuizService implements OnDestroy {
         })
       );
     }
-
+  
     this.currentQuestionPromise = this.currentQuestionSubject
       .pipe(filter((question) => !!question))
       .toPromise();
-
+  
     return from(this.currentQuestionPromise).pipe(
       switchMap((currentQuestion) => {
         const quizId = this.getCurrentQuizId();
@@ -391,10 +392,11 @@ export class QuizService implements OnDestroy {
             return throwError(error);
           })
         );
-      })
+      }),
+      distinctUntilChanged()
     );
   }
-
+  
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
@@ -404,6 +406,7 @@ export class QuizService implements OnDestroy {
   getTotalQuestions(): Observable<number> {
     return this.getAllQuestions().pipe(
       map((questions) => questions?.length || 0),
+      distinctUntilChanged(),
       catchError(() => of(0))
     );
   }
