@@ -189,12 +189,17 @@ export class QuizService implements OnDestroy {
   }
 
   private loadData(): void {
-    this.getQuizData().subscribe((data) => {
+    this.getQuizData().pipe(
+      distinctUntilChanged(),
+    ).subscribe((data) => {
       this._quizData$.next(data);
     });
-
-    this.activatedRoute.paramMap.subscribe((params) => {
-      this.quizId = params.get('quizId');
+  
+    this.activatedRoute.paramMap.pipe(
+      map(params => params.get('quizId')),
+      distinctUntilChanged(),
+    ).subscribe((quizId) => {
+      this.quizId = quizId;
       this.indexOfQuizId = this.quizData.findIndex(
         (elem) => elem.quizId === this.quizId
       );
