@@ -927,13 +927,14 @@ export class QuizService implements OnDestroy {
     this.questions$
       .pipe(
         map((questions) => questions[questionIndex]),
+        distinctUntilChanged(),
         tap((question) => {
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
         }),
         shareReplay(1)
       )
-      .subscribe();
+    .subscribe();
   }
 
   navigateToPreviousQuestion() {
