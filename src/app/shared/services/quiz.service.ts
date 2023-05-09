@@ -762,6 +762,10 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
+  isQuizSelected(): boolean {
+    return !!this.getSelectedQuiz();
+  }
+
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$;
   }
