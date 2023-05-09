@@ -284,12 +284,11 @@ export class QuizDataService {
     );
   }
 
-
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]]> {
     console.log(`getQuestionAndOptions called with quizId: ${quizId} and questionIndex: ${questionIndex}`);
     console.log('getQuestionAndOptions called');
     if (this.hasQuestionAndOptionsLoaded && this.currentQuestionIndex === questionIndex) {
-      return this.questionAndOptionsSubject.asObservable();
+      return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
     }
   
     const quiz$ = this.loadQuizData();
@@ -302,7 +301,7 @@ export class QuizDataService {
 
     console.log('getQuestionAndOptions completed');
   
-    return this.questionAndOptionsSubject.asObservable();
+    return this.questionAndOptionsSubject.asObservable().pipe(distinctUntilChanged());
   }
 
   loadQuizData(): Observable<Quiz[]> {
@@ -312,6 +311,7 @@ export class QuizDataService {
         return of(null);
       }),
       retryWhen((errors) => errors.pipe(delay(1000), take(3))),
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
@@ -432,9 +432,11 @@ export class QuizDataService {
   }
 
   getCurrentQuestionIndex(): Observable<number> {
-    return this.currentQuestionIndex$.asObservable();
+    return this.currentQuestionIndex$.asObservable().pipe(
+      distinctUntilChanged()
+    );
   }
-
+  
   private setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter(option => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
@@ -451,7 +453,8 @@ export class QuizDataService {
       catchError((error) => {
         console.error(`Error submitting quiz ${quiz.quizId}`, error);
         return throwError(error);
-      })
+      }),
+      distinctUntilChanged()
     );
   }
 }
