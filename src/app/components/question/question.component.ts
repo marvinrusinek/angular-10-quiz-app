@@ -180,6 +180,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const question = await this.quizService.getCurrentQuestion();
       console.log('MY Q', question);
       this.quizService.setCurrentQuestion(question);
+      console.log('setCurrentQuestion called with:', question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
 
@@ -242,7 +243,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
-    
+
     this.destroy$.next();
     this.destroy$.complete();
   }

@@ -792,6 +792,7 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
+    console.log('setCurrentQuestion called');
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
         tap({
