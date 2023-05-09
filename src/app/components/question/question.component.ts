@@ -268,16 +268,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('INIT QUESTION', question);
 
     this.quizStateService.setCurrentQuestion(of(question));
-
-    /* if (question.options) {
-      this.quizStateService
-        .isMultipleAnswer(question)
-        .subscribe((isMultipleAnswer) => {
-          this.multipleAnswer = isMultipleAnswer;
-        });
-    } else {
-      console.error('Question options not found.', question);
-    } */
   }
 
   private loadQuestionsForQuiz(quizId: string): void {
@@ -406,6 +396,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         tap(({ question }) => {
           console.log('Question received:', question);
+        }),
+        tap(({ question }) => {
+          console.log('About to call initializeQuizState()...');
           if (question) {
             this.currentQuestion = question;
             this.options = this.currentQuestion?.options;
@@ -418,7 +411,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         })
       )
       .subscribe();
-  }
+  }  
 
   subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
