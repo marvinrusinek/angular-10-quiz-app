@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -39,7 +39,8 @@ export class QuizStateService {
       catchError((error) => {
         console.error(error);
         return throwError(error);
-      })
+      }),
+      distinctUntilChanged()
     ).subscribe((question) => {
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);

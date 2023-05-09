@@ -322,6 +322,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizStateService.currentQuestion$,
       this.quizStateService.currentOptions$,
     ]).pipe(
+      distinctUntilChanged(),
       map(([question, options]) => {
         return {
           ...question,
