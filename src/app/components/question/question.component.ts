@@ -176,6 +176,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (quizId) {
         this.quizId = quizId;
         this.loadQuestionsForQuiz(quizId);
+        this.quizDataService.getQuizById(quizId).subscribe((quiz) => {
+          this.quizDataService.setSelectedQuiz(quiz);
+        });
       } else {
         console.error('quizId parameter is null or undefined');
       }
