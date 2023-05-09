@@ -3,7 +3,6 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  forwardRef,
   Input,
   OnDestroy,
   OnInit,
@@ -28,7 +27,6 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  delay,
   distinctUntilChanged,
   filter,
   map,
