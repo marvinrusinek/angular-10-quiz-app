@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="currentQuestion?.options">
   <label
     class="options"
     *ngFor="
@@ -32,3 +32,4 @@
     ></codelab-quiz-feedback>
   </label>
 </ng-container>
+

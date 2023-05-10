@@ -1,27 +1,37 @@
 <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
   <ng-container *ngSwitchCase="multipleAnswer">
-    <codelab-question-multiple-answer
-      [form]="questionForm"
-      [question]="currentQuestion"
-      [questions]="questions"
-      [currentQuestion]="currentQuestion"
-      [currentQuestionIndex]="currentQuestionIndex"
-      [options]="currentQuestion?.options"
-      [selectedOptions]="currentQuestion?.selectedOptions"
-      [correctAnswers]="correctAnswers"
-      [correctMessage]="correctMessage"
-      (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
-    ></codelab-question-multiple-answer>
+    <ng-container *ngIf="currentQuestion?.options && currentQuestion.options.length > 0">
+      <codelab-question-multiple-answer
+        [form]="questionForm"
+        [question]="currentQuestion"
+        [questions]="questions"
+        [currentQuestion]="currentQuestion"
+        [currentQuestionIndex]="currentQuestionIndex"
+        [options]="currentQuestion.options"
+        [selectedOptions]="currentQuestion.selectedOptions"
+        [correctAnswers]="correctAnswers"
+        [correctMessage]="correctMessage"
+        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+      ></codelab-question-multiple-answer>
+    </ng-container>
+    <ng-container *ngIf="!currentQuestion?.options || currentQuestion.options.length === 0">
+      No options found for the current question.
+    </ng-container>
   </ng-container>
   <ng-container *ngSwitchCase="!multipleAnswer">
-    <codelab-question-single-answer
-      [question]="currentQuestion"
-      [questions]="questions"
-      [options]="currentQuestion?.options"
-      [selectedOption]="currentQuestion?.selectedOption"
-      [currentQuestion]="currentQuestion"
-      [currentQuestionIndex]="currentQuestionIndex"
-      (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
-    ></codelab-question-single-answer>
+    <ng-container *ngIf="currentQuestion?.options && currentQuestion.options.length > 0">
+      <codelab-question-single-answer
+        [question]="currentQuestion"
+        [questions]="questions"
+        [options]="currentQuestion.options"
+        [selectedOption]="currentQuestion.selectedOption"
+        [currentQuestion]="currentQuestion"
+        [currentQuestionIndex]="currentQuestionIndex"
+        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+      ></codelab-question-single-answer>
+    </ng-container>
+    <ng-container *ngIf="!currentQuestion?.options || currentQuestion.options.length === 0">
+      No options found for the current question.
+    </ng-container>
   </ng-container>
 </form>

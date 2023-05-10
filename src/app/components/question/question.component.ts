@@ -609,7 +609,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationText$.next(this.currentQuestion.explanation);
     }
     this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.answer.emit(this.selectedOption.optionId);
+    this.answer.emit(this.selectedOption?.optionId);
     this.optionSelected.emit(option);
   }  
 
@@ -677,6 +677,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
                   
+  /* private updateClassName(selectedOption: Option, optionIndex: number): void {
+    if (
+      selectedOption &&
+      this.currentQuestion &&
+      this.currentQuestion?.options &&
+      this.optionSelected
+    ) {
+      const selectedOption = this.currentQuestion.options[optionIndex];
+      this.optionSelected['styleClass'] = selectedOption.correct ? 'correct' : 'incorrect';
+
+      /* this.optionSelected['styleClass'] = this.currentQuestion?.options[
+        optionIndex
+      ]['correct']
+        ? 'correct'
+        : 'incorrect';
+    }
+  } */
+
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
@@ -689,6 +707,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ]['correct']
         ? 'correct'
         : 'incorrect';
+    }
+    // Add null check for selectedOption
+    else if (this.optionSelected) {
+      this.optionSelected['styleClass'] = '';
     }
   }
 
