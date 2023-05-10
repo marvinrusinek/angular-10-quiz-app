@@ -82,11 +82,11 @@ export class QuizStateService {
     });
   }
 
-  setQuizQuestionCreated() {
+  setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
   }
 
-  getQuizQuestionCreated() {
+  getQuizQuestionCreated(): boolean {
     return this.quizQuestionCreated;
   }
 }
