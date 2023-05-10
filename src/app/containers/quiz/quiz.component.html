@@ -54,7 +54,6 @@
           [answers]="answers"
           [selectedOption]="selectedOption$ | async"
           (onOptionSelected)="onOptionSelected($event)"
-          [isOptionSelected]="isOptionSelected"
           (isOptionSelectedChange)="onIsOptionSelectedChange($event)"
           (formReady)="form = $event"
           [currentQuestion$]="currentQuestion$ | async"
@@ -64,6 +63,7 @@
           (explanationTextChange)="explanationText = $event"
           (showExplanationTextChange)="showExplanationText = $event"
           (showExplanation)="displayExplanation($event)"
+          isOptionSelected="isOptionSelected"
         >
         </codelab-quiz-question>
       </ng-container>
@@ -74,14 +74,23 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <ng-container [ngSwitch]="isAnswered || isOptionSelected">
+      <!--<ng-container [ngSwitch]="isAnswered || isOptionSelected">
         <span *ngIf="!isOptionSelected" class="selection-message">
           Please select an option to continue...
         </span>
         <span *ngIf="isOptionSelected" class="next-message">
           Please click the next button to continue...
         </span>
+      </ng-container>-->
+      <ng-container [ngSwitch]="selectedOption$ | async">
+        <span *ngSwitchCase="undefined" class="selection-message">
+          Please select an option to continue...
+        </span>
+        <span *ngSwitchDefault class="next-message">
+          Please click the next button to continue...
+        </span>
       </ng-container>
+      
     
       <!-- paging -->
       <section class="paging">

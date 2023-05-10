@@ -93,7 +93,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
-  @Input() isOptionSelected: boolean = false;
+  isOptionSelected: boolean = false;
   @Input() isAnswered: boolean;
   isChangeDetected = false;
   private initialized = false;
@@ -597,7 +597,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   onOptionSelected(option: Option): void {
     this.isOptionSelected = true;
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
     
     if (this.selectedOptions.includes(option)) {
       this.selectedOptions = this.selectedOptions.filter(
@@ -609,6 +608,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showExplanationText.emit(true);
       this.explanationText$.next(this.currentQuestion.explanation);
     }
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.answer.emit(this.selectedOption.optionId);
     this.optionSelected.emit(option);
   }  
 
@@ -618,6 +619,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.selectedOption = clickedOption;
+
+    console.log("OS", this.isOptionSelected);
 
     const answerIndex = this.answers.findIndex((answer) => answer.questionId === this.currentQuestionIndex);
     if (answerIndex !== -1) {
