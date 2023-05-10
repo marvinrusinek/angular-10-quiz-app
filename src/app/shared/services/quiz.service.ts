@@ -63,6 +63,8 @@ export class QuizService implements OnDestroy {
   resources: Resource[];
   quizId: string = '';
   answers: number[];
+  private answerStatus = new BehaviorSubject<boolean>(false);
+  answerStatus$ = this.answerStatus.asObservable();
   totalQuestions: number = 0;
   quizLength: number;
   quizStartTime: Date;
@@ -244,6 +246,14 @@ export class QuizService implements OnDestroy {
 
     this.currentQuizSubject.next(quiz);
   }
+
+  setAnswerStatus(status: boolean) {
+    this.answerStatus.next(status);
+  }
+
+  isAnswered(): boolean {
+    return !!this.answers[this.currentQuestionIndex];
+  }  
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
     const quizId = this.quizId;

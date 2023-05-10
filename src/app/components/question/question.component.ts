@@ -613,7 +613,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.selectedOption = clickedOption;
 
-  
+    // set the selected answer in the answers array
+    const answerIndex = this.answers.findIndex(answer => answer.questionId === this.currentQuestionIndex);
+    if (answerIndex !== -1) {
+      this.answers[answerIndex].optionId = this.selectedOption.optionId;
+    } else {
+      this.answers.push({
+        questionId: this.currentQuestionIndex,
+        optionId: this.selectedOption.optionId,
+      });
+    }
+    this.quizService.setAnswerStatus(this.quizService.isAnswered());
+
     if (!question) {
       return;
     }

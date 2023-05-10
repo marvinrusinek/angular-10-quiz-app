@@ -233,6 +233,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
+  onSelectionChange(questionIndex: number, answerIndex: number) {
+    this.selectedAnswerIndex = answerIndex;
+    this.answers[questionIndex] = this.questions[questionIndex].options[answerIndex];
+  }
+
   setCurrentQuizForQuizId(): void {
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
     this.activatedRoute.params.subscribe((params) => {
@@ -569,10 +574,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   isAnswered(): boolean {
-    const answered = !!(this.answers && this.answers?.length > 0);
-    console.log('isAnswered:', answered);
-    return answered;
-  }
+    return !!this.answers[this.currentQuestionIndex];
+  }  
   
   onSelect(option: Option): void {
     this.selectedOption = option;
