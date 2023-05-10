@@ -150,36 +150,31 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option: Option): string {
-    let selectedOption = null;
-  
-    // Check if currentQuestion is defined and has the selectedOption property set
-    if (this.currentQuestion && 'selectedOption' in this.currentQuestion) {
-      // Access the selectedOption property
-      selectedOption = (this.currentQuestion as any).selectedOption;
-    } else {
-      // Handle the error case appropriately
-      console.error('currentQuestion or selectedOption is undefined or null.');
-    }
-  
+    const selectedOptions = this.selectedOptions ?? [];
+    const selectedOption = (this.currentQuestion?.selectedOptions || [])[0];
+
     if (
-      Array.isArray(this.selectedOptions) &&
-      this.selectedOptions.includes(option) &&
+      Array.isArray(selectedOptions) &&
+      selectedOptions.includes(option) &&
       option.correct
     ) {
       return 'correct';
     } else if (
-      Array.isArray(this.selectedOptions) &&
-      this.selectedOptions.includes(option) &&
+      Array.isArray(selectedOptions) &&
+      selectedOptions.includes(option) &&
       !option.correct
     ) {
       return 'incorrect';
-    } else if (option === selectedOption) {
+    } else if (
+      this.currentQuestion &&
+      Array.isArray(this.currentQuestion.selectedOptions) &&
+      this.currentQuestion.selectedOptions.includes(option)
+    ) {
       return 'selected';
     } else {
       return '';
     }
   }
-  
 
   isOptionCorrect(option: Option): boolean {
     return option.correct;
