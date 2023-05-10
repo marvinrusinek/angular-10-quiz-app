@@ -150,7 +150,8 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option: Option): string {
-    const selectedOption = this.currentQuestion?.selectedOptions?.[0];
+    const selectedOption = (this.currentQuestion?.selectedOptions || [])[0];
+  
     if (
       Array.isArray(this.selectedOptions) &&
       this.selectedOptions.includes(option) &&
