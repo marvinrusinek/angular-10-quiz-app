@@ -573,9 +573,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('none');
   }
 
-  isAnswered(): boolean {
-    return !!this.answers[this.currentQuestionIndex];
-  }  
+  isAnswered() {
+    return this.answers.some(answer => answer.questionId === this.questions.indexOf(this.question));
+  }
   
   onSelect(option: Option): void {
     this.selectedOption = option;

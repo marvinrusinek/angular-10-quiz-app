@@ -45,6 +45,7 @@ enum QuestionType {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+  @Output() isOptionSelectedChange = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
@@ -92,6 +93,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
+  isOptionSelected = false;
   isChangeDetected = false;
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -613,8 +615,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.selectedOption = clickedOption;
 
-    // set the selected answer in the answers array
-    const answerIndex = this.answers.findIndex(answer => answer.questionId === this.currentQuestionIndex);
+    const answerIndex = this.answers.findIndex((answer) => answer.questionId === this.currentQuestionIndex);
     if (answerIndex !== -1) {
       this.answers[answerIndex].optionId = this.selectedOption.optionId;
     } else {
@@ -624,6 +625,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
+    this.isOptionSelected = true;
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
 
     if (!question) {
       return;
