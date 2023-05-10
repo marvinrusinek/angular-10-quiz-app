@@ -129,7 +129,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
-    this.selectedOption = this.getSelectedOption();
+    this.selectedOption = this.question ? this.getSelectedOption() : undefined;
     this.correctMessage = '';
 
     this.questionForm = this.fb.group({
@@ -681,7 +681,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (
       selectedOption &&
       this.currentQuestion &&
-      this.currentQuestion?.options
+      this.currentQuestion?.options &&
+      this.optionSelected
     ) {
       this.optionSelected['styleClass'] = this.currentQuestion?.options[
         optionIndex
