@@ -708,7 +708,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         ? 'correct'
         : 'incorrect';
     }
-    // Add null check for selectedOption
     else if (this.optionSelected) {
       this.optionSelected['styleClass'] = '';
     }
