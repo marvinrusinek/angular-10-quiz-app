@@ -111,6 +111,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
   correctAnswers: any[] = [];
+  isOptionSelected = false;
   isDisabled: boolean;
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
@@ -579,6 +580,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   onSelect(option: Option): void {
     this.selectedOption = option;
+  }
+
+  onIsOptionSelectedChange(isOptionSelected: boolean) {
+    this.isOptionSelected = isOptionSelected;
   }
 
   updateSelectedOption(selectedOption: Option): void {

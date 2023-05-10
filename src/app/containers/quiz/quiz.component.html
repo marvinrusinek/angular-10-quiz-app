@@ -50,10 +50,12 @@
           [question]="question"
           [questions]="questions$ | async"
           [options]="question?.options"
+          [isOptionSelected]="isOptionSelected"
           (answer)="selectedAnswer($event)"
           [answers]="answers"
           [selectedOption]="selectedOption$ | async"
           (onOptionSelected)="onOptionSelected($event)"
+          (isOptionSelectedChange)="onIsOptionSelectedChange($event)"
           (formReady)="form = $event"
           [currentQuestion$]="currentQuestion$ | async"
           [currentQuestionIndex]="currentQuestionIndex"
@@ -73,14 +75,13 @@
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
       <ng-container [ngSwitch]="isAnswered() || isOptionSelected">
-      <span *ngIf="!isOptionSelected" class="selection-message">
-        Please select an option to continue...
-      </span>
-      <span *ngIf="isOptionSelected" class="next-message">
-        Please click the next button to continue...
-      </span>
+        <span *ngIf="!isOptionSelected" class="selection-message">
+          Please select an option to continue...
+        </span>
+        <span *ngIf="isOptionSelected" class="next-message">
+          Please click the next button to continue...
+        </span>
       </ng-container>
-    
     
       <!-- paging -->
       <section class="paging">
