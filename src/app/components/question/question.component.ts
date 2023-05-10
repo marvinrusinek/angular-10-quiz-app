@@ -93,7 +93,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
-  isOptionSelected = false;
+  @Input() isOptionSelected: boolean = false;
+  @Input() isAnswered: boolean;
   isChangeDetected = false;
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -626,8 +627,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
     this.isOptionSelected = true;
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-
+ 
     if (!question) {
       return;
     }
@@ -668,6 +668,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
+
+    // this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.isOptionSelectedChange.emit(true);
   }
                   
   private updateClassName(selectedOption: Option, optionIndex: number): void {

@@ -74,7 +74,7 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <ng-container [ngSwitch]="isAnswered() || isOptionSelected">
+      <ng-container [ngSwitch]="isAnswered || isOptionSelected">
         <span *ngIf="!isOptionSelected" class="selection-message">
           Please select an option to continue...
         </span>
