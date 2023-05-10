@@ -178,6 +178,22 @@ export class MultipleAnswerComponent
     );
   }
 
+  onOptionSelected(option: Option) {
+    const optionIndex = this.currentQuestion.options.findIndex((o) => o.optionId === option.optionId);
+    if (optionIndex >= 0) {
+      const isChecked = this.questionForm.value[`option_${optionIndex}`];
+      if (isChecked) {
+        this.currentQuestion.selectedOptions.push(option);
+      } else {
+        const index = this.currentQuestion.selectedOptions.findIndex((o) => o.optionId === option.optionId);
+        if (index >= 0) {
+          this.currentQuestion.selectedOptions.splice(index, 1);
+        }
+      }
+    }
+  }
+ 
+
   /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
 
