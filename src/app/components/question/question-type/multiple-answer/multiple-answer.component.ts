@@ -150,6 +150,17 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option: Option): string {
+    let selectedOption = null;
+
+    // Check if currentQuestion is defined and has the selectedOption property set
+    if (this.currentQuestion && 'selectedOption' in this.currentQuestion) {
+      // Access the selectedOption property
+      selectedOption = this.currentQuestion.selectedOption;
+    } else {
+      // Handle the error case appropriately
+      console.error('currentQuestion or selectedOption is undefined or null.');
+    }
+
     if (
       Array.isArray(this.selectedOptions) &&
       this.selectedOptions.includes(option) &&
@@ -162,6 +173,8 @@ export class MultipleAnswerComponent
       !option.correct
     ) {
       return 'incorrect';
+    } else if (option === selectedOption) {
+      return 'selected';
     } else {
       return '';
     }
@@ -171,28 +184,12 @@ export class MultipleAnswerComponent
     return option.correct;
   }
 
-  isOptionSelected(option: Option): boolean {
+  /* isOptionSelected(option: Option): boolean {
     return (
       Array.isArray(this.selectedOptions) &&
       this.selectedOptions.includes(option)
     );
-  }
-
-  onOptionSelected(option: Option) {
-    const optionIndex = this.currentQuestion.options.findIndex((o) => o.optionId === option.optionId);
-    if (optionIndex >= 0) {
-      const isChecked = this.questionForm.value[`option_${optionIndex}`];
-      if (isChecked) {
-        this.currentQuestion.selectedOptions.push(option);
-      } else {
-        const index = this.currentQuestion.selectedOptions.findIndex((o) => o.optionId === option.optionId);
-        if (index >= 0) {
-          this.currentQuestion.selectedOptions.splice(index, 1);
-        }
-      }
-    }
-  }
- 
+  } */
 
   /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
     super.onSelectionChange(question, selectedOptions);
