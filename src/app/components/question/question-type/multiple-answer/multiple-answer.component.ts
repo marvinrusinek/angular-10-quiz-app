@@ -150,17 +150,7 @@ export class MultipleAnswerComponent
   }
 
   getOptionClass(option: Option): string {
-    let selectedOption = null;
-
-    // Check if currentQuestion is defined and has the selectedOption property set
-    if (this.currentQuestion && 'selectedOption' in this.currentQuestion) {
-      // Access the selectedOption property
-      selectedOption = this.currentQuestion.selectedOption;
-    } else {
-      // Handle the error case appropriately
-      console.error('currentQuestion or selectedOption is undefined or null.');
-    }
-
+    const selectedOption = this.currentQuestion?.selectedOptions?.[0];
     if (
       Array.isArray(this.selectedOptions) &&
       this.selectedOptions.includes(option) &&
