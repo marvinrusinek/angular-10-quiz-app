@@ -596,6 +596,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionSelected(option: Option): void {
+    this.isOptionSelected = true;
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    
     if (this.selectedOptions.includes(option)) {
       this.selectedOptions = this.selectedOptions.filter(
         (selectedOption) => selectedOption !== option
@@ -627,6 +630,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
     this.isOptionSelected = true;
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
  
     if (!question) {
       return;
@@ -668,9 +672,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         });
       }
     }
-
-    // this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.isOptionSelectedChange.emit(true);
   }
                   
   private updateClassName(selectedOption: Option, optionIndex: number): void {
