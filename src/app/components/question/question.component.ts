@@ -677,7 +677,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateClassName(event: any): void {
+  /* private updateClassName(event: any): void {
     if (event && event.selectedOption) {
       const optionIndex = this.currentQuestion.options.findIndex(
         (option) => option === event.selectedOption
@@ -687,6 +687,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else if (this.optionSelected) {
         this.optionSelected['styleClass'] = '';
       }
+    }
+  } */
+
+  private updateClassName(event: any): void {
+    const optionIndex = event.optionIndex;
+    const selectedOption = event.selectedOption;
+    const currentQuestion = event.question;
+
+    if (currentQuestion && currentQuestion.options && optionIndex >= 0) {
+      currentQuestion.options.forEach(option => (option.styleClass = ''));
+      currentQuestion.options[optionIndex].styleClass = selectedOption.correct
+        ? 'correct'
+        : 'incorrect';
+      console.log(currentQuestion.options[optionIndex].styleClass);
     }
   }
     
