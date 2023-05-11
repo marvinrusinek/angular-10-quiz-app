@@ -11,7 +11,7 @@
         [selectedOptions]="currentQuestion.selectedOptions"
         [correctAnswers]="correctAnswers"
         [correctMessage]="correctMessage"
-        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+        (answer)="updateClassName($event)"
       ></codelab-question-multiple-answer>
     </ng-container>
     <ng-container *ngIf="!currentQuestion?.options || currentQuestion.options.length === 0">

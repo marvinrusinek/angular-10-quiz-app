@@ -676,43 +676,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
   }
-                  
-  /* private updateClassName(selectedOption: Option, optionIndex: number): void {
-    if (
-      selectedOption &&
-      this.currentQuestion &&
-      this.currentQuestion?.options &&
-      this.optionSelected
-    ) {
-      const selectedOption = this.currentQuestion.options[optionIndex];
-      this.optionSelected['styleClass'] = selectedOption.correct ? 'correct' : 'incorrect';
 
-      /* this.optionSelected['styleClass'] = this.currentQuestion?.options[
-        optionIndex
-      ]['correct']
-        ? 'correct'
-        : 'incorrect';
-    }
-  } */
-
-  private updateClassName(selectedOption: Option, optionIndex: number): void {
-    if (
-      selectedOption &&
-      this.currentQuestion &&
-      this.currentQuestion?.options &&
-      this.optionSelected
-    ) {
-      this.optionSelected['styleClass'] = this.currentQuestion?.options[
-        optionIndex
-      ]['correct']
-        ? 'correct'
-        : 'incorrect';
-    }
-    else if (this.optionSelected) {
-      this.optionSelected['styleClass'] = '';
+  private updateClassName(event: any): void {
+    if (event && event.selectedOption) {
+      const optionIndex = this.currentQuestion.options.findIndex(
+        (option) => option === event.selectedOption
+      );
+      if (optionIndex >= 0 && this.optionSelected) {
+        this.optionSelected['styleClass'] = this.currentQuestion.options[optionIndex].correct ? 'correct' : 'incorrect';
+      } else if (this.optionSelected) {
+        this.optionSelected['styleClass'] = '';
+      }
     }
   }
-
+    
   private playSound(optionIndex: number): void {
     if (this.currentQuestion && this.currentQuestion?.options) {
       if (this.currentQuestion?.options[optionIndex]['correct']) {
