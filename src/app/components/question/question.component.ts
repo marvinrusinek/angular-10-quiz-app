@@ -148,6 +148,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizStateService.setQuizQuestionCreated();
     }
 
+    this.questions = this.quizService.getAllQuestions();
+    this.questions.forEach((q: QuizQuestion) => q.selectedOptions = null);
+
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
