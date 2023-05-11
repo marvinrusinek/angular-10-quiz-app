@@ -30,6 +30,7 @@ import {
   distinctUntilChanged,
   filter,
   map,
+  startWith,
   tap,
 } from 'rxjs/operators';
 
@@ -404,7 +405,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
-    this.currentQuestion$ = this.quizService.currentQuestion$.pipe(map(({ question }) => question));
+    this.currentQuestion$ = this.quizService.currentQuestion$.pipe(
+      map(({ question }) => question)
+    );
     return this.currentQuestion$;
   }
 
