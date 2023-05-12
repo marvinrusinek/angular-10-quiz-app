@@ -20,6 +20,7 @@ import {
   BehaviorSubject,
   combineLatest,
   forkJoin,
+  from,
   Observable,
   of,
   Subject,
@@ -30,7 +31,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  startWith,
   tap,
 } from 'rxjs/operators';
 
@@ -213,6 +213,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.setOptions();
         this.optionsSet = true;
       }
+    });
+
+    this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
+    this.currentQuestion$.subscribe(currentQuestion => {
+      console.log('Current question:', currentQuestion);
+      this.currentQuestion = currentQuestion;
     });
 
     this.subscribeRouterAndInit();

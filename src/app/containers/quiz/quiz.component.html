@@ -43,7 +43,8 @@
           <p>{{ explanationText || 'No explanation found' }}</p>
         </div>
       </section>
-      <ng-container *ngIf="currentQuestion">
+      <ng-container *ngIf="currentQuestion$ | async as currentQuestion">
+        {{ currentQuestion | json }}
         <!-- the options -->
         <codelab-quiz-question
           [quizId]="quizId"
