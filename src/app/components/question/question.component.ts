@@ -698,11 +698,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const currentQuestion = event?.question;
 
     if (currentQuestion && currentQuestion.options && optionIndex >= 0) {
-      currentQuestion.options.forEach(option => (option.styleClass = ''));
-      currentQuestion.options[optionIndex].styleClass = selectedOption.correct
+      currentQuestion.options.forEach(option => (option['styleClass'] = ''));
+      currentQuestion.options[optionIndex]['styleClass'] = selectedOption.correct
         ? 'correct'
         : 'incorrect';
-      console.log(currentQuestion.options[optionIndex].styleClass);
+      console.log(currentQuestion.options[optionIndex]['styleClass']);
     }
   }
     
