@@ -50,7 +50,7 @@
           [quizId]="quizId"
           [question]="question"
           [questions]="questions$ | async"
-          [options]="question?.options"
+          [options]="currentQuestion?.options"
           (answer)="selectedAnswer($event)"
           [answers]="answers"
           [selectedOption]="selectedOption$ | async"

@@ -217,7 +217,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
     this.currentQuestion$.subscribe(currentQuestion => {
-      console.log('Current question:', currentQuestion);
+      console.log('Current question:::', currentQuestion);
       this.currentQuestion = currentQuestion;
     });
 
