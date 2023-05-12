@@ -42,7 +42,7 @@ export class MultipleAnswerComponent
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() answer = new EventEmitter<number>();
   @Input() question!: QuizQuestion;
-  @Input() currentQuestion: QuizQuestion;
+  // @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestionIndex!: number;
   @Input() options: Option[];
   @Input() correctMessage: string;
