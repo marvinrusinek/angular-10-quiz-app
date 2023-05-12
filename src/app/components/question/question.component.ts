@@ -573,8 +573,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.clearSelection();
     this.updateSelection(optionIndex);
-    this.updateClassName(this.selectedOption, optionIndex);
-    this.playSound(optionIndex);
+    // this.updateClassName(this.selectedOption, optionIndex);
+    this.playSound(this.currentQuestion.options[optionIndex]);
+    // this.playSound(optionIndex);
   }
 
   private clearSelection(): void {
@@ -706,7 +707,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
     
-  private playSound(optionIndex: number): void {
+  /* private playSound(optionIndex: number): void {
     if (this.currentQuestion && this.currentQuestion?.options) {
       if (this.currentQuestion?.options[optionIndex]['correct']) {
         this.timerService.stopTimer();
@@ -715,5 +716,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.quizService.incorrectSound.play();
       }
     }
-  }
+  } */
+
+  private playSound(selectedOption: Option): void {
+    if (selectedOption && selectedOption.correct) {
+      this.timerService.stopTimer();
+      console.log('Playing sound...');
+      this.quizService.correctSound.play();
+    } else {
+      this.quizService.incorrectSound.play();
+    }
+  }  
 }
