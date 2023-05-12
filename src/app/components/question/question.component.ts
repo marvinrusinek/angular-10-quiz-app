@@ -693,9 +693,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private updateClassName(event: any): void {
-    const optionIndex = event.optionIndex;
-    const selectedOption = event.selectedOption;
-    const currentQuestion = event.question;
+    const optionIndex = event?.optionIndex;
+    const selectedOption = event?.selectedOption;
+    const currentQuestion = event?.question;
 
     if (currentQuestion && currentQuestion.options && optionIndex >= 0) {
       currentQuestion.options.forEach(option => (option.styleClass = ''));
