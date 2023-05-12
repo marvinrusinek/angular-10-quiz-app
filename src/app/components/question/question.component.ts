@@ -596,11 +596,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       option.selected = true;
       this.selectedOption = option;
     }
+    if (this.currentQuestion && !this.alreadyAnswered) {
+      this.updateSelectedOption(option, optionIndex);
+    }
   }
 
   onOptionSelected(option: Option): void {
     this.isOptionSelected = true;
-    
+
     if (this.selectedOptions.includes(option)) {
       this.selectedOptions = this.selectedOptions.filter(
         (selectedOption) => selectedOption !== option
