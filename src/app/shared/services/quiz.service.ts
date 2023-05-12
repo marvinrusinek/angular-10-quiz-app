@@ -411,7 +411,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged()
     );
   }
-  
+     
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
