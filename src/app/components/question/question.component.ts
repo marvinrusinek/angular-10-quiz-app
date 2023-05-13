@@ -713,11 +713,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     if (this.selectedOption && this.selectedOption.text === option.text) {
-      console.log('Same option selected, not updating selectedOption');
+      console.log('Selected option is already selected:', this.selectedOption.text);
       return;
     }
   
-    console.log('Selected option is changing from:', this.selectedOption.text, 'to:', option.text);
+    console.log('Selected option is changing from:', option.text, 'to:', this.selectedOption.text);
   
     this.selectedOption = option;
     console.log('Selected option:', this.selectedOption.text);
@@ -732,7 +732,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     this.playSound(this.selectedOption);
   }
-                  
+                    
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
