@@ -721,8 +721,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  private playSound(selectedOption: Option): void {
-    console.log('Playing sound...');
+  playSound(selectedOption: Option): void {
+    console.log("SO", selectedOption);
     if (selectedOption && selectedOption.correct) {
       this.timerService.stopTimer((elapsedTime) => {
         console.log('Playing sound...');
