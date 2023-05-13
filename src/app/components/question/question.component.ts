@@ -850,13 +850,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  updateSelectedOption(option: Option): void {
+  updateSelectedOption(selectedOption: Option): void {
     console.log('updateSelectedOption() called');
-    console.log('Selected option in updateSelectedOption:', option);
+    console.log('Selected option in updateSelectedOption:', selectedOption);
     console.log('Options in updateSelectedOption:', this.currentQuestion.options);
 
-    console.log('Selected option:', option.text);
-    this.selectedOption = option;
+    console.log('Selected option:', selectedOption.text);
+    this.selectedOption = selectedOption;
     console.log('New selected option:', this.selectedOption.text);
 
     console.log('Selected option after assignment in updateSelectedOption:', this.selectedOption);
@@ -883,10 +883,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const newOptionIndex = optionIndex + 1;
     this.updateSelectedOption(selectedOption);
     this.updateSelectionChange.emit(newOptionIndex);
-    this.playSound(selectedOption, this.isOptionSelected);
+    this.playSound(this.currentQuestion, this.selectedOption);
   }
   
-  playSound(selectedOption: Option, isOptionSelected: boolean): void {
+  playSound(currentQuestion: QuizQuestion, selectedOption: Option, isOptionSelected: boolean): void {
     if (!selectedOption || selectedOption === undefined) {
       console.log(
         'Selected option is undefined or null, or current question/options are empty.'
@@ -896,7 +896,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     console.log('Selected option:', selectedOption.text);
   
-    const optionIndex = this.currentQuestion.options.findIndex(
+    const optionIndex = currentQuestion.options.findIndex(
       (option) => option.text === selectedOption.text
     );
     if (optionIndex === undefined || optionIndex === null) {
@@ -905,7 +905,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     console.log('Option index:', optionIndex);
   
-    if (selectedOption.correct) {
+    const selectedOptions = currentQuestion.selectedOptions || [];
+    const isOptionCorrect = selectedOptions.includes(selectedOption);
+    if (isOptionCorrect) {
       console.log('Selected option is correct, playing sound...');
       this.timerService.stopTimer((elapsedTime) => {
         const sound = this.quizService.correctSound;
@@ -924,5 +926,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
-  }   
+  }  
 }
