@@ -10,7 +10,7 @@
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
-      (change)="onSelectionChange(currentQuestion, $event)"
+      (change)="onSelectionChange(currentQuestion, $event); selectionChange.emit({ question: question, selectedOption: option })"
       [class]="getOptionClass(option)"
       [value]="option.optionId"
       [checked]="optionChecked[option?.optionId]"

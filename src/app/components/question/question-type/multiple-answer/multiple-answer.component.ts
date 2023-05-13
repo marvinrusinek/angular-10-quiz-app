@@ -43,7 +43,7 @@ export class MultipleAnswerComponent
 {
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() optionSelected = new EventEmitter<Option>();
-  @Output() selectionChange = new EventEmitter<{ selectedOption: Option, question: QuizQuestion }>();
+  @Output() selectionChange = new EventEmitter<{ question: QuizQuestion, selectedOption: Option }>();
   @Output() answer = new EventEmitter<number>();
   @Input() question!: QuizQuestion;
   // @Input() currentQuestion: QuizQuestion;
