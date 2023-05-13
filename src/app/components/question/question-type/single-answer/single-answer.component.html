@@ -4,7 +4,7 @@
       [id]="'option' + i"
       [class]="option.styleClass"
       [value]="option"
-      (change)="updateSelectedOption(option, i)"
+      (change)="updateSelectedOption(option, i); selectionChange.emit({ question: question, selectedOption: $event.value })"
       [checked]="option.selected"
       aria-label="Select option {{ i + 1 }}"
       [aria-describedby]="'feedback' + i"
