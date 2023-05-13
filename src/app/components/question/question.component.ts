@@ -723,17 +723,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private playSound(selectedOption: Option): void {
     if (selectedOption && selectedOption.correct) {
-      const sound = this.quizService.correctSound;
-      sound.once('load', () => {
-        console.log('Playing correct sound...');
-        this.timerService.stopTimer();
+      this.timerService.stopTimer(function() {
+        console.log('Playing sound...');
+        const sound = this.quizService.correctSound;
         sound.play();
       });
     } else {
-      const sound = this.quizService.incorrectSound;
-      sound.once('load', () => {
+      this.timerService.stopTimer(function() {
         console.log('Playing incorrect sound...');
-        this.timerService.stopTimer();
+        const sound = this.quizService.incorrectSound;
         sound.play();
       });
     }
