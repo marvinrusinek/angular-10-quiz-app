@@ -35,7 +35,7 @@ export class TimerService implements OnInit {
     });
   }
 
-  stopTimer(): void {
+  stopTimer(callback: (elapsedTime: number) => void): void {
     if (!this.isTimerStart) {
       return;
     }
