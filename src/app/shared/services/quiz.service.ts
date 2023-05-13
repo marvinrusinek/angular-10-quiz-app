@@ -20,7 +20,7 @@ import {
   take,
   tap,
 } from 'rxjs/operators';
-import { Howl, Howler } from 'howler';
+import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
@@ -163,14 +163,20 @@ export class QuizService implements OnDestroy {
       onload: () => {
         console.log('Correct sound loaded');
       },
+      onplay: () => {
+        console.log('Correct sound playing...');
+      }
     });
     this.incorrectSound = new Howl({
       src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
       onload: () => {
         console.log('Incorrect sound loaded');
       },
+      onplay: () => {
+        console.log('Incorrect sound playing...');
+      }
     });
-
+    
     this.explanationTextSubscription = this.explanationText.subscribe(
       (text) => {
         console.log('explanationText', text);
