@@ -574,7 +574,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.clearSelection();
     this.updateSelection(optionIndex);
     // this.updateClassName(this.selectedOption, optionIndex);
-    this.playSound(this.currentQuestion.options[optionIndex]);
+    this.playSound(this.currentQuestion?.options[optionIndex]);
     // this.playSound(optionIndex);
   }
 
@@ -725,9 +725,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (selectedOption && selectedOption.correct) {
       this.timerService.stopTimer();
       console.log('Playing sound...');
-      this.quizService.correctSound.play();
+      const sound = this.quizService.correctSound;
+      sound.once('load', () => sound.play());
     } else {
-      this.quizService.incorrectSound.play();
+      const sound = this.quizService.incorrectSound;
+      sound.once('load', () => sound.play());
     }
   }  
 }
