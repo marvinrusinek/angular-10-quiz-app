@@ -20,7 +20,7 @@ import {
   take,
   tap,
 } from 'rxjs/operators';
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
@@ -145,18 +145,8 @@ export class QuizService implements OnDestroy {
   unsubscribe$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
-  correctSound = new Howl({
-    src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
-    onload: () => {
-      console.log('Correct sound loaded');
-    }
-  });
-  incorrectSound = new Howl({
-    src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
-    onload: () => {
-      console.log('Incorrect sound loaded');
-    }
-  });
+  correctSound: Howl;
+  incorrectSound: Howl;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -166,6 +156,19 @@ export class QuizService implements OnDestroy {
     console.log("QUIZSERVICE");
     this.loadData();
     this.initializeData();
+
+    this.correctSound = new Howl({
+      src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
+      onload: () => {
+        console.log('Correct sound loaded');
+      }
+    });
+    this.incorrectSound = new Howl({
+      src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
+      onload: () => {
+        console.log('Incorrect sound loaded');
+      }
+    });
 
     this.explanationTextSubscription = this.explanationText.subscribe(
       (text) => {

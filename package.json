@@ -27,7 +27,7 @@
     "core-js": "3.6.5",
     "hammerjs": "^2.0.8",
     "hover.css": "2.3.2",
-    "howler": "2.2.0",
+    "howler": "^2.2.3",
     "jquery": "3.5.1",
     "lodash": "4.17.20",
     "ngx-bootstrap": "6.1.0",
