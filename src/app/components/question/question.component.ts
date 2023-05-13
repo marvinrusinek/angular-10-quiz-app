@@ -726,10 +726,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.timerService.stopTimer();
       console.log('Playing sound...');
       const sound = this.quizService.correctSound;
-      sound.once('load', () => sound.play());
+      sound.once('load', () => {
+        this.timerService.stopTimer();
+        sound.play();
+      });
     } else {
+      console.log('Playing incorrect sound...');
       const sound = this.quizService.incorrectSound;
-      sound.once('load', () => sound.play());
+      sound.once('load', () => {
+        this.timerService.stopTimer();
+        sound.play();
+      });
     }
-  }  
+  }   
 }

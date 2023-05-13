@@ -146,10 +146,16 @@ export class QuizService implements OnDestroy {
   private quizUrl = 'assets/data/quiz.json';
 
   correctSound = new Howl({
-    src: 'http://www.marvinrusinek.com/sound-correct.mp3',
+    src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
+    onload: () => {
+      console.log('Correct sound loaded');
+    }
   });
   incorrectSound = new Howl({
-    src: 'http://www.marvinrusinek.com/sound-incorrect.mp3',
+    src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
+    onload: () => {
+      console.log('Incorrect sound loaded');
+    }
   });
 
   constructor(
