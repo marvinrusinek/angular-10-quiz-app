@@ -21,7 +21,7 @@ import {
   pipe,
   ReplaySubject,
   Subject,
-  Subscription
+  Subscription,
 } from 'rxjs';
 import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -64,7 +64,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentQuestion$!: Observable<QuizQuestion>;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
-  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  @Input() multipleAnswer: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
@@ -147,7 +148,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
       this.questions = this.quizService.getAllQuestions();
-      this.questions.forEach((q: QuizQuestion) => q.selectedOptions = null);
+      this.questions.forEach((q: QuizQuestion) => (q.selectedOptions = null));
     }
 
     this.router.events
@@ -171,11 +172,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.setQuestionOptions();
         });
       }
-    
-      of(this.selectedOption).pipe(
-        tap(option => this.selectedOption$.next(option))
-      ).subscribe();
-    
+
+      of(this.selectedOption)
+        .pipe(tap((option) => this.selectedOption$.next(option)))
+        .subscribe();
+
       const quizId = this.quizService.quizId;
       if (quizId) {
         this.quizId = quizId;
@@ -202,20 +203,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         await this.loadCurrentQuestion();
         this.currentQuestionLoaded = true;
       } */
-      
+
       this.multipleAnswer = new BehaviorSubject<boolean>(false);
       this.quizStateService.isMultipleAnswer();
       if (!this.multipleAnswerSubscription) {
-        this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$.subscribe((value) => {
-          console.log('Multiple answer value:', value);
-          this.multipleAnswer.next(value);
-        });
+        this.multipleAnswerSubscription =
+          this.quizStateService.multipleAnswer$.subscribe((value) => {
+            console.log('Multiple answer value:', value);
+            this.multipleAnswer.next(value);
+          });
       }
-      
+
       this.explanationText$.next('');
-      this.explanationTextSubscription = this.quizService.explanationText.subscribe((explanationText) => {
-        this.explanationText$.next(explanationText);
-      });
+      this.explanationTextSubscription =
+        this.quizService.explanationText.subscribe((explanationText) => {
+          this.explanationText$.next(explanationText);
+        });
 
       this.loadCurrentQuestion();
       this.toggleOptions();
@@ -294,18 +297,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    console.log("LCQ");
+    console.log('LCQ');
     console.log(
       'loadCurrentQuestion() called with quizId:',
       this.quizId,
       'and questionIndex:',
       this.currentQuestionIndex
     );
-  
+
     const currentQuiz: Quiz = await this.quizDataService
       .getQuiz(this.quizId)
       .toPromise();
-  
+
     if (
       this.quizId &&
       this.currentQuestionIndex !== undefined &&
@@ -316,7 +319,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         const [currentQuestion, options] = await this.quizDataService
           .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
           .toPromise();
-  
+
         console.log(
           'getQuestionAndOptions() returned with question:',
           currentQuestion,
@@ -334,14 +337,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             console.log('currentQuestion:', this.currentQuestion);
             this.options = options;
             console.log('options:::::>>', options);
-            this.quizDataService.questionAndOptions = [currentQuestion, options];
+            this.quizDataService.questionAndOptions = [
+              currentQuestion,
+              options,
+            ];
           }
         }
       }
-  
+
       // Wait for the getQuestionAndOptions() method to complete
-      await this.quizDataService.getQuestionAndOptions(this.quizId, this.currentQuestionIndex).toPromise();
-  
+      await this.quizDataService
+        .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+        .toPromise();
+
       if (
         this.quizDataService.questionAndOptions !== null &&
         this.quizDataService.questionAndOptions !== undefined
@@ -377,7 +385,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('END OF FUNCTION');
     console.log('options:', this.options);
   }
-              
+
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
@@ -395,23 +403,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription = this.quizService.currentQuestion$
-    .pipe(
-      tap((data) => console.log('Data received:', data)),
-      tap(({ question }) => {
-        console.log('Question received:', question);
-        if (question) {
-          this.currentQuestion = question;
-          this.options = this.currentQuestion?.options;
-          this.initializeQuizState(this.currentQuestion);
-        }
-      }),
-      catchError((error) => {
-        console.error('Error in currentQuestion$ subscription:', error);
-        return of(null);
-      })
-    )
-    .subscribe();
-  }  
+      .pipe(
+        tap((data) => console.log('Data received:', data)),
+        tap(({ question }) => {
+          console.log('Question received:', question);
+          if (question) {
+            this.currentQuestion = question;
+            this.options = this.currentQuestion?.options;
+            this.initializeQuizState(this.currentQuestion);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error in currentQuestion$ subscription:', error);
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
 
   subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
@@ -500,54 +508,53 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   setQuestionOptions(): void {
     console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
-  
+
     // Log the selectedQuiz just before checking if it is null or undefined
     console.log('Value of this.selectedQuiz:', this.selectedQuiz);
-  
-    this.selectedQuiz.pipe(
-      take(1),
-      filter(quiz => !!quiz)
-    ).subscribe(quiz => {
-      if (
-        !quiz.questions ||
-        !quiz.questions[this.currentQuestionIndex]
-      ) {
-        console.error('Question not found');
-        return;
-      }
-  
-      const currentQuestion =
-        quiz.questions[+this.currentQuestionIndex];
-      this.currentQuestion = currentQuestion;
-      this.currentOptions = currentQuestion.options;
-  
-      this.quizService.setCurrentOptions(currentQuestion.options);
-  
-      const { options, answer } = currentQuestion;
-  
-      const answerValue = answer?.values().next().value;
-      this.correctOptionIndex = options.findIndex(
-        (option) => option.value === answerValue
-      );
-  
-      this.currentOptions = options.map(
-        (option, index) =>
-          ({
-            text: option.text,
-            correct: index === this.correctOptionIndex,
-            value: option.value,
-            answer: option.value,
-            selected: false,
-          } as Option));
-      this.quizService.setCurrentOptions(this.options);
-  
-      // shuffle options only if the shuffleOptions boolean is true
-      if (this.shuffleOptions) {
-        this.quizService.shuffle(this.options);
-      }
-    });
+
+    this.selectedQuiz
+      .pipe(
+        take(1),
+        filter((quiz) => !!quiz)
+      )
+      .subscribe((quiz) => {
+        if (!quiz.questions || !quiz.questions[this.currentQuestionIndex]) {
+          console.error('Question not found');
+          return;
+        }
+
+        const currentQuestion = quiz.questions[+this.currentQuestionIndex];
+        this.currentQuestion = currentQuestion;
+        this.currentOptions = currentQuestion.options;
+
+        this.quizService.setCurrentOptions(currentQuestion.options);
+
+        const { options, answer } = currentQuestion;
+
+        const answerValue = answer?.values().next().value;
+        this.correctOptionIndex = options.findIndex(
+          (option) => option.value === answerValue
+        );
+
+        this.currentOptions = options.map(
+          (option, index) =>
+            ({
+              text: option.text,
+              correct: index === this.correctOptionIndex,
+              value: option.value,
+              answer: option.value,
+              selected: false,
+            } as Option)
+        );
+        this.quizService.setCurrentOptions(this.options);
+
+        // shuffle options only if the shuffleOptions boolean is true
+        if (this.shuffleOptions) {
+          this.quizService.shuffle(this.options);
+        }
+      });
   }
-    
+
   toggleOptions(): void {
     this.quizDataService.currentOptions$.subscribe((options) => {
       this.options = options;
@@ -563,7 +570,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.alreadyAnswered = false;
   }
 
-  private updateSelectedOption(
+  /* private updateSelectedOption(
     selectedOption: Option,
     optionIndex: number
   ): void {
@@ -577,6 +584,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('optionIndex', optionIndex);
     this.playSound(this.currentQuestion?.options[optionIndex]);
     // this.playSound(optionIndex);
+  } */
+
+  private updateSelectedOption(
+    selectedOption: Option,
+    optionIndex: number
+  ): void {
+    this.alreadyAnswered = true;
+    this.answer.emit(optionIndex);
+    this.selectedOption = selectedOption;
+
+    this.clearSelection();
+    this.updateSelection(optionIndex);
+    // this.updateClassName(this.selectedOption, optionIndex);
+    console.log('optionIndex', optionIndex);
+    if (this.currentQuestion && this.currentQuestion.options) {
+      const newOptionIndex = this.currentQuestion.options.findIndex(
+        (option) => option.text === selectedOption.text
+      );
+      console.log('newOptionIndex', newOptionIndex);
+      this.playSound(this.currentQuestion.options[newOptionIndex]);
+    } else {
+      console.log('Error: Current question or options is undefined');
+    }
   }
 
   private clearSelection(): void {
@@ -591,15 +621,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateSelection(optionIndex: number): void {
-    const option = this.currentQuestion?.options[optionIndex];
-    if (option && this.currentQuestion && this.currentQuestion?.options) {
+    if (
+      !this.currentQuestion ||
+      !this.currentQuestion.options ||
+      optionIndex < 0
+    ) {
+      return;
+    }
+
+    const newOptionIndex = this.currentQuestion.options.findIndex(
+      (option) => optionIndex === this.currentQuestion.options.indexOf(option)
+    );
+
+    const option = this.currentQuestion.options[newOptionIndex];
+
+    if (option && this.currentQuestion) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
       option.selected = true;
       this.selectedOption = option;
     }
-    if (this.currentQuestion && !this.alreadyAnswered) {
-      this.updateSelectedOption(option, optionIndex);
+
+    if (!this.alreadyAnswered) {
+      this.updateSelectedOption(option, newOptionIndex);
     }
+
+    console.log('optionIndex:::>>>', optionIndex);
+    console.log('newOptionIndex:::>>>', newOptionIndex);
   }
 
   onOptionSelected(option: Option): void {
@@ -618,18 +665,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.answer.emit(this.selectedOption?.optionId);
     this.optionSelected.emit(option);
-  }  
+  }
 
-  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    const clickedOption = question.options.find(option => option.optionId === +event.source.id);
+  onSelectionChange(
+    question: QuizQuestion,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const clickedOption = question.options.find(
+      (option) => option.optionId === +event.source.id
+    );
     if (!clickedOption) {
       return;
     }
     this.selectedOption = clickedOption;
 
-    console.log("OS", this.isOptionSelected);
+    console.log('OS', this.isOptionSelected);
 
-    const answerIndex = this.answers.findIndex((answer) => answer.questionId === this.currentQuestionIndex);
+    const answerIndex = this.answers.findIndex(
+      (answer) => answer.questionId === this.currentQuestionIndex
+    );
     if (answerIndex !== -1) {
       this.answers[answerIndex].optionId = this.selectedOption.optionId;
     } else {
@@ -641,32 +695,42 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
- 
+
     if (!question) {
       return;
     }
-  
-    const selectedOption = question.options.find((option) => option.text === event.source.value);
-    const incorrectOptions = question.options.filter((option) => !option.correct);
-  
+
+    const selectedOption = question.options.find(
+      (option) => option.text === event.source.value
+    );
+    const incorrectOptions = question.options.filter(
+      (option) => !option.correct
+    );
+
     if (event.source.checked) {
       if (question.type === QuestionType.MultipleAnswer) {
-        const selectedOptions = question.options.filter((option) => option.selected);
+        const selectedOptions = question.options.filter(
+          (option) => option.selected
+        );
         if (selectedOptions.length >= question.maxSelections) {
           // disable unselected options
-          question.options.filter((option) => !option.selected && !option.disabled).forEach((option) => {
-            option.disabled = true;
-          });
+          question.options
+            .filter((option) => !option.selected && !option.disabled)
+            .forEach((option) => {
+              option.disabled = true;
+            });
         }
       }
       if (selectedOption) {
         selectedOption.selected = true;
         this.quizService.setExplanationText([selectedOption], question);
-        this.quizService.explanationText.subscribe((explanationText: string) => {
-          this.explanationText$.next(explanationText);
-        });
+        this.quizService.explanationText.subscribe(
+          (explanationText: string) => {
+            this.explanationText$.next(explanationText);
+          }
+        );
         this.displayExplanation = true;
-  
+
         // Disable all options except the selected one
         incorrectOptions.forEach((option) => {
           option.disabled = true;
@@ -675,7 +739,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       if (selectedOption) {
         selectedOption.selected = false;
-  
+
         // Enable all options
         question.options.forEach((option) => {
           option.disabled = false;
@@ -703,14 +767,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const currentQuestion = event?.question;
 
     if (currentQuestion && currentQuestion.options && optionIndex >= 0) {
-      currentQuestion.options.forEach(option => (option['styleClass'] = ''));
-      currentQuestion.options[optionIndex]['styleClass'] = selectedOption.correct
-        ? 'correct'
-        : 'incorrect';
+      currentQuestion.options.forEach((option) => (option['styleClass'] = ''));
+      currentQuestion.options[optionIndex]['styleClass'] =
+        selectedOption.correct ? 'correct' : 'incorrect';
       console.log(currentQuestion.options[optionIndex]['styleClass']);
     }
   }
-    
+
   /* private playSound(optionIndex: number): void {
     if (this.currentQuestion && this.currentQuestion?.options) {
       if (this.currentQuestion?.options[optionIndex]['correct']) {
@@ -723,27 +786,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   playSound(selectedOption: Option): void {
-    if (!this.currentQuestion || !this.currentQuestion.options || this.currentQuestion.options.length === 0) {
-      console.log("Current question or options not found");
+    if (
+      !selectedOption ||
+      !this.currentQuestion ||
+      !this.currentQuestion.options ||
+      this.currentQuestion.options.length === 0
+    ) {
+      console.log(
+        'Selected option is undefined or null, or current question/options are empty.'
+      );
       return;
     }
-    
-    if (!selectedOption || selectedOption === null) {
-      console.log("Selected option is undefined or null");
-      return;
-    }
-    
-    const optionIndex = this.currentQuestion?.options.findIndex(
+
+    const optionIndex = this.currentQuestion.options.findIndex(
       (option) => option.text === selectedOption.text
     );
-    
-    if (optionIndex === undefined || optionIndex === null || optionIndex === -1) {
-      console.log("Option index not found");
+    if (optionIndex === undefined || optionIndex === null) {
+      console.log('Option index is undefined or null');
       return;
     }
-    
-    console.log("SO", selectedOption);
-    
+    console.log('SO', selectedOption);
     if (selectedOption.correct) {
       this.timerService.stopTimer((elapsedTime) => {
         console.log('Playing sound...');
@@ -763,5 +825,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
-  }  
+  }
 }
