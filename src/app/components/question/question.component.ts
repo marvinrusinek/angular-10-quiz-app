@@ -572,63 +572,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.alreadyAnswered = false;
   }
 
-  /* private updateSelectedOption(
-    selectedOption: Option,
-    optionIndex: number
-  ): void {
-    this.alreadyAnswered = true;
-    this.answer.emit(optionIndex);
-    this.selectedOption = selectedOption;
-
-    this.clearSelection();
-    this.updateSelection(optionIndex);
-    // this.updateClassName(this.selectedOption, optionIndex);
-    console.log('optionIndex', optionIndex);
-    this.playSound(this.currentQuestion?.options[optionIndex]);
-    // this.playSound(optionIndex);
-  } */
-
-  /* private updateSelectedOption(
-    selectedOption: Option,
-    optionIndex: number
-  ): void {
-    this.alreadyAnswered = true;
-    this.answer.emit(optionIndex);
-    this.selectedOption = selectedOption;
-
-    this.clearSelection();
-    this.updateSelection(optionIndex);
-    // this.updateClassName(this.selectedOption, optionIndex);
-    console.log('optionIndex', optionIndex);
-    if (this.currentQuestion && this.currentQuestion.options) {
-      const newOptionIndex = this.currentQuestion.options.findIndex(
-        (option) => option.text === selectedOption.text
-      );
-      console.log('newOptionIndex', newOptionIndex);
-      this.playSound(this.currentQuestion.options[newOptionIndex]);
-    } else {
-      console.log('Error: Current question or options is undefined');
-    }
-  } */
-
-  /* updateSelectedOption(option: Option, optionIndex: number): void {
-    if (
-      !option ||
-      !this.currentQuestion ||
-      !this.currentQuestion.options ||
-      this.currentQuestion.options.length === 0
-    ) {
-      console.log(
-        'Selected option is undefined or null, or current question/options are empty.'
-      );
-      return;
-    }
-    console.log('CHECK Selected option:', this.selectedOption);
-    this.selectedOption = option;
-    this.newOptionIndex = optionIndex;
-  } */
-
-
   private clearSelection(): void {
     if (this.correctAnswers.length === 1) {
       if (this.currentQuestion && this.currentQuestion?.options) {
@@ -639,73 +582,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
   }
-
-  /* updateSelection(optionIndex: number): void {
-    if (
-      !this.currentQuestion ||
-      !this.currentQuestion.options ||
-      optionIndex < 0
-    ) {
-      return;
-    }
-
-    const newOptionIndex = this.currentQuestion.options.findIndex(
-      (option) => optionIndex === this.currentQuestion.options.indexOf(option)
-    );
-
-    const option = this.currentQuestion.options[newOptionIndex];
-
-    if (option && this.currentQuestion) {
-      this.currentQuestion.options.forEach((o) => (o.selected = false));
-      option.selected = true;
-      this.selectedOption = option;
-    }
-
-    if (!this.alreadyAnswered) {
-      this.updateSelectedOption(option, newOptionIndex);
-    }
-
-    console.log('optionIndex:::>>>', optionIndex);
-    console.log('newOptionIndex:::>>>', newOptionIndex);
-  } */
-
-  
-  /* updateSelection(optionIndex: number): void {
-    const option = this.currentQuestion?.options[optionIndex];
-    if (option && this.currentQuestion && this.currentQuestion?.options) {
-      this.currentQuestion.options.forEach((o) => (o.selected = false));
-      option.selected = true;
-      this.selectedOption = option;
-      console.log('this.selectedOption:', this.selectedOption);
-    }
-    if (this.currentQuestion && !this.alreadyAnswered) {
-      console.log('selected option:', option);
-      console.log('optionIndex:', optionIndex);
-      this.updateSelectedOption(option, optionIndex);
-    }
-    if (this.currentQuestion && this.currentQuestion?.options && option) {
-      this.playSound(option);
-    }
-  } */
-
-  /* updateSelection(optionIndex: number): void {
-    console.log('currentQuestion:', this.currentQuestion);
-    console.log('currentQuestion.options:', this.currentQuestion?.options);
-    const option = this.currentQuestion?.options[optionIndex];
-    if (option && this.currentQuestion && this.currentQuestion?.options) {
-      this.currentQuestion.options.forEach((o) => (o.selected = false));
-      option.selected = true;
-      this.selectedOption = option;
-    }
-    if (this.currentQuestion && !this.alreadyAnswered) {
-      console.log('newOptionIndex:::>>>', optionIndex);
-      this.updateSelectedOption(option, optionIndex);
-    }
-    if (this.currentQuestion && this.currentQuestion?.options && option) {
-      console.log("opt passed", option);
-      this.playSound(option);
-    } 
-  } */
    
   onOptionSelected(option: Option): void {
     console.log('The Selected option:', option);
@@ -813,19 +689,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /* private updateClassName(event: any): void {
-    if (event && event.selectedOption) {
-      const optionIndex = this.currentQuestion.options.findIndex(
-        (option) => option === event.selectedOption
-      );
-      if (optionIndex >= 0 && this.optionSelected) {
-        this.optionSelected['styleClass'] = this.currentQuestion.options[optionIndex].correct ? 'correct' : 'incorrect';
-      } else if (this.optionSelected) {
-        this.optionSelected['styleClass'] = '';
-      }
-    }
-  } */
-
   private updateClassName(event: any): void {
     const optionIndex = event?.optionIndex;
     const selectedOption = event?.selectedOption;
@@ -838,17 +701,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log(currentQuestion.options[optionIndex]['styleClass']);
     }
   }
-
-  /* private playSound(optionIndex: number): void {
-    if (this.currentQuestion && this.currentQuestion?.options) {
-      if (this.currentQuestion?.options[optionIndex]['correct']) {
-        this.timerService.stopTimer();
-        this.quizService.correctSound.play();
-      } else {
-        this.quizService.incorrectSound.play();
-      }
-    }
-  } */
 
   updateSelectedOption(selectedOption: Option): void {
     console.log('updateSelectedOption() called');
@@ -886,7 +738,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.playSound(this.currentQuestion, this.selectedOption);
   }
   
-  playSound(currentQuestion: QuizQuestion, selectedOption: Option, isOptionSelected: boolean): void {
+  playSound(currentQuestion: QuizQuestion, selectedOption: Option): void {
     if (!selectedOption || selectedOption === undefined) {
       console.log(
         'Selected option is undefined or null, or current question/options are empty.'
