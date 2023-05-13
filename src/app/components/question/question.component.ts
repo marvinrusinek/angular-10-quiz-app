@@ -589,7 +589,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateSelection(optionIndex: number): void {
+  updateSelection(optionIndex: number): void {
     const option = this.currentQuestion?.options[optionIndex];
     if (option && this.currentQuestion && this.currentQuestion?.options) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
@@ -723,20 +723,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private playSound(selectedOption: Option): void {
     if (selectedOption && selectedOption.correct) {
-      this.timerService.stopTimer();
-      console.log('Playing sound...');
       const sound = this.quizService.correctSound;
       sound.once('load', () => {
+        console.log('Playing correct sound...');
         this.timerService.stopTimer();
         sound.play();
       });
     } else {
-      console.log('Playing incorrect sound...');
       const sound = this.quizService.incorrectSound;
       sound.once('load', () => {
+        console.log('Playing incorrect sound...');
         this.timerService.stopTimer();
         sound.play();
       });
     }
-  }   
+  }  
 }

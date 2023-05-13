@@ -14,6 +14,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
@@ -40,6 +42,8 @@ export class MultipleAnswerComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
   @Output() formReady = new EventEmitter<FormGroup>();
+  @Output() optionSelected = new EventEmitter<Option>();
+  @Output() selectionChange = new EventEmitter<{ selectedOption: Option, question: QuizQuestion }>();
   @Output() answer = new EventEmitter<number>();
   @Input() question!: QuizQuestion;
   // @Input() currentQuestion: QuizQuestion;
@@ -186,6 +190,21 @@ export class MultipleAnswerComponent
       Array.isArray(this.selectedOptions) &&
       this.selectedOptions.includes(option)
     );
+  } */
+
+  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
+    const selectedOption = question.options.find(option => option.optionId === (event.source as MatCheckbox | MatRadioButton).value);
+  
+    if (selectedOption) {
+      selectedOption.selected = (event.source as MatCheckbox | MatRadioButton).checked;
+      this.selectionChange.emit({selectedOption: selectedOption, question: question});
+      this.updateSelection(question.options.indexOf(selectedOption));
+    }
+  }
+
+  /* onSelectionChange(option: Option): void {
+    this.optionChecked[option.optionId] = !this.optionChecked[option.optionId];
+    this.answer.emit(this.selectedOptions);
   } */
 
   /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
