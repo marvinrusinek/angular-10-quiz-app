@@ -709,6 +709,7 @@ export class QuizService implements OnDestroy {
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
   shuffle<T>(arg: T[]): any {
+    console.log("arg:", arg);
     for (let i = arg.length - 1; i >= 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arg[i], arg[j]] = [arg[j], arg[i]];
