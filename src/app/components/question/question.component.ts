@@ -574,6 +574,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.clearSelection();
     this.updateSelection(optionIndex);
     // this.updateClassName(this.selectedOption, optionIndex);
+    console.log('optionIndex', optionIndex);
     this.playSound(this.currentQuestion?.options[optionIndex]);
     // this.playSound(optionIndex);
   }
@@ -722,8 +723,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   playSound(selectedOption: Option): void {
+    if (!this.currentQuestion || !this.currentQuestion.options || this.currentQuestion.options.length === 0) {
+      console.log("Current question or options not found");
+      return;
+    }
+    
+    if (!selectedOption || selectedOption === null) {
+      console.log("Selected option is undefined or null");
+      return;
+    }
+    
+    const optionIndex = this.currentQuestion?.options.findIndex(
+      (option) => option.text === selectedOption.text
+    );
+    
+    if (optionIndex === undefined || optionIndex === null || optionIndex === -1) {
+      console.log("Option index not found");
+      return;
+    }
+    
     console.log("SO", selectedOption);
-    if (selectedOption && selectedOption.correct) {
+    
+    if (selectedOption.correct) {
       this.timerService.stopTimer((elapsedTime) => {
         console.log('Playing sound...');
         const sound = this.quizService.correctSound;
