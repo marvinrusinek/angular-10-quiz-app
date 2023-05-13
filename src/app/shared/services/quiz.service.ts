@@ -72,7 +72,8 @@ export class QuizService implements OnDestroy {
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
   quizName$ = new BehaviorSubject<string>('');
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  private selectedQuizId$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
+  private selectedQuizId$: BehaviorSubject<string> =
+    new BehaviorSubject<string>(undefined);
   selectedQuiz: any;
   selectedQuizId: string | undefined;
   indexOfQuizId: number;
@@ -153,7 +154,7 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    console.log("QUIZSERVICE");
+    console.log('QUIZSERVICE');
     this.loadData();
     this.initializeData();
 
@@ -161,13 +162,13 @@ export class QuizService implements OnDestroy {
       src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
       onload: () => {
         console.log('Correct sound loaded');
-      }
+      },
     });
     this.incorrectSound = new Howl({
       src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
       onload: () => {
         console.log('Incorrect sound loaded');
-      }
+      },
     });
 
     this.explanationTextSubscription = this.explanationText.subscribe(
@@ -200,22 +201,24 @@ export class QuizService implements OnDestroy {
   }
 
   private loadData(): void {
-    this.getQuizData().pipe(
-      distinctUntilChanged(),
-    ).subscribe((data) => {
-      this._quizData$.next(data);
-    });
-  
-    this.activatedRoute.paramMap.pipe(
-      map(params => params.get('quizId')),
-      distinctUntilChanged(),
-    ).subscribe((quizId) => {
-      this.quizId = quizId;
-      this.indexOfQuizId = this.quizData.findIndex(
-        (elem) => elem.quizId === this.quizId
-      );
-      this.returnQuizSelectionParams();
-    });
+    this.getQuizData()
+      .pipe(distinctUntilChanged())
+      .subscribe((data) => {
+        this._quizData$.next(data);
+      });
+
+    this.activatedRoute.paramMap
+      .pipe(
+        map((params) => params.get('quizId')),
+        distinctUntilChanged()
+      )
+      .subscribe((quizId) => {
+        this.quizId = quizId;
+        this.indexOfQuizId = this.quizData.findIndex(
+          (elem) => elem.quizId === this.quizId
+        );
+        this.returnQuizSelectionParams();
+      });
   }
 
   private initializeData(): void {
@@ -262,7 +265,7 @@ export class QuizService implements OnDestroy {
 
   isAnswered(): boolean {
     return !!this.answers[this.currentQuestionIndex];
-  }  
+  }
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
     const quizId = this.quizId;
@@ -314,7 +317,9 @@ export class QuizService implements OnDestroy {
         return throwError('Something went wrong.');
       }),
       map((filteredQuestions) => ({ quizId, questions: filteredQuestions })),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      distinctUntilChanged(
+        (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+      )
     );
   }
 
@@ -343,19 +348,23 @@ export class QuizService implements OnDestroy {
           'Questions array is null or undefined, loading questions for quiz'
         );
         console.log('Before loadQuestions');
-        this.loadQuestions().pipe(
-          distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-        ).subscribe(
-          (questions) => {
-            this.questions = questions;
-            console.log('Loaded questions array:', this.questions);
-            this.updateQuestions(quizId).then(resolve).catch(reject);
-          },
-          (error) => {
-            console.error('Error loading quiz questions:', error);
-            reject(error);
-          }
-        );
+        this.loadQuestions()
+          .pipe(
+            distinctUntilChanged(
+              (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+            )
+          )
+          .subscribe(
+            (questions) => {
+              this.questions = questions;
+              console.log('Loaded questions array:', this.questions);
+              this.updateQuestions(quizId).then(resolve).catch(reject);
+            },
+            (error) => {
+              console.error('Error loading quiz questions:', error);
+              reject(error);
+            }
+          );
         return;
       }
       console.log('After loadQuestions');
@@ -384,7 +393,7 @@ export class QuizService implements OnDestroy {
 
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
-  
+
     if (!this.currentQuestionPromise) {
       return this.currentQuestionSubject.pipe(
         switchMap(() => {
@@ -392,11 +401,11 @@ export class QuizService implements OnDestroy {
         })
       );
     }
-  
+
     this.currentQuestionPromise = this.currentQuestionSubject
       .pipe(filter((question) => !!question))
       .toPromise();
-  
+
     return from(this.currentQuestionPromise).pipe(
       switchMap((currentQuestion) => {
         const quizId = this.getCurrentQuizId();
@@ -420,7 +429,7 @@ export class QuizService implements OnDestroy {
       distinctUntilChanged()
     );
   }
-     
+
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
@@ -664,7 +673,7 @@ export class QuizService implements OnDestroy {
     }
     return [];
   }
-  
+
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
       (this.correctAnswersCountSubject.getValue() / this.totalQuestions) * 100
@@ -803,7 +812,7 @@ export class QuizService implements OnDestroy {
   isQuizSelected() {
     return this.selectedQuizId !== null;
   }
-    
+
   getSelectedQuizId(): Observable<string> {
     return this.quizId$.asObservable();
   }
@@ -961,7 +970,7 @@ export class QuizService implements OnDestroy {
         }),
         shareReplay(1)
       )
-    .subscribe();
+      .subscribe();
   }
 
   navigateToPreviousQuestion() {
