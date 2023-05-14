@@ -705,18 +705,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateSelectedOption(option: Option): void {
-    console.log('Option selected:', option.text);
-  
     if (!option || option === undefined) {
       console.log('Option is undefined or null');
       return;
     }
   
     const selectedOptionBefore = this.selectedOption ? this.selectedOption.text : 'none';
+    console.log('Option selected:', option.text);
     console.log('Selected option before:', selectedOptionBefore);
   
     if (this.selectedOption && this.selectedOption.text !== option.text) {
-      console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
+      console.log('Selected option is changing from:', this.selectedOption.text, 'to:', option.text);
     }
   
     this.selectedOption = option;
@@ -724,18 +723,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const selectedOptionAfter = this.selectedOption ? this.selectedOption.text : 'none';
     console.log('Selected option after:', selectedOptionAfter);
   
-    if (selectedOptionBefore === selectedOptionAfter) {
+    if (selectedOptionBefore !== selectedOptionAfter) {
+      console.log('New selected option:', selectedOptionAfter);
+    } else {
       console.log('Selected option was previously:', selectedOptionBefore);
     }
   
-    console.log('New selected option:', selectedOptionAfter);
-    console.log('Selected option:', this.selectedOption.text);
+    console.log('Selected option:', selectedOptionAfter);
   
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
   }
-                                        
+                                            
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
