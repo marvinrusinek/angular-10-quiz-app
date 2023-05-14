@@ -705,37 +705,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateSelectedOption(option: Option): void {
-    console.log(`Option selected: ${option.text}`);
-  
-    if (!option) {
-      console.log('Option is undefined or null');
-      return;
+    console.log('Option selected:', option.text);
+
+    if (!option || option === undefined) {
+        console.log('Option is undefined or null');
+        return;
     }
-  
-    const previousOptionText = this.selectedOption ? this.selectedOption.text : 'none';
-    console.log(`Selected option before: ${previousOptionText}`);
-  
-    if (previousOptionText !== option.text) {
-      console.log(`Selected option is changing from: ${previousOptionText} to: ${option.text}`);
+
+    const selectedOptionBefore = this.selectedOption ? this.selectedOption.text : 'none';
+    console.log('Selected option before:', selectedOptionBefore);
+
+    if (this.selectedOption && this.selectedOption.text !== option.text) {
+        console.log('Selected option is changing from:', this.selectedOption.text, 'to:', option.text);
     }
-  
-    this.selectedOption = option;
-  
-    const newOptionText = this.selectedOption ? this.selectedOption.text : 'none';
-    console.log(`Selected option after: ${newOptionText}`);
-  
-    if (previousOptionText !== newOptionText) {
-      console.log(`New selected option: ${newOptionText}`);
-      console.log(`Selected option: ${newOptionText}`);
+
+    const selectedOptionAfter = option ? option.text : 'none';
+    console.log('Selected option after:', selectedOptionAfter);
+
+    if (selectedOptionBefore !== selectedOptionAfter) {
+        console.log('New selected option:', selectedOptionAfter);
+        console.log('Selected option:', selectedOptionAfter);
     } else {
-      console.log(`Selected option was previously: ${previousOptionText}`);
+        console.log('Selected option was previously:', selectedOptionBefore);
     }
-  
+
+    this.selectedOption = option;
+
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
   }
-                                                
+                                                  
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
