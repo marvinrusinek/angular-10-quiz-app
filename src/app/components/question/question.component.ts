@@ -706,36 +706,35 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   updateSelectedOption(option: Option): void {
     console.log(`Option selected: ${option.text}`);
-    
+
     const selectedOptionBefore = this.selectedOption ? this.selectedOption.text : 'none';
     console.log(`Selected option before: ${selectedOptionBefore}`);
-    
+
     if (this.selectedOption && this.selectedOption.text !== option.text) {
       console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
     }
-    
-    const selectedOptionAfter = option ? option.text : 'none';
+
+    const selectedOptionAfter = option.text;
     console.log(`Selected option after: ${selectedOptionAfter}`);
-    
+
     if (selectedOptionBefore !== selectedOptionAfter) {
       console.log(`New selected option: ${selectedOptionAfter}`);
-      console.log(`Selected option: ${selectedOptionAfter}`);
     } else {
       console.log(`Selected option was previously: ${selectedOptionBefore}`);
     }
-    
+
     this.selectedOption = option;
-    
+
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
-  }
-  
-  updateSelection(): void {
+}
+
+updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
     }
-    
+
     const selectedOption = this.selectedOptions[0];
     const optionIndex = this.currentQuestion.options.findIndex(
       (option) => option.text === selectedOption.text
@@ -744,19 +743,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Option index is undefined or null');
       return;
     }
-    
+
     const newOptionIndex = optionIndex + 1;
     this.updateSelectedOption(selectedOption);
-    
-    if (newOptionIndex < this.currentQuestion.options.length) {
-      const nextOption = this.currentQuestion.options[newOptionIndex];
-      this.selectedOptions = [nextOption];
-    } else {
-      this.selectedOptions = [];
-    }
-    
     this.updateSelectionChange.emit(newOptionIndex);
-  }
+}
+
     
   playSound(selectedOption: Option): void {
     if (!selectedOption || selectedOption === undefined) {
