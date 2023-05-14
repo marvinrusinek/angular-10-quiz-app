@@ -705,6 +705,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateSelectedOption(option: Option): void {
+    if (!option) {
+      console.log('Option is undefined or null');
+      return;
+    }
+  
     console.log(`Option selected: ${option.text}`);
   
     const selectedOptionBefore = this.selectedOption ? this.selectedOption.text : 'none';
@@ -712,8 +717,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     if (this.selectedOption && this.selectedOption.text !== option.text) {
       console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
-    } else {
-      console.log(`Selected option is changing from: ${selectedOptionBefore} to: ${option.text}`);
     }
   
     this.selectedOption = option;
@@ -734,7 +737,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isOptionSelectedChange.emit(this.isOptionSelected);
     }
   }
-  
+    
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
