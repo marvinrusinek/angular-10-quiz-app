@@ -728,9 +728,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
-}
+  }
 
-updateSelection(): void {
+  updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
     }
@@ -747,9 +747,8 @@ updateSelection(): void {
     const newOptionIndex = optionIndex + 1;
     this.updateSelectedOption(selectedOption);
     this.updateSelectionChange.emit(newOptionIndex);
-}
-
-    
+  }
+  
   playSound(selectedOption: Option): void {
     if (!selectedOption || selectedOption === undefined) {
       console.log(
