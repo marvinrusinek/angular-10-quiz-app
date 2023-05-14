@@ -90,6 +90,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   optionChecked: { [optionId: number]: boolean } = {};
   answers;
   correctOptionIndex: number;
+  prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
   // explanationText: BehaviorSubject<string> = new BehaviorSubject('');
@@ -704,34 +705,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateSelectedOption(option: Option): void {
-    console.log('Selected option in updateSelectedOption:', option);
-    console.log('Options in updateSelectedOption:', this.currentQuestion.options);
-  
-    if (!option || option === undefined) {
-      console.log('Option is undefined or null');
+    console.log('Selected option before:', this.selectedOption ? this.selectedOption.text : null);
+    console.log('Option selected:', option.text);
+    
+    if (this.selectedOption && this.selectedOption.optionId === option.optionId) {
+      console.log('Selected option was previously:', this.selectedOption.text);
       return;
     }
-  
-    const prevSelectedOption = this.selectedOption;
-  
-    if (prevSelectedOption && prevSelectedOption.text !== option.text) {
-      console.log('Selected option is changing from:', prevSelectedOption.text, 'to:', option.text);
-    }
-  
+
+    const optionIndex = this.currentQuestion.options.findIndex(o => o.optionId === option.optionId);
+    console.log('Option index:', optionIndex);
+
     this.selectedOption = option;
-    console.log('Selected option:', this.selectedOption.text);
-  
-    console.log('Selected option after assignment in updateSelectedOption:', this.selectedOption);
-  
+    console.log('Selected option after:', this.selectedOption.text);
+    console.log('New selected option:', this.selectedOption.text);
+
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
-  
-    console.log('New selected option:', this.selectedOption);
-  
-    this.playSound(this.selectedOption);
   }
-                          
+                            
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
