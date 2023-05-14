@@ -706,35 +706,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   updateSelectedOption(option: Option): void {
     console.log(`Option selected: ${option.text}`);
-  
+    
     const selectedOptionBefore = this.selectedOption ? this.selectedOption.text : 'none';
     console.log(`Selected option before: ${selectedOptionBefore}`);
-  
+    
     if (this.selectedOption && this.selectedOption.text !== option.text) {
-      const newOptionIndex = this.currentQuestion.options.findIndex(o => o.text === option.text);
-      const selectedOption = this.currentQuestion.options.find(o => o.selected);
-      console.log(`Selected option is changing from: ${selectedOption.text} to: ${this.currentQuestion.options[newOptionIndex].text}`);
+      console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
     }
-  
+    
     this.selectedOption = option;
-  
+    
     const selectedOptionAfter = this.selectedOption ? this.selectedOption.text : 'none';
     console.log(`Selected option after: ${selectedOptionAfter}`);
-  
+    
     if (selectedOptionBefore !== selectedOptionAfter) {
       console.log(`New selected option: ${selectedOptionAfter}`);
-      console.log(`Selected option: ${selectedOptionAfter}`);
     } else {
       console.log(`Selected option was previously: ${selectedOptionBefore}`);
     }
-  
+    
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     if (this.isOptionSelectedChange) {
       this.isOptionSelectedChange.emit(this.isOptionSelected);
     }
   }
-    
+  
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
