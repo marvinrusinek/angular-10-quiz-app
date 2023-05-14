@@ -735,7 +735,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
   }
-                                
+                                    
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
