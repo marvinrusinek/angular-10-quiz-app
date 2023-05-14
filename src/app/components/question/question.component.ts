@@ -716,7 +716,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Selected option before:', selectedOptionBefore);
   
     if (this.selectedOption && this.selectedOption.text !== option.text) {
-      console.log('Selected option is changing from:', this.selectedOption.text, 'to:', option.text);
+      console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
     }
   
     this.selectedOption = option;
@@ -735,7 +735,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
   }
-                                    
+                                        
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
