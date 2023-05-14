@@ -719,7 +719,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Selected option is changing from:', this.selectedOption.text, 'to:', option.text);
     }
   
-    const selectedOptionAfter = option.text;
+    this.selectedOption = option;
+  
+    const selectedOptionAfter = this.selectedOption ? this.selectedOption.text : 'none';
     console.log('Selected option after:', selectedOptionAfter);
   
     if (selectedOptionBefore === selectedOptionAfter) {
@@ -727,15 +729,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     console.log('New selected option:', selectedOptionAfter);
-    console.log('Selected option:', option.text);
-  
-    this.selectedOption = option;
+    console.log('Selected option:', this.selectedOption.text);
   
     this.selectedOptionChange.emit(this.selectedOption);
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
   }
-                              
+                                
   updateSelection(): void {
     if (this.selectedOptions.length === 0) {
       return;
