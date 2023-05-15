@@ -27,7 +27,7 @@
         [selectedOption]="currentQuestion.selectedOption"
         [currentQuestion]="currentQuestion"
         [currentQuestionIndex]="currentQuestionIndex"
-        (answer)="updateClassName($event.selectedOption, $event.optionIndex)"
+        (answer)="updateClassName($event)"
       ></codelab-question-single-answer>
     </ng-container>
     <ng-container *ngIf="!currentQuestion?.options || currentQuestion.options.length === 0">
