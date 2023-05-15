@@ -387,7 +387,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const [question, options] = await forkJoin([
       this.question$,
-      this.options$.pipe(take(1)), // Ensure only one emission of options
+      this.options$.pipe(take(1)),
     ]).toPromise();
   
     if (!question) {
