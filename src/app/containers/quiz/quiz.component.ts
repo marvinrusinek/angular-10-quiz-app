@@ -367,7 +367,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-
+  
     this.question$ = this.quizDataService.getQuestion(
       quizId,
       currentQuestionIndex
@@ -383,23 +383,22 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Error fetching options:', error);
         }
       );
-    this.options$.subscribe();
-
+  
     const [question, options] = await forkJoin([
       this.question$,
-      this.options$,
+      this.options$.pipe(take(1)), // Ensure only one emission of options
     ]).toPromise();
-
+  
     if (!question) {
       console.error('QuizDataService returned null question');
       return;
     }
-
+  
     if (!options || options.length === 0) {
       console.error('QuizDataService returned null or empty options');
       return;
     }
-
+  
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
