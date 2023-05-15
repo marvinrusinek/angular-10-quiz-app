@@ -369,26 +369,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
   
-    this.question$ = this.quizDataService.getQuestion(
-      quizId,
-      currentQuestionIndex
-    );
-    this.optionsSubscription = this.quizDataService
-      .getOptions(this.quizId, this.currentQuestionIndex)
-      .subscribe(
-        (options) => {
-          this.options = options;
-          this.cdRef.detectChanges();
-        },
-        (error) => {
-          console.error('Error fetching options:', error);
-        }
-      );
+    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
+    this.options$ = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex);
   
-    const [question, options] = await forkJoin([
-      this.question$,
-      this.options$.pipe(take(1)),
-    ]).toPromise();
+    const [question, options] = await forkJoin([this.question$, this.options$.pipe(take(1))]).toPromise();
   
     if (!question) {
       console.error('QuizDataService returned null question');
@@ -400,14 +384,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
+    this.options = options;
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
-    this.router.navigate([
-      QuizRoutes.QUESTION,
-      quizId,
-      currentQuestionIndex + 1,
-    ]);
+    this.router.navigate([QuizRoutes.QUESTION, quizId, currentQuestionIndex + 1]);
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
