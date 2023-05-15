@@ -370,10 +370,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     const currentQuestionIndex = this.currentQuestionIndex;
   
     this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
+    this.question$.subscribe((question) => {
+      console.log('Question:::>>>>>', question);
+    });
+   
     this.options$ = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex);
   
     const [question, options] = await forkJoin([this.question$, this.options$.pipe(take(1))]).toPromise();
-  
+
     if (!question) {
       console.error('QuizDataService returned null question');
       return;
