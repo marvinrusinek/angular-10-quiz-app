@@ -704,51 +704,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  updateSelectedOption(option: Option): void {
+  updateSelection(optionIndex: number): void {
+    const option = this.currentQuestion.options[optionIndex];
     if (!option) {
       console.log('No option selected');
       return;
     }
-    
     console.log(`Option selected: ${option.text}`);
-    
-    const selectedOptionBefore = this.selectedOption ? this.selectedOption.text : 'none';
-    console.log(`Selected option before: ${selectedOptionBefore}`);
-    
-    if (this.selectedOption && this.selectedOption.text !== option.text) {
+    this.updateSelectedOption(option);
+  }
+  
+  updateSelectedOption(option: Option): void {
+    console.log(`Selected option before: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
+    if (this.selectedOption) {
       console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
-    } else if (this.selectedOption && this.selectedOption.text === option.text) {
-      console.log(`Selected option is not changing: ${this.selectedOption.text}`);
     } else {
       console.log(`Selected option is changing from: none to: ${option.text}`);
     }
-    
     this.selectedOption = option;
-    
-    const selectedOptionAfter = this.selectedOption ? this.selectedOption.text : 'none';
-    console.log(`Selected option after: ${selectedOptionAfter}`);
-    
-    if (selectedOptionBefore !== selectedOptionAfter) {
-      console.log(`New selected option: ${selectedOptionAfter}`);
-    } else {
-      console.log(`Selected option was previously: ${selectedOptionBefore}`);
-    }
-    
-    this.selectedOptionChange.emit(this.selectedOption);
-    this.isOptionSelected = true;
-    if (this.isOptionSelectedChange) {
-      this.isOptionSelectedChange.emit(this.isOptionSelected);
-    }
+    console.log(`Selected option after: ${this.selectedOption.text}`);
+    console.log(`New selected option: ${this.selectedOption.text}`);
   }
-      
-  updateSelection(optionIndex: number): void {
-    if (optionIndex >= 0 && optionIndex < this.currentQuestion.options.length) {
-      const fromOptionText = this.selectedOption ? this.selectedOption.text : 'none';
-      console.log(`Selected option is changing from: ${fromOptionText} to: ${this.currentQuestion.options[optionIndex].text}`);
-      this.updateSelectedOption(this.currentQuestion.options[optionIndex]);
-    }
-  }
-
+  
   playSound(selectedOption: Option): void {
     if (!selectedOption || selectedOption === undefined) {
       console.log(
