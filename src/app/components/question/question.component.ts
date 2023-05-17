@@ -90,6 +90,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   optionChecked: { [optionId: number]: boolean } = {};
   answers;
   correctOptionIndex: number;
+  selectedOptionIndex: number | null = null;
   prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
@@ -705,6 +706,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  
   updateSelection(optionIndex: number): void {
     const option = this.currentQuestion.options[optionIndex];
     if (!option) {
@@ -713,22 +715,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     console.log(`Option selected: ${option.text}`);
     this.updateSelectedOption(option);
+    this.selectedOptionIndex = optionIndex; // Set the selected option index
     this.showFeedback = true;
   }
-  
+    
   updateSelectedOption(option: Option): void {
     console.log(`Selected option before: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
-    if (this.selectedOption) {
-      console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
-      this.selectedOption = null;
+    if (this.selectedOption === option) {
+      console.log(`Selected option is changing from: ${this.selectedOption.text} to: none`);
+      this.selectedOption = null; // Deselect the option if it's already selected
     } else {
-      console.log(`Selected option is changing from: none to: ${option.text}`);
-      this.selectedOption = option;
+      console.log(`Selected option is changing from: ${this.selectedOption ? this.selectedOption.text : 'none'} to: ${option.text}`);
+      this.selectedOption = option; // Select the new option
     }
     console.log(`Selected option after: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
     console.log(`New selected option: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
   }
-     
+  
   playSound(selectedOption: Option): void {
     if (!selectedOption || selectedOption === undefined) {
       console.log(
