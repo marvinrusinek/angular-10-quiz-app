@@ -623,9 +623,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.selectedOption = clickedOption;
-
+  
     console.log('OS', this.isOptionSelected);
-
+  
     const answerIndex = this.answers.findIndex(
       (answer) => answer.questionId === this.currentQuestionIndex
     );
@@ -640,18 +640,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
-
+  
     if (!question) {
       return;
     }
-
+  
     const selectedOption = question.options.find(
       (option) => option.text === event.source.value
     );
     const incorrectOptions = question.options.filter(
       (option) => !option.correct
     );
-
+  
     if (event.source.checked) {
       if (question.type === QuestionType.MultipleAnswer) {
         const selectedOptions = question.options.filter(
@@ -668,14 +668,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
       if (selectedOption) {
         selectedOption.selected = true;
-        this.quizService.setExplanationText([selectedOption], question);
-        this.quizService.explanationText.subscribe(
-          (explanationText: string) => {
+        this.quizService.setExplanationText([selectedOption], question)
+          .subscribe((explanationText: string) => {
             this.explanationText$.next(explanationText);
-          }
-        );
-        this.displayExplanation = true;
-
+            this.displayExplanation = true;
+          });
+  
         // Disable all options except the selected one
         incorrectOptions.forEach((option) => {
           option.disabled = true;
@@ -684,7 +682,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       if (selectedOption) {
         selectedOption.selected = false;
-
+  
         // Enable all options
         question.options.forEach((option) => {
           option.disabled = false;
