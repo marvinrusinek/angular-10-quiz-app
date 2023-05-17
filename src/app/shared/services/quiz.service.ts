@@ -110,7 +110,10 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
-  explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  // explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  private explanationTextSource: Subject<string> = new Subject<string>();
+  // explanationText$ = this.explanationTextSource.asObservable();
+  explanationText$: Subject<string> = new BehaviorSubject<string>('');
   explanation: string;
   currentExplanationText: string = '';
   showExplanationText = false;
@@ -483,7 +486,7 @@ export class QuizService implements OnDestroy {
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationText$.next(text);
-          this.explanationTextChange.emit(text); // Emitting the explanationTextChange event
+          this.explanationTextSource.next(text); // Emitting the explanationTextChange event
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
@@ -491,18 +494,18 @@ export class QuizService implements OnDestroy {
           if (correctOptions.length === question.options.length) {
             const text = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
             this.explanationText$.next(text);
-            this.explanationTextChange.emit(text); // Emitting the explanationTextChange event
+            this.explanationTextSource.next(text); // Emitting the explanationTextChange event
           } else {
             const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
             this.explanationText$.next(text);
-            this.explanationTextChange.emit(text); // Emitting the explanationTextChange event
+            this.explanationTextSource.next(text); // Emitting the explanationTextChange event
           }
         }
       } else {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
         const text = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
         this.explanationText$.next(text);
-        this.explanationTextChange.emit(text); // Emitting the explanationTextChange event
+        this.explanationTextSource.next(text); // Emitting the explanationTextChange event
       }
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
