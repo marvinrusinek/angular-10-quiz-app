@@ -110,7 +110,7 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
-  explanationText$ = new BehaviorSubject<string>('');
+  explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanation: string;
   currentExplanationText: string = '';
   showExplanationText = false;
