@@ -460,7 +460,7 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): void {
+  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): Observable<string> {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return;
@@ -479,7 +479,7 @@ export class QuizService implements OnDestroy {
   
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');
-        return;
+        return this.explanationText$;
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
   
@@ -507,9 +507,12 @@ export class QuizService implements OnDestroy {
         this.explanationText$.next(text);
         this.explanationTextSource.next(text); // Emitting the explanationTextChange event
       }
+  
+      return this.explanationText$;
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       this.explanationText$.next('');
+      return this.explanationText$;
     }
   }
 
