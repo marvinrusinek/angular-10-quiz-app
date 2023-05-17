@@ -460,89 +460,62 @@ export class QuizService implements OnDestroy {
   setExplanationText(
     selectedOptions: Option[],
     question?: QuizQuestion
-  ): Observable<string> {
+  ): void {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return;
     }
-
+  
     if (!question) {
       console.error('Error: question is undefined');
       return;
     }
-
+  
     try {
-      const correctOptions = question.options.filter(
-        (option) => option?.correct
-      );
-
+      const correctOptions = question.options.filter((option) => option?.correct);
       const selectedCorrectOptions = selectedOptions
-        ? selectedOptions.filter(
-            (option) => option?.correct !== undefined && option?.correct
-          )
+        ? selectedOptions.filter((option) => option?.correct !== undefined && option?.correct)
         : [];
-
+  
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');
-        return this.explanationText$.asObservable();
+        return;
       } else if (correctOptions.length === selectedCorrectOptions.length) {
-        const correctOptionIndices = correctOptions.map(
-          (option) => question.options.indexOf(option) + 1
-        );
-
+        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
+  
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationText$.next(text);
-          return this.explanationText$.asObservable();
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
-          const correctOptionsString =
-            correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
+          const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
+  
           if (correctOptions.length === question.options.length) {
             const text = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
             this.explanationText$.next(text);
-            return this.explanationText$.asObservable();
           } else {
             const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
             this.explanationText$.next(text);
-            return this.explanationText$.asObservable();
           }
         }
       } else {
-        const correctOptionIndices = correctOptions.map(
-          (option) => question.options.indexOf(option) + 1
-        );
-        const text = `Options ${correctOptionIndices.join(
-          ' and '
-        )} are correct because ${question.explanation}`;
+        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
+        const text = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
         this.explanationText$.next(text);
-        return this.explanationText$.asObservable();
       }
-
-      // Unsubscribe from existing subscription if it exists
+  
       if (this.explanationTextSubscription) {
         this.explanationTextSubscription.unsubscribe();
       }
-
-      // Subscribe to the new value of explanationText$
-      console.log(
-        'setExplanationText() called with selectedOptions:',
-        selectedOptions,
-        'and question:',
-        question
-      );
-      this.explanationTextSubscription = this.explanationText$.subscribe(
-        (text) => {
-          console.log('New value of explanationText:', text);
-          this.displayExplanation = true;
-          console.log('displayExplanation:', this.displayExplanation);
-        }
-      );
-
-      return this.explanationText$.asObservable();
+  
+      this.explanationTextSubscription = this.explanationText$.subscribe((text) => {
+        console.log('New value of explanationText:', text);
+        this.displayExplanation = true;
+        console.log('displayExplanation:', this.displayExplanation);
+      });
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
-      return of('');
+      this.explanationText$.next('');
     }
   }
 
