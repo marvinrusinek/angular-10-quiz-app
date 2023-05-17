@@ -599,7 +599,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.selectedOptions.push(option);
       this.showExplanationText.emit(true);
-      this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
     }
   
     this.isOptionSelectedChange.emit(this.isOptionSelected);
@@ -610,6 +609,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
+    this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
   }  
   
   onSelectionChange(
