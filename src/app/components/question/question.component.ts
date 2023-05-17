@@ -713,17 +713,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
     console.log(`Option selected: ${option.text}`);
     this.updateSelectedOption(option);
-    this.showFeedback = true; // Show the feedback when an option is selected
+    this.showFeedback = true;
   }
   
   updateSelectedOption(option: Option): void {
     console.log(`Selected option before: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
     if (this.selectedOption) {
       console.log(`Selected option is changing from: ${this.selectedOption.text} to: ${option.text}`);
-      this.selectedOption = null; // Clear the previous selected option
+      this.selectedOption = null;
     } else {
       console.log(`Selected option is changing from: none to: ${option.text}`);
-      this.selectedOption = option; // Set the newly selected option
+      this.selectedOption = option;
     }
     console.log(`Selected option after: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
     console.log(`New selected option: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
