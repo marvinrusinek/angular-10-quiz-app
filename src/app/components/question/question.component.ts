@@ -602,13 +602,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOptions.push(option);
       this.showExplanationText.emit(true);
       this.displayExplanation = true;
+  
+      this.isAnswered = this.selectedOptions.length > 0; // Update isAnswered flag based on selected options
+  
       this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
         (explanationText: string) => {
           this.explanationTextValue = explanationText;
           this.explanationTextChanged.emit(explanationText);
           this.cdRef.detectChanges();
         }
-      );      
+      );
     }
   
     this.isOptionSelectedChange.emit(this.isOptionSelected);
@@ -619,7 +622,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
-  }  
+  }
   
   onSelectionChange(
     question: QuizQuestion,
