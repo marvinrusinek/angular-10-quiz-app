@@ -121,6 +121,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText: string = '';
   // explanationText$ = new BehaviorSubject<string>('');
   explanationText$: Observable<string>;
+  explanationTextValue$: Observable<string>;
   explanationTextSubscription: Subscription;
   errorMessage: string;
   cardFooterClass = '';
@@ -189,6 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     this.explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
+    this.explanationTextValue$ = this.quizService.explanationText$;
     
     /* this.explanationTextSubscription =
       this.quizService.explanationText$.subscribe((explanationText) => {
