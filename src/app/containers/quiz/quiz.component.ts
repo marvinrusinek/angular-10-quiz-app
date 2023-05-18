@@ -112,6 +112,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectedAnswers: number[] = [];
   selectedAnswerField: number;
+  selectedAnswerIndex: number;
   correctAnswers: any[] = [];
   isOptionSelected = false;
   isDisabled: boolean;
