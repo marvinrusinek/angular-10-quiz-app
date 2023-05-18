@@ -40,7 +40,7 @@
           >
         </h3>
         <div *ngIf="isAnswered">
-          <p>{{ (explanationTextValue$ | async) || 'No explanation found' }}</p>
+          <p>{{ (explanationTextValue$ | async) }}</p>
         </div>
       </section>
       <ng-container *ngIf="currentQuestion">

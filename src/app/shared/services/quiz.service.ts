@@ -113,7 +113,8 @@ export class QuizService implements OnDestroy {
   // explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   private explanationTextSource: Subject<string> = new Subject<string>();
   // explanationText$ = this.explanationTextSource.asObservable();
-  explanationText$: Subject<string> = new BehaviorSubject<string>('');
+  // explanationText$: Subject<string> = new BehaviorSubject<string>('');
+  public explanationText$: Observable<string> = this.explanationTextSubject.asObservable();
   explanation: string;
   currentExplanationText: string = '';
   showExplanationText = false;
@@ -460,36 +461,38 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): Observable<string> {
+  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): void {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
-      return of('');
+      this.explanationTextSubject.next('');
+      return;
     }
-
+  
     if (!question) {
       console.error('Error: question is undefined');
-      return of('');
+      this.explanationTextSubject.next('');
+      return;
     }
-
+  
     try {
       const correctOptions = question.options.filter((option) => option?.correct);
       const selectedCorrectOptions = selectedOptions
         ? selectedOptions.filter((option) => option?.correct !== undefined && option?.correct)
         : [];
-
+  
       if (!this.isAnswered || selectedOptions.length === 0) {
         this.explanationTextSubject.next('');
-        return this.explanationTextSubject.asObservable();
+        return;
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-
+  
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationTextSubject.next(text);
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
-
+  
           if (correctOptions.length === question.options.length) {
             const text = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
             this.explanationTextSubject.next(text);
@@ -503,16 +506,12 @@ export class QuizService implements OnDestroy {
         const text = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
         this.explanationTextSubject.next(text);
       }
-
-      return this.explanationTextSubject.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       this.explanationTextSubject.next('');
-      return this.explanationTextSubject.asObservable();
     }
   }
-
-
+  
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }
