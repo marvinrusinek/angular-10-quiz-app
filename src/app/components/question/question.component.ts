@@ -69,6 +69,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() quizId!: string;
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
+  @Input() explanationTextValue: string;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   selectedOption: Option | null;
@@ -98,7 +99,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // explanationText: BehaviorSubject<string> = new BehaviorSubject('');
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
-  explanationTextValue: string;
   displayExplanation: boolean = false;
   isOptionSelected: boolean = false;
   @Input() isAnswered: boolean;
