@@ -53,6 +53,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }> = new EventEmitter();
   @Output() selectedOptionChange: EventEmitter<Option> = new EventEmitter<Option>();
   @Output() updateSelectionChange = new EventEmitter<number>();
+  @Output() explanationTextChanged: EventEmitter<string> = new EventEmitter<string>();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
@@ -604,9 +605,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
         (explanationText: string) => {
           this.explanationTextValue = explanationText;
+          this.explanationTextChanged.emit(explanationText);
           this.cdRef.detectChanges();
         }
-      );
+      );      
     }
   
     this.isOptionSelectedChange.emit(this.isOptionSelected);

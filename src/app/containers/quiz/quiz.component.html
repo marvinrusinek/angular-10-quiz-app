@@ -40,7 +40,7 @@
           >
         </h3>
         <div *ngIf="displayExplanation">
-          <p>{{ (explanationText$ | async) || 'No explanation found' }}</p>
+          <p>{{ explanationText || 'No explanation found' }}</p>
         </div>
       </section>
       <ng-container *ngIf="currentQuestion">
@@ -65,6 +65,7 @@
           (showExplanationTextChange)="showExplanationText = $event"
           (showExplanation)="displayExplanation($event)"
           (explanationTextChange)="explanationText$.next($event)"
+          (explanationTextChanged)="onExplanationTextChanged($event)"
         >
         </codelab-quiz-question>
       </ng-container>
