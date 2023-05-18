@@ -477,7 +477,7 @@ export class QuizService implements OnDestroy {
         ? selectedOptions.filter((option) => option?.correct !== undefined && option?.correct)
         : [];
 
-      if (selectedOptions.length === 0) {
+      if (!this.isAnswered || selectedOptions.length === 0) {
         this.explanationTextSubject.next('');
         return this.explanationTextSubject.asObservable();
       } else if (correctOptions.length === selectedCorrectOptions.length) {
@@ -511,7 +511,8 @@ export class QuizService implements OnDestroy {
       return this.explanationTextSubject.asObservable();
     }
   }
-  
+
+
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }
