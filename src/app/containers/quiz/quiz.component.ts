@@ -120,7 +120,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   displayExplanation: boolean = false;
   showExplanationText: boolean = false;
   explanationText: string = '';
-  // explanationText$ = new BehaviorSubject<string>('');
   explanationText$: Observable<string>;
   explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
@@ -149,9 +148,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   get correctOptions(): string {
     return this.quizService.correctOptions;
   }
-  /* get explanationText(): string {
-    return this.quizService.explanationText;
-  } */
 
   constructor(
     private quizService: QuizService,
