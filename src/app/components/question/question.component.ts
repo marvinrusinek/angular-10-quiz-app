@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -130,7 +131,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
-    protected router: Router
+    protected router: Router,
+    private ngZone: NgZone
   ) {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
@@ -601,6 +603,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showExplanationText.emit(true);
       this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
       this.displayExplanation = true;
+      this.ngZone.run(() => {});
     }
   
     this.isOptionSelectedChange.emit(this.isOptionSelected);

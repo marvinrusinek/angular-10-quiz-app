@@ -478,44 +478,40 @@ export class QuizService implements OnDestroy {
         : [];
   
       if (selectedOptions.length === 0) {
-        this.explanationText$.next('');
-        return this.explanationText$;
+        this.explanationTextSubject.next('');
+        return this.explanationTextSubject.asObservable();
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
   
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-          this.explanationText$.next(text);
-          this.explanationTextSource.next(text); // Emitting the explanationTextChange event
+          this.explanationTextSubject.next(text);
         } else if (correctOptions.length > 1) {
           const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(', ') + ' and ' + lastOptionIndex;
   
           if (correctOptions.length === question.options.length) {
             const text = `All options (${correctOptionsString}) are correct because ${question.explanation}`;
-            this.explanationText$.next(text);
-            this.explanationTextSource.next(text); // Emitting the explanationTextChange event
+            this.explanationTextSubject.next(text);
           } else {
             const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
-            this.explanationText$.next(text);
-            this.explanationTextSource.next(text); // Emitting the explanationTextChange event
+            this.explanationTextSubject.next(text);
           }
         }
       } else {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
         const text = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
-        this.explanationText$.next(text);
-        this.explanationTextSource.next(text); // Emitting the explanationTextChange event
+        this.explanationTextSubject.next(text);
       }
   
-      return this.explanationText$;
+      return this.explanationTextSubject.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
-      this.explanationText$.next('');
-      return this.explanationText$;
+      this.explanationTextSubject.next('');
+      return this.explanationTextSubject.asObservable();
     }
   }
-
+  
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }

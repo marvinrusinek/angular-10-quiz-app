@@ -119,7 +119,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   displayExplanation: boolean = false;
   showExplanationText: boolean = false;
   explanationText: string = '';
-  explanationText$ = new BehaviorSubject<string>('');
+  // explanationText$ = new BehaviorSubject<string>('');
+  explanationText$: Observable<string>;
   explanationTextSubscription: Subscription;
   errorMessage: string;
   cardFooterClass = '';
@@ -164,7 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
-    this.explanationText$ = new BehaviorSubject<string>('');
+    // this.explanationText$ = new BehaviorSubject<string>('');
     console.log('QuizComponent constructor called');
   }
 
@@ -187,12 +188,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.explanationTextSubscription =
+    this.explanationText$ = this.quizService.getExplanationText();
+    
+    /* this.explanationTextSubscription =
       this.quizService.explanationText$.subscribe((explanationText) => {
         this.explanationText$.next(explanationText);
         this.showExplanationText = true;
         console.log('explanationText', explanationText);
-      });
+      }); */
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.getQuizById(this.quizId).subscribe(
