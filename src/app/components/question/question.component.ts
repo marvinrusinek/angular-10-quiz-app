@@ -99,6 +99,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
+  explanationTextValue$: Observable<string>;
   displayExplanation: boolean = false;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
