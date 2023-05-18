@@ -97,6 +97,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   // explanationText: BehaviorSubject<string> = new BehaviorSubject('');
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
+  explanationTextValue: string;
   displayExplanation: boolean = false;
   isOptionSelected: boolean = false;
   @Input() isAnswered: boolean;
@@ -599,8 +600,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.selectedOptions.push(option);
       this.showExplanationText.emit(true);
-      this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
       this.displayExplanation = true;
+      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+        (explanationText: string) => {
+          this.explanationTextValue = explanationText;
+          this.cdRef.detectChanges();
+        }
+      );
     }
   
     this.isOptionSelectedChange.emit(this.isOptionSelected);

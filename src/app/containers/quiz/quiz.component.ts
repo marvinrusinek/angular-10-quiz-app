@@ -188,7 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.explanationText$ = this.quizService.getExplanationText();
+    this.explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
     
     /* this.explanationTextSubscription =
       this.quizService.explanationText$.subscribe((explanationText) => {
