@@ -39,7 +39,7 @@
             >({{ numberOfCorrectAnswers }} answers are correct)</span
           >
         </h3>
-        <div *ngIf="displayExplanation"> <!-- works with isAnswered -->
+        <div *ngIf="isAnswered">
           <p>{{ (explanationTextValue$ | async) }}</p>
         </div>
       </section>
