@@ -603,7 +603,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.showExplanationText.emit(true);
       this.displayExplanation = true;
   
-      this.isAnswered = this.selectedOptions.length > 0; // Update isAnswered flag based on selected options
+      // Update isAnswered flag based on selected options
+      this.isAnswered = this.selectedOptions.length > 0;
   
       this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
         (explanationText: string) => {
