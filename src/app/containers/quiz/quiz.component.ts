@@ -166,7 +166,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
-    // this.explanationText$ = new BehaviorSubject<string>('');
     console.log('QuizComponent constructor called');
   }
 
@@ -189,20 +188,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    // this.explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.currentQuestion);
-    // this.explanationTextValue$ = this.quizService.explanationText$;
-
     this.quizService.explanationText$.subscribe((explanationText: string) => {
       this.explanationTextValue$.next(explanationText);
     });
     
-    /* this.explanationTextSubscription =
-      this.quizService.explanationText$.subscribe((explanationText) => {
-        this.explanationText$.next(explanationText);
-        this.showExplanationText = true;
-        console.log('explanationText', explanationText);
-      }); */
-
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.getQuizById(this.quizId).subscribe(
       (quiz: Quiz) => {
