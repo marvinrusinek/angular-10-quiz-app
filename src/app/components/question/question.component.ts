@@ -601,8 +601,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.selectedOptions.push(option);
       this.showExplanationText.emit(true);
-      this.displayExplanation = true;
-      // this.explanationTextValue$ = this.quizService.setExplanationText(this.selectedOptions, this.question);
   
       // Update isAnswered flag based on selected options
       this.isAnswered = this.selectedOptions.length > 0;
@@ -611,6 +609,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         (explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
           this.explanationTextChanged.emit(explanationText);
+          this.displayExplanation = true;
           this.cdRef.detectChanges();
         }
       );
