@@ -240,6 +240,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  handleShouldDisplayNumberOfCorrectAnswersChanged(event: any): void {
+    const { shouldDisplay, numberOfCorrectAnswers } = event;
+  
+    // Perform any necessary logic with the emitted values
+    if (shouldDisplay) {
+      // Display the number of correct answers
+      console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
+    } else {
+      // Hide the number of correct answers
+      console.log('Number of correct answers should be hidden.');
+    }
+  }
+
   onExplanationTextChanged(explanationText: string): void {
     this.explanationText = explanationText;
   }

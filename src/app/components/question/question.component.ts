@@ -104,7 +104,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationTextSubscription: Subscription;
   explanationTextValue$: Observable<string>;
   displayExplanation: boolean = false;
-  shouldDisplayNumberOfCorrectAnswers: boolean = true;
+  shouldDisplayNumberOfCorrectAnswers: boolean = false;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
   private initialized = false;
