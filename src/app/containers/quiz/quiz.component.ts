@@ -609,7 +609,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   onShouldDisplayNumberOfCorrectAnswersChanged(event: any): void {
     this.shouldDisplayNumberOfCorrectAnswers = event.shouldDisplay;
-    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
+    console.log('Received shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
+    this.numberOfCorrectAnswers = event.numberOfCorrectAnswers;
   }
   
   updateSelectedOption(selectedOption: Option): void {
