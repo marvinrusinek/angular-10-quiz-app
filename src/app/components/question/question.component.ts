@@ -674,7 +674,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       );
       this.shouldDisplayNumberOfCorrectAnswers = false;
-      this.toggleNumberOfCorrectAnswersVisibility();
       this.toggleVisibility.emit();
     }
   
