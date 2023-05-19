@@ -22,7 +22,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppComponent } from './app.component';
 import { IntroductionComponent } from './containers/introduction/introduction.component';
 import { QuizComponent } from './containers/quiz/quiz.component';
-import { QuizExplanationComponent } from './containers/quiz/explanation/explanation.component';
 import { QuizQuestionComponent } from './components/question/question.component';
 import { MultipleAnswerComponent } from './components/question/question-type/multiple-answer/multiple-answer.component';
 import { SingleAnswerComponent } from './components/question/question-type/single-answer/single-answer.component';
@@ -60,7 +59,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     FeedbackComponent,
     OptionFeedbackComponent,
     QuizSelectionComponent,
-    QuizExplanationComponent,
     ResultsComponent,
     ScoreboardComponent,
     ScoreComponent,
