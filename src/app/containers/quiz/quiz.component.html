@@ -64,8 +64,8 @@
           (showExplanation)="displayExplanation($event)"
           (explanationTextChange)="explanationText$.next($event)"
           (explanationTextChanged)="onExplanationTextChanged($event)"
-          (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)">
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
+          (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
         >
         </codelab-quiz-question>
       </ng-container>
