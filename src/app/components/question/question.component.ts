@@ -60,7 +60,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() showExplanationTextChange = new EventEmitter<boolean>();
   @Output() showExplanationText = new EventEmitter<boolean>();
   @Output() displayExplanationChanged = new EventEmitter<boolean>();
-  @Output() shouldDisplayNumberOfCorrectAnswersChanged = new EventEmitter<boolean>();
+  @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{ shouldDisplay: boolean, numberOfCorrectAnswers: number }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -573,31 +573,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  /* toggleNumberOfCorrectAnswersVisibility(): void {
-    const isMultipleCorrect = this.isMultipleCorrectAnswers();
-    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
-  
-    if (this.shouldDisplayNumberOfCorrectAnswers && !this.isOptionSelected && isMultipleCorrect) {
-      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
-      if (numberOfCorrectAnswers > 0) {
-        this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers, numberOfCorrectAnswers });
-      } else {
-        this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: false });
-      }
-    } else {
-      this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers });
-    }
-  
-    this.toggleVisibility.emit();
-  } */
-
-
   toggleNumberOfCorrectAnswersVisibility(): void {
     this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
-    this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);
+    // this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);  
+    this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers, numberOfCorrectAnswers });      
     this.toggleVisibility.emit();
   }
-
 
   private resetForm(): void {
     if (!this.questionForm) {

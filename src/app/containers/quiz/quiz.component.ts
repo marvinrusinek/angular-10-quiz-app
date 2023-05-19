@@ -70,6 +70,7 @@ enum QuizStatus {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
+  @Input() shouldDisplayNumberOfCorrectAnswers: boolean;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
   formControl: FormControl;
@@ -120,7 +121,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ''
   );
   explanationTextSubscription: Subscription;
-  shouldDisplayNumberOfCorrectAnswers: boolean;
   errorMessage: string;
   cardFooterClass = '';
 
