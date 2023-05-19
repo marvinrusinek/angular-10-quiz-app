@@ -663,7 +663,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOptions = this.selectedOptions.filter(
         (selectedOption) => selectedOption !== option
       );
-      this.isAnswered = this.selectedOptions.length > 0;
+      this.isAnswered = this.selectedOptions.length > 0; // should this go in else?
       this.explanationTextValue$ = of('');
     } else {
       this.selectedOptions.push(option);
