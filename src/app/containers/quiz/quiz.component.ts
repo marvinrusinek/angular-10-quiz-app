@@ -233,6 +233,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
+  toggleNumberOfCorrectAnswersVisibility(): void {
+    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
+    if (this.shouldDisplayNumberOfCorrectAnswers && !this.isOptionSelected && this.isMultipleCorrectAnswers()) {
+      this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
+    }
+  }
+
   onExplanationTextChanged(explanationText: string): void {
     this.explanationText = explanationText;
   }
