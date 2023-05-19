@@ -573,16 +573,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  toggleNumberOfCorrectAnswersVisibility(): void {
+  /* toggleNumberOfCorrectAnswersVisibility(): void {
     const isMultipleCorrect = this.isMultipleCorrectAnswers();
     this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
   
     if (this.shouldDisplayNumberOfCorrectAnswers && !this.isOptionSelected && isMultipleCorrect) {
-      const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers();
-      this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers, numberOfCorrectAnswers });
+      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
+      if (numberOfCorrectAnswers > 0) {
+        this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers, numberOfCorrectAnswers });
+      } else {
+        this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: false });
+      }
     } else {
       this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers });
     }
+  
+    this.toggleVisibility.emit();
+  } */
+
+  toggleNumberOfCorrectAnswersVisibility(): void {
+    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
+    this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);
+    this.toggleVisibility.emit();
   }
   
   private resetForm(): void {
