@@ -6,7 +6,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -66,7 +66,7 @@ enum QuizStatus {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
+  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService],
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
@@ -116,7 +116,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanationText: boolean = false;
   explanationText: string = '';
   explanationText$: Observable<string>;
-  explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
   explanationTextSubscription: Subscription;
   shouldDisplayNumberOfCorrectAnswers: boolean;
   errorMessage: string;
@@ -184,7 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.explanationText$.subscribe((explanationText: string) => {
       this.explanationTextValue$.next(explanationText);
     });
-    
+
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.getQuizById(this.quizId).subscribe(
       (quiz: Quiz) => {
@@ -195,7 +197,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error(error);
       }
     );
-  
+
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
     this.quizDataService.selectedQuiz$.subscribe((quiz) => {
@@ -208,7 +210,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
-    this.currentQuestion$.subscribe(currentQuestion => {
+    this.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:::', currentQuestion);
       this.currentQuestion = currentQuestion;
     });
@@ -234,22 +236,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   toggleNumberOfCorrectAnswersVisibility(): void {
-    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
-    if (this.shouldDisplayNumberOfCorrectAnswers && !this.isOptionSelected && this.isMultipleCorrectAnswers()) {
+    this.shouldDisplayNumberOfCorrectAnswers =
+      !this.shouldDisplayNumberOfCorrectAnswers;
+    if (
+      this.shouldDisplayNumberOfCorrectAnswers &&
+      !this.isOptionSelected &&
+      this.isMultipleCorrectAnswers()
+    ) {
       this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
-    }
-  }
-
-  handleShouldDisplayNumberOfCorrectAnswersChanged(event: any): void {
-    const { shouldDisplay, numberOfCorrectAnswers } = event;
-  
-    // Perform any necessary logic with the emitted values
-    if (shouldDisplay) {
-      // Display the number of correct answers
-      console.log(`Number of correct answers: ${numberOfCorrectAnswers}`);
-    } else {
-      // Hide the number of correct answers
-      console.log('Number of correct answers should be hidden.');
     }
   }
 
@@ -259,7 +253,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
-    this.answers[questionIndex] = this.questions[questionIndex].options[answerIndex];
+    this.answers[questionIndex] =
+      this.questions[questionIndex].options[answerIndex];
   }
 
   setCurrentQuizForQuizId(): void {
@@ -383,31 +378,44 @@ export class QuizComponent implements OnInit, OnDestroy {
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-  
-    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
+
+    this.question$ = this.quizDataService.getQuestion(
+      quizId,
+      currentQuestionIndex
+    );
     this.question$.subscribe((question) => {
       console.log('Question:::>>>>>', question);
     });
-   
-    this.options$ = this.quizDataService.getOptions(this.quizId, this.currentQuestionIndex);
-  
-    const [question, options] = await forkJoin([this.question$, this.options$.pipe(take(1))]).toPromise();
+
+    this.options$ = this.quizDataService.getOptions(
+      this.quizId,
+      this.currentQuestionIndex
+    );
+
+    const [question, options] = await forkJoin([
+      this.question$,
+      this.options$.pipe(take(1)),
+    ]).toPromise();
 
     if (!question) {
       console.error('QuizDataService returned null question');
       return;
     }
-  
+
     if (!options || options.length === 0) {
       console.error('QuizDataService returned null or empty options');
       return;
     }
-  
+
     this.options = options;
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
-    this.router.navigate([QuizRoutes.QUESTION, quizId, currentQuestionIndex + 1]);
+    this.router.navigate([
+      QuizRoutes.QUESTION,
+      quizId,
+      currentQuestionIndex + 1,
+    ]);
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
@@ -590,7 +598,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isAnswered() {
     return this.isOptionSelected;
   }
-  
+
   onSelect(option: Option): void {
     this.selectedOption = option;
   }
@@ -602,7 +610,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   onShouldDisplayNumberOfCorrectAnswersChanged(shouldDisplay: boolean): void {
     this.shouldDisplayNumberOfCorrectAnswers = shouldDisplay;
   }
-  
+
   updateSelectedOption(selectedOption: Option): void {
     this.selectedOption = selectedOption;
   }
