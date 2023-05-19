@@ -59,6 +59,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() showExplanationTextChange = new EventEmitter<boolean>();
   @Output() showExplanationText = new EventEmitter<boolean>();
+  @Output() displayExplanationChanged = new EventEmitter<boolean>();
+  @Output() shouldDisplayNumberOfCorrectAnswersChanged = new EventEmitter<boolean>();
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
@@ -101,6 +103,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationTextSubscription: Subscription;
   explanationTextValue$: Observable<string>;
   displayExplanation: boolean = false;
+  shouldDisplayNumberOfCorrectAnswers: boolean = true;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
   private initialized = false;
@@ -569,6 +572,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  /* toggleNumberOfCorrectAnswersVisibility(): void {
+    const isMultipleCorrect = this.isMultipleCorrectAnswers();
+    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
+  
+    if (this.shouldDisplayNumberOfCorrectAnswers && !this.isOptionSelected && isMultipleCorrect) {
+      this.numberOfCorrectAnswers = this.getNumberOfCorrectAnswers();
+    }
+    this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);
+  } */
+
+  toggleNumberOfCorrectAnswersVisibility(): void {
+    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
+    this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);
+  }
+
   private resetForm(): void {
     if (!this.questionForm) {
       return;
@@ -589,7 +607,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
    
-  onOptionSelected(option: Option): void {
+  /* onOptionSelected(option: Option): void {
     console.log('The Selected option:', option);
     this.isOptionSelected = true;
   
@@ -608,11 +626,43 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
         (explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-          this.explanationTextChanged.emit(explanationText);
           this.displayExplanation = true;
+          this.displayExplanationChanged.emit(this.displayExplanation);
           this.cdRef.detectChanges();
         }
       );
+    }
+  
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions
+    });
+  } */
+
+  onOptionSelected(option: Option): void {
+    console.log('The Selected option:', option);
+    this.isOptionSelected = true;
+  
+    if (this.selectedOptions.includes(option)) {
+      this.selectedOptions = this.selectedOptions.filter(
+        (selectedOption) => selectedOption !== option
+      );
+      this.isAnswered = this.selectedOptions.length > 0;
+      this.explanationTextValue$ = of('');
+    } else {
+      this.selectedOptions.push(option);
+      this.isAnswered = true;
+      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+        (explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+        }
+      );
+      this.shouldDisplayNumberOfCorrectAnswers = false;
+      this.toggleNumberOfCorrectAnswersVisibility();
     }
   
     this.isOptionSelectedChange.emit(this.isOptionSelected);

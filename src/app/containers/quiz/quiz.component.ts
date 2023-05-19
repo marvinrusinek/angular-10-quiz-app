@@ -118,6 +118,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText$: Observable<string>;
   explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
+  shouldDisplayNumberOfCorrectAnswers: boolean;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -576,6 +577,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   onIsOptionSelectedChange(value: boolean) {
     this.isOptionSelected = value;
+  }
+
+  onShouldDisplayNumberOfCorrectAnswersChanged(shouldDisplay: boolean): void {
+    this.shouldDisplayNumberOfCorrectAnswers = shouldDisplay;
   }
   
   updateSelectedOption(selectedOption: Option): void {
