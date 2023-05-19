@@ -591,12 +591,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.toggleVisibility.emit();
   } */
 
+
   toggleNumberOfCorrectAnswersVisibility(): void {
     this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
     this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);
     this.toggleVisibility.emit();
   }
-  
+
+
   private resetForm(): void {
     if (!this.questionForm) {
       return;
