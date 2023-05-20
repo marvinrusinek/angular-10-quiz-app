@@ -723,34 +723,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  
-  updateSelection(optionIndex: number): void {
-    const option = this.currentQuestion.options[optionIndex];
-    if (!option) {
-      console.log('No option selected');
-      return;
-    }
-    console.log(`Option selected: ${option.text}`);
-    this.updateSelectedOption(option);
-    this.selectedOptionIndex = optionIndex; // Set the selected option index
-    this.showFeedback = true;
+  private updateSelectedOption(
+    selectedOption: Option,
+    optionIndex: number
+  ): void {
+    this.alreadyAnswered = true;
+    this.answer.emit(optionIndex);
+    this.selectedOption = selectedOption;
+
+    this.clearSelection();
+    this.updateSelection(optionIndex);
+    this.updateClassName(this.selectedOption, optionIndex);
+    this.playSound(optionIndex);
   }
-    
-  updateSelectedOption(option: Option): void {
-    console.log(`Selected option before: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
-  
-    if (this.selectedOption === option) {
-      console.log(`Selected option is changing from: ${this.selectedOption.text} to: none`);
-      this.selectedOption = null; // Deselect the option if it's already selected
-      this.isAnswered = false; // Update isAnswered flag when the option is deselected
-    } else {
-      console.log(`Selected option is changing from: ${this.selectedOption ? this.selectedOption.text : 'none'} to: ${option.text}`);
-      this.selectedOption = option; // Select the new option
-      this.isAnswered = true; // Update isAnswered flag when the option is selected
+
+  private updateSelection(optionIndex: number): void {
+    const option = this.currentQuestion?.options[optionIndex];
+    if (option && this.currentQuestion && this.currentQuestion?.options) {
+      this.currentQuestion.options.forEach((o) => (o.selected = false));
+      option.selected = true;
+      this.selectedOption = option;
     }
-  
-    console.log(`Selected option after: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
-    console.log(`New selected option: ${this.selectedOption ? this.selectedOption.text : 'none'}`);
   }
   
   playSound(selectedOption: Option): void {
