@@ -612,7 +612,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-  
   updateSelectedOption(selectedOption: Option): void {
     this.selectedOption = selectedOption;
   }
