@@ -10,27 +10,29 @@
   >
     <mat-checkbox
       (click)="selectedOption = option; onOptionSelected(option)"
-      (change)="onSelectionChange(currentQuestion, $event); selectionChange.emit({ question: question, selectedOption: option })"
+      (change)="
+        onSelectionChange(currentQuestion, $event);
+        selectionChange.emit({ question: question, selectedOption: option })
+      "
       [class]="getOptionClass(option)"
       [value]="option.optionId"
-      [checked]="optionChecked[option?.optionId]"
+      [checked]="selectedOptions.includes(option)"
       [disabled]="option.disabled"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
       <span class="option-text">{{ option?.text }}</span>
       <codelab-quiz-option-feedback
         [correct]="option?.correct"
-        [selected]="selectedOption === option"
+        [selected]="selectedOptions.includes(option)"
       >
       </codelab-quiz-option-feedback>
     </mat-checkbox>
 
     <codelab-quiz-feedback
-      *ngIf="selectedOption === option"
+      *ngIf="selectedOption === option && showFeedback"
       [question]="currentQuestion"
       [selectedOption]="selectedOption"
       [correctMessage]="correctMessage"
     ></codelab-quiz-feedback>
   </label>
 </ng-container>
-

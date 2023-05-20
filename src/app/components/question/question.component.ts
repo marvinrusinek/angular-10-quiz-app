@@ -737,7 +737,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateSelectedOption(
+  updateSelectedOption(
     selectedOption: Option,
     optionIndex: number
   ): void {
@@ -753,6 +753,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   updateSelection(optionIndex: number): void {
     const option = this.currentQuestion?.options[optionIndex];
+    this.showFeedback = true;
     if (option && this.currentQuestion && this.currentQuestion?.options) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
       option.selected = true;

@@ -59,6 +59,7 @@ export class MultipleAnswerComponent
   options$: Observable<Option[]>;
   isMultiple: boolean = true;
   showExplanation: boolean = false;
+  showFeedback: boolean = false;
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -181,7 +182,20 @@ export class MultipleAnswerComponent
     }
   }
 
-  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
+  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
+    const selectedOption = question.options.find(option => option.optionId === (event.source as MatCheckbox | MatRadioButton).value);
+  
+    if (selectedOption) {
+      selectedOption.selected = event.checked;
+      this.playSound(selectedOption);
+      this.selectionChange.emit({ selectedOption, question });
+      this.updateSelection(question.options.indexOf(selectedOption));
+      this.updateSelectedOption(selectedOption, question.options.indexOf(selectedOption));
+      this.showFeedback = true;
+    }
+  }  
+
+  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     const selectedOption = question.options.find(option => option.optionId === (event.source as MatCheckbox | MatRadioButton).value);
   
     if (selectedOption) {
@@ -191,7 +205,7 @@ export class MultipleAnswerComponent
       this.selectionChange.emit({selectedOption: selectedOption, question: question});
       this.updateSelection(question.options.indexOf(selectedOption));
     }
-  }
+  } */
 
   /* onSelectionChange(option: Option): void {
     this.optionChecked[option.optionId] = !this.optionChecked[option.optionId];
