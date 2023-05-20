@@ -602,6 +602,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   onShouldDisplayNumberOfCorrectAnswersChanged(event: { shouldDisplay: boolean, numberOfCorrectAnswers: number }): void {
+    console.log("MY TESTING");
     this.shouldDisplayNumberOfCorrectAnswers = event.shouldDisplay;
     console.log('Received shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
   
