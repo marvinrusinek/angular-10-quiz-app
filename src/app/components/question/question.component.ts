@@ -574,9 +574,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   toggleNumberOfCorrectAnswersVisibility(): void {
-    console.log("Toggle visibility triggered"); // New console log
     this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
-    console.log("shouldDisplayNumberOfCorrectAnswers:", this.shouldDisplayNumberOfCorrectAnswers); // New console log
     this.shouldDisplayNumberOfCorrectAnswersChanged.emit({
       shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers,
       numberOfCorrectAnswers: this.quizService.numberOfCorrectAnswers
