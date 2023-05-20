@@ -143,6 +143,10 @@ export class MultipleAnswerComponent
     this.destroyed$.complete();
   }
 
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptions.includes(option);
+  }
+
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
