@@ -187,7 +187,7 @@ export class MultipleAnswerComponent
     if (selectedOption) {
       selectedOption.selected = (event.source as MatCheckbox | MatRadioButton).checked;
       console.log('Selection changed: ', event);
-      this.playSound(event.selectedOption);
+      this.playSound(selectedOption);
       this.selectionChange.emit({selectedOption: selectedOption, question: question});
       this.updateSelection(question.options.indexOf(selectedOption));
     }
