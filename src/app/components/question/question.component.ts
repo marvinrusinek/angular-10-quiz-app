@@ -574,12 +574,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   toggleNumberOfCorrectAnswersVisibility(): void {
-    console.log("MY VISIBILITY TEST");
+    console.log("Toggle visibility triggered"); // New console log
     this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
-    // this.shouldDisplayNumberOfCorrectAnswersChanged.emit(this.shouldDisplayNumberOfCorrectAnswers);  
-    this.shouldDisplayNumberOfCorrectAnswersChanged.emit({ shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers, numberOfCorrectAnswers: this.quizService.numberOfCorrectAnswers });     
+    console.log("shouldDisplayNumberOfCorrectAnswers:", this.shouldDisplayNumberOfCorrectAnswers); // New console log
+    this.shouldDisplayNumberOfCorrectAnswersChanged.emit({
+      shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers,
+      numberOfCorrectAnswers: this.quizService.numberOfCorrectAnswers
+    });
     this.toggleVisibility.emit();
-  }
+  }  
 
   private resetForm(): void {
     if (!this.questionForm) {
