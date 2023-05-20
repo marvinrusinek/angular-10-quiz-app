@@ -58,17 +58,12 @@
           [currentQuestionIndex]="currentQuestionIndex"
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
-          (explanationTextChange)="explanationText = $event"
-          (showExplanationTextChange)="showExplanationText = $event"
           (displayExplanationChanged)="displayExplanation = $event"
           (showExplanation)="displayExplanation($event)"
-          (explanationTextChange)="explanationText$.next($event)"
-          (explanationTextChanged)="onExplanationTextChanged($event)"
           [shouldDisplayNumberOfCorrectAnswers]="shouldDisplayNumberOfCorrectAnswers"
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
-        >
-        </codelab-quiz-question>
+        ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>
         <p>No question available.</p>
