@@ -187,6 +187,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextValue$.next(explanationText);
     });
 
+    this.quizService.shouldDisplayNumberOfCorrectAnswersChanged.subscribe((event) => {
+      this.onShouldDisplayNumberOfCorrectAnswersChanged(event);
+    });    
+
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.getQuizById(this.quizId).subscribe(
       (quiz: Quiz) => {
