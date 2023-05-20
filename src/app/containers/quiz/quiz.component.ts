@@ -70,7 +70,7 @@ enum QuizStatus {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Input() shouldDisplayNumberOfCorrectAnswers: boolean;
+  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
   formControl: FormControl;
@@ -165,6 +165,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
 
     this.quizService.getAllQuestions().subscribe((questions) => {
@@ -234,7 +235,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
   }
-
+    
   onExplanationTextChanged(explanationText: string): void {
     this.explanationText = explanationText;
   }
@@ -595,12 +596,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isOptionSelected = value;
   }
 
-  /* onShouldDisplayNumberOfCorrectAnswersChanged(event: any): void {
-    this.shouldDisplayNumberOfCorrectAnswers = event.shouldDisplay;
-    console.log('Received shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
-    this.numberOfCorrectAnswers = event.numberOfCorrectAnswers;
-  } */
-
   onShouldDisplayNumberOfCorrectAnswersChanged(event: { shouldDisplay: boolean, numberOfCorrectAnswers: number }): void {
     console.log("MY TESTING");
     this.shouldDisplayNumberOfCorrectAnswers = event.shouldDisplay;
@@ -609,7 +604,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (event.shouldDisplay) {
       const numberOfCorrectAnswers = event.numberOfCorrectAnswers;
       console.log('numberOfCorrectAnswers:', numberOfCorrectAnswers);
-      // Perform additional logic if needed
     }
   }
   
@@ -731,6 +725,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
   }
+
+  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+    return (
+      this.shouldDisplayNumberOfCorrectAnswers &&
+      this.isMultipleCorrectAnswers() &&
+      !this.isOptionSelected &&
+      !this.shouldDisplayExplanation()
+    );
+  }  
 
   shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;

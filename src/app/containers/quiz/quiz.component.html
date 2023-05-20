@@ -35,7 +35,7 @@
       <section id="question">
         <h3>
           {{ (explanationTextValue$ | async) || question?.questionText }}
-          <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswers && isMultipleCorrectAnswers() && !isOptionSelected && shouldDisplayExplanation()">
+          <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"> 
             ({{ numberOfCorrectAnswers }} answers are correct)
           </span>
         </h3>
@@ -64,6 +64,7 @@
           (showExplanation)="displayExplanation($event)"
           (explanationTextChange)="explanationText$.next($event)"
           (explanationTextChanged)="onExplanationTextChanged($event)"
+          [shouldDisplayNumberOfCorrectAnswers]="shouldDisplayNumberOfCorrectAnswers"
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
         >

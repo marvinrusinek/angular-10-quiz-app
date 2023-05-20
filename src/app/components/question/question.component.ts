@@ -62,6 +62,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() displayExplanationChanged = new EventEmitter<boolean>();
   @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{ shouldDisplay: boolean, numberOfCorrectAnswers: number }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
+  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
@@ -104,7 +105,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   explanationTextSubscription: Subscription;
   explanationTextValue$: Observable<string>;
   displayExplanation: boolean = false;
-  shouldDisplayNumberOfCorrectAnswers: boolean = false;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
   private initialized = false;
