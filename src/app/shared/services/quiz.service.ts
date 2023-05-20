@@ -114,8 +114,9 @@ export class QuizService implements OnDestroy {
   explanationText$: Observable<string> = this.explanationTextSubject.asObservable();
   explanation: string;
   currentExplanationText: string = '';
-  showExplanationText = false;
-  displayExplanation = false;
+  showExplanationText: boolean = false;
+  displayExplanation: boolean = false;
+  shouldDisplayExplanation: boolean = false;
 
   userAnswers = [];
   previousAnswers = [];
@@ -513,6 +514,15 @@ export class QuizService implements OnDestroy {
   
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
+  }
+
+  displayExplanationText(show: boolean): void {
+    this.shouldDisplayExplanation = show;
+    // Additional logic for displaying/hiding the explanation text
+  }
+
+  shouldExplanationBeDisplayed(): boolean {
+    return this.shouldDisplayExplanation;
   }
 
   submitQuiz(): Observable<void> {

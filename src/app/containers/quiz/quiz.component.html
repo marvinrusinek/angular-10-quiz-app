@@ -35,10 +35,15 @@
       <section id="question">
         <h3>
           {{ (explanationTextValue$ | async) || question?.questionText }}
-          <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswers && isMultipleCorrectAnswers() && !isOptionSelected">
+          <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswers && isMultipleCorrectAnswers() && !isOptionSelected && shouldDisplayExplanation()">
             ({{ numberOfCorrectAnswers }} answers are correct)
           </span>
         </h3>
+        <!--{{ shouldDisplayNumberOfCorrectAnswers }}-->
+        <!--{{ isMultipleCorrectAnswers() }}
+        {{ !isOptionSelected }}
+        {{ !explanationTextValue$ }}-->
+        {{ shouldDisplayExplanation() }}
        </section>
       <ng-container *ngIf="currentQuestion">
         <!--{{ currentQuestion | json }}-->

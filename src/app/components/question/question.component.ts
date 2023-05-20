@@ -649,12 +649,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.selectedOptions.push(option);
       this.isAnswered = true;
+      this.quizService.displayExplanationText(true);
       this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
         (explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
         }
       );
-      this.shouldDisplayNumberOfCorrectAnswers = false;
+      // this.shouldDisplayNumberOfCorrectAnswers = false;
       this.toggleVisibility.emit();
     }
   

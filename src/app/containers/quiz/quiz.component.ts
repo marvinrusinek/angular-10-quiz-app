@@ -698,8 +698,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  displayExplanationText(show: boolean): void {
-    this.showExplanation = show;
+  shouldDisplayExplanation(): boolean {
+    return this.quizService.shouldExplanationBeDisplayed();
   }
 
   /* async onSubmit(): Promise<void> {
