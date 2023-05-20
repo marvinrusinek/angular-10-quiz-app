@@ -603,42 +603,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
   }
-   
-  /* onOptionSelected(option: Option): void {
-    console.log('The Selected option:', option);
-    this.isOptionSelected = true;
-  
-    if (this.selectedOptions.includes(option)) {
-      this.selectedOptions = this.selectedOptions.filter(
-        (selectedOption) => selectedOption !== option
-      );
-      this.showExplanationText.emit(false);
-    } else {
-      this.selectedOptions.push(option);
-      this.showExplanationText.emit(true);
-  
-      // Update isAnswered flag based on selected options
-      this.isAnswered = this.selectedOptions.length > 0;
-  
-      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-        (explanationText: string) => {
-          this.explanationTextValue$ = of(explanationText);
-          this.displayExplanation = true;
-          this.displayExplanationChanged.emit(this.displayExplanation);
-          this.cdRef.detectChanges();
-        }
-      );
-    }
-  
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(option);
-  
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
-    });
-  } */
 
   onOptionSelected(option: Option): void {
     console.log('The Selected option:', option);
@@ -648,7 +612,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOptions = this.selectedOptions.filter(
         (selectedOption) => selectedOption !== option
       );
-      this.isAnswered = this.selectedOptions.length > 0; // should this go in else?
+      this.isAnswered = this.selectedOptions.length > 0;
       this.explanationTextValue$ = of('');
     } else {
       this.selectedOptions.push(option);
@@ -659,7 +623,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.explanationTextValue$ = of(explanationText);
         }
       );
-      // this.shouldDisplayNumberOfCorrectAnswers = false;
       this.toggleVisibility.emit();
     }
   
