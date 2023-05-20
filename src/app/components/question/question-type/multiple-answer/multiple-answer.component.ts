@@ -181,17 +181,6 @@ export class MultipleAnswerComponent
     }
   }
 
-  isOptionCorrect(option: Option): boolean {
-    return option.correct;
-  }
-
-  /* isOptionSelected(option: Option): boolean {
-    return (
-      Array.isArray(this.selectedOptions) &&
-      this.selectedOptions.includes(option)
-    );
-  } */
-
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
     const selectedOption = question.options.find(option => option.optionId === (event.source as MatCheckbox | MatRadioButton).value);
   

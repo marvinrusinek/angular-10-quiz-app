@@ -751,7 +751,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.playSound(this.selectedOption);
   }
 
-  private updateSelection(optionIndex: number): void {
+  updateSelection(optionIndex: number): void {
     const option = this.currentQuestion?.options[optionIndex];
     if (option && this.currentQuestion && this.currentQuestion?.options) {
       this.currentQuestion.options.forEach((o) => (o.selected = false));
