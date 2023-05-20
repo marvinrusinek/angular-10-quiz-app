@@ -710,7 +710,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateClassName(event: any): void {
+  /* private updateClassName(event: any): void {
     const optionIndex = event?.optionIndex;
     const selectedOption = event?.selectedOption;
     const currentQuestion = event?.question;
@@ -720,6 +720,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       currentQuestion.options[optionIndex]['styleClass'] =
         selectedOption.correct ? 'correct' : 'incorrect';
       console.log(currentQuestion.options[optionIndex]['styleClass']);
+    }
+  } */
+
+  private updateClassName(selectedOption: Option, optionIndex: number): void {
+    if (
+      selectedOption &&
+      this.currentQuestion &&
+      this.currentQuestion?.options
+    ) {
+      this.optionSelected['styleClass'] = this.currentQuestion?.options[
+        optionIndex
+      ]['correct']
+        ? 'correct'
+        : 'incorrect';
     }
   }
 
@@ -734,7 +748,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.clearSelection();
     this.updateSelection(optionIndex);
     this.updateClassName(this.selectedOption, optionIndex);
-    this.playSound(optionIndex);
+    this.playSound(this.selectedOption);
   }
 
   private updateSelection(optionIndex: number): void {
