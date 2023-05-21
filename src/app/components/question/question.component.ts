@@ -628,6 +628,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.explanationTextValue$ = of(explanationText);
         }
       );
+    } else {
+      this.quizService.displayExplanationText(false); // Hide explanation text when no options are selected
     }
   
     this.toggleVisibility.emit();
@@ -640,7 +642,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
   }
-    
+      
   onSelectionChange(
     question: QuizQuestion,
     event: MatCheckboxChange | MatRadioChange
