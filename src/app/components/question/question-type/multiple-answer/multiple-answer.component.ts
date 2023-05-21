@@ -143,6 +143,21 @@ export class MultipleAnswerComponent
     this.destroyed$.complete();
   }
 
+  onOptionSelected(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    if (index === -1) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions.splice(index, 1);
+    }
+  
+    if (this.selectedOption === option) {
+      this.selectedOption = null;
+    } else {
+      this.selectedOption = option;
+    }
+  }
+  
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option);
   }
