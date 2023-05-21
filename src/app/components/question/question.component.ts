@@ -608,8 +608,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       if (this.selectedOption === option) {
         this.selectedOption = null;
+        this.isAnswered = false;
       } else {
         this.selectedOption = option;
+        this.isAnswered = true;
+        this.quizService.displayExplanationText(true);
+        this.quizService.setExplanationText([option], this.question).subscribe(
+          (explanationText: string) => {
+            this.explanationTextValue$ = of(explanationText);
+          }
+        );
       }
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       const index = this.selectedOptions.findIndex((o) => o === option);
@@ -618,20 +626,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         this.selectedOptions.splice(index, 1);
       }
-    }
-  
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.explanationTextValue$ = of('');
-  
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-        (explanationText: string) => {
-          this.explanationTextValue$ = of(explanationText);
-        }
-      );
-    } else {
-      this.quizService.displayExplanationText(false); // Hide explanation text when no options are selected
+      this.isAnswered = this.selectedOptions.length > 0;
+      if (this.isAnswered) {
+        this.quizService.displayExplanationText(true);
+        this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+          (explanationText: string) => {
+            this.explanationTextValue$ = of(explanationText);
+          }
+        );
+      } else {
+        this.quizService.displayExplanationText(false);
+      }
     }
   
     this.toggleVisibility.emit();
@@ -644,7 +649,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
   }
-      
+        
   onSelectionChange(
     question: QuizQuestion,
     event: MatCheckboxChange | MatRadioChange
