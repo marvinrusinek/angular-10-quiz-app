@@ -16,7 +16,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
@@ -205,7 +205,7 @@ export class MultipleAnswerComponent
     }
   } */
 
-  onOptionSelected(option: Option): void {
+  /* (option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
   
     if (index === -1) {
@@ -225,10 +225,40 @@ export class MultipleAnswerComponent
       question: this.question,
       selectedOption: this.selectedOption
     });
+  } */
+  
+  onOptionSelected(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+  
+    if (index === -1) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions.splice(index, 1);
+    }
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+        (explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+        }
+      );
+    } else {
+      this.quizService.displayExplanationText(false);
+    }
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isAnswered);
+    this.optionSelected.emit(option);
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.question,
+      selectedOptions: this.selectedOptions
+    });
   }
-  
-  
-    
+      
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option);
   }
