@@ -143,7 +143,7 @@ export class MultipleAnswerComponent
     this.destroyed$.complete();
   }
 
-  onOptionSelected(option: Option): void {
+  /* onOptionSelected(option: Option): void {
     const isSelected = this.selectedOptions.includes(option);
   
     if (isSelected) {
@@ -153,7 +153,23 @@ export class MultipleAnswerComponent
       this.selectedOptions = [option];
       this.selectedOption = option;
     }
-  }  
+  } */
+
+  onOptionSelected(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+  
+    if (index === -1) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions.splice(index, 1);
+    }
+  
+    if (!this.selectedOption) {
+      this.selectedOption = option;
+    } else if (this.selectedOption === option) {
+      this.selectedOption = null;
+    }
+  }
   
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option);
