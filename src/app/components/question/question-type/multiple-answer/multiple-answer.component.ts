@@ -144,19 +144,16 @@ export class MultipleAnswerComponent
   }
 
   onOptionSelected(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    if (index === -1) {
-      this.selectedOptions.push(option);
-    } else {
-      this.selectedOptions.splice(index, 1);
-    }
+    const isSelected = this.selectedOptions.includes(option);
   
-    if (this.selectedOption === option) {
+    if (isSelected) {
+      this.selectedOptions.splice(this.selectedOptions.indexOf(option), 1);
       this.selectedOption = null;
     } else {
+      this.selectedOptions = [option];
       this.selectedOption = option;
     }
-  }
+  }  
   
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option);

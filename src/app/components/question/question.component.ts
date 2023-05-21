@@ -155,6 +155,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);
 
+    this.selectedOption = null;
+
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
       this.questions = this.quizService.getAllQuestions();
