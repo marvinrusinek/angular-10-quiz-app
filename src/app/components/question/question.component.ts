@@ -603,30 +603,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionSelected(option: Option): void {
-    this.selectedOption = option;
-    this.selectedOptions = [option];
-
-    console.log('The Selected option:', option);
     this.isOptionSelected = true;
   
-    if (this.selectedOptions.includes(option)) {
-      this.selectedOptions = this.selectedOptions.filter(
-        (selectedOption) => selectedOption !== option
-      );
-      this.isAnswered = this.selectedOptions.length > 0;
-      this.explanationTextValue$ = of('');
-    } else {
-      this.selectedOptions.push(option);
-      this.isAnswered = true;
+    if (this.currentQuestion.type === 'single' as QuestionType) {
+      this.selectedOption = option;
+      this.selectedOptions = [option];
+    } else if (this.currentQuestion.type === 'multiple' as QuestionType) {
+      const index = this.selectedOptions.findIndex((o) => o === option);
+      if (index === -1) {
+        this.selectedOptions.push(option);
+      } else {
+        this.selectedOptions.splice(index, 1);
+      }
+      this.selectedOption = this.selectedOptions.length > 0 ? this.selectedOptions[this.selectedOptions.length - 1] : null;
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.explanationTextValue$ = of('');
+  
+    if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
       this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
         (explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
         }
       );
-      this.toggleVisibility.emit();
     }
   
+    this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
   
@@ -636,7 +640,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
   }
-  
+    
   onSelectionChange(
     question: QuizQuestion,
     event: MatCheckboxChange | MatRadioChange
