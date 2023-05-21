@@ -611,9 +611,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
-        this.selectedOptions.push(option);
+        this.selectedOptions = [...this.selectedOptions, option];
       } else {
-        this.selectedOptions.splice(index, 1);
+        this.selectedOptions = this.selectedOptions.filter((o) => o !== option);
       }
       this.selectedOption = this.selectedOptions.length > 0 ? this.selectedOptions[this.selectedOptions.length - 1] : null;
     }
@@ -642,7 +642,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOptions: this.selectedOptions
     });
   }
-      
+  
   onSelectionChange(
     question: QuizQuestion,
     event: MatCheckboxChange | MatRadioChange
