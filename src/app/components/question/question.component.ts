@@ -605,10 +605,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onOptionSelected(option: Option): void {
     this.isOptionSelected = true;
   
-    if (this.currentQuestion.type === 'single' as QuestionType) {
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOption = option;
       this.selectedOptions = [option];
-    } else if (this.currentQuestion.type === 'multiple' as QuestionType) {
+    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
         this.selectedOptions.push(option);
