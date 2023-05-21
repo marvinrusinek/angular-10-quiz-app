@@ -144,14 +144,64 @@ export class MultipleAnswerComponent
   }
 
   /* onOptionSelected(option: Option): void {
-    const isSelected = this.selectedOptions.includes(option);
+    const index = this.selectedOptions.findIndex((o) => o === option);
   
-    if (isSelected) {
-      this.selectedOptions.splice(this.selectedOptions.indexOf(option), 1);
-      this.selectedOption = null;
+    if (index === -1) {
+      this.selectedOptions = [option]; // Assign a new array with the selected option
+      this.selectedOption = option; // Update selectedOption with the selected option
     } else {
-      this.selectedOptions = [option];
-      this.selectedOption = option;
+      this.selectedOptions.splice(index, 1);
+      if (this.selectedOptions.length === 0) {
+        this.selectedOption = null; // Reset selectedOption if no options are selected
+      }
+    }
+  } */
+
+  /* onOptionSelected(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+  
+    if (index === -1) {
+      this.selectedOptions = [option]; // Assign a new array with the selected option
+      this.selectedOption = option; // Update selectedOption with the selected option
+    } else {
+      this.selectedOptions.splice(index, 1);
+      if (this.selectedOptions.length === 0) {
+        this.selectedOption = null; // Reset selectedOption if no options are selected
+      } else {
+        this.selectedOption = this.selectedOptions[0]; // Update selectedOption with the first selected option
+      }
+    }
+  } */
+  
+  /* onOptionSelected(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+  
+    if (index === -1) {
+      this.selectedOptions = [option]; // Assign a new array with the selected option
+      this.selectedOption = option; // Update selectedOption with the selected option
+    } else {
+      this.selectedOptions.splice(index, 1);
+      if (this.selectedOptions.length === 0) {
+        this.selectedOption = null; // Reset selectedOption if no options are selected
+      } else {
+        this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1]; // Update selectedOption with the last selected option
+      }
+    }
+  } */
+
+  /* onOptionSelected(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+  
+    if (index === -1) {
+      this.selectedOptions = [option]; // Assign a new array with the selected option
+      this.selectedOption = option; // Update selectedOption with the selected option
+    } else {
+      this.selectedOptions.splice(index, 1);
+      if (this.selectedOptions.length === 0) {
+        this.selectedOption = null; // Reset selectedOption if no options are selected
+      } else {
+        this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1]; // Update selectedOption with the last selected option
+      }
     }
   } */
 
@@ -159,18 +209,26 @@ export class MultipleAnswerComponent
     const index = this.selectedOptions.findIndex((o) => o === option);
   
     if (index === -1) {
-      this.selectedOptions.push(option);
+      this.selectedOptions = [option]; // Assign a new array with the selected option
+      this.selectedOption = option; // Update selectedOption with the selected option
     } else {
       this.selectedOptions.splice(index, 1);
+      if (this.selectedOptions.length === 0) {
+        this.selectedOption = null; // Reset selectedOption if no options are selected
+      } else {
+        this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1]; // Update selectedOption with the last selected option
+      }
     }
   
-    if (!this.selectedOption) {
-      this.selectedOption = option;
-    } else if (this.selectedOption === option) {
-      this.selectedOption = null;
-    }
+    // Emit the updated selection
+    this.selectionChange.emit({
+      question: this.question,
+      selectedOption: this.selectedOption
+    });
   }
   
+  
+    
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option);
   }
