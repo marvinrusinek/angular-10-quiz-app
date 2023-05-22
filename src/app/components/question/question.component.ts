@@ -105,8 +105,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   displayExplanation: boolean = false;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
+  showFeedback = false;
   private initialized = false;
-  private showFeedback = false;
   private destroy$: Subject<void> = new Subject<void>();
 
   multipleAnswerSubject = new BehaviorSubject<boolean>(false);
