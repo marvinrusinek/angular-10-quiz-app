@@ -143,6 +143,37 @@ export class MultipleAnswerComponent
     this.destroyed$.complete();
   }
 
+  onOptionMouseDown(option: Option): void {
+    if (!this.selectedOptions.includes(option)) {
+      this.onOptionSelected(option);
+    }
+  }
+
+  onOptionClicked(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+  
+    if (index === -1) {
+      this.selectedOptions.push(option);
+    } else {
+      this.selectedOptions.splice(index, 1);
+    }
+  
+    // Update the selectedOption if necessary
+    if (this.selectedOptions.length > 0) {
+      this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1];
+    } else {
+      this.selectedOption = null;
+    }
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions
+    });
+  
+    // Other necessary logic here
+  }
+  
   /* onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
   
