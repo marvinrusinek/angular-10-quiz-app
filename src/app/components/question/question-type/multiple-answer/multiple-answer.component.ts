@@ -169,7 +169,9 @@ export class MultipleAnswerComponent
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true; // Show feedback for the selected option
+          setTimeout(() => {
+            this.showFeedback = true; // Show feedback for the selected option
+          }, 0);
         });
     } else {
       this.explanationTextValue$ = of('');
@@ -186,6 +188,7 @@ export class MultipleAnswerComponent
       selectedOptions: this.selectedOptions,
     });
   }
+  
   
   
  
