@@ -164,19 +164,23 @@ export class MultipleAnswerComponent
     this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
+      console.log('Option selected:', option);
       this.quizService.displayExplanationText(true);
       this.quizService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
+          console.log('Explanation text:', explanationText);
           this.explanationTextValue$ = of(explanationText);
-          setTimeout(() => {
-            this.showFeedback = true; // Show feedback for the selected option
-          }, 0);
+          this.showFeedback = true;
+          console.log('Show feedback:', this.showFeedback);
         });
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedback = false; // Hide feedback when no options are selected
+      this.showFeedback = false;
+      console.log('Show feedback:', this.showFeedback);
     }
+  
+    console.log('Selected options:', this.selectedOptions);
   
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
@@ -188,9 +192,6 @@ export class MultipleAnswerComponent
       selectedOptions: this.selectedOptions,
     });
   }
-  
-  
-  
  
   onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
