@@ -143,17 +143,8 @@ export class MultipleAnswerComponent
     this.destroyed$.complete();
   }
 
-  onOptionMouseDown(option: Option): void {
-    if (!this.selectedOptions.includes(option)) {
-      this.onOptionSelected(option);
-    }
-  }
-
   onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
-
-    const control = this.form.get('options.' + option.optionId) as FormControl;
-    control.setValue(!control.value); // Toggle the value of the form control
   
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
@@ -283,73 +274,4 @@ export class MultipleAnswerComponent
       this.showFeedback = true;
     }
   }  
-
-  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    const selectedOption = question.options.find(option => option.optionId === (event.source as MatCheckbox | MatRadioButton).value);
-  
-    if (selectedOption) {
-      selectedOption.selected = (event.source as MatCheckbox | MatRadioButton).checked;
-      console.log('Selection changed: ', event);
-      this.playSound(selectedOption);
-      this.selectionChange.emit({selectedOption: selectedOption, question: question});
-      this.updateSelection(question.options.indexOf(selectedOption));
-    }
-  } */
-
-  /* onSelectionChange(option: Option): void {
-    this.optionChecked[option.optionId] = !this.optionChecked[option.optionId];
-    this.answer.emit(this.selectedOptions);
-  } */
-
-  /* onSelectionChange(question: QuizQuestion, selectedOptions: Option[]): void {
-    super.onSelectionChange(question, selectedOptions);
-
-    if (!question.selectedOptions) {
-      question.selectedOptions = [];
-    }
-
-    if (selectedOptions && selectedOptions.length) {
-      selectedOptions.forEach((selectedOption: Option) => {
-        if (Array.isArray(this.selectedOptions)) {
-          const index =
-            question.selectedOptions &&
-            question.options &&
-            question.selectedOptions.findIndex((o) => {
-              return typeof o === 'string'
-                ? false
-                : o.value === selectedOption.value;
-            });
-          if (index >= 0) {
-            question.selectedOptions.splice(index, 1);
-          } else {
-            question.selectedOptions.push(selectedOption);
-          }
-        }
-      });
-
-      const selectedOptionIds = question.selectedOptions.map((o) => {
-        const selectedOption = question.options.find(
-          (option) => option.value === o.value
-        );
-        return selectedOption ? selectedOption.value : null;
-      });
-
-      if (selectedOptionIds.sort().join(',') === (question.answer && question.answer.map((a) => a.value).sort().join(','))) {
-        this.incrementScore();
-      } else {
-        this.explanationText = 'Sorry, that is not correct.';
-      }
-      
-      selectedOptions.forEach((selectedOption) => {
-        this.optionChecked[selectedOption.optionId] =
-          !this.optionChecked[selectedOption.optionId];
-      });
-
-      this.selectedOptions = selectedOptions;
-      this.selectionChanged.emit({
-        question: this.currentQuestion,
-        selectedOptions: this.selectedOptions,
-      });
-    }
-  } */
 }
