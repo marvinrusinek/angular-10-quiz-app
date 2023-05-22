@@ -150,30 +150,47 @@ export class MultipleAnswerComponent
   }
 
   onOptionClicked(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
+    this.isOptionSelected = true;
   
+    const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
       this.selectedOptions.push(option);
     } else {
       this.selectedOptions.splice(index, 1);
     }
   
-    // Update the selectedOption if necessary
     if (this.selectedOptions.length > 0) {
       this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1];
     } else {
       this.selectedOption = null;
     }
   
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          this.showFeedback = true; // Show feedback for the selected option
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+      this.showFeedback = false; // Hide feedback when no options are selected
+    }
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
+      selectedOptions: this.selectedOptions,
     });
-  
-    // Other necessary logic here
   }
-  
+        
   /* onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
   
