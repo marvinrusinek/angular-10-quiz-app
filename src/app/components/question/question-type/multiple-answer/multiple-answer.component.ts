@@ -168,16 +168,16 @@ export class MultipleAnswerComponent
     this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
+      this.showFeedback = true;
       this.quizService.displayExplanationText(true);
       this.quizService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true; // Show feedback for the selected option
         });
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedback = false; // Hide feedback when no options are selected
+      this.showFeedback = false;
     }
   
     this.toggleVisibility.emit();
