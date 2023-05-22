@@ -7,19 +7,6 @@ div.mat-checkbox-inner-container {
   display: none;
 }
 
-.options-container {
-  clear: both;
-  display: block;
-  flex-direction: column;
-  margin-top: 10px;
-
-  .option-wrapper {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-}
-
 .options {
   margin: 0 0 17.5px 6.5px;
   padding: 5px;
