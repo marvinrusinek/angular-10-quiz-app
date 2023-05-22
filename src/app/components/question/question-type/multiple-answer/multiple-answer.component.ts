@@ -155,31 +155,25 @@ export class MultipleAnswerComponent
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
       this.selectedOptions.push(option);
+      this.selectedOption = option;
     } else {
       this.selectedOptions.splice(index, 1);
-    }
-  
-    if (this.selectedOptions.length > 0) {
-      this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1];
-      this.isAnswered = true;
-    } else {
       this.selectedOption = null;
-      this.isAnswered = false;
     }
   
-    // this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
-      this.showFeedback = true;
       this.quizService.displayExplanationText(true);
       this.quizService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
+          this.showFeedback = true; // Show feedback for the selected option
         });
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedback = false;
+      this.showFeedback = false; // Hide feedback when no options are selected
     }
   
     this.toggleVisibility.emit();
@@ -192,6 +186,8 @@ export class MultipleAnswerComponent
       selectedOptions: this.selectedOptions,
     });
   }
+  
+  
  
   onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
