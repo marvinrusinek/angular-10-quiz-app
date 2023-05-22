@@ -220,9 +220,11 @@ export class MultipleAnswerComponent
   }
       
   isSelectedOption(option: Option): boolean {
-    return this.selectedOptions.includes(option);
+    return this.selectedOptions.some(
+      (selectedOption) => selectedOption.optionId === option.optionId
+    );
   }
-
+  
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
