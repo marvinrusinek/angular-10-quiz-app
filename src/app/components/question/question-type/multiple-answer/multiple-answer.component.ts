@@ -161,11 +161,13 @@ export class MultipleAnswerComponent
   
     if (this.selectedOptions.length > 0) {
       this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1];
+      this.isAnswered = true;
     } else {
       this.selectedOption = null;
+      this.isAnswered = false;
     }
   
-    this.isAnswered = this.selectedOptions.length > 0;
+    // this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
       this.showFeedback = true;
