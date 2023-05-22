@@ -150,6 +150,52 @@ export class MultipleAnswerComponent
   }
 
   onOptionClicked(option: Option): void {
+    this.selectedOption = option;
+    this.selectedOptions = [option];
+    this.isAnswered = true;
+  
+    this.quizService.displayExplanationText(true);
+    this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+      (explanationText: string) => {
+        this.explanationTextValue$ = of(explanationText);
+      }
+    );
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(true);
+    this.optionSelected.emit(option);
+  
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions
+    });
+  }
+  
+
+  /* onOptionClicked(option: Option): void {
+    this.selectedOption = option;
+    this.selectedOptions = [option];
+    this.isAnswered = true;
+  
+    this.quizService.displayExplanationText(true);
+    this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+      (explanationText: string) => {
+        this.explanationTextValue$ = of(explanationText);
+      }
+    );
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(true);
+    this.optionSelected.emit(option);
+  
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions
+    });
+  } */
+  
+
+  /* onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
   
     const index = this.selectedOptions.findIndex((o) => o === option);
@@ -189,7 +235,7 @@ export class MultipleAnswerComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
+  } */
         
   /* onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
