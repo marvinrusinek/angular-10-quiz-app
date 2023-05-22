@@ -12,107 +12,15 @@ div.mat-checkbox-inner-container {
   display: block;
   flex-direction: column;
   margin-top: 10px;
-}
 
-.option-wrapper {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-
-  .options {
-    display: inline-block;
-    margin: 0 0 17.5px 6.5px;
-    color: $dark-brown;
-    background-color: $light-gray;
-    border: 2px solid $medium-gray;
-    padding: 10px 5px 10px 30px;
-    min-width: 590px;
-    height: auto;
-    font-size: 20px;
-    font-family: $font-stack;
-    cursor: pointer;
-
-    .correct {
-      background-color: $green;
-    }
-    
-    .incorrect {
-      background-color: $red;
-    }
-    
-    .correct,
-    .incorrect {
-      border: 2px solid $vivid-blue;
-    }
-
-    input[type="checkbox"] {
-      opacity: 0;
-      position: absolute;
-      pointer-events: none;
-  
-      margin-left: -5px;
-      margin-bottom: 30px;
-    }
-  
-    input[type="checkbox"]:checked + .custom-checkbox::before {
-      content: '';
-      display: block;
-      width: 12px;
-      height: 12px;
-      background-color: $vivid-blue;
-      margin: 2px;
-    }
-  
-    input[type="checkbox"]:disabled + .custom-checkbox {
-      opacity: 0.5;
-    }
-  
-    input[type="checkbox"]:disabled:checked + .custom-checkbox::before {
-      background-color: $medium-gray;
-    }
-  }
-
-  label {
+  .option-wrapper {
     display: flex;
     align-items: center;
-  }
-  
-  .option-letter {
-    margin-right: 5px;
-  }
-  
-  .option-text {
-    font-size: 20px;
-    font-family: $font-stack;
+    margin-bottom: 10px;
   }
 }
 
-
-/* Custom checkbox styling */
-/* .options {
-  margin: 0 0 17.5px 6.5px;
-  padding: 5px;
-
-  input[type="checkbox"] {
-    opacity: 0;
-    position: absolute;
-    pointer-events: none;
-
-    cursor: pointer;
-    display: inline-block;
-    width: 590px;
-    height: auto;
-    font-family: $font-stack;
-    font-size: 20px;
-    color: $dark-brown;
-    background-color: $light-gray;
-    border: 2px solid $medium-gray;
-    padding: 10px 5px 10px 30px;
-    margin-left: -5px;
-    margin-bottom: 30px;
-  }
-
-/* .options {
+.options {
   margin: 0 0 17.5px 6.5px;
   padding: 5px;
 
@@ -149,7 +57,7 @@ div.mat-checkbox-inner-container {
     position: absolute;
     right: 40px;
   }
-} */
+}
 
 .correct {
   background-color: $green;
@@ -159,7 +67,7 @@ div.mat-checkbox-inner-container {
   background-color: $red;
 }
 
-.correct,
-.incorrect {
+.correct, .incorrect {
   border: 2px solid $vivid-blue;
 }
+
