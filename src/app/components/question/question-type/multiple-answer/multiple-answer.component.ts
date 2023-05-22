@@ -150,52 +150,6 @@ export class MultipleAnswerComponent
   }
 
   onOptionClicked(option: Option): void {
-    this.selectedOption = option;
-    this.selectedOptions = [option];
-    this.isAnswered = true;
-  
-    this.quizService.displayExplanationText(true);
-    this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-      (explanationText: string) => {
-        this.explanationTextValue$ = of(explanationText);
-      }
-    );
-  
-    this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(true);
-    this.optionSelected.emit(option);
-  
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
-    });
-  }
-  
-
-  /* onOptionClicked(option: Option): void {
-    this.selectedOption = option;
-    this.selectedOptions = [option];
-    this.isAnswered = true;
-  
-    this.quizService.displayExplanationText(true);
-    this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-      (explanationText: string) => {
-        this.explanationTextValue$ = of(explanationText);
-      }
-    );
-  
-    this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(true);
-    this.optionSelected.emit(option);
-  
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
-    });
-  } */
-  
-
-  /* onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
   
     const index = this.selectedOptions.findIndex((o) => o === option);
@@ -235,92 +189,8 @@ export class MultipleAnswerComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  } */
-        
-  /* onOptionSelected(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-  
-    if (index === -1) {
-      this.selectedOptions = [option]; // Assign a new array with the selected option
-      this.selectedOption = option; // Update selectedOption with the selected option
-    } else {
-      this.selectedOptions.splice(index, 1);
-      if (this.selectedOptions.length === 0) {
-        this.selectedOption = null; // Reset selectedOption if no options are selected
-      }
-    }
-  } */
-
-  /* onOptionSelected(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-  
-    if (index === -1) {
-      this.selectedOptions = [option]; // Assign a new array with the selected option
-      this.selectedOption = option; // Update selectedOption with the selected option
-    } else {
-      this.selectedOptions.splice(index, 1);
-      if (this.selectedOptions.length === 0) {
-        this.selectedOption = null; // Reset selectedOption if no options are selected
-      } else {
-        this.selectedOption = this.selectedOptions[0]; // Update selectedOption with the first selected option
-      }
-    }
-  } */
-  
-  /* onOptionSelected(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-  
-    if (index === -1) {
-      this.selectedOptions = [option]; // Assign a new array with the selected option
-      this.selectedOption = option; // Update selectedOption with the selected option
-    } else {
-      this.selectedOptions.splice(index, 1);
-      if (this.selectedOptions.length === 0) {
-        this.selectedOption = null; // Reset selectedOption if no options are selected
-      } else {
-        this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1]; // Update selectedOption with the last selected option
-      }
-    }
-  } */
-
-  /* onOptionSelected(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-  
-    if (index === -1) {
-      this.selectedOptions = [option]; // Assign a new array with the selected option
-      this.selectedOption = option; // Update selectedOption with the selected option
-    } else {
-      this.selectedOptions.splice(index, 1);
-      if (this.selectedOptions.length === 0) {
-        this.selectedOption = null; // Reset selectedOption if no options are selected
-      } else {
-        this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1]; // Update selectedOption with the last selected option
-      }
-    }
-  } */
-
-  /* (option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-  
-    if (index === -1) {
-      this.selectedOptions = [option]; // Assign a new array with the selected option
-      this.selectedOption = option; // Update selectedOption with the selected option
-    } else {
-      this.selectedOptions.splice(index, 1);
-      if (this.selectedOptions.length === 0) {
-        this.selectedOption = null; // Reset selectedOption if no options are selected
-      } else {
-        this.selectedOption = this.selectedOptions[this.selectedOptions.length - 1]; // Update selectedOption with the last selected option
-      }
-    }
-  
-    // Emit the updated selection
-    this.selectionChange.emit({
-      question: this.question,
-      selectedOption: this.selectedOption
-    });
-  } */
-  
+  }
+ 
   onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
   
