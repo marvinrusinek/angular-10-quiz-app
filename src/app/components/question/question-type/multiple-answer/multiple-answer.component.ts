@@ -61,7 +61,7 @@ export class MultipleAnswerComponent
   showExplanation: boolean = false;
   showFeedback: boolean = false;
   private destroyed$ = new Subject<void>();
-
+  
   constructor(
     quizService: QuizService,
     quizDataService: QuizDataService,
@@ -151,6 +151,9 @@ export class MultipleAnswerComponent
 
   onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
+
+    const control = this.form.get('options.' + option.optionId) as FormControl;
+    control.setValue(!control.value); // Toggle the value of the form control
   
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
