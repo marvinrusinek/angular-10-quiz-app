@@ -151,12 +151,10 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.showFeedback = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      this.showFeedback = false;
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
@@ -171,6 +169,9 @@ export class MultipleAnswerComponent
           this.explanationTextValue$ = of(explanationText);
           this.showFeedback = true;
           console.log('Show feedback:', this.showFeedback);
+          setTimeout(() => {
+            this.cdRef.detectChanges(); // Manually trigger change detection after a small delay
+          }, 0);
         });
     } else {
       this.explanationTextValue$ = of('');
@@ -180,17 +181,16 @@ export class MultipleAnswerComponent
   
     console.log('Selected options:', this.selectedOptions);
   
+    // Update UI and emit events
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
-  
-    // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
- 
+  }  
+         
   onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
   
