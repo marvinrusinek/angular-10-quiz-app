@@ -153,12 +153,10 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.showFeedback = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      this.showFeedback = false;
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
@@ -166,22 +164,14 @@ export class MultipleAnswerComponent
     if (this.isAnswered) {
       console.log('Option selected:', option);
       this.quizService.displayExplanationText(true);
-  
-      // Set the explanation text
-      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-        (explanationText: string) => {
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
           console.log('Explanation text:', explanationText);
           this.explanationTextValue$ = of(explanationText);
-  
-          // Show the feedback after setting the explanation text
           this.showFeedback = true;
           console.log('Show feedback:', this.showFeedback);
-        },
-        (error: any) => {
-          // Handle error if needed
-          console.error('Error setting explanation text:', error);
-        }
-      );
+        });
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedback = false;
@@ -189,28 +179,6 @@ export class MultipleAnswerComponent
     }
   
     console.log('Selected options:', this.selectedOptions);
-
-    // After updating the selected option and optionChecked object
-    /* this.checkboxes.forEach((checkbox) => {
-      if (option.optionId && checkbox.value === option.optionId.toString()) {
-        checkbox.checked = this.optionChecked[option.optionId];
-      }
-    }); */
-    this.checkboxes.forEach((checkbox) => {
-      console.log('Checkbox value:', checkbox.value);
-      console.log('Option ID:', option.optionId);
-      console.log('Option ID as string:', option.optionId.toString());
-    
-      if (option && option.optionId && checkbox.value === option.optionId.toString()) {
-        console.log('Checkbox selected:', checkbox.value);
-        checkbox.checked = this.optionChecked[option.optionId];
-      }
-    });
-    
-    
-    
-    
-
   
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
