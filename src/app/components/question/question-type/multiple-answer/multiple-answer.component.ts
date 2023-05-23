@@ -11,7 +11,8 @@ import {
   Output,
   SimpleChanges,
   ViewEncapsulation,
-  ViewChildren, QueryList
+  ViewChildren,
+  QueryList,
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -45,7 +46,10 @@ export class MultipleAnswerComponent
   @ViewChildren(MatCheckbox) checkboxes!: QueryList<MatCheckbox>;
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() optionSelected = new EventEmitter<Option>();
-  @Output() selectionChange = new EventEmitter<{ question: QuizQuestion, selectedOption: Option }>();
+  @Output() selectionChange = new EventEmitter<{
+    question: QuizQuestion;
+    selectedOption: Option;
+  }>();
   @Output() answer = new EventEmitter<number>();
   @Input() question!: QuizQuestion;
   // @Input() currentQuestion: QuizQuestion;
@@ -63,7 +67,7 @@ export class MultipleAnswerComponent
   showExplanation: boolean = false;
   showFeedback: boolean = false;
   private destroyed$ = new Subject<void>();
-  
+
   constructor(
     quizService: QuizService,
     quizDataService: QuizDataService,
@@ -81,7 +85,7 @@ export class MultipleAnswerComponent
       timerService,
       activatedRoute,
       fb,
-      cdRef, 
+      cdRef,
       router
     );
     this.quizService = quizService;
@@ -94,7 +98,7 @@ export class MultipleAnswerComponent
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         console.log('MultipleAnswerComponent destroyed');
       }
@@ -147,22 +151,22 @@ export class MultipleAnswerComponent
 
   onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
-  
+
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.showFeedback = true; // Set showFeedback to true on first click
+      this.showFeedback = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      this.showFeedback = false; // Set showFeedback to false when deselecting
+      this.showFeedback = false;
     }
-  
+
     this.isAnswered = this.selectedOptions.length > 0;
-  
+
     if (this.isAnswered) {
       console.log('Option selected:', option);
       this.quizService.displayExplanationText(true);
@@ -175,23 +179,23 @@ export class MultipleAnswerComponent
     } else {
       this.explanationTextValue$ = of('');
     }
-  
+
     console.log('Selected options:', this.selectedOptions);
-  
+
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
-  
+
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
   }
-           
+
   onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
-  
+
     if (index === -1) {
       this.selectedOptions.push(option);
       this.optionChecked[option.optionId] = true;
@@ -202,35 +206,35 @@ export class MultipleAnswerComponent
       this.showFeedback = false;
     }
     this.isAnswered = this.selectedOptions.length > 0;
-  
+
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
-      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-        (explanationText: string) => {
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-        }
-      );
+        });
     } else {
       this.quizService.displayExplanationText(false);
     }
-  
+
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(option);
-  
+
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.question,
-      selectedOptions: this.selectedOptions
+      selectedOptions: this.selectedOptions,
     });
   }
-      
+
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.some(
       (selectedOption) => selectedOption.optionId === option.optionId
     );
   }
-  
+
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
@@ -271,15 +275,21 @@ export class MultipleAnswerComponent
   }
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
-    const selectedOption = question.options.find(option => option.optionId === (event.source as MatCheckbox | MatRadioButton).value);
-  
+    const selectedOption = question.options.find(
+      (option) =>
+        option.optionId === (event.source as MatCheckbox | MatRadioButton).value
+    );
+
     if (selectedOption) {
       selectedOption.selected = event.checked;
       this.playSound(selectedOption);
       this.selectionChange.emit({ selectedOption, question });
       this.updateSelection(question.options.indexOf(selectedOption));
-      this.updateSelectedOption(selectedOption, question.options.indexOf(selectedOption));
+      this.updateSelectedOption(
+        selectedOption,
+        question.options.indexOf(selectedOption)
+      );
       this.showFeedback = true;
     }
-  }  
+  }
 }
