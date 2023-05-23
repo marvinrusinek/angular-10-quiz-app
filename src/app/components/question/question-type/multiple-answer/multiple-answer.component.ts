@@ -160,13 +160,6 @@ export class MultipleAnswerComponent
       this.optionChecked[option.optionId] = false;
       this.showFeedback = false;
     }
-
-    // After updating the selected option and optionChecked object
-    this.checkboxes.forEach((checkbox) => {
-      if (option.optionId && checkbox.value === option.optionId.toString()) {
-        checkbox.checked = this.optionChecked[option.optionId];
-      }
-    });
   
     this.isAnswered = this.selectedOptions.length > 0;
   
@@ -196,6 +189,13 @@ export class MultipleAnswerComponent
     }
   
     console.log('Selected options:', this.selectedOptions);
+
+    // After updating the selected option and optionChecked object
+    this.checkboxes.forEach((checkbox) => {
+      if (option.optionId && checkbox.value === option.optionId.toString()) {
+        checkbox.checked = this.optionChecked[option.optionId];
+      }
+    });
   
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
