@@ -192,8 +192,10 @@ export class MultipleAnswerComponent
   
     if (index === -1) {
       this.selectedOptions.push(option);
+      this.optionChecked[option.optionId] = true;
     } else {
       this.selectedOptions.splice(index, 1);
+      this.optionChecked[option.optionId] = false;
     }
     this.isAnswered = this.selectedOptions.length > 0;
   
