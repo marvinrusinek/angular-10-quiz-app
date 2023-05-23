@@ -191,11 +191,26 @@ export class MultipleAnswerComponent
     console.log('Selected options:', this.selectedOptions);
 
     // After updating the selected option and optionChecked object
-    this.checkboxes.forEach((checkbox) => {
+    /* this.checkboxes.forEach((checkbox) => {
       if (option.optionId && checkbox.value === option.optionId.toString()) {
         checkbox.checked = this.optionChecked[option.optionId];
       }
+    }); */
+    this.checkboxes.forEach((checkbox) => {
+      console.log('Checkbox value:', checkbox.value);
+      console.log('Option ID:', option.optionId);
+      console.log('Option ID as string:', option.optionId.toString());
+    
+      if (option && option.optionId && checkbox.value === option.optionId.toString()) {
+        console.log('Checkbox selected:', checkbox.value);
+        checkbox.checked = this.optionChecked[option.optionId];
+      }
     });
+    
+    
+    
+    
+
   
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
