@@ -150,9 +150,13 @@ export class MultipleAnswerComponent
     if (index === -1) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+      this.showFeedback = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+      this.showFeedback = false;
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
@@ -193,9 +197,11 @@ export class MultipleAnswerComponent
     if (index === -1) {
       this.selectedOptions.push(option);
       this.optionChecked[option.optionId] = true;
+      this.showFeedback = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.optionChecked[option.optionId] = false;
+      this.showFeedback = false;
     }
     this.isAnswered = this.selectedOptions.length > 0;
   
