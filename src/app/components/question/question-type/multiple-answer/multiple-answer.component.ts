@@ -153,10 +153,12 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
+      this.showFeedback = true; // Set showFeedback to true on first click
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
+      this.showFeedback = false; // Set showFeedback to false when deselecting
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
@@ -169,13 +171,9 @@ export class MultipleAnswerComponent
         .subscribe((explanationText: string) => {
           console.log('Explanation text:', explanationText);
           this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true;
-          console.log('Show feedback:', this.showFeedback);
         });
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedback = false;
-      console.log('Show feedback:', this.showFeedback);
     }
   
     console.log('Selected options:', this.selectedOptions);
