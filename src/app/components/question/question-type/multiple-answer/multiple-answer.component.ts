@@ -11,6 +11,7 @@ import {
   Output,
   SimpleChanges,
   ViewEncapsulation,
+  ViewChildren, QueryList
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -41,6 +42,7 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
+  @ViewChildren(MatCheckbox) checkboxes!: QueryList<MatCheckbox>;
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChange = new EventEmitter<{ question: QuizQuestion, selectedOption: Option }>();
@@ -151,28 +153,42 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
+      this.showFeedback = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
+      this.showFeedback = false;
     }
+
+    // After updating the selected option and optionChecked object
+    this.checkboxes.forEach((checkbox) => {
+      if (option.optionId && checkbox.value === option.optionId.toString()) {
+        checkbox.checked = this.optionChecked[option.optionId];
+      }
+    });
   
     this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
       console.log('Option selected:', option);
       this.quizService.displayExplanationText(true);
-      this.quizService
-        .setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
+  
+      // Set the explanation text
+      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
+        (explanationText: string) => {
           console.log('Explanation text:', explanationText);
           this.explanationTextValue$ = of(explanationText);
+  
+          // Show the feedback after setting the explanation text
           this.showFeedback = true;
           console.log('Show feedback:', this.showFeedback);
-          setTimeout(() => {
-            this.cdRef.detectChanges(); // Manually trigger change detection after a small delay
-          }, 0);
-        });
+        },
+        (error: any) => {
+          // Handle error if needed
+          console.error('Error setting explanation text:', error);
+        }
+      );
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedback = false;
@@ -181,16 +197,17 @@ export class MultipleAnswerComponent
   
     console.log('Selected options:', this.selectedOptions);
   
-    // Update UI and emit events
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
+  
+    // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }  
-         
+  }
+           
   onOptionSelected(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
   
