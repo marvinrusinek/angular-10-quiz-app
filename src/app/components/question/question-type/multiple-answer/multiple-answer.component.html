@@ -56,7 +56,7 @@
   </div>
 </ng-container>-->
 
-<ng-container *ngIf="question?.options">
+<!--<ng-container *ngIf="question?.options">
 <div class="options-container">
   <div *ngFor="let option of currentQuestion?.options; let i = index; trackBy: trackByFn" class="option-wrapper">
     <label class="options">
@@ -82,5 +82,64 @@
     </label>
   </div>
 </div>
-</ng-container>
+</ng-container>-->
 
+<!--<ng-container *ngIf="question?.options">
+<div class="options-container">
+  <div *ngFor="let option of currentQuestion?.options; let i = index; trackBy: trackByFn" class="option-wrapper">
+    <label class="options">
+      <mat-checkbox
+        [class]="getOptionClass(option)"
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClicked(option)"
+      >
+        <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
+        <span class="option-text">{{ option?.text }}</span>
+      </mat-checkbox>
+      <codelab-quiz-option-feedback
+        *ngIf="isSelectedOption(option) && isAnswered && showFeedback && option === selectedOption"
+        [correct]="option?.correct"
+        [selected]="true"
+        [hidden]="!showFeedback"
+      ></codelab-quiz-option-feedback>
+      <codelab-quiz-feedback
+        *ngIf="isSelectedOption(option) && isAnswered && showFeedback && option === selectedOption"
+        [question]="currentQuestion"
+        [selectedOption]="option"
+        [correctMessage]="correctMessage"
+        [hidden]="!showFeedback"
+      ></codelab-quiz-feedback>
+    </label>
+  </div>
+</div>
+</ng-container>-->
+
+<ng-container *ngIf="question?.options">
+<div class="options-container">
+  <div *ngFor="let option of currentQuestion?.options; let i = index; trackBy: trackByFn" class="option-wrapper">
+    <label class="options">
+      <mat-checkbox
+        [class]="getOptionClass(option)"
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClicked(option)"
+      >
+        <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
+        <span class="option-text">{{ option?.text }}</span>
+      </mat-checkbox>
+      <codelab-quiz-option-feedback
+        *ngIf="isSelectedOption(option) && isAnswered && showFeedback && option === selectedOption"
+        [correct]="option?.correct"
+        [selected]="true"
+        [hidden]="!showFeedback"
+      ></codelab-quiz-option-feedback>
+      <codelab-quiz-feedback
+        *ngIf="isSelectedOption(option) && isAnswered && showFeedback && option === selectedOption"
+        [question]="currentQuestion"
+        [selectedOption]="option"
+        [correctMessage]="correctMessage"
+        [hidden]="!showFeedback"
+      ></codelab-quiz-feedback>
+    </label>
+  </div>
+</div>
+</ng-container>

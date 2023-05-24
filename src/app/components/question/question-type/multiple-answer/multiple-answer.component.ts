@@ -161,7 +161,6 @@ export class MultipleAnswerComponent
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
-    this.showFeedback = true; // Set showFeedback to true
   
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
@@ -169,9 +168,11 @@ export class MultipleAnswerComponent
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
+          this.showFeedback = true;
         });
     } else {
       this.explanationTextValue$ = of('');
+      this.showFeedback = false;
     }
   
     console.log('Selected options:', this.selectedOptions);
@@ -187,7 +188,6 @@ export class MultipleAnswerComponent
     });
   }
   
-
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
