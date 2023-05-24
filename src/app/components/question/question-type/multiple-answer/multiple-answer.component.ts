@@ -156,29 +156,26 @@ export class MultipleAnswerComponent
     if (index === -1) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-      this.showFeedback = true;
+      // this.optionChecked[option.optionId] = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-      this.showFeedback = false;
+      // this.optionChecked[option.optionId] = false;
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
+    this.showFeedback = this.isAnswered;
 
     if (this.isAnswered) {
-      console.log('Option selected:', option);
       this.quizService.displayExplanationText(true);
       this.quizService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
-          console.log('Explanation text:', explanationText);
           this.explanationTextValue$ = of(explanationText);
         });
     } else {
       this.explanationTextValue$ = of('');
-    }
+    } 
 
     console.log('Selected options:', this.selectedOptions);
 
