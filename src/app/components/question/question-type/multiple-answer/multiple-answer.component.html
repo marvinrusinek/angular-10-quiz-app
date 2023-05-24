@@ -121,7 +121,7 @@
       <mat-checkbox
         [class]="getOptionClass(option)"
         [checked]="isSelectedOption(option)"
-        (change)="onOptionClicked(option)"
+        (click)="onOptionClicked(option)"
       >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
         <span class="option-text">{{ option?.text }}</span>
