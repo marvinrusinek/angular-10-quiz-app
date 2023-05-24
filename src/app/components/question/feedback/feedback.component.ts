@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
+import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 
 @Component({
@@ -11,5 +12,5 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 export class FeedbackComponent {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
-  @Input() selectedOption: { correct: boolean };
+  @Input() selectedOption: Option & { correct: boolean };
 }
