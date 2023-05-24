@@ -156,15 +156,16 @@ export class MultipleAnswerComponent
     if (index === -1) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
+      this.showFeedback = true;
       // this.optionChecked[option.optionId] = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
+      this.showFeedback = false;
       // this.optionChecked[option.optionId] = false;
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
-    this.showFeedback = this.isAnswered;
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
@@ -190,7 +191,7 @@ export class MultipleAnswerComponent
     });
   }
 
-  onOptionSelected(option: Option): void {
+  onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
     if (index === -1) {
@@ -202,6 +203,7 @@ export class MultipleAnswerComponent
       this.optionChecked[option.optionId] = false;
       this.showFeedback = false;
     }
+
     this.isAnswered = this.selectedOptions.length > 0;
 
     if (this.isAnswered) {
@@ -216,7 +218,7 @@ export class MultipleAnswerComponent
     }
 
     this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isAnswered);
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
 
     // Emit updated selection
@@ -271,7 +273,7 @@ export class MultipleAnswerComponent
     }
   }
 
-  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
+  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
     const selectedOption = question.options.find(
       (option) =>
         option.optionId === (event.source as MatCheckbox | MatRadioButton).value
@@ -288,5 +290,5 @@ export class MultipleAnswerComponent
       );
       this.showFeedback = true;
     }
-  }
+  } */
 }

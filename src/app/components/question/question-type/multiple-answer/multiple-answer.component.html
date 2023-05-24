@@ -34,7 +34,7 @@
       <label class="options">
         <mat-checkbox
           [class]="getOptionClass(option)"
-          [checked]="optionChecked[option.optionId]"
+          [checked]="isSelectedOption(option)"
           (change)="onOptionClicked(option)"
         >
           <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
