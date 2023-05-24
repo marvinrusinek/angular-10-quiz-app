@@ -148,45 +148,46 @@ export class MultipleAnswerComponent
 
   onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
-
+  
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
-      this.showFeedback = true;
-      // this.optionChecked[option.optionId] = true;
+      this.optionChecked[option.optionId] = true;
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
-      this.showFeedback = false;
-      // this.optionChecked[option.optionId] = false;
+      this.optionChecked[option.optionId] = false;
     }
-
+  
     this.isAnswered = this.selectedOptions.length > 0;
-
+  
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
       this.quizService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
+          this.showFeedback = true; // Set showFeedback to true after receiving explanation text
         });
     } else {
       this.explanationTextValue$ = of('');
-    } 
-
+      this.showFeedback = false; // Set showFeedback to false if no options are selected
+    }
+  
     console.log('Selected options:', this.selectedOptions);
-
+  
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
-
+  
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
   }
+  
 
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
