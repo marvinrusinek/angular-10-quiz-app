@@ -161,6 +161,7 @@ export class MultipleAnswerComponent
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
+    this.showFeedback = true; // Set showFeedback to true
   
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
@@ -168,11 +169,9 @@ export class MultipleAnswerComponent
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true; // Set showFeedback to true after receiving explanation text
         });
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedback = false; // Set showFeedback to false if no options are selected
     }
   
     console.log('Selected options:', this.selectedOptions);
