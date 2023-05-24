@@ -169,24 +169,35 @@ export class MultipleAnswerComponent
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
           this.showFeedback = true;
+          this.cdRef.detectChanges(); // Trigger change detection to update the DOM
+          setTimeout(() => {
+            this.toggleVisibility.emit();
+            this.isOptionSelectedChange.emit(this.isOptionSelected);
+            this.optionSelected.emit(option);
+            this.selectionChanged.emit({
+              question: this.currentQuestion,
+              selectedOptions: this.selectedOptions,
+            });
+          });
         });
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedback = false;
+      this.cdRef.detectChanges(); // Trigger change detection to update the DOM
+      setTimeout(() => {
+        this.toggleVisibility.emit();
+        this.isOptionSelectedChange.emit(this.isOptionSelected);
+        this.optionSelected.emit(option);
+        this.selectionChanged.emit({
+          question: this.currentQuestion,
+          selectedOptions: this.selectedOptions,
+        });
+      });
     }
   
     console.log('Selected options:', this.selectedOptions);
-  
-    this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(option);
-  
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
   }
+  
   
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
