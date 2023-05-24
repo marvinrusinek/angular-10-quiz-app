@@ -151,11 +151,11 @@ export class MultipleAnswerComponent
   
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
-      this.selectedOptions = [option]; // Replace the existing selected options with the clicked option
+      this.selectedOptions.push(option); // Add the clicked option to the selectedOptions array
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
     } else {
-      this.selectedOptions = []; // Clear the selected options
+      this.selectedOptions.splice(index, 1); // Remove the clicked option from the selectedOptions array
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
     }
@@ -190,6 +190,7 @@ export class MultipleAnswerComponent
       selectedOptions: this.selectedOptions
     });
   }
+  
 
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
