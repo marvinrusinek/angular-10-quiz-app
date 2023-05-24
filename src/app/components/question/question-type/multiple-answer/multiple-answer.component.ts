@@ -169,7 +169,6 @@ export class MultipleAnswerComponent
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
           this.showFeedback = true;
-          this.cdRef.detectChanges(); // Trigger change detection to update the DOM
           setTimeout(() => {
             this.toggleVisibility.emit();
             this.isOptionSelectedChange.emit(this.isOptionSelected);
@@ -183,7 +182,6 @@ export class MultipleAnswerComponent
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedback = false;
-      this.cdRef.detectChanges(); // Trigger change detection to update the DOM
       setTimeout(() => {
         this.toggleVisibility.emit();
         this.isOptionSelectedChange.emit(this.isOptionSelected);
@@ -197,6 +195,7 @@ export class MultipleAnswerComponent
   
     console.log('Selected options:', this.selectedOptions);
   }
+  
   
   
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
