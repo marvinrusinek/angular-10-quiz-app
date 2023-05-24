@@ -191,7 +191,6 @@ export class MultipleAnswerComponent
     });
   }
   
-
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
