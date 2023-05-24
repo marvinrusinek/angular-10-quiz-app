@@ -10,9 +10,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewEncapsulation,
-  ViewChildren,
-  QueryList,
+  ViewEncapsulation
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -43,7 +41,6 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
-  @ViewChildren(MatCheckbox) checkboxes!: QueryList<MatCheckbox>;
   @Output() formReady = new EventEmitter<FormGroup>();
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChange = new EventEmitter<{
