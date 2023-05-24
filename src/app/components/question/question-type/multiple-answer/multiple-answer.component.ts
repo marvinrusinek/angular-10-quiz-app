@@ -151,11 +151,11 @@ export class MultipleAnswerComponent
   
     const index = this.selectedOptions.findIndex((o) => o === option);
     if (index === -1) {
-      this.selectedOptions.push(option);
+      this.selectedOptions = [option]; // Replace the existing selected options with the clicked option
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
     } else {
-      this.selectedOptions.splice(index, 1);
+      this.selectedOptions = []; // Clear the selected options
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
     }
@@ -168,36 +168,29 @@ export class MultipleAnswerComponent
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true;
           setTimeout(() => {
-            this.toggleVisibility.emit();
-            this.isOptionSelectedChange.emit(this.isOptionSelected);
-            this.optionSelected.emit(option);
-            this.selectionChanged.emit({
-              question: this.currentQuestion,
-              selectedOptions: this.selectedOptions,
-            });
+            this.showFeedback = true;
+            this.cdRef.detectChanges();
           });
         });
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedback = false;
-      setTimeout(() => {
-        this.toggleVisibility.emit();
-        this.isOptionSelectedChange.emit(this.isOptionSelected);
-        this.optionSelected.emit(option);
-        this.selectionChanged.emit({
-          question: this.currentQuestion,
-          selectedOptions: this.selectedOptions,
-        });
-      });
     }
   
     console.log('Selected options:', this.selectedOptions);
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions
+    });
   }
-  
-  
-  
+
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
