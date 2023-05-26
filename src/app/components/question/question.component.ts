@@ -170,9 +170,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           });
           return questions;
         })
-      ).subscribe((questions: QuizQuestion[]) => {
-        this.questions = questions;
-      });
+      ).subscribe();
     }
 
     this.router.events
@@ -273,6 +271,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     console.log('QuizQuestionComponent destroyed');
+    this.questionsSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
