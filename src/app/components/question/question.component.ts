@@ -75,6 +75,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isAnswered: boolean;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
+  questionsSubscription: Subscription;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
@@ -159,8 +160,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-      this.questions = this.quizService.getAllQuestions();
-      this.questions.forEach((q: QuizQuestion) => (q.selectedOptions = null));
+      //this.questions = this.quizService.getAllQuestions();
+      //this.questions.forEach((q: QuizQuestion) => (q.selectedOptions = null));
+
+      this.questionsSubscription = this.quizService.getAllQuestions().pipe(
+        map((questions: QuizQuestion[]) => {
+          questions.forEach((q: QuizQuestion) => {
+            q.selectedOptions = null;
+          });
+          return questions;
+        })
+      ).subscribe((questions: QuizQuestion[]) => {
+        this.questions = questions;
+      });
     }
 
     this.router.events
