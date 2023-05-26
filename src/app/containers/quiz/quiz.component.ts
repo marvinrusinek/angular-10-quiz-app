@@ -124,7 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   errorMessage: string;
   cardFooterClass = '';
 
-  currentQuestionIndex!: number = 0;
+  currentQuestionIndex: number = 0;
   correctOptionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
@@ -323,9 +323,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setObservables(): void {
-    this.currentQuestion$ = this.quizService.currentQuestion$;
-    this.quizService.setCurrentOptions([]);
+    this.currentQuestion$ = this.quizService.currentQuestion$.pipe(
+      map(({ question }) => question)
+    );
 
+    this.quizService.setCurrentOptions([]);
     this.options$ = this.quizStateService.currentOptions$;
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
