@@ -985,7 +985,7 @@ export class QuizService implements OnDestroy {
     this.correctAnswerOptions = [];
     this.correctOptions = '';
     this.correctMessage = '';
-    this.explanationText = '';
+    this.explanationText.next('');
     this.currentQuestionIndex = 0;
   }
 }
