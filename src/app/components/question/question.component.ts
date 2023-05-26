@@ -75,7 +75,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isAnswered: boolean;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
-  questionsSubscription: Subscription;
+  questionsObservableSubscription: Subscription;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
@@ -160,10 +160,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-      //this.questions = this.quizService.getAllQuestions();
-      //this.questions.forEach((q: QuizQuestion) => (q.selectedOptions = null));
 
-      this.questionsSubscription = this.quizService.getAllQuestions().pipe(
+      this.questionsObservableSubscription = this.quizService.getAllQuestions().pipe(
         map((questions: QuizQuestion[]) => {
           questions.forEach((q: QuizQuestion) => {
             q.selectedOptions = null;
@@ -271,7 +269,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     console.log('QuizQuestionComponent destroyed');
-    this.questionsSubscription?.unsubscribe();
+    this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
