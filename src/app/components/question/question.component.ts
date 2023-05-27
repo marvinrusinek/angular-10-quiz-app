@@ -803,7 +803,7 @@ export class QuizQuestionComponent
       const styleClass = this.currentQuestion.options[optionIndex].correct
         ? 'correct'
         : 'incorrect';
-      const option: Option = { text: '', styleClass }; // Create a new Option object with styleClass
+      const option: Option = { text: '', styleClass };
       this.optionSelected.emit(option);
       this.showFeedbackForOption(optionIndex);
     }
