@@ -116,6 +116,7 @@ export class QuizQuestionComponent
   isOptionSelected: boolean = false;
   isChangeDetected = false;
   showFeedback: EventEmitter<FeedbackEvent> = new EventEmitter<FeedbackEvent>();
+  showFeedback = false;
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -797,25 +798,18 @@ export class QuizQuestionComponent
       selectedOption &&
       this.currentQuestion &&
       this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex] &&
-      this.currentQuestion.options[optionIndex].hasOwnProperty('correct')
+      this.currentQuestion.options[optionIndex]
     ) {
-      const styleClass = this.currentQuestion.options[optionIndex].correct
-        ? 'correct'
-        : 'incorrect';
-      const option: Option = { text: '', styleClass };
-      this.optionSelected.emit(option);
-      this.showFeedbackForOption(optionIndex);
+      const isCorrect = this.currentQuestion.options[optionIndex].correct;
+  
+      const feedbackEvent: FeedbackEvent = {
+        optionIndex: optionIndex,
+        showFeedback: true
+      };
+  
+      this.showFeedback.emit(feedbackEvent);
     }
-  }
-
-  private showFeedbackForOption(optionIndex: number): void {
-    const feedbackEvent = {
-      optionIndex,
-      showFeedback: true,
-    };
-    this.showFeedback.emit(feedbackEvent);
-  }
+  }  
 
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
