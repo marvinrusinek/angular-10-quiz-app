@@ -241,8 +241,6 @@ export class MultipleAnswerComponent
   } */
 
   onOptionClicked(option: Option): void {
-    this.isOptionSelected = true;
-  
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1; // Check if the option is already selected
   
@@ -251,53 +249,41 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.isAnswered = true;
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+    }
   
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
       this.quizService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
           this.showFeedback = true;
-          this.cdRef.detectChanges();
         });
     } else {
-      // Option is already selected, remove it from selectedOptions
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-      this.isAnswered = this.selectedOptions.length > 0;
-  
-      if (this.isAnswered) {
-        this.quizService.displayExplanationText(true);
-        this.quizService
-          .setExplanationText(this.selectedOptions, this.question)
-          .subscribe((explanationText: string) => {
-            this.explanationTextValue$ = of(explanationText);
-          });
-      } else {
-        this.quizService.displayExplanationText(false);
-        this.explanationTextValue$ = of('');
-        this.showFeedback = false;
-      }
+      this.explanationTextValue$ = of('');
+      this.showFeedback = false;
     }
   
     console.log('Selected options:', this.selectedOptions);
   
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
+      selectedOptions: this.selectedOptions
     });
-  
-    // Delay hiding the feedback by a short time to allow it to be displayed on first click
-    setTimeout(() => {
-      this.toggleVisibility.emit();
-      this.isOptionSelectedChange.emit(this.isOptionSelected);
-      this.optionSelected.emit(option);
-    }, 10);
   }
-            
+              
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
