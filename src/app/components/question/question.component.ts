@@ -800,7 +800,11 @@ export class QuizQuestionComponent
       this.currentQuestion.options &&
       this.currentQuestion.options[optionIndex]
     ) {
-      const isCorrect = this.currentQuestion.options[optionIndex].correct;
+      this.optionSelected['styleClass'] = this.currentQuestion?.options[
+        optionIndex
+      ]['correct']
+        ? 'correct'
+        : 'incorrect';
   
       const feedbackEvent: FeedbackEvent = {
         optionIndex: optionIndex,
