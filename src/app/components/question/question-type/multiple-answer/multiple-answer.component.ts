@@ -202,11 +202,16 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
+      this.showFeedback = true; // Set showFeedback to true for the selected option
     } else {
       // Option is already selected, remove it from selectedOptions
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
+  
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false when no option is selected
+      }
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
@@ -218,13 +223,11 @@ export class MultipleAnswerComponent
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
           setTimeout(() => {
-            this.showFeedback = true;
             this.cdRef.detectChanges();
           });
         });
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedback = false;
     }
   
     console.log('Selected options:', this.selectedOptions);
@@ -238,7 +241,8 @@ export class MultipleAnswerComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }  
+  }
+  
     
   /* onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
