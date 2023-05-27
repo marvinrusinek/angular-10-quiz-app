@@ -101,6 +101,20 @@ export class MultipleAnswerComponent
       }
     });
 
+    // Retrieve selected options from local storage
+    const storedOptions = localStorage.getItem('selectedOptions');
+    if (storedOptions) {
+      this.selectedOptions = JSON.parse(storedOptions);
+      this.selectedOption = this.selectedOptions[0];
+      this.isAnswered = this.selectedOptions.length > 0;
+      this.showFeedback = this.isAnswered;
+
+      // Update the optionChecked object
+      for (const option of this.selectedOptions) {
+        this.optionChecked[option.optionId] = true;
+      }
+    }
+
     if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];
     }
@@ -191,7 +205,7 @@ export class MultipleAnswerComponent
     });
   } */
 
-  onOptionClicked(option: Option): void {
+  /* onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
   
     const index = this.selectedOptions.findIndex((o) => o === option);
@@ -238,9 +252,58 @@ export class MultipleAnswerComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
+  } */
+
+  onOptionClicked(option: Option): void {
+    this.isOptionSelected = true;
+  
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    const isOptionSelected = index !== -1; // Check if the option is already selected
+  
+    if (!isOptionSelected) {
+      // Option is not selected, proceed with selection
+      this.selectedOptions.push(option);
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          this.showFeedback = true; // Show feedback after setting the explanation text
+          this.cdRef.detectChanges();
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+      this.showFeedback = false;
+    }
+  
+    console.log('Selected options:', this.selectedOptions);
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
+    // Store selected options in local storage
+    localStorage.setItem('selectedOptions', JSON.stringify(this.selectedOptions));
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
   }
-  
-  
+    
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
