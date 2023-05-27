@@ -10,7 +10,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewEncapsulation
+  ViewEncapsulation,
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -63,6 +63,7 @@ export class MultipleAnswerComponent
   isMultiple: boolean = true;
   showExplanation: boolean = false;
   showFeedback: boolean = false;
+  showFeedbackForOption: { [key: string]: boolean } = {};
   private destroyed$ = new Subject<void>();
 
   constructor(
@@ -191,6 +192,59 @@ export class MultipleAnswerComponent
     });
   } */
 
+  /* onOptionClicked(option: Option): void {
+    this.isOptionSelected = true;
+
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    const isOptionSelected = index !== -1; // Check if the option is already selected
+
+    if (!isOptionSelected) {
+      // Option is not selected, proceed with selection
+      this.selectedOptions.push(option);
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+      this.showFeedback = true; // Set showFeedback to true for the selected option
+      this.showFeedbackForOption[option.optionId] = true;
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false when no option is selected
+      }
+    }
+
+    this.isAnswered = this.selectedOptions.length > 0;
+
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          setTimeout(() => {
+            this.cdRef.detectChanges();
+          });
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+    }
+
+    console.log('Selected options:', this.selectedOptions);
+
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  } */
+
   onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
   
@@ -203,6 +257,7 @@ export class MultipleAnswerComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true; // Set showFeedback to true for the selected option
+      this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
     } else {
       // Option is already selected, remove it from selectedOptions
       this.selectedOptions.splice(index, 1);
@@ -212,6 +267,8 @@ export class MultipleAnswerComponent
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false; // Set showFeedback to false when no option is selected
       }
+  
+      delete this.showFeedbackForOption[option.optionId]; // Remove the showFeedbackForOption property for the deselected option
     }
   
     this.isAnswered = this.selectedOptions.length > 0;
@@ -243,7 +300,7 @@ export class MultipleAnswerComponent
     });
   }
   
-    
+
   /* onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
@@ -295,16 +352,20 @@ export class MultipleAnswerComponent
     console.log('Checking if option is selected:', option);
     return this.selectedOptions.some(selectedOption => selectedOption === option);
   } */
-  
+
   /* isSelectedOption(option: Option): boolean {
     console.log('Checking if option is selected:', option);
     return this.selectedOptions.includes(option);
   } */
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId);
-  }  
-  
+  } */
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOption === option;
+  }
+
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {

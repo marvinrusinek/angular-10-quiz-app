@@ -277,7 +277,7 @@
         </mat-checkbox>
 
         <codelab-quiz-option-feedback
-          *ngIf="isSelectedOption(option) && ((isAnswered && showFeedback && option === selectedOption) || (!isAnswered && option === selectedOption))"
+          *ngIf="isSelectedOption(option) && showFeedbackForOption[option.optionId]"
           [correct]="option?.correct"
           [selected]="true"
         ></codelab-quiz-option-feedback>
@@ -292,9 +292,6 @@
     </div>
   </div>
 </ng-container>
-
-
-
 
 
 
