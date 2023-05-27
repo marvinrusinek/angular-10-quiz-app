@@ -791,7 +791,7 @@ export class QuizQuestionComponent
     }
   } */
 
-  private updateClassName(selectedOption: Option, optionIndex: number): void {
+  /* private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
       this.currentQuestion &&
@@ -805,7 +805,24 @@ export class QuizQuestionComponent
         : 'incorrect';
         this.showFeedback = true;
     }
+  } */
+
+  private updateClassName(selectedOption: Option, optionIndex: number): void {
+    if (
+      selectedOption &&
+      this.currentQuestion &&
+      this.currentQuestion.options
+    ) {
+      this.currentQuestion.options.forEach((option) => {
+        option.styleClass = '';
+      });
+  
+      const selectedOption = this.currentQuestion.options[optionIndex];
+      selectedOption.styleClass = selectedOption.correct ? 'correct' : 'incorrect';
+      this.showFeedback = true;
+    }
   }
+  
 
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
