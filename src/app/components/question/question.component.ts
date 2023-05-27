@@ -803,6 +803,7 @@ export class QuizQuestionComponent
       ]['correct']
         ? 'correct'
         : 'incorrect';
+        this.showFeedback = true;
     }
   }
 
