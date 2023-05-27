@@ -26,7 +26,6 @@ import {
 } from 'rxjs';
 import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
-import { FeedbackEvent } from '../../shared/models/feedback-event.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -115,8 +114,7 @@ export class QuizQuestionComponent
   displayExplanation: boolean = false;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
-  showFeedback: EventEmitter<FeedbackEvent> = new EventEmitter<FeedbackEvent>();
-  showFeedback = false;
+  showFeedback: boolean = false;
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -805,15 +803,8 @@ export class QuizQuestionComponent
       ]['correct']
         ? 'correct'
         : 'incorrect';
-  
-      const feedbackEvent: FeedbackEvent = {
-        optionIndex: optionIndex,
-        showFeedback: true
-      };
-  
-      this.showFeedback.emit(feedbackEvent);
     }
-  }  
+  }
 
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
