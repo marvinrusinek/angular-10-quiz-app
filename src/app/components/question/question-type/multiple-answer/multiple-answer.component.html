@@ -180,20 +180,21 @@
         <mat-checkbox
           [class]="getOptionClass(option)"
           [checked]="isSelectedOption(option)"
-          (click)="onOptionClicked(option, $event)"
+          (click)="onOptionClicked(option)"
         >
           <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
           <span class="option-text">{{ option?.text }}</span>
         </mat-checkbox>
       </label>
-      <!-- Feedback section -->
+
       <codelab-quiz-option-feedback
-        *ngIf="isSelectedOption(option) && isAnswered && showFeedback"
+        *ngIf="isSelectedOption(option) && isAnswered && showFeedback && option === selectedOption"
         [correct]="option?.correct"
         [selected]="true"
       ></codelab-quiz-option-feedback>
+
       <codelab-quiz-feedback
-        *ngIf="isSelectedOption(option) && isAnswered && showFeedback"
+        *ngIf="isSelectedOption(option) && isAnswered && showFeedback && option === selectedOption"
         [question]="currentQuestion"
         [selectedOption]="option"
         [correctMessage]="correctMessage"
@@ -201,3 +202,4 @@
     </div>
   </div>
 </ng-container>
+

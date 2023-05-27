@@ -191,24 +191,22 @@ export class MultipleAnswerComponent
     });
   } */
 
-  /* onOptionClicked(option: Option): void {
+  onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
-  
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1; // Check if the option is already selected
+    const isOptionSelected = this.isSelectedOption(option); // Check if the option is already selected
   
     if (!isOptionSelected) {
       // Option is not selected, proceed with selection
       this.selectedOptions.push(option);
-      this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
     } else {
       // Option is already selected, remove it from selectedOptions
+      const index = this.selectedOptions.findIndex((o) => o.optionId === option.optionId);
       this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
     }
   
+    this.selectedOption = option;
     this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
@@ -217,8 +215,8 @@ export class MultipleAnswerComponent
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
+          this.showFeedback = true; // Show feedback immediately
           setTimeout(() => {
-            this.showFeedback = true;
             this.cdRef.detectChanges();
           });
         });
@@ -238,46 +236,9 @@ export class MultipleAnswerComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
-  } */
-
-  onOptionClicked(option: Option, event: MatCheckboxChange): void {
-    const index = this.selectedOptions.findIndex(selectedOption => selectedOption === option);
-    const isOptionSelected = index !== -1;
-  
-    if (event.checked && !isOptionSelected) {
-      this.selectedOptions.push(option);
-      this.optionChecked[option.optionId] = true;
-    } else if (!event.checked && isOptionSelected) {
-      this.selectedOptions.splice(index, 1);
-      this.optionChecked[option.optionId] = false;
-    }
-  
-    this.isAnswered = this.selectedOptions.length > 0;
-  
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-      this.quizService.setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true;
-        });
-    } else {
-      this.explanationTextValue$ = of('');
-      this.showFeedback = false;
-    }
-  
-    this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit(option);
-  
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.question,
-      selectedOptions: this.selectedOptions,
-    });
   }
-                
-  onOptionSelected(option: Option, event: MatCheckboxChange): void {
+  
+  /* onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
     if (index === -1) {
@@ -312,7 +273,7 @@ export class MultipleAnswerComponent
       question: this.question,
       selectedOptions: this.selectedOptions,
     });
-  }
+  } */
 
   /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.some(
@@ -324,12 +285,15 @@ export class MultipleAnswerComponent
     return this.selectedOptions.includes(option);
   } */
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.some(selectedOption => selectedOption === option);
-  }
+  } */
   
+  isSelectedOption(option: Option): boolean {
+    console.log('Checking if option is selected:', option);
+    return this.selectedOptions.includes(option);
+  }  
   
-
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
       this.options.forEach((option) => {
