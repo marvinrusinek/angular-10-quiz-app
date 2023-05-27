@@ -246,6 +246,7 @@ export class MultipleAnswerComponent
   } */
 
   onOptionClicked(option: Option): void {
+    console.log('Option clicked:', option);
     this.isOptionSelected = true;
   
     const index = this.selectedOptions.findIndex((o) => o === option);
