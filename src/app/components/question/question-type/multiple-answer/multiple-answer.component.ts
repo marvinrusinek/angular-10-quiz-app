@@ -240,19 +240,15 @@ export class MultipleAnswerComponent
     });
   } */
 
-  onOptionClicked(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1; // Check if the option is already selected
+  onOptionClicked(option: Option, event: MatCheckboxChange): void {
+    const index = this.selectedOptions.findIndex(selectedOption => selectedOption === option);
+    const isOptionSelected = index !== -1;
   
-    if (!isOptionSelected) {
-      // Option is not selected, proceed with selection
+    if (event.checked && !isOptionSelected) {
       this.selectedOptions.push(option);
-      this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-    } else {
-      // Option is already selected, remove it from selectedOptions
+    } else if (!event.checked && isOptionSelected) {
       this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
     }
   
@@ -260,8 +256,7 @@ export class MultipleAnswerComponent
   
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
-      this.quizService
-        .setExplanationText(this.selectedOptions, this.question)
+      this.quizService.setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
           this.showFeedback = true;
@@ -271,19 +266,17 @@ export class MultipleAnswerComponent
       this.showFeedback = false;
     }
   
-    console.log('Selected options:', this.selectedOptions);
-  
     this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.isOptionSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(option);
   
     // Emit updated selection
     this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
+      question: this.question,
+      selectedOptions: this.selectedOptions,
     });
   }
-              
+                
   onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
@@ -321,11 +314,21 @@ export class MultipleAnswerComponent
     });
   }
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOptions.some(
       (selectedOption) => selectedOption.optionId === option.optionId
     );
+  } */
+
+  /* isSelectedOption(option: Option): boolean {
+    return this.selectedOptions.includes(option);
+  } */
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptions.some(selectedOption => selectedOption === option);
   }
+  
+  
 
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {
