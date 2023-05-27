@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -25,6 +26,7 @@ import {
 } from 'rxjs';
 import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
+import { FeedbackEvent } from '../../shared/models/feedback-event.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -44,21 +46,27 @@ enum QuestionType {
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent
+  implements AfterViewInit, OnInit, OnChanges, OnDestroy
+{
   @Output() isOptionSelectedChange = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<Option>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
     selectedOptions: Option[];
   }> = new EventEmitter();
-  @Output() selectedOptionChange: EventEmitter<Option> = new EventEmitter<Option>();
+  @Output() selectedOptionChange: EventEmitter<Option> =
+    new EventEmitter<Option>();
   @Output() updateSelectionChange = new EventEmitter<number>();
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() showExplanationText = new EventEmitter<boolean>();
   @Output() displayExplanationChanged = new EventEmitter<boolean>();
-  @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{ shouldDisplay: boolean, numberOfCorrectAnswers: number }> = new EventEmitter();
+  @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{
+    shouldDisplay: boolean;
+    numberOfCorrectAnswers: number;
+  }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
@@ -79,6 +87,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
+  selectedOptionStyleClass: string;
   quiz: Quiz;
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
@@ -106,7 +115,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   displayExplanation: boolean = false;
   isOptionSelected: boolean = false;
   isChangeDetected = false;
-  showFeedback = false;
+  showFeedback: EventEmitter<FeedbackEvent> = new EventEmitter<FeedbackEvent>();
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -161,14 +170,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
-      this.questionsObservableSubscription = this.quizService.getAllQuestions().pipe(
-        map((questions: QuizQuestion[]) => {
-          questions.forEach((q: QuizQuestion) => {
-            q.selectedOptions = null;
-          });
-          return questions;
-        })
-      ).subscribe();
+      this.questionsObservableSubscription = this.quizService
+        .getAllQuestions()
+        .pipe(
+          map((questions: QuizQuestion[]) => {
+            questions.forEach((q: QuizQuestion) => {
+              q.selectedOptions = null;
+            });
+            return questions;
+          })
+        )
+        .subscribe();
     }
 
     this.router.events
@@ -251,6 +263,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Initializing component...');
     this.subscriptionToQuestion();
     this.updateQuestionForm();
+  }
+
+  ngAfterViewInit(): void {
+    console.log('showFeedback:', this.showFeedback);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -583,13 +599,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   toggleNumberOfCorrectAnswersVisibility(): void {
-    this.shouldDisplayNumberOfCorrectAnswers = !this.shouldDisplayNumberOfCorrectAnswers;
+    this.shouldDisplayNumberOfCorrectAnswers =
+      !this.shouldDisplayNumberOfCorrectAnswers;
     this.shouldDisplayNumberOfCorrectAnswersChanged.emit({
       shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers,
-      numberOfCorrectAnswers: this.quizService.numberOfCorrectAnswers
+      numberOfCorrectAnswers: this.quizService.numberOfCorrectAnswers,
     });
     this.toggleVisibility.emit();
-  }  
+  }
 
   private resetForm(): void {
     if (!this.questionForm) {
@@ -613,7 +630,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   onOptionSelected(option: Option): void {
     this.isOptionSelected = true;
-  
+
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       if (this.selectedOption === option) {
         // Deselect the selected option
@@ -628,11 +645,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.selectedOptions = [option];
         this.isAnswered = true;
         this.quizService.displayExplanationText(true);
-        this.quizService.setExplanationText([option], this.question).subscribe(
-          (explanationText: string) => {
+        this.quizService
+          .setExplanationText([option], this.question)
+          .subscribe((explanationText: string) => {
             this.explanationTextValue$ = of(explanationText);
-          }
-        );
+          });
       }
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       const index = this.selectedOptions.findIndex((o) => o === option);
@@ -646,27 +663,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isAnswered = this.selectedOptions.length > 0;
       if (this.isAnswered) {
         this.quizService.displayExplanationText(true);
-        this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe(
-          (explanationText: string) => {
+        this.quizService
+          .setExplanationText(this.selectedOptions, this.question)
+          .subscribe((explanationText: string) => {
             this.explanationTextValue$ = of(explanationText);
-          }
-        );
+          });
       } else {
         this.quizService.displayExplanationText(false);
       }
     }
-  
+
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     this.optionSelected.emit(option);
-  
+
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
+      selectedOptions: this.selectedOptions,
     });
   }
-          
+
   onSelectionChange(
     question: QuizQuestion,
     event: MatCheckboxChange | MatRadioChange
@@ -678,9 +695,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.selectedOption = clickedOption;
-  
+
     console.log('OS', this.isOptionSelected);
-  
+
     const answerIndex = this.answers.findIndex(
       (answer) => answer.questionId === this.currentQuestionIndex
     );
@@ -695,18 +712,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
     this.isOptionSelected = true;
     this.isOptionSelectedChange.emit(this.isOptionSelected);
-  
+
     if (!question) {
       return;
     }
-  
+
     const selectedOption = question.options.find(
       (option) => option.text === event.source.value
     );
     const incorrectOptions = question.options.filter(
       (option) => !option.correct
     );
-  
+
     if (event.source.checked) {
       if (question.type === QuestionType.MultipleAnswer) {
         const selectedOptions = question.options.filter(
@@ -723,11 +740,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
       if (selectedOption) {
         selectedOption.selected = true;
-        this.quizService.setExplanationText([selectedOption], question)
+        this.quizService
+          .setExplanationText([selectedOption], question)
           .subscribe((explanationText: string) => {
             this.explanationText$.next(explanationText);
           });
-  
+
         // Disable all options except the selected one
         incorrectOptions.forEach((option) => {
           option.disabled = true;
@@ -736,7 +754,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       if (selectedOption) {
         selectedOption.selected = false;
-  
+
         // Enable all options
         question.options.forEach((option) => {
           option.disabled = false;
@@ -758,7 +776,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  private updateClassName(selectedOption: Option, optionIndex: number): void {
+  /* private updateClassName(selectedOption: Option, optionIndex: number): void {
+    console.log('updateClassName called');
     if (
       selectedOption &&
       this.currentQuestion &&
@@ -769,13 +788,36 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       ]['correct']
         ? 'correct'
         : 'incorrect';
+      this.showFeedback = true;
+    }
+  } */
+
+  private updateClassName(selectedOption: Option, optionIndex: number): void {
+    if (
+      selectedOption &&
+      this.currentQuestion &&
+      this.currentQuestion.options &&
+      this.currentQuestion.options[optionIndex] &&
+      this.currentQuestion.options[optionIndex].hasOwnProperty('correct')
+    ) {
+      const styleClass = this.currentQuestion.options[optionIndex].correct
+        ? 'correct'
+        : 'incorrect';
+      const option: Option = { text: '', styleClass }; // Create a new Option object with styleClass
+      this.optionSelected.emit(option);
+      this.showFeedbackForOption(optionIndex);
     }
   }
 
-  updateSelectedOption(
-    selectedOption: Option,
-    optionIndex: number
-  ): void {
+  private showFeedbackForOption(optionIndex: number): void {
+    const feedbackEvent = {
+      optionIndex,
+      showFeedback: true,
+    };
+    this.showFeedback.emit(feedbackEvent);
+  }
+
+  updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
 
@@ -800,7 +842,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedOption = option;
     }
   }
-  
+
   playSound(selectedOption: Option): void {
     if (!selectedOption || selectedOption === undefined) {
       console.log(
@@ -808,9 +850,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
       return;
     }
-  
+
     console.log('Selected option:', selectedOption.text);
-  
+
     const optionIndex = this.currentQuestion.options.findIndex(
       (option) => option.text === selectedOption.text
     );
@@ -819,7 +861,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     console.log('Option index:', optionIndex);
-  
+
     if (selectedOption.correct) {
       console.log('Selected option is correct, playing sound...');
       this.timerService.stopTimer((elapsedTime) => {
@@ -839,5 +881,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
-  }  
+  }
 }

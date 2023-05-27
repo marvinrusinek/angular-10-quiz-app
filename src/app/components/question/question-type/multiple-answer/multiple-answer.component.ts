@@ -193,20 +193,22 @@ export class MultipleAnswerComponent
 
   onOptionClicked(option: Option): void {
     this.isOptionSelected = true;
-    const isOptionSelected = this.isSelectedOption(option); // Check if the option is already selected
+  
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    const isOptionSelected = index !== -1; // Check if the option is already selected
   
     if (!isOptionSelected) {
       // Option is not selected, proceed with selection
       this.selectedOptions.push(option);
+      this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
     } else {
       // Option is already selected, remove it from selectedOptions
-      const index = this.selectedOptions.findIndex((o) => o.optionId === option.optionId);
       this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
     }
   
-    this.selectedOption = option;
     this.isAnswered = this.selectedOptions.length > 0;
   
     if (this.isAnswered) {
@@ -215,8 +217,8 @@ export class MultipleAnswerComponent
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
           this.explanationTextValue$ = of(explanationText);
-          this.showFeedback = true; // Show feedback immediately
           setTimeout(() => {
+            this.showFeedback = true;
             this.cdRef.detectChanges();
           });
         });
@@ -234,10 +236,10 @@ export class MultipleAnswerComponent
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
+      selectedOptions: this.selectedOptions,
     });
-  }
-  
+  }  
+    
   /* onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
@@ -286,12 +288,17 @@ export class MultipleAnswerComponent
   } */
 
   /* isSelectedOption(option: Option): boolean {
+    console.log('Checking if option is selected:', option);
     return this.selectedOptions.some(selectedOption => selectedOption === option);
   } */
   
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     console.log('Checking if option is selected:', option);
     return this.selectedOptions.includes(option);
+  } */
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId);
   }  
   
   initializeOptionChecked(): void {
