@@ -63,7 +63,6 @@ export class MultipleAnswerComponent
   isMultiple: boolean = true;
   showExplanation: boolean = false;
   showFeedback: boolean = false;
-  selectedOptionIndex: number = -1;
   private destroyed$ = new Subject<void>();
 
   constructor(
