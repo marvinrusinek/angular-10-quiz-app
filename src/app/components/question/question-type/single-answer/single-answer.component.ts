@@ -11,7 +11,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
-
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
@@ -91,6 +92,10 @@ export class SingleAnswerComponent
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  onOptionClick(option: Option): void {
+    super.onOptionClicked(option);
   }
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
