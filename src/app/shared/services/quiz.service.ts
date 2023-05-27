@@ -486,20 +486,13 @@ export class QuizService implements OnDestroy {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationTextSubject.next(text);
         } else if (correctOptions.length > 1) {
-          const lastOptionIndex = correctOptionIndices.pop();
           const correctOptionsString = correctOptionIndices.join(' and ');
-  
-          if (correctOptions.length === question.options.length) {
-            const text = `All options (${correctOptionsString} and Option ${lastOptionIndex}) are correct because ${question.explanation}`;
-            this.explanationTextSubject.next(text);
-          } else {
-            const text = `Options ${correctOptionsString} and Option ${lastOptionIndex} are correct because ${question.explanation}`;
-            this.explanationTextSubject.next(text);
-          }
+          const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
+          this.explanationTextSubject.next(text);
         }
       } else {
         const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-        const optionIndicesString = correctOptionIndices.map((index) => index.toString()).join(' and ');
+        const optionIndicesString = correctOptionIndices.join(' and ');
   
         if (correctOptions.length === 1) {
           const text = `Option ${optionIndicesString} is correct because ${question.explanation}`;
@@ -516,8 +509,8 @@ export class QuizService implements OnDestroy {
       this.explanationTextSubject.next('');
       return this.explanationTextSubject.asObservable();
     }
-  }  
-        
+  }
+          
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }
