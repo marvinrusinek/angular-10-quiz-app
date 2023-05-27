@@ -245,7 +245,7 @@ export class MultipleAnswerComponent
     });
   } */
 
-  onOptionClicked(option: Option): void {
+  /* onOptionClicked(option: Option): void {
     console.log('Option clicked:', option);
     this.isOptionSelected = true;
   
@@ -257,7 +257,7 @@ export class MultipleAnswerComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.showFeedback = true; // Set showFeedback to true for the selected option
+      // this.showFeedback = true; // Set showFeedback to true for the selected option
       this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
     } else {
       // Option is already selected, remove it from selectedOptions
@@ -299,9 +299,183 @@ export class MultipleAnswerComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
+  } */
+
+  /* onOptionClicked(option: Option): void {
+    console.log('Option clicked:', option);
+    this.isOptionSelected = true;
+  
+    const isOptionSelected = this.selectedOptions.includes(option);
+  
+    if (!isOptionSelected) {
+      // Option is not selected, proceed with selection
+      this.selectedOptions = [option];
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+      this.showFeedback = true; // Set showFeedback to true for the selected option
+      this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions = this.selectedOptions.filter(
+        (selectedOption) => selectedOption !== option
+      );
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+  
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false when no option is selected
+      }
+  
+      delete this.showFeedbackForOption[option.optionId]; // Remove the showFeedbackForOption property for the deselected option
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          setTimeout(() => {
+            this.cdRef.detectChanges();
+          });
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+    }
+  
+    console.log('Selected options:', this.selectedOptions);
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  } */
+
+  /* onOptionClicked(option: Option): void {
+    console.log('Option clicked:', option);
+    this.isOptionSelected = true;
+  
+    const isOptionSelected = this.selectedOptions.includes(option);
+  
+    if (!isOptionSelected) {
+      // Option is not selected, proceed with selection
+      this.selectedOptions = [option];
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+      this.showFeedback = false; // Set showFeedback to false initially
+      this.showFeedbackForOption = {}; // Reset showFeedbackForOption object
+  
+      // Delay the setting of showFeedback to true to allow time for rendering
+      setTimeout(() => {
+        this.showFeedback = true;
+        this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
+      }, 0);
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions = this.selectedOptions.filter(
+        (selectedOption) => selectedOption !== option
+      );
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+  
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false when no option is selected
+      }
+  
+      delete this.showFeedbackForOption[option.optionId]; // Remove the showFeedbackForOption property for the deselected option
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          setTimeout(() => {
+            this.cdRef.detectChanges();
+          });
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+    }
+  
+    console.log('Selected options:', this.selectedOptions);
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  } */
+
+  onOptionClicked(option: Option): void {
+    console.log('Option clicked:', option);
+    this.isOptionSelected = true;
+  
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    const isOptionSelected = index !== -1; // Check if the option is already selected
+  
+    if (!isOptionSelected) {
+      // Option is not selected, proceed with selection
+      this.selectedOptions.push(option);
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+  
+      this.showFeedback = true; // Set showFeedback to true for the selected option
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+  
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false when no option is selected
+      }
+    }
+  
+    this.isAnswered = this.selectedOptions.length > 0;
+  
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.quizService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          setTimeout(() => {
+            this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
+            this.cdRef.detectChanges();
+          });
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+    }
+  
+    console.log('Selected options:', this.selectedOptions);
+  
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+  
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
   }
   
-
   /* onOptionSelected(option: Option, event: MatCheckboxChange): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
@@ -363,9 +537,14 @@ export class MultipleAnswerComponent
     return this.selectedOptions.some((selectedOption) => selectedOption.optionId === option.optionId);
   } */
 
-  isSelectedOption(option: Option): boolean {
+  /* isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
+  } */
+
+  isSelectedOption(option: Option): boolean {
+    return this.selectedOptions.includes(option) && this.showFeedbackForOption[option.optionId];
   }
+  
 
   initializeOptionChecked(): void {
     if (this.options && this.options.length && this.currentQuestion) {

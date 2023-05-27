@@ -20,7 +20,7 @@
 
         <codelab-quiz-option-feedback
           *ngIf="
-            isSelectedOption(option) && showFeedbackForOption[option.optionId]
+            isSelectedOption(option)
           "
           [correct]="option?.correct"
           [selected]="true"
