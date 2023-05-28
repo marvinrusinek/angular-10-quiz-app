@@ -866,12 +866,12 @@ export class QuizQuestionComponent
             this.isAnswerSelectedChange.emit(true);
             this.cdRef.detectChanges();
           }),
-          switchMap(() => timer(0)) // Emit a value after a delay of 0ms
+          switchMap(() => timer(0))
         )
         .subscribe();
     } else {
       this.explanationTextValue$ = of('');
-      this.showFeedbackForOption[option.optionId] = false; // Hide feedback for the selected option
+      this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
     }
 
