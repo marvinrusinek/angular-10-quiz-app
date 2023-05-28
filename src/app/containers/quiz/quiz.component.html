@@ -74,22 +74,6 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <!--<ng-container [ngSwitch]="isAnswerSelected">
-        <span *ngSwitchCase="false" class="selection-message">
-          Please select an option to continue...
-        </span>
-        <span *ngSwitchDefault class="next-message">
-          Please click the next button to continue...
-        </span>
-      </ng-container>-->
-      <!--<ng-container>
-        <span *ngIf="!isOptionSelected" class="selection-message">
-          Please select an option to continue...
-        </span>
-        <span *ngIf="isOptionSelected" class="next-message">
-          Please click the next button to continue...
-        </span>
-      </ng-container>-->
       <ng-container [ngSwitch]="isAnswerSelected">
         <span *ngSwitchCase="false" class="selection-message">
           Please select an option to continue...
