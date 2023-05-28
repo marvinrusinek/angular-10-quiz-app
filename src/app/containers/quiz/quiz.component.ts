@@ -113,6 +113,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isOptionSelected = false;
   isDisabled: boolean;
   isAnswerSelected: boolean = false;
+  isAnswerSelected$: Observable<boolean>;
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
   showExplanationText: boolean = false;
@@ -237,10 +238,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
-  onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
+  /* onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
     this.isAnswerSelected = isAnswerSelected;
     this.cdRef.detectChanges();
-  }
+  } */
   
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
