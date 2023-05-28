@@ -830,7 +830,6 @@ export class QuizQuestionComponent
 
   onOptionClicked(option: Option): void {
     console.log('Option clicked:', option);
-    this.isOptionSelected = true;
 
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1; // Check if the option is already selected
@@ -856,7 +855,7 @@ export class QuizQuestionComponent
 
     this.isAnswered = this.selectedOptions.length > 0;
     // this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.isOptionSelectedChange.emit(this.isAnswered);
+    // this.isOptionSelectedChange.emit(this.isAnswered);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
@@ -884,8 +883,8 @@ export class QuizQuestionComponent
     console.log('Selected options:', this.selectedOptions);
 
     this.toggleVisibility.emit();
+    this.optionSelected.emit(option);
     // this.isOptionSelectedChange.emit(this.isOptionSelected);
-    // this.optionSelected.emit(option);
 
     // Emit updated selection
     this.selectionChanged.emit({
