@@ -69,7 +69,7 @@ export class QuizQuestionComponent
     numberOfCorrectAnswers: number;
   }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isAnswerSelectedChange = new EventEmitter<boolean>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -664,6 +664,7 @@ export class QuizQuestionComponent
         this.selectedOptions.splice(index, 1);
       }
       this.isAnswered = this.selectedOptions.length > 0;
+
       if (this.isAnswered) {
         this.quizService.displayExplanationText(true);
         this.quizService
@@ -867,7 +868,6 @@ export class QuizQuestionComponent
           tap(([explanationText]) => {
             this.explanationTextValue$ = of(explanationText);
             this.showFeedbackForOption[option.optionId] = true; // Show feedback for the selected option
-            this.isAnswerSelectedChange.emit(true);
             this.cdRef.detectChanges();
           }),
           switchMap(() => timer(0)) // Emit a value after a delay of 0ms
@@ -876,7 +876,6 @@ export class QuizQuestionComponent
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedbackForOption[option.optionId] = false; // Hide feedback for the selected option
-      this.isAnswerSelectedChange.emit(false);
     }
 
     console.log('Selected options:', this.selectedOptions);
