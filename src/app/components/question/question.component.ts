@@ -854,6 +854,7 @@ export class QuizQuestionComponent
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnswerSelectedChange.emit(this.isAnswered);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);

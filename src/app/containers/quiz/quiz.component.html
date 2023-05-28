@@ -64,6 +64,7 @@
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
           [isAnswerSelected]="isAnswered"
+          [isOptionSelected]="isOptionSelected"
           (isAnswerSelectedChange)="onIsAnswerSelectedChange($event)"
         ></codelab-quiz-question>
       </ng-container>
@@ -74,13 +75,21 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <ng-container [ngSwitch]="isAnswerSelected">
+      <!--<ng-container [ngSwitch]="isAnswerSelected">
         <span *ngSwitchCase="false" class="selection-message">
           Please select an option to continue...
         </span>
         <span *ngSwitchDefault class="next-message">
           Please click the next button to continue...
         </span>
+      </ng-container>-->
+      <ng-container>
+        <span *ngIf="!isAnswerSelected" class="selection-message">
+          Please select an option to continue...
+        </span>
+        <span *ngIf="isAnswerSelected" class="next-message">
+          Please click the next button to continue...
+        </span>        
       </ng-container>
     
       <!-- paging -->

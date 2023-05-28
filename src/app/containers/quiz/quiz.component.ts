@@ -242,7 +242,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isAnswerSelected = isAnswerSelected;
     this.cdRef.detectChanges();
   }
-  
+    
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
     this.answers[questionIndex] =
