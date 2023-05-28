@@ -22,9 +22,10 @@ import {
   pipe,
   ReplaySubject,
   Subject,
-  Subscription,
+  Subscription, 
+  timer
 } from 'rxjs';
-import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -879,7 +880,7 @@ export class QuizQuestionComponent
     });
   } */
 
-  onOptionClicked(option: Option): void {
+  /* onOptionClicked(option: Option): void {
     console.log('Option clicked:', option);
     this.isOptionSelected = true;
   
@@ -932,9 +933,74 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
-  
+  } */
 
+  onOptionClicked(option: Option): void {
+    console.log('Option clicked:', option);
+    this.isOptionSelected = true;
+
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    const isOptionSelected = index !== -1; // Check if the option is already selected
+
+    if (!isOptionSelected) {
+      // Option is not selected, proceed with selection
+      this.selectedOptions.push(option);
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+      // this.showFeedbackForOption[option.optionId] = true; // Show feedback for the selected option
+      this.showFeedback = true; // Set showFeedback to true for the selected option
+    } else {
+      // Option is already selected, remove it from selectedOptions
+      this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+      // this.showFeedbackForOption[option.optionId] = false; // Hide feedback for the deselected option
+
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false when no option is selected
+      }
+    }
+
+    this.isAnswered = this.selectedOptions.length > 0;
+
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+      this.setExplanationTextWithDelay(this.selectedOptions, this.question).subscribe((explanationText: string) => {
+        this.explanationTextValue$ = of(explanationText);
+        this.showFeedbackForOption[option.optionId] = true;
+        this.cdRef.detectChanges();
+      });
+    } else {
+      this.explanationTextValue$ = of('');
+    }
+
+    console.log('Selected options:', this.selectedOptions);
+
+    this.toggleVisibility.emit();
+    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(option);
+
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  }
+
+  setExplanationTextWithDelay(options: Option[], question: QuizQuestion): Observable<string> {
+    return timer(200).pipe(
+      switchMap(() => this.quizService.setExplanationText(options, question)),
+      tap(() => {
+        // Reset showFeedbackForOption for all options except the selected option
+        Object.keys(this.showFeedbackForOption).forEach((key) => {
+          const optionId = Number(key);
+          if (optionId !== this.selectedOption.optionId) {
+            this.showFeedbackForOption[optionId] = false;
+          }
+        });
+      })
+    );
+  }
 
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
