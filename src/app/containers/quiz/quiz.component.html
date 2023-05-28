@@ -63,6 +63,8 @@
           [shouldDisplayNumberOfCorrectAnswers]="shouldDisplayNumberOfCorrectAnswers"
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
+          [isAnswerSelected]="isAnswered"
+          (isAnswerSelectedChange)="onIsAnswerSelectedChange($event)"
         ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>
@@ -80,14 +82,42 @@
           Please click the next button to continue...
         </span>
       </ng-container>-->
-      <ng-container [ngSwitch]="selectedOption$ | async">
+      <!--<ng-container [ngSwitch]="selectedOption$ | async">
         <span *ngSwitchCase="undefined" class="selection-message">
           Please select an option to continue...
         </span>
         <span *ngSwitchDefault class="next-message">
           Please click the next button to continue...
         </span>
+      </ng-container>-->
+      <!--<ng-container *ngIf="isAnswerSelected !== null && isAnswerSelected !== undefined; else nextMessage">
+        <span class="selection-message">
+          Please select an option to continue...
+        </span>
       </ng-container>
+      <ng-template #nextMessage>
+        <span class="next-message">
+          Please click the next button to continue...
+        </span>
+      </ng-template>-->
+      <!--<ng-container [ngSwitch]="isAnswerSelected">
+        <span *ngSwitchCase="false" class="selection-message">
+          Please select an option to continue...
+        </span>
+        <span *ngSwitchDefault class="next-message">
+          Please click the next button to continue...
+        </span>
+      </ng-container>-->
+      <ng-container [ngSwitch]="isAnswerSelected">
+        <span *ngSwitchCase="false" class="selection-message">
+          Please select an option to continue...
+        </span>
+        <span *ngSwitchDefault class="next-message">
+          Please click the next button to continue...
+        </span>
+      </ng-container>
+      
+      
       
     
       <!-- paging -->

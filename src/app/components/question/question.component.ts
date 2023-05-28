@@ -69,6 +69,7 @@ export class QuizQuestionComponent
     numberOfCorrectAnswers: number;
   }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -963,6 +964,7 @@ export class QuizQuestionComponent
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnswerSelectedChange.emit(this.isAnswered);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
