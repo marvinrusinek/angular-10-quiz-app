@@ -241,6 +241,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
     this.isAnswerSelected = isAnswerSelected;
     this.cdRef.detectChanges();
+
+    // Check if all questions have been answered
+    const unansweredQuestions = this.questions.filter(q => !q.isAnswered);
+    this.allQuestionsAnswered = unansweredQuestions.length === 0;
   }
     
   onSelectionChange(questionIndex: number, answerIndex: number) {
