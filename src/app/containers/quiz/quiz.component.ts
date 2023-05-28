@@ -238,8 +238,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
-  onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
-    this.isAnswerSelected = isAnswerSelected;
+  onIsAnswerSelectedChange(isOptionSelected: boolean): void {
+    this.isAnswerSelected = isOptionSelected;
     this.cdRef.detectChanges();
   }
     

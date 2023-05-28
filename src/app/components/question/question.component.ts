@@ -678,8 +678,8 @@ export class QuizQuestionComponent
     }
 
     this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(option);
+    // this.isOptionSelectedChange.emit(this.isOptionSelected);
+    // this.optionSelected.emit(option);
 
     // Emit updated selection
     this.selectionChanged.emit({
@@ -714,8 +714,8 @@ export class QuizQuestionComponent
       });
     }
     this.quizService.setAnswerStatus(this.quizService.isAnswered());
-    this.isOptionSelected = true;
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
+    // this.isOptionSelected = true;
+    // this.isOptionSelectedChange.emit(this.isOptionSelected);
 
     if (!question) {
       return;
@@ -855,7 +855,8 @@ export class QuizQuestionComponent
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnswerSelectedChange.emit(this.isAnswered);
+    // this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.isOptionSelectedChange.emit(this.isAnswered);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
@@ -881,8 +882,8 @@ export class QuizQuestionComponent
     console.log('Selected options:', this.selectedOptions);
 
     this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(option);
+    // this.isOptionSelectedChange.emit(this.isOptionSelected);
+    // this.optionSelected.emit(option);
 
     // Emit updated selection
     this.selectionChanged.emit({

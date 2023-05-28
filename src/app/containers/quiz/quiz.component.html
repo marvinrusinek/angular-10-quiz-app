@@ -51,8 +51,6 @@
           (answer)="selectedAnswer($event)"
           [answers]="answers"
           [selectedOption]="selectedOption$ | async"
-          (onOptionSelected)="onOptionSelected($event)"
-          (isOptionSelectedChange)="onIsOptionSelectedChange($event)"
           (formReady)="form = $event"
           [currentQuestion$]="currentQuestion$ | async"
           [currentQuestionIndex]="currentQuestionIndex"
