@@ -850,6 +850,9 @@ export class QuizQuestionComponent
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
+    console.log('isAnswered:', this.isAnswered);
+    console.log('selectedOptions:', this.selectedOptions);
+
     this.isAnswerSelectedChange.emit(this.isAnswered);
 
     if (this.isAnswered) {
