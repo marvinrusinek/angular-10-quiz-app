@@ -854,6 +854,7 @@ export class QuizQuestionComponent
     }
 
     this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnswerSelectedChange.emit(this.isAnswered);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
@@ -866,7 +867,7 @@ export class QuizQuestionComponent
           tap(([explanationText]) => {
             this.explanationTextValue$ = of(explanationText);
             this.showFeedbackForOption[option.optionId] = true; // Show feedback for the selected option
-            this.isAnswerSelectedChange.emit(true);
+            // this.isAnswerSelectedChange.emit(true);
             this.cdRef.detectChanges();
           }),
           switchMap(() => timer(0)) // Emit a value after a delay of 0ms
@@ -875,7 +876,7 @@ export class QuizQuestionComponent
     } else {
       this.explanationTextValue$ = of('');
       this.showFeedbackForOption[option.optionId] = false; // Hide feedback for the selected option
-      this.isAnswerSelectedChange.emit(false);
+      // this.isAnswerSelectedChange.emit(false);
     }
 
     console.log('Selected options:', this.selectedOptions);
