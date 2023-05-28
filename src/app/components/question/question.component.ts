@@ -23,7 +23,8 @@ import {
   ReplaySubject,
   Subject,
   Subscription, 
-  timer
+  timer, 
+  zip
 } from 'rxjs';
 import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -965,13 +966,23 @@ export class QuizQuestionComponent
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
-      this.setExplanationTextWithDelay(this.selectedOptions, this.question).subscribe((explanationText: string) => {
-        this.explanationTextValue$ = of(explanationText);
-        this.showFeedbackForOption[option.optionId] = true;
-        this.cdRef.detectChanges();
-      });
+  
+      const explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.question);
+      const timer$ = timer(0);
+  
+      zip(explanationText$, timer$)
+        .pipe(
+          tap(([explanationText]) => {
+            this.explanationTextValue$ = of(explanationText);
+            this.showFeedbackForOption[option.optionId] = true; // Show feedback for the selected option
+            this.cdRef.detectChanges();
+          }),
+          switchMap(() => timer(0)) // Emit a value after a delay of 0ms
+        )
+        .subscribe();
     } else {
       this.explanationTextValue$ = of('');
+      this.showFeedbackForOption[option.optionId] = false; // Hide feedback for the selected option
     }
 
     console.log('Selected options:', this.selectedOptions);
@@ -988,8 +999,7 @@ export class QuizQuestionComponent
   }
 
   setExplanationTextWithDelay(options: Option[], question: QuizQuestion): Observable<string> {
-    return timer(200).pipe(
-      switchMap(() => this.quizService.setExplanationText(options, question)),
+    return this.quizService.setExplanationText(options, question).pipe(
       tap(() => {
         // Reset showFeedbackForOption for all options except the selected option
         Object.keys(this.showFeedbackForOption).forEach((key) => {
