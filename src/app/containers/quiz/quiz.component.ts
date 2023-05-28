@@ -240,7 +240,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
-    this.isAnswerSelected = isAnswerSelected;
+    this.isAnswerSelected = isAnswerSelected;this.isAnswered = isAnswerSelected;
     this.cdRef.detectChanges();
   }
     
