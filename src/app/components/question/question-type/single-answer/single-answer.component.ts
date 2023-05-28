@@ -99,12 +99,12 @@ export class SingleAnswerComponent
   }
 
   onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    super.onSelectionChange(question, selectedOptions);
-    this.optionChecked[selectedOptions[0]?.optionId] =
-      !this.optionChecked[selectedOptions[0]?.optionId];
-    this.selectedOption = selectedOptions[0];
+    super.onSelectionChange(question, this.selectedOptions);
+    this.optionChecked[this.selectedOptions[0]?.optionId] =
+      !this.optionChecked[this.selectedOptions[0]?.optionId];
+    this.selectedOption = this.selectedOptions[0];
     this.optionSelected.emit(this.selectedOption);
-    this.selectionChanged.emit({ question: this.question, selectedOptions: selectedOptions });
+    this.selectionChanged.emit({ question: this.question, selectedOptions: this.selectedOptions });
   } 
 }
 
