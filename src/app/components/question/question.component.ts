@@ -827,116 +827,6 @@ export class QuizQuestionComponent
     }
   }
 
-  /* onOptionClicked(option: Option): void {
-    console.log('Option clicked:', option);
-    this.isOptionSelected = true;
-
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1; // Check if the option is already selected
-
-    if (!isOptionSelected) {
-      // Option is not selected, proceed with selection
-      this.selectedOptions.push(option);
-      this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-
-      this.showFeedback = true; // Set showFeedback to true for the selected option
-    } else {
-      // Option is already selected, remove it from selectedOptions
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false; // Set showFeedback to false when no option is selected
-      }
-    }
-
-    this.isAnswered = this.selectedOptions.length > 0;
-
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-      this.quizService
-        .setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationTextValue$ = of(explanationText);
-          setTimeout(() => {
-            this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
-            this.cdRef.detectChanges();
-          });
-        });
-    } else {
-      this.explanationTextValue$ = of('');
-    }
-
-    console.log('Selected options:', this.selectedOptions);
-
-    this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(option);
-
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
-  } */
-
-  /* onOptionClicked(option: Option): void {
-    console.log('Option clicked:', option);
-    this.isOptionSelected = true;
-  
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1; // Check if the option is already selected
-  
-    if (!isOptionSelected) {
-      // Option is not selected, proceed with selection
-      this.selectedOptions.push(option);
-      this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-  
-      this.showFeedback = true; // Set showFeedback to true for the selected option
-    } else {
-      // Option is already selected, remove it from selectedOptions
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-  
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false; // Set showFeedback to false when no option is selected
-      }
-    }
-  
-    this.isAnswered = this.selectedOptions.length > 0;
-  
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-      this.quizService
-        .setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationTextValue$ = of(explanationText);
-          setTimeout(() => {
-            this.showFeedbackForOption[option.optionId] = true; // Set showFeedbackForOption to true for the selected option
-            this.cdRef.detectChanges();
-          });
-        });
-    } else {
-      this.explanationTextValue$ = of('');
-    }
-  
-    console.log('Selected options:', this.selectedOptions);
-  
-    this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(option);
-  
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
-  } */
-
   onOptionClicked(option: Option): void {
     console.log('Option clicked:', option);
     this.isOptionSelected = true;
@@ -950,7 +840,7 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       // this.showFeedbackForOption[option.optionId] = true; // Show feedback for the selected option
-      this.showFeedback = true; // Set showFeedback to true for the selected option
+      this.showFeedback = true;
     } else {
       // Option is already selected, remove it from selectedOptions
       this.selectedOptions.splice(index, 1);
@@ -959,7 +849,7 @@ export class QuizQuestionComponent
       // this.showFeedbackForOption[option.optionId] = false; // Hide feedback for the deselected option
 
       if (this.selectedOptions.length === 0) {
-        this.showFeedback = false; // Set showFeedback to false when no option is selected
+        this.showFeedback = false;
       }
     }
 
