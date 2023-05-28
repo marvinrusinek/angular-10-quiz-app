@@ -102,6 +102,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   answered: boolean = false;
   options: Option[] = [];
   multipleAnswer: boolean = false;
+  isAnswered = false;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -241,10 +242,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
     this.isAnswerSelected = isAnswerSelected;
     this.cdRef.detectChanges();
-
-    // Check if all questions have been answered
-    const unansweredQuestions = this.questions.filter(q => !q.isAnswered);
-    this.allQuestionsAnswered = unansweredQuestions.length === 0;
   }
     
   onSelectionChange(questionIndex: number, answerIndex: number) {
@@ -536,9 +533,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   updateCardFooterClass(): void {
-    if (this.multipleAnswer && !this.isAnswered()) {
+    if (this.multipleAnswer && !this.isQuestionAnswered()) {
       this.cardFooterClass = 'multiple-unanswered';
-    } else if (!this.multipleAnswer && !this.isAnswered()) {
+    } else if (!this.multipleAnswer && !this.isQuestionAnswered()) {
       this.cardFooterClass = 'single-unanswered';
     } else {
       this.cardFooterClass = '';
@@ -589,11 +586,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('none');
   }
 
-  /* isAnswered() {
+  /* isQuestionAnswered() {
     return this.answers.some(answer => answer.questionId === this.questions.indexOf(this.question));
   } */
 
-  isAnswered() {
+  isQuestionAnswered() {
     return this.isOptionSelected;
   }
 
@@ -671,7 +668,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     let answers;
-    if (this.isAnswered()) {
+    if (this.isQuestionAnswered()) {
       answers = this.answers.map((answer) => answer + 1);
       this.quizService.userAnswers.push(answers);
       this.showExplanation = true;

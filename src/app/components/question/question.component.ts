@@ -82,7 +82,7 @@ export class QuizQuestionComponent
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   @Input() explanationTextValue: string;
-  @Input() isAnswered: boolean;
+  @Input() isAnswered: boolean = false;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
