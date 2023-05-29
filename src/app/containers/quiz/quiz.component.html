@@ -140,18 +140,17 @@
         </span>
       </ng-template>-->
       <ng-container *ngIf="!isAnswered && !isOptionSelected && !nextMessageVisible; else nextMessage">
-      <span class="selection-message">
-        Please select an option to continue...
-      </span>
-    </ng-container>
-    <ng-template #nextMessage>
-      <span class="next-message" *ngIf="nextMessageVisible">
+        <span class="selection-message">
+          Please select an option to continue...
+        </span>
+      </ng-container>
+      <ng-template #nextMessage>
+        <span class="next-message"  *ngIf="nextMessageVisible && !isAnswered">
         Please click the next button to continue...
-      </span>
-    </ng-template>
+        </span>
+      </ng-template>
     
       
-    
       <!-- paging -->
       <section class="paging">
         <mat-card-actions

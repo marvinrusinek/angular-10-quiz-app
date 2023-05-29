@@ -246,6 +246,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   onNextMessageVisibleChange(nextMessageVisible: boolean): void {
     this.nextMessageVisible = nextMessageVisible;
+    console.log('Received nextMessageVisible:', nextMessageVisible);
   }  
 
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
