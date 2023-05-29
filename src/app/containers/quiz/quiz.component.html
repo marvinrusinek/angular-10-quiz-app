@@ -129,7 +129,7 @@
           Please click the next button to continue...
         </span>
       </ng-container>-->
-      <ng-container *ngIf="!isAnswered && !isOptionSelected && nextMessageVisible; else selectionMessage">
+      <!--<ng-container *ngIf="!isAnswered && !isOptionSelected && nextMessageVisible; else selectionMessage">
         <span class="selection-message">
           Please select an option to continue...
         </span>
@@ -138,7 +138,18 @@
         <span class="next-message">
           Please click the next button to continue...
         </span>
-      </ng-template>
+      </ng-template>-->
+      <ng-container *ngIf="!isAnswered && !isOptionSelected && !nextMessageVisible; else nextMessage">
+      <span class="selection-message">
+        Please select an option to continue...
+      </span>
+    </ng-container>
+    <ng-template #nextMessage>
+      <span class="next-message" *ngIf="nextMessageVisible">
+        Please click the next button to continue...
+      </span>
+    </ng-template>
+    
       
     
       <!-- paging -->
