@@ -888,7 +888,7 @@ export class QuizQuestionComponent
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     console.log('nextMessageVisible:', this.nextMessageVisible);
-    this.optionSelected.emit(this.isOptionSelected);
+    this.optionSelected.emit(true);
 
     // Emit updated selection
     this.selectionChanged.emit({
