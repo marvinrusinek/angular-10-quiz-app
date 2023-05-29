@@ -64,6 +64,8 @@
           [isAnswerSelected]="isAnswered"
           [isOptionSelected]="isOptionSelected"
           (isAnswerSelectedChange)="onIsAnswerSelectedChange($event)"
+          [nextMessageVisible]="nextMessageVisible"
+          (nextMessageVisibleChange)="onNextMessageVisibleChange($event)"
         ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>
@@ -89,7 +91,7 @@
           Please click the next button to continue...
         </span>        
       </ng-container>-->
-      <ng-container *ngIf="!isAnswered; else nextMessage">
+      <!--<ng-container *ngIf="selectedOptions.length > 0; else nextMessage">
         <span class="selection-message">
           Please select an option to continue&hellip;
         </span>
@@ -97,6 +99,44 @@
       <ng-template #nextMessage>
         <span class="next-message">
           Please click the next button to continue&hellip;
+        </span>
+      </ng-template>-->
+      <!--<ng-container *ngIf="selectedOptions.length > 0; else nextMessage">
+        <span class="selection-message">
+          Please click the next button to continue...
+        </span>
+      </ng-container>
+      <ng-template #nextMessage>
+        <span class="next-message">
+          Please select an option to continue...
+        </span>
+      </ng-template>-->
+      <!--<ng-container *ngIf="isOptionSelected; else nextMessage">
+        <span class="selection-message">
+          Please click the next button to continue...
+        </span>
+      </ng-container>
+      <ng-template #nextMessage>
+        <span class="next-message">
+          Please select an option to continue...
+        </span>
+      </ng-template>-->
+      <!--<ng-container>
+        <span class="selection-message" [hidden]="nextMessageVisible">
+          Please select an option to continue...
+        </span>
+        <span class="next-message" [hidden]="!nextMessageVisible">
+          Please click the next button to continue...
+        </span>
+      </ng-container>-->
+      <ng-container *ngIf="!isAnswered && !isOptionSelected && nextMessageVisible; else selectionMessage">
+        <span class="selection-message">
+          Please select an option to continue...
+        </span>
+      </ng-container>
+      <ng-template #selectionMessage>
+        <span class="next-message">
+          Please click the next button to continue...
         </span>
       </ng-template>
       

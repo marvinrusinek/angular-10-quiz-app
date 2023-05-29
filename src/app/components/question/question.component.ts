@@ -63,13 +63,14 @@ export class QuizQuestionComponent
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() showExplanationText = new EventEmitter<boolean>();
-  @Output() displayExplanationChanged = new EventEmitter<boolean>();
+  @Output() displayExplanatisOptionSelected:ionChanged = new EventEmitter<boolean>();
   @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{
     shouldDisplay: boolean;
     numberOfCorrectAnswers: number;
   }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
-  @Output() isAnswerSelectedChange = new EventEmitter<boolean>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -83,6 +84,7 @@ export class QuizQuestionComponent
     new BehaviorSubject<boolean>(false);
   @Input() explanationTextValue: string;
   @Input() isAnswered: boolean = false;
+  nextMessageVisible: boolean = false;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
@@ -849,11 +851,13 @@ export class QuizQuestionComponent
       }
     }
 
+    this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
     console.log('isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
 
     this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.nextMessageVisibleChange.emit(this.isOptionSelected);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);

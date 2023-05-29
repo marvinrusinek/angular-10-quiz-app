@@ -156,7 +156,6 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    console.log('QUIZSERVICE');
     this.loadData();
     this.initializeData();
 
@@ -181,7 +180,7 @@ export class QuizService implements OnDestroy {
     
     this.explanationTextSubscription = this.explanationText.subscribe(
       (text) => {
-        console.log('explanationText', text);
+        // console.log('explanationText', text);
       }
     );
   }

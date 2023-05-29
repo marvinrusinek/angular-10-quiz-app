@@ -124,6 +124,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ''
   );
   explanationTextSubscription: Subscription;
+  nextMessageVisible: boolean = false;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -239,10 +240,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
-  onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
-    this.isAnswerSelected = isAnswerSelected;this.isAnswered = isAnswerSelected;
-    this.cdRef.detectChanges();
+  handleNextMessageVisibleChange(value: boolean): void {
+    this.nextMessageVisible = value;
   }
+
+  onNextMessageVisibleChange(nextMessageVisible: boolean): void {
+    this.nextMessageVisible = nextMessageVisible;
+  }  
+
+  onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
+    this.isAnswerSelected = isAnswerSelected;
+    this.nextMessageVisible = !isAnswerSelected;
+    this.cdRef.detectChanges();
+  }  
     
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
