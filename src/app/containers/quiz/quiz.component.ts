@@ -247,6 +247,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   onNextMessageVisibleChange(nextMessageVisible: boolean): void {
     this.nextMessageVisible = nextMessageVisible;
     console.log('Received nextMessageVisible:', nextMessageVisible);
+    this.cdRef.detectChanges();
   }  
 
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
@@ -254,6 +255,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.nextMessageVisible = !isAnswerSelected;
     this.cdRef.detectChanges();
   }  
+
+  onOptionClicked(): void {
+    this.nextMessageVisible = true;
+  }
+
+  onOptionSelectedChange(isOptionSelected: boolean): void {
+    this.isOptionSelected = isOptionSelected;
+    this.nextMessageVisible = !this.isAnswered && this.isOptionSelected;
+  }
+  
     
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;

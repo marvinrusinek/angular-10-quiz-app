@@ -51,7 +51,7 @@ export class QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
   @Output() isOptionSelectedChange = new EventEmitter<boolean>();
-  @Output() optionSelected = new EventEmitter<Option>();
+  @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
     selectedOptions: Option[];
@@ -63,7 +63,7 @@ export class QuizQuestionComponent
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() showExplanationText = new EventEmitter<boolean>();
-  @Output() displayExplanatisOptionSelected:ionChanged = new EventEmitter<boolean>();
+  @Output() displayExplanationChanged = new EventEmitter<boolean>();
   @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{
     shouldDisplay: boolean;
     numberOfCorrectAnswers: number;
@@ -858,6 +858,7 @@ export class QuizQuestionComponent
 
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.nextMessageVisibleChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(this.isOptionSelected);
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
