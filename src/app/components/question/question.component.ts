@@ -857,6 +857,7 @@ export class QuizQuestionComponent
       }
     }
 
+    this.messageTextChanged.emit(messageText);
     this.optionClicked.emit();
 
     this.isOptionSelected = true;
@@ -896,9 +897,8 @@ export class QuizQuestionComponent
       this.messageText = 'Please select an option to continue...';
     }
 
-    const messageText = this.isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
-    this.messageTextChanged.emit(messageText);
-
+    // const messageText = this.isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
+    
     console.log('Selected options:', this.selectedOptions);
 
     this.toggleVisibility.emit();
