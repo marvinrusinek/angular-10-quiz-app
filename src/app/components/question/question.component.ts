@@ -72,6 +72,7 @@ export class QuizQuestionComponent
   @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
   @Output() messageTextChanged: EventEmitter<string> = new EventEmitter<string>();
+  @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -856,7 +857,7 @@ export class QuizQuestionComponent
       }
     }
 
-    this.messageTextChanged.emit(this.messageText);
+    this.optionClicked.emit();
 
     this.isOptionSelected = true;
     this.nextMessageVisible = true;
@@ -872,6 +873,7 @@ export class QuizQuestionComponent
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
+      this.messageText = 'Please click the next button to continue...';
   
       const explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.question);
       const timer$ = timer(0);
@@ -891,7 +893,11 @@ export class QuizQuestionComponent
       this.explanationTextValue$ = of('');
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
+      this.messageText = 'Please select an option to continue...';
     }
+
+    const messageText = this.isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
+    this.messageTextChanged.emit(messageText);
 
     console.log('Selected options:', this.selectedOptions);
 
