@@ -103,6 +103,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   options: Option[] = [];
   multipleAnswer: boolean = false;
   isAnswered = false;
+  nextMessageVisible: boolean = false;
+  nextMessageText: string = 'Please select an option to continue...';
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -124,7 +126,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ''
   );
   explanationTextSubscription: Subscription;
-  nextMessageVisible: boolean = false;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -251,10 +252,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }  
 
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
-    this.isAnswerSelected = isAnswerSelected;
+    this.isAnswered = isAnswerSelected;
     this.nextMessageVisible = !isAnswerSelected;
+    this.nextMessageText = isAnswerSelected ? 'Please click the next button to continue...' : 'Please select an option to continue...';
     this.cdRef.detectChanges();
-  }  
+  }
 
   onOptionClicked(): void {
     this.nextMessageVisible = true;

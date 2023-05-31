@@ -84,7 +84,7 @@ export class QuizQuestionComponent
     new BehaviorSubject<boolean>(false);
   @Input() explanationTextValue: string;
   @Input() isAnswered: boolean = false;
-  nextMessageVisible: boolean = false;
+  @Input() isOptionSelected: boolean = false;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
@@ -121,6 +121,8 @@ export class QuizQuestionComponent
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
+  nextMessageVisible: boolean = false;
+  nextMessageText: string = 'Please select an option to continue...';
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -852,6 +854,9 @@ export class QuizQuestionComponent
     }
 
     this.isOptionSelected = true;
+    this.nextMessageVisible = true;
+    this.nextMessageText = 'Please click the next button to continue...';
+
     this.isAnswered = this.selectedOptions.length > 0;
     console.log('isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
