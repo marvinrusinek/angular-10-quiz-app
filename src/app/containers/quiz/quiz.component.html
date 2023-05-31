@@ -68,7 +68,7 @@
           (nextMessageVisibleChange)="onNextMessageVisibleChange($event)"
           [nextMessageText]="nextMessageText"
           (optionSelected)="onOptionSelectedChange($event)"
-          (messageTextChanged)="messageText = $event"
+          (messageTextChanged)="onMessageTextChanged($event)"
           [(messageText)]="messageText"
         ></codelab-quiz-question>
       </ng-container>
@@ -94,9 +94,9 @@
       <ng-container *ngIf="isAnswerSelected && nextMessageVisible">
         <span class="next-message">Please click the next button to continue&hellip;</span>
       </ng-container>-->
-      <ng-container>
-        <span class="message">{{ messageText }}</span>
-      </ng-container>
+      <h5>
+        {{ messageText }}
+      </h5>
     
       
       <!-- paging -->
