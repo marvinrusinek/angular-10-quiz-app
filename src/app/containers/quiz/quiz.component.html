@@ -103,11 +103,9 @@
         </ng-container>
       </h5>-->
       <h5>
-        {{ messageText }}
+        <ng-container *ngIf="messageText">{{ messageText }}</ng-container>
       </h5>
-      
-    
-      
+
       <!-- paging -->
       <section class="paging">
         <mat-card-actions
