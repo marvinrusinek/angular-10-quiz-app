@@ -105,7 +105,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isAnswered = false;
   nextMessageVisible: boolean = false;
   nextMessageText: string = 'Please select an option to continue...';
-  messageText: string;
+  messageText: string = 'Please select an option to continue...';
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -250,12 +250,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.nextMessageVisible = nextMessageVisible;
     console.log('Received nextMessageVisible:', nextMessageVisible);
     this.cdRef.detectChanges();
-  }  
+  }
 
   onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
     this.isAnswered = isAnswerSelected;
     this.nextMessageVisible = !isAnswerSelected;
-    this.nextMessageText = isAnswerSelected ? 'Please click the next button to continue...' : 'Please select an option to continue...';
+    this.nextMessageText = isAnswerSelected
+      ? 'Please click the next button to continue...'
+      : 'Please select an option to continue...';
     this.cdRef.detectChanges();
   }
 
@@ -267,11 +269,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isOptionSelected = isOptionSelected;
     this.nextMessageVisible = !this.isAnswered && this.isOptionSelected;
   }
-  
+
   /* onMessageTextChanged(event: string): void {
     this.messageText = event;
   } */
-  
+
   onMessageTextChanged(messageText: string): void {
     this.messageText = messageText;
   }
@@ -634,10 +636,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isOptionSelected = value;
   }
 
-  onShouldDisplayNumberOfCorrectAnswersChanged(event: { shouldDisplay: boolean, numberOfCorrectAnswers: number }): void {
+  onShouldDisplayNumberOfCorrectAnswersChanged(event: {
+    shouldDisplay: boolean;
+    numberOfCorrectAnswers: number;
+  }): void {
     this.shouldDisplayNumberOfCorrectAnswers = event.shouldDisplay;
   }
-  
+
   /* updateSelectedOption(selectedOption: Option): void {
     this.selectedOption = selectedOption;
   } */
@@ -764,7 +769,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       !this.isOptionSelected &&
       !this.shouldDisplayExplanation()
     );
-  }  
+  }
 
   shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;
