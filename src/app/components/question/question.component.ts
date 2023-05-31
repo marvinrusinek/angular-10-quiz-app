@@ -71,6 +71,7 @@ export class QuizQuestionComponent
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
+  @Output() messageTextChanged: EventEmitter<string> = new EventEmitter<string>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -117,15 +118,15 @@ export class QuizQuestionComponent
   explanationTextSubscription: Subscription;
   explanationTextValue$: Observable<string>;
   displayExplanation: boolean = false;
-  isOptionSelected: boolean = false;
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
   nextMessageVisible: boolean = false;
   nextMessageText: string = 'Please select an option to continue...';
+  messageText: string = "Please select an option to continue...";
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
-
+  
   multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
@@ -843,15 +844,19 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
+      this.messageText = "Please select an option to continue...";
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
+      this.messageText = "Please click the next button to continue...";
 
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
       }
     }
+
+    this.messageTextChanged.emit(this.messageText);
 
     this.isOptionSelected = true;
     this.nextMessageVisible = true;
