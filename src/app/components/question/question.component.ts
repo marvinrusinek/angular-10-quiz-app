@@ -87,6 +87,7 @@ export class QuizQuestionComponent
   @Input() explanationTextValue: string;
   @Input() isAnswered: boolean = false;
   @Input() isOptionSelected: boolean = false;
+  @Input() messageText: string;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
@@ -124,7 +125,6 @@ export class QuizQuestionComponent
   showFeedbackForOption: { [key: string]: boolean } = {};
   nextMessageVisible: boolean = false;
   nextMessageText: string = 'Please select an option to continue...';
-  messageText: string = "Please select an option to continue...";
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
   
@@ -857,7 +857,7 @@ export class QuizQuestionComponent
       }
     }
 
-    this.messageTextChanged.emit(messageText);
+    this.messageTextChanged.emit(this.messageText);
     this.optionClicked.emit();
 
     this.isOptionSelected = true;

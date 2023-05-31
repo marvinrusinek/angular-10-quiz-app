@@ -275,7 +275,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   onMessageTextChanged(messageText: string): void {
     this.messageText = messageText;
   }
-    
+
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
     this.answers[questionIndex] =
