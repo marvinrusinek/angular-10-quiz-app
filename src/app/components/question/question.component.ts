@@ -838,6 +838,7 @@ export class QuizQuestionComponent
 
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
+    console.log('iOS', isOptionSelected);
 
     if (!isOptionSelected) {
       this.selectedOptions.push(option);
