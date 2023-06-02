@@ -15,7 +15,7 @@ import {
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, of, Subject, Subscription } from 'rxjs';
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
