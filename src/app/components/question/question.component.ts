@@ -122,8 +122,9 @@ export class QuizQuestionComponent
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
-  nextMessageVisible: boolean = false;
+  messageText: string;
   nextMessageText: string = 'Please select an option to continue...';
+  nextMessageVisible: boolean = false;
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
   
