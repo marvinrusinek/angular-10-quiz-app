@@ -139,7 +139,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   numberOfCorrectAnswers: number;
   score: number;
 
-  quizId!: string = '';
+  quizId: string = '';
   quizName$: Observable<string>;
   indexOfQuizId: number;
   status: QuizStatus;
@@ -395,13 +395,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           tap((options) => console.log('options:', options))
         ),
       ]).pipe(
-        map(
-          ([currentQuestion, options]) =>
-            currentQuestion?.options?.[options.toString()] || []
-        )
+        map(([currentQuestion, options]) => {
+          return currentQuestion.question.options || [];
+        })
       );
       this.options$.subscribe((options) => console.log(options));
-    }
+    }    
   }
 
   async getQuestion(): Promise<void> {
