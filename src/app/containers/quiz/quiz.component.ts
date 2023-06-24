@@ -105,7 +105,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isAnswered = false;
   nextMessageVisible: boolean = false;
   nextMessageText: string = 'Please select an option to continue...';
-  messageText: string = "";
+  messageText: string;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];

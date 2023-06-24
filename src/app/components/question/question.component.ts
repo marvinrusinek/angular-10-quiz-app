@@ -846,18 +846,17 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
-      this.messageText = "Please select an option to continue...";
+      this.messageTextChanged.emit("Please select an option to continue...");
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      this.messageText = "Please click the next button to continue...";
+      this.messageTextChanged.emit("Please click the next button to continue...");
 
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
       }
     }
-    this.messageTextChanged.emit(this.messageText);
 
     this.optionClicked.emit();
 
