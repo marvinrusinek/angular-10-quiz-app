@@ -122,7 +122,13 @@ export class QuizQuestionComponent
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
-  messageText: string = 'Please select an option to continue...';
+  // messageText: string = 'Please select an option to continue...';
+  // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
+  // @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private messageTextSubject: Subject<string> = new Subject<string>();
+  @Output() messageText$: Observable<string> = this.messageTextSubject.asObservable();
+  
+
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;
   private initialized = false;
@@ -847,18 +853,23 @@ export class QuizQuestionComponent
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
       // this.messageTextChanged.emit("Please select an option to continue...");
-      this.messageText = 'Please click the next button to continue...';
+      // this.messageText$.next('Please select an option to continue...');
+      this.messageTextSubject.next('Please select an option to continue...');
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
       // this.messageTextChanged.emit("Please click the next button to continue...");
+      // this.messageText$.next('Please click the next button to continue...');
+      this.messageTextSubject.next('Please click the next button to continue...');
 
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
-        this.messageText = 'Please select an option to continue...';
       }
     }
+
+    // Emit the updated message text
+    this.messageTextChanged.emit(this.messageTextSubject.value)
 
     this.optionClicked.emit();
 
@@ -896,8 +907,6 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
     }
-
-    this.messageText = this.isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
     
     console.log('Selected options:', this.selectedOptions);
 

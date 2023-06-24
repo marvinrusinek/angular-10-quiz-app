@@ -106,6 +106,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextMessageVisible: boolean = false;
   nextMessageText: string = 'Please select an option to continue...';
   messageText: string = 'Please select an option to continue...';
+  messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -275,7 +276,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   onMessageTextChanged(messageText: string): void {
-    this.messageText = messageText;
+    this.messageText$.next(messageText);
   }
 
   onSelectionChange(questionIndex: number, answerIndex: number) {

@@ -69,6 +69,7 @@
           [nextMessageText]="nextMessageText"
           (optionSelected)="onOptionSelectedChange($event)"
           (messageTextChanged)="onMessageTextChanged($event)"
+          [messageText$]="messageText$"
         ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>
@@ -104,9 +105,8 @@
       <!--<h5>
         <ng-container *ngIf="messageText">{{ messageText }}</ng-container>
       </h5>-->
-      <h5>
-        {{ messageText }}
-      </h5>
+      <h5>{{ messageText$ | async }}</h5>
+
 
       <!-- paging -->
       <section class="paging">
