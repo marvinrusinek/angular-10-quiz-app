@@ -846,15 +846,17 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
-      this.messageTextChanged.emit("Please select an option to continue...");
+      // this.messageTextChanged.emit("Please select an option to continue...");
+      this.messageText = 'Please click the next button to continue...';
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      this.messageTextChanged.emit("Please click the next button to continue...");
+      // this.messageTextChanged.emit("Please click the next button to continue...");
 
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
+        this.messageText = 'Please select an option to continue...';
       }
     }
 
@@ -874,7 +876,6 @@ export class QuizQuestionComponent
 
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
-      this.messageText = 'Please click the next button to continue...';
   
       const explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.question);
       const timer$ = timer(0);
@@ -894,10 +895,9 @@ export class QuizQuestionComponent
       this.explanationTextValue$ = of('');
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
-      this.messageText = 'Please select an option to continue...';
     }
 
-    // const messageText = this.isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
+    this.messageText = this.isAnswered ? 'Please click the next button to continue...' : 'Please select an option to continue...';
     
     console.log('Selected options:', this.selectedOptions);
 
@@ -906,6 +906,13 @@ export class QuizQuestionComponent
     console.log('nextMessageVisible:', this.nextMessageVisible);
     this.optionSelected.emit(true);
 
+    // Update messageText based on the selection
+    /* if (this.isAnswered) {
+      this.messageText = 'Please click the next button to continue...';
+    } else {
+      this.messageText = 'Please select an option to continue...';
+    } */
+    
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
