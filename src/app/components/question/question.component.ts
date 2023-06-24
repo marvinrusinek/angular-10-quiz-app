@@ -122,7 +122,7 @@ export class QuizQuestionComponent
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
-  messageText: string;
+  messageText: string = 'Please select an option to continue...';
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;
   private initialized = false;
@@ -846,7 +846,7 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
-      this.messageTextChanged.emit('Please select an option to continue...');
+      this.messageTextChanged.emit(this.messageText);
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
@@ -857,6 +857,7 @@ export class QuizQuestionComponent
         this.showFeedback = false;
       }
     }
+    this.messageTextChanged.emit(this.messageText);
 
     this.optionClicked.emit();
 
