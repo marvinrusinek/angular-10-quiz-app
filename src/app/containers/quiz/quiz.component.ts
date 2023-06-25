@@ -31,6 +31,7 @@ import {
   distinctUntilChanged,
   filter,
   map,
+  switchMap,
   take,
   tap,
 } from 'rxjs/operators';
@@ -106,7 +107,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextMessageVisible: boolean = false;
   nextMessageText: string = 'Please select an option to continue...';
   messageText: string = 'Please select an option to continue...';
+  // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
+
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -223,6 +226,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = currentQuestion;
     });
 
+    this.currentQuestion$.subscribe((question) => {
+      this.messageText$ = question.messageText$;
+    });
+  
     this.subscribeRouterAndInit();
     this.setObservables();
     this.getSelectedQuiz();

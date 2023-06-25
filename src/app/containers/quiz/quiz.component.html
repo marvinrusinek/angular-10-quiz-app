@@ -68,9 +68,13 @@
           (nextMessageVisibleChange)="onNextMessageVisibleChange($event)"
           [nextMessageText]="nextMessageText"
           (optionSelected)="onOptionSelectedChange($event)"
-          (messageTextChanged)="onMessageTextChanged($event)"
-          [messageText$]="messageText$"
+          [messageText]="messageText$ | async"
+          (messageTextChanged)="messageText$ = $event"
         ></codelab-quiz-question>
+
+        <!--(messageTextChanged)="onMessageTextChanged($event)"
+          [messageText$]="messageText$"-->
+
       </ng-container>
       <ng-template #noQuestion>
         <p>No question available.</p>
