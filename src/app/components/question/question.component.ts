@@ -22,7 +22,7 @@ import {
   pipe,
   ReplaySubject,
   Subject,
-  Subscription, 
+  Subscription,
   timer, 
   zip
 } from 'rxjs';
@@ -85,7 +85,7 @@ export class QuizQuestionComponent
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   @Input() explanationTextValue: string;
-  @Input() isAnswered: boolean = false;
+  @Output() isAnswered: boolean = false;
   @Input() isOptionSelected: boolean = false;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;

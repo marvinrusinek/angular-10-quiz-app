@@ -61,7 +61,7 @@
           [shouldDisplayNumberOfCorrectAnswers]="shouldDisplayNumberOfCorrectAnswers"
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
-          [isAnswerSelected]="isAnswered"
+          [isAnswered]="isAnswered"
           [isOptionSelected]="isOptionSelected"
           (isAnswerSelectedChange)="onIsAnswerSelectedChange($event)"
           [nextMessageVisible]="nextMessageVisible"
@@ -109,7 +109,15 @@
       <!--<h5>
         <ng-container *ngIf="messageText">{{ messageText }}</ng-container>
       </h5>-->
-      <h5>{{ messageText$ | async }}</h5>
+      <!--<h5>{{ messageText$ | async }}</h5>-->
+      <h5>
+        <ng-container *ngIf="!isAnswered">
+          Please select an option to continue&hellip;
+        </ng-container>
+        <ng-container *ngIf="isAnswered">
+          Please click the next button to continue&hellip;
+        </ng-container>
+      </h5>-->
 
 
       <!-- paging -->
