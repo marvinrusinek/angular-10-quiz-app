@@ -79,7 +79,9 @@ mat-card {
   mat-card-footer {
     display: block;
     clear: left;
-    margin-top: 200px !important;
+    text-align: center;
+
+    // margin-top: 200px !important;
     
     .selection-message,
     .next-message {
