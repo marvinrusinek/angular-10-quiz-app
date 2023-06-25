@@ -62,6 +62,7 @@
           (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
           [isAnswered]="isAnswered"
+          (isAnsweredChange)="isAnswered = $event"
           [isOptionSelected]="isOptionSelected"
           (isAnswerSelectedChange)="onIsAnswerSelectedChange($event)"
           [nextMessageVisible]="nextMessageVisible"

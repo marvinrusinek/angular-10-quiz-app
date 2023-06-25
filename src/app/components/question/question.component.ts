@@ -73,6 +73,7 @@ export class QuizQuestionComponent
   @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
   @Output() messageTextChanged: EventEmitter<string> = new EventEmitter<string>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
+  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -873,6 +874,7 @@ export class QuizQuestionComponent
     this.nextMessageText = 'Please click the next button to continue...';
 
     this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnsweredChange.emit(this.isAnswered);
     console.log('isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
 
