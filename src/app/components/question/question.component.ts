@@ -129,8 +129,7 @@ export class QuizQuestionComponent
   // @Output() messageText$: Observable<string> = this.messageTextSubject.asObservable();
   // @Output() messageText$ = new EventEmitter<string>();
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  // @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  @Output() messageText$: BehaviorSubject<string>;
+  @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;
