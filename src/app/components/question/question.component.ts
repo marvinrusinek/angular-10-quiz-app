@@ -131,7 +131,7 @@ export class QuizQuestionComponent
   // @Output() messageText$ = new EventEmitter<string>();
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  selectionMessage: string = 'Please select an option to continue...';
+  @Input() selectionMessage: string = 'Please select an option to continue...';
   @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
   
   nextMessageText: string = 'Please select an option to continue...';
