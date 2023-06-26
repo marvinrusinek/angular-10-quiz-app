@@ -109,7 +109,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   messageText: string = 'Please select an option to continue...';
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  selectionMessage: string = 'Please select an option to continue...';
+  // selectionMessage: string = 'Please select an option to continue...';
+
+  // Parent component
+  private _selectionMessage: string = 'Please select an option to continue...';
+
+  get selectionMessage(): string {
+    return this._selectionMessage;
+  }
+
+  set selectionMessage(value: string) {
+    this._selectionMessage = value;
+  }
 
   selectedOption: Option;
   selectedOptions: Option[] = [];

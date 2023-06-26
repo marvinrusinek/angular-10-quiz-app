@@ -71,7 +71,8 @@
           (optionSelected)="onOptionSelectedChange($event)"
           [messageText]="messageText$ | async"
           (messageTextChanged)="messageText$ = $event"
-          [selectionMessage]="selectionMessage"
+          [parentSelectionMessage]="selectionMessage"
+          (parentSelectionMessageChange)="selectionMessage = $event"
         ></codelab-quiz-question>
 
         <!--(messageTextChanged)="onMessageTextChanged($event)"
@@ -97,7 +98,9 @@
           Please click the next button to continue&hellip;
         </ng-container>
       </h5>-->
-      <h5>{{ selectionMessage }}</h5>
+      <!--<h5>{{ selectionMessage }}</h5>-->
+
+      <h5>{{ parentSelectionMessage }}</h5>
 
       <!-- paging -->
       <section class="paging">

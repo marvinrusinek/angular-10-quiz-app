@@ -131,9 +131,11 @@ export class QuizQuestionComponent
   // @Output() messageText$ = new EventEmitter<string>();
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  @Input() selectionMessage: string = 'Please select an option to continue...';
+  @Output() selectionMessage: string = 'Please select an option to continue...';
   @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
-  
+  @Input() parentSelectionMessage!: string;
+  @Output() parentSelectionMessageChange = new EventEmitter<string>();
+
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;
   private initialized = false;
@@ -853,6 +855,7 @@ export class QuizQuestionComponent
     console.log('iOS', isOptionSelected);
 
     this.updateSelectionMessage();
+    this.updateParentSelectionMessage('Please click the next button to continue...');
     this.cdRef.detectChanges();
 
     if (!isOptionSelected) {
@@ -934,6 +937,12 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
+  }
+
+  // Update the value of parentSelectionMessage and emit the new value
+  updateParentSelectionMessage(newMessage: string): void {
+    this.parentSelectionMessage = newMessage;
+    this.parentSelectionMessageChange.emit(newMessage);
   }
 
   private updateSelectionMessage(): void {
