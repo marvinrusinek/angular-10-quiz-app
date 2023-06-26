@@ -852,6 +852,8 @@ export class QuizQuestionComponent
     const isOptionSelected = index !== -1;
     console.log('iOS', isOptionSelected);
 
+    this.updateSelectionMessage();
+
     if (!isOptionSelected) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
@@ -931,6 +933,14 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
+  }
+
+  private updateSelectionMessage(): void {
+    if (this.selectedOptions.length === 0) {
+      this.selectionMessage = 'Please select an option to continue...';
+    } else {
+      this.selectionMessage = 'Please click the next button to continue...';
+    }
   }
 
   setExplanationTextWithDelay(options: Option[], question: QuizQuestion): Observable<string> {
