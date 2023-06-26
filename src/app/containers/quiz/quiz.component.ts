@@ -109,7 +109,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   messageText: string = 'Please select an option to continue...';
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-
+  selectionMessage: string = 'Please select an option to continue...';
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -225,10 +225,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Current question:::', currentQuestion);
       this.currentQuestion = currentQuestion;
     });
-
-    this.currentQuestion$.subscribe((question) => {
-      this.messageText$ = question.messageText$;
-    });
   
     this.subscribeRouterAndInit();
     this.setObservables();
@@ -284,6 +280,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   onMessageTextChanged(messageText: string): void {
     this.messageText$.next(messageText);
+  }
+
+  updateSelectionMessage(message: string): void {
+    this.selectionMessage = message;
   }
 
   onSelectionChange(questionIndex: number, answerIndex: number) {

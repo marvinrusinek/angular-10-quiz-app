@@ -132,6 +132,7 @@ export class QuizQuestionComponent
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   @Output() selectionMessage: string = 'Please select an option to continue...';
+  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
   
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;
@@ -871,7 +872,8 @@ export class QuizQuestionComponent
         this.showFeedback = false;
       }
     }
-
+    
+    this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
 
     this.isOptionSelected = true;
