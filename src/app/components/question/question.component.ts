@@ -131,12 +131,22 @@ export class QuizQuestionComponent
   // @Output() messageText$ = new EventEmitter<string>();
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
   @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  @Output() selectionMessage: string = 'Please select an option to continue...';
-  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+  // @Output() selectionMessage: string = 'Please select an option to continue...';
   @Input() parentSelectionMessage!: string;
   @Output() parentSelectionMessageChange = new EventEmitter<string>();
   nextButtonMessage: string = '';
   _selectionMessage: string = 'Please select an option to continue...';
+
+  get selectionMessage(): string {
+    return this._selectionMessage;
+  }
+
+  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+
+  set selectionMessage(value: string) {
+    this._selectionMessage = value;
+    this.selectionMessageChange.emit(this._selectionMessage);
+  }
 
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;

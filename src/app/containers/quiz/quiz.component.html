@@ -72,6 +72,7 @@
           [messageText]="messageText$ | async"
           (messageTextChanged)="messageText$ = $event"
           [selectionMessage]="selectionMessage"
+          (selectionMessageChange)="onSelectionMessageChange($event)"
         ></codelab-quiz-question>
 
         <!--(messageTextChanged)="onMessageTextChanged($event)"
