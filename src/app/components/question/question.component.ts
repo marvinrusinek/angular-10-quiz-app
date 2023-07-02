@@ -881,7 +881,7 @@ export class QuizQuestionComponent
         this.showFeedback = false;
       }
     }
-    
+
     this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
 
