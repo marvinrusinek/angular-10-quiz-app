@@ -877,7 +877,7 @@ export class QuizQuestionComponent
       this.showFeedback = true;
       // this.messageText$.next('Please select an option to continue...');
       // this.messageText = 'Please select an option to continue...';
-      this._selectionMessage = 'Please click the next button to continue...';
+      this.selectionMessage = 'Please click the next button to continue...';
       // this.nextButtonMessage = 'Please click the next button to continue...';
     } else {
       this.selectedOptions.splice(index, 1);
@@ -885,7 +885,7 @@ export class QuizQuestionComponent
       this.optionChecked[option.optionId] = false;
       // this.messageText$.next('Please click the next button to continue...');
       // this.messageText = 'Please click the next button to continue...';
-      this._selectionMessage = 'Please select an option to continue...';
+      this.selectionMessage = 'Please select an option to continue...';
       // this.nextButtonMessage = 'Please click the next button to continue...';
 
       if (this.selectedOptions.length === 0) {
@@ -893,7 +893,6 @@ export class QuizQuestionComponent
       }
     }
 
-    this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
 
     this.isOptionSelected = true;
@@ -951,6 +950,8 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
+
+    this.selectionMessageChange.emit(this.selectionMessage);
   }
 
   // Update the value of parentSelectionMessage and emit the new value
