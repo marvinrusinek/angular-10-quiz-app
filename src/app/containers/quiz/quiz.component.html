@@ -71,7 +71,7 @@
           (optionSelected)="onOptionSelectedChange($event)"
           [messageText]="messageText$ | async"
           (messageTextChanged)="messageText$ = $event"
-          [(selectionMessage)]="selectionMessage"
+          [selectionMessage]="selectionMessage"
           (selectionMessageChange)="onSelectionMessageChange($event)"
         ></codelab-quiz-question>
 
