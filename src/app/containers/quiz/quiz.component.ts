@@ -287,8 +287,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   onSelectionMessageChange(message: string): void {
+    console.log('Selection message changed:', message);
     this.selectionMessage = message;
+    console.log('Updated selection message:', this.selectionMessage);
   }
+  
 
   updateSelectionMessage(message: string): void {
     this.selectionMessage = message;

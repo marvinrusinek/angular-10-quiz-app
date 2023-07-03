@@ -137,16 +137,18 @@ export class QuizQuestionComponent
   nextButtonMessage: string = '';
   _selectionMessage: string = 'Please select an option to continue...';
 
-  get selectionMessage(): string {
+  selectionMessage = 'Please select an option to continue...';
+
+  /* get selectionMessage(): string {
     return this._selectionMessage;
-  }
+  } */
 
   @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
 
-  set selectionMessage(value: string) {
+  /* set selectionMessage(value: string) {
     this._selectionMessage = value;
     this.selectionMessageChange.emit(this._selectionMessage);
-  }
+  } */
 
   nextMessageText: string = 'Please select an option to continue...';
   nextMessageVisible: boolean = false;
