@@ -863,54 +863,48 @@ export class QuizQuestionComponent
 
   onOptionClicked(option: Option): void {
     console.log('Option clicked:', option);
-
+  
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
     console.log('iOS', isOptionSelected);
-
+  
     this.updateSelectionMessage();
     this.updateParentSelectionMessage('Please click the next button to continue...');
     this.cdRef.detectChanges();
-
+  
     if (!isOptionSelected) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
-      // this.messageText$.next('Please select an option to continue...');
-      // this.messageText = 'Please select an option to continue...';
       this.selectionMessage = 'Please click the next button to continue...';
-      // this.nextButtonMessage = 'Please click the next button to continue...';
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      // this.messageText$.next('Please click the next button to continue...');
-      // this.messageText = 'Please click the next button to continue...';
-      // this.nextButtonMessage = 'Please click the next button to continue...';
-
+  
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
         this.selectionMessage = 'Please select an option to continue...';
       }
     }
-
-    this.selectionMessageChange.emit('Please click the next button to continue...');
+  
+    this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
-
+  
     this.isOptionSelected = true;
     this.nextMessageVisible = true;
     this.nextMessageText = 'Please click the next button to continue...';
-
+  
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnsweredChange.emit(this.isAnswered);
     console.log('isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
-
+  
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.nextMessageVisibleChange.emit(this.isOptionSelected);
     this.optionSelected.emit(this.isOptionSelected);
-
+  
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
   
@@ -933,30 +927,30 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
     }
-    
+  
     console.log('Selected options:', this.selectedOptions);
-
+  
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     console.log('nextMessageVisible:', this.nextMessageVisible);
     this.optionSelected.emit(true);
-
+  
     // Update messageText based on the selection
     /* if (this.isAnswered) {
       this.messageText = 'Please click the next button to continue...';
     } else {
       this.messageText = 'Please select an option to continue...';
     } */
-    
+  
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
-
+  
     // this.selectionMessageChange.emit(this.selectionMessage);
   }
-
+  
   // Update the value of parentSelectionMessage and emit the new value
   updateParentSelectionMessage(newMessage: string): void {
     this.parentSelectionMessage = newMessage;
