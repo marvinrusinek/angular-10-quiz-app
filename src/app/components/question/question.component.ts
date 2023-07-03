@@ -136,8 +136,9 @@ export class QuizQuestionComponent
   @Output() parentSelectionMessageChange = new EventEmitter<string>();
   nextButtonMessage: string = '';
   _selectionMessage: string = 'Please select an option to continue...';
+  // selectionMessage = 'Please select an option to continue...';
 
-  selectionMessage = 'Please select an option to continue...';
+  @Input() selectionMessage: string;
 
   /* get selectionMessage(): string {
     return this._selectionMessage;
