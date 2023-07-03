@@ -885,14 +885,15 @@ export class QuizQuestionComponent
       this.optionChecked[option.optionId] = false;
       // this.messageText$.next('Please click the next button to continue...');
       // this.messageText = 'Please click the next button to continue...';
-      this.selectionMessage = 'Please select an option to continue...';
       // this.nextButtonMessage = 'Please click the next button to continue...';
 
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
+        this.selectionMessage = 'Please select an option to continue...';
       }
     }
 
+    this.selectionMessageChange.emit('Please click the next button to continue...');
     this.optionClicked.emit();
 
     this.isOptionSelected = true;
@@ -951,7 +952,7 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions
     });
 
-    this.selectionMessageChange.emit(this.selectionMessage);
+    // this.selectionMessageChange.emit(this.selectionMessage);
   }
 
   // Update the value of parentSelectionMessage and emit the new value
