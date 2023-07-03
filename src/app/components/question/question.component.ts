@@ -197,10 +197,6 @@ export class QuizQuestionComponent
     console.log('QuizQuestionComponent constructor called');
   }
 
-  onSelectionMessageChanged(message: string): void {
-    this.selectionMessageChange.emit(message);
-  }
-
   async ngOnInit(): Promise<void> {
     console.log('QuestionComponent initialized');
     console.log('ngOnInit called');
@@ -895,8 +891,7 @@ export class QuizQuestionComponent
     }
   
     console.log('Updated selection message:', this.selectionMessage);
-    this.onSelectionMessageChanged(this.selectionMessage);
-    // this.selectionMessageChange.emit(this.selectionMessage);
+    this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
   
     this.isOptionSelected = true;
