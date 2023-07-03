@@ -868,9 +868,9 @@ export class QuizQuestionComponent
     const isOptionSelected = index !== -1;
     console.log('iOS', isOptionSelected);
   
-    this.updateSelectionMessage();
+    /* this.updateSelectionMessage();
     this.updateParentSelectionMessage('Please click the next button to continue...');
-    this.cdRef.detectChanges();
+    this.cdRef.detectChanges(); */
   
     if (!isOptionSelected) {
       this.selectedOptions.push(option);
@@ -889,6 +889,7 @@ export class QuizQuestionComponent
       }
     }
   
+    console.log('Updated selection message:', this.selectionMessage);
     this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
   
@@ -947,8 +948,6 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions
     });
-  
-    // this.selectionMessageChange.emit(this.selectionMessage);
   }
   
   // Update the value of parentSelectionMessage and emit the new value
