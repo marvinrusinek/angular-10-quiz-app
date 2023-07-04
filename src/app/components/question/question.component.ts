@@ -881,10 +881,10 @@ export class QuizQuestionComponent
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
+      this.selectionMessage = 'Please select an option to continue...';
   
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
-        this.selectionMessage = 'Please select an option to continue...';
       }
     }
   
