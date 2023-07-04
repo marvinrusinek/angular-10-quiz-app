@@ -379,9 +379,7 @@ export class QuizQuestionComponent
       this.currentQuestionIndex
     );
 
-    const currentQuiz: Quiz = await this.quizDataService
-      .getQuiz(this.quizId)
-      .toPromise();
+    const currentQuiz: Quiz = await this.quizDataService.getQuiz(this.quizId).toPromise();
 
     if (
       this.quizId &&
@@ -413,7 +411,7 @@ export class QuizQuestionComponent
             console.log('options:::::>>', options);
             this.quizDataService.questionAndOptions = [
               currentQuestion,
-              options,
+              options
             ];
           }
         }
