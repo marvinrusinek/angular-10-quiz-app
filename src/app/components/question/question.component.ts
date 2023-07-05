@@ -34,6 +34,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
+import { SelectionMessageService } from '../../shared/services/selectionmessage.service';
 import { TimerService } from '../../shared/services/timer.service';
 
 enum QuestionType {
@@ -178,6 +179,7 @@ export class QuizQuestionComponent
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
     protected timerService: TimerService,
+    protected selectionMessageService: SelectionMessageService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
@@ -186,6 +188,7 @@ export class QuizQuestionComponent
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+    this.selectionMessageService = selectionMessageService;
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
     this.correctMessage = '';
 

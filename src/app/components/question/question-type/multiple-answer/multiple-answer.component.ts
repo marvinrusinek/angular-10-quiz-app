@@ -23,6 +23,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { SelectionMessageService } from '../../../../shared/services/selectionmessage.service';
 import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
@@ -67,6 +68,7 @@ export class MultipleAnswerComponent
     quizService: QuizService,
     quizDataService: QuizDataService,
     quizStateService: QuizStateService,
+    selectionMessageService: SelectionMessageService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
@@ -77,6 +79,7 @@ export class MultipleAnswerComponent
       quizService,
       quizDataService,
       quizStateService,
+      selectionMessageService,
       timerService,
       activatedRoute,
       fb,
