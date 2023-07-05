@@ -42,6 +42,7 @@ import { ChallengeComponent } from './containers/results/challenge/challenge.com
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizStateService } from './shared/services/quizstate.service';
+import { SelectionMessageService } from './shared/services/selectionmessage.service';
 import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
@@ -102,6 +103,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizService,
     QuizDataService,
     QuizStateService,
+    SelectionMessageService,
     TimerService,
     CountdownService,
     StopwatchService,
