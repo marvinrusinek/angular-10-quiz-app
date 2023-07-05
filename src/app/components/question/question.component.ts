@@ -338,6 +338,14 @@ export class QuizQuestionComponent
     return option.optionId;
   }
 
+  shouldDisplayOptions(): boolean {
+    return this.currentQuestion?.options && this.currentQuestion.options.length > 0;
+  }
+
+  shouldHideOptions(): boolean {
+    return !this.currentQuestion?.options || this.currentQuestion.options.length === 0;
+  }
+
   updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
