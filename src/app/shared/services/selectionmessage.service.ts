@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SelectionMessageService {
-  selectionMessage: string;
+  private selectionMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+
+  selectionMessage$ = this.selectionMessageSubject.asObservable();
 
   updateSelectionMessage(message: string): void {
-    this.selectionMessage = message;
+    this.selectionMessageSubject.next(message);
   }
 }
