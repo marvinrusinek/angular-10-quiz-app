@@ -232,7 +232,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = currentQuestion;
     });
 
-    
     this.selectionMessageService.selectionMessage$.subscribe(message => {
       this.selectionMessage = message;
     });
