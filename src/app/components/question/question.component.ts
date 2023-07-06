@@ -23,10 +23,18 @@ import {
   ReplaySubject,
   Subject,
   Subscription,
-  timer, 
-  zip
+  timer,
+  zip,
 } from 'rxjs';
-import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import {
+  catchError,
+  filter,
+  map,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -70,11 +78,14 @@ export class QuizQuestionComponent
     numberOfCorrectAnswers: number;
   }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
+    new EventEmitter<boolean>();
   @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
-  @Output() messageTextChanged: EventEmitter<string> = new EventEmitter<string>();
+  @Output() messageTextChanged: EventEmitter<string> =
+    new EventEmitter<string>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
-  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isAnsweredChange: EventEmitter<boolean> =
+    new EventEmitter<boolean>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -131,7 +142,9 @@ export class QuizQuestionComponent
   // @Output() messageText$: Observable<string> = this.messageTextSubject.asObservable();
   // @Output() messageText$ = new EventEmitter<string>();
   // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
+  @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>(
+    'Please select an option to continue...'
+  );
   // @Output() selectionMessage: string = 'Please select an option to continue...';
   @Input() parentSelectionMessage!: string;
   @Output() parentSelectionMessageChange = new EventEmitter<string>();
@@ -145,7 +158,8 @@ export class QuizQuestionComponent
     return this._selectionMessage;
   } */
 
-  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() selectionMessageChange: EventEmitter<string> =
+    new EventEmitter<string>();
 
   /* set selectionMessage(value: string) {
     this._selectionMessage = value;
@@ -156,7 +170,7 @@ export class QuizQuestionComponent
   nextMessageVisible: boolean = false;
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
-  
+
   multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
@@ -300,9 +314,11 @@ export class QuizQuestionComponent
       console.error('Error getting current question:', error);
     }
 
-    this.selectionMessageService.selectionMessage$.subscribe((message: string) => {
-      this.selectionMessage = message;
-    });
+    this.selectionMessageService.selectionMessage$.subscribe(
+      (message: string) => {
+        this.selectionMessage = message;
+      }
+    );
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
@@ -343,11 +359,16 @@ export class QuizQuestionComponent
   }
 
   shouldDisplayOptions(): boolean {
-    return this.currentQuestion?.options && this.currentQuestion.options.length > 0;
+    return (
+      this.currentQuestion?.options && this.currentQuestion.options.length > 0
+    );
   }
 
   shouldHideOptions(): boolean {
-    return !this.currentQuestion?.options || this.currentQuestion.options.length === 0;
+    return (
+      !this.currentQuestion?.options ||
+      this.currentQuestion.options.length === 0
+    );
   }
 
   updateQuestionForm(): void {
@@ -394,7 +415,9 @@ export class QuizQuestionComponent
       this.currentQuestionIndex
     );
 
-    const currentQuiz: Quiz = await this.quizDataService.getQuiz(this.quizId).toPromise();
+    const currentQuiz: Quiz = await this.quizDataService
+      .getQuiz(this.quizId)
+      .toPromise();
 
     if (
       this.quizId &&
@@ -426,7 +449,7 @@ export class QuizQuestionComponent
             console.log('options:::::>>', options);
             this.quizDataService.questionAndOptions = [
               currentQuestion,
-              options
+              options,
             ];
           }
         }
@@ -868,24 +891,26 @@ export class QuizQuestionComponent
       this.currentQuestion.options.forEach((option) => {
         option.styleClass = '';
       });
-  
+
       const selectedOption = this.currentQuestion.options[optionIndex];
-      selectedOption.styleClass = selectedOption.correct ? 'correct' : 'incorrect';
+      selectedOption.styleClass = selectedOption.correct
+        ? 'correct'
+        : 'incorrect';
       this.showFeedback = true;
     }
   }
 
   onOptionClicked(option: Option): void {
     console.log('Option clicked:', option);
-  
+
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
     console.log('iOS', isOptionSelected);
-  
+
     /* this.updateSelectionMessage();
     this.updateParentSelectionMessage('Please click the next button to continue...');
     this.cdRef.detectChanges(); */
-  
+
     if (!isOptionSelected) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
@@ -897,36 +922,39 @@ export class QuizQuestionComponent
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
       this.selectionMessage = 'Please select an option to continue...';
-  
+
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
       }
     }
-  
+
     console.log('Updated selection message:', this.selectionMessage);
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
-  
+
     this.isOptionSelected = true;
     this.nextMessageVisible = true;
     this.nextMessageText = 'Please click the next button to continue...';
-  
+
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnsweredChange.emit(this.isAnswered);
     console.log('isAnswered:', this.isAnswered);
     console.log('selectedOptions:', this.selectedOptions);
-  
+
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.nextMessageVisibleChange.emit(this.isOptionSelected);
     this.optionSelected.emit(this.isOptionSelected);
-  
+
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);
-  
-      const explanationText$ = this.quizService.setExplanationText(this.selectedOptions, this.question);
+
+      const explanationText$ = this.quizService.setExplanationText(
+        this.selectedOptions,
+        this.question
+      );
       const timer$ = timer(0);
-  
+
       zip(explanationText$, timer$)
         .pipe(
           tap(([explanationText]) => {
@@ -943,28 +971,28 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
     }
-  
+
     console.log('Selected options:', this.selectedOptions);
-  
+
     this.toggleVisibility.emit();
     this.isOptionSelectedChange.emit(this.isOptionSelected);
     console.log('nextMessageVisible:', this.nextMessageVisible);
     this.optionSelected.emit(true);
-  
+
     // Update messageText based on the selection
     /* if (this.isAnswered) {
       this.messageText = 'Please click the next button to continue...';
     } else {
       this.messageText = 'Please select an option to continue...';
     } */
-  
+
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
-      selectedOptions: this.selectedOptions
+      selectedOptions: this.selectedOptions,
     });
   }
-  
+
   // Update the value of parentSelectionMessage and emit the new value
   updateParentSelectionMessage(newMessage: string): void {
     this.parentSelectionMessage = newMessage;
@@ -979,7 +1007,10 @@ export class QuizQuestionComponent
     }
   }
 
-  setExplanationTextWithDelay(options: Option[], question: QuizQuestion): Observable<string> {
+  setExplanationTextWithDelay(
+    options: Option[],
+    question: QuizQuestion
+  ): Observable<string> {
     return this.quizService.setExplanationText(options, question).pipe(
       tap(() => {
         // Reset showFeedbackForOption for all options except the selected option
