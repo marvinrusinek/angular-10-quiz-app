@@ -125,6 +125,7 @@ export class QuizService implements OnDestroy {
   nextQuestionText$: Observable<string>;
   showQuestionText$: Observable<boolean>;
   correctOptions: string[] = [];
+  selectedOption$ = new BehaviorSubject<string>(null);
 
   userAnswers = [];
   previousAnswers = [];
@@ -970,35 +971,42 @@ export class QuizService implements OnDestroy {
 
   navigateToNextQuestion() {
     this.quizCompleted = false;
-    const questionIndex = this.currentQuestionIndex + 1; // Increment the question index
-    this.currentQuestionIndex = questionIndex; // Update the current question index
-
+    this.currentQuestionIndex++;
+  
+    const questionIndex = this.currentQuestionIndex;
+  
     const quizId = this.quizId;
     this.questions$
       .pipe(
         map((questions) => questions[questionIndex]),
         distinctUntilChanged(),
         tap((question) => {
+          this.currentQuestionIndex++;
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-
+  
+          // Update the showQuestionText$ to display the questionText
+          this.showQuestionText$ = of(true);
+  
           // Update the correct options array
           this.correctOptions = question.options
             .filter((option) => option.correct)
             .map((option) => option.value.toString());
-
-          // Update the showQuestionText$ to display the questionText
-          this.showQuestionText$ = of(true);
-
-          // Update the explanationText$ to display the new questionText
-          this.explanationText$.next(question.questionText);
+  
+          // Update the explanationText with the new questionText or preserve the previous explanation text
+          const explanationText = question.explanation || '';
+          this.explanationText.next(explanationText);
+  
+          // Reset the selected option when navigating to the next question
+          this.selectedOption$.next(null);
         }),
         shareReplay(1)
       )
-      .subscribe(() => {
-        this.explanationText$.next(''); // Clear the explanation text
-      });
+      .subscribe();
   }
+  
+  
+  
 
   /* navigateToNextQuestion() {
     const currentQuiz = this.getCurrentQuiz();
