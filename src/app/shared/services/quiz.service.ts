@@ -949,6 +949,7 @@ export class QuizService implements OnDestroy {
         map((questions) => questions[questionIndex]),
         distinctUntilChanged(),
         tap((question) => {
+          this.currentQuestionIndex++;
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
         }),
