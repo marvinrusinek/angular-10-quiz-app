@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
@@ -994,6 +994,9 @@ export class QuizService implements OnDestroy {
           // Use the Router to update the URL without reloading the page
           // this.router.navigate([newUrl]);
           this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+
+          // Reset the selection message
+          // this.selectionMessage = 'Please select an option to continue...';
         }),
         shareReplay(1)
       )
