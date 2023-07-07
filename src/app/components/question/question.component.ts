@@ -886,7 +886,6 @@ export class QuizQuestionComponent
       }
     }
 
-    console.log('Updated selection message:', this.selectionMessage);
     this.selectionMessageService.updateSelectionMessage(this.selectionMessage);
     this.selectionMessageChange.emit(this.selectionMessage);
     this.optionClicked.emit();
