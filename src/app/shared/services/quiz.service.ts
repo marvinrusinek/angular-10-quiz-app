@@ -545,10 +545,8 @@ export class QuizService implements OnDestroy {
       currentQuiz &&
       currentQuiz.questions &&
       nextIndex < currentQuiz.questions.length
-      // nextIndex <= currentQuiz.questions.length
     ) {
       this.currentQuestionIndex++;
-      // return currentQuiz.questions[nextIndex - 1];
       return currentQuiz.questions[nextIndex];
     }
   }
