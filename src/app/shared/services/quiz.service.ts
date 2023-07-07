@@ -906,7 +906,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion() {
+  /* navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
 
@@ -954,7 +954,35 @@ export class QuizService implements OnDestroy {
             this.explanationText$.next(explanationText);
           });
       });
+  } */
+
+  navigateToNextQuestion() {
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
+  
+    const questionIndex = this.currentQuestionIndex;
+  
+    const quizId = this.quizId;
+    this.questions$
+      .pipe(
+        map((questions) => questions[questionIndex]),
+        distinctUntilChanged(),
+        tap((question) => {
+          this.currentQuestionIndex++;
+          this.currentQuestion = question;
+          this.currentQuestionSource.next({ question, quizId });
+  
+          // Clear the selected option
+          this.selectedOption$.next(null);
+  
+          // Clear the explanation text
+          this.explanationText$.next('');
+        }),
+        shareReplay(1)
+      )
+      .subscribe();
   }
+  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;

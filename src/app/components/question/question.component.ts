@@ -863,8 +863,6 @@ export class QuizQuestionComponent
   }
 
   onOptionClicked(option: Option): void {
-    console.log('Option clicked:', option);
-
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
     console.log('iOS', isOptionSelected);
