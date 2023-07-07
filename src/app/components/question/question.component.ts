@@ -937,6 +937,7 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
+  
 
   setExplanationTextWithDelay(
     options: Option[],

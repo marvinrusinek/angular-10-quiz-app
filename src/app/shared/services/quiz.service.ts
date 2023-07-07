@@ -959,30 +959,47 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     const questionIndex = this.currentQuestionIndex;
-  
+
     const quizId = this.quizId;
     this.questions$
       .pipe(
         map((questions) => questions[questionIndex]),
         distinctUntilChanged(),
         tap((question) => {
-          this.currentQuestionIndex++;
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-  
-          // Clear the selected option
+
+          // Update the showQuestionText$ to display the questionText
+          this.showQuestionText$ = of(true);
+
+          // Update the correct options array
+          this.correctOptions = question.options
+          .filter((option) => option.correct && option.value !== undefined)
+          .map((option) => option.value?.toString());
+
+          // Reset the selected option when navigating to the next question
           this.selectedOption$.next(null);
-  
+
           // Clear the explanation text
           this.explanationText$.next('');
+
+          // Reset the selection message at the bottom
+          // this.selectionMessage = 'Please select an option to continue...';
+
+          // Update the URL with the incremented currentQuestionIndex
+          const newUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
+
+          // Use the Router to update the URL without reloading the page
+          this.router.navigateByUrl(newUrl);
         }),
         shareReplay(1)
       )
       .subscribe();
   }
-  
+
+
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
