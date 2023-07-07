@@ -123,6 +123,7 @@ export class QuizService implements OnDestroy {
   currentAnswer = '';
   nextQuestionText = '';
   nextQuestionText$: Observable<string>;
+  showQuestionText$: Observable<boolean>;
 
   userAnswers = [];
   previousAnswers = [];
@@ -982,13 +983,22 @@ export class QuizService implements OnDestroy {
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
 
-          // Update the nextQuestionText$ with the questionText of the next question
-          this.nextQuestionText$ = of(question.questionText);
+          // Update the showQuestionText$ to display the questionText
+          this.showQuestionText$ = of(true);
+
+          // Update the explanationText with the new questionText
+          this.explanationText.next(question.questionText);
+
+          // Update the explanationTextValue$ to display the new questionText
+          this.explanationText$ = of(question.questionText);
         }),
         shareReplay(1)
       )
-      .subscribe();
+      .subscribe(() => {
+        this.explanationText.next('');
+      });
   }
+
 
   /* navigateToNextQuestion() {
     const currentQuiz = this.getCurrentQuiz();
