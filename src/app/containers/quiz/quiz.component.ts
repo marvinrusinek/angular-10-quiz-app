@@ -256,10 +256,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
-  onSelectionMessageChange(message: string): void {
-    this.selectionMessage = message;
-  }
-
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
     this.answers[questionIndex] =

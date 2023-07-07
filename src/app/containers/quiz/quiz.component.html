@@ -63,16 +63,7 @@
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
           [isAnswered]="isAnswered"
           (isAnsweredChange)="isAnswered = $event"
-          [isOptionSelected]="isOptionSelected"
-          (isAnswerSelectedChange)="onIsAnswerSelectedChange($event)"
-          [nextMessageVisible]="nextMessageVisible"
-          (nextMessageVisibleChange)="onNextMessageVisibleChange($event)"
-          [nextMessageText]="nextMessageText"
-          (optionSelected)="onOptionSelectedChange($event)"
-          [messageText]="messageText$ | async"
-          (messageTextChanged)="messageText$ = $event"
-          [selectionMessage]="selectionMessage"
-          (selectionMessageChange)="onSelectionMessageChange($event)"
+          [selectionMessage]="selectionMessage"          
         ></codelab-quiz-question>
 
         <!--(messageTextChanged)="onMessageTextChanged($event)"
