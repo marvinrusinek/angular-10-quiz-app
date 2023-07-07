@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
@@ -960,9 +960,9 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
 
+    const quizId = this.quizId;
     const questionIndex = this.currentQuestionIndex;
 
-    const quizId = this.quizId;
     this.questions$
       .pipe(
         map((questions) => questions[questionIndex]),
@@ -989,7 +989,7 @@ export class QuizService implements OnDestroy {
           // this.selectionMessage = 'Please select an option to continue...';
 
           // Update the URL with the incremented currentQuestionIndex
-          const newUrl = `/question/${this.quizId}/${this.currentQuestionIndex}`;
+          const newUrl = `/question/${quizId}/${questionIndex}`;
 
           // Use the Router to update the URL without reloading the page
           this.router.navigateByUrl(newUrl);
@@ -998,8 +998,6 @@ export class QuizService implements OnDestroy {
       )
       .subscribe();
   }
-
-
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
