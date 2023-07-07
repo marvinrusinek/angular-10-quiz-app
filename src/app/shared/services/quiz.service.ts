@@ -992,7 +992,8 @@ export class QuizService implements OnDestroy {
           const newUrl = `/question/${quizId}/${questionIndex}`;
 
           // Use the Router to update the URL without reloading the page
-          this.router.navigate([newUrl]);
+          // this.router.navigate([newUrl]);
+          this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
         }),
         shareReplay(1)
       )
