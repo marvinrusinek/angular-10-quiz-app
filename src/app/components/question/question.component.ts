@@ -59,15 +59,11 @@ enum QuestionType {
 export class QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
-  @Output() isOptionSelectedChange = new EventEmitter<boolean>();
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
     selectedOptions: Option[];
-  }> = new EventEmitter();
-  @Output() selectedOptionChange: EventEmitter<Option> =
-    new EventEmitter<Option>();
-  @Output() updateSelectionChange = new EventEmitter<number>();
+  }> = new EventEmitter(); 
   @Output() answer = new EventEmitter<number>();
   @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
