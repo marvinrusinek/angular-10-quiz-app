@@ -44,7 +44,7 @@ import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
-import { SelectionMessageService } from '../../shared/services/selectionmessage.service';
+import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
