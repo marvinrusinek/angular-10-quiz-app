@@ -124,12 +124,13 @@ export class QuizService implements OnDestroy {
   nextQuestionText = '';
   nextQuestionText$: Observable<string>;
   showQuestionText$: Observable<boolean>;
+  correctOptions: string[] = [];
 
   userAnswers = [];
   previousAnswers = [];
   previousAnswersMultipleTextArray: string[] = [];
 
-  correctOptions: string;
+  // correctOptions: string;
   correctMessage: string;
 
   private _multipleAnswer: boolean;
@@ -980,6 +981,11 @@ export class QuizService implements OnDestroy {
         tap((question) => {
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
+
+          // Update the correct options array
+          this.correctOptions = question.options
+            .filter((option) => option.correct)
+            .map((option) => option.value.toString());
 
           // Update the showQuestionText$ to display the questionText
           this.showQuestionText$ = of(true);
