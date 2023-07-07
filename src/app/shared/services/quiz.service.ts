@@ -972,9 +972,9 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     const questionIndex = this.currentQuestionIndex;
-  
+
     const quizId = this.quizId;
     this.questions$
       .pipe(
@@ -984,26 +984,27 @@ export class QuizService implements OnDestroy {
           this.currentQuestionIndex++;
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-  
+
           // Update the showQuestionText$ to display the questionText
           this.showQuestionText$ = of(true);
-  
+
           // Update the correct options array
           this.correctOptions = question.options
             .filter((option) => option.correct)
             .map((option) => option.value.toString());
-  
+
           // Update the explanationText with the new questionText or preserve the previous explanation text
           const explanationText = question.explanation || '';
-          this.explanationText.next(explanationText);
-  
+          this.explanationText$.next(explanationText);
+
           // Reset the selected option when navigating to the next question
           this.selectedOption$.next(null);
         }),
-        shareReplay(1)
-      )
-      .subscribe();
+      shareReplay(1)
+    )
+    .subscribe();
   }
+
   
   
   
