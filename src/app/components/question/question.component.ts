@@ -78,14 +78,15 @@ export class QuizQuestionComponent
     numberOfCorrectAnswers: number;
   }> = new EventEmitter();
   @Output() toggleVisibility: EventEmitter<void> = new EventEmitter<void>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
-  @Output() messageTextChanged: EventEmitter<string> =
-    new EventEmitter<string>();
   @Output() optionClicked: EventEmitter<void> = new EventEmitter<void>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
+  new EventEmitter<boolean>();
+  @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
+  @Output() isAnswered: boolean = false;
+  @Output() selectionMessageChange: EventEmitter<string> =
+  new EventEmitter<string>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -98,8 +99,8 @@ export class QuizQuestionComponent
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   @Input() explanationTextValue: string;
-  @Output() isAnswered: boolean = false;
   @Input() isOptionSelected: boolean = false;
+  @Input() selectionMessage: string;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
@@ -114,7 +115,6 @@ export class QuizQuestionComponent
   currentQuestionLoaded = false;
   currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
-  // selectedQuiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   correctAnswers: number[] = [];
   correctMessage: string = '';
@@ -135,27 +135,6 @@ export class QuizQuestionComponent
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
-  messageText: string = '';
-  // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  // @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
-  private messageTextSubject: Subject<string> = new Subject<string>();
-  // @Output() messageText$: Observable<string> = this.messageTextSubject.asObservable();
-  // @Output() messageText$ = new EventEmitter<string>();
-  // messageText$: BehaviorSubject<string> = new BehaviorSubject<string>('Please select an option to continue...');
-  @Output() messageText$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    'Please select an option to continue...'
-  );
-  // @Output() selectionMessage: string = 'Please select an option to continue...';
-  @Input() parentSelectionMessage!: string;
-  @Output() parentSelectionMessageChange = new EventEmitter<string>();
-  nextButtonMessage: string = '';
-  _selectionMessage: string = 'Please select an option to continue...';
-  // selectionMessage = 'Please select an option to continue...';
-
-  @Input() selectionMessage: string = 'Please select an option to continue...';
-
-  @Output() selectionMessageChange: EventEmitter<string> =
-    new EventEmitter<string>();
 
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
