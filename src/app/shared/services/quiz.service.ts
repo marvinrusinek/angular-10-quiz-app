@@ -985,7 +985,6 @@ export class QuizService implements OnDestroy {
           this.optionsSource.next(question.options);
           this.selectionMessageSource.next('Please click an option to continue...');
           this.nextQuestionText = question.questionText; // Set the next question text
-          this.currentExplanation = question.questionText; // Set the explanation text to the question text
         }),
         shareReplay(1)
       )
