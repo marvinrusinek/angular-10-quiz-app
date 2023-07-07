@@ -970,9 +970,9 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-
+  
     const questionIndex = this.currentQuestionIndex;
-
+  
     const quizId = this.quizId;
     this.questions$
       .pipe(
@@ -982,24 +982,20 @@ export class QuizService implements OnDestroy {
           this.currentQuestionIndex++;
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-
+  
           // Update the showQuestionText$ to display the questionText
           this.showQuestionText$ = of(true);
-
-          // Update the explanationText with the new questionText
-          this.explanationText.next(question.questionText);
-
-          // Update the explanationTextValue$ to display the new questionText
+  
+          // Update the explanationText$ to display the new questionText
           this.explanationText$ = of(question.questionText);
         }),
         shareReplay(1)
       )
       .subscribe(() => {
-        this.explanationText.next('');
+        this.explanationText$.next(''); // Clear the explanation text
       });
   }
-
-
+  
   /* navigateToNextQuestion() {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
