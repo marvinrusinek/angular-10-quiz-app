@@ -86,7 +86,7 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <h5 class="selection-message">{{ selectionMessage }}</h5>
+      <h5 class="selection-message">{{ selectionMessage || 'Please select an option to continue&hellip;' }}</h5>
       <!--<h5>
         <ng-container *ngIf="messageText">{{ messageText }}</ng-container>
       </h5>-->
