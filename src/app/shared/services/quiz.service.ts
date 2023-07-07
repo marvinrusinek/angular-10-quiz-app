@@ -989,7 +989,7 @@ export class QuizService implements OnDestroy {
           // this.selectionMessage = 'Please select an option to continue...';
 
           // Update the URL with the incremented currentQuestionIndex
-          const newUrl = `/question/${quizId}/${questionIndex + 1}`;
+          const newUrl = `/question/${quizId}/${questionIndex}`;
 
           // Use the Router to update the URL without reloading the page
           this.router.navigate([newUrl]);
