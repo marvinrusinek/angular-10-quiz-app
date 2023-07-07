@@ -119,7 +119,9 @@ export class QuizService implements OnDestroy {
   displayExplanation: boolean = false;
   shouldDisplayExplanation: boolean = false;
 
-  private selectionMessageSource = new BehaviorSubject<string>('Please click an option to continue...');
+  private selectionMessageSource = new BehaviorSubject<string>(
+    'Please click an option to continue...'
+  );
   currentAnswer = '';
   nextQuestionText = '';
   nextQuestionText$: Observable<string>;
@@ -175,7 +177,7 @@ export class QuizService implements OnDestroy {
       },
       onplay: () => {
         console.log('Correct sound playing...');
-      }
+      },
     });
     this.incorrectSound = new Howl({
       src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
@@ -184,9 +186,9 @@ export class QuizService implements OnDestroy {
       },
       onplay: () => {
         console.log('Incorrect sound playing...');
-      }
+      },
     });
-    
+
     this.explanationTextSubscription = this.explanationText.subscribe(
       (text) => {
         // console.log('explanationText', text);
@@ -467,29 +469,38 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  setExplanationText(selectedOptions: Option[], question?: QuizQuestion): Observable<string> {
+  setExplanationText(
+    selectedOptions: Option[],
+    question?: QuizQuestion
+  ): Observable<string> {
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return of('');
     }
-  
+
     if (!question) {
       console.error('Error: question is undefined');
       return of('');
     }
-  
+
     try {
-      const correctOptions = question.options.filter((option) => option?.correct);
+      const correctOptions = question.options.filter(
+        (option) => option?.correct
+      );
       const selectedCorrectOptions = selectedOptions
-        ? selectedOptions.filter((option) => option?.correct !== undefined && option?.correct)
+        ? selectedOptions.filter(
+            (option) => option?.correct !== undefined && option?.correct
+          )
         : [];
-  
+
       if (!this.isAnswered || selectedOptions.length === 0) {
         this.explanationTextSubject.next('');
         return this.explanationTextSubject.asObservable();
       } else if (correctOptions.length === selectedCorrectOptions.length) {
-        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-  
+        const correctOptionIndices = correctOptions.map(
+          (option) => question.options.indexOf(option) + 1
+        );
+
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationTextSubject.next(text);
@@ -499,9 +510,11 @@ export class QuizService implements OnDestroy {
           this.explanationTextSubject.next(text);
         }
       } else {
-        const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
+        const correctOptionIndices = correctOptions.map(
+          (option) => question.options.indexOf(option) + 1
+        );
         const optionIndicesString = correctOptionIndices.join(' and ');
-  
+
         if (correctOptions.length === 1) {
           const text = `Option ${optionIndicesString} is correct because ${question.explanation}`;
           this.explanationTextSubject.next(text);
@@ -510,7 +523,7 @@ export class QuizService implements OnDestroy {
           this.explanationTextSubject.next(text);
         }
       }
-  
+
       return this.explanationTextSubject.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
@@ -518,7 +531,7 @@ export class QuizService implements OnDestroy {
       return this.explanationTextSubject.asObservable();
     }
   }
-          
+
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }
@@ -694,14 +707,14 @@ export class QuizService implements OnDestroy {
     if (!arg || arg.length === 0) {
       return arg;
     }
-    
+
     for (let i = arg.length - 1; i >= 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arg[i], arg[j]] = [arg[j], arg[i]];
     }
-    
+
     return arg;
-  }  
+  }
 
   returnQuizSelectionParams(): QuizSelectionParams {
     const quizSelectionParams = {
@@ -893,127 +906,12 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  /* navigateToNextQuestion() {
-    console.log('Navigating to next question...');
-    console.log('Navigating to next question...');
-    console.log('quizId:', this.quizId);
-    console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    this.quizCompleted = false;
-    this.currentQuestionIndex++;
-    const questionIndex = this.currentQuestionIndex;
-    console.log('quizId:', this.quizId);
-    console.log('questionIndex:', questionIndex);
-    this.router.navigate(['/question/', this.quizId, questionIndex]);
-    this.resetAll();
-
-    const quizId = this.quizId;
-    this.questions$
-      .pipe(
-        map((questions) => questions[questionIndex]),
-        tap((question) => {
-          this.currentQuestion = question;
-          this.currentQuestionSource.next({ question, quizId });
-        }),
-        shareReplay(1)
-      )
-      .subscribe();
-  } */
-
-  /* navigateToNextQuestion() {
-    this.currentQuestionIndex++;
-    this.quizId = this.selectedQuiz.quizId;
-    const questionIndex = this.currentQuestionIndex;
-    this.router.navigate(['/question', this.quizId, questionIndex]);
-  } */
-
-  /* navigateToNextQuestion() { 
-    console.log('Navigating to next question...');
-    this.quizCompleted = false;
-    this.currentQuestionIndex++;
-    const questionIndex = this.currentQuestionIndex;
-    this.resetAll();
-    this.router.navigate(['/question/', this.quizId, questionIndex]);
-  
-    const quizId = this.quizId;
-    this.questions$
-      .pipe(
-        map((questions) => questions[questionIndex]),
-        tap((question) => {
-          this.currentQuestion = question;
-          this.currentQuestionSource.next({ question, quizId });
-          console.log(`questionText: ${question.questionText}`);
-          console.log(`questionIndex: ${questionIndex}`);
-        })
-      )
-      .subscribe();
-  }  */
-
-  /* navigateToNextQuestion() {
-    this.quizCompleted = false;
-    this.currentQuestionIndex++;
-
-    const questionIndex = this.currentQuestionIndex;
-
-    const quizId = this.quizId;
-    this.questions$
-      .pipe(
-        map((questions) => questions[questionIndex]),
-        distinctUntilChanged(),
-        tap((question) => {
-          this.currentQuestionIndex++;
-          this.currentQuestion = question;
-          this.currentQuestionSource.next({ question, quizId });
-        }),
-        shareReplay(1)
-      )
-      .subscribe();
-  } */
-
-  /* navigateToNextQuestion() {
-    this.quizCompleted = false;
-    this.currentQuestionIndex++;
-  
-    const questionIndex = this.currentQuestionIndex;
-  
-    const quizId = this.quizId;
-    this.questions$
-      .pipe(
-        map((questions) => questions[questionIndex]),
-        distinctUntilChanged(),
-        tap((question) => {
-          this.currentQuestionIndex++;
-          this.currentQuestion = question;
-          this.currentQuestionSource.next({ question, quizId });
-  
-          // Update the showQuestionText$ to display the questionText
-          this.showQuestionText$ = of(true);
-  
-          // Update the correct options array
-          this.correctOptions = question.options
-            .filter((option) => option.correct)
-            .map((option) => option.value.toString());
-  
-          // Preserve the previous explanation text if it exists
-          const explanationText = this.explanationText$.value || '';
-  
-          // Update the explanationText with the new questionText or preserve the previous explanation text
-          const questionTextWithExplanation = explanationText ? `${question.questionText} (${explanationText})` : question.questionText;
-          this.explanationText$.next(questionTextWithExplanation);
-  
-          // Reset the selected option when navigating to the next question
-          this.selectedOption$.next(null);
-        }),
-        shareReplay(1)
-      )
-      .subscribe();
-  } */
-
   navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     const questionIndex = this.currentQuestionIndex;
-  
+
     const quizId = this.quizId;
     this.questions$
       .pipe(
@@ -1025,21 +923,21 @@ export class QuizService implements OnDestroy {
         this.currentQuestionIndex++;
         this.currentQuestion = question;
         this.currentQuestionSource.next({ question, quizId });
-  
+
         // Update the showQuestionText$ to display the questionText
         this.showQuestionText$ = of(true);
-  
+
         // Update the correct options array
         this.correctOptions = question.options
           .filter((option) => option.correct)
           .map((option) => option.value.toString());
-  
+
         // Reset the selected option when navigating to the next question
         this.selectedOption$.next(null);
-  
+
         // Clear the explanation text
         this.explanationText$.next('');
-  
+
         // Subscribe to the selectedOption$ and update the explanation text when an answer is selected
         this.selectedOption$
           .pipe(
@@ -1047,39 +945,17 @@ export class QuizService implements OnDestroy {
             take(1)
           )
           .subscribe((selectedOption) => {
-            const isCorrectOption = this.correctOptions.includes(selectedOption.toString());
-            const explanationText = isCorrectOption ? `Options ${this.correctOptions.join(' and ')} were correct` : '';
+            const isCorrectOption = this.correctOptions.includes(
+              selectedOption.toString()
+            );
+            const explanationText = isCorrectOption
+              ? `Options ${this.correctOptions.join(' and ')} were correct`
+              : '';
             this.explanationText$.next(explanationText);
           });
       });
   }
-  
-  /* navigateToNextQuestion() {
-    const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = this.currentQuestionIndex + 1;
-  
-    if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
-      this.currentQuestionIndex++;
-      const nextQuestion = currentQuiz.questions[nextIndex];
-      this.currentQuestion = nextQuestion;
-      this.currentOptions = nextQuestion.options;
-      this.currentAnswer = ''; // Clear the selected answer for the next question
-      this.currentQuestionSource.next({ question: nextQuestion, quizId: this.quizId });
-      this.optionsSource.next(nextQuestion.options);
-      this.selectionMessageSource.next('Please click an option to continue...');
-    } else {
-      this.quizCompleted = true;
-      this.currentQuestion = null; // Clear the current question when the quiz is completed
-      this.currentOptions = []; // Clear options when the quiz is completed
-      this.currentQuestionSource.next(null);
-      this.optionsSource.next([]);
-      this.selectionMessageSource.next('');
-    }
-  } */
-  
-  
-  
-  
+
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
