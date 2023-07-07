@@ -122,6 +122,7 @@ export class QuizService implements OnDestroy {
   private selectionMessageSource = new BehaviorSubject<string>('Please click an option to continue...');
   currentAnswer = '';
   nextQuestionText = '';
+  nextQuestionText$: Observable<string>;
 
   userAnswers = [];
   previousAnswers = [];
@@ -968,9 +969,9 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     const questionIndex = this.currentQuestionIndex;
-  
+
     const quizId = this.quizId;
     this.questions$
       .pipe(
@@ -979,19 +980,16 @@ export class QuizService implements OnDestroy {
         tap((question) => {
           this.currentQuestionIndex++;
           this.currentQuestion = question;
-          this.currentOptions = question.options;
-          this.currentAnswer = ''; // Clear the selected answer for the next question
           this.currentQuestionSource.next({ question, quizId });
-          this.optionsSource.next(question.options);
-          this.selectionMessageSource.next('Please click an option to continue...');
-          this.nextQuestionText = question.questionText; // Set the next question text
+
+          // Update the nextQuestionText$ with the questionText of the next question
+          this.nextQuestionText$ = of(question.questionText);
         }),
         shareReplay(1)
       )
       .subscribe();
   }
-  
-  
+
   /* navigateToNextQuestion() {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
