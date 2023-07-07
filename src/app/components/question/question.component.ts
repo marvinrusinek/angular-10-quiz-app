@@ -88,7 +88,7 @@ export class QuizQuestionComponent
   @Input() questions!: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() options$: Observable<Option[]>;
-  @Input() currentQuestion$!: Observable<QuizQuestion>;
+  @Input() currentQuestion$: Observable<QuizQuestion>;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
   @Input() multipleAnswer: BehaviorSubject<boolean> =
@@ -711,7 +711,6 @@ export class QuizQuestionComponent
     }
 
     this.toggleVisibility.emit();
-    // this.isOptionSelectedChange.emit(this.isOptionSelected);
     // this.optionSelected.emit(option);
 
     // Emit updated selection
@@ -870,10 +869,6 @@ export class QuizQuestionComponent
     const isOptionSelected = index !== -1;
     console.log('iOS', isOptionSelected);
 
-    /* this.updateSelectionMessage();
-    this.updateParentSelectionMessage('Please click the next button to continue...');
-    this.cdRef.detectChanges(); */
-
     if (!isOptionSelected) {
       this.selectedOptions.push(option);
       this.selectedOption = option;
@@ -897,8 +892,7 @@ export class QuizQuestionComponent
     this.optionClicked.emit();
 
     this.isOptionSelected = true;
-    this.nextMessageVisible = true;
-    this.nextMessageText = 'Please click the next button to continue...';
+    // this.nextMessageVisible = true;
 
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnsweredChange.emit(this.isAnswered);
@@ -938,36 +932,13 @@ export class QuizQuestionComponent
     console.log('Selected options:', this.selectedOptions);
 
     this.toggleVisibility.emit();
-    this.isOptionSelectedChange.emit(this.isOptionSelected);
-    console.log('nextMessageVisible:', this.nextMessageVisible);
     this.optionSelected.emit(true);
-
-    // Update messageText based on the selection
-    /* if (this.isAnswered) {
-      this.messageText = 'Please click the next button to continue...';
-    } else {
-      this.messageText = 'Please select an option to continue...';
-    } */
 
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
-
-  // Update the value of parentSelectionMessage and emit the new value
-  updateParentSelectionMessage(newMessage: string): void {
-    this.parentSelectionMessage = newMessage;
-    this.parentSelectionMessageChange.emit(newMessage);
-  }
-
-  private updateSelectionMessage(): void {
-    if (this.selectedOptions.length === 0) {
-      this.selectionMessage = 'Please select an option to continue...';
-    } else {
-      this.selectionMessage = 'Please click the next button to continue...';
-    }
   }
 
   setExplanationTextWithDelay(

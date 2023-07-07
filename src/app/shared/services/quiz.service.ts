@@ -60,6 +60,7 @@ export class QuizService implements OnDestroy {
   options: Option[] = [];
   options$: Observable<Option[]>;
   currentOptions: Option[];
+  optionsSource = new Subject<Option[]>();
   resources: Resource[];
   quizId: string = '';
   answers: number[];
@@ -117,6 +118,10 @@ export class QuizService implements OnDestroy {
   showExplanationText: boolean = false;
   displayExplanation: boolean = false;
   shouldDisplayExplanation: boolean = false;
+
+  private selectionMessageSource = new BehaviorSubject<string>('Please click an option to continue...');
+  currentAnswer = '';
+  nextQuestionText = '';
 
   userAnswers = [];
   previousAnswers = [];
@@ -852,7 +857,9 @@ export class QuizService implements OnDestroy {
             question
           );
           this.currentQuestion = question;
-          this.currentQuestionSource.next({ question, quizId: result.quizId });
+          // this.currentQuestionSource.next({ question, quizId: result.quizId });
+          this.currentQuestionSource.next({ question, quizId: this.quizId });
+          this.optionsSource.next(question.options);
           this.currentQuestionSubject.next(this.currentQuestion);
           this.questionSubjectEmitted = true;
         } else if (!this.questionSubjectEmitted) {
@@ -937,7 +944,7 @@ export class QuizService implements OnDestroy {
       .subscribe();
   }  */
 
-  navigateToNextQuestion() {
+  /* navigateToNextQuestion() {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
 
@@ -956,8 +963,62 @@ export class QuizService implements OnDestroy {
         shareReplay(1)
       )
       .subscribe();
-  }
+  } */
 
+  navigateToNextQuestion() {
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
+  
+    const questionIndex = this.currentQuestionIndex;
+  
+    const quizId = this.quizId;
+    this.questions$
+      .pipe(
+        map((questions) => questions[questionIndex]),
+        distinctUntilChanged(),
+        tap((question) => {
+          this.currentQuestionIndex++;
+          this.currentQuestion = question;
+          this.currentOptions = question.options;
+          this.currentAnswer = ''; // Clear the selected answer for the next question
+          this.currentQuestionSource.next({ question, quizId });
+          this.optionsSource.next(question.options);
+          this.selectionMessageSource.next('Please click an option to continue...');
+          this.nextQuestionText = question.questionText; // Set the next question text
+          this.currentExplanation = question.questionText; // Set the explanation text to the question text
+        }),
+        shareReplay(1)
+      )
+      .subscribe();
+  }
+  
+  
+  /* navigateToNextQuestion() {
+    const currentQuiz = this.getCurrentQuiz();
+    const nextIndex = this.currentQuestionIndex + 1;
+  
+    if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
+      this.currentQuestionIndex++;
+      const nextQuestion = currentQuiz.questions[nextIndex];
+      this.currentQuestion = nextQuestion;
+      this.currentOptions = nextQuestion.options;
+      this.currentAnswer = ''; // Clear the selected answer for the next question
+      this.currentQuestionSource.next({ question: nextQuestion, quizId: this.quizId });
+      this.optionsSource.next(nextQuestion.options);
+      this.selectionMessageSource.next('Please click an option to continue...');
+    } else {
+      this.quizCompleted = true;
+      this.currentQuestion = null; // Clear the current question when the quiz is completed
+      this.currentOptions = []; // Clear options when the quiz is completed
+      this.currentQuestionSource.next(null);
+      this.optionsSource.next([]);
+      this.selectionMessageSource.next('');
+    }
+  } */
+  
+  
+  
+  
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
