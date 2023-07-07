@@ -112,7 +112,7 @@ export class QuizService implements OnDestroy {
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
   private explanationTextSource: Subject<string> = new Subject<string>();
-  explanationText$: Observable<string> = this.explanationTextSubject.asObservable();
+  explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanation: string;
   currentExplanationText: string = '';
   showExplanationText: boolean = false;
@@ -969,25 +969,23 @@ export class QuizService implements OnDestroy {
 
   navigateToNextQuestion() {
     this.quizCompleted = false;
-    this.currentQuestionIndex++;
-  
-    const questionIndex = this.currentQuestionIndex;
-  
+    const questionIndex = this.currentQuestionIndex + 1; // Increment the question index
+    this.currentQuestionIndex = questionIndex; // Update the current question index
+
     const quizId = this.quizId;
     this.questions$
       .pipe(
         map((questions) => questions[questionIndex]),
         distinctUntilChanged(),
         tap((question) => {
-          this.currentQuestionIndex++;
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-  
+
           // Update the showQuestionText$ to display the questionText
           this.showQuestionText$ = of(true);
-  
+
           // Update the explanationText$ to display the new questionText
-          this.explanationText$ = of(question.questionText);
+          this.explanationText$.next(question.questionText);
         }),
         shareReplay(1)
       )
@@ -995,7 +993,7 @@ export class QuizService implements OnDestroy {
         this.explanationText$.next(''); // Clear the explanation text
       });
   }
-  
+
   /* navigateToNextQuestion() {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
