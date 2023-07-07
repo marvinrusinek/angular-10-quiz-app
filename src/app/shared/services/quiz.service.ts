@@ -1047,18 +1047,13 @@ export class QuizService implements OnDestroy {
             take(1)
           )
           .subscribe((selectedOption) => {
-            const isCorrectOption = this.correctOptions.includes(
-              selectedOption.toString()
-            );
-            const explanationText = isCorrectOption
-              ? `Options ${this.correctOptions.join(' and ')} were correct`
-              : question.explanation;
+            const isCorrectOption = this.correctOptions.includes(selectedOption.toString());
+            const explanationText = isCorrectOption ? `Options ${this.correctOptions.join(' and ')} were correct` : '';
             this.explanationText$.next(explanationText);
           });
       });
   }
   
-
   /* navigateToNextQuestion() {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
