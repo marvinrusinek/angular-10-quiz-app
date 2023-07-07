@@ -152,7 +152,7 @@ export class QuizQuestionComponent
   _selectionMessage: string = 'Please select an option to continue...';
   // selectionMessage = 'Please select an option to continue...';
 
-  @Input() selectionMessage: string;
+  @Input() selectionMessage: string = 'Please select an option to continue...';
 
   /* get selectionMessage(): string {
     return this._selectionMessage;
