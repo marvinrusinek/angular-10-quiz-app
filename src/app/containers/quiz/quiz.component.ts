@@ -256,25 +256,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextSubscription?.unsubscribe();
   }
 
-  handleNextMessageVisibleChange(value: boolean): void {
-    this.nextMessageVisible = value;
-  }
-
-  onNextMessageVisibleChange(nextMessageVisible: boolean): void {
-    this.nextMessageVisible = nextMessageVisible;
-    console.log('Received nextMessageVisible:', nextMessageVisible);
-    this.cdRef.detectChanges();
-  }
-
-  onIsAnswerSelectedChange(isAnswerSelected: boolean): void {
-    this.isAnswered = isAnswerSelected;
-    this.nextMessageVisible = !isAnswerSelected;
-    this.nextMessageText = isAnswerSelected
-      ? 'Please click the next button to continue...'
-      : 'Please select an option to continue...';
-    this.cdRef.detectChanges();
-  }
-
   onOptionClicked(): void {
     this.nextMessageVisible = true;
   }
@@ -284,23 +265,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.nextMessageVisible = !this.isAnswered && this.isOptionSelected;
   }
 
-  /* onMessageTextChanged(event: string): void {
-    this.messageText = event;
-  } */
-
-  onMessageTextChanged(messageText: string): void {
-    this.messageText$.next(messageText);
-  }
-
   onSelectionMessageChange(message: string): void {
-    console.log('Selection message changed:', message);
     this.selectionMessage = message;
-    console.log('Updated selection message:', this.selectionMessage);
     this.cdRef.detectChanges();
-  }
-  
-  updateSelectionMessage(message: string): void {
-    this.selectionMessage = message;
   }
 
   onSelectionChange(questionIndex: number, answerIndex: number) {
