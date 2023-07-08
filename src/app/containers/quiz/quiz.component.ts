@@ -194,6 +194,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     this.quizService.explanationText$.subscribe((explanationText: string) => {
+      console.log('Explanation Text:::>>', explanationText);
       this.explanationTextValue$.next(explanationText);
     });
 
