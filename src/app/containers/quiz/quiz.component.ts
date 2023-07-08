@@ -126,9 +126,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanationText: boolean = false;
   explanationText: string = '';
   explanationText$: Observable<string>;
-  explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+  explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
   errorMessage: string;
   cardFooterClass = '';
@@ -152,7 +150,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private optionsSubscription: Subscription;
 
-  get correctOptions(): string {
+  get correctOptions(): string[] {
     return this.quizService.correctOptions;
   }
 
