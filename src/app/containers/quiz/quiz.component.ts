@@ -43,6 +43,7 @@ import { Resource } from '../../shared/models/Resource.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
+import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
@@ -160,6 +161,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private timerService: TimerService,
+    private explanationTextService: ExplanationTextService,
     private selectionMessageService: SelectionMessageService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -193,7 +195,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.quizService.explanationText$.subscribe((explanationText: string) => {
+    this.explanationTextService.explanationText$.subscribe((explanationText: string) => {
       console.log('Explanation Text:::>>', explanationText);
       this.explanationTextValue$.next(explanationText);
     });

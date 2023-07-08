@@ -8,7 +8,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root'
 })
 export class ExplanationTextService {
-  private explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   private explanationTextSubject: BehaviorSubject<string> =
     new BehaviorSubject<string>('');
 
