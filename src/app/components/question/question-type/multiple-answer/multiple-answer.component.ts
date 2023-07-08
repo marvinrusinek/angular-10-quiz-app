@@ -23,6 +23,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { TimerService } from '../../../../shared/services/timer.service';
 
@@ -68,6 +69,7 @@ export class MultipleAnswerComponent
     quizService: QuizService,
     quizDataService: QuizDataService,
     quizStateService: QuizStateService,
+    explanationTextService: ExplanationTextService,
     selectionMessageService: SelectionMessageService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
@@ -79,6 +81,7 @@ export class MultipleAnswerComponent
         quizService,
         quizDataService,
         quizStateService,
+        explanationTextService,
         selectionMessageService,
         timerService,
         activatedRoute,
@@ -89,11 +92,11 @@ export class MultipleAnswerComponent
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+    this.explanationTextService = explanationTextService;
     this.selectionMessageService = selectionMessageService;
     this.selectedOptions = [];
-}
-
-
+  }
+  
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 

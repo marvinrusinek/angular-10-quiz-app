@@ -22,6 +22,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { TimerService } from '../../../../shared/services/timer.service';
 
@@ -59,6 +60,7 @@ export class SingleAnswerComponent
     quizService: QuizService,
     quizDataService: QuizDataService,
     quizStateService: QuizStateService,
+    explanationTextService: ExplanationTextService,
     selectionMessageService: SelectionMessageService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
@@ -70,6 +72,7 @@ export class SingleAnswerComponent
       quizService,
       quizDataService,
       quizStateService,
+      explanationTextService,
       selectionMessageService,
       timerService,
       activatedRoute,

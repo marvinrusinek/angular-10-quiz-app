@@ -42,6 +42,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
+import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -158,6 +159,7 @@ export class QuizQuestionComponent
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
+    protected explanationTextService: ExplanationTextService,
     protected selectionMessageService: SelectionMessageService,
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
@@ -168,6 +170,7 @@ export class QuizQuestionComponent
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+    this.explanationTextService = explanationTextService;
     this.selectionMessageService = selectionMessageService;
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
     this.correctMessage = '';
@@ -1040,9 +1043,8 @@ export class QuizQuestionComponent
     this.optionSelected.emit(this.isOptionSelected);
   
     if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-  
-      this.quizService.setExplanationText(this.selectedOptions, this.question).subscribe((explanationText: string) => {
+      this.quizService.displayExplanationText(true);  
+      this.explanationTextService.setExplanationText(this.selectedOptions, this.question).subscribe((explanationText: string) => {
         this.explanationTextValue$.next(explanationText);
         this.showFeedbackForOption[option.optionId] = true;
         this.isAnswerSelectedChange.emit(true);
@@ -1062,25 +1064,6 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-  
-  
-
-/* setExplanationTextWithDelay(
-    options: Option[],
-    question: QuizQuestion
-  ): Observable<string> {
-    return this.quizService.setExplanationText(options, question).pipe(
-      tap(() => {
-        // Reset showFeedbackForOption for all options except the selected option
-        Object.keys(this.showFeedbackForOption).forEach((key) => {
-          const optionId = Number(key);
-          if (optionId !== this.selectedOption.optionId) {
-            this.showFeedbackForOption[optionId] = false;
-          }
-        });
-      })
-    );
-  } */
 
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
