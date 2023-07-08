@@ -170,7 +170,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
-    this.selectionMessage$ = this.selectionMessageService.getSelectionMessage();
+    // this.selectionMessage$ = this.selectionMessageService.getSelectionMessage();
 
     console.log('QuizComponent constructor called');
   }
