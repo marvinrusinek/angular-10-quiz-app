@@ -108,6 +108,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextMessageVisible: boolean = false;
 
   selectionMessage: string = 'Please select an option to continue...';
+  selectionMessage$: Observable<string>;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -169,6 +170,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
+    this.selectionMessage$ = this.selectionMessageService.getSelectionMessage();
 
     console.log('QuizComponent constructor called');
   }
