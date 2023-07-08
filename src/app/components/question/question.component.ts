@@ -130,6 +130,7 @@ export class QuizQuestionComponent
   isChangeDetected = false;
   showFeedback: boolean = false;
   showFeedbackForOption: { [key: string]: boolean } = {};
+  selectionMessage$: Observable<string>;
 
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -155,8 +156,8 @@ export class QuizQuestionComponent
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
-    protected timerService: TimerService,
     protected selectionMessageService: SelectionMessageService,
+    protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
@@ -277,11 +278,16 @@ export class QuizQuestionComponent
       console.error('Error getting current question:', error);
     }
 
-    this.selectionMessageService.selectionMessage$.subscribe(
+    /* this.selectionMessageService.selectionMessage$.subscribe(
       (message: string) => {
         this.selectionMessage = message;
       }
-    );
+    ); */
+
+    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
+    this.selectionMessage$.subscribe((message: string) => {
+      this.selectionMessage = message;
+    });
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
@@ -865,7 +871,6 @@ export class QuizQuestionComponent
   onOptionClicked(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
-    console.log('iOS', isOptionSelected);
 
     if (!isOptionSelected) {
       this.selectedOptions.push(option);

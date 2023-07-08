@@ -169,7 +169,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       selectedOption: [null],
     });
-    // this.selectionMessage$ = this.selectionMessageService.getSelectionMessage();
 
     console.log('QuizComponent constructor called');
   }
@@ -229,6 +228,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     /* this.selectionMessageService.getSelectionMessage().subscribe((message) => {
       this.selectionMessage = message;
     }); */
+
+    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
   
     this.subscribeRouterAndInit();
     this.setObservables();

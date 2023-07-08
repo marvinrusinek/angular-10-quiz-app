@@ -12,6 +12,7 @@ export class SelectionMessageService {
   constructor() {}
 
   updateSelectionMessage(message: string): void {
+    console.log('SelectionMessageService: updateSelectionMessage -', message);
     this.selectionMessageSubject.next(message);
   }
 }

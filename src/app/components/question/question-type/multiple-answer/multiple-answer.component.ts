@@ -74,24 +74,25 @@ export class MultipleAnswerComponent
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
     router: Router
-  ) {
+) {
     super(
-      quizService,
-      quizDataService,
-      quizStateService,
-      selectionMessageService,
-      timerService,
-      activatedRoute,
-      fb,
-      cdRef,
-      router
+        quizService,
+        quizDataService,
+        quizStateService,
+        selectionMessageService,
+        timerService,
+        activatedRoute,
+        fb,
+        cdRef,
+        router
     );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
-
+    this.selectionMessageService = selectionMessageService;
     this.selectedOptions = [];
-  }
+}
+
 
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
