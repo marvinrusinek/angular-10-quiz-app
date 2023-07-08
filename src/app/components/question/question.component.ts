@@ -107,6 +107,7 @@ export class QuizQuestionComponent
   quiz: Quiz;
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
+  currentQuestionSource: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentQuestionLoaded = false;
   currentOptions: Option[];
@@ -234,7 +235,7 @@ export class QuizQuestionComponent
       const quizId = this.quizService.quizId;
       if (quizId) {
         this.quizId = quizId;
-        this.currentQuestion$ = new BehaviorSubject<QuizQuestion | null>(null);
+        this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.loadQuestionsForQuiz(quizId);
       } else {
         console.error('quizId parameter is null or undefined');
