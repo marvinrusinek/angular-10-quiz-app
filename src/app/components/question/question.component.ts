@@ -270,9 +270,9 @@ export class QuizQuestionComponent
           });
       }
 
-      this.explanationText$.next('');
+      this.explanationTextService.explanationText$.next('');
       this.explanationTextSubscription =
-        this.quizService.explanationText.subscribe((explanationText) => {
+        this.explanationTextService.explanationText$.subscribe((explanationText) => {
           this.explanationText$.next(explanationText);
         });
 
