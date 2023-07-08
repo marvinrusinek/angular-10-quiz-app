@@ -995,8 +995,11 @@ export class QuizService implements OnDestroy {
           // this.router.navigate([newUrl]);
           this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
 
-          // Reset the selection message
-          // this.selectionMessage = 'Please select an option to continue...';
+          // Check if quiz is completed
+          if (this.quizCompleted) {
+            // Clear the explanation text
+            this.explanationText$.next('');
+          }
         }),
         shareReplay(1)
       )
