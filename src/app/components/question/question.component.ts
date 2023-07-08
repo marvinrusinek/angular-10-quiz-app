@@ -284,12 +284,6 @@ export class QuizQuestionComponent
       console.error('Error getting current question:', error);
     }
 
-    /* this.selectionMessageService.selectionMessage$.subscribe(
-      (message: string) => {
-        this.selectionMessage = message;
-      }
-    ); */
-
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
     this.selectionMessage$.subscribe((message: string) => {
       this.selectionMessage = message;
@@ -699,7 +693,7 @@ export class QuizQuestionComponent
         this.selectedOptions = [option];
         this.isAnswered = true;
         this.quizService.displayExplanationText(true);
-        this.quizService
+        this.explanationTextService
           .setExplanationText([option], this.question)
           .subscribe((explanationText: string) => {
             this.explanationTextValue$ = of(explanationText);
@@ -794,7 +788,7 @@ export class QuizQuestionComponent
       }
       if (selectedOption) {
         selectedOption.selected = true;
-        this.quizService
+        this.explanationTextService
           .setExplanationText([selectedOption], question)
           .subscribe((explanationText: string) => {
             this.explanationText$.next(explanationText);
