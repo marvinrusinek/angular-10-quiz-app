@@ -31,7 +31,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  switchMap,
   take,
   tap,
 } from 'rxjs/operators';
@@ -227,9 +226,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = currentQuestion;
     });
 
-    this.selectionMessageService.getSelectionMessage().subscribe((message) => {
+    /* this.selectionMessageService.getSelectionMessage().subscribe((message) => {
       this.selectionMessage = message;
-    });
+    }); */
   
     this.subscribeRouterAndInit();
     this.setObservables();
