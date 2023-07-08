@@ -63,7 +63,7 @@
           (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
           [isAnswered]="isAnswered"
           (isAnsweredChange)="isAnswered = $event"
-          [selectionMessage]="selectionMessage$"          
+          [selectionMessage]="selectionMessage$ | async"          
         ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>

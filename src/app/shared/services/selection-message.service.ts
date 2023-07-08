@@ -9,6 +9,8 @@ export class SelectionMessageService {
 
   selectionMessage$ = this.selectionMessageSubject.asObservable();
 
+  constructor() {}
+
   getSelectionMessage() {
     return this.selectionMessageSubject.asObservable();
   }
