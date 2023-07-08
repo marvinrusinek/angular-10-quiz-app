@@ -685,7 +685,7 @@ export class QuizQuestionComponent
         this.selectedOption = null;
         this.selectedOptions = [];
         this.isAnswered = false;
-        this.explanationTextValue$ = of('');
+        this.explanationTextService.explanationTextValue$ = of('');
         this.quizService.displayExplanationText(false);
       } else {
         // Select a new option
@@ -696,7 +696,7 @@ export class QuizQuestionComponent
         this.explanationTextService
           .setExplanationText([option], this.question)
           .subscribe((explanationText: string) => {
-            this.explanationTextValue$ = of(explanationText);
+            this.explanationTextService.explanationTextValue$ = of(explanationText);
           });
       }
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
@@ -712,10 +712,10 @@ export class QuizQuestionComponent
 
       if (this.isAnswered) {
         this.quizService.displayExplanationText(true);
-        this.quizService
+        this.explanationTextService
           .setExplanationText(this.selectedOptions, this.question)
           .subscribe((explanationText: string) => {
-            this.explanationTextValue$ = of(explanationText);
+            this.explanationTextService.explanationTextValue$ = of(explanationText);
           });
       } else {
         this.quizService.displayExplanationText(false);
@@ -873,136 +873,6 @@ export class QuizQuestionComponent
       this.showFeedback = true;
     }
   }
-
-  /* onOptionClicked(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1;
-
-    if (!isOptionSelected) {
-      this.selectedOptions.push(option);
-      this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-      this.showFeedback = true;
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-    } else {
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
-      }
-
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    }
-
-    this.optionClicked.emit();
-    this.isOptionSelected = true;
-    // this.nextMessageVisible = true;
-
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnsweredChange.emit(this.isAnswered);
-    console.log('isAnswered:', this.isAnswered);
-    console.log('selectedOptions:', this.selectedOptions);
-
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.nextMessageVisibleChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(this.isOptionSelected);
-
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-
-      const explanationText$ = this.quizService.setExplanationText(
-        this.selectedOptions,
-        this.question
-      );
-      const timer$ = timer(0);
-
-      zip(explanationText$, timer$)
-        .pipe(
-          tap(([explanationText]) => {
-            this.explanationTextValue$ = of(explanationText);
-            this.showFeedbackForOption[option.optionId] = true;
-            this.isAnswerSelectedChange.emit(true);
-            this.cdRef.detectChanges();
-          }),
-          switchMap(() => timer(0))
-        )
-        .subscribe();
-    } else {
-      this.explanationTextValue$ = of('');
-      this.showFeedbackForOption[option.optionId] = false;
-      this.isAnswerSelectedChange.emit(false);
-    }
-
-    console.log('Selected options:', this.selectedOptions);
-
-    this.toggleVisibility.emit();
-    this.optionSelected.emit(true);
-
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
-  } */
-
-  /* onOptionClicked(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1;
-
-    if (!isOptionSelected) {
-      this.selectedOptions.push(option);
-      this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-      this.showFeedback = true;
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
-    } else {
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
-      }
-
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
-    }
-
-    this.optionClicked.emit();
-    this.isOptionSelected = true;
-
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnsweredChange.emit(this.isAnswered);
-
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.nextMessageVisibleChange.emit(this.isOptionSelected);
-    this.optionSelected.emit(this.isOptionSelected);
-
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);
-
-      this.quizService.setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationTextValue$ = of(explanationText);
-          this.showFeedbackForOption[option.optionId] = true;
-          this.isAnswerSelectedChange.emit(true);
-        });
-    } else {
-      this.explanationTextValue$ = of('');
-      this.showFeedbackForOption[option.optionId] = false;
-      this.isAnswerSelectedChange.emit(false);
-    }
-
-    this.toggleVisibility.emit();
-    this.optionSelected.emit(true);
-
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
-  } */
 
   onOptionClicked(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);

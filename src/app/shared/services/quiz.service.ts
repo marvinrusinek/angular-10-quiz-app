@@ -839,56 +839,6 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  /* navigateToNextQuestion() {
-    this.quizCompleted = false;
-    this.currentQuestionIndex++;
-
-    const questionIndex = this.currentQuestionIndex;
-
-    const quizId = this.quizId;
-    this.questions$
-      .pipe(
-        map((questions) => questions[questionIndex]),
-        distinctUntilChanged(),
-        shareReplay(1)
-      )
-      .subscribe((question) => {
-        this.currentQuestionIndex++;
-        this.currentQuestion = question;
-        this.currentQuestionSource.next({ question, quizId });
-
-        // Update the showQuestionText$ to display the questionText
-        this.showQuestionText$ = of(true);
-
-        // Update the correct options array
-        this.correctOptions = question.options
-          .filter((option) => option.correct)
-          .map((option) => option.value.toString());
-
-        // Reset the selected option when navigating to the next question
-        this.selectedOption$.next(null);
-
-        // Clear the explanation text
-        this.explanationText$.next('');
-
-        // Subscribe to the selectedOption$ and update the explanation text when an answer is selected
-        this.selectedOption$
-          .pipe(
-            filter((selectedOption) => selectedOption !== null),
-            take(1)
-          )
-          .subscribe((selectedOption) => {
-            const isCorrectOption = this.correctOptions.includes(
-              selectedOption.toString()
-            );
-            const explanationText = isCorrectOption
-              ? `Options ${this.correctOptions.join(' and ')} were correct`
-              : '';
-            this.explanationText$.next(explanationText);
-          });
-      });
-  } */
-
   navigateToNextQuestion(): void {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
