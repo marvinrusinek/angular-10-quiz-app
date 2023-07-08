@@ -9,10 +9,7 @@ export class SelectionMessageService {
 
   selectionMessage$ = this.selectionMessageSubject.asObservable();
 
-  constructor() {}
-
   updateSelectionMessage(message: string): void {
-    console.log('SelectionMessageService: updateSelectionMessage -', message);
     this.selectionMessageSubject.next(message);
   }
 }
