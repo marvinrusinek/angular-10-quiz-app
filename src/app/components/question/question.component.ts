@@ -364,6 +364,7 @@ export class QuizQuestionComponent
       tap((questions: QuizQuestion[]) => {
         if (questions && questions.length > 0) {
           this.currentQuestion = questions[0];
+          this.currentQuestion$.next(this.currentQuestion);
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
