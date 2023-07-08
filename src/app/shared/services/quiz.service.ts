@@ -855,10 +855,11 @@ export class QuizService implements OnDestroy {
             console.error('Invalid question index:', questionIndex);
             return;
           }
-  
+          console.log('Before update:', this.currentQuestion);
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-  
+          console.log('After update:', this.currentQuestion);
+          
           // Update the showQuestionText$ to display the questionText
           this.showQuestionText$ = of(true);
   
