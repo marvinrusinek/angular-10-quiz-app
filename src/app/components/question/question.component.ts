@@ -89,7 +89,7 @@ export class QuizQuestionComponent
   @Input() questions!: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() options$: Observable<Option[]>;
-  @Input() currentQuestion$: Observable<QuizQuestion> = of(null);
+  @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
   @Input() multipleAnswer: BehaviorSubject<boolean> =
