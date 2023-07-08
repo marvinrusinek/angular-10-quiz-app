@@ -127,7 +127,7 @@ export class QuizQuestionComponent
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   // explanationTextValue$: Observable<string>;
-  @Output() explanationTextValue$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  @Input() explanationTextValue$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   displayExplanation: boolean = false;
   isChangeDetected = false;
   showFeedback: boolean = false;
