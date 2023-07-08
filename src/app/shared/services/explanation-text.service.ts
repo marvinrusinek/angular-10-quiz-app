@@ -9,16 +9,14 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 })
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  private explanationTextSubject: BehaviorSubject<string> =
-    new BehaviorSubject<string>('');
 
-  constructor() { }
+  constructor() {}
 
-  public getExplanationText$(): Observable<string | null> {
+  getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
   }
 
-  public setExplanationText(
+  setExplanationText(
     selectedOptions: Option[],
     question?: QuizQuestion
   ): Observable<string> {
@@ -39,8 +37,7 @@ export class ExplanationTextService {
       );
   
       if (selectedOptions.length === 0) {
-        this.explanationTextSubject.next('');
-        return this.explanationTextSubject.asObservable();
+        this.explanationText$.next('');
       } else if (correctOptions.length === selectedCorrectOptions.length) {
         const correctOptionIndices = correctOptions.map(
           (option) => question.options.indexOf(option) + 1
@@ -48,11 +45,11 @@ export class ExplanationTextService {
   
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-          this.explanationTextSubject.next(text);
+          this.explanationText$.next(text);
         } else if (correctOptions.length > 1) {
           const correctOptionsString = correctOptionIndices.join(' and ');
           const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
-          this.explanationTextSubject.next(text);
+          this.explanationText$.next(text);
         }
       } else {
         const correctOptionIndices = correctOptions.map(
@@ -62,18 +59,18 @@ export class ExplanationTextService {
   
         if (correctOptions.length === 1) {
           const text = `Option ${optionIndicesString} is correct because ${question.explanation}`;
-          this.explanationTextSubject.next(text);
+          this.explanationText$.next(text);
         } else {
           const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
-          this.explanationTextSubject.next(text);
+          this.explanationText$.next(text);
         }
       }
   
-      return this.explanationTextSubject.asObservable();
+      return this.explanationText$;
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
-      this.explanationTextSubject.next('');
-      return this.explanationTextSubject.asObservable();
+      this.explanationText$.next('');
+      return this.explanationText$;
     }
-  }
+  }  
 }

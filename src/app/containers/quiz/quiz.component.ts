@@ -200,6 +200,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.explanationTextService.getExplanationText$().subscribe((explanationText: string | null) => {
       this.explanationText = explanationText;
+      console.log('Explanation Text:::>>>>', explanationText);
     });
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
