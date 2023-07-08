@@ -193,9 +193,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.explanationTextService.explanationText$.subscribe((explanationText: string) => {
+    /* this.explanationTextService.explanationText$.subscribe((explanationText: string) => {
       console.log('Explanation Text:::>>', explanationText);
       this.explanationTextValue$.next(explanationText);
+    }); */
+
+    this.explanationTextService.getExplanationText$().subscribe((explanationText: string | null) => {
+      this.explanationText = explanationText;
     });
 
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
