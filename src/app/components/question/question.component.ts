@@ -127,7 +127,7 @@ export class QuizQuestionComponent
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   // explanationTextValue$: Observable<string>;
-  explanationTextValue$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  @Output() explanationTextValue$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   displayExplanation: boolean = false;
   isChangeDetected = false;
   showFeedback: boolean = false;
@@ -1046,7 +1046,6 @@ export class QuizQuestionComponent
         this.explanationTextValue$.next(explanationText);
         this.showFeedbackForOption[option.optionId] = true;
         this.isAnswerSelectedChange.emit(true);
-        this.cdRef.detectChanges();
       });
     } else {
       this.explanationTextValue$.next(null);
@@ -1063,6 +1062,7 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
+  
   
 
 /* setExplanationTextWithDelay(
