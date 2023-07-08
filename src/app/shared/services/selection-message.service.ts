@@ -11,10 +11,6 @@ export class SelectionMessageService {
 
   constructor() {}
 
-  getSelectionMessage() {
-    return this.selectionMessageSubject.asObservable();
-  }
-
   updateSelectionMessage(message: string): void {
     this.selectionMessageSubject.next(message);
   }
