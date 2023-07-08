@@ -477,22 +477,18 @@ export class QuizService implements OnDestroy {
       console.error('Error: selectedOptions is not an array');
       return of('');
     }
-
+  
     if (!question) {
       console.error('Error: question is undefined');
       return of('');
     }
-
+  
     try {
-      const correctOptions = question.options.filter(
-        (option) => option?.correct
+      const correctOptions = question.options.filter((option) => option?.correct);
+      const selectedCorrectOptions = selectedOptions.filter(
+        (option) => option?.correct !== undefined && option?.correct
       );
-      const selectedCorrectOptions = selectedOptions
-        ? selectedOptions.filter(
-            (option) => option?.correct !== undefined && option?.correct
-          )
-        : [];
-
+  
       if (!this.isAnswered || selectedOptions.length === 0) {
         this.explanationTextSubject.next('');
         return this.explanationTextSubject.asObservable();
@@ -500,7 +496,7 @@ export class QuizService implements OnDestroy {
         const correctOptionIndices = correctOptions.map(
           (option) => question.options.indexOf(option) + 1
         );
-
+  
         if (correctOptions.length === 1) {
           const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationTextSubject.next(text);
@@ -514,7 +510,7 @@ export class QuizService implements OnDestroy {
           (option) => question.options.indexOf(option) + 1
         );
         const optionIndicesString = correctOptionIndices.join(' and ');
-
+  
         if (correctOptions.length === 1) {
           const text = `Option ${optionIndicesString} is correct because ${question.explanation}`;
           this.explanationTextSubject.next(text);
@@ -523,7 +519,7 @@ export class QuizService implements OnDestroy {
           this.explanationTextSubject.next(text);
         }
       }
-
+  
       return this.explanationTextSubject.asObservable();
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
@@ -531,7 +527,7 @@ export class QuizService implements OnDestroy {
       return this.explanationTextSubject.asObservable();
     }
   }
-
+  
   public getExplanationText(): Observable<string> {
     return this.explanationTextSubject.asObservable();
   }
@@ -1013,7 +1009,7 @@ export class QuizService implements OnDestroy {
         },
       });
   }
-  
+    
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
