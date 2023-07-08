@@ -956,45 +956,49 @@ export class QuizService implements OnDestroy {
       });
   } */
 
-  navigateToNextQuestion() {
+  navigateToNextQuestion(): void {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-
+  
     const quizId = this.quizId;
     const questionIndex = this.currentQuestionIndex;
-
+  
     this.questions$
       .pipe(
         map((questions) => questions[questionIndex]),
         distinctUntilChanged(),
         tap((question) => {
+          if (!question) {
+            console.error('Invalid question index:', questionIndex);
+            return;
+          }
+  
           this.currentQuestion = question;
           this.currentQuestionSource.next({ question, quizId });
-
+  
           // Update the showQuestionText$ to display the questionText
           this.showQuestionText$ = of(true);
-
+  
           // Update the correct options array
           this.correctOptions = question.options
-          .filter((option) => option.correct && option.value !== undefined)
-          .map((option) => option.value?.toString());
-
+            .filter((option) => option.correct && option.value !== undefined)
+            .map((option) => option.value?.toString());
+  
           // Reset the selected option when navigating to the next question
           this.selectedOption$.next(null);
-
+  
           // Clear the explanation text
           this.explanationText$.next('');
-
+  
           // Reset the selection message at the bottom
           // this.selectionMessage = 'Please select an option to continue...';
-
+  
           // Update the URL with the incremented currentQuestionIndex
           const newUrl = `/question/${quizId}/${questionIndex}`;
-
+  
           // Use the Router to update the URL without reloading the page
-          // this.router.navigate([newUrl]);
           this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
-
+  
           // Check if quiz is completed
           if (this.quizCompleted) {
             // Clear the explanation text
@@ -1003,9 +1007,13 @@ export class QuizService implements OnDestroy {
         }),
         shareReplay(1)
       )
-      .subscribe();
+      .subscribe({
+        error: (error) => {
+          console.error('Error while navigating to the next question:', error);
+        },
+      });
   }
-
+  
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([

@@ -56,6 +56,7 @@
           [currentQuestionIndex]="currentQuestionIndex"
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
+          [explanationTextValue$]="explanationTextValue$"
           (displayExplanationChanged)="displayExplanation = $event"
           (showExplanation)="displayExplanation($event)"
           [shouldDisplayNumberOfCorrectAnswers]="shouldDisplayNumberOfCorrectAnswers"

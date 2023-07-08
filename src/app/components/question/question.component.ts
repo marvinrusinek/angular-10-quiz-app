@@ -876,7 +876,7 @@ export class QuizQuestionComponent
     }
   }
 
-  onOptionClicked(option: Option): void {
+  /* onOptionClicked(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
 
@@ -947,10 +947,66 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
-  
+  } */
 
-  /* setExplanationTextWithDelay(
+  onOptionClicked(option: Option): void {
+    const index = this.selectedOptions.findIndex((o) => o === option);
+    const isOptionSelected = index !== -1;
+
+    if (!isOptionSelected) {
+      this.selectedOptions.push(option);
+      this.selectedOption = option;
+      this.optionChecked[option.optionId] = true;
+      this.showFeedback = true;
+      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
+    } else {
+      this.selectedOptions.splice(index, 1);
+      this.selectedOption = null;
+      this.optionChecked[option.optionId] = false;
+
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false;
+      }
+
+      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
+    }
+
+    this.optionClicked.emit();
+    this.isOptionSelected = true;
+
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnsweredChange.emit(this.isAnswered);
+
+    this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.nextMessageVisibleChange.emit(this.isOptionSelected);
+    this.optionSelected.emit(this.isOptionSelected);
+
+    if (this.isAnswered) {
+      this.quizService.displayExplanationText(true);
+
+      this.quizService.setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$ = of(explanationText);
+          this.showFeedbackForOption[option.optionId] = true;
+          this.isAnswerSelectedChange.emit(true);
+        });
+    } else {
+      this.explanationTextValue$ = of('');
+      this.showFeedbackForOption[option.optionId] = false;
+      this.isAnswerSelectedChange.emit(false);
+    }
+
+    this.toggleVisibility.emit();
+    this.optionSelected.emit(true);
+
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  }
+
+/* setExplanationTextWithDelay(
     options: Option[],
     question: QuizQuestion
   ): Observable<string> {
