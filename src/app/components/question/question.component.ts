@@ -231,6 +231,7 @@ export class QuizQuestionComponent
       const quizId = this.quizService.quizId;
       if (quizId) {
         this.quizId = quizId;
+        this.currentQuestion$ = new BehaviorSubject<QuizQuestion | null>(null);
         this.loadQuestionsForQuiz(quizId);
       } else {
         console.error('quizId parameter is null or undefined');
@@ -359,29 +360,31 @@ export class QuizQuestionComponent
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
     console.log('CQI:::>>>', this.currentQuestionIndex);
-
-    this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+  
+    this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       tap((questions: QuizQuestion[]) => {
+        console.log('Received questions:', questions);
         if (questions && questions.length > 0) {
           this.currentQuestion = questions[0];
-          this.currentQuestion$.next(this.currentQuestion);
+          console.log('Setting currentQuestion:', this.currentQuestion);
+          this.currentQuestion$.next(this.currentQuestion); // Update currentQuestion$
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
-      }),
-      tap(() => {
-        this.currentQuestion$.next(this.currentQuestion); // Update currentQuestion$
       })
-    );
-
-    this.questions$.subscribe(
-      () => {},
+    ).subscribe(
+      () => {
+        console.log('Subscription next handler');
+      },
       (error) => {
         console.error('Error while loading quiz questions:', error);
+      },
+      () => {
+        console.log('Subscription complete handler');
       }
     );
   }
-
+  
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
