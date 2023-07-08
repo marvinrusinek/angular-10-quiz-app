@@ -88,7 +88,8 @@ export class QuizQuestionComponent
   @Input() questions!: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() options$: Observable<Option[]>;
-  @Input() currentQuestion$: Observable<QuizQuestion>;
+  // @Input() currentQuestion$: Observable<QuizQuestion>;
+  @Input() currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
   @Input() multipleAnswer: BehaviorSubject<boolean> =
@@ -358,15 +359,20 @@ export class QuizQuestionComponent
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
     console.log('CQI:::>>>', this.currentQuestionIndex);
+
     this.questions$ = this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       tap((questions: QuizQuestion[]) => {
-        if (questions && questions?.length > 0) {
+        if (questions && questions.length > 0) {
           this.currentQuestion = questions[0];
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
+      }),
+      tap(() => {
+        this.currentQuestion$.next(this.currentQuestion); // Update currentQuestion$
       })
     );
+
     this.questions$.subscribe(
       () => {},
       (error) => {
