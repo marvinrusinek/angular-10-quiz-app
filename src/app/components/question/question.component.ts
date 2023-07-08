@@ -950,7 +950,7 @@ export class QuizQuestionComponent
   }
   
 
-  setExplanationTextWithDelay(
+  /* setExplanationTextWithDelay(
     options: Option[],
     question: QuizQuestion
   ): Observable<string> {
@@ -965,7 +965,7 @@ export class QuizQuestionComponent
         });
       })
     );
-  }
+  } */
 
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
