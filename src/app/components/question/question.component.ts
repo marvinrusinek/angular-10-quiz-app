@@ -363,11 +363,9 @@ export class QuizQuestionComponent
   
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
       tap((questions: QuizQuestion[]) => {
-        console.log('Received questions:', questions);
         if (questions && questions.length > 0) {
           this.currentQuestion = questions[0];
-          console.log('Setting currentQuestion:', this.currentQuestion);
-          this.currentQuestion$.next(this.currentQuestion); // Update currentQuestion$
+          this.updateCurrentQuestion(this.currentQuestion);
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
