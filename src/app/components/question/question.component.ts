@@ -883,7 +883,9 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedback = true;
-      this.selectionMessageService.updateSelectionMessage('Please click the next button to continue...');
+      this.selectionMessageService.updateSelectionMessage(
+        'Please click the next button to continue...'
+      );
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
@@ -891,9 +893,10 @@ export class QuizQuestionComponent
   
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
+        this.selectionMessageService.updateSelectionMessage(
+          'Please select an option to continue...'
+        );
       }
-  
-      this.selectionMessageService.updateSelectionMessage('Please select an option to continue...');
     }
   
     this.optionClicked.emit();
