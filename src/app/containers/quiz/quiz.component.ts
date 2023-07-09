@@ -821,10 +821,25 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
-      this.quizService.navigateToNextQuestion();
+      // this.quizService.navigateToNextQuestion();
+
+      // Increment the current question index
+      this.currentQuestionIndex++;
+
+      const questionIndex = this.currentQuestionIndex;
+
+      const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
+
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestion = nextQuestion;
+  
+        // Update the explanation text with the question text
+        this.explanationTextService.explanationText$.next(nextQuestion.questionText);
+      }
 
       // Replace explanationText with questionText
-      this.explanationTextService.explanationText$.next(this.quizService.nextQuestion.questionText);
+      // this.explanationTextService.explanationText$.next(this.quizService.nextQuestion.questionText);
+      // this.explanationTextService.explanationText$.next(this.quizService.currentQuestion.questionText);
   
       if (!selectedOption) {
         return;
@@ -845,7 +860,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
