@@ -173,25 +173,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
 
-    /* this.activatedRoute.params.subscribe((params) => {
-      const questionIndex = +params.questionIndex;
-      this.currentQuestionIndex = questionIndex;
-  
-      // Fetch the corresponding question from questions$
-      this.questions$.pipe(
-        map((questions) => questions[questionIndex]),
-        distinctUntilChanged()
-      ).subscribe((question) => {
-        this.currentQuestion = question;
-  
-        // Update other properties as needed
-        // this.correctOptions = // ...
-        // this.selectionMessage = // ...
-  
-        // Reset selected options, explanation text, etc.
-      });
-    }); */
-
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       const questionIndex = parseInt(params.get('questionIndex'), 10) - 1;
