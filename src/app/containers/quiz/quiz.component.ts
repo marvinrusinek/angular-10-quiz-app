@@ -198,9 +198,14 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentQuestion = currentQuestion;
     
           // Update other necessary properties based on the current question
-          this.quizService.correctOptions = currentQuestion.options
-            .filter((option) => option.correct && option.value !== undefined)
-            .map((option) => option.value?.toString());
+          if (currentQuestion && currentQuestion.options) {
+            this.quizService.correctOptions = currentQuestion.options
+              .filter((option) => option.correct && option.value !== undefined)
+              .map((option) => option.value?.toString());
+          } else {
+            console.error('Invalid question or options:', currentQuestion);
+          }
+          
           this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
           this.explanationTextService.explanationText$.next('');
