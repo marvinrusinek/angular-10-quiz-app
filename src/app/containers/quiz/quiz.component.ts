@@ -822,41 +822,49 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
-      this.quizService.navigateToNextQuestion();
   
-      const questionIndex = this.quizService.getCurrentQuestionIndex() + 1;
-      const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
+      // Get the index of the current question
+      const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
   
-      if (nextQuestion && nextQuestion.options) {
-        this.currentQuestion = { ...nextQuestion };
-        this.correctOptions = nextQuestion.options
-          .filter((option) => option.correct && option.value !== undefined)
-          .map((option) => option.value?.toString());
+      // Get the index of the next question
+      const nextQuestionIndex = currentQuestionIndex + 1;
   
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex}`;
-        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+      if (nextQuestionIndex < this.quizData.length) {
+        const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
   
-        this.showQuestionText$ = of(true);
-        this.selectedOption$.next(null);
+        if (nextQuestion && nextQuestion.options) {
+          this.currentQuestion = { ...nextQuestion };
+          this.correctOptions = nextQuestion.options
+            .filter((option) => option.correct && option.value !== undefined)
+            .map((option) => option.value?.toString());
+  
+          const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
+          this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+  
+          this.showQuestionText$ = of(true);
+          this.selectedOption$.next(null);
+        } else {
+          console.error('Invalid next question:', nextQuestion);
+        }
+  
+        this.checkIfAnsweredCorrectly();
+        this.answers = [];
+        this.status = QuizStatus.CONTINUE;
+  
+        const isLastQuestion = nextQuestionIndex === this.quizData.length - 1;
+  
+        if (isLastQuestion) {
+          this.status = QuizStatus.COMPLETED;
+          this.submitQuiz();
+        } else {
+          this.timerService.resetTimer();
+        }
       } else {
-        console.error('Invalid next question:', nextQuestion);
-      }
-  
-      this.checkIfAnsweredCorrectly();
-      this.answers = [];
-      this.status = QuizStatus.CONTINUE;
-  
-      const isLastQuestion = questionIndex === this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions.length - 1;
-  
-      if (isLastQuestion) {
-        this.status = QuizStatus.COMPLETED;
-        this.submitQuiz();
-      } else {
-        this.timerService.resetTimer();
+        console.error('Invalid next question index:', nextQuestionIndex);
       }
     }
   }
-                 
+                   
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
