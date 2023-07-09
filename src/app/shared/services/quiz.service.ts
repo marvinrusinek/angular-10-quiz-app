@@ -261,8 +261,9 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestionIndex(): number {
-    return this.quizData.findIndex((quiz) => quiz.quizId === this.quizId);
-  }
+    const questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10);
+    return isNaN(questionIndex) ? 0 : questionIndex - 1;
+  }  
 
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuestionIndex];

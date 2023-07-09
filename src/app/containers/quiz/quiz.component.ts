@@ -822,43 +822,41 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
+      this.quizService.navigateToNextQuestion();
   
-      const nextQuestionIndex = this.currentQuestionIndex + 1;
+      const questionIndex = this.quizService.getCurrentQuestionIndex() + 1;
+      const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
   
-      if (nextQuestionIndex < this.quizData.length) {
-        this.currentQuestionIndex = nextQuestionIndex;
-  
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
-  
-        const nextQuestion = this.quizData[nextQuestionIndex];
-        this.currentQuestion = nextQuestion;
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestion = { ...nextQuestion };
         this.correctOptions = nextQuestion.options
           .filter((option) => option.correct && option.value !== undefined)
           .map((option) => option.value?.toString());
   
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex}`;
+        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+  
         this.showQuestionText$ = of(true);
         this.selectedOption$.next(null);
-        this.explanationTextService.explanationText$.next(''); // Reset the explanation text
-  
-        this.checkIfAnsweredCorrectly();
-        this.answers = [];
-        this.status = QuizStatus.CONTINUE;
-  
-        const isLastQuestion = nextQuestionIndex === this.quizData.length - 1;
-  
-        if (isLastQuestion) {
-          this.status = QuizStatus.COMPLETED;
-          this.submitQuiz();
-        } else {
-          this.timerService.resetTimer();
-        }
       } else {
-        console.error('Invalid next question index:', nextQuestionIndex);
+        console.error('Invalid next question:', nextQuestion);
+      }
+  
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+  
+      const isLastQuestion = questionIndex === this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions.length - 1;
+  
+      if (isLastQuestion) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
+      } else {
+        this.timerService.resetTimer();
       }
     }
   }
-               
+                 
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
