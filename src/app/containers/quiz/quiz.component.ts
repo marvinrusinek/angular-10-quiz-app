@@ -199,8 +199,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       // TODO: Fetch the quiz data and initialize the component with the appropriate question
 
       // Example of how to fetch quiz data and initialize the component
-      this.quizService.getQuestionsForQuiz(this.quizId).subscribe((quizData: Quiz[]) => {
-        this.quizData = quizData;
+      this.quizService.getQuestionsForQuiz(this.quizId).subscribe((quizData: { quizId: string; questions: QuizQuestion[]; }) => {
+        this.quizData = [{
+          quizId: quizData.quizId,
+          questions: quizData.questions
+        }];
         this.quizId = quizId;
         this.currentQuestionIndex = questionIndex;
 
@@ -215,9 +218,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.correctOptions = currentQuestion.options
             .filter((option) => option.correct && option.value !== undefined)
             .map((option) => option.value?.toString());
-            this.showQuestionText$ = of(true);
+            this.quizService.showQuestionText$ = of(true);
             this.selectedOption$.next(null);
-            this.explanationText$.next('');
+            this.explanationTextService.explanationText$.next('');
           } else {
             console.error('Invalid question index:', questionIndex);
           }
