@@ -186,6 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           summary: 'Default Summary',
           image: 'Default Image'
         }];
+        
         this.quizId = quizId;
         this.currentQuestionIndex = questionIndex;
     
@@ -193,6 +194,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const currentQuestion: QuizQuestion = this.quizData.find(
           (quiz) => quiz.quizId === this.quizId
         )?.questions[this.currentQuestionIndex];
+        console.log("MY CURRENT QUESTION", currentQuestion);
     
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
@@ -209,6 +211,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
           this.explanationTextService.explanationText$.next('');
+          console.log('ngOnInit is called.');
+          this.cdRef.detectChanges();
         } else {
           console.error('Invalid question index:', questionIndex);
           // Handle the invalid index case here (e.g., redirect to an error page)
