@@ -821,46 +821,42 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
-      this.quizService.navigateToNextQuestion();
   
-      // Get the next question directly from the quizData
       const questionIndex = this.currentQuestionIndex + 1;
-      const nextQuestion: QuizQuestion = this.quizData[questionIndex];
   
-      if (nextQuestion && nextQuestion.options) {
-        this.currentQuestion = { ...nextQuestion }; // Assign the new question
-        this.correctOptions = nextQuestion.options
+      if (questionIndex < this.quizData.length) {
+        this.currentQuestion = this.quizData[questionIndex];
+        this.correctOptions = this.currentQuestion.options
           .filter((option) => option.correct && option.value !== undefined)
           .map((option) => option.value?.toString());
+  
+        this.currentQuestionIndex = questionIndex;
   
         const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
         this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
   
-        // Update explanation text
-        this.explanationTextService.explanationText$.next(nextQuestion.questionText);
-  
         this.showQuestionText$ = of(true);
         this.selectedOption$.next(null);
+        this.explanationTextService.explanationText$.next(''); // Reset the explanation text
+  
+        this.checkIfAnsweredCorrectly();
+        this.answers = [];
+        this.status = QuizStatus.CONTINUE;
+  
+        const isLastQuestion = this.currentQuestionIndex === this.quizData.length - 1;
+  
+        if (isLastQuestion) {
+          this.status = QuizStatus.COMPLETED;
+          this.submitQuiz();
+        } else {
+          this.timerService.resetTimer();
+        }
       } else {
-        console.error('Invalid next question:', nextQuestion);
-      }
-  
-      this.checkIfAnsweredCorrectly();
-      this.answers = [];
-      this.status = QuizStatus.CONTINUE;
-      this.currentQuestionIndex = questionIndex; // Update the current question index
-  
-      const isLastQuestion = this.currentQuestionIndex === this.quizData.length - 1;
-  
-      if (isLastQuestion) {
-        this.status = QuizStatus.COMPLETED;
-        this.submitQuiz();
-      } else {
-        this.timerService.resetTimer();
+        console.error('Invalid next question index:', questionIndex);
       }
     }
   }
-     
+           
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
