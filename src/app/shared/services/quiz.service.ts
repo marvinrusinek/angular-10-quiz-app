@@ -261,10 +261,11 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestionIndex(): number {
-    const questionIndex = parseInt(this.activatedRoute.snapshot.paramMap.get('questionIndex'), 10);
-    return isNaN(questionIndex) ? 0 : questionIndex - 1;
-  }  
-
+    const questionIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const questionIndex = parseInt(questionIndexParam, 10);
+    return questionIndex - 1; // Subtract 1 to convert to zero-based index
+  }
+  
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuestionIndex];
   }

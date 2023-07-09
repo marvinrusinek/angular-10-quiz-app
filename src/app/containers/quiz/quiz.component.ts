@@ -839,7 +839,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             .map((option) => option.value?.toString());
   
           const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-          this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+          this.router.navigateByUrl(newUrl); // Use navigateByUrl to update the URL without reloading the component
   
           this.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
@@ -859,12 +859,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         } else {
           this.timerService.resetTimer();
         }
+  
+        // Update the question index in the browser window
+        this.currentQuestionIndex = nextQuestionIndex;
       } else {
         console.error('Invalid next question index:', nextQuestionIndex);
       }
     }
   }
-                   
+                     
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
