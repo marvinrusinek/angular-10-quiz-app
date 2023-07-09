@@ -846,19 +846,22 @@ export class QuizService implements OnDestroy {
     const quizId = this.quizId;
     const questionIndex = this.currentQuestionIndex;
   
+    // Retrieve the next question based on the index
     const nextQuestion = this.questions[questionIndex];
   
-    if (nextQuestion) {
-      this.currentQuestion = nextQuestion;
-      this.correctOptions = nextQuestion.options
-        .filter((option) => option.correct && option.value !== undefined)
-        .map((option) => option.value?.toString());
+    // Update the current question and correct options
+    this.currentQuestion = nextQuestion;
+    this.correctOptions = nextQuestion.options
+      .filter(option => option.correct && option.value !== undefined)
+      .map(option => option.value?.toString());
   
-      const newUrl = `/question/${quizId}/${questionIndex}`;
-      this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
-    }
-  }
-    
+    // Update the URL with the incremented currentQuestionIndex
+    const newUrl = `/question/${quizId}/${questionIndex}`;
+  
+    // Use the Router to navigate to the next question route
+    this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+  }  
+
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
