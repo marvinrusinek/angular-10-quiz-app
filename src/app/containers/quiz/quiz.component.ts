@@ -212,7 +212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
           // Update other necessary properties based on the current question
-          this.correctOptions = currentQuestion.options
+          this.quizService.correctOptions = currentQuestion.options
             .filter((option) => option.correct && option.value !== undefined)
             .map((option) => option.value?.toString());
             this.showQuestionText$ = of(true);
