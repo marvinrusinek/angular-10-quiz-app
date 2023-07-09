@@ -834,14 +834,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         if (nextQuestion && nextQuestion.options) {
           this.currentQuestion = { ...nextQuestion };
-          this.correctOptions = nextQuestion.options
+          this.quizService.correctOptions = nextQuestion.options
             .filter((option) => option.correct && option.value !== undefined)
             .map((option) => option.value?.toString());
   
           const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
           this.router.navigateByUrl(newUrl); // Use navigateByUrl to update the URL without reloading the component
   
-          this.showQuestionText$ = of(true);
+          this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
         } else {
           console.error('Invalid next question:', nextQuestion);
