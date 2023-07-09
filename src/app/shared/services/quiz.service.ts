@@ -724,14 +724,9 @@ export class QuizService implements OnDestroy {
 
   setQuiz(quiz: Quiz): Observable<Quiz> {
     this.selectedQuizId = quiz.quizId;
-    console.log('QUIZSERVICE setQuiz called with', quiz.quizId);
-    //this.selectedQuizId$.next(quiz.quizId);
-    //this.selectedQuiz$.next(quiz);
-
-    //this.quizId = quiz.quizId;
-    //this.quizId$.next(quiz.quizId);
     this.quizId$.next(quiz.quizId);
     this.selectedQuiz = quiz;
+    
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
       tap((quiz: Quiz) => {
         console.log('Quiz loaded successfully', quiz);
