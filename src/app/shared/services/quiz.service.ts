@@ -726,7 +726,7 @@ export class QuizService implements OnDestroy {
     this.selectedQuizId = quiz.quizId;
     this.quizId$.next(quiz.quizId);
     this.selectedQuiz = quiz;
-    
+
     return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
       tap((quiz: Quiz) => {
         console.log('Quiz loaded successfully', quiz);
