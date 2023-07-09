@@ -821,35 +821,36 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
-      // this.quizService.navigateToNextQuestion();
-
-      // Increment the current question index
-      this.currentQuestionIndex++;
-
-      const questionIndex = this.currentQuestionIndex;
-
-      const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
-
+      this.quizService.navigateToNextQuestion();
+  
+      // Get the next question directly from the quizData
+      const questionIndex = this.currentQuestionIndex + 1;
+      const nextQuestion: QuizQuestion = this.quizData[questionIndex];
+  
       if (nextQuestion && nextQuestion.options) {
-        this.currentQuestion = nextQuestion;
+        this.currentQuestion = { ...nextQuestion }; // Assign the new question
+        this.correctOptions = nextQuestion.options
+          .filter((option) => option.correct && option.value !== undefined)
+          .map((option) => option.value?.toString());
   
-        // Update the explanation text with the question text
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
+        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+  
+        // Update explanation text
         this.explanationTextService.explanationText$.next(nextQuestion.questionText);
-      }
-
-      // Replace explanationText with questionText
-      // this.explanationTextService.explanationText$.next(this.quizService.nextQuestion.questionText);
-      // this.explanationTextService.explanationText$.next(this.quizService.currentQuestion.questionText);
   
-      if (!selectedOption) {
-        return;
+        this.showQuestionText$ = of(true);
+        this.selectedOption$.next(null);
+      } else {
+        console.error('Invalid next question:', nextQuestion);
       }
   
       this.checkIfAnsweredCorrectly();
       this.answers = [];
       this.status = QuizStatus.CONTINUE;
+      this.currentQuestionIndex = questionIndex; // Update the current question index
   
-      const isLastQuestion = this.currentQuestionIndex === this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions.length - 1;
+      const isLastQuestion = this.currentQuestionIndex === this.quizData.length - 1;
   
       if (isLastQuestion) {
         this.status = QuizStatus.COMPLETED;
@@ -859,7 +860,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }
   }
-  
+     
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
