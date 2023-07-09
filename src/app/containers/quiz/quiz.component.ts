@@ -868,10 +868,43 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
 
-  advanceToNextQuestion() {
+  /* advanceToNextQuestion() {
+    this.animationState$.next('animationStarted');
     this.quizService.navigateToNextQuestion();
     this.quizService.resetAll();
+  } */
+
+  advanceToNextQuestion() {
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    const selectedOption = this.form.value.selectedOption;
+    console.log('Overall validity of form:', this.form.valid);
+    if (this.form.valid) {
+      console.log('Navigating to next question...');
+      this.animationState$.next('animationStarted');
+      this.quizService.navigateToNextQuestion();
+  
+      if (!selectedOption) {
+        return;
+      }
+  
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+  
+      const isLastQuestion = this.currentQuestionIndex === this.quizService.getQuizLength() - 1;
+  
+      if (isLastQuestion) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
+      } else {
+        this.timerService.resetTimer();
+      }
+    }
   }
+  
 
   advanceToPreviousQuestion() {
     this.answers = [];

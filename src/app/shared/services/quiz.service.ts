@@ -56,7 +56,6 @@ export class QuizService implements OnDestroy {
   currentQuestionPromise: Promise<QuizQuestion> = null;
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
-  currentQuizQuestions: QuizQuestion[];
   options: Option[] = [];
   options$: Observable<Option[]>;
   currentOptions: Option[];
@@ -846,20 +845,19 @@ export class QuizService implements OnDestroy {
     const quizId = this.quizId;
     const questionIndex = this.currentQuestionIndex;
   
-    // Retrieve the next question based on the index
     const nextQuestion = this.questions[questionIndex];
   
-    // Update the current question and correct options
-    this.currentQuestion = nextQuestion;
-    this.correctOptions = nextQuestion.options
-      .filter(option => option.correct && option.value !== undefined)
-      .map(option => option.value?.toString());
+    if (nextQuestion && nextQuestion.options) {
+      this.currentQuestion = nextQuestion;
+      this.correctOptions = nextQuestion.options
+        .filter((option) => option.correct && option.value !== undefined)
+        .map((option) => option.value?.toString());
   
-    // Update the URL with the incremented currentQuestionIndex
-    const newUrl = `/question/${quizId}/${questionIndex}`;
-  
-    // Use the Router to navigate to the next question route
-    this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+      const newUrl = `/question/${quizId}/${questionIndex}`;
+      this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+    } else {
+      console.error('Invalid next question:', nextQuestion);
+    }
   }  
 
   navigateToPreviousQuestion() {
