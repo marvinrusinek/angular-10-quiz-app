@@ -845,8 +845,8 @@ export class QuizService implements OnDestroy {
     const quizId = this.quizId;
     const questionIndex = this.currentQuestionIndex;
   
-    const nextQuestion = this.questions[questionIndex];
-  
+    const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
+
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.correctOptions = nextQuestion.options
