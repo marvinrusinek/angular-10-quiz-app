@@ -57,13 +57,6 @@
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
           [explanationTextValue$]="explanationTextValue$ | async"
-          (displayExplanationChanged)="displayExplanation = $event"
-          (showExplanation)="displayExplanation($event)"
-          [shouldDisplayNumberOfCorrectAnswers]="shouldDisplayNumberOfCorrectAnswers"
-          (toggleVisibility)="toggleNumberOfCorrectAnswersVisibility()"
-          (shouldDisplayNumberOfCorrectAnswersChanged)="onShouldDisplayNumberOfCorrectAnswersChanged($event)"
-          [isAnswered]="isAnswered"
-          (isAnsweredChange)="isAnswered = $event"
           [selectionMessage]="selectionMessage$ | async"          
         ></codelab-quiz-question>
       </ng-container>
