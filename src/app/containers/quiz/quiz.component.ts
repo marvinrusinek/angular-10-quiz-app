@@ -215,7 +215,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
-          
+
           // Update other necessary properties based on the current question
           this.quizService.correctOptions = currentQuestion.options
             .filter((option) => option.correct && option.value !== undefined)
@@ -228,7 +228,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           }
         });
       });
-    }
 
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
