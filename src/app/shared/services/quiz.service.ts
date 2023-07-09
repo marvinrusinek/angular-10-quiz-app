@@ -260,6 +260,10 @@ export class QuizService implements OnDestroy {
     return this.quizResources;
   }
 
+  getCurrentQuestionIndex(): number {
+    return this.quizData.findIndex((quiz) => quiz.quizId === this.quizId);
+  }
+
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuestionIndex];
   }
@@ -835,31 +839,31 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   navigateToNextQuestion(): void {
-    this.quizCompleted = false;
-    this.currentQuestionIndex++;
+    const currentQuestionIndex = this.getCurrentQuestionIndex();
   
-    const questionIndex = this.currentQuestionIndex;
-    this.nextQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
+    if (currentQuestionIndex !== -1) {
+      const nextQuestionIndex = currentQuestionIndex + 1;
+      const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
   
-    if (this.nextQuestion && this.nextQuestion.options) {
-      this.currentQuestion = this.nextQuestion;
-      this.correctOptions = this.nextQuestion.options
-        .filter((option) => option.correct && option.value !== undefined)
-        .map((option) => option.value?.toString());
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestionIndex = nextQuestionIndex;
+        this.nextQuestion = nextQuestion; // Store the next question in the service
   
-      const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
-      console.log("URL", newUrl);
-      this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
-
-      // Update other necessary properties
-      this.showQuestionText$ = of(true);
-      this.selectedOption$.next(null);
-      this.explanationText$.next('');
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+  
+        // Update other necessary properties
+        this.showQuestionText$ = of(true);
+        this.selectedOption$.next(null);
+        this.explanationText$.next(nextQuestion.questionText); // Update explanation text with the new question text
+      } else {
+        console.error('Invalid next question:', nextQuestion);
+      }
     } else {
-      console.error('Invalid next question:', nextQuestion);
+      console.error('Invalid current question index:', currentQuestionIndex);
     }
   }
-
+  
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([

@@ -175,22 +175,21 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
-      const questionIndex = parseInt(params.get('questionIndex'), 10) - 1;
-    
+      const questionIndex = parseInt(params.get('questionIndex'), 10);
+  
       // Fetch quiz data and initialize the component
-      this.quizService.getQuestionsForQuiz(quizId).subscribe((quizData: { quizId: string; questions: QuizQuestion[]; }) => {
-        this.quizData = quizData.questions;        
+      this.quizService.getQuestionsForQuiz(quizId).subscribe((quizData: { quizId: string; questions: QuizQuestion[] }) => {
+        this.quizData = quizData.questions;
         this.quizId = quizId;
-        this.currentQuestionIndex = questionIndex;
-    
-        // Retrieve the current question from the quiz data
-        const currentQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[this.currentQuestionIndex];
+  
+        // Retrieve the current question from the quiz data based on the question index
+        const currentQuestion: QuizQuestion = this.quizData[questionIndex];
         console.log("MY CURRENT QUESTION", currentQuestion);
         console.log('currentQuestion.options:', currentQuestion.options);
-    
+  
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
-    
+  
           // Update other necessary properties based on the current question
           if (currentQuestion.options) {
             this.quizService.correctOptions = currentQuestion.options
@@ -199,13 +198,15 @@ export class QuizComponent implements OnInit, OnDestroy {
           } else {
             console.error('Invalid question or options:', currentQuestion);
           }
-    
+  
           this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
           this.explanationTextService.explanationText$.next('');
+          console.log('ngOnInit is called.');
           this.cdRef.detectChanges();
         } else {
           console.error('Invalid question index:', questionIndex);
+          // Handle the invalid index case here (e.g., redirect to an error page)
         }
       });
     });
@@ -822,18 +823,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
   
-      const questionIndex = this.currentQuestionIndex + 1;
+      const nextQuestionIndex = this.currentQuestionIndex + 1;
   
-      if (questionIndex < this.quizData.length) {
-        this.currentQuestion = this.quizData[questionIndex];
-        this.correctOptions = this.currentQuestion.options
+      if (nextQuestionIndex < this.quizData.length) {
+        this.currentQuestionIndex = nextQuestionIndex;
+  
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
+        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+  
+        const nextQuestion = this.quizData[nextQuestionIndex];
+        this.currentQuestion = nextQuestion;
+        this.correctOptions = nextQuestion.options
           .filter((option) => option.correct && option.value !== undefined)
           .map((option) => option.value?.toString());
-  
-        this.currentQuestionIndex = questionIndex;
-  
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
-        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
   
         this.showQuestionText$ = of(true);
         this.selectedOption$.next(null);
@@ -843,7 +845,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.answers = [];
         this.status = QuizStatus.CONTINUE;
   
-        const isLastQuestion = this.currentQuestionIndex === this.quizData.length - 1;
+        const isLastQuestion = nextQuestionIndex === this.quizData.length - 1;
   
         if (isLastQuestion) {
           this.status = QuizStatus.COMPLETED;
@@ -852,11 +854,11 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.timerService.resetTimer();
         }
       } else {
-        console.error('Invalid next question index:', questionIndex);
+        console.error('Invalid next question index:', nextQuestionIndex);
       }
     }
   }
-           
+               
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
