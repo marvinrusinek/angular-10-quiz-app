@@ -179,14 +179,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     
       // Fetch quiz data and initialize the component
       this.quizService.getQuestionsForQuiz(quizId).subscribe((quizData: { quizId: string; questions: QuizQuestion[]; }) => {
-        this.quizData = quizData.questions; // Assigning the questions array directly
-    
+        this.quizData = quizData.questions;           
         this.quizId = quizId;
         this.currentQuestionIndex = questionIndex;
     
         // Retrieve the current question from the quiz data
         const currentQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[this.currentQuestionIndex];
         console.log("MY CURRENT QUESTION", currentQuestion);
+        console.log('currentQuestion.options:', currentQuestion.options);
     
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
@@ -207,7 +207,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.cdRef.detectChanges();
         } else {
           console.error('Invalid question index:', questionIndex);
-          // Handle the invalid index case here (e.g., redirect to an error page)
         }
       });
     });
