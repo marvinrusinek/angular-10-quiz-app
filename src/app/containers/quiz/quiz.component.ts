@@ -196,13 +196,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       const questionIndex = parseInt(params.get('questionIndex'), 10);
 
-      // TODO: Fetch the quiz data and initialize the component with the appropriate question
-
-      // Example of how to fetch quiz data and initialize the component
+      // fetch quiz data and initialize the component
       this.quizService.getQuestionsForQuiz(this.quizId).subscribe((quizData: { quizId: string; questions: QuizQuestion[]; }) => {
         this.quizData = [{
           quizId: quizData.quizId,
-          questions: quizData.questions
+          questions: quizData.questions,
+          milestone: 'Default Milestone',
+          summary: 'Default Summary',
+          image: 'Default Image'
         }];
         this.quizId = quizId;
         this.currentQuestionIndex = questionIndex;
@@ -214,6 +215,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
+          
           // Update other necessary properties based on the current question
           this.quizService.correctOptions = currentQuestion.options
             .filter((option) => option.correct && option.value !== undefined)
