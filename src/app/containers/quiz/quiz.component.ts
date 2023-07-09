@@ -177,37 +177,29 @@ export class QuizComponent implements OnInit, OnDestroy {
       const quizId = params.get('quizId');
       const questionIndex = parseInt(params.get('questionIndex'), 10) - 1;
     
-      // fetch quiz data and initialize the component
+      // Fetch quiz data and initialize the component
       this.quizService.getQuestionsForQuiz(quizId).subscribe((quizData: { quizId: string; questions: QuizQuestion[]; }) => {
-        this.quizData = [{
-          quizId: quizData.quizId,
-          questions: quizData.questions,
-          milestone: 'Default Milestone',
-          summary: 'Default Summary',
-          image: 'Default Image'
-        }];
-        
+        this.quizData = quizData.questions; // Assigning the questions array directly
+    
         this.quizId = quizId;
         this.currentQuestionIndex = questionIndex;
     
         // Retrieve the current question from the quiz data
-        const currentQuestion: QuizQuestion = this.quizData.find(
-          (quiz) => quiz.quizId === this.quizId
-        )?.questions[this.currentQuestionIndex];
+        const currentQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[this.currentQuestionIndex];
         console.log("MY CURRENT QUESTION", currentQuestion);
     
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
     
           // Update other necessary properties based on the current question
-          if (currentQuestion && currentQuestion.options) {
+          if (currentQuestion.options) {
             this.quizService.correctOptions = currentQuestion.options
               .filter((option) => option.correct && option.value !== undefined)
               .map((option) => option.value?.toString());
           } else {
             console.error('Invalid question or options:', currentQuestion);
           }
-          
+    
           this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
           this.explanationTextService.explanationText$.next('');
@@ -219,7 +211,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
     });
-    
+        
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
       this.currentQuestionIndex = 0;
