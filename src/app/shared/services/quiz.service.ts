@@ -842,23 +842,27 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
   
-    const quizId = this.quizId;
     const questionIndex = this.currentQuestionIndex;
-  
     const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
-
+  
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.correctOptions = nextQuestion.options
         .filter((option) => option.correct && option.value !== undefined)
         .map((option) => option.value?.toString());
   
-      const newUrl = `/question/${quizId}/${questionIndex}`;
+      const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
+      console.log("URL", newUrl);
       this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+
+      // Update other necessary properties
+      this.showQuestionText$ = of(true);
+      this.selectedOption$.next(null);
+      this.explanationText$.next('');
     } else {
       console.error('Invalid next question:', nextQuestion);
     }
-  }  
+  }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
