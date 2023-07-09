@@ -52,6 +52,7 @@ export class QuizService implements OnDestroy {
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
+  nextQuestion: QuizQuestion;
   currentQuestion: QuizQuestion | undefined = null;
   currentQuestionPromise: Promise<QuizQuestion> = null;
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
@@ -838,11 +839,11 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
   
     const questionIndex = this.currentQuestionIndex;
-    const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
+    this.nextQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
   
-    if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion = nextQuestion;
-      this.correctOptions = nextQuestion.options
+    if (this.nextQuestion && this.nextQuestion.options) {
+      this.currentQuestion = this.nextQuestion;
+      this.correctOptions = this.nextQuestion.options
         .filter((option) => option.correct && option.value !== undefined)
         .map((option) => option.value?.toString());
   

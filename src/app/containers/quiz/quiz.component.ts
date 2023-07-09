@@ -822,6 +822,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
       this.quizService.navigateToNextQuestion();
+
+      // Replace explanationText with questionText
+      this.explanationTextService.explanationText$.next(this.quizService.nextQuestion.questionText);
   
       if (!selectedOption) {
         return;
