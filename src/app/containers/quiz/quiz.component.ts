@@ -880,9 +880,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     const selectedOption = this.form.value.selectedOption;
-    console.log('Overall validity of form:', this.form.valid);
+    
     if (this.form.valid) {
-      console.log('Navigating to next question...');
       this.animationState$.next('animationStarted');
       this.quizService.navigateToNextQuestion();
   
