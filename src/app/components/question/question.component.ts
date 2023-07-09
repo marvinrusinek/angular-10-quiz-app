@@ -77,7 +77,6 @@ export class QuizQuestionComponent
   @Output() optionSelected: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() isAnswerSelectedChange: EventEmitter<boolean> =
   new EventEmitter<boolean>();
-  @Output() nextMessageVisibleChange = new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnswered: boolean = false;
@@ -906,7 +905,6 @@ export class QuizQuestionComponent
     this.isAnsweredChange.emit(this.isAnswered);
   
     this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.nextMessageVisibleChange.emit(this.isOptionSelected);
     this.optionSelected.emit(this.isOptionSelected);
   
     if (this.isAnswered) {
