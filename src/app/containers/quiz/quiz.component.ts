@@ -150,10 +150,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   private optionsSubscription: Subscription;
 
-  get correctOptions(): string[] {
-    return this.quizService.correctOptions;
-  }
-
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -195,6 +191,39 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Reset selected options, explanation text, etc.
       });
     }); */
+
+    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      const quizId = params.get('quizId');
+      const questionIndex = parseInt(params.get('questionIndex'), 10);
+
+      // TODO: Fetch the quiz data and initialize the component with the appropriate question
+
+      // Example of how to fetch quiz data and initialize the component
+      this.quizService.getQuestionsForQuiz(this.quizId).subscribe((quizData: Quiz[]) => {
+        this.quizData = quizData;
+        this.quizId = quizId;
+        this.currentQuestionIndex = questionIndex;
+
+        // Retrieve the current question from the quiz data
+        const currentQuestion: QuizQuestion = this.quizData.find(
+          (quiz) => quiz.quizId === this.quizId
+        )?.questions[this.currentQuestionIndex];
+
+        if (currentQuestion) {
+          this.currentQuestion = currentQuestion;
+          // Update other necessary properties based on the current question
+          this.correctOptions = currentQuestion.options
+            .filter((option) => option.correct && option.value !== undefined)
+            .map((option) => option.value?.toString());
+            this.showQuestionText$ = of(true);
+            this.selectedOption$.next(null);
+            this.explanationText$.next('');
+          } else {
+            console.error('Invalid question index:', questionIndex);
+          }
+        });
+      });
+    }
 
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
@@ -255,15 +284,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('QuizComponent ngOnDestroy called');
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
+  }
+
+  correctOptions(): string[] {
+    return this.quizService.correctOptions;
   }
 
   updateSelectionMessage(message: string) {
