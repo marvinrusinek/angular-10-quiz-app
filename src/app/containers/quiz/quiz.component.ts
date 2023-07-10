@@ -873,15 +873,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private updateQuestionIndexInBrowserWindow(url: string): void {
-    const navigationExtras: NavigationExtras = {
-      replaceUrl: true,
-      queryParamsHandling: 'preserve',
-      state: {
-        questionIndex: this.currentQuestionIndex
-      }
-    };
-    this.router.navigateByUrl(url, navigationExtras);
-  }  
+    const questionIndexParam = String(this.currentQuestionIndex + 1);
+    this.router.navigate([url, { questionIndex: questionIndexParam }]);
+  }
+  
+  
                    
   advanceToPreviousQuestion() {
     this.answers = [];
