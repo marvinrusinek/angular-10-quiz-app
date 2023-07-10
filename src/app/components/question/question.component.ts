@@ -9,7 +9,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -23,17 +23,14 @@ import {
   ReplaySubject,
   Subject,
   Subscription,
-  timer,
-  zip,
 } from 'rxjs';
 import {
   catchError,
   filter,
   map,
-  switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
