@@ -97,7 +97,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   selectedQuizSubscription: Subscription;
-  questionSubscription: Subscription;
   routerSubscription: Subscription;
   resources: Resource[];
   answers = [];
@@ -127,7 +126,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText: string = '';
   explanationText$: Observable<string>;
   explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  explanationTextSubscription: Subscription;
   errorMessage: string;
   cardFooterClass = '';
 
@@ -147,8 +145,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-
-  private optionsSubscription: Subscription;
 
   constructor(
     private quizService: QuizService,
@@ -273,9 +269,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
     this.selectedQuiz$.next(null);
-    this.questionSubscription?.unsubscribe();
-    this.optionsSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
   }
