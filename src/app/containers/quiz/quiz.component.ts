@@ -12,6 +12,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   ActivatedRoute,
   NavigationEnd,
+  NavigationExtras,
   ParamMap,
   Router,
 } from '@angular/router';
@@ -842,13 +843,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.explanationTextService.explanationText$.next(nextQuestion.questionText);
   
           const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-          this.router.navigateByUrl(newUrl); // Use navigateByUrl to update the URL without reloading the component
-  
-          this.quizService.showQuestionText$ = of(true);
-          this.selectedOption$.next(null);
   
           // Update the question index in the browser window
           this.currentQuestionIndex = nextQuestionIndex;
+          this.updateQuestionIndexInBrowserWindow(newUrl);
+  
+          this.quizService.showQuestionText$ = of(true);
+          this.selectedOption$.next(null);
         } else {
           console.error('Invalid next question:', nextQuestion);
         }
@@ -870,7 +871,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }
   }
-                       
+  
+  private updateQuestionIndexInBrowserWindow(url: string): void {
+    const navigationExtras: NavigationExtras = {
+      replaceUrl: true,
+      queryParamsHandling: 'preserve',
+      state: {
+        questionIndex: this.currentQuestionIndex
+      }
+    };
+    this.router.navigateByUrl(url, navigationExtras);
+  }  
+                   
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
