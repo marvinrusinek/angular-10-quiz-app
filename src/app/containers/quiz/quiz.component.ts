@@ -839,15 +839,17 @@ export class QuizComponent implements OnInit, OnDestroy {
             .filter((option) => option.correct && option.value !== undefined)
             .map((option) => option.value?.toString());
   
-          // Update explanationText with questionText
-          this.explanationTextService.explanationText$.next(nextQuestion.questionText);
-  
-          const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-  
           // Update the question index in the browser window
           this.currentQuestionIndex = nextQuestionIndex;
-          this.updateQuestionIndexInBrowserWindow(newUrl);
   
+          // Construct the new URL with the updated question index
+          const newUrlTree = this.router.createUrlTree([`/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`]);
+          const newUrl = this.router.serializeUrl(newUrlTree);
+  
+          // Navigate to the new URL without reloading the component
+          this.location.go(newUrl);
+  
+          // Reset other necessary properties
           this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
         } else {
@@ -871,13 +873,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }
   }
-  
-  private updateQuestionIndexInBrowserWindow(url: string): void {
-    const questionIndexParam = String(this.currentQuestionIndex + 1);
-    this.router.navigate([url, { questionIndex: questionIndexParam }]);
-  }
-  
-  
                    
   advanceToPreviousQuestion() {
     this.answers = [];
