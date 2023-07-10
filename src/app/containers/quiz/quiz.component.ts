@@ -817,63 +817,36 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.selectedQuiz) {
       return;
     }
-
+  
     const selectedOption = this.form.value.selectedOption;
-
+  
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
       this.quizService.resetAll();
-
-      // Get the index of the current question
+      this.quizService.navigateToNextQuestion();
+  
+      if (!selectedOption) {
+        return;
+      }
+  
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+      this.quizService.showQuestionText$ = of(true);
+      this.selectedOption$.next(null);
+  
       const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-
-      // Get the index of the next question
-      const nextQuestionIndex = currentQuestionIndex + 1;
-
-      if (nextQuestionIndex < this.quizData.length) {
-        const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
-
-        if (nextQuestion && nextQuestion.options) {
-          this.currentQuestion = { ...nextQuestion };
-          this.quizService.correctOptions = nextQuestion.options
-            .filter((option) => option.correct && option.value !== undefined)
-            .map((option) => option.value?.toString());
-
-          // Update the question index in the browser window
-          this.currentQuestionIndex = nextQuestionIndex;
-
-          // Construct the new URL with the updated question index
-          const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-
-          // Navigate to the new URL without reloading the component
-          this.router.navigateByUrl(newUrl);
-
-          // Reset other necessary properties
-          this.quizService.showQuestionText$ = of(true);
-          this.selectedOption$.next(null);
-        } else {
-          console.error('Invalid next question:', nextQuestion);
-        }
-
-        this.checkIfAnsweredCorrectly();
-        this.answers = [];
-        this.status = QuizStatus.CONTINUE;
-
-        const isLastQuestion = nextQuestionIndex === this.quizData.length - 1;
-
-        if (isLastQuestion) {
-          this.status = QuizStatus.COMPLETED;
-          this.submitQuiz();
-        } else {
-          this.timerService.resetTimer();
-        }
+      const isLastQuestion = currentQuestionIndex === this.quizData.length - 1;
+  
+      if (isLastQuestion) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
       } else {
-        console.error('Invalid next question index:', nextQuestionIndex);
+        this.timerService.resetTimer();
       }
     }
-  }
-
-                   
+  }  
+                  
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;

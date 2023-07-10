@@ -841,28 +841,26 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   navigateToNextQuestion(): void {
-    const currentQuestionIndex = this.getCurrentQuestionIndex();
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
   
-    if (currentQuestionIndex !== -1) {
-      const nextQuestionIndex = currentQuestionIndex + 1;
-      const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
+    const questionIndex = this.currentQuestionIndex;
+    const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
   
-      if (nextQuestion && nextQuestion.options) {
-        this.currentQuestionIndex = nextQuestionIndex;
-        this.nextQuestion = nextQuestion; // Store the next question in the service
+    if (nextQuestion && nextQuestion.options) {
+      this.currentQuestion = nextQuestion;
+      this.correctOptions = nextQuestion.options
+        .filter((option) => option.correct && option.value !== undefined)
+        .map((option) => option.value?.toString());
   
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
-        this.router.navigate([newUrl], { relativeTo: this.activatedRoute });
+      const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
+      this.router.navigateByUrl(newUrl);
   
-        // Update other necessary properties
-        this.showQuestionText$ = of(true);
-        this.selectedOption$.next(null);
-        this.explanationText$.next(nextQuestion.questionText); // Update explanation text with the new question text
-      } else {
-        console.error('Invalid next question:', nextQuestion);
-      }
+      // Update other necessary properties
+      this.showQuestionText$ = of(true);
+      this.selectedOption$.next(null);
     } else {
-      console.error('Invalid current question index:', currentQuestionIndex);
+      console.error('Invalid next question:', nextQuestion);
     }
   }
   
