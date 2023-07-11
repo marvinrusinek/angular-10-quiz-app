@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -54,7 +53,7 @@ enum QuestionType {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent
-  implements AfterViewInit, OnInit, OnChanges, OnDestroy
+  implements OnInit, OnChanges, OnDestroy
 {
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
@@ -102,7 +101,8 @@ export class QuizQuestionComponent
   quiz: Quiz;
   quizLoaded = false;
   currentQuestionSubscription: Subscription;
-  currentQuestionSource: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestionSource: BehaviorSubject<QuizQuestion | null> = 
+    new BehaviorSubject<QuizQuestion | null>(null);
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentQuestionLoaded = false;
   currentOptions: Option[];
@@ -123,7 +123,8 @@ export class QuizQuestionComponent
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
   // explanationTextValue$: Observable<string>;
-  @Input() explanationTextValue$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  @Input() explanationTextValue$: BehaviorSubject<string | null> = 
+    new BehaviorSubject<string | null>(null);
   displayExplanation: boolean = false;
   isChangeDetected = false;
   showFeedback: boolean = false;
@@ -287,10 +288,6 @@ export class QuizQuestionComponent
     console.log('Initializing component...');
     this.subscriptionToQuestion();
     this.updateQuestionForm();
-  }
-
-  ngAfterViewInit(): void {
-    console.log('showFeedback:', this.showFeedback);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
