@@ -33,6 +33,12 @@ import { QuizScore } from '../../shared/models/QuizScore.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 
+enum QuizRoutes {
+  INTRO = '/intro/',
+  QUESTION = '/question/',
+  RESULTS = '/results/'
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -41,7 +47,7 @@ export class QuizService implements OnDestroy {
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   quizData: Quiz[] = this.quizInitialState;
-  private _quizData$ = new BehaviorSubject<Quiz[]>([]);
+  private quizData$ = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
   quizResources: QuizResource[];
@@ -211,7 +217,7 @@ export class QuizService implements OnDestroy {
   } */
 
   get quizData$() {
-    return this._quizData$.asObservable();
+    return this.quizData$.asObservable();
   }
 
   private getQuizData(): Observable<Quiz[]> {
@@ -222,7 +228,7 @@ export class QuizService implements OnDestroy {
     this.getQuizData()
       .pipe(distinctUntilChanged())
       .subscribe((data) => {
-        this._quizData$.next(data);
+        this.quizData$.next(data);
       });
 
     this.activatedRoute.paramMap

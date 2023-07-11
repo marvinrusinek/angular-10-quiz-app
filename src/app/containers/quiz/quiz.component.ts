@@ -465,11 +465,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
-    this.router.navigate([
+    /* this.router.navigate([
       QuizRoutes.QUESTION,
       quizId,
       currentQuestionIndex + 1,
-    ]);
+    ]); */
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
