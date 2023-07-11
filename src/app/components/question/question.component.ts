@@ -88,6 +88,8 @@ export class QuizQuestionComponent
   @Input() quizId!: string;
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
+  @Input() explanationTextValue$: BehaviorSubject<string | null> = 
+    new BehaviorSubject<string | null>(null);
   @Input() explanationTextValue: string;
   @Input() isOptionSelected: boolean = false;
   @Input() selectionMessage: string;
@@ -122,9 +124,6 @@ export class QuizQuestionComponent
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
   explanationTextSubscription: Subscription;
-  // explanationTextValue$: Observable<string>;
-  @Input() explanationTextValue$: BehaviorSubject<string | null> = 
-    new BehaviorSubject<string | null>(null);
   displayExplanation: boolean = false;
   isChangeDetected = false;
   showFeedback: boolean = false;
@@ -134,9 +133,9 @@ export class QuizQuestionComponent
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
-  multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
+  multipleAnswerSubject = new BehaviorSubject<boolean>(false);
 
   private _currentQuestion: QuizQuestion;
 
