@@ -829,8 +829,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.checkIfAnsweredCorrectly();
       this.answers = [];
       this.status = QuizStatus.CONTINUE;
-      this.quizService.showQuestionText$ = of(true);
-      this.selectedOption$.next(null);
   
       const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
       const isLastQuestion = currentQuestionIndex === this.quizData.length - 1;
@@ -842,7 +840,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.timerService.resetTimer();
       }
     }
-  }  
+  } 
                   
   advanceToPreviousQuestion() {
     this.answers = [];
