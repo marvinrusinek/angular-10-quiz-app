@@ -61,8 +61,6 @@ export class QuizDataService {
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
 
-  private quizUrl = 'assets/data/quiz.json';
-
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
@@ -78,6 +76,8 @@ export class QuizDataService {
       };
     })
   );
+
+  private quizUrl = 'assets/data/quiz.json';
 
   constructor(
     private http: HttpClient,
@@ -118,7 +118,6 @@ export class QuizDataService {
       tap(quizzes => {
         this.quizzes = quizzes;
         this.quizzesSubject.next(quizzes);
-        // console.log('Quizzes retrieved:', quizzes);
       }),
       catchError(error => {
         console.error('Error retrieving quizzes:', error);
@@ -139,7 +138,6 @@ export class QuizDataService {
   }
 
   setSelectedQuizById(quizId: string): void {
-    // Log the quizzes array after it is retrieved from the QuizDataService
     this.getQuizzes().subscribe((quizzes) => {
       this.quizzes = quizzes;
       
@@ -279,7 +277,7 @@ export class QuizDataService {
       distinctUntilChanged(),
       catchError((error) => {
         console.error('Error fetching question:', error);
-        throw error; // Rethrow the error to propagate it to the caller
+        throw error; // rethrow the error to propagate it to the caller
       })
     );
   }
