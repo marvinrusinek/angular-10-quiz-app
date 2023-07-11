@@ -21,9 +21,7 @@ export class QuizStateService {
 
   private quizQuestionCreated = false;
 
-  constructor() { 
-    console.log("QUIZ-STATE-SERVICE");
-  }
+  constructor() {}
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (!question$) {
