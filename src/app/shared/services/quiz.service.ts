@@ -826,7 +826,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
   
     const questionIndex = this.currentQuestionIndex;
-    const nextQuestionIndex = questionIndex; // Incrementing already happened
+    const nextQuestionIndex = questionIndex;
   
     if (nextQuestionIndex < this.quizData.length) {
       const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
