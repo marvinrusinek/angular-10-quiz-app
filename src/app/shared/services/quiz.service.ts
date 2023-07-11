@@ -187,27 +187,16 @@ export class QuizService implements OnDestroy {
         console.log('Incorrect sound playing...');
       },
     });
-
-    this.explanationTextSubscription = this.explanationText.subscribe(
-      (text) => {
-        // console.log('explanationText', text);
-      }
-    );
   }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    this.explanationTextSubscription?.unsubscribe();
   }
 
   getMultipleAnswer(): boolean {
     return this._multipleAnswer;
   }
-
-  /* get quizData$(): Observable<Quiz[]> {
-    return of(this.quizData);
-  } */
 
   get quizData$() {
     return this._quizData$.asObservable();
