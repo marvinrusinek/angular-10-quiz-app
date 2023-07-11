@@ -460,7 +460,6 @@ export class QuizService implements OnDestroy {
 
   displayExplanationText(show: boolean): void {
     this.shouldDisplayExplanation = show;
-    // Additional logic for displaying/hiding the explanation text
   }
 
   shouldExplanationBeDisplayed(): boolean {
@@ -506,7 +505,6 @@ export class QuizService implements OnDestroy {
     this.currentQuestionPromise = this.getQuestionsForQuiz(quizId)
       .pipe(
         tap(({ quizId, questions }) => {
-          // console.log('Received raw quiz questions:', questions);
           this.questions = questions;
           this.questionLoadingSubject.next(true);
           this.loadingQuestions = false;
