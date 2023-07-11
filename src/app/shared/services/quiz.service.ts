@@ -128,7 +128,6 @@ export class QuizService implements OnDestroy {
 
   userAnswers = [];
   previousAnswers = [];
-  previousAnswersMultipleTextArray: string[] = [];
 
   // correctOptions: string;
   correctMessage: string;
@@ -250,7 +249,7 @@ export class QuizService implements OnDestroy {
     const questionIndexParam =
       this.activatedRoute.snapshot.paramMap.get('questionIndex');
     const questionIndex = parseInt(questionIndexParam, 10);
-    return questionIndex - 1; // Subtract 1 to convert to zero-based index
+    return questionIndex - 1; // subtract 1 to convert to zero-based index
   }
 
   getCurrentQuiz(): Quiz {
@@ -304,7 +303,7 @@ export class QuizService implements OnDestroy {
           this.questions = questions;
         }),
         catchError(() => of([])),
-        // distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         shareReplay({ bufferSize: 1, refCount: true })
       );
     }
@@ -315,9 +314,6 @@ export class QuizService implements OnDestroy {
     quizId: string
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      /* tap((questions) =>
-        console.log('Received raw quiz questions:', questions)
-      ), */
       map((questions: any) =>
         questions.filter((question) => {
           return question.quizId === quizId;
