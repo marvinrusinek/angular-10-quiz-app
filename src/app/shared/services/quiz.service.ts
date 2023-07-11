@@ -852,7 +852,7 @@ export class QuizService implements OnDestroy {
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
-      '/question/',
+      QuizRoutes.QUESTION,
       this.quizId,
       this.currentQuestionIndex - 1,
     ]);
@@ -861,7 +861,7 @@ export class QuizService implements OnDestroy {
 
   navigateToResults() {
     this.quizCompleted = true;
-    this.router.navigate(['/results/', this.quizId]);
+    this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
   }
 
   /********* reset functions ***********/
