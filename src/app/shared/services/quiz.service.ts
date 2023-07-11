@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
@@ -161,7 +161,8 @@ export class QuizService implements OnDestroy {
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private ngZone: NgZone
   ) {
     this.loadData();
     this.initializeData();
@@ -834,7 +835,9 @@ export class QuizService implements OnDestroy {
         const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
   
         if (nextQuestion && nextQuestion.options) {
-          this.currentQuestion = { ...nextQuestion };
+          this.ngZone.run(() => {
+            this.currentQuestion = { ...nextQuestion };
+          });
           this.correctOptions = nextQuestion.options
             .filter((option) => option.correct && option.value !== undefined)
             .map((option) => option.value?.toString());
