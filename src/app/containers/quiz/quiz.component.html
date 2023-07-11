@@ -67,7 +67,11 @@
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
-      <h5 class="selection-message">{{ (selectionMessage$ | async) || 'Please select an option to continue&hellip;' }}</h5>
+      <h5 class="selection-message">
+        {{ 
+          (selectionMessage$ | async) || 'Please select an option to continue&hellip;' 
+        }}
+      </h5>
 
       <!-- paging -->
       <section class="paging">
