@@ -19,10 +19,9 @@ import {
   BehaviorSubject,
   Observable,
   of,
-  pipe,
   ReplaySubject,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -46,7 +45,7 @@ import { TimerService } from '../../shared/services/timer.service';
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false',
+  TrueFalse = 'true_false'
 }
 
 @Component({
@@ -711,7 +710,7 @@ export class QuizQuestionComponent
         this.explanationTextService
           .setExplanationText(this.selectedOptions, this.question)
           .subscribe((explanationText: string) => {
-            this.explanationTextService.explanationTextValue$ = of(explanationText);
+            this.explanationTextService.explanationText$ = of(explanationText);
           });
       } else {
         this.quizService.displayExplanationText(false);
