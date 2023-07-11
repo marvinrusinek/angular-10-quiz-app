@@ -840,8 +840,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
-      this.quizService.resetAll();
       this.quizService.navigateToNextQuestion();
+      this.quizService.resetAll();
 
       if (!selectedOption) {
         return;
