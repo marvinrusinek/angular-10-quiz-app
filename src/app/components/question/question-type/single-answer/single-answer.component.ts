@@ -83,6 +83,8 @@ export class SingleAnswerComponent
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+    this.explanationTextService = explanationTextService;
+    this.selectionMessageService = selectionMessageService;
   }
 
   async ngOnInit(): Promise<void> {
