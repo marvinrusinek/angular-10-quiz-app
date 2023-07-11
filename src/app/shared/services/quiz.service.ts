@@ -826,24 +826,29 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
   
     const questionIndex = this.currentQuestionIndex;
-    const nextQuestionIndex = questionIndex + 1;
-    const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
+    const nextQuestionIndex = questionIndex; // Incrementing already happened
   
-    if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion = { ...nextQuestion };
-      this.correctOptions = nextQuestion.options
-        .filter((option) => option.correct && option.value !== undefined)
-        .map((option) => option.value?.toString());
+    if (nextQuestionIndex < this.quizData.length) {
+      const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
+  
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestion = { ...nextQuestion };
+        this.correctOptions = nextQuestion.options
+          .filter((option) => option.correct && option.value !== undefined)
+          .map((option) => option.value?.toString());
+      } else {
+        console.error('Invalid next question:', nextQuestion);
+      }
+  
+      // Update other necessary properties
+      this.showQuestionText$ = of(true);
+      this.selectedOption$.next(null);
     } else {
-      console.error('Invalid next question:', nextQuestion);
+      console.error('Invalid next question index:', nextQuestionIndex);
     }
   
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
     this.router.navigateByUrl(newUrl);
-  
-    // Update other necessary properties
-    this.showQuestionText$ = of(true);
-    this.selectedOption$.next(null);
   }
 
   navigateToPreviousQuestion() {
