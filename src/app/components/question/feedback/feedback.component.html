@@ -3,8 +3,17 @@
     'correct-message': selectedOption.correct,
     'wrong-message': !selectedOption.correct
   }">
-    <i class="material-icons correct-icon" *ngIf="selectedOption.correct">sentiment_very_satisfied</i>
-    <i class="material-icons wrong-icon" *ngIf="!selectedOption.correct">sentiment_very_dissatisfied</i>
-    {{ selectedOption.correct ? "You're right! " + correctMessage : "That's wrong. " + correctMessage }}
+    <i class="material-icons correct-icon" 
+      *ngIf="selectedOption.correct">
+      sentiment_very_satisfied
+    </i>
+    <i class="material-icons wrong-icon" 
+      *ngIf="!selectedOption.correct">
+      sentiment_very_dissatisfied
+    </i>
+    {{ selectedOption.correct ? 
+       "You're right! " + correctMessage : 
+       "That's wrong. " + correctMessage
+    }}
   </div>
 </section>
