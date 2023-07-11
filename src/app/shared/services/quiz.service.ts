@@ -841,7 +841,6 @@ export class QuizService implements OnDestroy {
       }`;
       this.router.navigateByUrl(newUrl);
 
-      // Update other necessary properties
       this.showQuestionText$ = of(true);
       this.selectedOption$.next(null);
     } else {
