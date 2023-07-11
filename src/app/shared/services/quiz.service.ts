@@ -36,7 +36,7 @@ import { Resource } from '../../shared/models/Resource.model';
 enum QuizRoutes {
   INTRO = '/intro/',
   QUESTION = '/question/',
-  RESULTS = '/results/'
+  RESULTS = '/results/',
 }
 
 @Injectable({
@@ -46,10 +46,12 @@ export class QuizService implements OnDestroy {
   currentQuestionIndex: number = 0;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
+  private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
   quizData: Quiz[] = this.quizInitialState;
-  private quizData$ = new BehaviorSubject<Quiz[]>([]);
+  private _quizData$ = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
+  quizName$ = new BehaviorSubject<string>('');
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
@@ -73,11 +75,7 @@ export class QuizService implements OnDestroy {
   private answerStatus = new BehaviorSubject<boolean>(false);
   answerStatus$ = this.answerStatus.asObservable();
   totalQuestions: number = 0;
-  quizLength: number;
-  quizStartTime: Date;
 
-  private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
-  quizName$ = new BehaviorSubject<string>('');
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   private selectedQuizId$: BehaviorSubject<string> =
     new BehaviorSubject<string>(undefined);
@@ -113,21 +111,16 @@ export class QuizService implements OnDestroy {
   totalQuestionsSubject = new BehaviorSubject<number>(0);
   totalQuestions$ = this.totalQuestionsSubject.asObservable();
 
+  explanation: string;
   private explanationTextSubject: BehaviorSubject<string> =
     new BehaviorSubject<string>('');
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  explanationTextSubscription: Subscription = null;
-  private explanationTextSource: Subject<string> = new Subject<string>();
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  explanation: string;
-  currentExplanationText: string = '';
+  explanationTextSubscription: Subscription = null;
   showExplanationText: boolean = false;
   displayExplanation: boolean = false;
   shouldDisplayExplanation: boolean = false;
 
-  private selectionMessageSource = new BehaviorSubject<string>(
-    'Please click an option to continue...'
-  );
   currentAnswer = '';
   nextQuestionText = '';
   nextQuestionText$: Observable<string>;
@@ -217,7 +210,7 @@ export class QuizService implements OnDestroy {
   } */
 
   get quizData$() {
-    return this.quizData$.asObservable();
+    return this._quizData$.asObservable();
   }
 
   private getQuizData(): Observable<Quiz[]> {
@@ -228,7 +221,7 @@ export class QuizService implements OnDestroy {
     this.getQuizData()
       .pipe(distinctUntilChanged())
       .subscribe((data) => {
-        this.quizData$.next(data);
+        this._quizData$.next(data);
       });
 
     this.activatedRoute.paramMap
@@ -267,11 +260,12 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestionIndex(): number {
-    const questionIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const questionIndexParam =
+      this.activatedRoute.snapshot.paramMap.get('questionIndex');
     const questionIndex = parseInt(questionIndexParam, 10);
     return questionIndex - 1; // Subtract 1 to convert to zero-based index
   }
-  
+
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuestionIndex];
   }
@@ -849,19 +843,23 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion(): void {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     const questionIndex = this.currentQuestionIndex;
-    const nextQuestion: QuizQuestion = this.quizData.find((quiz) => quiz.quizId === this.quizId)?.questions[questionIndex];
-  
+    const nextQuestion: QuizQuestion = this.quizData.find(
+      (quiz) => quiz.quizId === this.quizId
+    )?.questions[questionIndex];
+
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.correctOptions = nextQuestion.options
         .filter((option) => option.correct && option.value !== undefined)
         .map((option) => option.value?.toString());
-  
-      const newUrl = `/question/${encodeURIComponent(this.quizId)}/${questionIndex + 1}`;
+
+      const newUrl = `/question/${encodeURIComponent(this.quizId)}/${
+        questionIndex + 1
+      }`;
       this.router.navigateByUrl(newUrl);
-  
+
       // Update other necessary properties
       this.showQuestionText$ = of(true);
       this.selectedOption$.next(null);
@@ -869,7 +867,7 @@ export class QuizService implements OnDestroy {
       console.error('Invalid next question:', nextQuestion);
     }
   }
-  
+
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
