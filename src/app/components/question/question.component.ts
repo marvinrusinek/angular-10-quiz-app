@@ -133,10 +133,10 @@ export class QuizQuestionComponent
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
+  multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
-  multipleAnswerSubject = new BehaviorSubject<boolean>(false);
-
+  
   private _currentQuestion: QuizQuestion;
 
   get currentQuestion(): QuizQuestion {
