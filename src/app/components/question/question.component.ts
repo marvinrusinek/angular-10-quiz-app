@@ -320,7 +320,8 @@ export class QuizQuestionComponent
 
   shouldDisplayOptions(): boolean {
     return (
-      this.currentQuestion?.options && this.currentQuestion.options.length > 0
+      this.currentQuestion?.options && 
+      this.currentQuestion.options.length > 0
     );
   }
 
@@ -706,7 +707,7 @@ export class QuizQuestionComponent
         this.explanationTextService
           .setExplanationText(this.selectedOptions, this.question)
           .subscribe((explanationText: string) => {
-            this.explanationTextService.explanationText$ = of(explanationText);
+            this.explanationTextService.explanationTextValue$ = of(explanationText);
           });
       } else {
         this.quizService.displayExplanationText(false);
