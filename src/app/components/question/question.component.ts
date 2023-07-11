@@ -902,10 +902,12 @@ export class QuizQuestionComponent
   
     if (this.isAnswered) {
       this.quizService.displayExplanationText(true);  
-      this.explanationTextService.setExplanationText(this.selectedOptions, this.question).subscribe((explanationText: string) => {
-        this.explanationTextValue$.next(explanationText);
-        this.showFeedbackForOption[option.optionId] = true;
-        this.isAnswerSelectedChange.emit(true);
+      this.explanationTextService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationTextValue$.next(explanationText);
+          this.showFeedbackForOption[option.optionId] = true;
+          this.isAnswerSelectedChange.emit(true);
       });
     } else {
       this.explanationTextValue$.next(null);
