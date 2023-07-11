@@ -838,8 +838,7 @@ export class QuizService implements OnDestroy {
       console.error('Invalid next question:', nextQuestion);
     }
   
-    // const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
-    const newUrl = `${QuizRoutes.QUESTION}/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
     this.router.navigateByUrl(newUrl);
   
     // Update other necessary properties
