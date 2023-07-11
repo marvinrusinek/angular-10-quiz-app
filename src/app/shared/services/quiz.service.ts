@@ -829,20 +829,25 @@ export class QuizService implements OnDestroy {
     const nextQuestionIndex = questionIndex; // Incrementing already happened
   
     if (nextQuestionIndex < this.quizData.length) {
-      const nextQuestion: QuizQuestion = this.quizData[nextQuestionIndex];
+      const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+      if (currentQuiz) {
+        const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
   
-      if (nextQuestion && nextQuestion.options) {
-        this.currentQuestion = { ...nextQuestion };
-        this.correctOptions = nextQuestion.options
-          .filter((option) => option.correct && option.value !== undefined)
-          .map((option) => option.value?.toString());
+        if (nextQuestion && nextQuestion.options) {
+          this.currentQuestion = { ...nextQuestion };
+          this.correctOptions = nextQuestion.options
+            .filter((option) => option.correct && option.value !== undefined)
+            .map((option) => option.value?.toString());
+        } else {
+          console.error('Invalid next question:', nextQuestion);
+        }
+  
+        // Update other necessary properties
+        this.showQuestionText$ = of(true);
+        this.selectedOption$.next(null);
       } else {
-        console.error('Invalid next question:', nextQuestion);
+        console.error('Invalid quiz:', this.quizId);
       }
-  
-      // Update other necessary properties
-      this.showQuestionText$ = of(true);
-      this.selectedOption$.next(null);
     } else {
       console.error('Invalid next question index:', nextQuestionIndex);
     }
