@@ -244,12 +244,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.explanationTextService
-      .getExplanationText$()
-      .subscribe((explanationText: string | null) => {
-        this.explanationText = explanationText;
-      });
-
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.getQuizById(this.quizId).subscribe(
       (quiz: Quiz) => {
@@ -276,6 +270,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:::', currentQuestion);
       this.currentQuestion = currentQuestion;
+    });
+
+    this.explanationTextService.getExplanationText$()
+      .subscribe((explanationText: string | null) => {
+        this.explanationText = explanationText;
     });
 
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
