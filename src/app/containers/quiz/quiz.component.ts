@@ -114,8 +114,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctAnswers: any[] = [];
   isOptionSelected = false;
   isDisabled: boolean; // may use later
-  isAnswerSelected: boolean = false;
-  isAnswerSelected$: Observable<boolean>;
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
   explanationText: string = '';
