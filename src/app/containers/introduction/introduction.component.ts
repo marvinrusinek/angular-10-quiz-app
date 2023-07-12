@@ -26,7 +26,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
-  questions$: Observable<QuizQuestion[]>;
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$: Observable<Quiz>;
