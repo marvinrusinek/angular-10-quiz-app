@@ -300,10 +300,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizService.correctOptions;
   }
 
-  updateSelectionMessage(message: string) {
-    this.selectionMessageService.updateSelectionMessage(message);
-  }
-
   onSelectionChange(questionIndex: number, answerIndex: number) {
     this.selectedAnswerIndex = answerIndex;
     this.answers[questionIndex] =
@@ -577,10 +573,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.log(error);
     }
-  }
-
-  selectQuiz(quiz: Quiz): void {
-    this.quizDataService.selectedQuiz$.next(quiz);
   }
 
   setOptions() {
