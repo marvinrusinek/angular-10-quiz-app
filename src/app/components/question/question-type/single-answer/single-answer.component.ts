@@ -107,14 +107,5 @@ export class SingleAnswerComponent
   onOptionClick(option: Option): void {
     super.onOptionClicked(option);
   }
-
-  onSelectionChange(question: QuizQuestion, event: MatCheckboxChange | MatRadioChange): void {
-    super.onSelectionChange(question, event);
-    this.optionChecked[this.selectedOptions[0]?.optionId] =
-      !this.optionChecked[this.selectedOptions[0]?.optionId];
-    this.selectedOption = this.selectedOptions[0];
-    this.optionSelected.emit(this.selectedOption);
-    this.selectionChanged.emit({ question: this.question, selectedOptions: this.selectedOptions });
-  } 
 }
 
