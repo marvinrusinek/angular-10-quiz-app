@@ -91,7 +91,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   quizResources: QuizResource[];
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]>;
-  quizLength: number;
   quizQuestions: QuizQuestion[];
   question!: QuizQuestion;
   questions: QuizQuestion[];
@@ -138,7 +137,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   cardFooterClass = '';
 
   currentQuestionIndex: number = 0;
-  correctOptionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
   progressValue: number;
@@ -175,51 +173,61 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
       const questionIndex = parseInt(params.get('questionIndex'), 10);
-    
+
       // Fetch quiz data and initialize the component
       this.quizService
         .getQuestionsForQuiz(quizId)
-        .subscribe((quizData: { quizId: string; questions: QuizQuestion[] }) => {
-          this.quizData = quizData.questions;
-          this.quizId = quizId;
-    
-          const currentQuestionIndex = questionIndex - 1; // Convert to zero-based index
-    
-          if (currentQuestionIndex >= 0 && currentQuestionIndex < this.quizData.length) {
-            const currentQuestion: QuizQuestion = this.quizData[currentQuestionIndex];
-            console.log('MY CURRENT QUESTION', currentQuestion);
-    
-            if (currentQuestion) {
-              this.currentQuestion = currentQuestion;
-              this.options = currentQuestion.options;
-              this.selectionMessageService.updateSelectionMessage('');
-    
-              // Update other necessary properties based on the current question
-              if (currentQuestion.options) {
-                this.quizService.correctOptions = currentQuestion.options
-                  .filter((option) => option.correct && option.value !== undefined)
-                  .map((option) => option.value?.toString());
+        .subscribe(
+          (quizData: { quizId: string; questions: QuizQuestion[] }) => {
+            this.quizData = quizData.questions;
+            this.quizId = quizId;
+
+            const currentQuestionIndex = questionIndex - 1; // Convert to zero-based index
+
+            if (
+              currentQuestionIndex >= 0 &&
+              currentQuestionIndex < this.quizData.length
+            ) {
+              const currentQuestion: QuizQuestion =
+                this.quizData[currentQuestionIndex];
+              console.log('MY CURRENT QUESTION', currentQuestion);
+
+              if (currentQuestion) {
+                this.currentQuestion = currentQuestion;
+                this.options = currentQuestion.options;
+                this.selectionMessageService.updateSelectionMessage('');
+
+                // Update other necessary properties based on the current question
+                if (currentQuestion.options) {
+                  this.quizService.correctOptions = currentQuestion.options
+                    .filter(
+                      (option) => option.correct && option.value !== undefined
+                    )
+                    .map((option) => option.value?.toString());
+                } else {
+                  console.error(
+                    'Invalid question or options:',
+                    currentQuestion
+                  );
+                }
+
+                this.quizService.showQuestionText$ = of(true);
+                this.selectedOption$.next(null);
+                this.explanationTextService.explanationText$.next('');
+                console.log('ngOnInit is called.');
+                this.cdRef.detectChanges();
               } else {
-                console.error('Invalid question or options:', currentQuestion);
+                console.error('Invalid question index:', questionIndex);
+                // Handle the invalid index case here (e.g., redirect to an error page)
               }
-    
-              this.quizService.showQuestionText$ = of(true);
-              this.selectedOption$.next(null);
-              this.explanationTextService.explanationText$.next('');
-              console.log('ngOnInit is called.');
-              this.cdRef.detectChanges();
             } else {
               console.error('Invalid question index:', questionIndex);
               // Handle the invalid index case here (e.g., redirect to an error page)
             }
-          } else {
-            console.error('Invalid question index:', questionIndex);
-            // Handle the invalid index case here (e.g., redirect to an error page)
           }
-        });
+        );
     });
-    
-        
+
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
       this.currentQuestionIndex = 0;
