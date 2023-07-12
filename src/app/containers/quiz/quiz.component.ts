@@ -184,15 +184,11 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizData = quizData.questions;
           this.quizId = quizId;
     
-          const currentQuiz: Quiz = this.quizData.find(
-            (quiz) => quiz.quizId === this.quizId
-          );
+          const currentQuestionIndex = questionIndex - 1; // Convert to zero-based index
     
-          if (currentQuiz) {
-            const currentQuestion: QuizQuestion =
-              currentQuiz.questions[questionIndex];
+          if (currentQuestionIndex >= 0 && currentQuestionIndex < this.quizData.length) {
+            const currentQuestion: QuizQuestion = this.quizData[currentQuestionIndex];
             console.log('MY CURRENT QUESTION', currentQuestion);
-            console.log('currentQuestion.options:', currentQuestion.options);
     
             if (currentQuestion) {
               this.currentQuestion = currentQuestion;
@@ -202,9 +198,7 @@ export class QuizComponent implements OnInit, OnDestroy {
               // Update other necessary properties based on the current question
               if (currentQuestion.options) {
                 this.quizService.correctOptions = currentQuestion.options
-                  .filter(
-                    (option) => option.correct && option.value !== undefined
-                  )
+                  .filter((option) => option.correct && option.value !== undefined)
                   .map((option) => option.value?.toString());
               } else {
                 console.error('Invalid question or options:', currentQuestion);
@@ -220,12 +214,13 @@ export class QuizComponent implements OnInit, OnDestroy {
               // Handle the invalid index case here (e.g., redirect to an error page)
             }
           } else {
-            console.error('Invalid quiz:', this.quizId);
+            console.error('Invalid question index:', questionIndex);
+            // Handle the invalid index case here (e.g., redirect to an error page)
           }
         });
     });
     
-    
+        
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
       this.currentQuestionIndex = 0;
