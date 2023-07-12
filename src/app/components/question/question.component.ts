@@ -789,51 +789,6 @@ export class QuizQuestionComponent
     }
   }
 
-  /* private updateClassName(event: any): void {
-    const optionIndex = event?.optionIndex;
-    const selectedOption = event?.selectedOption;
-    const currentQuestion = event?.question;
-
-    if (currentQuestion && currentQuestion.options && optionIndex >= 0) {
-      currentQuestion.options.forEach((option) => (option['styleClass'] = ''));
-      currentQuestion.options[optionIndex]['styleClass'] =
-        selectedOption.correct ? 'correct' : 'incorrect';
-      console.log(currentQuestion.options[optionIndex]['styleClass']);
-    }
-  } */
-
-  /* private updateClassName(selectedOption: Option, optionIndex: number): void {
-    console.log('updateClassName called');
-    if (
-      selectedOption &&
-      this.currentQuestion &&
-      this.currentQuestion?.options
-    ) {
-      this.optionSelected['styleClass'] = this.currentQuestion?.options[
-        optionIndex
-      ]['correct']
-        ? 'correct'
-        : 'incorrect';
-      this.showFeedback = true;
-    }
-  } */
-
-  /* private updateClassName(selectedOption: Option, optionIndex: number): void {
-    if (
-      selectedOption &&
-      this.currentQuestion &&
-      this.currentQuestion.options &&
-      this.currentQuestion.options[optionIndex]
-    ) {
-      this.optionSelected['styleClass'] = this.currentQuestion?.options[
-        optionIndex
-      ]['correct']
-        ? 'correct'
-        : 'incorrect';
-        this.showFeedback = true;
-    }
-  } */
-
   private updateClassName(selectedOption: Option, optionIndex: number): void {
     if (
       selectedOption &&
