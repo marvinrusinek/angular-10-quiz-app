@@ -636,16 +636,6 @@ export class QuizQuestionComponent
     });
   }
 
-  toggleNumberOfCorrectAnswersVisibility(): void {
-    this.shouldDisplayNumberOfCorrectAnswers =
-      !this.shouldDisplayNumberOfCorrectAnswers;
-    this.shouldDisplayNumberOfCorrectAnswersChanged.emit({
-      shouldDisplay: this.shouldDisplayNumberOfCorrectAnswers,
-      numberOfCorrectAnswers: this.quizService.numberOfCorrectAnswers,
-    });
-    this.toggleVisibility.emit();
-  }
-
   private resetForm(): void {
     if (!this.questionForm) {
       return;
