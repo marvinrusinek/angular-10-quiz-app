@@ -73,8 +73,6 @@ export class QuizQuestionComponent
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnswered: boolean = false;
-  @Output() selectionMessageChange: EventEmitter<string> =
-  new EventEmitter<string>();
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
