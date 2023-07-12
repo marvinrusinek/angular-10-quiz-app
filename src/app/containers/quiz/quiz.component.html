@@ -35,7 +35,8 @@
       <section id="question">
         <h3>
           {{ explanationText || question?.questionText }}
-          <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"> 
+          <span class="number-correct" 
+            *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"> 
             ({{ numberOfCorrectAnswers }} answers are correct)
           </span>
         </h3>
