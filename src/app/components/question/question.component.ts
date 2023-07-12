@@ -663,7 +663,7 @@ export class QuizQuestionComponent
         this.selectedOption = null;
         this.selectedOptions = [];
         this.isAnswered = false;
-        this.explanationTextService.explanationText$ = of('');
+        this.explanationTextService.explanationText$.next('');
         this.quizService.displayExplanationText(false);
       } else {
         // Select a new option
@@ -674,7 +674,7 @@ export class QuizQuestionComponent
         this.explanationTextService
           .setExplanationText([option], this.question)
           .subscribe((explanationText: string) => {
-            this.explanationTextService.explanationText$ = of(explanationText);
+            this.explanationTextService.explanationText$.next(explanationText);
           });
       }
     } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
@@ -693,7 +693,7 @@ export class QuizQuestionComponent
         this.explanationTextService
           .setExplanationText(this.selectedOptions, this.question)
           .subscribe((explanationText: string) => {
-            this.explanationTextService.explanationText$ = of(explanationText);
+            this.explanationTextService.explanationText$.next(explanationText);
           });
       } else {
         this.quizService.displayExplanationText(false);
