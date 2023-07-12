@@ -190,7 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           if (currentQuestion) {
             this.currentQuestion = currentQuestion;
             this.options = currentQuestion.options;
-            this.selectionMessage = '';
+            this.selectionMessageService.updateSelectionMessage('');
     
             // Update other necessary properties based on the current question
             if (currentQuestion.options) {
