@@ -197,23 +197,4 @@ export class MultipleAnswerComponent
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option) && this.showFeedbackForOption[option.optionId];
   }
-
-  /* onSelectionChange(question: QuizQuestion, event: MatCheckboxChange): void {
-    const selectedOption = question.options.find(
-      (option) =>
-        option.optionId === (event.source as MatCheckbox | MatRadioButton).value
-    );
-
-    if (selectedOption) {
-      selectedOption.selected = event.checked;
-      this.playSound(selectedOption);
-      this.selectionChange.emit({ selectedOption, question });
-      this.updateSelection(question.options.indexOf(selectedOption));
-      this.updateSelectedOption(
-        selectedOption,
-        question.options.indexOf(selectedOption)
-      );
-      this.showFeedback = true;
-    }
-  } */
 }
