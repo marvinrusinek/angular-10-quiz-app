@@ -26,12 +26,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quiz: Quiz;
   quizData: Quiz[];
   quizzes: any[];
-  quizzes$: Observable<Quiz[]>;
-  quizName$: Observable<string>;
   questions$: Observable<QuizQuestion[]>;
   quizId: string | undefined;
-  selectedMilestone: string;
-  selectedQuizId: string;
   selectedQuiz: Quiz | null;
   selectedQuiz$: Observable<Quiz>;
   selectedQuizSubscription: Subscription;
@@ -68,15 +64,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         this.quizDataService.setSelectedQuiz(quiz);
       });
 
-      // get initial value
-      this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
+    // get initial value
+    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
 
-     this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe(
-      (selectedQuiz) => {
+    this.selectedQuizSubscription =
+      this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
         this.selectedQuiz = selectedQuiz;
         console.log('Selected quiz:', this.selectedQuiz);
-      }
-    );
+      });
   }
 
   ngOnDestroy(): void {
@@ -92,8 +87,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
-  
-    this.quizDataService.getQuizById(quizId)
+
+    this.quizDataService
+      .getQuizById(quizId)
       .pipe(
         catchError((error) => {
           console.error(`Error fetching quiz: ${error}`);
@@ -101,7 +97,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe((quiz) => {
-        const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === quizId);
+        const foundQuiz = this.quizDataService.quizzes.find(
+          (q) => q.quizId === quizId
+        );
         if (foundQuiz) {
           this.quizDataService.setSelectedQuiz(foundQuiz);
           this.quizDataService.selectedQuizSubject.next(foundQuiz);
@@ -111,5 +109,5 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error(`Quiz with ID ${quizId} not found`);
         }
       });
-  }  
+  }
 }
