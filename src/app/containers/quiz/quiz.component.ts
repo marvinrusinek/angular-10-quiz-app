@@ -593,20 +593,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateQuestionIndex(): void {
-    this.questionIndex =
-      parseInt(this.activatedRoute.snapshot.params.questionIndex, 10) || 0;
-    this.quizService.currentQuestionIndex = this.questionIndex;
-  }
-
-  private updateProgressValue(): void {
-    if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
-      this.progressValue = Math.round(
-        ((this.questionIndex - 1) / this.totalQuestions) * 100
-      );
-    }
-  }
-
   private updateStatus(): void {
     this.status =
       this.questionIndex === 1 ? QuizStatus.STARTED : QuizStatus.CONTINUE;
@@ -637,10 +623,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('none');
   }
 
-  /* isQuestionAnswered() {
-    return this.answers.some(answer => answer.questionId === this.questions.indexOf(this.question));
-  } */
-
   isQuestionAnswered() {
     return this.isOptionSelected;
   }
@@ -659,10 +641,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }): void {
     this.shouldDisplayNumberOfCorrectAnswers = event.shouldDisplay;
   }
-
-  /* updateSelectedOption(selectedOption: Option): void {
-    this.selectedOption = selectedOption;
-  } */
 
   selectAnswer(id: number): void {
     this.selectedAnswerField = id;
