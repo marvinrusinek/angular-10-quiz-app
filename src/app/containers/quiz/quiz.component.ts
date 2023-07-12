@@ -95,7 +95,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   question!: QuizQuestion;
   questions: QuizQuestion[];
   question$!: Observable<QuizQuestion>;
-  questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
