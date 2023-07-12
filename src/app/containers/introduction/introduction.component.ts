@@ -67,28 +67,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       )
       .subscribe((quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
-        this.questions$ = this.quizDataService.getQuestionsForQuiz(quiz.quizId);
       });
 
-    this.quizDataService.getQuizzes().subscribe((quizzes) => {
-      this.selectedQuizId = quizzes?.[0]?.quizId || null;
-    });
+      // get initial value
+      this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
 
-    this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe({
-      next: (selectedQuiz) => {
+     this.selectedQuizSubscription = this.quizDataService.selectedQuiz$.subscribe(
+      (selectedQuiz) => {
         this.selectedQuiz = selectedQuiz;
         console.log('Selected quiz:', this.selectedQuiz);
-      },
-      error: (err) => {
-        console.error('Error subscribing to selectedQuiz:', err);
-      },
-      complete: () => {
-        console.log('Subscription to selectedQuiz completed');
-      },
-    });
-
-    // get initial value
-    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -109,7 +98,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .pipe(
         catchError((error) => {
           console.error(`Error fetching quiz: ${error}`);
-          return throwError(error); // Rethrow the error to propagate it
+          return throwError(error);
         })
       )
       .subscribe((quiz) => {
