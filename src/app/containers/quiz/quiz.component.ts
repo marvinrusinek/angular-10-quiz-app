@@ -130,7 +130,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   isAnswerSelected$: Observable<boolean>;
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
-  showExplanationText: boolean = false;
   explanationText: string = '';
   explanationText$: Observable<string>;
   explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>(

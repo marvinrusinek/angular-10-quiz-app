@@ -60,9 +60,7 @@ export class QuizQuestionComponent
     selectedOptions: Option[];
   }> = new EventEmitter(); 
   @Output() answer = new EventEmitter<number>();
-  @Output() formValue = new EventEmitter<FormGroup>();
   @Output() answersChange = new EventEmitter<string[]>();
-  @Output() showExplanationText = new EventEmitter<boolean>();  
   @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{
     shouldDisplay: boolean;
     numberOfCorrectAnswers: number;
