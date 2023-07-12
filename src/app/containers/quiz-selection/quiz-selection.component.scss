@@ -73,6 +73,11 @@
         color: $fire-red;
       }
     }
+
+    mat-menu button {
+      outline: none !important;
+      border: none !important;
+    }
   }
 
   .quiz-grid {

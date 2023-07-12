@@ -10,7 +10,7 @@
       <h4>How well do you know Angular? Find out!</h4>
     </div>
     <div class="info">
-      <a href="https://www.github.com/codelab-fun/codelab/blob/master/README.md#angular-codelab---codelabfun" target="_blank">
+      <a href="https://github.com/codelab-fun/codelab/blob/master/README.md" target="_blank">
         <i class="material-icons" matTooltip="Angular Codelab info" matTooltipPosition="right">info</i>
       </a>
     </div>
@@ -22,7 +22,8 @@
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
       <div *ngFor="let quiz of quizzes$ | async">
-        <button mat-menu-item name="milestone" [routerLink]="['/intro/', quiz?.quizId]" data-i18n="quiz.milestone">
+        <button mat-menu-item name="milestone" [routerLink]="['/intro/', quiz?.quizId]"
+         data-i18n="quiz.milestone" style="outline: none !important; border: none !important;">
           {{ quiz?.milestone || "Milestone not found" }}
         </button>
       </div>
