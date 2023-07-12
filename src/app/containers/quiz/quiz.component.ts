@@ -110,7 +110,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   answered: boolean = false;
   options: Option[] = [];
   multipleAnswer: boolean = false;
-  isAnswered: boolean = false;
   indexOfQuizId: number;
   status: QuizStatus;
 
@@ -123,16 +122,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectionMessage$: Observable<string>;
   correctAnswers: any[] = [];
   isOptionSelected = false;
-  isDisabled: boolean;
+  isDisabled: boolean; // may use later
   isAnswerSelected: boolean = false;
   isAnswerSelected$: Observable<boolean>;
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
   explanationText: string = '';
   explanationText$: Observable<string>;
-  explanationTextValue$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
   cardFooterClass = '';
 
   currentQuestionIndex: number = 0;
@@ -271,10 +267,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = currentQuestion;
     });
 
-    this.explanationTextService.getExplanationText$()
+    this.explanationTextService
+      .getExplanationText$()
       .subscribe((explanationText: string | null) => {
         this.explanationText = explanationText;
-    });
+      });
 
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
