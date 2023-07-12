@@ -30,7 +30,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizName$: Observable<string>;
   questions$: Observable<QuizQuestion[]>;
   quizId: string | undefined;
-  quizId$ = new BehaviorSubject<string>('');
   selectedMilestone: string;
   selectedQuizId: string;
   selectedQuiz: Quiz | null;
