@@ -592,16 +592,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateStatus(): void {
-    this.status =
-      this.questionIndex === 1 ? QuizStatus.STARTED : QuizStatus.CONTINUE;
-    this.questionIndex === 1
-      ? this.sendStartedQuizIdToQuizService()
-      : this.sendContinueQuizIdToQuizService();
-  }
-
-  private updateCorrectCount(): void {
-    this.correctCount = this.quizService.correctAnswersCountSubject.getValue();
+  private updateProgressValue(): void {
+    if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
+      this.progressValue = Math.round(
+        ((this.questionIndex - 1) / this.totalQuestions) * 100
+      );
+    }
   }
 
   calculateNumberOfCorrectAnswers(): number {
