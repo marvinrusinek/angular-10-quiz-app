@@ -654,62 +654,6 @@ export class QuizQuestionComponent
     }
   }
 
-  onOptionSelected(option: Option): void {
-    this.isOptionSelected = true;
-
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      if (this.selectedOption === option) {
-        // Deselect the selected option
-        this.selectedOption = null;
-        this.selectedOptions = [];
-        this.isAnswered = false;
-        this.explanationTextService.explanationText$.next('');
-        this.quizService.displayExplanationText(false);
-      } else {
-        // Select a new option
-        this.selectedOption = option;
-        this.selectedOptions = [option];
-        this.isAnswered = true;
-        this.quizService.displayExplanationText(true);
-        this.explanationTextService
-          .setExplanationText([option], this.question)
-          .subscribe((explanationText: string) => {
-            this.explanationTextService.explanationText$.next(explanationText);
-          });
-      }
-    } else if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      const index = this.selectedOptions.findIndex((o) => o === option);
-      if (index === -1) {
-        // Select an option that was not previously selected
-        this.selectedOptions.push(option);
-      } else {
-        // Deselect an option that was previously selected
-        this.selectedOptions.splice(index, 1);
-      }
-      this.isAnswered = this.selectedOptions.length > 0;
-
-      if (this.isAnswered) {
-        this.quizService.displayExplanationText(true);
-        this.explanationTextService
-          .setExplanationText(this.selectedOptions, this.question)
-          .subscribe((explanationText: string) => {
-            this.explanationTextService.explanationText$.next(explanationText);
-          });
-      } else {
-        this.quizService.displayExplanationText(false);
-      }
-    }
-
-    this.toggleVisibility.emit();
-    // this.optionSelected.emit(option);
-
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
-  }
-
   onSelectionChange(
     question: QuizQuestion,
     event: MatCheckboxChange | MatRadioChange
