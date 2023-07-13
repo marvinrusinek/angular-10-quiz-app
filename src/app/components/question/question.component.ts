@@ -81,7 +81,6 @@ export class QuizQuestionComponent
   selectedOption$ = new BehaviorSubject<Option>(null);
   selectedOptionStyleClass: string;
   quiz: Quiz;
-  quizLoaded = false;
   currentQuestionSubscription: Subscription;
   currentQuestionSource: BehaviorSubject<QuizQuestion | null> = 
     new BehaviorSubject<QuizQuestion | null>(null);
@@ -93,8 +92,6 @@ export class QuizQuestionComponent
   correctAnswers: number[] = [];
   correctMessage: string = '';
   alreadyAnswered = false;
-  optionList: Option[];
-  hasSelectedOptions = false;
   optionChecked: { [optionId: number]: boolean } = {};
   answers;
   correctOptionIndex: number;
