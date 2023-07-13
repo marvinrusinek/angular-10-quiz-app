@@ -11,25 +11,9 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatRadioChange } from '@angular/material/radio';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-  Subscription
-} from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  take,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { catchError, filter, map, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
