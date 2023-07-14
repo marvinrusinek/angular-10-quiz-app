@@ -847,10 +847,14 @@ export class QuizService implements OnDestroy {
           this.options = nextQuestion.options;
           this.selectionMessage = '';
           this.questionSource.next(this.currentQuestion);
+        
+          // Emit the next question and options
+          this.currentQuestionSource.next({ question: nextQuestion, quizId: this.quizId });
+          this.optionsSource.next(nextQuestion.options);
         } else {
           console.error('Invalid next question:', nextQuestion);
         }
-
+        
         this.updateQuestion(nextQuestion);
         this.resetUserSelection();
         this.updateOtherProperties();
