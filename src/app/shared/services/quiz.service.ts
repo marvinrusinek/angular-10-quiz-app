@@ -55,7 +55,7 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  question$: Observable<QuizQuestion>;
+  // question$: Observable<QuizQuestion>;
   questions$: Observable<QuizQuestion[]>;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   questionSubjectEmitted = false;
@@ -139,6 +139,9 @@ export class QuizService implements OnDestroy {
 
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
+
+  private questionSource = new BehaviorSubject<QuizQuestion>(null);
+  public question$ = this.questionSource.asObservable();
 
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
@@ -845,10 +848,11 @@ export class QuizService implements OnDestroy {
           this.currentQuestion = { ...nextQuestion };
           this.options = nextQuestion.options;
           this.selectionMessage = '';
+          this.questionSource.next(this.currentQuestion);
         } else {
           console.error('Invalid next question:', nextQuestion);
         }
-        
+
         this.updateQuestion(nextQuestion);
         this.resetUserSelection();
         this.updateOtherProperties();

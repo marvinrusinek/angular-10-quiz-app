@@ -147,6 +147,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
+    // Subscribe to the currentQuestion$ observable
+    this.currentQuestion$ = this.quizStateService.currentQuestion$;
+
     console.log('QuizComponent constructor called');
   }
 
