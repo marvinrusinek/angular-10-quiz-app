@@ -78,7 +78,6 @@ export class QuizQuestionComponent
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
-  selectedOptionStyleClass: string;
   quiz: Quiz;
   currentQuestionSubscription: Subscription;
   currentQuestionSource: BehaviorSubject<QuizQuestion | null> = 
