@@ -117,6 +117,7 @@ export class QuizService implements OnDestroy {
   explanationTextSubscription: Subscription = null;
   displayExplanation: boolean = false;
   shouldDisplayExplanation: boolean = false;
+  selectionMessage: string;
 
   currentAnswer = '';
   nextQuestionText = '';
@@ -815,6 +816,18 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountSubject.next(value);
   }
 
+  updateQuestion(question: QuizQuestion): void {
+    this.currentQuestion = { ...question };
+  }
+
+  resetUserSelection(): void {
+    this.selectedOption$.next('');
+  }
+
+  updateOtherProperties(): void {
+    this.showQuestionText$ = of(true);
+  }
+
   /********* navigation functions ***********/
   navigateToNextQuestion(): void {
     this.quizCompleted = false;
@@ -830,13 +843,15 @@ export class QuizService implements OnDestroy {
   
         if (nextQuestion && nextQuestion.options) {
           this.currentQuestion = { ...nextQuestion };
+          this.options = nextQuestion.options;
+          this.selectionMessage = '';
         } else {
           console.error('Invalid next question:', nextQuestion);
         }
-  
-        // Update other necessary properties
-        this.showQuestionText$ = of(true);
-        this.selectedOption$.next(null);
+        
+        this.updateQuestion(nextQuestion);
+        this.resetUserSelection();
+        this.updateOtherProperties();
       } else {
         console.error('Invalid quiz:', this.quizId);
       }
