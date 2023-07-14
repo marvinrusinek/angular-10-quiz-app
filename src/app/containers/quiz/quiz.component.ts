@@ -147,19 +147,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
-    // Subscribe to the currentQuestion$ observable
-    // this.currentQuestion$ = this.quizStateService.currentQuestion$;
-
     console.log('QuizComponent constructor called');
   }
 
   ngOnInit(): void {
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
-
-    this.quizStateService.currentQuestion$.subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-    });
+    this.setCurrentQuestion();
 
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
@@ -351,6 +345,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
+  }
+
+  setCurrentQuestion(): void {
+    this.quizStateService.currentQuestion$.subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+    });
   }
 
   subscribeRouterAndInit(): void {
