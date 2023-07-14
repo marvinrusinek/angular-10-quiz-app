@@ -29,6 +29,8 @@
     </mat-card-header>
 
     <mat-card-content *ngIf="question$ | async as question">
+      <p>{{ question | json }}</p>
+      <p>{{ (currentQuestion$ | async) | json }}</p>
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 

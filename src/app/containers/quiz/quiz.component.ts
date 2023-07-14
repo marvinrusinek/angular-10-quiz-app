@@ -148,7 +148,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     // Subscribe to the currentQuestion$ observable
-    this.currentQuestion$ = this.quizStateService.currentQuestion$;
+    // this.currentQuestion$ = this.quizStateService.currentQuestion$;
 
     console.log('QuizComponent constructor called');
   }
@@ -156,6 +156,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
+
+    this.quizStateService.currentQuestion$.subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+    });
 
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
