@@ -62,7 +62,6 @@ export class QuizQuestionComponent
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
   @Input() options: Option[];
-  @Input() options$: Observable<Option[]>;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
