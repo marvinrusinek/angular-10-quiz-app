@@ -780,29 +780,27 @@ export class QuizService implements OnDestroy {
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
-        const questionExists = filteredQuestions.some((q) => q === question);
-
-        if (questionExists && !isEqual(question, this.currentQuestion)) {
-          console.log(
-            'emitting currentQuestionSubject with question:',
-            question
-          );
-          this.currentQuestion = question;
-          // this.currentQuestionSource.next({ question, quizId: result.quizId });
-          this.currentQuestionSource.next({ question, quizId: this.quizId });
-          this.optionsSource.next(question.options);
-          this.currentQuestionSubject.next(this.currentQuestion);
-          this.questionSubjectEmitted = true;
-        } else if (!this.questionSubjectEmitted) {
-          console.log(
-            'not emitting currentQuestionSubject with question:',
-            question
-          );
-          this.questionSubjectEmitted = true;
+        const questionIndex = filteredQuestions.findIndex((q) => q === question);
+        const nextQuestionIndex = questionIndex + 1;
+  
+        if (nextQuestionIndex < filteredQuestions.length) {
+          const nextQuestion = filteredQuestions[nextQuestionIndex];
+  
+          if (nextQuestion) {
+            console.log('emitting currentQuestionSubject with question:', nextQuestion);
+            this.currentQuestion = nextQuestion;
+            this.currentQuestionSubject.next(nextQuestion);
+            this.optionsSource.next(nextQuestion.options);
+            this.questionSubjectEmitted = true;
+          } else {
+            console.error('Invalid next question:', nextQuestion);
+          }
+        } else {
+          console.error('Invalid next question index:', nextQuestionIndex);
         }
       });
   }
-
+  
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
   }
