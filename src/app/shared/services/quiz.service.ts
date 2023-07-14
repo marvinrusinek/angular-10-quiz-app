@@ -554,28 +554,23 @@ export class QuizService implements OnDestroy {
     return [question, options];
   }
 
-  async fetchQuestionAndOptions(
-    questionIndex: number
-  ): Promise<[QuizQuestion, Option[]]> {
-    if (
-      !this.quizId ||
-      !this.quizQuestions ||
-      this.quizQuestions.length === 0
-    ) {
+  async fetchQuestionAndOptions(questionIndex: number): Promise<{ question: QuizQuestion, options: Option[] }> {
+    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
       console.error('Quiz or questions array is null or undefined');
       throw new Error('Quiz or questions array is null or undefined');
     }
-
+  
     const question = this.quizQuestions[questionIndex];
     const options = question.options;
-
+  
     if (!question || !options || options.length === 0) {
       console.error('Question or options array is null or undefined');
       throw new Error('Question or options array is null or undefined');
     }
-
-    return [question, options];
+  
+    return { question, options };
   }
+  
 
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
