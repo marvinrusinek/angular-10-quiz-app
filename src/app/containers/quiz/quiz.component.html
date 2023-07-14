@@ -42,15 +42,10 @@
         </h3>
        </section>
       <ng-container *ngIf="currentQuestion">
-        <!--{{ currentQuestion | json }}-->
         <!-- the options -->
         <codelab-quiz-question
-          [quizId]="quizId"
           [question]="question"
-          [questions]="questions$ | async"
-          [options]="currentQuestion?.options"
           (answer)="selectedAnswer($event)"
-          [answers]="answers"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
           [currentQuestion$]="currentQuestion$ | async"
