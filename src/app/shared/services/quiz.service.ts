@@ -820,20 +820,16 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
   
-    const nextQuestionIndex = this.currentQuestionIndex;
+    const questionIndex = this.currentQuestionIndex;
+    const nextQuestionIndex = questionIndex;
   
     if (nextQuestionIndex < this.quizData.length) {
       const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
       if (currentQuiz) {
-        const nextQuestion: QuizQuestion = currentQuiz.questions[nextQuestionIndex];
+        const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
   
         if (nextQuestion && nextQuestion.options) {
-          this.ngZone.run(() => {
-            this.currentQuestion = { ...nextQuestion };
-          });
-          this.correctOptions = nextQuestion.options
-            .filter((option) => option.correct && option.value !== undefined)
-            .map((option) => option.value?.toString());
+          this.currentQuestion = { ...nextQuestion };
         } else {
           console.error('Invalid next question:', nextQuestion);
         }
@@ -851,6 +847,7 @@ export class QuizService implements OnDestroy {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
     this.router.navigateByUrl(newUrl);
   }
+  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
