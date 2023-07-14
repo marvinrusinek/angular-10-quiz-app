@@ -820,13 +820,12 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
   
-    const questionIndex = this.currentQuestionIndex;
-    const nextQuestionIndex = questionIndex;
+    const nextQuestionIndex = this.currentQuestionIndex;
   
     if (nextQuestionIndex < this.quizData.length) {
       const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
       if (currentQuiz) {
-        const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
+        const nextQuestion: QuizQuestion = currentQuiz.questions[nextQuestionIndex];
   
         if (nextQuestion && nextQuestion.options) {
           this.ngZone.run(() => {
