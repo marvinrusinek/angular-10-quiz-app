@@ -245,13 +245,6 @@ export class QuizService implements OnDestroy {
     return this.quizResources;
   }
 
-  getCurrentQuestionIndex(): number {
-    const questionIndexParam =
-      this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const questionIndex = parseInt(questionIndexParam, 10);
-    return questionIndex - 1; // subtract 1 to convert to zero-based index
-  }
-
   getCurrentQuiz(): Quiz {
     return this.quizData[this.currentQuestionIndex];
   }
@@ -289,6 +282,13 @@ export class QuizService implements OnDestroy {
         this.setCurrentQuestion(filteredQuestions[index]);
       }
     }
+  }
+
+  getCurrentQuestionIndex(): number {
+    const questionIndexParam =
+      this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const questionIndex = parseInt(questionIndexParam, 10);
+    return questionIndex - 1; // subtract 1 to convert to zero-based index
   }
 
   getCurrentQuizId(): string {
