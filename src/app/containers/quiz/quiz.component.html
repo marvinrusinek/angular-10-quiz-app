@@ -35,13 +35,14 @@
       <section id="question">
         <h3>
           {{ explanationText || currentQuestion?.questionText }}
+          
           <span class="number-correct" 
             *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"> 
             ({{ numberOfCorrectAnswers }} answers are correct)
           </span>
         </h3>
        </section>
-      <ng-container *ngIf="currentQuestion">
+      <ng-container *ngIf="options$ | async as options">
         <!-- the options -->
         <codelab-quiz-question
           [question]="question"
