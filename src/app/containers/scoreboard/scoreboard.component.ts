@@ -92,9 +92,10 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     }
   } */
 
-  updateBadge(currentQuestionIndex: number, totalQuestions: number): void {
-    if (currentQuestionIndex && totalQuestions > 0) {
-      this.badge = 'Question ' + currentQuestionIndex + ' of ' + totalQuestions;
+  updateBadge(questionNumber: number, totalQuestions: number): void {
+    if (questionNumber && totalQuestions > 0) {
+      this.badge =
+        'Question ' + questionNumber + ' of ' + totalQuestions;
     }
-  }  
+  } 
 }
