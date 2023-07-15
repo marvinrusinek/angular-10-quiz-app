@@ -48,11 +48,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe((params: Params) => {
         if (params.questionIndex) {
-          this.questionNumber = +params.questionIndex; // Convert to a number
+          this.questionNumber = +params.questionIndex;
           this.timerService.resetTimer();
           this.quizService.totalQuestions$
             .pipe(
-              take(1),
+              takeUntil(this.unsubscribe$),
               catchError((error) => {
                 console.error('Failed to get total questions', error);
                 return throwError('Failed to get total questions');
@@ -96,6 +96,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     if (questionNumber && totalQuestions > 0) {
       this.badge =
         'Question ' + questionNumber + ' of ' + totalQuestions;
+    } else {
+      this.badge = '';
     }
-  } 
+  }  
 }
