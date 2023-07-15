@@ -808,10 +808,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldDisplayExplanationText(): boolean {
-    return (
-      this.status !== QuizStatus.COMPLETED &&
-      (!this.form.valid || !this.selectedOption)
-    );
+    return !!this.explanationText;
   }
 
   /************************ paging functions *********************/
@@ -819,44 +816,48 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.selectedQuiz) {
       return;
     }
-
+  
     const selectedOption = this.form.value.selectedOption;
-
+  
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
+  
       await this.quizService.getNextQuestion();
       this.currentQuestion = await this.quizService.getCurrentQuestion();
       this.selectedOption = null;
-      
+  
       const nextQuestion = this.quizService.getNextQuestion();
-      this.nextQuestionText = nextQuestion ? nextQuestion.questionText : null;
-
+  
+      if (nextQuestion) {
+        this.nextQuestionText = nextQuestion.questionText;
+      } else {
+        this.nextQuestionText = null;
+      }
+  
       this.quizService.navigateToNextQuestion();
       this.quizService.resetAll();
-
+  
       if (!selectedOption) {
         return;
       }
-
+  
       this.checkIfAnsweredCorrectly();
       this.answers = [];
       this.status = QuizStatus.CONTINUE;
-
+  
       const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
       const isLastQuestion = currentQuestionIndex === this.quizData.length - 1;
-
+  
       if (isLastQuestion) {
         this.status = QuizStatus.COMPLETED;
         this.submitQuiz();
         this.router.navigate([QuizRoutes.RESULTS]);
       } else {
-        await this.quizService.getNextQuestion();
-        this.currentQuestion = await this.quizService.getCurrentQuestion();
         this.timerService.resetTimer();
       }
     }
   }
-
+  
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
