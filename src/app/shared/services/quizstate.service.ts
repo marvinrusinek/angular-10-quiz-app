@@ -41,7 +41,8 @@ export class QuizStateService {
       this.currentQuestionSubject.next(question);
       if (question && question.options) {
         console.log('Options:::', question.options);
-        this.currentOptionsSubject.next(question.options);
+        this.currentQuestion.next(question);
+        this.currentOptionsSubject.next(question?.options || []);
       } else {
         console.log('No options found.');
       }

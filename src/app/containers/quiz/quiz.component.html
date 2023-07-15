@@ -28,13 +28,13 @@
       </div>
     </mat-card-header>
 
-    <mat-card-content *ngIf="question$ | async as question">
+    <mat-card-content *ngIf="currentQuestion$ | async as question">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
-
+    
       <section id="question">
         <h3>
-          {{ explanationText || currentQuestion?.questionText }}
+          {{ explanationText || question.questionText }}
           
           <span class="number-correct" 
             *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"> 

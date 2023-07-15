@@ -153,6 +153,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
+    this.quizStateService.setCurrentQuestion(this.currentQuestion$);
 
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.setCurrentQuestion();
