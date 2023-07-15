@@ -117,7 +117,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isDisabled: boolean; // may use later
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
-  explanationText: string = '';
+  explanationText: string | null;
   explanationText$: Observable<string>;
   cardFooterClass = '';
 
