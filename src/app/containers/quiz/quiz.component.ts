@@ -148,6 +148,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
+
     console.log('QuizComponent constructor called');
   }
 

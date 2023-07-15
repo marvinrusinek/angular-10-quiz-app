@@ -696,7 +696,6 @@ export class QuizQuestionComponent
           this.isAnswerSelectedChange.emit(true);
       });
     } else {
-      this.explanationText$.next(null);
       this.explanationTextValue$.next(null);
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
