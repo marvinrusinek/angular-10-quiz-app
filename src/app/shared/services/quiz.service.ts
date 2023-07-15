@@ -485,7 +485,7 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  getNextQuestion(): QuizQuestion | undefined {
+  /* getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex;
     if (
@@ -494,6 +494,14 @@ export class QuizService implements OnDestroy {
       nextIndex < currentQuiz.questions.length
     ) {
       this.currentQuestionIndex++;
+      return currentQuiz.questions[nextIndex];
+    }
+  } */
+
+  getNextQuestion(): QuizQuestion | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+    const nextIndex = this.currentQuestionIndex + 1;
+    if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
       return currentQuiz.questions[nextIndex];
     }
   }

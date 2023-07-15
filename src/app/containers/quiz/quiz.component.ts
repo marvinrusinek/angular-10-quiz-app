@@ -121,6 +121,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText$: Observable<string | null>;
   explanationTextValue$: Observable<string | null>;
   cardFooterClass = '';
+  nextQuestionText: string | null = null;
 
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
@@ -806,6 +807,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !this.formControl || this.formControl.valid === false;
   }
 
+  shouldDisplayExplanationText(): boolean {
+    return (
+      this.status !== QuizStatus.COMPLETED &&
+      (!this.form.valid || !this.selectedOption)
+    );
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
@@ -819,7 +827,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       await this.quizService.getNextQuestion();
       this.currentQuestion = await this.quizService.getCurrentQuestion();
       this.selectedOption = null;
-
+      
+      const nextQuestion = this.quizService.getNextQuestion();
+      this.nextQuestionText = nextQuestion ? nextQuestion.questionText : null;
 
       this.quizService.navigateToNextQuestion();
       this.quizService.resetAll();
@@ -840,6 +850,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.submitQuiz();
         this.router.navigate([QuizRoutes.RESULTS]);
       } else {
+        await this.quizService.getNextQuestion();
+        this.currentQuestion = await this.quizService.getCurrentQuestion();
         this.timerService.resetTimer();
       }
     }
