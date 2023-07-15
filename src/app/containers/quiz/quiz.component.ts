@@ -179,17 +179,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizData = quizData.questions;
         this.quizId = quizId;
 
-        const currentQuestionIndex = questionIndex - 1; // Convert to zero-based index
+        const currentQuestionIndex = questionIndex - 1;
 
         if (currentQuestionIndex >= 0 && currentQuestionIndex < this.quizData.length) {
           const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
           if (currentQuiz) {
             const currentQuestion: QuizQuestion = currentQuiz.questions[currentQuestionIndex];
-            console.log('MY CURRENT QUESTION', currentQuestion);
 
             if (currentQuestion) {
-              console.log('currentQuestion:::>>>', currentQuestion);
-              console.log('currentQuestion.options:', currentQuestion.options);
               this.currentQuestion = currentQuestion;
               this.options = currentQuestion.options;
               this.selectionMessageService.updateSelectionMessage('');
@@ -199,7 +196,6 @@ export class QuizComponent implements OnInit, OnDestroy {
                 this.quizService.correctOptions = currentQuestion.options
                   .filter((option) => option.correct && option.value !== undefined)
                   .map((option) => option.value?.toString());
-                console.log('correctOptions:::>>>>', this.quizService.correctOptions);
               } else {
                 console.error('Invalid question options:', currentQuestion);
               }
@@ -211,15 +207,12 @@ export class QuizComponent implements OnInit, OnDestroy {
               this.cdRef.detectChanges();
             } else {
               console.error('Invalid question index:', questionIndex);
-              // Handle the invalid index case here (e.g., redirect to an error page)
             }
           } else {
             console.error('Invalid quiz:', this.quizId);
-            // Handle the invalid quiz case here (e.g., redirect to an error page)
           }
         } else {
           console.error('Invalid question index:', questionIndex);
-          // Handle the invalid index case here (e.g., redirect to an error page)
         }
     });
 
