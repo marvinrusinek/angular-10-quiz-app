@@ -810,7 +810,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (isLastQuestion) {
         this.status = QuizStatus.COMPLETED;
         this.submitQuiz();
-        this.router.navigate(['/results']);
+        this.router.navigate([QuizRoutes.RESULTS]);
       } else {
         this.timerService.resetTimer();
       }
