@@ -118,7 +118,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
   explanationText: string | null;
-  explanationText$: Observable<string>;
+  explanationText$: Observable<string | null>;
+  explanationTextValue$: Observable<string | null>;
   cardFooterClass = '';
 
   currentQuestionIndex: number = 0;
@@ -148,8 +149,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-
     console.log('QuizComponent constructor called');
   }
 
@@ -157,6 +156,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
     this.quizStateService.setCurrentQuestion(this.currentQuestion$);
+
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
 
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.setCurrentQuestion();
