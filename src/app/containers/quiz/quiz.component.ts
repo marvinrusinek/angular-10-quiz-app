@@ -153,6 +153,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
+
+    this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.setCurrentQuestion();
 
     this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
@@ -350,6 +352,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setCurrentQuestion(): void {
     this.quizStateService.currentQuestion$.subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
+      this.options$ = this.quizStateService.currentOptionsSubject.asObservable();
     });
   }
 
