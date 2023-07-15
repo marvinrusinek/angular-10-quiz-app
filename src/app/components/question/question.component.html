@@ -5,8 +5,11 @@
         [question]="currentQuestion"
         [questions]="questions"
         [options]="currentQuestion.options"
+        [currentQuestion$]="currentQuestion$ | async"
         [currentQuestionIndex]="currentQuestionIndex"
         [selectedOptions]="currentQuestion.selectedOptions"
+        [correctAnswers]="correctAnswers"
+        [correctMessage]="correctMessage"
         (answer)="updateClassName($event)"
       ></codelab-question-multiple-answer>
     </ng-container>
