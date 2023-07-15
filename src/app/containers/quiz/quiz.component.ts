@@ -638,20 +638,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.answered = true;
     this.checkIfAnsweredCorrectly();
     console.log('ET', this.explanationText);
-
-    const correctAnswers = this.question.options.filter(
-      (option) => option.correct
-    );
+  
+    const correctAnswers = this.question.options.filter((option) => option.correct);
     this.correctAnswers = correctAnswers;
-
+  
     if (correctAnswers.length > 1 && this.answers.indexOf(option) === -1) {
       this.answers.push(option);
     } else {
       this.answers[0] = option;
     }
+  
+    this.explanationTextService.setExplanationText(this.answers, this.question);
 
     this.selectedOption$.next(option);
   }
+  
 
   shuffleQuestions(): void {
     if (this.quizService.checkedShuffle) {
