@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { ReplaySubject, Subject, throwError } from 'rxjs';
-import { catchError, takeUntil, tap } from 'rxjs/operators';
+import { catchError, takeUntil, take, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -48,26 +48,22 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe((params: Params) => {
         if (params.questionIndex) {
-          this.questionNumber = params.questionIndex;
+          this.questionNumber = +params.questionIndex; // Convert to a number
           this.timerService.resetTimer();
+          this.quizService.totalQuestions$
+            .pipe(
+              take(1),
+              catchError((error) => {
+                console.error('Failed to get total questions', error);
+                return throwError('Failed to get total questions');
+              })
+            )
+            .subscribe((totalQuestions) => {
+              this.totalQuestions$.next(totalQuestions);
+              this.updateBadge(this.questionNumber, totalQuestions);
+            });
         }
       });
-
-    this.quizService.totalQuestions$
-      .pipe(
-        tap((totalQuestions) => {
-          this.totalQuestions$.next(totalQuestions);
-          this.ngZone.run(() => {
-            this.updateBadge(this.questionNumber, totalQuestions);
-          });
-        }),
-        takeUntil(this.unsubscribe$),
-        catchError((error) => {
-          console.error('Failed to get total questions', error);
-          return throwError('Failed to get total questions');
-        })
-      )
-      .subscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
