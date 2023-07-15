@@ -827,6 +827,7 @@ export class QuizService implements OnDestroy {
 
   updateOtherProperties(): void {
     this.showQuestionText$ = of(true);
+    this.selectionMessage = 'Please select an option to continue...';
   }
 
   /********* navigation functions ***********/
