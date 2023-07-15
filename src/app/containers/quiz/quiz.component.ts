@@ -79,7 +79,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
-  quizData: Quiz[];
+  quizData: Quiz[] | QuizQuestion[];
   quizId: string = '';
   quizName$: Observable<string>;
   quizResources: QuizResource[];
