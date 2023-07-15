@@ -73,9 +73,9 @@
       <!-- paging -->
       <section class="paging">
         <mat-card-actions
-          [class.last-question]="shouldApplyLastQuestionClass()"
+        [class.last-question]="shouldApplyLastQuestionClass()"
         >
-          <div class="prev-question-nav" [hidden]="shouldHidePrevQuestionNav()">
+          <div class="prev-question-nav">
             <button
               type="button"
               mat-icon-button
@@ -104,7 +104,7 @@
 
           <div
             class="next-question-nav"
-            [hidden]="shouldHideNextQuestionNav()"
+            
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
