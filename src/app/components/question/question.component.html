@@ -2,14 +2,11 @@
   <ng-container *ngSwitchCase="multipleAnswer">
     <ng-container *ngIf="shouldDisplayOptions()">
       <codelab-question-multiple-answer
-        [form]="questionForm"
         [question]="currentQuestion"
         [questions]="questions"
-        [currentQuestionIndex]="currentQuestionIndex"
         [options]="currentQuestion.options"
+        [currentQuestionIndex]="currentQuestionIndex"
         [selectedOptions]="currentQuestion.selectedOptions"
-        [correctAnswers]="correctAnswers"
-        [correctMessage]="correctMessage"
         (answer)="updateClassName($event)"
       ></codelab-question-multiple-answer>
     </ng-container>
@@ -23,9 +20,8 @@
         [question]="currentQuestion"
         [questions]="questions"
         [options]="currentQuestion.options"
-        [selectedOption]="currentQuestion.selectedOption"
-        [currentQuestion]="currentQuestion"
         [currentQuestionIndex]="currentQuestionIndex"
+        [selectedOption]="currentQuestion.selectedOption"
         (answer)="updateClassName($event)"
       ></codelab-question-single-answer>
     </ng-container>
