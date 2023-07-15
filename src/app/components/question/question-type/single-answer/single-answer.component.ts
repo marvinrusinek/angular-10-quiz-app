@@ -106,5 +106,6 @@ export class SingleAnswerComponent
 
   onOptionClick(option: Option): void {
     super.onOptionClicked(option);
+    this.selectedOption = option;
   }
 }

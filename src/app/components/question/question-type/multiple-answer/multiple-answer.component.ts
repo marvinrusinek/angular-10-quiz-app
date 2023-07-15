@@ -153,6 +153,7 @@ export class MultipleAnswerComponent
 
   onOptionClick(option: Option): void {
     super.onOptionClicked(option);
+    this.selectedOption = option;
   }
 
   initializeOptionChecked(): void {
