@@ -269,6 +269,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.explanationText = explanationText;
           console.log('Explanation Text:::::>>>>>', explanationText);
       });
+    this.getNextQuestion();
 
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
@@ -286,6 +287,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$.next(null);
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+  }
+
+  nextQuestion() {
+    const nextQuestion = this.quizService.getNextQuestion();
+    if (nextQuestion) {
+      this.currentQuestion$ = of(nextQuestion);
+    } else {
+      // Handle end of quiz logic
+    }
+  }
+  
+
+  getNextQuestion(): void {
+    const nextQuestion = this.quizService.getNextQuestion(); // Replace with your logic to get the next question
+    if (nextQuestion) {
+      this.currentQuestion = nextQuestion;
+      this.explanationTextService.setExplanationText([], nextQuestion);
+    } else {
+      this.currentQuestion = null;
+    }
   }
 
   correctOptions(): string[] {
@@ -786,7 +807,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  advanceToNextQuestion(): void {
+  async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
       return;
     }
@@ -795,6 +816,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
+      await this.quizService.getNextQuestion();
+      this.currentQuestion = await this.quizService.getCurrentQuestion();
+      this.selectedOption = null;
+
+
       this.quizService.navigateToNextQuestion();
       this.quizService.resetAll();
 
