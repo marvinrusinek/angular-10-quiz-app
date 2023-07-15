@@ -690,11 +690,13 @@ export class QuizQuestionComponent
       this.explanationTextService
         .setExplanationText(this.selectedOptions, this.question)
         .subscribe((explanationText: string) => {
+          this.explanationText$.next(explanationText);
           this.explanationTextValue$.next(explanationText);
           this.showFeedbackForOption[option.optionId] = true;
           this.isAnswerSelectedChange.emit(true);
       });
     } else {
+      this.explanationText$.next(null);
       this.explanationTextValue$.next(null);
       this.showFeedbackForOption[option.optionId] = false;
       this.isAnswerSelectedChange.emit(false);
