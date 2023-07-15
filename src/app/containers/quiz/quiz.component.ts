@@ -710,7 +710,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.isQuestionAnswered()) {
       answers = this.answers.map((answer) => answer + 1);
       this.quizService.userAnswers.push(answers);
-      this.showExplanation = true;
+      
       console.log(
         'explanationText::::',
         this.explanationTextService.explanationText$
@@ -823,7 +823,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.animationState$.next('animationStarted');
   
       const nextQuestion = await this.quizService.getNextQuestion();
-      
+  
       if (nextQuestion) {
         this.currentQuestion = nextQuestion;
         this.nextQuestionText = nextQuestion.questionText;
@@ -852,7 +852,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }
   }
-      
+        
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
