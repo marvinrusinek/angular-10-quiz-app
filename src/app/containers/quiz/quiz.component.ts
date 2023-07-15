@@ -168,60 +168,57 @@ export class QuizComponent implements OnInit, OnDestroy {
           return this.quizService.getQuestionsForQuiz(quizId)
             .pipe(
               map((quizData: { quizId: string; questions: QuizQuestion[] }) => ({
-                  quizId,
-                  questionIndex,
-                  quizData
-                }))
+                quizId,
+                questionIndex,
+                quizData
+              }))
             );
-          })
-      )
-      .subscribe(({ quizId, questionIndex, quizData }) => {
-        this.quizData = quizData.questions;
-        this.quizId = quizId;
+      })
+    )
+    .subscribe(({ quizId, questionIndex, quizData }) => {
+      this.quizData = quizData.questions;
+      this.quizId = quizId;
 
-        const currentQuestionIndex = questionIndex - 1; // Convert to zero-based index
+      const currentQuestionIndex = questionIndex - 1; // Convert to zero-based index
 
-        if (
-          currentQuestionIndex >= 0 &&
-          currentQuestionIndex < this.quizData.length
-        ) {
-          const currentQuestion: QuizQuestion =
-            this.quizData[currentQuestionIndex];
-          console.log('MY CURRENT QUESTION', currentQuestion);
+      if (
+        currentQuestionIndex >= 0 &&
+        currentQuestionIndex < this.quizData.length
+      ) {
+        const currentQuestion: QuizQuestion = this.quizData[currentQuestionIndex];
+        console.log('MY CURRENT QUESTION', currentQuestion);
 
-          if (currentQuestion) {
-            this.currentQuestion = currentQuestion;
-            this.options = currentQuestion.options;
-            this.selectionMessageService.updateSelectionMessage('');
+        if (currentQuestion) {
+          console.log('currentQuestion:::>>>', currentQuestion);
+          this.currentQuestion = currentQuestion;
+          this.options = currentQuestion.options;
+          this.selectionMessageService.updateSelectionMessage('');
 
-            // Update other necessary properties based on the current question
-            if (currentQuestion.options) {
-              this.quizService.correctOptions = currentQuestion.options
-                .filter(
-                  (option) => option.correct && option.value !== undefined
-                )
-                .map((option) => option.value?.toString());
-            } else {
-              console.error(
-                'Invalid question or options:',
-                currentQuestion
-              );
-            }
-
-            this.quizService.showQuestionText$ = of(true);
-            this.selectedOption$.next(null);
-            this.explanationTextService.explanationText$.next('');
-            console.log('ngOnInit is called.');
-            this.cdRef.detectChanges();
+          if (currentQuestion.options && currentQuestion.options.length > 0) {
+            console.log('currentQuestion.options:::>>>>', currentQuestion.options);
+            this.quizService.correctOptions = currentQuestion.options
+              .filter((option) => option.correct && option.value !== undefined)
+              .map((option) => option.value?.toString());
+            console.log('correctOptions:::>>>>', this.quizService.correctOptions);
           } else {
-            console.error('Invalid question index:', questionIndex);
-            // Handle the invalid index case here (e.g., redirect to an error page)
+            console.error('Invalid question options:', currentQuestion);
           }
+
+          this.quizService.showQuestionText$ = of(true);
+          this.selectedOption$.next(null);
+          this.explanationTextService.explanationText$.next('');
+          console.log('ngOnInit is called.');
+          this.cdRef.detectChanges();
         } else {
           console.error('Invalid question index:', questionIndex);
         // Handle the invalid index case here (e.g., redirect to an error page)
         }
+      } else {
+        console.error('Invalid question index:', questionIndex);
+        // Handle the invalid index case here (e.g., redirect to an error page)
+      }
     });
+
 
     this.quizService.getAllQuestions().subscribe((questions) => {
       this.questions = questions;
