@@ -651,7 +651,7 @@ export class QuizQuestionComponent
       this.showFeedback = true;
     }
   }
-
+  
   onOptionClicked(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
@@ -694,23 +694,10 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-
-    setTimeout(() => {
-      this.updateFeedbackVisibility();
-    });
   }
-
-  updateFeedbackVisibility(): void {
-    const isOptionSelected = this.selectedOptions.length > 0;
-    const isFeedbackVisible =
-      isOptionSelected &&
-      this.isAnswered &&
-      this.selectedOption &&
-      this.showFeedbackForOption[this.selectedOption.optionId];
   
-    this.showFeedback = isFeedbackVisible;
-  }
-                        
+  
+                          
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
