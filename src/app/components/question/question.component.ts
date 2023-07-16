@@ -665,7 +665,25 @@ export class QuizQuestionComponent
       this.selectionMessageService.updateSelectionMessage(
         'Please click the next button to continue...'
       );
+  
+      this.isOptionSelected = true;
+      this.isAnswered = true; // Set isAnswered to true on the first click
+      this.isAnsweredChange.emit(this.isAnswered);
+      this.isAnswerSelectedChange.emit(this.isAnswered);
+      this.optionSelected.emit(this.isOptionSelected);
+  
+      this.explanationTextService
+        .setExplanationText(this.selectedOptions, this.question)
+        .subscribe((explanationText: string) => {
+          this.explanationText$.next(explanationText);
+          this.explanationTextValue$.next(explanationText);
+          this.isAnswerSelectedChange.emit(true);
+          this.toggleVisibility.emit();
+          this.updateFeedbackVisibility();
+        });
     } else {
+      // Handle the case when the option is already selected
+      // (same code as before)
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
@@ -680,21 +698,6 @@ export class QuizQuestionComponent
     }
   
     this.optionClicked.emit();
-    this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnsweredChange.emit(this.isAnswered);
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit(this.isOptionSelected);
-  
-    this.explanationTextService
-      .setExplanationText(this.selectedOptions, this.question)
-      .subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-        this.explanationTextValue$.next(explanationText);
-        this.isAnswerSelectedChange.emit(true);
-        this.toggleVisibility.emit();
-        this.updateFeedbackVisibility(option);
-      });
   
     // Emit updated selection
     this.selectionChanged.emit({
@@ -702,15 +705,16 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-  
-  updateFeedbackVisibility(option: Option): void {
+    
+  updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
       isOptionSelected &&
-      this.showFeedbackForOption[option.optionId];
+      this.showFeedbackForOption[this.selectedOption.optionId];
   
     this.showFeedback = isFeedbackVisible;
   }
+  
   
   
   
