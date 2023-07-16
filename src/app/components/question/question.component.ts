@@ -693,7 +693,9 @@ export class QuizQuestionComponent
         this.explanationTextValue$.next(explanationText);
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
-        this.updateFeedbackVisibility(option);
+        setTimeout(() => {
+          this.updateFeedbackVisibility();
+        });
       });
   
     // Emit updated selection
@@ -702,14 +704,14 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-  
-  updateFeedbackVisibility(option: Option): void {
+    
+  updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
       isOptionSelected &&
       this.isAnswered &&
-      option === this.selectedOption &&
-      this.showFeedbackForOption[option.optionId];
+      this.selectedOption &&
+      this.showFeedbackForOption[this.selectedOption.optionId];
   
     this.showFeedback = isFeedbackVisible;
   }  
