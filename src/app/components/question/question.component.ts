@@ -660,11 +660,25 @@ export class QuizQuestionComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
+      this.showFeedbackForOption[option.optionId] = true;
+      this.showFeedback = true; // Set showFeedback to true for immediate feedback display
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
+      this.showFeedbackForOption[option.optionId] = false;
+  
+      if (this.selectedOptions.length === 0) {
+        this.showFeedback = false; // Set showFeedback to false if no options are selected
+      }
     }
+  
+    this.optionClicked.emit();
+    this.isOptionSelected = true;
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnsweredChange.emit(this.isAnswered);
+    this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.optionSelected.emit(this.isOptionSelected);
   
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
@@ -673,23 +687,30 @@ export class QuizQuestionComponent
         this.explanationTextValue$.next(explanationText);
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
-        this.selectionChanged.emit({
-          question: this.currentQuestion,
-          selectedOptions: this.selectedOptions,
-        });
       });
   
-    this.optionClicked.emit();
-    this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnsweredChange.emit(this.isAnswered);
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit(this.isOptionSelected);
+    // Emit updated selection
+    this.selectionChanged.emit({
+      question: this.currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+
+    setTimeout(() => {
+      this.updateFeedbackVisibility();
+    });
   }
+
+  updateFeedbackVisibility(): void {
+    const isOptionSelected = this.selectedOptions.length > 0;
+    const isFeedbackVisible =
+      isOptionSelected &&
+      this.isAnswered &&
+      this.selectedOption &&
+      this.showFeedbackForOption[this.selectedOption.optionId];
   
-  
-  
-                    
+    this.showFeedback = isFeedbackVisible;
+  }
+                        
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
