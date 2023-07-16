@@ -772,9 +772,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.shouldDisplayNumberOfCorrectAnswers &&
       this.isMultipleCorrectAnswers() &&
       !this.isOptionSelected &&
-      !this.shouldDisplayExplanation()
+      !this.shouldDisplayExplanation() &&
+      !this.shouldDisplayExplanationText()
     );
-  }
+  }  
 
   shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;
@@ -810,7 +811,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   shouldDisplayExplanationText(): boolean {
     return !!this.explanationText;
   }
-
+  
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
