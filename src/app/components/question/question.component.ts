@@ -661,20 +661,7 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedbackForOption[option.optionId] = true;
-  
-      this.explanationTextService
-        .setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationText$.next(explanationText);
-          this.explanationTextValue$.next(explanationText);
-          this.isAnswerSelectedChange.emit(true);
-          this.toggleVisibility.emit();
-          this.showFeedback = true; // Set showFeedback to true simultaneously with explanationText
-          this.selectionChanged.emit({
-            question: this.currentQuestion,
-            selectedOptions: this.selectedOptions,
-          });
-        });
+      this.showFeedback = true; // Set showFeedback to true for first click
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
@@ -684,15 +671,6 @@ export class QuizQuestionComponent
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
       }
-  
-      this.explanationText$.next(null);
-      this.explanationTextValue$.next(null);
-      this.isAnswerSelectedChange.emit(false);
-      this.toggleVisibility.emit();
-      this.selectionChanged.emit({
-        question: this.currentQuestion,
-        selectedOptions: this.selectedOptions,
-      });
     }
   
     this.optionClicked.emit();
@@ -701,7 +679,23 @@ export class QuizQuestionComponent
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
+  
+    this.explanationTextService
+      .setExplanationText(this.selectedOptions, this.question)
+      .subscribe((explanationText: string) => {
+        this.explanationText$.next(explanationText);
+        this.explanationTextValue$.next(explanationText);
+        this.isAnswerSelectedChange.emit(true);
+        this.toggleVisibility.emit();
+        this.selectionChanged.emit({
+          question: this.currentQuestion,
+          selectedOptions: this.selectedOptions,
+        });
+      });
   }
+  
+  
+  
                     
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;

@@ -198,4 +198,8 @@ export class MultipleAnswerComponent
   isSelectedOption(option: Option): boolean {
     return this.selectedOptions.includes(option) && this.showFeedbackForOption[option.optionId];
   }
+
+  shouldDisplayFeedback(option: Option): boolean {
+    return this.showFeedback && this.showFeedbackForOption[option.optionId];
+  }  
 }
