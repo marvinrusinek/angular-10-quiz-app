@@ -651,68 +651,6 @@ export class QuizQuestionComponent
       this.showFeedback = true;
     }
   }
-  
-  /* onOptionClicked(option: Option): void {
-    const index = this.selectedOptions.findIndex((o) => o === option);
-    const isOptionSelected = index !== -1;
-  
-    if (!isOptionSelected) {
-      this.selectedOptions.push(option);
-      this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-      this.showFeedbackForOption[option.optionId] = true;
-      this.showFeedback = true;
-      this.selectionMessageService.updateSelectionMessage(
-        'Please click the next button to continue...'
-      );
-    } else {
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-      this.showFeedbackForOption[option.optionId] = false;
-  
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
-        this.selectionMessageService.updateSelectionMessage(
-          'Please select an option to continue...'
-        );
-      }
-    }
-  
-    this.optionClicked.emit();
-    this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnsweredChange.emit(this.isAnswered);
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit(this.isOptionSelected);
-  
-    this.explanationTextService
-      .setExplanationText(this.selectedOptions, this.question)
-      .subscribe((explanationText: string) => {
-        this.explanationText$.next(explanationText);
-        this.explanationTextValue$.next(explanationText);
-        this.isAnswerSelectedChange.emit(true);
-        this.toggleVisibility.emit();
-        this.updateFeedbackVisibility();
-      });
-  
-    // Emit updated selection
-    this.selectionChanged.emit({
-      question: this.currentQuestion,
-      selectedOptions: this.selectedOptions,
-    });
-  }
-  
-  updateFeedbackVisibility(): void {
-    const isOptionSelected = this.selectedOptions.length > 0;
-    const isFeedbackVisible =
-      isOptionSelected &&
-      this.isAnswered &&
-      this.selectedOption &&
-      this.showFeedbackForOption[this.selectedOption.optionId];
-  
-    this.showFeedback = isFeedbackVisible;
-  } */
 
   onOptionClicked(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
