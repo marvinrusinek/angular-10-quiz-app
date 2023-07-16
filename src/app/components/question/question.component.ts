@@ -661,6 +661,10 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedbackForOption[option.optionId] = true;
+
+      this.selectionMessageService.updateSelectionMessage(
+        'Please click the next button to continue...'
+      );
   
       this.isOptionSelected = true;
       this.isAnswered = true; // Set isAnswered to true on the first click
@@ -675,11 +679,9 @@ export class QuizQuestionComponent
           this.explanationTextValue$.next(explanationText);
           this.isAnswerSelectedChange.emit(true);
           this.toggleVisibility.emit();
-          this.updateFeedbackVisibility(option); // Update feedback visibility for the selected option
+          this.updateFeedbackVisibility(option);
         });
     } else {
-      // Handle the case when the option is already selected
-      // (same code as before)
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
@@ -690,6 +692,10 @@ export class QuizQuestionComponent
         this.isAnsweredChange.emit(this.isAnswered);
         this.isAnswerSelectedChange.emit(this.isAnswered);
         this.optionSelected.emit(false);
+
+        this.selectionMessageService.updateSelectionMessage(
+          'Please select an option to continue...'
+        );
       }
     }
   
@@ -709,11 +715,7 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId];
   
     this.showFeedback = isFeedbackVisible;
-  }
-    
-  
-  
-  
+  } 
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
