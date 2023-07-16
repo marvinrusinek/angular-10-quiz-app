@@ -661,26 +661,10 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedbackForOption[option.optionId] = true;
-
+      this.showFeedback = true;
       this.selectionMessageService.updateSelectionMessage(
         'Please click the next button to continue...'
       );
-  
-      this.isOptionSelected = true;
-      this.isAnswered = true; // Set isAnswered to true on the first click
-      this.isAnsweredChange.emit(this.isAnswered);
-      this.isAnswerSelectedChange.emit(this.isAnswered);
-      this.optionSelected.emit(this.isOptionSelected);
-  
-      this.explanationTextService
-        .setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationText$.next(explanationText);
-          this.explanationTextValue$.next(explanationText);
-          this.isAnswerSelectedChange.emit(true);
-          this.toggleVisibility.emit();
-          this.updateFeedbackVisibility(option);
-        });
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
@@ -688,11 +672,7 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = false;
   
       if (this.selectedOptions.length === 0) {
-        this.isAnswered = false; // Reset isAnswered if no options are selected
-        this.isAnsweredChange.emit(this.isAnswered);
-        this.isAnswerSelectedChange.emit(this.isAnswered);
-        this.optionSelected.emit(false);
-
+        this.showFeedback = false;
         this.selectionMessageService.updateSelectionMessage(
           'Please select an option to continue...'
         );
@@ -700,6 +680,21 @@ export class QuizQuestionComponent
     }
   
     this.optionClicked.emit();
+    this.isOptionSelected = true;
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnsweredChange.emit(this.isAnswered);
+    this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.optionSelected.emit(this.isOptionSelected);
+  
+    this.explanationTextService
+      .setExplanationText(this.selectedOptions, this.question)
+      .subscribe((explanationText: string) => {
+        this.explanationText$.next(explanationText);
+        this.explanationTextValue$.next(explanationText);
+        this.isAnswerSelectedChange.emit(true);
+        this.toggleVisibility.emit();
+        this.updateFeedbackVisibility();
+      });
   
     // Emit updated selection
     this.selectionChanged.emit({
@@ -707,15 +702,16 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-  
-  updateFeedbackVisibility(option: Option): void {
+    
+  updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
       isOptionSelected &&
-      this.showFeedbackForOption[option.optionId];
+      this.showFeedbackForOption[this.selectedOption.optionId];
   
     this.showFeedback = isFeedbackVisible;
-  } 
+  }
+  
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;

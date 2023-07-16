@@ -25,7 +25,7 @@
         ></codelab-quiz-option-feedback>
 
         <codelab-quiz-feedback
-          *ngIf="shouldDisplayFeedback(option) && explanationText$ | async as explanationText"
+          *ngIf="shouldDisplayFeedback(option)"
           [question]="currentQuestion"
           [selectedOption]="option"
           [correctMessage]="correctMessage"

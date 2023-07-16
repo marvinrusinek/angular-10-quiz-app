@@ -62,7 +62,6 @@ export class MultipleAnswerComponent
   options$: Observable<Option[]>;
   isMultiple: boolean = true;
   showExplanation: boolean = false;
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   showFeedback: boolean = false;
   private destroyed$ = new Subject<void>();
 
@@ -100,8 +99,6 @@ export class MultipleAnswerComponent
   
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
-
-    this.explanationText$ = this.explanationTextService.explanationText$;
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
