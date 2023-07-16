@@ -681,7 +681,7 @@ export class QuizQuestionComponent
   
     this.optionClicked.emit();
     this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnswered = true;
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
