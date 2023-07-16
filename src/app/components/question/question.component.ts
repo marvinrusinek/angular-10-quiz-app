@@ -72,6 +72,7 @@ export class QuizQuestionComponent
   @Input() explanationTextValue: string;
   @Input() isOptionSelected: boolean = false;
   @Input() selectionMessage: string;
+  @Input() showFeedback: boolean = false;
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
@@ -659,21 +660,33 @@ export class QuizQuestionComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.showFeedback = true;
       this.selectionMessageService.updateSelectionMessage(
         'Please click the next button to continue...'
       );
+  
+      this.quizService.displayExplanationText(true);
+      this.explanationTextService
+        .setExplanationText(this.selectedOptions, this.currentQuestion)
+        .subscribe((explanationText: string) => {
+          this.explanationText$.next(explanationText);
+          this.explanationTextValue$.next(explanationText);
+          this.showFeedbackForOption[option.optionId] = true;
+          this.isAnswerSelectedChange.emit(true);
+          this.showFeedback = true;
+        });
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
   
       if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
         this.selectionMessageService.updateSelectionMessage(
           'Please select an option to continue...'
         );
       }
+  
+      this.showFeedback = false;
+      this.isAnswerSelectedChange.emit(false);
     }
   
     this.optionClicked.emit();
@@ -682,24 +695,7 @@ export class QuizQuestionComponent
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnsweredChange.emit(this.isAnswered);
   
-    this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
-  
-    if (this.isAnswered) {
-      this.quizService.displayExplanationText(true);  
-      this.explanationTextService
-        .setExplanationText(this.selectedOptions, this.question)
-        .subscribe((explanationText: string) => {
-          this.explanationText$.next(explanationText);
-          this.explanationTextValue$.next(explanationText);
-          this.showFeedbackForOption[option.optionId] = true;
-          this.isAnswerSelectedChange.emit(true);
-      });
-    } else {
-      this.explanationTextValue$.next(null);
-      this.showFeedbackForOption[option.optionId] = false;
-      this.isAnswerSelectedChange.emit(false);
-    }
   
     this.toggleVisibility.emit();
     this.optionSelected.emit(true);
@@ -710,7 +706,8 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-
+  
+    
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);

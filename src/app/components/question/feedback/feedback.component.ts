@@ -13,4 +13,5 @@ export class FeedbackComponent {
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
+  @Input() showFeedback: boolean;
 }

@@ -55,7 +55,8 @@
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
           [explanationTextValue$]="explanationTextValue$ | async"
-          [selectionMessage]="selectionMessage$ | async"          
+          [selectionMessage]="selectionMessage$ | async" 
+          [showFeedback]="showFeedback"         
         ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>
