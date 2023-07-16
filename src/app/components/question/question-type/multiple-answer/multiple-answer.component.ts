@@ -199,15 +199,11 @@ export class MultipleAnswerComponent
     return this.selectedOptions.includes(option) && this.showFeedbackForOption[option.optionId];
   }
 
-  /* shouldDisplayFeedback(option: Option): boolean {
-    return this.showFeedback && this.showFeedbackForOption[option.optionId];
-  } */  
-
   shouldDisplayFeedback(option: Option): boolean {
     return (
       this.isSelectedOption(option) &&
       this.isAnswered &&
-      this.selectedOption === option
+      this.showFeedbackForOption[option.optionId]
     );
-  }
+  }  
 }
