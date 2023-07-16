@@ -660,6 +660,8 @@ export class QuizQuestionComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
+      this.showFeedbackForOption[option.optionId] = true;
+      this.showFeedback = true;
   
       this.explanationTextService
         .setExplanationText(this.selectedOptions, this.question)
@@ -667,8 +669,6 @@ export class QuizQuestionComponent
           this.explanationText$.next(explanationText);
           this.explanationTextValue$.next(explanationText);
           this.isAnswerSelectedChange.emit(true);
-          this.showFeedbackForOption[option.optionId] = true;
-          this.showFeedback = true;
           this.toggleVisibility.emit();
           this.selectionChanged.emit({
             question: this.currentQuestion,
@@ -702,10 +702,7 @@ export class QuizQuestionComponent
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
   }
-  
-  
-  
-            
+              
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
