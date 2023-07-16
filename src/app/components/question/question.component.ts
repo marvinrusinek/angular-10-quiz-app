@@ -661,7 +661,10 @@ export class QuizQuestionComponent
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
       this.showFeedbackForOption[option.optionId] = true;
-      this.showFeedback = true; // Set showFeedback to true for immediate feedback display
+      this.showFeedback = true;
+      this.selectionMessageService.updateSelectionMessage(
+        'Please click the next button to continue...'
+      );
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
@@ -669,7 +672,10 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = false;
   
       if (this.selectedOptions.length === 0) {
-        this.showFeedback = false; // Set showFeedback to false if no options are selected
+        this.showFeedback = false;
+        this.selectionMessageService.updateSelectionMessage(
+          'Please select an option to continue...'
+        );
       }
     }
   
