@@ -663,7 +663,7 @@ export class QuizQuestionComponent
       this.showFeedbackForOption[option.optionId] = true;
   
       this.isOptionSelected = true;
-      this.isAnswered = true;
+      this.isAnswered = true; // Set isAnswered to true on the first click
       this.isAnsweredChange.emit(this.isAnswered);
       this.isAnswerSelectedChange.emit(this.isAnswered);
       this.optionSelected.emit(this.isOptionSelected);
@@ -675,16 +675,18 @@ export class QuizQuestionComponent
           this.explanationTextValue$.next(explanationText);
           this.isAnswerSelectedChange.emit(true);
           this.toggleVisibility.emit();
-          this.updateFeedbackVisibility();
+          this.updateFeedbackVisibility(option); // Update feedback visibility for the selected option
         });
     } else {
+      // Handle the case when the option is already selected
+      // (same code as before)
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
       this.showFeedbackForOption[option.optionId] = false;
   
       if (this.selectedOptions.length === 0) {
-        this.isAnswered = false;
+        this.isAnswered = false; // Reset isAnswered if no options are selected
         this.isAnsweredChange.emit(this.isAnswered);
         this.isAnswerSelectedChange.emit(this.isAnswered);
         this.optionSelected.emit(false);
@@ -700,16 +702,15 @@ export class QuizQuestionComponent
     });
   }
   
-    
-  updateFeedbackVisibility(): void {
+  updateFeedbackVisibility(option: Option): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
       isOptionSelected &&
-      this.showFeedbackForOption[this.selectedOption.optionId];
+      this.showFeedbackForOption[option.optionId];
   
     this.showFeedback = isFeedbackVisible;
   }
-  
+    
   
   
   
