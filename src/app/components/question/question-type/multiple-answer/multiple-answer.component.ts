@@ -202,7 +202,6 @@ export class MultipleAnswerComponent
   shouldDisplayFeedback(option: Option): boolean {
     return (
       this.isSelectedOption(option) &&
-      this.isAnswered &&
       this.showFeedbackForOption[option.optionId]
     );
   }  
