@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
@@ -62,6 +62,7 @@ export class MultipleAnswerComponent
   options$: Observable<Option[]>;
   isMultiple: boolean = true;
   showExplanation: boolean = false;
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   showFeedback: boolean = false;
   private destroyed$ = new Subject<void>();
 
@@ -99,6 +100,8 @@ export class MultipleAnswerComponent
   
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
+
+    this.explanationText$ = this.explanationTextService.explanationText$;
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
