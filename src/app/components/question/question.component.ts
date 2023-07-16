@@ -660,25 +660,11 @@ export class QuizQuestionComponent
       this.selectedOptions.push(option);
       this.selectedOption = option;
       this.optionChecked[option.optionId] = true;
-      this.showFeedbackForOption[option.optionId] = true;
-      this.showFeedback = true; // Set showFeedback to true for first click
     } else {
       this.selectedOptions.splice(index, 1);
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
-      this.showFeedbackForOption[option.optionId] = false;
-  
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
-      }
     }
-  
-    this.optionClicked.emit();
-    this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
-    this.isAnsweredChange.emit(this.isAnswered);
-    this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit(this.isOptionSelected);
   
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
@@ -692,6 +678,13 @@ export class QuizQuestionComponent
           selectedOptions: this.selectedOptions,
         });
       });
+  
+    this.optionClicked.emit();
+    this.isOptionSelected = true;
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnsweredChange.emit(this.isAnswered);
+    this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.optionSelected.emit(this.isOptionSelected);
   }
   
   

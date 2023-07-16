@@ -25,12 +25,11 @@
         ></codelab-quiz-option-feedback>
 
         <codelab-quiz-feedback
-          *ngIf="isSelectedOption(option) && showFeedback"
+          *ngIf="isSelectedOption(option) && isAnswered && option === selectedOption"
           [question]="currentQuestion"
           [selectedOption]="selectedOption"
           [correctMessage]="correctMessage"
         ></codelab-quiz-feedback>
-
       </label>
     </div>
   </div>
