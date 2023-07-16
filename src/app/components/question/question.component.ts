@@ -666,22 +666,13 @@ export class QuizQuestionComponent
         'Please click the next button to continue...'
       );
     } else {
-      this.selectedOptions.splice(index, 1);
-      this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-      this.showFeedbackForOption[option.optionId] = false;
-  
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
-        this.selectionMessageService.updateSelectionMessage(
-          'Please select an option to continue...'
-        );
-      }
+      this.selectedOption = option;
+      this.updateFeedbackVisibility();
+      return;
     }
   
-    this.optionClicked.emit();
     this.isOptionSelected = true;
-    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnswered = true; // Set isAnswered to true
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
@@ -693,7 +684,7 @@ export class QuizQuestionComponent
         this.explanationTextValue$.next(explanationText);
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
-        this.updateFeedbackVisibility(option);
+        this.updateFeedbackVisibility();
       });
   
     // Emit updated selection
@@ -701,16 +692,21 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-  }
+  }  
     
-  updateFeedbackVisibility(option: Option): void {
+  /* updateFeedbackVisibility(option: Option): void {
     const isOptionSelected = this.isSelectedOption(option);
     const isFeedbackVisible =
       isOptionSelected &&
       this.showFeedbackForOption[option.optionId];
   
     this.showFeedback = isFeedbackVisible;
+  } */
+
+  updateFeedbackVisibility(): void {
+    this.showFeedback = this.isAnswered && !!this.selectedOption;
   }
+  
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
