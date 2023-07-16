@@ -670,7 +670,7 @@ export class QuizQuestionComponent
       this.selectedOption = null;
       this.optionChecked[option.optionId] = false;
       this.showFeedbackForOption[option.optionId] = false;
-
+  
       if (this.selectedOptions.length === 0) {
         this.showFeedback = false;
         this.selectionMessageService.updateSelectionMessage(
@@ -693,6 +693,7 @@ export class QuizQuestionComponent
         this.explanationTextValue$.next(explanationText);
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
+        this.updateFeedbackVisibility(option);
       });
   
     // Emit updated selection
@@ -702,7 +703,16 @@ export class QuizQuestionComponent
     });
   }
   
+  updateFeedbackVisibility(option: Option): void {
+    const isOptionSelected = this.selectedOptions.length > 0;
+    const isFeedbackVisible =
+      isOptionSelected &&
+      this.isAnswered &&
+      option === this.selectedOption &&
+      this.showFeedbackForOption[option.optionId];
   
+    this.showFeedback = isFeedbackVisible;
+  }  
                           
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
