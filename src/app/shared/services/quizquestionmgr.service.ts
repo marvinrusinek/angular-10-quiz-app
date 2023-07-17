@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+
 @Injectable({
   providedIn: 'root',
 })
 export class QuizQuestionManagerService {
-  private currentQuestion: any; // Replace `any` with the appropriate type for your quiz question
+  private currentQuestion: QuizQuestion;
   private explanationText: string;
   private numberOfCorrectAnswers: number;
+  shouldDisplayNumberOfCorrectAnswers: boolean = false;
+  isOptionSelected: boolean = false;
+  shouldDisplayExplanation: boolean = false;
 
   setCurrentQuestion(question: any): void {
     this.currentQuestion = question;
@@ -33,14 +38,20 @@ export class QuizQuestionManagerService {
   }
 
   shouldDisplayExplanationText(): boolean {
-    // Replace this with your implementation logic
-    // Return true or false based on your condition for displaying the explanation text
-    return true;
+    return !!this.explanationText;
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    // Replace this with your implementation logic
-    // Return true or false based on your condition for displaying the number of correct answers count
-    return true;
+    return (
+      this.shouldDisplayNumberOfCorrectAnswers &&
+      this.isMultipleCorrectAnswers() &&
+      !this.isOptionSelected &&
+      !this.shouldDisplayExplanation &&
+      !this.shouldDisplayExplanationText()
+    );
+  }
+
+  isMultipleCorrectAnswers(): boolean {
+    return this.numberOfCorrectAnswers > 1;
   }
 }
