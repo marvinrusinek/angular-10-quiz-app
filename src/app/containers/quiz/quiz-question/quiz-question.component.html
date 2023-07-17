@@ -1,0 +1,11 @@
+<section id="question">
+  <h3>
+    {{ shouldDisplayExplanationText() ? explanationText : currentQuestion?.questionText }}
+    <!--{{ shouldDisplayExplanationText() ? currentQuestion?.questionText : explanationText  }}-->
+    <!--{{ explanationText || currentQuestion?.questionText }}-->
+    <span class="number-correct" 
+      *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"> 
+      ({{ numberOfCorrectAnswers }} answers are correct)
+    </span>
+  </h3>
+</section>
