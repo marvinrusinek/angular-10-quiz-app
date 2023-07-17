@@ -31,7 +31,18 @@ export class CodelabQuizComponent {
     this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers;
   }
 
-  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+  /* shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
-  }
+  } */
+
+  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+    // Replace this with your logic to determine whether to display the number of correct answers
+    console.log('numberOfCorrectAnswers:', this.numberOfCorrectAnswers);
+  
+    const correctAnswersThreshold = 2; // Change this to your desired threshold
+    const result = this.numberOfCorrectAnswers >= correctAnswersThreshold;
+    console.log('shouldDisplayNumberOfCorrectAnswersCount:', result);
+  
+    return result;
+  }  
 }

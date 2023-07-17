@@ -5,5 +5,8 @@
     <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
       ({{ numberOfCorrectAnswers }} answers are correct)
     </span>
+    <span class="number-correct">
+      Condition Result: {{ shouldDisplayNumberOfCorrectAnswersCount() }}
+    </span>
   </h3>
 </section>
