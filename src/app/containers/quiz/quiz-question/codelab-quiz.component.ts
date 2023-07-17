@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Observable } from '@angular/rxjs';
+import { BehaviorSubject, Observable } from '@angular/rxjs';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -14,7 +14,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  currentQuestion: QuizQuestion;
+  currentQuestion: BehaviorSubject<QuizQuestion | null>;
   explanationText$: Observable<string>;
   numberOfCorrectAnswers: number;
 
