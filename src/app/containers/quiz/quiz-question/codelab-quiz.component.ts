@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  currentQuestion: any; // Replace `any` with the appropriate type for your quiz question
+  currentQuestion: QuizQuestion;
   explanationText: string;
   numberOfCorrectAnswers: number;
 
