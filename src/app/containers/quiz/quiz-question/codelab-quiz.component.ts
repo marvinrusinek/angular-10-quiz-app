@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
+import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../shared/services/quizstate.service';
+import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 
 @Component({
@@ -14,12 +17,17 @@ export class CodelabQuizComponent {
   explanationText: string;
   numberOfCorrectAnswers: number;
 
-  constructor(private quizQuestionManagerService: QuizQuestionManagerService) {}
+  constructor(
+    private quizService: QuizService,
+    private quizStateService: QuizStateService,
+    private explanationTextService: ExplanationTextService,
+    private quizQuestionManagerService: QuizQuestionManagerService
+  ) {}
 
   ngOnInit(): void {
-    this.currentQuestion = this.quizQuestionManagerService.getCurrentQuestion();
-    this.explanationText = this.quizQuestionManagerService.getExplanationText();
-    this.numberOfCorrectAnswers = this.quizQuestionManagerService.getNumberOfCorrectAnswers();
+    this.currentQuestion = this.quizStateService.getCurrentQuestion();
+    this.explanationText = this.explanationTextService.getExplanationText();
+    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers();
   }
 
   shouldDisplayExplanationText(): boolean {
