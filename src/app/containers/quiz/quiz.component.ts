@@ -268,7 +268,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       .getExplanationText$()
         .subscribe((explanationText: string | null) => {
           this.explanationText = explanationText;
-          console.log('Explanation Text:::::>>>>>', explanationText);
       });
     this.getNextQuestion();
 
