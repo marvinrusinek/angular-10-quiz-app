@@ -31,10 +31,6 @@ export class CodelabQuizComponent {
     this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers;
   }
 
-  shouldDisplayExplanationText(): boolean {
-    return this.quizQuestionManagerService.shouldDisplayExplanationText();
-  }
-
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
   }
