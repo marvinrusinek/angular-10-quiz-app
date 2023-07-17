@@ -46,7 +46,6 @@ export class QuizQuestionManagerService {
       this.shouldDisplayNumberOfCorrectAnswers &&
       this.isMultipleCorrectAnswers() &&
       !this.isOptionSelected &&
-      !this.shouldDisplayExplanation &&
       !this.shouldDisplayExplanationText()
     );
   }
