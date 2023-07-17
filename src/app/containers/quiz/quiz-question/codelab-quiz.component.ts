@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 
 @Component({
