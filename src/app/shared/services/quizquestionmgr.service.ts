@@ -6,9 +6,9 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class QuizQuestionManagerService {
-  private currentQuestion: QuizQuestion;
-  private explanationText: string;
-  private numberOfCorrectAnswers: number;
+  currentQuestion: QuizQuestion;
+  explanationText: string;
+  numberOfCorrectAnswers: number;
   shouldDisplayNumberOfCorrectAnswers: boolean = false;
   isOptionSelected: boolean = false;
   shouldDisplayExplanation: boolean = false;
@@ -42,14 +42,25 @@ export class QuizQuestionManagerService {
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    return (
-      this.shouldDisplayNumberOfCorrectAnswers &&
-      this.isMultipleCorrectAnswers() &&
-      !this.isOptionSelected &&
-      !this.shouldDisplayExplanationText()
-    );
+    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
+    console.log('isMultipleCorrectAnswers:', this.isMultipleCorrectAnswers());
+    console.log('isOptionSelected:', this.isOptionSelected);
+    console.log('shouldDisplayExplanationText:', this.shouldDisplayExplanationText());
+  
+    // Check the conditions
+    const displayNumberOfCorrectAnswers =
+      this.shouldDisplayNumberOfCorrectAnswers && // Check if we want to display the number of correct answers
+      this.isMultipleCorrectAnswers() && // Check if the question has multiple correct answers
+      !this.isOptionSelected && // Check if no option is selected by the user
+      !this.shouldDisplayExplanationText(); // Check if explanation text is not displayed
+  
+    console.log('displayNumberOfCorrectAnswers:', displayNumberOfCorrectAnswers);
+  
+    return displayNumberOfCorrectAnswers;
   }
-
+  
+  
+  
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
   }
