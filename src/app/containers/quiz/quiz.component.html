@@ -33,7 +33,6 @@
       <codelab-scoreboard></codelab-scoreboard>
 
       <ng-content select="[question-content]"></ng-content>
-      
       <ng-container *ngIf="options$ | async as options">
         <!-- the options -->
         <codelab-quiz-question
