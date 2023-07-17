@@ -14,7 +14,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  currentQuestion: BehaviorSubject<QuizQuestion | null>;
+  currentQuestion$: Observable<QuizQuestion>;
   explanationText$: Observable<string>;
   numberOfCorrectAnswers: number;
 
@@ -26,7 +26,7 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
-    this.currentQuestion = this.quizStateService.getCurrentQuestion();
+    this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers;
   }
