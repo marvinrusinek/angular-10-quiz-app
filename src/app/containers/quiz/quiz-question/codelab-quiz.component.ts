@@ -7,4 +7,15 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
+
+
+  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+    return (
+      this.shouldDisplayNumberOfCorrectAnswers &&
+      this.isMultipleCorrectAnswers() &&
+      !this.isOptionSelected &&
+      !this.shouldDisplayExplanation() &&
+      !this.shouldDisplayExplanationText()
+    );
+  } 
 }
