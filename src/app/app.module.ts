@@ -39,7 +39,7 @@ import { SummaryReportComponent } from './containers/results/summary-report/summ
 import { SummaryIconsComponent } from './containers/results/summary-report/summary-icons/summary-icons.component';
 import { SummaryStatsComponent } from './containers/results/summary-report/summary-stats/summary-stats.component';
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
-import { CodelabQuizComponent } from './containers/quiz/quiz-question/quiz-question.component';
+import { CodelabQuizComponent } from './containers/quiz/quiz-question/codelab-quiz.component';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizStateService } from './shared/services/quizstate.service';
