@@ -99,6 +99,18 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
 
+  private _numberOfCorrectAnswers: number = 0;
+  private numberOfCorrectAnswersSubject = new BehaviorSubject<number>(this._numberOfCorrectAnswers);
+
+  setNumberOfCorrectAnswers(value: number): void {
+    this._numberOfCorrectAnswers = value;
+    this.numberOfCorrectAnswersSubject.next(value);
+  }
+
+  get numberOfCorrectAnswers$(): Observable<number> {
+    return this.numberOfCorrectAnswersSubject.asObservable();
+  }
+
   private currentQuestionSource: Subject<{
     question: QuizQuestion;
     quizId: string;
