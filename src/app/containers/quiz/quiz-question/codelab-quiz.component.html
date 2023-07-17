@@ -2,7 +2,7 @@
   <h3>
     TEST
     <ng-content select="[question-content]"></ng-content>
-    {{ shouldDisplayExplanationText() ? explanationText : currentQuestion?.questionText }}
+    {{ shouldDisplayExplanationText() ? (explanationText$ | async) : (currentQuestion$ | async).questionText }}
     <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
       ({{ numberOfCorrectAnswers }} answers are correct)
     </span>
