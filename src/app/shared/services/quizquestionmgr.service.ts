@@ -33,8 +33,8 @@ export class QuizQuestionManagerService {
   }
 
   setNumberOfCorrectAnswers(count: number): void {
+    console.log('setNumberOfCorrectAnswers:', count);
     this.numberOfCorrectAnswers = count;
-    console.log('numberOfCorrectAnswers:', this.numberOfCorrectAnswers);
   }
 
   getNumberOfCorrectAnswers(): number {

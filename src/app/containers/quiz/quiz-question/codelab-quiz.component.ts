@@ -24,6 +24,7 @@ export class CodelabQuizComponent {
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService
   ) {
+    console.log('Initial numberOfCorrectAnswers:', this.quizService.numberOfCorrectAnswers);
     this.quizServiceSubscription = this.quizService.numberOfCorrectAnswers$.subscribe(count => {
       console.log('numberOfCorrectAnswers:', count);
       this.numberOfCorrectAnswers = count;
