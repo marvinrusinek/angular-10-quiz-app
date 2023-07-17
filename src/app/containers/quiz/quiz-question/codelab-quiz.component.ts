@@ -44,5 +44,5 @@ export class CodelabQuizComponent {
     console.log('shouldDisplayNumberOfCorrectAnswersCount:', result);
   
     return result;
-  }  
+  }
 }

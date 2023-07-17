@@ -15,14 +15,17 @@ export class QuizQuestionManagerService {
 
   setCurrentQuestion(question: any): void {
     this.currentQuestion = question;
+    console.log('currentQuestion:', this.currentQuestion);
   }
 
   getCurrentQuestion(): any {
     return this.currentQuestion;
+
   }
 
   setExplanationText(text: string): void {
     this.explanationText = text;
+    console.log('explanationText:', this.explanationText);
   }
 
   getExplanationText(): string {
@@ -31,6 +34,7 @@ export class QuizQuestionManagerService {
 
   setNumberOfCorrectAnswers(count: number): void {
     this.numberOfCorrectAnswers = count;
+    console.log('numberOfCorrectAnswers:', this.numberOfCorrectAnswers);
   }
 
   getNumberOfCorrectAnswers(): number {
