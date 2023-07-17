@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Observable } from '@angular/rxjs';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -14,7 +15,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
 })
 export class CodelabQuizComponent { 
   currentQuestion: QuizQuestion;
-  explanationText: string;
+  explanationText$: Observable<string>;
   numberOfCorrectAnswers: number;
 
   constructor(
@@ -26,8 +27,8 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = this.quizStateService.getCurrentQuestion();
-    this.explanationText = this.explanationTextService.getExplanationText();
-    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers();
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
+    this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers;
   }
 
   shouldDisplayExplanationText(): boolean {
