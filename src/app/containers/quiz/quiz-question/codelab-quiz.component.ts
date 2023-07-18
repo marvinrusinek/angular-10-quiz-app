@@ -30,14 +30,6 @@ export class CodelabQuizComponent {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
 
-    /* this.currentQuestion$.subscribe((question) => {
-      if (question) {
-        this.quizQuestionManagerService.setCurrentQuestion(question);
-        this.numberOfCorrectAnswers = this.quizQuestionManagerService.getNumberOfCorrectAnswers();
-        this.shouldDisplayNumberOfCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
-      }
-    }); */
-
     this.currentQuestion$.subscribe((question) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
