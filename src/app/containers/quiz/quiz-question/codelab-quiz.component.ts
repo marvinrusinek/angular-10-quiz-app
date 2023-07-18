@@ -37,7 +37,14 @@ export class CodelabQuizComponent {
   ngOnInit(): void {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
-    this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.quizService.numberOfCorrectAnswers);
+
+    this.currentQuestion$.subscribe((question) => {
+      if (question) {
+        this.quizQuestionManagerService.setCurrentQuestion(question);
+      }
+    });
+
+    // this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.quizService.numberOfCorrectAnswers);
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
