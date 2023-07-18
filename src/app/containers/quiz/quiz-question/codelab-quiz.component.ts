@@ -34,6 +34,7 @@ export class CodelabQuizComponent {
       
       this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers = count >= 2;
     });
+    this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.numberOfCorrectAnswers);
   }
 
   ngOnInit(): void {

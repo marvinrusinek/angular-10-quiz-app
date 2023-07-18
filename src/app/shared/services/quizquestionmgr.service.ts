@@ -36,6 +36,9 @@ export class QuizQuestionManagerService {
   setNumberOfCorrectAnswers(count: number): void {
     console.log('setNumberOfCorrectAnswers:', count);
     this.numberOfCorrectAnswers = count;
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
+    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
+    console.log('numberOfCorrectAnswers:', this.numberOfCorrectAnswers);
   }
 
   getNumberOfCorrectAnswers(): number {
