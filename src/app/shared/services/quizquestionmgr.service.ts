@@ -49,24 +49,6 @@ export class QuizQuestionManagerService {
     return !!this.explanationText;
   }
 
-  /* shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
-    console.log('isMultipleCorrectAnswers:', this.isMultipleCorrectAnswers());
-    console.log('isOptionSelected:', this.isOptionSelected);
-    console.log('shouldDisplayExplanationText:', this.shouldDisplayExplanationText());
-  
-    // Check the conditions
-    const displayNumberOfCorrectAnswers =
-      this.shouldDisplayNumberOfCorrectAnswers &&
-      this.isMultipleCorrectAnswers() &&
-      !this.isOptionSelected &&
-      !this.shouldDisplayExplanationText();
-  
-    console.log('displayNumberOfCorrectAnswers:', displayNumberOfCorrectAnswers);
-  
-    return displayNumberOfCorrectAnswers;
-  } */
-
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
     console.log('hasMultipleCorrectAnswers:', this.isMultipleCorrectAnswers());
@@ -87,7 +69,6 @@ export class QuizQuestionManagerService {
     return displayNumberOfCorrectAnswers;
   }
 
-  
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
   }
