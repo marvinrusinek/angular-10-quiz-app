@@ -70,18 +70,18 @@ export class QuizQuestionManagerService {
     console.log('hasMultipleCorrectAnswers:', this.isMultipleCorrectAnswers());
     console.log('isOptionSelected:', this.isOptionSelected);
     console.log('shouldDisplayExplanationText:', this.shouldDisplayExplanationText());
-  
+
     const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
-  
+
     // Check the conditions
     const displayNumberOfCorrectAnswers =
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
       !this.isOptionSelected &&
       !this.shouldDisplayExplanationText();
-  
+
     console.log('displayNumberOfCorrectAnswers:', displayNumberOfCorrectAnswers);
-  
+
     return displayNumberOfCorrectAnswers;
   }
 
