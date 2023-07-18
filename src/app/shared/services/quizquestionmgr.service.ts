@@ -53,10 +53,10 @@ export class QuizQuestionManagerService {
   
     // Check the conditions
     const displayNumberOfCorrectAnswers =
-      this.shouldDisplayNumberOfCorrectAnswers && // Check if we want to display the number of correct answers
-      this.isMultipleCorrectAnswers() && // Check if the question has multiple correct answers
-      !this.isOptionSelected && // Check if no option is selected by the user
-      !this.shouldDisplayExplanationText(); // Check if explanation text is not displayed
+      this.shouldDisplayNumberOfCorrectAnswers &&
+      this.isMultipleCorrectAnswers() &&
+      !this.isOptionSelected &&
+      !this.shouldDisplayExplanationText();
   
     console.log('displayNumberOfCorrectAnswers:', displayNumberOfCorrectAnswers);
   
