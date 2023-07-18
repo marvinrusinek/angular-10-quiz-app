@@ -10,4 +10,13 @@ import { Quiz } from '../../../shared/models/Quiz.model';
 })
 export class CodelabQuizHeaderComponent { 
   currentQuiz: Quiz;
+
+  constructor() {
+    this.quizDataService.quizzes$.subscribe((quizzes) => {
+      const currentQuiz = quizzes.find(
+        (quiz) => quiz.quizId === this.quizDataService.currentQuizId
+      );
+      this.currentQuiz = currentQuiz;
+    });
+  }
 }
