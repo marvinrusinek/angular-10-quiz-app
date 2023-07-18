@@ -12,10 +12,12 @@ export class QuizQuestionManagerService {
   shouldDisplayNumberOfCorrectAnswers: boolean = false;
   isOptionSelected: boolean = false;
   shouldDisplayExplanation: boolean = false;
+  correctAnswersCount: number = 0;
 
   setCurrentQuestion(question: any): void {
     this.currentQuestion = question;
-    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(); // Set to true if there are multiple correct answers
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
+    this.correctAnswersCount = this.getCorrectAnswersCount();
     console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
     console.log('currentQuestion:', this.currentQuestion);
   }
@@ -43,6 +45,22 @@ export class QuizQuestionManagerService {
 
   getNumberOfCorrectAnswers(): number {
     return this.numberOfCorrectAnswers;
+  }
+
+  private getCorrectAnswersCount(): number {
+    if (!this.currentQuestion || !this.currentQuestion.options) {
+      return 0;
+    }
+
+    return this.currentQuestion.options.filter(option => option.correct).length;
+  }
+
+  setSelectedAnswer(answer: number): void {
+    if (this.currentQuestion.options[answer]?.correct && !this.isOptionSelected) {
+      this.correctAnswersCount++;
+      console.log('Correct Answers Count:', this.correctAnswersCount);
+    }
+    this.isOptionSelected = true;
   }
 
   shouldDisplayExplanationText(): boolean {
