@@ -9,7 +9,7 @@ export class QuizQuestionManagerService {
   currentQuestion: QuizQuestion;
   explanationText: string;
   numberOfCorrectAnswers: number;
-  shouldDisplayNumberOfCorrectAnswers: boolean = false;
+  // shouldDisplayNumberOfCorrectAnswers: boolean = false;
   isOptionSelected: boolean = false;
   shouldDisplayExplanation: boolean = false;
 
@@ -45,7 +45,7 @@ export class QuizQuestionManagerService {
     return !!this.explanationText;
   }
 
-  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+  /* shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
     console.log('isMultipleCorrectAnswers:', this.isMultipleCorrectAnswers());
     console.log('isOptionSelected:', this.isOptionSelected);
@@ -59,6 +59,21 @@ export class QuizQuestionManagerService {
       !this.shouldDisplayExplanationText();
   
     console.log('displayNumberOfCorrectAnswers:', displayNumberOfCorrectAnswers);
+  
+    return displayNumberOfCorrectAnswers;
+  } */
+
+  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+    const currentQuestion = this.getCurrentQuestion();
+  
+    // Check if the current question has more than one correct answer
+    const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers(currentQuestion);
+  
+    // Check the conditions to display the number of correct answers
+    const displayNumberOfCorrectAnswers =
+      hasMultipleCorrectAnswers && // Check if the question has multiple correct answers
+      !this.isOptionSelected && // Check if no option is selected by the user
+      !this.shouldDisplayExplanationText(); // Check if explanation text is not displayed
   
     return displayNumberOfCorrectAnswers;
   }
