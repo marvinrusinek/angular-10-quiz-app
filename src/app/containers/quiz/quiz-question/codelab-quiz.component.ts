@@ -43,8 +43,6 @@ export class CodelabQuizComponent {
         this.quizQuestionManagerService.setCurrentQuestion(question);
       }
     });
-
-    // this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.quizService.numberOfCorrectAnswers);
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
