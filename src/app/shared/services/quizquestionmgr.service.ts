@@ -63,8 +63,6 @@ export class QuizQuestionManagerService {
     return displayNumberOfCorrectAnswers;
   }
   
-  
-  
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
   }
