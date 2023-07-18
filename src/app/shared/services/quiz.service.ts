@@ -117,6 +117,9 @@ export class QuizService implements OnDestroy {
   shouldDisplayExplanation: boolean = false;
   selectionMessage: string;
 
+  private nextQuestionSource = new Subject<QuizQuestion | null>();
+  nextQuestion$ = this.nextQuestionSource.asObservable();
+
   currentAnswer = '';
   nextQuestionText = '';
   nextQuestionText$: Observable<string>;
