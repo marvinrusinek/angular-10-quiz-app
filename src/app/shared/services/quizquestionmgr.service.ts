@@ -26,6 +26,7 @@ export class QuizQuestionManagerService {
 
   setExplanationText(text: string): void {
     this.explanationText = text;
+    this.shouldDisplayExplanation = !!text;
     console.log('explanationText:', this.explanationText);
   }
 
