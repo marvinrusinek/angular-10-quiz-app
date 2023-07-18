@@ -917,6 +917,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
 
     console.log('currentQuestionIndex:::>>>', this.currentQuestionIndex);
+    let nextQuestion: QuizQuestion | null = null;
 
     if (this.currentQuestionIndex < this.quizData.length) {
       const questionIndex = this.currentQuestionIndex;
@@ -951,7 +952,7 @@ export class QuizService implements OnDestroy {
         console.error('Invalid quiz:::>>', this.quizId);
       }
 
-      // Emit the next question
+      // Emit the next question through the nextQuestion$ observable
       this.nextQuestionSource.next(nextQuestion);
 
       // Update the URL in the browser window
