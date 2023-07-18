@@ -48,7 +48,7 @@ export class QuizQuestionManagerService {
     return !!this.explanationText;
   }
 
-  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+  /* shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     if (!this.currentQuestion) {
       return false;
     }
@@ -63,7 +63,27 @@ export class QuizQuestionManagerService {
       !this.shouldDisplayExplanation;
   
     return displayNumberOfCorrectAnswers;
+  } */
+
+  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+    if (!this.currentQuestion) {
+      return false;
+    }
+  
+    const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
+  
+    const displayNumberOfCorrectAnswers =
+      this.shouldDisplayNumberOfCorrectAnswers &&
+      hasMultipleCorrectAnswers &&
+      !this.isOptionSelected &&
+      !this.shouldDisplayExplanationText() &&
+      !this.shouldDisplayExplanation;
+  
+    this.shouldDisplayNumberOfCorrectAnswers = displayNumberOfCorrectAnswers;
+  
+    return displayNumberOfCorrectAnswers;
   }
+  
   
   isMultipleCorrectAnswers(): boolean {
     if (!this.currentQuestion) {
