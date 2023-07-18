@@ -21,7 +21,6 @@ export class CodelabQuizComponent {
   quizServiceSubscription: Subscription;
 
   constructor(
-    private quizService: QuizService,
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService
