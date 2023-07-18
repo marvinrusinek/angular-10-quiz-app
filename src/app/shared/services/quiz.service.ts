@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
@@ -162,8 +162,7 @@ export class QuizService implements OnDestroy {
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
-    private ngZone: NgZone
+    private http: HttpClient
   ) {
     this.loadData();
     this.initializeData();
