@@ -38,8 +38,6 @@ export class QuizQuestionManagerService {
     console.log('setNumberOfCorrectAnswers:', count);
     this.numberOfCorrectAnswers = count;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
-    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
-    console.log('numberOfCorrectAnswers:', this.numberOfCorrectAnswers);
   }
 
   getNumberOfCorrectAnswers(): number {
@@ -57,7 +55,6 @@ export class QuizQuestionManagerService {
   setSelectedAnswer(answer: number): void {
     if (this.currentQuestion.options[answer]?.correct && !this.isOptionSelected) {
       this.correctAnswersCount++;
-      console.log('Correct Answers Count:', this.correctAnswersCount);
     }
     this.isOptionSelected = true;
   }
@@ -73,7 +70,6 @@ export class QuizQuestionManagerService {
   
     const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
   
-    // Check the conditions
     const displayNumberOfCorrectAnswers =
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
