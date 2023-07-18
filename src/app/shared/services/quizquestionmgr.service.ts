@@ -15,12 +15,13 @@ export class QuizQuestionManagerService {
 
   setCurrentQuestion(question: any): void {
     this.currentQuestion = question;
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(); // Set to true if there are multiple correct answers
+    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
     console.log('currentQuestion:', this.currentQuestion);
   }
 
   getCurrentQuestion(): any {
     return this.currentQuestion;
-
   }
 
   setExplanationText(text: string): void {
