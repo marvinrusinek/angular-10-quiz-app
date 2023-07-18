@@ -85,7 +85,15 @@ export class QuizQuestionManagerService {
     return displayNumberOfCorrectAnswers;
   }
 
-  isMultipleCorrectAnswers(): boolean {
+  /* isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
-  }
+  } */
+
+  isMultipleCorrectAnswers(): boolean {
+    if (!this.currentQuestion) {
+      return false;
+    }
+    const numberOfCorrectAnswers = this.currentQuestion.options.filter((option) => option.correct).length;
+    return numberOfCorrectAnswers > 1;
+  }  
 }
