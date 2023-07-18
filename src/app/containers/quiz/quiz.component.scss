@@ -32,26 +32,6 @@ mat-card {
     }
   }
 
-  .unanswered {
-    border: 4px thick $vivid-blue;
-  }
-
-  .answered {
-    border: 2px solid $medium-gray !important;
-  }
-
-  .multiple-unanswered {
-    margin-top: 200px;
-  }
-
-  .single-unanswered {
-    margin-top: -200px;
-  }
-
-  .last-question {
-    margin-top: -180px !important;
-  }
-
   mat-card-footer {
     display: block;
     clear: left;
@@ -72,6 +52,10 @@ mat-card {
       width: 640px;
       margin-top: -10px;
       margin-bottom: 20px;
+
+      .last-question {
+        margin-top: -180px !important;
+      }
 
       mat-card-actions {
         margin: 10px 0 45px 0;
