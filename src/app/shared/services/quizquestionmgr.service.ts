@@ -17,9 +17,7 @@ export class QuizQuestionManagerService {
   setCurrentQuestion(question: any): void {
     this.currentQuestion = question;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
-    this.correctAnswersCount = this.getCorrectAnswersCount();
-    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
-    console.log('currentQuestion:', this.currentQuestion);
+    this.numberOfCorrectAnswers = this.currentQuestion.options.filter(option => option.correct).length;
   }
 
   getCurrentQuestion(): any {

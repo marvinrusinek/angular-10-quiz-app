@@ -39,6 +39,7 @@ export class CodelabQuizComponent {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.quizService.numberOfCorrectAnswers);
+    this.quizQuestionManagerService.setSelectedAnswer(answer);
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
