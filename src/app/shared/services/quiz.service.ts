@@ -913,6 +913,9 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
   
+    console.log('currentQuestionIndex:', this.currentQuestionIndex);
+    console.log('quizData:', this.quizData);
+  
     if (this.currentQuestionIndex < this.quizData.length) {
       const questionIndex = this.currentQuestionIndex;
       const nextQuestionIndex = questionIndex;
@@ -921,8 +924,11 @@ export class QuizService implements OnDestroy {
       if (currentQuiz) {
         const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
   
+        console.log('nextQuestion:', nextQuestion);
+  
         if (nextQuestion && nextQuestion.options) {
           this.currentQuestion = { ...nextQuestion };
+          console.log('currentQuestion:', this.currentQuestion);
           this.options = nextQuestion.options;
           this.selectionMessage = '';
           this.questionSource.next(this.currentQuestion);
@@ -948,12 +954,9 @@ export class QuizService implements OnDestroy {
       this.quizCompleted = true;
     }
   
-    // Update the URL in the browser window
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-    this.router.navigateByUrl(newUrl);
+    // const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+    // this.router.navigateByUrl(newUrl);
   }
-  
-  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
