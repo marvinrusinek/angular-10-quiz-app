@@ -27,19 +27,18 @@ export class CodelabQuizComponent {
     private quizQuestionManagerService: QuizQuestionManagerService
   ) {
     console.log('Initial numberOfCorrectAnswers:', this.quizService.numberOfCorrectAnswers);
-    this.quizServiceSubscription = this.quizService.numberOfCorrectAnswers$.subscribe(count => {
+    this.quizService.numberOfCorrectAnswers$.subscribe((count) => {
       console.log('numberOfCorrectAnswers:', count);
       this.numberOfCorrectAnswers = count;
       this.quizQuestionManagerService.setNumberOfCorrectAnswers(count);
     });
-    this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.numberOfCorrectAnswers);
+    // this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.numberOfCorrectAnswers);
   }
 
   ngOnInit(): void {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.quizService.numberOfCorrectAnswers);
-    this.quizQuestionManagerService.setSelectedAnswer(answer);
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
