@@ -77,13 +77,14 @@ export class QuizQuestionManagerService {
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
       !this.isOptionSelected &&
-      !this.shouldDisplayExplanationText() &&
-      !this.shouldDisplayExplanation;
+      !this.shouldDisplayExplanationText();
   
-    return this.shouldDisplayNumberOfCorrectAnswers && displayNumberOfCorrectAnswers;
+    return displayNumberOfCorrectAnswers && !this.shouldDisplayExplanation;
   }
   
-  
+  setExplanationDisplayed(displayed: boolean): void {
+    this.shouldDisplayExplanation = displayed;
+  }
   
   isMultipleCorrectAnswers(): boolean {
     if (!this.currentQuestion) {

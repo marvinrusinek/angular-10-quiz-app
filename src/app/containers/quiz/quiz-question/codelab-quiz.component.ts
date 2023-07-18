@@ -18,6 +18,7 @@ export class CodelabQuizComponent {
   numberOfCorrectAnswers: number = 0;
   shouldDisplayNumberOfCorrectAnswers: boolean;
   quizServiceSubscription: Subscription;
+  explanationTextSubscription: Subscription;
 
   constructor(
     private quizStateService: QuizStateService,
@@ -29,17 +30,29 @@ export class CodelabQuizComponent {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
 
-    this.currentQuestion$.subscribe((question) => {
+    /* this.currentQuestion$.subscribe((question) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         this.numberOfCorrectAnswers = this.quizQuestionManagerService.getNumberOfCorrectAnswers();
         this.shouldDisplayNumberOfCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
       }
+    }); */
+
+    this.currentQuestion$.subscribe((question) => {
+      if (question) {
+        this.quizQuestionManagerService.setCurrentQuestion(question);
+      }
+    });
+  
+    this.explanationTextSubscription = this.explanationText$.subscribe((explanationText) => {
+      const displayed = !!explanationText;
+      this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
   }
 
   ngOnDestroy(): void {
     this.quizServiceSubscription.unsubscribe();
+    this.explanationTextSubscription.unsubscribe();
   }
 
   getNumberOfCorrectAnswersText(): string {
