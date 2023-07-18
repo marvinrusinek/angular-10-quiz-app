@@ -947,6 +947,10 @@ export class QuizService implements OnDestroy {
       } else {
         console.error('Invalid quiz:::>>', this.quizId);
       }
+  
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
+      this.router.navigateByUrl(newUrl);
     } else {
       // Handle the scenario when there are no more questions
       // You can show a completion message or navigate to a different page.
@@ -955,7 +959,7 @@ export class QuizService implements OnDestroy {
       this.quizCompleted = true;
   
       // Update the URL in the browser window
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
       this.router.navigateByUrl(newUrl);
     }
   }  
