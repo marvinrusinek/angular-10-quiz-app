@@ -132,8 +132,8 @@ export class QuizService implements OnDestroy {
 
   private _multipleAnswer: boolean;
   checkedShuffle: boolean;
-  private isGettingQuestion = false;
-  private isGettingCurrentQuestion = false;
+  isGettingQuestion = false;
+  isGettingCurrentQuestion = false;
 
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
@@ -143,8 +143,8 @@ export class QuizService implements OnDestroy {
 
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
-  private loadQuestionsLock: boolean = false;
-  private lock: boolean = false;
+  loadQuestionsLock: boolean = false;
+  lock: boolean = false;
   questionsLoaded = false;
 
   score: number = 0;
