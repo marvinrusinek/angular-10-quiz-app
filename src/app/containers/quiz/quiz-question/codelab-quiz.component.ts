@@ -31,6 +31,7 @@ export class CodelabQuizComponent {
       console.log('numberOfCorrectAnswers:', count);
       this.numberOfCorrectAnswers = count;
       this.quizQuestionManagerService.setNumberOfCorrectAnswers(count);
+      console.log("COUNT:::>>>", this.quizQuestionManagerService.setNumberOfCorrectAnswers(count));
     });
   }
 
@@ -40,7 +41,10 @@ export class CodelabQuizComponent {
 
     this.currentQuestion$.subscribe((question) => {
       if (question) {
+        // this.quizQuestionManagerService.setCurrentQuestion(question);
         this.quizQuestionManagerService.setCurrentQuestion(question);
+        this.numberOfCorrectAnswers = this.quizService.numberOfCorrectAnswers;
+        this.shouldDisplayNumberOfCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
       }
     });
   }
