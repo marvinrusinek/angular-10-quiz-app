@@ -29,7 +29,7 @@ export class CodelabQuizComponent {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
 
-    this.currentQuestion$.subscribe((question) => {
+    this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
       }
