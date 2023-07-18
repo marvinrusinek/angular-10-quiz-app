@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -11,13 +13,11 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 })
 export class CodelabQuizHeaderComponent { 
   currentQuiz: Quiz;
+  currentQuiz$: Observable<Quiz>;
 
   constructor(private quizDataService: QuizDataService) {
-    this.quizDataService.quizzes$.subscribe((quizzes) => {
-      const currentQuiz = quizzes.find(
-        (quiz) => quiz.quizId === this.quizDataService.currentQuizId
-      );
-      this.currentQuiz = currentQuiz;
-    });
+    this.currentQuiz$ = this.quizDataService.quizzes$.pipe(
+      map(quizzes => quizzes.find(quiz => quiz.quizId === this.quizDataService.currentQuizId))
+    );
   }
 }
