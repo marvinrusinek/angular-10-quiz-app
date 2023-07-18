@@ -27,15 +27,13 @@ export class QuizQuestionManagerService {
   setExplanationText(text: string): void {
     this.explanationText = text;
     this.shouldDisplayExplanation = !!text;
-    console.log('explanationText::::::>>>>>>>', this.explanationText);
-  }
+   }
 
   getExplanationText(): string {
     return this.explanationText;
   }
 
   setNumberOfCorrectAnswers(count: number): void {
-    console.log('setNumberOfCorrectAnswers:', count);
     this.numberOfCorrectAnswers = count;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
@@ -48,23 +46,6 @@ export class QuizQuestionManagerService {
     return !!this.explanationText;
   }
 
-  /* shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    if (!this.currentQuestion) {
-      return false;
-    }
-  
-    const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
-  
-    const displayNumberOfCorrectAnswers =
-      this.shouldDisplayNumberOfCorrectAnswers &&
-      hasMultipleCorrectAnswers &&
-      !this.isOptionSelected &&
-      !this.shouldDisplayExplanationText() &&
-      !this.shouldDisplayExplanation;
-  
-    return displayNumberOfCorrectAnswers;
-  } */
-
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     if (!this.currentQuestion) {
       return false;
@@ -72,7 +53,6 @@ export class QuizQuestionManagerService {
   
     const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
   
-    // Check the conditions
     const displayNumberOfCorrectAnswers =
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
