@@ -17,7 +17,6 @@ export class CodelabQuizComponent {
   explanationText$: Observable<string>;
   numberOfCorrectAnswers: number = 0;
   shouldDisplayNumberOfCorrectAnswers: boolean;
-  quizServiceSubscription: Subscription;
   explanationTextSubscription: Subscription;
 
   constructor(
@@ -43,7 +42,6 @@ export class CodelabQuizComponent {
   }
 
   ngOnDestroy(): void {
-    this.quizServiceSubscription.unsubscribe();
     this.explanationTextSubscription.unsubscribe();
   }
 
