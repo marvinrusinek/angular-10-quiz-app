@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -33,9 +33,19 @@ export class CodelabQuizComponent {
     this.explanationText$ = this.explanationTextService.getExplanationText$();
 
     // Subscribe to the nextQuestion$ observable
-    this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
+    /* this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
         // Update the current question in the quiz state service
+        this.quizStateService.setCurrentQuestion(nextQuestion);
+      } else {
+        // Handle the scenario when there are no more questions
+        // For example, you can navigate to a different page here
+        // this.router.navigate(['/quiz-completed']);
+      }
+    }); */
+
+    this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
+      if (nextQuestion) {
         this.quizStateService.setCurrentQuestion(nextQuestion);
       } else {
         // Handle the scenario when there are no more questions
