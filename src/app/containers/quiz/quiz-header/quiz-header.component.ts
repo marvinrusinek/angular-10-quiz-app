@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { Quiz } from '../../../shared/models/Quiz.model';
+import { QuizDataService } from '../../../shared/services/quizdata.service';
 
 @Component({
   selector: 'codelab-quiz-header',
@@ -11,7 +12,7 @@ import { Quiz } from '../../../shared/models/Quiz.model';
 export class CodelabQuizHeaderComponent { 
   currentQuiz: Quiz;
 
-  constructor() {
+  constructor(private quizDataService: QuizDataService) {
     this.quizDataService.quizzes$.subscribe((quizzes) => {
       const currentQuiz = quizzes.find(
         (quiz) => quiz.quizId === this.quizDataService.currentQuizId
