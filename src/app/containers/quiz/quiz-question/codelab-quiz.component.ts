@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -17,6 +17,8 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion>;
   explanationText$: Observable<string>;
   numberOfCorrectAnswers: number;
+  shouldDisplayNumberOfCorrectAnswers: boolean;
+  quizServiceSubscription: Subscription;
 
   constructor(
     private quizService: QuizService,

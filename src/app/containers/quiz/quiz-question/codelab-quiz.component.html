@@ -6,7 +6,7 @@
     {{ (explanationText$ | async) || (currentQuestion$ | async).questionText }}
 
     <!-- Display the number of correct answers if conditions are met -->
-    <span class="number-correct" *ngIf="quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount()">
+    <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
       ({{ numberOfCorrectAnswers }} answers are correct)
     </span>
 
