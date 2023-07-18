@@ -42,6 +42,7 @@ export class QuizStateService {
       console.log('Current question:::', question);
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
+      this.currentQuestionSource.next(question);
       if (question && question.options) {
         console.log('Options:::', question.options);
         this.currentQuestion.next(question);
@@ -50,8 +51,6 @@ export class QuizStateService {
         console.log('No options found.');
       }
     });   
-    
-    this.currentQuestionSource.next(question);
   }
     
   getCurrentQuestion(): Observable<QuizQuestion> {
