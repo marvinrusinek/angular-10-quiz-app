@@ -913,8 +913,8 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
   
-    console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    console.log('quizData:', this.quizData);
+    console.log('currentQuestionIndex:::>>>', this.currentQuestionIndex);
+    console.log('quizData:::>>>', this.quizData);
   
     if (this.currentQuestionIndex < this.quizData.length) {
       const questionIndex = this.currentQuestionIndex;
@@ -928,7 +928,7 @@ export class QuizService implements OnDestroy {
   
         if (nextQuestion && nextQuestion.options) {
           this.currentQuestion = { ...nextQuestion };
-          console.log('currentQuestion:', this.currentQuestion);
+          console.log('currentQuestion:::>>>', this.currentQuestion);
           this.options = nextQuestion.options;
           this.selectionMessage = '';
           this.questionSource.next(this.currentQuestion);
@@ -937,14 +937,14 @@ export class QuizService implements OnDestroy {
           this.currentQuestionSource.next({ question: nextQuestion, quizId: this.quizId });
           this.optionsSource.next(nextQuestion.options);
         } else {
-          console.error('Invalid next question:', nextQuestion);
+          console.error('Invalid next question:::>>>', nextQuestion);
         }
   
         this.updateQuestion(nextQuestion);
         this.resetUserSelection();
         this.updateOtherProperties();
       } else {
-        console.error('Invalid quiz:', this.quizId);
+        console.error('Invalid quiz:::>>', this.quizId);
       }
     } else {
       // Handle the scenario when there are no more questions
