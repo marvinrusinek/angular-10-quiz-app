@@ -4,7 +4,7 @@
     {{ (explanationText$ | async) || (currentQuestion$ | async).questionText }}
 
     <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
-      ({{ getNumberOfCorrectAnswersText() }})
+      {{ getNumberOfCorrectAnswersText() }}
     </span>
   </h3>
 </section>
