@@ -77,7 +77,8 @@ export class QuizQuestionManagerService {
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
       !this.isOptionSelected &&
-      !this.shouldDisplayExplanationText();
+      !this.shouldDisplayExplanationText() &&
+      !this.shouldDisplayExplanation;
   
     return displayNumberOfCorrectAnswers;
   }
