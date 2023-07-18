@@ -26,7 +26,7 @@ export class QuizStateService {
 
   constructor() {}
 
-  setCurrentQuestion(question$: Observable<QuizQuestion>): void {
+  /* setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (!question$) {
       throwError('Question$ is null or undefined.');
       return;
@@ -51,8 +51,22 @@ export class QuizStateService {
         console.log('No options found.');
       }
     });   
+  } */
+
+  setCurrentQuestion(question: QuizQuestion): void {
+    console.log('Current question:::', question);
+    this.currentQuestion.next(question);
+    this.currentQuestionSubject.next(question);
+    this.currentQuestionSource.next(question);
+    if (question && question.options) {
+      console.log('Options:::', question.options);
+      this.currentQuestion.next(question);
+      this.currentOptionsSubject.next(question?.options || []);
+    } else {
+      console.log('No options found.');
+    }
   }
-    
+      
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
   }
