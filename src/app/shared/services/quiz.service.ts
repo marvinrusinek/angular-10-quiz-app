@@ -914,13 +914,14 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
   
     console.log('currentQuestionIndex:::>>>', this.currentQuestionIndex);
-    console.log('quizData:::>>>', this.quizData);
-  
+      
     if (this.currentQuestionIndex < this.quizData.length) {
       const questionIndex = this.currentQuestionIndex;
       const nextQuestionIndex = questionIndex;
+      console.log("NQI", nextQuestionIndex);
   
       const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+      console.log('currentQuiz:', currentQuiz);
       if (currentQuiz) {
         const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
   
