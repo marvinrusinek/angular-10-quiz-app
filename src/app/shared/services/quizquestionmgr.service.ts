@@ -33,6 +33,10 @@ export class QuizQuestionManagerService {
     return this.explanationText;
   }
 
+  setExplanationDisplayed(displayed: boolean): void {
+    this.shouldDisplayExplanation = displayed;
+  }
+
   setNumberOfCorrectAnswers(count: number): void {
     this.numberOfCorrectAnswers = count;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
@@ -60,10 +64,6 @@ export class QuizQuestionManagerService {
       !this.shouldDisplayExplanationText();
   
     return displayNumberOfCorrectAnswers && !this.shouldDisplayExplanation;
-  }
-  
-  setExplanationDisplayed(displayed: boolean): void {
-    this.shouldDisplayExplanation = displayed;
   }
   
   isMultipleCorrectAnswers(): boolean {
