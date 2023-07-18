@@ -1,0 +1,28 @@
+mat-card-header {
+  display: block;
+
+  .header-image {
+    float: left;
+    margin: -15px 0 0 15px;
+  }
+
+  .header-titles {
+    float: left;
+    margin-top: -90px;
+
+    mat-card-title {
+      display: inline-block;
+      margin-top: 5px;
+      margin-left: 160px;
+      font-size: 36px;
+    }
+
+    mat-card-subtitle {
+      display: block;
+      float: right;
+      margin-top: -10px !important;
+      margin-right: 25px !important;
+      clear: both;
+    }
+  }
+}

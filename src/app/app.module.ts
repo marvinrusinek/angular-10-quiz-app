@@ -40,6 +40,7 @@ import { SummaryIconsComponent } from './containers/results/summary-report/summa
 import { SummaryStatsComponent } from './containers/results/summary-report/summary-stats/summary-stats.component';
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 import { CodelabQuizComponent } from './containers/quiz/quiz-question/codelab-quiz.component';
+import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizStateService } from './shared/services/quizstate.service';
@@ -74,6 +75,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     SummaryStatsComponent,
     ChallengeComponent,
     CodelabQuizComponent,
+    CodelabQuizHeaderComponent,
     JoinPipe,
   ],
   imports: [
