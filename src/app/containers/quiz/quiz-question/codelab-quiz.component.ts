@@ -29,6 +29,8 @@ export class CodelabQuizComponent {
       console.log('numberOfCorrectAnswers:', count);
       this.numberOfCorrectAnswers = count;
       this.shouldDisplayNumberOfCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
+      
+      this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers = count >= 2;
     });
   }
 
