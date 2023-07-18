@@ -914,7 +914,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
   
     console.log('currentQuestionIndex:::>>>', this.currentQuestionIndex);
-      
+  
     if (this.currentQuestionIndex < this.quizData.length) {
       const questionIndex = this.currentQuestionIndex;
       const nextQuestionIndex = questionIndex;
@@ -953,11 +953,12 @@ export class QuizService implements OnDestroy {
       console.error('Invalid next question index:', this.currentQuestionIndex);
       console.log('Quiz completed!');
       this.quizCompleted = true;
-    }
   
-    // const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-    // this.router.navigateByUrl(newUrl);
-  }
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      this.router.navigateByUrl(newUrl);
+    }
+  }  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
