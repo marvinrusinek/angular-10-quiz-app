@@ -912,57 +912,62 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion(): void {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     console.log('currentQuestionIndex:::>>>', this.currentQuestionIndex);
-  
+
     if (this.currentQuestionIndex < this.quizData.length) {
       const questionIndex = this.currentQuestionIndex;
       const nextQuestionIndex = questionIndex;
-      console.log("NQI", nextQuestionIndex);
-  
+      console.log('NQI', nextQuestionIndex);
+
       const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
       console.log('currentQuiz:', currentQuiz);
       if (currentQuiz) {
         const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
-  
+
         console.log('nextQuestion:', nextQuestion);
-  
+
         if (nextQuestion && nextQuestion.options) {
           this.currentQuestion = { ...nextQuestion };
           console.log('currentQuestion:::>>>', this.currentQuestion);
           this.options = nextQuestion.options;
           this.selectionMessage = '';
           this.questionSource.next(this.currentQuestion);
-  
+
           // Emit the next question and options
           this.currentQuestionSource.next({ question: nextQuestion, quizId: this.quizId });
           this.optionsSource.next(nextQuestion.options);
         } else {
           console.error('Invalid next question:::>>>', nextQuestion);
         }
-  
+
         this.updateQuestion(nextQuestion);
         this.resetUserSelection();
         this.updateOtherProperties();
       } else {
         console.error('Invalid quiz:::>>', this.quizId);
       }
-  
+
+      // Emit the next question
+      this.nextQuestionSource.next(nextQuestion);
+
       // Update the URL in the browser window
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
       this.router.navigateByUrl(newUrl);
     } else {
       // Handle the scenario when there are no more questions
-      // You can show a completion message or navigate to a different page.
       console.error('Invalid next question index:', this.currentQuestionIndex);
       console.log('Quiz completed!');
       this.quizCompleted = true;
-  
+
+      // Emit null to indicate no next question
+      this.nextQuestionSource.next(null);
+
       // Update the URL in the browser window
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
       this.router.navigateByUrl(newUrl);
     }
-  }  
+  }
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
