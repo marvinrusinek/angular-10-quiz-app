@@ -72,6 +72,7 @@ export class QuizQuestionManagerService {
   
     const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
   
+    // Check the conditions
     const displayNumberOfCorrectAnswers =
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
@@ -79,10 +80,9 @@ export class QuizQuestionManagerService {
       !this.shouldDisplayExplanationText() &&
       !this.shouldDisplayExplanation;
   
-    this.shouldDisplayNumberOfCorrectAnswers = displayNumberOfCorrectAnswers;
-  
-    return displayNumberOfCorrectAnswers;
+    return this.shouldDisplayNumberOfCorrectAnswers && displayNumberOfCorrectAnswers;
   }
+  
   
   
   isMultipleCorrectAnswers(): boolean {
