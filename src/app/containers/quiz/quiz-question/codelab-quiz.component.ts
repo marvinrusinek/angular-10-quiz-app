@@ -16,7 +16,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
 export class CodelabQuizComponent { 
   currentQuestion$: Observable<QuizQuestion>;
   explanationText$: Observable<string>;
-  numberOfCorrectAnswers: number;
+  numberOfCorrectAnswers: number = 0;
   shouldDisplayNumberOfCorrectAnswers: boolean;
   quizServiceSubscription: Subscription;
 
@@ -32,7 +32,6 @@ export class CodelabQuizComponent {
       this.numberOfCorrectAnswers = count;
       this.quizQuestionManagerService.setNumberOfCorrectAnswers(count);
     });
-    // this.quizQuestionManagerService.setNumberOfCorrectAnswers(this.numberOfCorrectAnswers);
   }
 
   ngOnInit(): void {
