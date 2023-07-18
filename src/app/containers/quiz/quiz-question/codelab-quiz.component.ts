@@ -48,7 +48,8 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
         // this.currentQuestion = nextQuestion;
-        this.quizStateService.setCurrentQuestion(nextQuestion);
+        // this.quizStateService.setCurrentQuestion(nextQuestion);
+        this.currentQuestion$ = of(nextQuestion);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
