@@ -16,8 +16,8 @@ export class QuizQuestionManagerService {
 
   setCurrentQuestion(question: any): void {
     this.currentQuestion = question;
-    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
     this.numberOfCorrectAnswers = this.currentQuestion.options.filter(option => option.correct).length;
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
 
   getCurrentQuestion(): any {
@@ -66,29 +66,22 @@ export class QuizQuestionManagerService {
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    console.log('shouldDisplayNumberOfCorrectAnswers:', this.shouldDisplayNumberOfCorrectAnswers);
-    console.log('hasMultipleCorrectAnswers:', this.isMultipleCorrectAnswers());
-    console.log('isOptionSelected:', this.isOptionSelected);
-    console.log('shouldDisplayExplanationText:', this.shouldDisplayExplanationText());
-
+    if (!this.currentQuestion) {
+      return false;
+    }
+  
     const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
-
+  
     // Check the conditions
     const displayNumberOfCorrectAnswers =
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
       !this.isOptionSelected &&
       !this.shouldDisplayExplanationText();
-
-    console.log('displayNumberOfCorrectAnswers:', displayNumberOfCorrectAnswers);
-
+  
     return displayNumberOfCorrectAnswers;
   }
-
-  /* isMultipleCorrectAnswers(): boolean {
-    return this.numberOfCorrectAnswers > 1;
-  } */
-
+  
   isMultipleCorrectAnswers(): boolean {
     if (!this.currentQuestion) {
       return false;
