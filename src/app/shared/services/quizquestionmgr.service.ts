@@ -27,7 +27,7 @@ export class QuizQuestionManagerService {
   setExplanationText(text: string): void {
     this.explanationText = text;
     this.shouldDisplayExplanation = !!text;
-    console.log('explanationText:', this.explanationText);
+    console.log('explanationText::::::>>>>>>>', this.explanationText);
   }
 
   getExplanationText(): string {
@@ -42,21 +42,6 @@ export class QuizQuestionManagerService {
 
   getNumberOfCorrectAnswers(): number {
     return this.numberOfCorrectAnswers;
-  }
-
-  private getCorrectAnswersCount(): number {
-    if (!this.currentQuestion || !this.currentQuestion.options) {
-      return 0;
-    }
-
-    return this.currentQuestion.options.filter(option => option.correct).length;
-  }
-
-  setSelectedAnswer(answer: number): void {
-    if (this.currentQuestion.options[answer]?.correct && !this.isOptionSelected) {
-      this.correctAnswersCount++;
-    }
-    this.isOptionSelected = true;
   }
 
   shouldDisplayExplanationText(): boolean {

@@ -42,10 +42,6 @@ export class CodelabQuizComponent {
     this.quizServiceSubscription.unsubscribe();
   }
 
-  /* getNumberOfCorrectAnswersText(): string {
-    return `${this.numberOfCorrectAnswers} answer${this.numberOfCorrectAnswers === 1 ? '' : 's'} are correct`;
-  } */
-
   getNumberOfCorrectAnswersText(): string {
     const count = this.quizQuestionManagerService.getNumberOfCorrectAnswers();
     return count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`;
