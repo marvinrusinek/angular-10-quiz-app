@@ -21,10 +21,9 @@ import {
   tap,
 } from 'rxjs/operators';
 import { Howl } from 'howler';
-import _, { isEqual } from 'lodash';
+import _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
-import { Answer } from '../../shared/models/Answer.type';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -55,7 +54,6 @@ export class QuizService implements OnDestroy {
   quizResources: QuizResource[];
   question: QuizQuestion;
   questions: QuizQuestion[];
-  // question$: Observable<QuizQuestion>;
   questions$: Observable<QuizQuestion[]>;
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   questionSubjectEmitted = false;
@@ -98,18 +96,6 @@ export class QuizService implements OnDestroy {
   multipleAnswerSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
-
-  private _numberOfCorrectAnswers: number = 0;
-  private numberOfCorrectAnswersSubject = new BehaviorSubject<number>(this._numberOfCorrectAnswers);
-
-  setNumberOfCorrectAnswers(value: number): void {
-    this._numberOfCorrectAnswers = value;
-    this.numberOfCorrectAnswersSubject.next(value);
-  }
-
-  get numberOfCorrectAnswers$(): Observable<number> {
-    return this.numberOfCorrectAnswersSubject.asObservable();
-  }
 
   private currentQuestionSource: Subject<{
     question: QuizQuestion;
@@ -319,7 +305,9 @@ export class QuizService implements OnDestroy {
           this.questions = questions;
         }),
         catchError(() => of([])),
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        ),
         shareReplay({ bufferSize: 1, refCount: true })
       );
     }
@@ -500,14 +488,13 @@ export class QuizService implements OnDestroy {
   isLastQuestion(): boolean {
     const currentQuiz = this.getCurrentQuiz();
     const currentQuestionIndex = this.getCurrentQuestionIndex();
-  
+
     return (
       currentQuiz &&
       currentQuiz.questions &&
       currentQuestionIndex === currentQuiz.questions.length - 1
     );
   }
-  
 
   /* getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
@@ -525,7 +512,11 @@ export class QuizService implements OnDestroy {
   getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
-    if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      nextIndex < currentQuiz.questions.length
+    ) {
       return currentQuiz.questions[nextIndex];
     }
   }
@@ -590,23 +581,28 @@ export class QuizService implements OnDestroy {
     return [question, options];
   }
 
-  async fetchQuestionAndOptions(questionIndex: number): Promise<{ question: QuizQuestion, options: Option[] }> {
-    if (!this.quizId || !this.quizQuestions || this.quizQuestions.length === 0) {
+  async fetchQuestionAndOptions(
+    questionIndex: number
+  ): Promise<{ question: QuizQuestion; options: Option[] }> {
+    if (
+      !this.quizId ||
+      !this.quizQuestions ||
+      this.quizQuestions.length === 0
+    ) {
       console.error('Quiz or questions array is null or undefined');
       throw new Error('Quiz or questions array is null or undefined');
     }
-  
+
     const question = this.quizQuestions[questionIndex];
     const options = question.options;
-  
+
     if (!question || !options || options.length === 0) {
       console.error('Question or options array is null or undefined');
       throw new Error('Question or options array is null or undefined');
     }
-  
+
     return { question, options };
   }
-  
 
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
@@ -812,14 +808,19 @@ export class QuizService implements OnDestroy {
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
-        const questionIndex = filteredQuestions.findIndex((q) => q === question);
+        const questionIndex = filteredQuestions.findIndex(
+          (q) => q === question
+        );
         const nextQuestionIndex = questionIndex + 1;
-  
+
         if (nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
-  
+
           if (nextQuestion) {
-            console.log('emitting currentQuestionSubject with question:', nextQuestion);
+            console.log(
+              'emitting currentQuestionSubject with question:',
+              nextQuestion
+            );
             this.currentQuestion = nextQuestion;
             this.currentQuestionSubject.next(nextQuestion);
             this.optionsSource.next(nextQuestion.options);
@@ -832,7 +833,7 @@ export class QuizService implements OnDestroy {
         }
       });
   }
-  
+
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
   }
@@ -866,28 +867,33 @@ export class QuizService implements OnDestroy {
   navigateToNextQuestion(): void {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
-  
+
     const questionIndex = this.currentQuestionIndex;
     const nextQuestionIndex = questionIndex;
-  
+
     if (nextQuestionIndex < this.quizData.length) {
-      const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+      const currentQuiz = this.quizData.find(
+        (quiz) => quiz.quizId === this.quizId
+      );
       if (currentQuiz) {
         const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
-  
+
         if (nextQuestion && nextQuestion.options) {
           this.currentQuestion = { ...nextQuestion };
           this.options = nextQuestion.options;
           this.selectionMessage = '';
           this.questionSource.next(this.currentQuestion);
-        
+
           // Emit the next question and options
-          this.currentQuestionSource.next({ question: nextQuestion, quizId: this.quizId });
+          this.currentQuestionSource.next({
+            question: nextQuestion,
+            quizId: this.quizId,
+          });
           this.optionsSource.next(nextQuestion.options);
         } else {
           console.error('Invalid next question:', nextQuestion);
         }
-        
+
         this.updateQuestion(nextQuestion);
         this.resetUserSelection();
         this.updateOtherProperties();
@@ -897,11 +903,12 @@ export class QuizService implements OnDestroy {
     } else {
       console.error('Invalid next question index:', nextQuestionIndex);
     }
-  
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
+
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
+      nextQuestionIndex + 1
+    }`;
     this.router.navigateByUrl(newUrl);
   }
-  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
