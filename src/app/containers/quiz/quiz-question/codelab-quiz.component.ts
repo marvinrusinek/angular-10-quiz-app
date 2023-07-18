@@ -14,6 +14,7 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
+  currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion>;
   explanationText$: Observable<string>;
   numberOfCorrectAnswers: number = 0;

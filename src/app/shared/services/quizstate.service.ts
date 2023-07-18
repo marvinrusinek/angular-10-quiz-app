@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -13,8 +13,11 @@ export class QuizStateService {
     = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   currentOptionsSubject = new BehaviorSubject<Option[]>(null);
-  currentQuestion$ = this.currentQuestionSubject.asObservable();
+  // currentQuestion$ = this.currentQuestionSubject.asObservable();
   currentOptions$: Observable<Option[]> = of(null);
+
+  private currentQuestionSource = new Subject<QuizQuestion>();
+  currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSource.asObservable();
   
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -46,7 +49,9 @@ export class QuizStateService {
       } else {
         console.log('No options found.');
       }
-    });    
+    });   
+    
+    this.currentQuestionSource.next(question);
   }
     
   getCurrentQuestion(): Observable<QuizQuestion> {
