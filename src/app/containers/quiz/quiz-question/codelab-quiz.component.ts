@@ -47,7 +47,8 @@ export class CodelabQuizComponent {
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
-        this.numberOfCorrectAnswers$.next(this.calculateNumberOfCorrectAnswers(question));
+        // this.numberOfCorrectAnswers$.next(this.calculateNumberOfCorrectAnswers(question));
+        this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
       }
     });
   
@@ -82,18 +83,12 @@ export class CodelabQuizComponent {
   }
 
   calculateNumberOfCorrectAnswers(): number {
-    return this.numberOfCorrectAnswers$.getValue();
-
-    /* let currentQuestion: QuizQuestion;
-    this.currentQuestion$.pipe(take(1)).subscribe((question) => {
-      currentQuestion = question;
-    });
-  
+    const currentQuestion = this.quizQuestionManagerService.getCurrentQuestion();
     if (currentQuestion) {
       return currentQuestion.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
     }
-    return 0; */
-  }  
+    return 0;
+  }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
