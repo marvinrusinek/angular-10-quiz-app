@@ -566,6 +566,16 @@ export class QuizService implements OnDestroy {
       return this.questionsAndOptions[questionIndex];
     }
 
+    try {
+      const response = await this.http.get<any>(this.quizUrl).toPromise();
+      const question: QuizQuestion = response.question;
+      const options: Option[] = response.options;
+      return [question, options];
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+      throw error;
+    }
+
     const [question, options] = await this.fetchQuestionAndOptions(
       questionIndex
     );
