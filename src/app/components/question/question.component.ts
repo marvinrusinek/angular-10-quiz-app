@@ -463,7 +463,7 @@ export class QuizQuestionComponent
             console.log('Question received:', question);
             this.currentQuestion = question;
             this.options = this.currentQuestion.options;
-            this.initializeQuizState(this.currentQuestion);
+            // this.initializeQuizState(this.currentQuestion);
           }
         }),
         catchError((error) => {
