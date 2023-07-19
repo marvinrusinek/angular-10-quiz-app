@@ -459,10 +459,10 @@ export class QuizQuestionComponent
       .pipe(
         tap((data) => console.log('Data received:', data)),
         tap(({ question }) => {
-          console.log('Question received:', question);
-          if (question) {
+          if (data && question) {
+            console.log('Question received:', question);
             this.currentQuestion = question;
-            this.options = this.currentQuestion?.options;
+            this.options = this.currentQuestion.options;
             this.initializeQuizState(this.currentQuestion);
           }
         }),
