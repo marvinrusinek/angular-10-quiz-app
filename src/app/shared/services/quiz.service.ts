@@ -890,7 +890,7 @@ export class QuizService implements OnDestroy {
   }
 
   updateQuestion(question: QuizQuestion): void {
-    this.currentQuestion = { ...question };
+    this.currentQuestion.next({ ...question });
   }
 
   resetUserSelection(): void {
