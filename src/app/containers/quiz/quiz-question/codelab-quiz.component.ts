@@ -53,7 +53,7 @@ export class CodelabQuizComponent {
   
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
-        this.currentQuestion = nextQuestion;
+        this.currentQuestion.next(nextQuestion);
         this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
       } else {
         // Handle the scenario when there are no more questions
