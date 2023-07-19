@@ -41,15 +41,15 @@ export class CodelabQuizComponent {
     this.quizService.navigateToNextQuestion();
 
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-      }
-    });
-
     this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
+      }
+    });
+    
+    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+      if (currentQuestion) {
+        this.currentQuestion = currentQuestion;
       }
     });
 
