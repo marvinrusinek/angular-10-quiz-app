@@ -543,8 +543,8 @@ export class QuizService implements OnDestroy {
         switchMap(({ quizId, questions }) => {
           if (Array.isArray(questions)) {
             const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-            this.currentQuestion = questions[currentQuestionIndex];
-            this.currentQuestionSubject.next(this.currentQuestion);
+            this.currentQuestion.next(questions[currentQuestionIndex]);
+            this.currentQuestionSubject.next({ ...this.currentQuestion.getValue() });
             return this.currentQuestionSubject.pipe(
               distinctUntilChanged(),
               take(1)
@@ -1018,10 +1018,10 @@ export class QuizService implements OnDestroy {
         const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
   
         if (nextQuestion && nextQuestion.options) {
-          this.currentQuestion = { ...nextQuestion };
+          this.currentQuestion.next({ ...nextQuestion });
           this.options = nextQuestion.options;
           this.selectionMessage = '';
-          this.questionSource.next(this.currentQuestion);
+          this.questionSource.next(this.currentQuestion.getValue());
           this.optionsSource.next(nextQuestion.options);
         } else {
           console.error('Invalid next question:', nextQuestion);
