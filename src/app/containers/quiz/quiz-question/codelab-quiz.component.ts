@@ -48,7 +48,7 @@ export class CodelabQuizComponent {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         // this.numberOfCorrectAnswers$.next(this.calculateNumberOfCorrectAnswers(question));
-        this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
+        //this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
       }
     });
   
@@ -77,17 +77,9 @@ export class CodelabQuizComponent {
   }
 
   getNumberOfCorrectAnswersText(): Observable<string> {
-    return this.numberOfCorrectAnswers$.pipe(
+    return this.quizQuestionManagerService.getNumberOfCorrectAnswers$().pipe(
       map(count => count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`)
     );
-  }
-
-  calculateNumberOfCorrectAnswers(): number {
-    const currentQuestion = this.quizQuestionManagerService.getCurrentQuestion();
-    if (currentQuestion) {
-      return currentQuestion.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
-    }
-    return 0;
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
