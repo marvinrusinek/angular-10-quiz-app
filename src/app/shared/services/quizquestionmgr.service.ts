@@ -18,9 +18,9 @@ export class QuizQuestionManagerService {
   correctAnswersCount: number = 0;
 
   setCurrentQuestion(question: QuizQuestion): void {
-    // this.currentQuestion = question;
     this.currentQuestion.next(question);
-    this.numberOfCorrectAnswers = this.currentQuestion.options.filter(option => option.correct).length;
+    const currentQuestionValue = this.currentQuestion.getValue();
+    this.numberOfCorrectAnswers = currentQuestionValue.options.filter(option => option.correct).length;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
 
