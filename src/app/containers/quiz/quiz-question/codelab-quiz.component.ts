@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -87,12 +87,16 @@ export class CodelabQuizComponent {
   }
 
   calculateNumberOfCorrectAnswers(): number {
-    const currentQuestion = this.currentQuestion$.getValue();
+    let currentQuestion: QuizQuestion;
+    this.currentQuestion$.pipe(take(1)).subscribe((question) => {
+      currentQuestion = question;
+    });
+  
     if (currentQuestion) {
       return currentQuestion.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
     }
     return 0;
-  }
+  }  
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
