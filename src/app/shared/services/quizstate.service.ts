@@ -12,13 +12,12 @@ export class QuizStateService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> 
     = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
-  currentOptionsSubject = new BehaviorSubject<Option[]>(null);
-  // currentQuestion$ = this.currentQuestionSubject.asObservable();
-  currentOptions$: Observable<Option[]> = of(null);
-
   private currentQuestionSource = new Subject<QuizQuestion>();
   currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSource.asObservable();
-  
+
+  currentOptionsSubject = new BehaviorSubject<Option[]>(null);
+  currentOptions$: Observable<Option[]> = of(null);
+
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
