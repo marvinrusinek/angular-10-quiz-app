@@ -65,6 +65,11 @@ export class CodelabQuizComponent {
       }
     });
 
+    this.explanationTextSubscription = this.explanationText$.subscribe((explanationText) => {
+      const displayed = !!explanationText;
+      this.quizQuestionManagerService.setExplanationDisplayed(displayed);
+    });
+
     // Subscribe to the nextQuestion$ observable
     /* this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
@@ -95,11 +100,6 @@ export class CodelabQuizComponent {
       if (options) {
         this.options = options;
       }
-    });
-
-    this.explanationTextSubscription = this.explanationText$.subscribe((explanationText) => {
-      const displayed = !!explanationText;
-      this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
   }
 
