@@ -42,8 +42,7 @@ enum QuizRoutes {
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  // currentQuestionIndex: number = 0;
-  private currentQuestionIndex = -1;
+  currentQuestionIndex: number = 0;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
