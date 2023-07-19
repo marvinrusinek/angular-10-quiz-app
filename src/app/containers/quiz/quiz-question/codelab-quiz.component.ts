@@ -16,8 +16,10 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  currentQuestion: BehaviorSubject<QuizQuestion>;
-  currentQuestion$: Observable<QuizQuestion> = of({} as QuizQuestion);
+  // currentQuestion: BehaviorSubject<QuizQuestion>;
+  // currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  // currentQuestion$: Observable<QuizQuestion> = of({} as QuizQuestion);
+  currentQuestion$: Observable<QuizQuestion | null> = of(null);
   explanationText$: Observable<string>;
   options: Option[] = [];
   options$: Observable<string[]>;
