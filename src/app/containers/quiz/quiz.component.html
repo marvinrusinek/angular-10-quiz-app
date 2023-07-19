@@ -38,7 +38,7 @@
       <!-- selection message/next message -->
       <h5 class="selection-message">
         {{ 
-          (selectionMessage$ | async) || 'Please select an option to continue&hellip;' 
+          (selectionMessage$ | async) || selectOptionText 
         }}
       </h5>
 

@@ -122,6 +122,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationTextValue$: Observable<string | null>;
   cardFooterClass = '';
   nextQuestionText: string | null = null;
+  selectOptionText: string = 'Please select an option to continue&hellip;'
 
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
