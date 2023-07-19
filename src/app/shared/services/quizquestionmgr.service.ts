@@ -8,8 +8,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class QuizQuestionManagerService {
-  // currentQuestion: QuizQuestion;
-  currentQuestion: BehaviorSubject<QuizQuestion>;
+  currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   explanationText: string;
   numberOfCorrectAnswers: number;
   shouldDisplayNumberOfCorrectAnswers: boolean = false;
@@ -19,7 +18,6 @@ export class QuizQuestionManagerService {
 
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion.next(question);
-    this.currentQuestion$.next(question);
     const currentQuestionValue = this.currentQuestion.getValue();
     this.numberOfCorrectAnswers = currentQuestionValue.options.filter(option => option.correct).length;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
@@ -72,10 +70,18 @@ export class QuizQuestionManagerService {
   }
   
   isMultipleCorrectAnswers(): boolean {
-    if (!this.currentQuestion) {
+    /* if (!this.currentQuestion) {
       return false;
     }
     const numberOfCorrectAnswers = this.currentQuestion.options.filter((option) => option.correct).length;
     return numberOfCorrectAnswers > 1;
-  }  
+    }  */
+    
+    const currentQuestionValue = this.currentQuestion.getValue();
+    if (!currentQuestionValue) {
+      return false;
+    }
+    const numberOfCorrectAnswers = currentQuestionValue.options.filter((option) => option.correct).length;
+    return numberOfCorrectAnswers > 1;
+  }
 }
