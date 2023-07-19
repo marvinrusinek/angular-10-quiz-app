@@ -24,7 +24,7 @@ export class CodelabQuizComponent {
   options: Option[] = [];
   options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
-  numberOfCorrectAnswers$: Observable<number> = this.quizQuestionManagerService.numberOfCorrectAnswers$;
+  numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
@@ -47,7 +47,9 @@ export class CodelabQuizComponent {
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
-        this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
+        const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question);
+        this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers);
+        // this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
         // this.numberOfCorrectAnswers$.next(this.calculateNumberOfCorrectAnswers(question));
         //this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
       }
@@ -86,6 +88,13 @@ export class CodelabQuizComponent {
       map(count => count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`)
     );
   } */
+
+  calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
+    if (question) {
+      return question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
+    }
+    return 0;
+  }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
