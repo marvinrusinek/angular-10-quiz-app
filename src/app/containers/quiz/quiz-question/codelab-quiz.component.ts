@@ -25,7 +25,7 @@ export class CodelabQuizComponent {
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   currentQuestionSubscription: Subscription;
-  optionsSubscription: Subscription;
+  optionsSubscription: Subscription | undefined;
 
   constructor(
     private quizService: QuizService,
@@ -85,6 +85,7 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
         this.currentQuestion = nextQuestion;
+        console.log('Received next question:', nextQuestion);
         this.quizService.setCurrentQuestion(nextQuestion);
 
         // Map the Option[] to an array of strings representing the option text
@@ -99,6 +100,7 @@ export class CodelabQuizComponent {
     this.optionsSubscription = this.quizService.options$.subscribe((options) => {
       if (options) {
         this.options = options;
+        console.log('Received options:', options);
       }
     });
   }
