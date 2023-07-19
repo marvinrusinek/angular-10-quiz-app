@@ -86,8 +86,12 @@ export class CodelabQuizComponent {
     );
   }
 
-  calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
-    return question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
+  calculateNumberOfCorrectAnswers(): number {
+    const currentQuestion = this.currentQuestion$.getValue();
+    if (currentQuestion) {
+      return currentQuestion.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
+    }
+    return 0;
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
