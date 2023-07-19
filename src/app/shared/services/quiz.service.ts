@@ -60,19 +60,18 @@ export class QuizService implements OnDestroy {
   questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
+
   currentQuestionSource: Subject<{
     question: QuizQuestion,
     quizId: string
   }> = new Subject<{ question: QuizQuestion, quizId: string }>();
   private currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$ = this.currentQuestion.asObservable();
-
-
-  // currentQuestion: QuizQuestion | undefined = null;
   currentQuestionPromise: Promise<QuizQuestion> = null;
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
-  options: Option[] = [];
+  
+    options: Option[] = [];
   // options$: Observable<Option[]>;
   currentOptions: Option[];
   // optionsSource = new Subject<Option[]>();
