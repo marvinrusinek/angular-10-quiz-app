@@ -407,15 +407,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setObservables(): void {
-    this.currentQuestion$ = this.quizService.currentQuestion$.pipe(
-      map(({ question }) => question)
-    );
-
-    this.quizService.setCurrentOptions([]);
+    this.currentQuestion$ = this.quizService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
+    this.quizService.setCurrentOptions([]);
+    
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
-      this.quizStateService.currentOptions$,
+      this.quizStateService.currentOptions$
     ]).pipe(
       distinctUntilChanged(),
       map(([question, options]) => {
