@@ -8,7 +8,7 @@
 
     <span class="number-correct" 
       *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
-        {{ getNumberOfCorrectAnswersText() }}
+        {{ getNumberOfCorrectAnswersText() | async }}
     </span>
   </h3>
 </section>
