@@ -915,7 +915,7 @@ export class QuizService implements OnDestroy {
     this.router.navigateByUrl(newUrl); 
   } */
 
-  navigateToNextQuestion(): void {
+  /* navigateToNextQuestion(): void {
     this.quizCompleted = false;
     this.currentQuestionIndex++;
 
@@ -970,7 +970,47 @@ export class QuizService implements OnDestroy {
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
       this.router.navigateByUrl(newUrl);
     }
+  } */
+
+  navigateToNextQuestion(): void {
+    this.quizCompleted = false;
+  
+    if (this.currentQuestionIndex < this.quizData.length - 1) {
+      this.currentQuestionIndex++;
+      const questionIndex = this.currentQuestionIndex;
+      const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+  
+      if (currentQuiz) {
+        const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
+  
+        if (nextQuestion && nextQuestion.options) {
+          this.currentQuestion = { ...nextQuestion };
+          this.options = nextQuestion.options;
+          this.selectionMessage = '';
+          this.questionSource.next(this.currentQuestion);
+          this.optionsSource.next(nextQuestion.options);
+        } else {
+          console.error('Invalid next question:', nextQuestion);
+        }
+  
+        this.updateQuestion(nextQuestion);
+        this.resetUserSelection();
+        this.updateOtherProperties();
+      } else {
+        console.error('Invalid quiz:', this.quizId);
+      }
+    } else {
+      // Handle the scenario when there are no more questions
+      console.error('Invalid next question index:', this.currentQuestionIndex);
+      console.log('Quiz completed!');
+      this.quizCompleted = true;
+    }
+  
+    // Update the URL in the browser window
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+    this.router.navigateByUrl(newUrl);
   }
+  
 
  navigateToPreviousQuestion() {
     this.quizCompleted = false;

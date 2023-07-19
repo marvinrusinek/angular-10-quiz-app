@@ -17,6 +17,7 @@ export class CodelabQuizComponent {
   currentQuestion: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion> = of({} as QuizQuestion);
   explanationText$: Observable<string>;
+  options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   shouldDisplayNumberOfCorrectAnswers: boolean;
   explanationTextSubscription: Subscription;
@@ -32,6 +33,9 @@ export class CodelabQuizComponent {
   ngOnInit(): void {
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.explanationText$ = this.explanationTextService.getExplanationText$();
+    this.options$ = of([]);
+
+    this.quizService.navigateToNextQuestion();
 
     // Subscribe to the nextQuestion$ observable
     /* this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
@@ -46,14 +50,22 @@ export class CodelabQuizComponent {
     }); */
 
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
-      if (nextQuestion) {
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestion = nextQuestion;
+        this.quizService.setCurrentQuestion(nextQuestion);
+
+        // Map the Option[] to an array of strings representing the option text
+        this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
+
         // this.currentQuestion = nextQuestion;
         // this.quizStateService.setCurrentQuestion(nextQuestion);
         // this.currentQuestion$ = of(nextQuestion);
         // this.quizStateService.setCurrentQuestion(of(nextQuestion));
         // this.currentQuestion$ = this.quizService.currentQuestionSource.asObservable();
         // this.quizService.setCurrentQuestion(this.quizService.currentQuestionSource.asObservable());
-        this.quizService.setCurrentQuestion(nextQuestion);
+        // this.quizService.setCurrentQuestion(nextQuestion);
+        // this.currentQuestion$ = of(nextQuestion);
+        // this.options$ = of(nextQuestion.options);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
