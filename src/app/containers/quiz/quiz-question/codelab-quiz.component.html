@@ -3,10 +3,6 @@
     <ng-content select="[question-content]"></ng-content>
     {{ (explanationText$ | async) || (currentQuestion$ | async)?.questionText }}
 
-    <!--span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount() | async">
-      {{ (getNumberOfCorrectAnswersText() | async) }}
-    </span>-->
-
     <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
       <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
         {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
