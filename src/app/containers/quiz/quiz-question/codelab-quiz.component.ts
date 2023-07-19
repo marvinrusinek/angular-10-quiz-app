@@ -8,7 +8,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
-
+ 
 @Component({
   selector: 'codelab-quiz-cp-component',
   templateUrl: './codelab-quiz.component.html',
