@@ -458,12 +458,12 @@ export class QuizQuestionComponent
     this.currentQuestionSubscription = this.quizService.currentQuestion$
       .pipe(
         tap((data) => console.log('Data received:', data)),
-        tap(({ question }) => {
-          if (data && question) {
-            console.log('Question received:', question);
-            this.currentQuestion = question;
+        tap((data) => {
+          if (data && data.question) {
+            console.log('Question received:', data.question);
+            this.currentQuestion = data.question;
             this.options = this.currentQuestion.options;
-            // this.initializeQuizState(this.currentQuestion);
+            this.initializeQuizState(this.currentQuestion);
           }
         }),
         catchError((error) => {
