@@ -22,6 +22,7 @@ export class CodelabQuizComponent {
   shouldDisplayNumberOfCorrectAnswers: boolean;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
+  currentQuestionSubscription: Subscription;
 
   constructor(
     private quizService: QuizService,
@@ -48,6 +49,18 @@ export class CodelabQuizComponent {
         // this.router.navigate(['/quiz-completed']);
       }
     }); */
+
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
+      if (currentQuestion) {
+        this.currentQuestion = currentQuestion;
+        // Update the options array
+        this.options$ = of(currentQuestion.options.map((option) => option.value.toString()));
+      } else {
+        // Handle the scenario when there are no more questions
+        // For example, you can navigate to a different page here
+        // this.router.navigate(['/quiz-completed']);
+      }
+    });
 
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
