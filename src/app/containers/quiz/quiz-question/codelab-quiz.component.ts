@@ -75,11 +75,6 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription.unsubscribe();
   }
 
-  /* getNumberOfCorrectAnswersText(): string {
-    const count = this.quizQuestionManagerService.getNumberOfCorrectAnswers();
-    return count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`;
-  } */
-
   getNumberOfCorrectAnswersText(): Observable<string> {
     return this.numberOfCorrectAnswers$.pipe(
       map(count => count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`)
@@ -87,7 +82,9 @@ export class CodelabQuizComponent {
   }
 
   calculateNumberOfCorrectAnswers(): number {
-    let currentQuestion: QuizQuestion;
+    return this.numberOfCorrectAnswers$.getValue();
+
+    /* let currentQuestion: QuizQuestion;
     this.currentQuestion$.pipe(take(1)).subscribe((question) => {
       currentQuestion = question;
     });
@@ -95,7 +92,7 @@ export class CodelabQuizComponent {
     if (currentQuestion) {
       return currentQuestion.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
     }
-    return 0;
+    return 0; */
   }  
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
