@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -17,8 +17,6 @@ import { QuizQuestionManagerService } from '../../../shared/services/quizquestio
 })
 export class CodelabQuizComponent { 
   currentQuestion: BehaviorSubject<QuizQuestion>;
-  // currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
-  // currentQuestion$: Observable<QuizQuestion> = of({} as QuizQuestion);
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   explanationText$: Observable<string>;
   options: Option[] = [];
@@ -49,9 +47,6 @@ export class CodelabQuizComponent {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question);
         this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers);
-        // this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
-        // this.numberOfCorrectAnswers$.next(this.calculateNumberOfCorrectAnswers(question));
-        //this.numberOfCorrectAnswers$.next(this.quizQuestionManagerService.getNumberOfCorrectAnswers());
       }
     });
   
@@ -79,22 +74,12 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription.unsubscribe();
   }
 
-  /* getNumberOfCorrectAnswersText(count: number): string {
-    return count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`;
-  } */
-
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
     return numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
   }
    
-  /* getNumberOfCorrectAnswersText(): Observable<string> {
-    return this.quizQuestionManagerService.getNumberOfCorrectAnswers$().pipe(
-      map(count => count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`)
-    );
-  } */
-
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
     if (question) {
       return question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
