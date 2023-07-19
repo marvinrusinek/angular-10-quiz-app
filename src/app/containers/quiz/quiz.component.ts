@@ -438,7 +438,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         ),
       ]).pipe(
         map(([currentQuestion, options]) => {
-          return currentQuestion.question.options || [];
+          return currentQuestion.options || [];
         })
       );
       this.options$.subscribe((options) => console.log(options));
@@ -500,7 +500,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
       this.options = question?.options || [];
-      this.initializeQuizState(question);
+      // this.initializeQuizState(question);
     });
     return this.currentQuestion$;
   }
