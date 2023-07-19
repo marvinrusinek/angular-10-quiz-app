@@ -26,7 +26,6 @@ export class CodelabQuizComponent {
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   currentQuestionSubscription: Subscription;
-  optionsSubscription: Subscription | undefined;
 
   constructor(
     private quizService: QuizService,
@@ -37,26 +36,21 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-    this.options$ = of([]);
-    this.quizService.navigateToNextQuestion();
-
+    this.options$ = this.quizService.options$.pipe(
+      map((options: Option[]) => options.map((option) => option.value.toString()))
+    );
+  
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    this.currentQuestion$.subscribe((question: QuizQuestion) => {
+    this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
       }
     });
-    
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-      }
-    });
-
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-        this.options$ = of(currentQuestion.options.map((option) => option.value.toString()));
+  
+    this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
+      if (nextQuestion) {
+        this.currentQuestion = nextQuestion;
+        this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
@@ -69,37 +63,13 @@ export class CodelabQuizComponent {
       const displayed = !!explanationText;
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
-
-    this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
-      if (nextQuestion) {
-        this.currentQuestion = nextQuestion;
-        console.log('Received next question:', nextQuestion);
-        this.quizService.setCurrentQuestion(nextQuestion);
-
-        this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
-      } else {
-        // Handle the scenario when there are no more questions
-        // For example, you can navigate to a different page here
-        // this.router.navigate(['/quiz-completed']);
-      }
-    });
-
-    this.options$ = this.quizService.options$.pipe(
-      map((options: Option[]) => options.map((option) => option.value.toString()))
-    );
-    this.optionsSubscription = this.quizService.options$.subscribe((options) => {
-      if (options) {
-        this.options = options;
-        console.log('Received options:', options);
-      }
-    });
   }
+  
 
   ngOnDestroy(): void {
-    this.explanationTextSubscription.unsubscribe();
     this.currentQuestionSubscription.unsubscribe();
+    this.explanationTextSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
-    this.optionsSubscription.unsubscribe(); 
   }
 
   getNumberOfCorrectAnswersText(): string {

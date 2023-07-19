@@ -10,9 +10,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-  constructor() {
-    this.explanationText$.next('Default explanation text');
-  }
+  constructor() {}
 
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
