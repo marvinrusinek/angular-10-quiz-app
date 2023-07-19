@@ -457,13 +457,12 @@ export class QuizQuestionComponent
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription = this.quizService.currentQuestion$
       .pipe(
-        tap((data) => console.log('Data received:', data)),
-        tap((data) => {
+        tap((data: { question: QuizQuestion | null }) => {
           if (data && data.question) {
             console.log('Question received:', data.question);
             this.currentQuestion = data.question;
             this.options = this.currentQuestion.options;
-            this.initializeQuizState(this.currentQuestion);
+            // this.initializeQuizState(this.currentQuestion);
           }
         }),
         catchError((error) => {
@@ -473,6 +472,7 @@ export class QuizQuestionComponent
       )
       .subscribe();
   }
+
 
   subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
