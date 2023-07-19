@@ -65,7 +65,6 @@ export class CodelabQuizComponent {
     });
   }
   
-
   ngOnDestroy(): void {
     this.currentQuestionSubscription.unsubscribe();
     this.explanationTextSubscription.unsubscribe();

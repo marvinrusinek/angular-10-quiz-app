@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 
+import { BehaviorSubject } from 'rxjs';
+
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuizQuestionManagerService {
-  currentQuestion: QuizQuestion;
+  // currentQuestion: QuizQuestion;
+  currentQuestion: BehaviorSubject<QuizQuestion>;
   explanationText: string;
   numberOfCorrectAnswers: number;
   shouldDisplayNumberOfCorrectAnswers: boolean = false;
@@ -14,8 +17,9 @@ export class QuizQuestionManagerService {
   shouldDisplayExplanation: boolean = false;
   correctAnswersCount: number = 0;
 
-  setCurrentQuestion(question: any): void {
-    this.currentQuestion = question;
+  setCurrentQuestion(question: QuizQuestion): void {
+    // this.currentQuestion = question;
+    this.currentQuestion.next(question);
     this.numberOfCorrectAnswers = this.currentQuestion.options.filter(option => option.correct).length;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
