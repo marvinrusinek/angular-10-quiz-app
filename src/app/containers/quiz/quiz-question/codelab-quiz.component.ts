@@ -36,12 +36,11 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
-    this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-    this.options$ = of([]);
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
+    this.options$ = of([]);
     this.quizService.navigateToNextQuestion();
 
+    this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
@@ -65,6 +64,7 @@ export class CodelabQuizComponent {
       }
     });
 
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.explanationTextSubscription = this.explanationText$.subscribe((explanationText) => {
       const displayed = !!explanationText;
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
