@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
 
+import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
@@ -17,12 +18,14 @@ export class CodelabQuizComponent {
   currentQuestion: BehaviorSubject<QuizQuestion>;
   currentQuestion$: Observable<QuizQuestion> = of({} as QuizQuestion);
   explanationText$: Observable<string>;
+  options: Option[] = [];
   options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   shouldDisplayNumberOfCorrectAnswers: boolean;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   currentQuestionSubscription: Subscription;
+  optionsSubscription: Subscription;
 
   constructor(
     private quizService: QuizService,
@@ -76,6 +79,7 @@ export class CodelabQuizComponent {
 
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
+        this.currentQuestion = nextQuestion;
         this.quizService.setCurrentQuestion(nextQuestion);
 
         // Map the Option[] to an array of strings representing the option text
@@ -84,6 +88,12 @@ export class CodelabQuizComponent {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
         // this.router.navigate(['/quiz-completed']);
+      }
+    });
+
+    this.optionsSubscription = this.quizService.options$.subscribe((options) => {
+      if (options) {
+        this.options = options;
       }
     });
 
@@ -97,6 +107,7 @@ export class CodelabQuizComponent {
     this.explanationTextSubscription.unsubscribe();
     this.currentQuestionSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
+    this.optionsSubscription.unsubscribe();
   }
 
   getNumberOfCorrectAnswersText(): string {
