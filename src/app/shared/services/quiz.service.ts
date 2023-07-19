@@ -73,9 +73,9 @@ export class QuizService implements OnDestroy {
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
   options: Option[] = [];
-  options$: Observable<Option[]>;
+  // options$: Observable<Option[]>;
   currentOptions: Option[];
-  optionsSource = new Subject<Option[]>();
+  // optionsSource = new Subject<Option[]>();
   resources: Resource[];
   quizId: string = '';
   answers: number[];
@@ -122,6 +122,9 @@ export class QuizService implements OnDestroy {
 
   nextQuestionSource: Subject<QuizQuestion | null> = new Subject<QuizQuestion | null>();
   nextQuestion$ = this.nextQuestionSource.asObservable();
+
+  private optionsSource: Subject<Option[]> = new Subject<Option[]>();
+  options$: Observable<Option[]> = this.optionsSource.asObservable();
 
   currentAnswer = '';
   nextQuestionText = '';
