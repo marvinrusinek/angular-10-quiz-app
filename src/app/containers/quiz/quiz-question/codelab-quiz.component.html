@@ -6,9 +6,15 @@
       (currentQuestion$ | async)?.questionText 
     }}
 
-    <span class="number-correct" 
+    <!--<span class="number-correct" 
     *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
         {{ getNumberOfCorrectAnswersText() | async }}
-    </span>
+    </span>-->
+
+    <ng-container *ngIf="getNumberOfCorrectAnswersText() | async as correctAnswersText">
+      <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
+        {{ correctAnswersText }}
+      </span>
+    </ng-container>
   </h3>
 </section>
