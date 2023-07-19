@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -83,6 +84,9 @@ export class CodelabQuizComponent {
       }
     });
 
+    this.options$ = this.quizService.options$.pipe(
+      map((options: Option[]) => options.map((option) => option.value.toString()))
+    );
     this.optionsSubscription = this.quizService.options$.subscribe((options) => {
       if (options) {
         this.options = options;
