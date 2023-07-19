@@ -504,19 +504,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* getNextQuestion(): QuizQuestion | undefined {
-    const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = this.currentQuestionIndex;
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      nextIndex < currentQuiz.questions.length
-    ) {
-      this.currentQuestionIndex++;
-      return currentQuiz.questions[nextIndex];
-    }
-  } */
-
   getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
