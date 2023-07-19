@@ -862,7 +862,7 @@ export class QuizService implements OnDestroy {
   
           if (nextQuestion) {
             console.log('emitting currentQuestionSubject with question:', nextQuestion);
-            this.currentQuestion = nextQuestion;
+            this.currentQuestion.next(nextQuestion);
             this.currentQuestionSubject.next(nextQuestion);
   
             // Map the Option[] to an array of strings representing the option text
