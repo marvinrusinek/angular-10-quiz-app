@@ -37,10 +37,8 @@
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
       <h5 class="selection-message">
-        {{ 
-          (selectionMessage$ | async) || selectOptionText 
-        }}
-      </h5>
+        {{ (selectionMessage$ | async) || selectOptionText }}
+      </h5> 
 
       <!-- paging -->
       <section class="paging">
