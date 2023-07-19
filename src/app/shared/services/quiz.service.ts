@@ -98,8 +98,8 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean = false;
 
   currentQuestionSource: Subject<{
-    question: QuizQuestion;
-    quizId: string;
+    question: QuizQuestion,
+    quizId: string
   }> = new Subject<{ question: QuizQuestion, quizId: string }>();
   currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
 
