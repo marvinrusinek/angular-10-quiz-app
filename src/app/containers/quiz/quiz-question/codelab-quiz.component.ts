@@ -24,6 +24,7 @@ export class CodelabQuizComponent {
   options: Option[] = [];
   options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
+  numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
@@ -46,6 +47,7 @@ export class CodelabQuizComponent {
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
+        this.numberOfCorrectAnswers$.next(this.calculateNumberOfCorrectAnswers(question));
       }
     });
   
@@ -76,6 +78,10 @@ export class CodelabQuizComponent {
   getNumberOfCorrectAnswersText(): string {
     const count = this.quizQuestionManagerService.getNumberOfCorrectAnswers();
     return count === 1 ? `(${count} answer is correct)` : `(${count} answers are correct)`;
+  }
+
+  calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
+    return question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
   }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
