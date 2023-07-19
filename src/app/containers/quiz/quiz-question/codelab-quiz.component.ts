@@ -95,7 +95,7 @@ export class CodelabQuizComponent {
     this.explanationTextSubscription.unsubscribe();
     this.currentQuestionSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
-    this.optionsSubscription.unsubscribe();
+    this.optionsSubscription.unsubscribe(); 
   }
 
   getNumberOfCorrectAnswersText(): string {
