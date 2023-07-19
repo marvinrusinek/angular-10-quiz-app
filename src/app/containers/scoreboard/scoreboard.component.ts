@@ -85,13 +85,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  /* updateBadge(totalQuestions: number): void {
-    if (this.questionNumber && totalQuestions > 0) {
-      this.badge =
-        'Question ' + this.questionNumber + ' of ' + totalQuestions;
-    }
-  } */
-
   updateBadge(questionNumber: number, totalQuestions: number): void {
     if (questionNumber && totalQuestions > 0) {
       this.badge =
@@ -99,5 +92,5 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.badge = '';
     }
-  }  
+  }
 }
