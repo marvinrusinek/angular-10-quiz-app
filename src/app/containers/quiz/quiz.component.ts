@@ -437,7 +437,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         ),
       ]).pipe(
         map(([currentQuestion, options]) => {
-          return currentQuestion.options || [];
+          return currentQuestion?.options || [];
         })
       );
       this.options$.subscribe((options) => console.log(options));
