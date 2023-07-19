@@ -56,7 +56,6 @@ export class CodelabQuizComponent {
     this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
-        // Update the options array
         this.options$ = of(currentQuestion.options.map((option) => option.value.toString()));
       } else {
         // Handle the scenario when there are no more questions
@@ -70,25 +69,12 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    // Subscribe to the nextQuestion$ observable
-    /* this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
-      if (nextQuestion) {
-        // Update the current question in the quiz state service
-        this.quizStateService.setCurrentQuestion(nextQuestion);
-      } else {
-        // Handle the scenario when there are no more questions
-        // For example, you can navigate to a different page here
-        // this.router.navigate(['/quiz-completed']);
-      }
-    }); */
-
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
         this.currentQuestion = nextQuestion;
         console.log('Received next question:', nextQuestion);
         this.quizService.setCurrentQuestion(nextQuestion);
 
-        // Map the Option[] to an array of strings representing the option text
         this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
       } else {
         // Handle the scenario when there are no more questions
