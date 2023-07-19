@@ -97,11 +97,11 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
 
-  private currentQuestionSource: Subject<{
+  currentQuestionSource: Subject<{
     question: QuizQuestion;
     quizId: string;
-  }> = new Subject<{ question: QuizQuestion; quizId: string }>();
-  currentQuestion$: Observable<{ question: QuizQuestion; quizId: string }>;
+  }> = new Subject<{ question: QuizQuestion, quizId: string }>();
+  currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
