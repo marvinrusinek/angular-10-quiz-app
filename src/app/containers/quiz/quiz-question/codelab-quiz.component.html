@@ -7,8 +7,10 @@
       {{ (getNumberOfCorrectAnswersText() | async) }}
     </span>-->
 
-    <span class="number-correct" *ngIf="(numberOfCorrectAnswers$ | async) as numberOfCorrectAnswers">
-      {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
-    </span>
+    <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
+      <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
+        {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
+      </span>
+    </ng-container>
   </h3>
 </section>
