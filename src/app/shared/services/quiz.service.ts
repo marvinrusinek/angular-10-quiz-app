@@ -42,7 +42,8 @@ enum QuizRoutes {
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  currentQuestionIndex: number = 0;
+  // currentQuestionIndex: number = 0;
+  private currentQuestionIndex = -1;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
@@ -59,7 +60,8 @@ export class QuizService implements OnDestroy {
   questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
-  currentQuestion: QuizQuestion | undefined = null;
+  // currentQuestion: QuizQuestion | undefined = null;
+  private currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionPromise: Promise<QuizQuestion> = null;
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
@@ -101,7 +103,8 @@ export class QuizService implements OnDestroy {
     question: QuizQuestion,
     quizId: string
   }> = new Subject<{ question: QuizQuestion, quizId: string }>();
-  currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
+  // currentQuestion$: Observable<{ question: QuizQuestion, quizId: string }>;
+  currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestion.asObservable();
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
