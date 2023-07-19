@@ -38,14 +38,23 @@ export class CodelabQuizComponent {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
     this.quizService.navigateToNextQuestion();
 
+    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+      if (currentQuestion) {
+        this.currentQuestion = currentQuestion;
+      }
+    });
+
+    this.currentQuestion$.subscribe((question: QuizQuestion) => {
+      if (question) {
+        this.quizQuestionManagerService.setCurrentQuestion(question);
+      }
+    });
+
     this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
         // Update the options array
         this.options$ = of(currentQuestion.options.map((option) => option.value.toString()));
-  
-        // Set the current question in the quizQuestionManagerService
-        this.quizQuestionManagerService.setCurrentQuestion(currentQuestion);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
@@ -86,6 +95,7 @@ export class CodelabQuizComponent {
 
   ngOnDestroy(): void {
     this.explanationTextSubscription.unsubscribe();
+    this.currentQuestionSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
   }
 
