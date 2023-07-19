@@ -50,6 +50,7 @@ export class CodelabQuizComponent {
         // this.currentQuestion = nextQuestion;
         // this.quizStateService.setCurrentQuestion(nextQuestion);
         this.currentQuestion$ = of(nextQuestion);
+        this.quizStateService.setCurrentQuestion(of(nextQuestion));
         // this.currentQuestion$ = this.quizService.currentQuestionSource.asObservable();
       } else {
         // Handle the scenario when there are no more questions
