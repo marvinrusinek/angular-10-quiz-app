@@ -38,6 +38,21 @@ export class CodelabQuizComponent {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
     this.quizService.navigateToNextQuestion();
 
+    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
+      if (currentQuestion) {
+        this.currentQuestion = currentQuestion;
+        // Update the options array
+        this.options$ = of(currentQuestion.options.map((option) => option.value.toString()));
+  
+        // Set the current question in the quizQuestionManagerService
+        this.quizQuestionManagerService.setCurrentQuestion(currentQuestion);
+      } else {
+        // Handle the scenario when there are no more questions
+        // For example, you can navigate to a different page here
+        // this.router.navigate(['/quiz-completed']);
+      }
+    });
+
     // Subscribe to the nextQuestion$ observable
     /* this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
@@ -50,18 +65,6 @@ export class CodelabQuizComponent {
       }
     }); */
 
-    this.currentQuestionSubscription = this.quizService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-        // Update the options array
-        this.options$ = of(currentQuestion.options.map((option) => option.value.toString()));
-      } else {
-        // Handle the scenario when there are no more questions
-        // For example, you can navigate to a different page here
-        // this.router.navigate(['/quiz-completed']);
-      }
-    });
-
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
         this.quizService.setCurrentQuestion(nextQuestion);
@@ -72,18 +75,6 @@ export class CodelabQuizComponent {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
         // this.router.navigate(['/quiz-completed']);
-      }
-    });
-
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-      }
-    });
-
-    this.currentQuestion$.subscribe((question: QuizQuestion) => {
-      if (question) {
-        this.quizQuestionManagerService.setCurrentQuestion(question);
       }
     });
 
