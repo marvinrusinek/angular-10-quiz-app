@@ -39,7 +39,7 @@ export class CodelabQuizComponent {
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
     this.options$ = this.quizService.options$.pipe(
-      map((options: Option[]) => options.map((option) => option.value.toString()))
+      map((options: Option[]) => options?.map((option) => option?.value?.toString()))
     );
   
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
