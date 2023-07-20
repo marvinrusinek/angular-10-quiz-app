@@ -163,7 +163,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
-    this.fetchQuestions();
+    this.fetchQuizData();
   }
 
   ngOnDestroy(): void {
@@ -544,7 +544,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestion$;
   }
 
-  fetchQuestions(): void {
+  fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
