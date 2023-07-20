@@ -170,6 +170,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) => 
           this.handleRouteParams(params)
+        )
       )
       .subscribe(({ quizId, questionIndex, quizData }) => {
         this.quizData = quizData.questions;
@@ -578,7 +579,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           quizData
         }))
       );
-    })
   }
 
   private handleQuizData(
