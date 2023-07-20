@@ -157,6 +157,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
     this.quizStateService.setCurrentQuestion(this.currentQuestion$);
@@ -201,17 +202,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.quizDataService.getQuizById(this.quizId).subscribe(
-      (quiz: Quiz) => {
-        this.selectedQuiz = quiz;
-        this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
-      },
-      (error: any) => {
-        console.error(error);
-      }
-    );
-
+    this.initializeSelectedQuiz();
     this.initializeObservables();
 
     this.explanationTextService
@@ -219,9 +210,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       .subscribe((explanationText: string | null) => {
         this.explanationText = explanationText;
       });
-    this.getNextQuestion();
-
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
     this.subscribeRouterAndInit();
     this.setObservables();
@@ -239,6 +227,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
+  }
+
+  private initializeSelectedQuiz(): void {
+    this.quizDataService.getQuizById(this.quizId).subscribe(
+      (quiz: Quiz) => {
+        this.selectedQuiz = quiz;
+        this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
+      },
+      (error: any) => {
+        console.error(error);
+      }
+    );
   }
 
   private initializeObservables(): void {
@@ -395,6 +395,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Initialize the previous quizId and questionIndex values to the current values
     let prevQuizId = this.quizId;
     let prevQuestionIndex = this.questionIndex;
+
+    this.getNextQuestion();
+
+    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
     // Subscribe to the router events to detect changes in the quizId or questionIndex
     this.routerSubscription = this.router.events
