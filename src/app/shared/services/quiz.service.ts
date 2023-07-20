@@ -42,7 +42,7 @@ enum QuizRoutes {
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  currentQuestionIndex: number = 0;
+  currentQuestionIndex: number = -1;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
@@ -503,11 +503,15 @@ export class QuizService implements OnDestroy {
   getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
+    
     if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
+      this.currentQuestionIndex++;
       const nextQuestion = currentQuiz.questions[nextIndex];
       this.nextQuestionSource.next(nextQuestion); // Emit the next question
       return nextQuestion;
     }
+
+    return undefined;
   }
 
   async getCurrentQuestion(): Promise<QuizQuestion> {
