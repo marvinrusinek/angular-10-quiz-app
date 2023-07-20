@@ -183,13 +183,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-
-    this.explanationTextService
-      .getExplanationText$()
-      .subscribe((explanationText: string | null) => {
-        this.explanationText = explanationText;
-      });
+    
+    this.getExplanationText(); 
 
     this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
@@ -350,6 +345,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
+  }
+
+  getExplanationText(): void {
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
+    
+    this.explanationTextService
+      .getExplanationText$()
+      .subscribe((explanationText: string | null) => {
+        this.explanationText = explanationText;
+      });
   }
 
   setCurrentQuestion(): void {
