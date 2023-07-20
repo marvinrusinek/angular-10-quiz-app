@@ -899,6 +899,7 @@ export class QuizService implements OnDestroy {
 
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
     this.nextQuestionSource.next(nextQuestion);
+    this.currentQuestionSource.next(nextQuestion);
   }
 
   setCurrentOptions(options: Option[]): void {
