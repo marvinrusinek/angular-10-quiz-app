@@ -188,7 +188,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
-
     this.initializeSelectedQuiz();
     this.initializeObservables();
 
