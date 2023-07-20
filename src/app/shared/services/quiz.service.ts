@@ -503,12 +503,10 @@ export class QuizService implements OnDestroy {
   getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      nextIndex < currentQuiz.questions.length
-    ) {
-      return currentQuiz.questions[nextIndex];
+    if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
+      const nextQuestion = currentQuiz.questions[nextIndex];
+      this.nextQuestionSource.next(nextQuestion); // Emit the next question
+      return nextQuestion;
     }
   }
 
@@ -757,7 +755,7 @@ export class QuizService implements OnDestroy {
   setQuizStatus(value: string): void {
     this.status = value;
   }
-
+  
   isQuizSelected() {
     return this.selectedQuizId !== null;
   }
@@ -878,6 +876,10 @@ export class QuizService implements OnDestroy {
           console.error('Invalid next question index:', nextQuestionIndex);
         }
       });
+  }
+
+  setNextQuestion(nextQuestion: QuizQuestion | null): void {
+    this.nextQuestionSource.next(nextQuestion);
   }
 
   setCurrentOptions(options: Option[]): void {
