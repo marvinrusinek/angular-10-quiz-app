@@ -52,9 +52,12 @@ export class CodelabQuizComponent {
     });
   
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
+      console.log('Next question received:', nextQuestion);
       if (nextQuestion) {
         this.currentQuestion.next(nextQuestion);
         this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
+        console.log("CQ:>>>", this.currentQuestion);
+        console.log("OPTIONS:>>>", this.options$);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
