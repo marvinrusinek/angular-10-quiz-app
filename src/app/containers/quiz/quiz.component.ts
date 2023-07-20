@@ -168,19 +168,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params: ParamMap) => {
-          const quizId = params.get('quizId');
-          const questionIndex = parseInt(params.get('questionIndex'), 10);
-
-          return this.quizService.getQuestionsForQuiz(quizId)
-            .pipe(
-              map((quizData: { quizId: string; questions: QuizQuestion[] }) => ({
-                quizId,
-                questionIndex,
-                quizData
-              }))
-            );
-          })
+        switchMap((params: ParamMap) => 
+          this.handleRouteParams(params)
       )
       .subscribe(({ quizId, questionIndex, quizData }) => {
         this.quizData = quizData.questions;
@@ -575,6 +564,21 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  handleRouteParams(params) {
+    const quizId = params.get('quizId');
+    const questionIndex = parseInt(params.get('questionIndex'), 10);
+
+    return this.quizService.getQuestionsForQuiz(quizId)
+      .pipe(
+        map((quizData: { quizId: string; questions: QuizQuestion[] }) => ({
+          quizId,
+          questionIndex,
+          quizData
+        }))
+      );
+    })
   }
 
   private handleQuizData(
