@@ -276,17 +276,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
 
-    this.questionSubscription = this.quizService.question$.subscribe((question) => {
-      console.log('Question received:', question);
-      this.currentQuestion$ = question;
-      // this.currentQuestionIndex++; // Increment the current question index
-    });
-
-    this.optionsSubscription = this.quizService.options$.subscribe((options) => {
-      console.log('Options received:', options);
-      this.options$ = options;
-    });
-
     this.subscribeRouterAndInit();
     this.setObservables();
     this.getSelectedQuiz();
@@ -420,6 +409,17 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.handleParamMap(params);
         });
       });
+
+    this.questionSubscription = this.quizService.question$.subscribe((question) => {
+      console.log('Question received:', question);
+      this.currentQuestion$ = question;
+      // this.currentQuestionIndex++; // Increment the current question index
+    });
+  
+    this.optionsSubscription = this.quizService.options$.subscribe((options) => {
+      console.log('Options received:', options);
+      this.options$ = options;
+    });
   }
 
   setObservables(): void {
