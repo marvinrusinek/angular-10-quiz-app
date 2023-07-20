@@ -186,21 +186,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.quizService.getAllQuestions().subscribe((questions) => {
-      this.questions = questions;
-      this.currentQuestionIndex = 0;
-      this.currentQuestion = this.questions[this.currentQuestionIndex];
-    });
-
-    this.quizDataService
-      .getQuestionAndOptions(this.quizId, this.questionIndex)
-      .subscribe(([question, options]) => {
-        if (question && options) {
-          this.quizStateService.setCurrentQuestion(of(question));
-        } else {
-          console.log('Question or options not found');
-        }
-      });
+    this.fetchAllQuestions();
+    this.fetchQuestionAndOptions();
 
     this.initializeSelectedQuiz();
     this.initializeObservables();
@@ -227,6 +214,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
+  }
+
+  private fetchAllQuestions(): void {
+    this.quizService.getAllQuestions().subscribe((questions) => {
+      this.questions = questions;
+      this.currentQuestionIndex = 0;
+      this.currentQuestion = this.questions[this.currentQuestionIndex];
+    });
+  }
+
+  private fetchQuestionAndOptions(): void {
+    this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.questionIndex)
+      .subscribe(([question, options]) => {
+        if (question && options) {
+          this.quizStateService.setCurrentQuestion(of(question));
+        } else {
+          console.log('Question or options not found');
+        }
+      });
   }
 
   private initializeSelectedQuiz(): void {
