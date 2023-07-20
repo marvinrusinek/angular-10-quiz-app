@@ -160,13 +160,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
-    this.quizStateService.setCurrentQuestion(this.currentQuestion$);
-
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-
-    this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.setCurrentQuestion();
-
+    this.quizStateService.setCurrentQuestion(this.currentQuestion$);
+    
     this.activatedRoute.paramMap
       .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
       .subscribe(({ quizId, questionIndex, quizData }) => {
@@ -186,16 +182,19 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.fetchAllQuestions();
-    this.fetchQuestionAndOptions();
-    this.initializeSelectedQuiz();
-    this.initializeObservables();
+    this.currentQuestion$ = this.quizStateService.currentQuestion$;
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
 
     this.explanationTextService
       .getExplanationText$()
       .subscribe((explanationText: string | null) => {
         this.explanationText = explanationText;
       });
+
+    this.fetchAllQuestions();
+    this.fetchQuestionAndOptions();
+    this.initializeSelectedQuiz();
+    this.initializeObservables();
 
     this.subscribeRouterAndInit();
     this.setObservables();
