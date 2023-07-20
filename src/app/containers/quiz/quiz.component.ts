@@ -179,6 +179,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           currentQuestionIndex < this.quizData.length
         ) {
           this.initializeQuizState();
+          this.loadCurrentQuestion();
         } else {
           console.error('Invalid question index:', questionIndex);
         }
@@ -222,12 +223,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
-    this.currentQuestion$.subscribe((currentQuestion) => {
-      console.log('Current question:::', currentQuestion);
-      this.currentQuestion = currentQuestion;
-    });
-
     this.explanationTextService
       .getExplanationText$()
       .subscribe((explanationText: string | null) => {
@@ -253,6 +248,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
+  }
+
+  loadCurrentQuestion() {
+    this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
+    this.currentQuestion$.subscribe((currentQuestion) => {
+      console.log('Current question:::', currentQuestion);
+      this.currentQuestion = currentQuestion;
+    });
   }
 
   nextQuestion() {
