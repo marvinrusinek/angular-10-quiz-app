@@ -423,7 +423,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setObservables(): void {
-    this.currentQuestion$ = this.quizService.currentQuestion$;
+    this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
     this.quizService.setCurrentOptions([]);
     
