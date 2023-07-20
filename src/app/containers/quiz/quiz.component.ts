@@ -157,6 +157,26 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.initializeQuiz();
+    this.subscribeRouterAndInit();
+    this.setObservables();
+    this.getSelectedQuiz();
+    this.getQuestion();
+    this.getCurrentQuestion();
+    this.fetchQuestions();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
+    this.selectedQuizSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
+    this.questionSubscription?.unsubscribe();
+    this.optionsSubscription?.unsubscribe();
+  }
+
+  private initializeQuiz(): void {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
@@ -190,23 +210,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
-
-    this.subscribeRouterAndInit();
-    this.setObservables();
-    this.getSelectedQuiz();
-    this.getQuestion();
-    this.getCurrentQuestion();
-    this.fetchQuestions();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
-    this.selectedQuizSubscription?.unsubscribe();
-    this.routerSubscription?.unsubscribe();
-    this.questionSubscription?.unsubscribe();
-    this.optionsSubscription?.unsubscribe();
   }
 
   private fetchAllQuestions(): void {
@@ -349,7 +352,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   getExplanationText(): void {
     this.explanationText$ = this.explanationTextService.getExplanationText$();
-    
+
     this.explanationTextService
       .getExplanationText$()
       .subscribe((explanationText: string | null) => {
