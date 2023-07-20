@@ -500,10 +500,10 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  getNextQuestion(): QuizQuestion | undefined {
+  /* getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
-    
+
     if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
       this.currentQuestionIndex++;
       const nextQuestion = currentQuiz.questions[nextIndex];
@@ -512,7 +512,21 @@ export class QuizService implements OnDestroy {
     }
 
     return undefined;
+  } */
+
+  getNextQuestion(): QuizQuestion | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+    const nextIndex = this.currentQuestionIndex + 1;
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      nextIndex < currentQuiz.questions.length
+    ) {
+      return currentQuiz.questions[nextIndex];
+    }
+    return undefined;
   }
+  
 
   async getCurrentQuestion(): Promise<QuizQuestion> {
     if (this.currentQuestionPromise) {
