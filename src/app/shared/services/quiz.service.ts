@@ -1036,8 +1036,6 @@ export class QuizService implements OnDestroy {
   } */
 
   navigateToNextQuestion(): void {
-    this.quizCompleted = false;
-  
     if (this.currentQuestionIndex < this.quizData.length - 1) {
       this.currentQuestionIndex++;
       const questionIndex = this.currentQuestionIndex;
@@ -1072,10 +1070,9 @@ export class QuizService implements OnDestroy {
     // Update the URL in the browser window
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
     this.router.navigateByUrl(newUrl);
+    console.log('Navigation completed.');
   }
-
-  
-
+    
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
