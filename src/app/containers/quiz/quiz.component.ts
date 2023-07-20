@@ -159,11 +159,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeQuiz();
     this.subscribeRouterAndInit();
+    this.fetchQuizData();
     this.setObservables();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
-    this.fetchQuizData();
   }
 
   ngOnDestroy(): void {
