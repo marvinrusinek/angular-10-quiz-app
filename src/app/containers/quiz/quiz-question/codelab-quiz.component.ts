@@ -73,9 +73,9 @@ export class CodelabQuizComponent {
   }
   
   ngOnDestroy(): void {
-    this.currentQuestionSubscription.unsubscribe();
-    this.explanationTextSubscription.unsubscribe();
-    this.nextQuestionSubscription.unsubscribe();
+    this.currentQuestionSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
+    this.nextQuestionSubscription?.unsubscribe();
   }
 
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
