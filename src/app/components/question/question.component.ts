@@ -147,10 +147,9 @@ export class QuizQuestionComponent
     this.correctMessage = '';
 
     this.questionForm = this.fb.group({
-      selectedOption: [''],
+      selectedOption: ['']
     });
 
-    // console.log('FROM CONSTRUCTOR:', new Date().getTime());
     console.log('QuizQuestionComponent constructor called');
   }
 
