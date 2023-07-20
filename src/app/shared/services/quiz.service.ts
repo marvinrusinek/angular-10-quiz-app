@@ -60,10 +60,10 @@ export class QuizService implements OnDestroy {
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
 
-  private currentQuestionSource: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  private currentQuestionSource: Subject<QuizQuestion | null> = new Subject<QuizQuestion | null>();
   private currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   // currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSource.asObservable();
-  currentQuestion$ = this.currentQuestion.asObservable();
+  currentQuestion$ = this.currentQuestionSource.asObservable();
   currentQuestionPromise: Promise<QuizQuestion> = null;
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
