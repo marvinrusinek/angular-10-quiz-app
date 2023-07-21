@@ -893,6 +893,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('animationStarted');
   
     const nextQuestion = await this.quizService.getNextQuestion();
+    console.log('Next Question:::', nextQuestion); // incorrect question (different quiz)
+    console.log('Current Question:::', this.currentQuestion); //logging entire quiz object
+    console.log('Options:::', this.options); //correct options for first question
   
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
