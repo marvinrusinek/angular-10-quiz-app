@@ -21,7 +21,6 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   explanationText$: Observable<string>;
   options: Option[] = [];
-  // options$: Observable<string[]>;
   currentOptions$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
