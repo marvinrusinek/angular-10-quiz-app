@@ -899,11 +899,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       if (nextQuestion) {
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-        this.setCurrentQuestion(this.currentQuestionIndex + 1); // Update the current question
-        this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
+        this.quizService.setCurrentQuestion(this.currentQuestionIndex + 1);
+        this.currentOptions.next(nextQuestion.options);
       } else {
         this.nextQuestionText = null;
-      }
+      } 
   
       this.selectedOption = null;
       this.quizService.resetAll();
