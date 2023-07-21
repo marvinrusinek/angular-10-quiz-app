@@ -956,7 +956,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Update the current question
         await this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-        console.log('Current Question Index:', this.currentQuestionIndex);
+        console.log('Current Question Index:', this.currentQuestionIndex); 
   
         // Log the current question to verify it's correct
         console.log('Current Question::::::>>>>>>', this.quizService.getCurrentQuestion());
