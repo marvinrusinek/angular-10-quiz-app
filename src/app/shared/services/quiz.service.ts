@@ -915,7 +915,17 @@ export class QuizService implements OnDestroy {
       });
   }
   
-    
+  getFilteredQuestions(): QuizQuestion[] {
+    const currentQuizId = this.getCurrentQuizId();
+    const currentQuiz = this.quizData.find((quiz) => quiz.quizId === currentQuizId);
+  
+    if (currentQuiz && currentQuiz.questions) {
+      return currentQuiz.questions;
+    }
+  
+    return [];
+  }  
+       
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
     this.nextQuestionSource.next(nextQuestion);
     this.currentQuestionSource.next(nextQuestion);
