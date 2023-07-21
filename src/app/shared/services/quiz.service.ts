@@ -1083,7 +1083,7 @@ export class QuizService implements OnDestroy {
     console.log('Navigation completed.');
   } */
 
-  navigateToNextQuestion(): void {
+  /* navigateToNextQuestion(): void {
     console.log('Navigating to the next question in the service...'); 
     this.quizCompleted = false;
   
@@ -1112,7 +1112,43 @@ export class QuizService implements OnDestroy {
     // Update the URL in the browser window
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
     this.router.navigateByUrl(newUrl);
-  }  
+  } */
+
+  async navigateToNextQuestion(): Promise<void> {
+    console.log('Navigating to the next question in the service...');
+  
+    this.quizCompleted = false;
+  
+    // Get the current question index and quiz data from the service
+    const currentQuestionIndex = this.getCurrentQuestionIndex();
+    const currentQuiz = this.getCurrentQuiz();
+  
+    if (currentQuestionIndex < currentQuiz.questions.length - 1) {
+      // If there are more questions, proceed to the next question
+      this.currentQuestionIndex++;
+      const nextQuestionIndex = this.currentQuestionIndex;
+      const nextQuestion = currentQuiz.questions[nextQuestionIndex];
+  
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestion.next({ ...nextQuestion });
+        this.optionsSource.next(nextQuestion.options);
+      } else {
+        console.error('Invalid next question:', nextQuestion);
+      }
+  
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+        this.quizId
+      )}/${this.currentQuestionIndex + 1}`;
+      this.router.navigateByUrl(newUrl);
+    } else {
+      // Handle the scenario when there are no more questions
+      console.error('Invalid next question index:', this.currentQuestionIndex);
+      console.log('Quiz completed!');
+      this.quizCompleted = true;
+    }
+  }
+  
       
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
