@@ -38,8 +38,16 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
+    this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
+    /* this.currentOptions$ = this.quizService.options$.pipe(
+      map((options: Option[]) => options?.map((option) => option?.value?.toString()))
+    ); */
+    this.currentOptions$ = this.quizService.options$.pipe(
+      map((options: Option[]) => options ?? [])
+    );
+    
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion | null) => {
+    this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question);
@@ -47,11 +55,16 @@ export class CodelabQuizComponent {
       }
     });
 
+    this.currentOptions$ = this.quizService.options$;
+  
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion && nextQuestion.options) {
         this.currentQuestion.next(nextQuestion);
-        console.log('Current Question:', this.currentQuestion.getValue()); // Debug: Check if current question is set
+        // this.currentOptions$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
+        this.currentOptions$ = of(nextQuestion.options);
+        console.log("CQ:>>>", this.currentQuestion);
+        console.log("OPTIONS:>>>", this.currentOptions$);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
