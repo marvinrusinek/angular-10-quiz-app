@@ -858,45 +858,52 @@ export class QuizService implements OnDestroy {
       });
   } */
 
-  setCurrentQuestion(currentQuestionIndex: number): void {
-    this.getFilteredQuestions(this.quizId).subscribe((filteredQuestions) => {
-      console.log('Filtered Questions:', filteredQuestions);
+  setCurrentQuestion(questionIndex: number): void {
+    this.getQuestionsForQuiz(this.quizId)
+      .pipe(
+        tap({
+          error: (error) =>
+            console.error(
+              'An error occurred while setting the current question:',
+              error
+            ),
+        })
+      )
+      .subscribe((result) => {
+        const filteredQuestions = result.questions;
+        const nextQuestionIndex = questionIndex - 1; // Subtract 1 to get the correct question index
   
-      const nextQuestionIndex = currentQuestionIndex;
+        if (nextQuestionIndex >= 0 && nextQuestionIndex < filteredQuestions.length) {
+          const nextQuestion = filteredQuestions[nextQuestionIndex];
+          console.log('Next Question:', nextQuestion);
   
-      if (nextQuestionIndex < filteredQuestions.length) {
-        const nextQuestion = filteredQuestions[nextQuestionIndex];
-        console.log('Next Question:', nextQuestion);
+          if (nextQuestion && nextQuestion.options) {
+            console.log('emitting currentQuestionSubject with question:', nextQuestion);
+            this.currentQuestion.next(nextQuestion);
+            this.currentQuestionSubject.next(nextQuestion);
   
-        if (nextQuestion && nextQuestion.options) {
-          console.log('emitting currentQuestionSubject with question:', nextQuestion);
-          this.currentQuestion.next(nextQuestion);
-          this.currentQuestionSubject.next(nextQuestion);
+            // Map the Option[] to an array of strings representing the option text
+            const optionValues = nextQuestion.options.map((option) => option.value.toString());
   
-          // Map the Option[] to an array of strings representing the option text
-          const optionValues = nextQuestion.options.map((option) => option.value.toString());
+            // Create new Option objects with the value property as a number
+            const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
+            console.log('Next Question Options:', options);
   
-          // Create new Option objects with the value property as a number
-          const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
-          console.log('Next Question Options:', options);
+            // Emit the next question's options
+            this.optionsSource.next(options);
   
-          // Emit the next question's options
-          this.optionsSource.next(options);
+            this.questionSubjectEmitted = true;
   
-          this.questionSubjectEmitted = true;
+            // Update the URL in the browser window
+            const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
+            this.router.navigateByUrl(newUrl);
+          } else {
+            console.error('Invalid next question:', nextQuestion);
+          }
         } else {
-          console.error('Invalid next question:', nextQuestion);
+          console.error('Invalid next question index:', nextQuestionIndex);
         }
-      } else {
-        console.error('Invalid next question index:', nextQuestionIndex);
-      }
-    });
-  }
-  
-  getFilteredQuestions(quizId: string): Observable<QuizQuestion[]> {
-    return this.getQuestionsForQuiz(quizId).pipe(
-      map((result) => result.questions)
-    );
+      });
   }
   
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
