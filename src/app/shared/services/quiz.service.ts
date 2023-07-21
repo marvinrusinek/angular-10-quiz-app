@@ -885,6 +885,7 @@ export class QuizService implements OnDestroy {
 
   setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with:', question);
+  
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
         tap({
@@ -897,13 +898,18 @@ export class QuizService implements OnDestroy {
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
+        console.log('Filtered Questions:', filteredQuestions);
+  
         const questionIndex = filteredQuestions.findIndex((q) => q === question);
+        console.log('Question Index:', questionIndex);
+  
         const nextQuestionIndex = questionIndex + 1;
   
         if (nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
+          console.log('Next Question:', nextQuestion);
   
-          if (nextQuestion && nextQuestion.options) { 
+          if (nextQuestion && nextQuestion.options) {
             console.log('emitting currentQuestionSubject with question:', nextQuestion);
             this.currentQuestion.next(nextQuestion);
             this.currentQuestionSubject.next(nextQuestion);
@@ -913,6 +919,7 @@ export class QuizService implements OnDestroy {
   
             // Create new Option objects with the value property as a number
             const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
+            console.log('Next Question Options:', options);
   
             // Emit the next question's options
             this.optionsSource.next(options);
@@ -926,6 +933,7 @@ export class QuizService implements OnDestroy {
         }
       });
   }
+  
 
   /* setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with:', question);
