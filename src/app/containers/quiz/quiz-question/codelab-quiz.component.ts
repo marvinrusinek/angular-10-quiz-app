@@ -22,7 +22,7 @@ export class CodelabQuizComponent {
   explanationText$: Observable<string>;
   options: Option[] = [];
   // options$: Observable<string[]>;
-  currentOptions$: Observable<Option[]>;
+  currentOptions$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
