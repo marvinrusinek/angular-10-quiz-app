@@ -533,7 +533,7 @@ export class QuizService implements OnDestroy {
   }
   
 
-  /* async getCurrentQuestion(): Promise<QuizQuestion> {
+  async getCurrentQuestion(): Promise<QuizQuestion> {
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
@@ -575,33 +575,7 @@ export class QuizService implements OnDestroy {
       .toPromise();
 
     return this.currentQuestionPromise;
-  } */
-
-  getCurrentQuestion(): Observable<QuizQuestion> {
-    if (this.currentQuestionSubject.value) {
-      return this.currentQuestionSubject.asObservable();
-    }
-  
-    const quizId = this.getCurrentQuizId();
-    this.getQuestionsForQuiz(quizId)
-      .pipe(
-        tap(({ questions }) => {
-          this.questions = questions;
-          this.loadingQuestions = false;
-          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-          this.currentQuestionSubject.next(questions[currentQuestionIndex]);
-        }),
-        catchError((error) => {
-          console.error('Error getting quiz questions:', error);
-          this.loadingQuestions = false;
-          return throwError(error);
-        })
-      )
-      .subscribe();
-  
-    return this.currentQuestionSubject.asObservable();
   }
-  
 
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
@@ -842,7 +816,8 @@ export class QuizService implements OnDestroy {
     this.questions$ = of(this.questions);
   }
 
-  setCurrentQuestion(currentQuestionIndex: number): void {
+  /* setCurrentQuestion(question: QuizQuestion): void {
+    console.log('setCurrentQuestion called with:', question);
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
         tap({
@@ -851,29 +826,67 @@ export class QuizService implements OnDestroy {
               'An error occurred while setting the current question:',
               error
             ),
-        }),
-        take(1) // Add this to complete the subscription after emitting the current question
+        })
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
-        console.log('Filtered Questions:', filteredQuestions);
-  
-        const nextQuestionIndex = currentQuestionIndex;
-  
-        if (nextQuestionIndex >= 0 && nextQuestionIndex < filteredQuestions.length) {
+        const questionIndex = filteredQuestions.findIndex(
+          (q) => q === question
+        );
+        const nextQuestionIndex = questionIndex + 1;
+
+        if (nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
-          console.log('Next Question:', nextQuestion);
+
+          if (nextQuestion) {
+            console.log(
+              'emitting currentQuestionSubject with question:',
+              nextQuestion
+            );
+            this.currentQuestion = nextQuestion;
+            this.currentQuestionSubject.next(nextQuestion);
+
+            this.optionsSource.next(nextQuestion.options);
+            this.questionSubjectEmitted = true;
+          } else {
+            console.error('Invalid next question:', nextQuestion);
+          }
+        } else {
+          console.error('Invalid next question index:', nextQuestionIndex);
+        }
+      });
+  } */
+
+  setCurrentQuestion(question: QuizQuestion): void {
+    console.log('setCurrentQuestion called with:', question);
+    this.getQuestionsForQuiz(this.quizId)
+      .pipe(
+        tap({
+          error: (error) =>
+            console.error(
+              'An error occurred while setting the current question:',
+              error
+            ),
+        })
+      )
+      .subscribe((result) => {
+        const filteredQuestions = result.questions;
+        const questionIndex = filteredQuestions.findIndex((q) => q === question);
+        const nextQuestionIndex = questionIndex + 1;
   
-          if (nextQuestion && nextQuestion.options) {
+        if (nextQuestionIndex < filteredQuestions.length) {
+          const nextQuestion = filteredQuestions[nextQuestionIndex];
+  
+          if (nextQuestion && nextQuestion.options) { 
             console.log('emitting currentQuestionSubject with question:', nextQuestion);
             this.currentQuestion.next(nextQuestion);
+            this.currentQuestionSubject.next(nextQuestion);
   
             // Map the Option[] to an array of strings representing the option text
             const optionValues = nextQuestion.options.map((option) => option.value.toString());
   
             // Create new Option objects with the value property as a number
             const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
-            console.log('Next Question Options:', options);
   
             // Emit the next question's options
             this.optionsSource.next(options);
@@ -923,7 +936,110 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion(): void {
+  /* navigateToNextQuestion(): void {
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
+
+    const questionIndex = this.currentQuestionIndex;
+    const nextQuestionIndex = questionIndex;
+
+    if (nextQuestionIndex < this.quizData.length) {
+      const currentQuiz = this.quizData.find(
+        (quiz) => quiz.quizId === this.quizId
+      );
+      if (currentQuiz) {
+        const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
+
+        if (nextQuestion && nextQuestion.options) {
+          this.currentQuestion = { ...nextQuestion };
+          this.options = nextQuestion.options;
+          this.selectionMessage = '';
+          this.questionSource.next(this.currentQuestion);
+
+          // Emit the next question and options
+          this.currentQuestionSource.next({
+            question: nextQuestion,
+            quizId: this.quizId,
+          });
+          this.optionsSource.next(nextQuestion.options);
+        } else {
+          console.error('Invalid next question:', nextQuestion);
+        }
+
+        this.updateQuestion(nextQuestion);
+        this.resetUserSelection();
+        this.updateOtherProperties();
+      } else {
+        console.error('Invalid quiz:', this.quizId);
+      }
+    } else {
+      console.error('Invalid next question index:', nextQuestionIndex);
+    }
+
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
+      nextQuestionIndex + 1
+    }`;
+    this.router.navigateByUrl(newUrl); 
+  } */
+
+  /* navigateToNextQuestion(): void {
+    this.quizCompleted = false;
+    this.currentQuestionIndex++;
+
+    console.log('currentQuestionIndex:::>>>', this.currentQuestionIndex);
+
+    if (this.currentQuestionIndex < this.quizData.length) {
+      const questionIndex = this.currentQuestionIndex;
+      const nextQuestionIndex = questionIndex;
+      console.log('NQI', nextQuestionIndex);
+
+      const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+      console.log('currentQuiz:', currentQuiz);
+      if (currentQuiz) {
+        const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
+
+        console.log('nextQuestion:', nextQuestion);
+
+        if (nextQuestion && nextQuestion.options) {
+          this.currentQuestion = { ...nextQuestion };
+          console.log('currentQuestion:::>>>', this.currentQuestion);
+          this.options = nextQuestion.options;
+          this.selectionMessage = '';
+          this.questionSource.next(this.currentQuestion);
+
+          // Emit the next question and options
+          this.nextQuestionSource.next(nextQuestion);
+          this.optionsSource.next(nextQuestion.options);
+        } else {
+          console.error('Invalid next question:::>>>', nextQuestion);
+        }
+
+        this.updateQuestion(nextQuestion);
+        this.resetUserSelection();
+        this.updateOtherProperties();
+      } else {
+        console.error('Invalid quiz:::>>', this.quizId);
+      }
+
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
+      this.router.navigateByUrl(newUrl);
+    } else {
+      // Handle the scenario when there are no more questions
+      console.error('Invalid next question index:', this.currentQuestionIndex);
+      console.log('Quiz completed!');
+      this.quizCompleted = true;
+
+      // Emit null to indicate no next question
+      this.nextQuestionSource.next(null);
+
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex}`;
+      this.router.navigateByUrl(newUrl);
+    }
+  } */
+
+  /* navigateToNextQuestion(): void {
     if (this.currentQuestionIndex < this.quizData.length - 1) {
       this.currentQuestionIndex++;
       const questionIndex = this.currentQuestionIndex;
@@ -945,10 +1061,6 @@ export class QuizService implements OnDestroy {
         this.updateQuestion(nextQuestion);
         this.resetUserSelection();
         this.updateOtherProperties();
-  
-        // Update the URL in the browser window
-        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-        this.router.navigate([newUrl]);
       } else {
         console.error('Invalid quiz:', this.quizId);
       }
@@ -958,6 +1070,56 @@ export class QuizService implements OnDestroy {
       console.log('Quiz completed!');
       this.quizCompleted = true;
     }
+  
+    // Update the URL in the browser window
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+    this.router.navigateByUrl(newUrl);
+    console.log('Navigation completed.');
+  } */
+
+  navigateToNextQuestion(): void {
+    this.quizCompleted = false;
+  
+    // Subscribe to the currentQuestionIndex$ observable
+    this.quizService.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndex = index;
+  
+      // Check if there are more questions to navigate
+      if (this.currentQuestionIndex < this.quizData.length - 1) {
+        this.currentQuestionIndex++;
+        const questionIndex = this.currentQuestionIndex;
+        const currentQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
+  
+        if (currentQuiz) {
+          const nextQuestion: QuizQuestion = currentQuiz.questions[questionIndex];
+  
+          if (nextQuestion && nextQuestion.options) {
+            this.currentQuestion.next({ ...nextQuestion });
+            this.options = nextQuestion.options;
+            this.selectionMessage = '';
+            this.questionSource.next(this.currentQuestion.getValue());
+            this.optionsSource.next(nextQuestion.options);
+          } else {
+            console.error('Invalid next question:', nextQuestion);
+          }
+  
+          this.updateQuestion(nextQuestion);
+          this.resetUserSelection();
+          this.updateOtherProperties();
+        } else {
+          console.error('Invalid quiz:', this.quizId);
+        }
+      } else {
+        // Handle the scenario when there are no more questions
+        console.error('Invalid next question index:', this.currentQuestionIndex);
+        console.log('Quiz completed!');
+        this.quizCompleted = true;
+      }
+  
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      this.router.navigateByUrl(newUrl);
+    });
   }
     
   navigateToPreviousQuestion() {
