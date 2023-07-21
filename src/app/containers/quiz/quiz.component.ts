@@ -895,6 +895,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Update the current question
         await this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+        console.log('Current Question Index:', this.currentQuestionIndex);
         
         // Fetch and set the options
         const quizId = this.quizService.getCurrentQuizId();
