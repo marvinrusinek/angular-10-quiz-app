@@ -883,7 +883,7 @@ export class QuizService implements OnDestroy {
       });
   } */
 
-  /* setCurrentQuestion(question: QuizQuestion): void {
+  setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with:', question);
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
@@ -925,9 +925,9 @@ export class QuizService implements OnDestroy {
           console.error('Invalid next question index:', nextQuestionIndex);
         }
       });
-  } */
+  }
 
-  setCurrentQuestion(question: QuizQuestion): void {
+  /* setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with:', question);
   
     const filteredQuestions = this.getFilteredQuestions();
@@ -970,7 +970,7 @@ export class QuizService implements OnDestroy {
     }
   
     return [];
-  }
+  } */
 
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
     this.nextQuestionSource.next(nextQuestion);
