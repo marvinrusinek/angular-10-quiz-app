@@ -1,7 +1,8 @@
 <section id="question" question-content>
   <h3>
-    <ng-content select="[question-content]"></ng-content>
+    <!--<ng-content select="[question-content]"></ng-content>-->
     {{ (explanationText$ | async) || (currentQuestion$ | async)?.questionText }}
+    <!--{{ (explanationText$ | async) || (currentQuestion?.questionText) }}-->
 
     <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
       <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
