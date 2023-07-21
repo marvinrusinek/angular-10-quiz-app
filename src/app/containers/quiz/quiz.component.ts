@@ -164,6 +164,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
+
+    this.quizService.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndex = index;
+
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+        this.quizId
+      )}/${this.currentQuestionIndex + 1}`;
+      this.router.navigate([newUrl]);
+    });
   }
 
   ngOnDestroy(): void {
