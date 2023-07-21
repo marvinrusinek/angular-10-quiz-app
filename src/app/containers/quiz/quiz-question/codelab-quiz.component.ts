@@ -21,7 +21,8 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   explanationText$: Observable<string>;
   options: Option[] = [];
-  options$: Observable<string[]>;
+  // options$: Observable<string[]>;
+  currentOptions$: Observable<Option[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -38,7 +39,7 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-    this.options$ = this.quizService.options$.pipe(
+    this.currentOptions$ = this.quizService.options$.pipe(
       map((options: Option[]) => options?.map((option) => option?.value?.toString()))
     );
   
@@ -55,9 +56,9 @@ export class CodelabQuizComponent {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion && nextQuestion.options) {
         this.currentQuestion.next(nextQuestion);
-        this.options$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
+        this.currentOptions$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
         console.log("CQ:>>>", this.currentQuestion);
-        console.log("OPTIONS:>>>", this.options$);
+        console.log("OPTIONS:>>>", this.currentOptions$);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
