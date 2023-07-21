@@ -764,7 +764,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkIfAnsweredCorrectly(): void {
+  /* checkIfAnsweredCorrectly(): void {
     if (!this.question) {
       return;
     }
@@ -793,7 +793,50 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.incrementScore(answers, correctAnswerFound);
+  } */
+
+  checkIfAnsweredCorrectly(): void {
+    if (!this.currentQuestion) {
+      return;
+    }
+  
+    const selectedOptionIndex = this.answers.find((answer) => {
+      return (
+        this.currentQuestion.options &&
+        this.currentQuestion.options[answer] &&
+        this.currentQuestion.options[answer]['selected']
+      );
+    });
+  
+    if (selectedOptionIndex !== undefined) {
+      const selectedOptionValue = selectedOptionIndex + 1;
+      const correctOptionValue = this.currentQuestion.correctOption;
+  
+      if (selectedOptionValue === correctOptionValue) {
+        // Answered correctly
+        this.status = QuizStatus.CORRECT;
+        this.explanationTextService.setExplanationText('Correct! ' + this.currentQuestion.explanation);
+      } else {
+        // Answered incorrectly
+        this.status = QuizStatus.INCORRECT;
+        this.explanationTextService.setExplanationText(
+          'Incorrect! The correct answer was Option ' + correctOptionValue + '. ' + this.currentQuestion.explanation
+        );
+      }
+    }
+  
+    let answers;
+    if (this.isQuestionAnswered()) {
+      answers = this.answers.map((answer) => answer + 1);
+      this.quizService.userAnswers.push(answers);
+    } else {
+      answers = this.answers;
+      this.quizService.userAnswers.push(this.answers);
+    }
+  
+    this.incrementScore(answers, selectedOptionIndex !== undefined);
   }
+  
 
   incrementScore(answers: number[], correctAnswerFound: number): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
