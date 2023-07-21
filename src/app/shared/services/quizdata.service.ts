@@ -266,6 +266,7 @@ export class QuizDataService {
           throw new Error('Question is null or undefined');
         }
         const options = question?.options;
+        console.log('Options:', options);
         if (!options || options?.length === 0) {
           console.error('Invalid question options');
           throw new Error('Invalid question options');
