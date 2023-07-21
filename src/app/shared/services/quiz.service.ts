@@ -857,8 +857,10 @@ export class QuizService implements OnDestroy {
         const filteredQuestions = result.questions;
         console.log('Filtered Questions:', filteredQuestions);
   
-        if (currentQuestionIndex < filteredQuestions.length) {
-          const nextQuestion = filteredQuestions[currentQuestionIndex];
+        const nextQuestionIndex = currentQuestionIndex;
+  
+        if (nextQuestionIndex < filteredQuestions.length) {
+          const nextQuestion = filteredQuestions[nextQuestionIndex];
           console.log('Next Question:', nextQuestion);
   
           if (nextQuestion && nextQuestion.options) {
@@ -881,7 +883,7 @@ export class QuizService implements OnDestroy {
             console.error('Invalid next question:', nextQuestion);
           }
         } else {
-          console.error('Invalid next question index:', currentQuestionIndex);
+          console.error('Invalid next question index:', nextQuestionIndex);
         }
       });
   }

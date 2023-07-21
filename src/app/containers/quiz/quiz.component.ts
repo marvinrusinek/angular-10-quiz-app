@@ -899,14 +899,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       if (nextQuestion) {
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-        this.setCurrentQuestion(this.currentQuestionIndex + 1); // Update the current question
+        this.quizService.setCurrentQuestion(this.currentQuestionIndex + 1); // Update the current question
         this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
       } else {
         this.nextQuestionText = null;
       }
   
       this.selectedOption = null;
-      this.quizService.navigateToNextQuestion();
       this.quizService.resetAll();
   
       if (!selectedOption) {
@@ -926,7 +925,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     }
   }
-
+  
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
