@@ -1081,7 +1081,7 @@ export class QuizService implements OnDestroy {
     this.quizCompleted = false;
   
     // Subscribe to the currentQuestionIndex$ observable
-    this.quizService.currentQuestionIndex$.subscribe((index) => {
+    this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndex = index;
   
       // Check if there are more questions to navigate
@@ -1118,7 +1118,7 @@ export class QuizService implements OnDestroy {
   
       // Update the URL in the browser window
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-      this.router.navigateByUrl(newUrl);
+      this.router.navigate([newUrl]);
     });
   }
     
