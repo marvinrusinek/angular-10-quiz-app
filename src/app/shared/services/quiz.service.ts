@@ -533,7 +533,7 @@ export class QuizService implements OnDestroy {
   }
   
 
-  async getCurrentQuestion(): Promise<QuizQuestion> {
+  /* async getCurrentQuestion(): Promise<QuizQuestion> {
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
@@ -575,7 +575,33 @@ export class QuizService implements OnDestroy {
       .toPromise();
 
     return this.currentQuestionPromise;
+  } */
+
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    if (this.currentQuestionSubject.value) {
+      return this.currentQuestionSubject.asObservable();
+    }
+  
+    const quizId = this.getCurrentQuizId();
+    this.getQuestionsForQuiz(quizId)
+      .pipe(
+        tap(({ questions }) => {
+          this.questions = questions;
+          this.loadingQuestions = false;
+          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+          this.currentQuestionSubject.next(questions[currentQuestionIndex]);
+        }),
+        catchError((error) => {
+          console.error('Error getting quiz questions:', error);
+          this.loadingQuestions = false;
+          return throwError(error);
+        })
+      )
+      .subscribe();
+  
+    return this.currentQuestionSubject.asObservable();
   }
+  
 
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
