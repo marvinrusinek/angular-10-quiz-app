@@ -21,7 +21,8 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   explanationText$: Observable<string>;
   options: Option[] = [];
-  currentOptions$: Observable<string[]>;
+  // currentOptions$: Observable<string[]>;
+  currentOptions$: Observable<Option[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -38,10 +39,13 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-    this.currentOptions$ = this.quizService.options$.pipe(
+    /* this.currentOptions$ = this.quizService.options$.pipe(
       map((options: Option[]) => options?.map((option) => option?.value?.toString()))
+    ); */
+    this.currentOptions$ = this.quizService.options$.pipe(
+      map((options: Option[]) => options ?? [])
     );
-  
+    
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
@@ -57,7 +61,8 @@ export class CodelabQuizComponent {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion && nextQuestion.options) {
         this.currentQuestion.next(nextQuestion);
-        this.currentOptions$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
+        // this.currentOptions$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
+        this.currentOptions$ = of(nextQuestion.options);
         console.log("CQ:>>>", this.currentQuestion);
         console.log("OPTIONS:>>>", this.currentOptions$);
       } else {
