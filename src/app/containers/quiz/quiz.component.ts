@@ -901,7 +901,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Current Question Index:', this.currentQuestionIndex);
 
         // Log the current question to verify it's correct
-        console.log('Current Question:', this.quizService.getCurrentQuestion());
+        console.log('Current Question::::::>>>>>>', this.quizService.getCurrentQuestion());
         
         // Fetch and set the options
         const quizId = this.quizService.getCurrentQuizId();
