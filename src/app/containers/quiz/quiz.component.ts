@@ -973,6 +973,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         this.quizService.navigateToNextQuestion();
       } else {
+        console.log('Next question is undefined');
         this.nextQuestionText = null;
       }
   
