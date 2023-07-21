@@ -125,6 +125,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   cardFooterClass = '';
   nextQuestionText: string | null = null;
   selectOptionText: string = 'Please select an option to continue...';
+  questionText: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
@@ -876,7 +877,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     console.log('Advance to next question function called.');
     if (!this.selectedQuiz) {
       return;
@@ -910,6 +911,66 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentOptions.next(options);
         });
 
+        this.quizService.navigateToNextQuestion();
+      } else {
+        this.nextQuestionText = null;
+      }
+  
+      this.selectedOption = null;
+      this.quizService.resetAll();
+  
+      if (!selectedOption) {
+        return;
+      }
+  
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+  
+      if (this.quizService.isLastQuestion()) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
+        this.router.navigate([QuizRoutes.RESULTS]);
+      } else {
+        this.timerService.resetTimer();
+      }
+    }
+  } */
+  
+  async advanceToNextQuestion(): Promise<void> {
+    console.log('Advance to next question function called.');
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    const selectedOption = this.form.value.selectedOption;
+  
+    if (this.form.valid) {
+      this.animationState$.next('animationStarted');
+  
+      const nextQuestion = await this.quizService.getNextQuestion();
+  
+      if (nextQuestion) {
+        console.log('Next Question:', nextQuestion);
+        this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+  
+        // Update the current question
+        await this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+        console.log('Current Question Index:', this.currentQuestionIndex);
+  
+        // Log the current question to verify it's correct
+        console.log('Current Question::::::>>>>>>', this.quizService.getCurrentQuestion());
+  
+        // Fetch and set the options
+        const quizId = this.quizService.getCurrentQuizId();
+        this.quizDataService.getOptions(quizId, this.currentQuestionIndex).subscribe((options) => {
+          console.log('Options for Next Question:', options);
+          this.currentOptions.next(options);
+  
+          // Emit the next question's text
+          this.questionText.next(nextQuestion.questionText);
+        });
+  
         this.quizService.navigateToNextQuestion();
       } else {
         this.nextQuestionText = null;
