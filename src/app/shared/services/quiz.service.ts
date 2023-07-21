@@ -883,7 +883,7 @@ export class QuizService implements OnDestroy {
       });
   } */
 
-  setCurrentQuestion(question: QuizQuestion): void {
+  /* setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with:', question);
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
@@ -925,6 +925,51 @@ export class QuizService implements OnDestroy {
           console.error('Invalid next question index:', nextQuestionIndex);
         }
       });
+  } */
+
+  setCurrentQuestion(question: QuizQuestion): void {
+    console.log('setCurrentQuestion called with:', question);
+  
+    const filteredQuestions = this.getFilteredQuestions();
+  
+    const questionIndex = filteredQuestions.findIndex((q) => q === question);
+    const nextQuestionIndex = questionIndex + 1;
+  
+    if (nextQuestionIndex < filteredQuestions.length) {
+      const nextQuestion = filteredQuestions[nextQuestionIndex];
+  
+      if (nextQuestion && nextQuestion.options) { 
+        console.log('emitting currentQuestionSubject with question:', nextQuestion);
+        this.currentQuestion.next(nextQuestion);
+        this.currentQuestionSubject.next(nextQuestion);
+  
+        // Map the Option[] to an array of strings representing the option text
+        const optionValues = nextQuestion.options.map((option) => option.value.toString());
+  
+        // Create new Option objects with the value property as a number
+        const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
+  
+        // Emit the next question's options
+        this.optionsSource.next(options);
+  
+        this.questionSubjectEmitted = true;
+      } else {
+        console.error('Invalid next question:', nextQuestion);
+      }
+    } else {
+      console.error('Invalid next question index:', nextQuestionIndex);
+    }
+  }
+
+  getFilteredQuestions(): QuizQuestion[] {
+    const currentQuizId = this.getCurrentQuizId();
+    const currentQuiz = this.quizData.find((quiz) => quiz.quizId === currentQuizId);
+  
+    if (currentQuiz && currentQuiz.questions) {
+      return currentQuiz.questions;
+    }
+  
+    return [];
   }
 
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
