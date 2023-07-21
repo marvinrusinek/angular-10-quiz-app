@@ -851,7 +851,8 @@ export class QuizService implements OnDestroy {
               'An error occurred while setting the current question:',
               error
             ),
-        })
+        }),
+        take(1) // Add this to complete the subscription after emitting the current question
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
@@ -859,14 +860,13 @@ export class QuizService implements OnDestroy {
   
         const nextQuestionIndex = currentQuestionIndex;
   
-        if (nextQuestionIndex < filteredQuestions.length) {
+        if (nextQuestionIndex >= 0 && nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
           console.log('Next Question:', nextQuestion);
   
           if (nextQuestion && nextQuestion.options) {
             console.log('emitting currentQuestionSubject with question:', nextQuestion);
             this.currentQuestion.next(nextQuestion);
-            this.currentQuestionSubject.next(nextQuestion);
   
             // Map the Option[] to an array of strings representing the option text
             const optionValues = nextQuestion.options.map((option) => option.value.toString());
