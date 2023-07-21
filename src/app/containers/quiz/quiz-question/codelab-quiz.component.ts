@@ -55,7 +55,7 @@ export class CodelabQuizComponent {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion  && nextQuestion.options) {
         this.currentQuestion.next(nextQuestion);
-        this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
+        this.options$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
         console.log("CQ:>>>", this.currentQuestion);
         console.log("OPTIONS:>>>", this.options$);
       } else {
