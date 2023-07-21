@@ -858,21 +858,22 @@ export class QuizService implements OnDestroy {
       });
   } */
 
-  setCurrentQuestion(questionIndex: number): void {
+  setCurrentQuestion(currentQuestionIndex: number): void {
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
         tap({
           error: (error) =>
-            console.error('An error occurred while setting the current question:', error),
+            console.error(
+              'An error occurred while setting the current question:',
+              error
+            ),
         })
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
-        console.log('Filtered Questions:', filteredQuestions);
+        const nextQuestionIndex = currentQuestionIndex; // Do not subtract 1 from currentQuestionIndex
   
-        const nextQuestionIndex = questionIndex - 1; // Subtract 1 to get the correct question index
-  
-        if (nextQuestionIndex >= 0 && nextQuestionIndex < filteredQuestions.length) {
+        if (nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
           console.log('Next Question:', nextQuestion);
   
@@ -882,10 +883,15 @@ export class QuizService implements OnDestroy {
             this.currentQuestionSubject.next(nextQuestion);
   
             // Map the Option[] to an array of strings representing the option text
-            const optionValues = nextQuestion.options.map((option) => option.value.toString());
+            const optionValues = nextQuestion.options.map((option) =>
+              option.value.toString()
+            );
   
             // Create new Option objects with the value property as a number
-            const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
+            const options: Option[] = optionValues.map((value) => ({
+              value: Number(value),
+              text: value,
+            }));
             console.log('Next Question Options:', options);
   
             // Emit the next question's options
@@ -894,7 +900,9 @@ export class QuizService implements OnDestroy {
             this.questionSubjectEmitted = true;
   
             // Update the URL in the browser window
-            const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
+            const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+              this.quizId
+            )}/${currentQuestionIndex + 1}`; // Use currentQuestionIndex + 1
             console.log('New URL:', newUrl);
             this.router.navigateByUrl(newUrl);
           } else {
@@ -905,6 +913,7 @@ export class QuizService implements OnDestroy {
         }
       });
   }
+  
     
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
     this.nextQuestionSource.next(nextQuestion);
