@@ -1084,6 +1084,7 @@ export class QuizService implements OnDestroy {
   } */
 
   navigateToNextQuestion(): void {
+    console.log('Navigating to the next question in the service...'); 
     this.quizCompleted = false;
   
     if (this.currentQuestionIndex < this.filteredQuestions.length - 1) {
