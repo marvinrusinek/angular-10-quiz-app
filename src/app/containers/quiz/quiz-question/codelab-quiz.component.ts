@@ -22,7 +22,7 @@ export class CodelabQuizComponent {
   explanationText$: Observable<string>;
   options: Option[] = [];
   // currentOptions$: Observable<string[]>;
-  currentOptions$: Observable<Option[]>;
+  currentOptions$: Observable<Option[]> = this.quizService.options$;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -38,16 +38,8 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
-    this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-    /* this.currentOptions$ = this.quizService.options$.pipe(
-      map((options: Option[]) => options?.map((option) => option?.value?.toString()))
-    ); */
-    this.currentOptions$ = this.quizService.options$.pipe(
-      map((options: Option[]) => options ?? [])
-    );
-    
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
+    this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion | null) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question);
@@ -55,16 +47,11 @@ export class CodelabQuizComponent {
       }
     });
 
-    this.currentOptions$ = this.quizService.options$;
-  
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion && nextQuestion.options) {
         this.currentQuestion.next(nextQuestion);
-        // this.currentOptions$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
-        this.currentOptions$ = of(nextQuestion.options);
-        console.log("CQ:>>>", this.currentQuestion);
-        console.log("OPTIONS:>>>", this.currentOptions$);
+        console.log('Current Question:', this.currentQuestion.getValue()); // Debug: Check if current question is set
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
