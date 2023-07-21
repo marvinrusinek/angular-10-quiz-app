@@ -126,7 +126,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextQuestionText: string | null = null;
   selectOptionText: string = 'Please select an option to continue...';
   questionText: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  currentOptions$: Observable<Option[]> = of([]);
 
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
@@ -166,6 +166,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
+    this.currentOptions$ = this.quizService.options$;
   }
 
   ngOnDestroy(): void {
