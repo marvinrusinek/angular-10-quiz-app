@@ -863,14 +863,13 @@ export class QuizService implements OnDestroy {
       .pipe(
         tap({
           error: (error) =>
-            console.error(
-              'An error occurred while setting the current question:',
-              error
-            ),
+            console.error('An error occurred while setting the current question:', error),
         })
       )
       .subscribe((result) => {
         const filteredQuestions = result.questions;
+        console.log('Filtered Questions:', filteredQuestions);
+  
         const nextQuestionIndex = questionIndex - 1; // Subtract 1 to get the correct question index
   
         if (nextQuestionIndex >= 0 && nextQuestionIndex < filteredQuestions.length) {
@@ -906,7 +905,7 @@ export class QuizService implements OnDestroy {
         }
       });
   }
-  
+    
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
     this.nextQuestionSource.next(nextQuestion);
     this.currentQuestionSource.next(nextQuestion);
