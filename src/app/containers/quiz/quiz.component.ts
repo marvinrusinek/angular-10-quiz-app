@@ -934,7 +934,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.timerService.resetTimer();
       }
     }
-  }  
+  }
+  
   
   advanceToPreviousQuestion() {
     this.answers = [];
