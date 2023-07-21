@@ -895,7 +895,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Update the current question
         await this.quizService.setCurrentQuestion(this.currentQuestionIndex);
         
-        this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
+        // Fetch and set the options
+        const quizId = this.quizService.getCurrentQuizId();
+        this.quizDataService.getOptions(quizId, this.currentQuestionIndex).subscribe((options) => {
+          this.currentOptions.next(options);
+        });
 
         this.quizService.navigateToNextQuestion();
       } else {
