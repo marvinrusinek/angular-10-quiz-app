@@ -886,46 +886,44 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    if (!this.selectedQuiz) {
+    if (!this.selectedQuiz || !this.form.valid) {
       return;
     }
   
     this.animationState$.next('animationStarted');
   
-    const selectedOption = this.form.value.selectedOption;
-  
-    // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
   
-    if (nextQuestion && nextQuestion.options) {
+    if (nextQuestion) {
       this.currentQuestion = nextQuestion;
       this.nextQuestionText = nextQuestion.questionText;
-      this.quizService.setNextQuestion(nextQuestion);
-      this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
+      this.currentOptions.next(nextQuestion.options);
+  
+      // Update the current question index
+      this.currentQuestionIndex++;
+  
+      // Update the URL in the browser window using router.navigate
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      this.router.navigate([newUrl]);
+  
+      this.selectedOption = null;
+      this.quizService.resetAll();
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+  
+      if (this.quizService.isLastQuestion()) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
+        this.router.navigate([QuizRoutes.RESULTS]);
+      } else {
+        this.timerService.resetTimer();
+      }
     } else {
       this.nextQuestionText = null;
     }
+  }
   
-    this.selectedOption = null;
-    this.quizService.resetAll();
-  
-    if (!selectedOption) {
-      return;
-    }
-  
-    this.checkIfAnsweredCorrectly();
-    this.answers = [];
-    this.status = QuizStatus.CONTINUE;
-  
-    if (this.quizService.isLastQuestion()) {
-      this.status = QuizStatus.COMPLETED;
-      this.submitQuiz();
-      this.router.navigate([QuizRoutes.RESULTS]);
-    } else {
-      this.timerService.resetTimer();
-    }
-  }  
   
 
   advanceToPreviousQuestion() {
