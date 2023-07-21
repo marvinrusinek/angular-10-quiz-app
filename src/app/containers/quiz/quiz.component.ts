@@ -877,7 +877,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    console.log('Advance to next question function called.');
     if (!this.selectedQuiz) {
       return;
     }
@@ -887,48 +886,58 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.animationState$.next('animationStarted');
   
-      const nextQuestion = await this.quizService.getNextQuestion();
+      try {
+        const nextQuestion = await this.quizService.getNextQuestion();
   
-      if (nextQuestion) {
-        console.log('Next Question:', nextQuestion);
-        this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-
-        // Update the current question
-        await this.quizService.setCurrentQuestion(this.currentQuestionIndex);
-        
-        // Fetch and set the options
-        const quizId = this.quizService.getCurrentQuizId();
-        this.quizDataService.getOptions(quizId, this.currentQuestionIndex).subscribe((options) => {
-          console.log('Options for Next Question:', options);
+        if (nextQuestion) {
+          // Update the current question index
+          this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+  
+          // Set the current question with the resolved value from the promise
+          this.currentQuestion = nextQuestion;
+  
+          // Map the Option[] to an array of strings representing the option text
+          const optionValues = nextQuestion.options.map((option) => option.value.toString());
+  
+          // Create new Option objects with the value property as a number
+          const options: Option[] = optionValues.map((value) => ({ value: Number(value), text: value }));
+  
+          // Emit the next question's options
           this.currentOptions.next(options);
-        });
-
-        this.quizService.navigateToNextQuestion();
-      } else {
-        this.nextQuestionText = null;
-      }
   
-      this.selectedOption = null;
-      this.quizService.resetAll();
+          // Update the URL in the browser window
+          const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+          console.log('New URL:', newUrl);
+          this.router.navigateByUrl(newUrl);
+        } else {
+          this.nextQuestionText = null;
+        }
   
-      if (!selectedOption) {
-        return;
-      }
+        // Reset selected option and other quiz-related data
+        this.selectedOption = null;
+        this.quizService.resetAll();
   
-      this.checkIfAnsweredCorrectly();
-      this.answers = [];
-      this.status = QuizStatus.CONTINUE;
+        // Check if answered correctly, update score, and proceed to the next question or quiz completion
+        if (!selectedOption) {
+          return;
+        }
+        this.checkIfAnsweredCorrectly();
+        this.answers = [];
+        this.status = QuizStatus.CONTINUE;
   
-      if (this.quizService.isLastQuestion()) {
-        this.status = QuizStatus.COMPLETED;
-        this.submitQuiz();
-        this.router.navigate([QuizRoutes.RESULTS]);
-      } else {
-        this.timerService.resetTimer();
+        if (this.quizService.isLastQuestion()) {
+          this.status = QuizStatus.COMPLETED;
+          this.submitQuiz();
+          this.router.navigate([QuizRoutes.RESULTS]);
+        } else {
+          this.timerService.resetTimer();
+        }
+      } catch (error) {
+        console.error('Error getting next question:', error);
       }
     }
-  }  
-  
+  }
+    
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
