@@ -890,6 +890,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const nextQuestion = await this.quizService.getNextQuestion();
   
       if (nextQuestion) {
+        console.log('Next Question:', nextQuestion);
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
 
         // Update the current question
@@ -898,6 +899,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Fetch and set the options
         const quizId = this.quizService.getCurrentQuizId();
         this.quizDataService.getOptions(quizId, this.currentQuestionIndex).subscribe((options) => {
+          console.log('Options for Next Question:', options);
           this.currentOptions.next(options);
         });
 
