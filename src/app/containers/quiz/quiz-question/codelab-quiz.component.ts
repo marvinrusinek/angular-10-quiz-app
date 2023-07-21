@@ -53,7 +53,7 @@ export class CodelabQuizComponent {
   
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
-      if (nextQuestion  && nextQuestion.options) {
+      if (nextQuestion && nextQuestion.options) {
         this.currentQuestion.next(nextQuestion);
         this.options$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
         console.log("CQ:>>>", this.currentQuestion);
