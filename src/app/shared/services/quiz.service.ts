@@ -876,6 +876,7 @@ export class QuizService implements OnDestroy {
         if (nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
           console.log('Next Question:', nextQuestion);
+          console.log('Next Question Options:', nextQuestion.options);
   
           if (nextQuestion && nextQuestion.options) {
             console.log('emitting currentQuestionSubject with question:', nextQuestion);
