@@ -368,7 +368,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizStateService.currentQuestion$.subscribe(
       (question: QuizQuestion) => {
         this.currentQuestion = question;
-        this.options$ =
+        this.currentOptions$ =
           this.quizStateService.currentOptionsSubject.asObservable();
       }
     );
@@ -446,14 +446,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsSubscription = this.quizService.options$.subscribe(
       (options) => {
         console.log('Options received:', options);
-        this.options$ = options;
+        this.currentOptions$ = of(options);
       }
     );
   }
 
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
-    this.options$ = this.quizStateService.currentOptions$;
+    this.currentOptions$ = this.quizStateService.currentOptions$;
     this.quizService.setCurrentOptions([]);
 
     this.currentQuestionWithOptions$ = combineLatest([
