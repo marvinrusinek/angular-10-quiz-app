@@ -877,6 +877,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    console.log('Advance to next question function called.');
     if (!this.selectedQuiz) {
       return;
     }
