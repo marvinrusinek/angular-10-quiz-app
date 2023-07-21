@@ -50,6 +50,8 @@ export class CodelabQuizComponent {
         this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers);
       }
     });
+
+    this.currentOptions$ = this.quizService.options$;
   
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
