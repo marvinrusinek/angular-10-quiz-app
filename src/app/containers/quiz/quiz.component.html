@@ -17,7 +17,7 @@
       <ng-container *ngIf="currentOptions$ | async as options">
         <codelab-quiz-question
           [question]="question"
-          [options]="options"
+          [options]="currentOptions$"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"

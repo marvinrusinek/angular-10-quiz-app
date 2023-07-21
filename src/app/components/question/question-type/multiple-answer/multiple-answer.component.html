@@ -1,4 +1,4 @@
-<ng-container *ngIf="question?.options">
+<ng-container *ngIf="(currentOptions$ | async) as options">
   <div class="options-container">
     <div
       *ngFor="
