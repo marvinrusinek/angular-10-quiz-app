@@ -196,6 +196,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           currentQuestionIndex < this.quizData.length
         ) {
           this.initializeQuizState();
+          this.quizService.setCurrentQuestion(currentQuestionIndex);
           this.loadCurrentQuestion();
         } else {
           console.error('Invalid question index:', questionIndex);
