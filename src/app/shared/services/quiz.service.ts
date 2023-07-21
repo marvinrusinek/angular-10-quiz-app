@@ -883,9 +883,7 @@ export class QuizService implements OnDestroy {
       });
   } */
 
-  setCurrentQuestion(question: QuizQuestion): void {
-    console.log('setCurrentQuestion called with:', question);
-  
+  setCurrentQuestion(currentQuestionIndex: number): void {
     this.getQuestionsForQuiz(this.quizId)
       .pipe(
         tap({
@@ -900,10 +898,7 @@ export class QuizService implements OnDestroy {
         const filteredQuestions = result.questions;
         console.log('Filtered Questions:', filteredQuestions);
   
-        const questionIndex = filteredQuestions.findIndex((q) => q === question);
-        console.log('Question Index:', questionIndex);
-  
-        const nextQuestionIndex = questionIndex + 1;
+        const nextQuestionIndex = currentQuestionIndex + 1;
   
         if (nextQuestionIndex < filteredQuestions.length) {
           const nextQuestion = filteredQuestions[nextQuestionIndex];
@@ -933,7 +928,6 @@ export class QuizService implements OnDestroy {
         }
       });
   }
-  
 
   /* setCurrentQuestion(question: QuizQuestion): void {
     console.log('setCurrentQuestion called with:', question);
