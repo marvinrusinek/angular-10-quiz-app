@@ -886,6 +886,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    console.log('Next button clicked');
     if (!this.selectedQuiz) {
       return;
     }
@@ -927,12 +928,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Navigating to next question with quizId:', this.quizService.quizId);
       console.log('Navigating to next question with questionIndex:', this.quizService.currentQuestionIndex + 1);
       this.quizService.navigateToNextQuestion();
-  
-      // Update the URL in the browser window
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-        this.quizService.quizId
-      )}/${this.quizService.currentQuestionIndex + 1}`;
-      this.router.navigateByUrl(newUrl);
     }
   }
   
