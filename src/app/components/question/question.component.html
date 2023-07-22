@@ -7,8 +7,8 @@
         [questions]="questions"
         [currentQuestion$]="currentQuestion$ | async"
         [currentQuestionIndex]="currentQuestionIndex"
-        [options]="currentQuestion.options"
-        [selectedOptions]="currentQuestion.selectedOptions"
+        [options]="currentQuestion?.options"
+        [selectedOptions]="currentQuestion?.selectedOptions"
         [correctAnswers]="correctAnswers"
         [correctMessage]="correctMessage"
         (answer)="updateClassName($event)"
@@ -23,10 +23,10 @@
       <codelab-question-single-answer
         [question]="currentQuestion"
         [questions]="questions"
-        [options]="currentQuestion.options"
+        [options]="currentQuestion?.options"
         [currentQuestion]="currentQuestion"
         [currentQuestionIndex]="currentQuestionIndex"
-        [selectedOption]="currentQuestion.selectedOption"
+        [selectedOption]="currentQuestion?.selectedOption"
         (answer)="updateClassName($event)"
       ></codelab-question-single-answer>
     </ng-container>
