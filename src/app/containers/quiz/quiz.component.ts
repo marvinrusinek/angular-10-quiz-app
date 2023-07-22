@@ -173,7 +173,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.currentQuestion.subscribe(question => {
       this.currentQuestion = question;
     });
-    this.quizService.currentOptions.subscribe(options => {
+    this.quizService.currentOptions$.subscribe(options => {
       this.currentOptions.next(options);
     });
   }
@@ -907,7 +907,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.nextQuestionText = nextQuestion.questionText;
         this.quizService.setNextQuestion(nextQuestion);
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-        this.quizService.navigateToNextQuestion(); // Call this to navigate and update the UI
+        this.quizService.navigateToNextQuestion();
       } else {
         this.nextQuestionText = null;
       }
