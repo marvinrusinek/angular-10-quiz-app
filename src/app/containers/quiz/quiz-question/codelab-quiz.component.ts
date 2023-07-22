@@ -43,6 +43,11 @@ export class CodelabQuizComponent {
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
 
+
+    this.currentOptions$.subscribe((options) => {
+      this.options = options;
+    });
+    
     this.quizService.options$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
