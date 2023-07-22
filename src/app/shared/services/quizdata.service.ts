@@ -259,6 +259,7 @@ export class QuizDataService {
   }  
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
+    console.log('Fetching options for quizId:', quizId, 'question index:', questionIndex);
     return this.getQuestion(quizId, questionIndex).pipe(
       map((question) => {
         if (!question) {
