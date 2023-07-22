@@ -181,7 +181,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = options;
     });
   }
-  }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
