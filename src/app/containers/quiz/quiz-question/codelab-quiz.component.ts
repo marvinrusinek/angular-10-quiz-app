@@ -49,7 +49,14 @@ export class CodelabQuizComponent {
       this.options = options;
     });
 
+    this.quizStateService.currentOptions$.subscribe((options) => {
+      console.log('Options received:', options);
+      this.options = options;
+    });
+    
+
     this.quizStateService.currentQuestion$.subscribe((question) => {
+      console.log('MY Current question:', question);
       this.question = question;
     });
   
