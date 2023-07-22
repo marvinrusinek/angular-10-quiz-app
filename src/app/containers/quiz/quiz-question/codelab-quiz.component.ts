@@ -22,7 +22,7 @@ export class CodelabQuizComponent {
   currentOptions$: Observable<Option[]> = this.quizService.options$;
   explanationText$: Observable<string>;
   options: Option[] = [];
-  // options$: Observable<string[]>;
+  options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -42,6 +42,10 @@ export class CodelabQuizComponent {
     this.options$ = this.quizService.options$.pipe(
       map((options: Option[]) => options?.map((option) => option?.value?.toString()))
     );
+
+    this.quizService.options$.subscribe((options) => {
+      console.log('Options received:', options);
+    });
   
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
