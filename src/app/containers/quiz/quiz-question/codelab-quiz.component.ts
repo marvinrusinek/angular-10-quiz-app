@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -17,12 +17,12 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  @Input() options: Option[] = [];
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   explanationText$: Observable<string>;
-  options: Option[] = [];
   // options$: Observable<string[]>;
   options$: Observable<Option[]>;
   numberOfCorrectAnswers: number = 0;
