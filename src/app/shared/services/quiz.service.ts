@@ -109,6 +109,7 @@ export class QuizService implements OnDestroy {
   multipleAnswer: boolean = false;
 
   private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
+  private currentOptionsSource = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
   totalQuestionsSubject = new BehaviorSubject<number>(0);
@@ -938,6 +939,14 @@ export class QuizService implements OnDestroy {
 
   resetUserSelection(): void {
     this.selectedOption$.next('');
+  }
+
+  updateCurrentOptions(options: Option[]): void {
+    this.currentOptionsSource.next(options);
+  }
+
+  updateCurrentQuestion(question: QuizQuestion): void {
+    this.currentQuestionSource.next(question);
   }
 
   updateOtherProperties(): void {
