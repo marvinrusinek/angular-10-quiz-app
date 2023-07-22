@@ -1023,6 +1023,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
+  
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
