@@ -55,9 +55,9 @@ export class CodelabQuizComponent {
     });
 
     this.currentQuestion$.subscribe((question) => {
-    console.log('THE Current Question:', question);
-    console.log('THE Options:', question?.options);
-  });
+      console.log('THE Current Question:', question);
+      console.log('THE Options:', question?.options);
+    });
 
     this.currentOptions$.subscribe((options) => {
       console.log('THE Current Options:', options);
