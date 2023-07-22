@@ -52,9 +52,9 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 type AnimationState = 'animationStarted' | 'none';
 
 enum QuizRoutes {
-  INTRO = '/intro/',
-  QUESTION = '/question/',
-  RESULTS = '/results/',
+  INTRO = 'intro/',
+  QUESTION = 'question/',
+  RESULTS = 'results/',
 }
 
 enum QuizStatus {
@@ -997,33 +997,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
+      this.currentOptions.next(nextQuestion.options);
+      this.quizService.navigateToNextQuestion();
     } else {
       this.nextQuestionText = null;
     }
-  
-    this.selectedOption = null;
-    this.quizService.resetAll();
-  
-    if (!selectedOption) {
-      return;
-    }
-  
-    this.checkIfAnsweredCorrectly();
-    this.answers = [];
-    this.status = QuizStatus.CONTINUE;
-  
-    if (this.quizService.isLastQuestion()) {
-      this.status = QuizStatus.COMPLETED;
-      this.submitQuiz();
-      this.router.navigate([QuizRoutes.RESULTS]);
-    } else {
-      this.quizService.navigateToNextQuestion();
-      // this.router.navigate([QuizRoutes.QUESTION, this.quizId, this.currentQuestionIndex + 1]);
-    }
   }
-  
-  
+    
+
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
