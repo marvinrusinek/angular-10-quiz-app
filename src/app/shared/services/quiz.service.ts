@@ -122,8 +122,7 @@ export class QuizService implements OnDestroy {
   shouldDisplayExplanation: boolean = false;
   selectionMessage: string;
 
-  nextQuestionSource: Subject<QuizQuestion | null> =
-    new Subject<QuizQuestion | null>();
+  private nextQuestionSource: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   nextQuestion$ = this.nextQuestionSource.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
