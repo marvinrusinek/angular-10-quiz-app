@@ -1,8 +1,8 @@
-<ng-container *ngIf="currentOptions$ | async as options">
+<ng-container *ngIf="question?.options">
   <div class="options-container">
     <div
       *ngFor="
-        let option of options;
+        let option of question?.options;
         let i = index;
         trackBy: trackByFn
       "
