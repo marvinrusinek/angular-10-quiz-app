@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -9,14 +9,17 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class QuizStateService {
-  private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
-  currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSubject.asObservable();
+  currentQuestion: BehaviorSubject<QuizQuestion | null> 
+    = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  private currentQuestionSource = new Subject<QuizQuestion>();
+  currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSource.asObservable();
 
-  private currentOptionsSubject = new BehaviorSubject<Option[]>([]);
-  currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
+  currentOptionsSubject = new BehaviorSubject<Option[]>(null);
+  currentOptions$: Observable<Option[]> = of(null);
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
-  multipleAnswer$: Observable<boolean> = this.multipleAnswerSubject.asObservable();
+  multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private quizQuestionCreated = false;
 
@@ -24,10 +27,10 @@ export class QuizStateService {
 
   setCurrentQuestion(question$: Observable<QuizQuestion>): void {
     if (!question$) {
-      console.error('Question$ is null or undefined.');
+      throwError('Question$ is null or undefined.');
       return;
     }
-
+  
     question$.pipe(
       catchError((error) => {
         console.error(error);
@@ -36,31 +39,34 @@ export class QuizStateService {
       distinctUntilChanged()
     ).subscribe((question) => {
       console.log('Current question:::', question);
+      this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
+      this.currentQuestionSource.next(question);
       if (question && question.options) {
         console.log('Options:::', question.options);
-        this.currentOptionsSubject.next(question.options || []);
+        this.currentQuestion.next(question);
+        this.currentOptionsSubject.next(question?.options || []);
       } else {
         console.log('No options found.');
       }
-    });
+    });   
   }
-
-  getCurrentQuestion(): Observable<QuizQuestion | null> {
+      
+  getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
   }
 
   setCurrentOptions(options: Option[]): void {
-    this.currentOptionsSubject.next(options);
+    this.currentOptions$ = of(options);
   }
 
   isMultipleAnswer(): Observable<boolean> {
-    const question = this.currentQuestionSubject.value;
+    const question = this.currentQuestion.value;
     if (!question) {
       console.error('Question is not defined');
-      return this.multipleAnswerSubject;
+      return of(false);
     }
-
+  
     if (question && question.options) {
       const correctOptions = question.options?.filter((option) => option.correct);
       const isMultipleAnswer = correctOptions.length > 1;
@@ -69,12 +75,15 @@ export class QuizStateService {
       console.error('Question options not found.', question);
       this.setMultipleAnswer(false);
     }
-
-    return this.multipleAnswerSubject;
+  
+    return this.multipleAnswerSubject.asObservable();
   }
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
+    this.multipleAnswer$.subscribe((value) => {
+      this.multipleAnswerSubject.next(value);
+    });
   }
 
   setQuizQuestionCreated(): void {
