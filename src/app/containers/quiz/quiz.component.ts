@@ -90,7 +90,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
-  currentOptions: Option[];
+  currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
   options$: Observable<Option[]>;
   optionsSet: boolean = false;
   currentQuiz: Quiz;
@@ -164,6 +164,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
+
+    this.quizService.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndex = index;
+
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+        this.quizId
+      )}/${this.currentQuestionIndex + 1}`;
+      this.router.navigate([newUrl]);
+    });
   }
 
   ngOnDestroy(): void {
@@ -887,7 +897,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
   
-    if (nextQuestion) {
+    if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
