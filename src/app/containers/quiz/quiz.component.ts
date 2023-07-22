@@ -90,7 +90,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
-  currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
+  // currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
+  currentOptions: Option[] = [];
   options$: Observable<Option[]>;
   optionsSet: boolean = false;
   currentQuiz: Quiz;
@@ -170,11 +171,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
     });
 
-    this.quizService.currentQuestion.subscribe(question => {
+    this.quizService.currentQuestion$.subscribe(question => {
       this.currentQuestion = question;
     });
     this.quizService.currentOptions$.subscribe(options => {
-      this.currentOptions.next(options);
+      this.currentOptions = options;
     });
   }
 
