@@ -47,7 +47,9 @@ export class CodelabQuizComponent {
     // this.currentOptions$ = this.quizStateService.currentOptions$;
 
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
+      console.log('CodelabQuizComponent - Current Question received:', question);
       this.currentQuestion$ = of(question);
+      console.log('CodelabQuizComponent - currentQuestion$:', this.currentQuestion$);
     });
     
     this.quizStateService.currentOptions$.subscribe((options) => {
