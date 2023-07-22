@@ -21,9 +21,7 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   explanationText$: Observable<string>;
   options: Option[] = [];
-  // currentOptions$: Observable<string[]>;
-  /// currentOptions$: Observable<Option[]> = this.quizService.options$;
-  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -40,16 +38,10 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-
-    const currentOptionsObservable = this.quizService.options$.asObservable();
-
-    /* this.currentOptions$ = this.quizService.options$.pipe(
+    this.options$ = this.quizService.options$.pipe(
       map((options: Option[]) => options?.map((option) => option?.value?.toString()))
-    ); */
-    this.currentOptions$ = currentOptionsObservable.pipe(
-      map((options: Option[]) => options ?? [])
     );
-    
+  
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
@@ -58,19 +50,14 @@ export class CodelabQuizComponent {
         this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers);
       }
     });
-
-    this.quizService.options$.subscribe((options: Option[]) => {
-      this.currentOptions$.next(options ?? []);
-    });
   
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
-      if (nextQuestion && nextQuestion.options) {
+      if (nextQuestion) {
         this.currentQuestion.next(nextQuestion);
-        // this.currentOptions$ = of(nextQuestion.options?.map((option) => option?.value?.toString()));
-        this.currentOptions$.next(nextQuestion.options);
+        this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
         console.log("CQ:>>>", this.currentQuestion);
-        console.log("OPTIONS:>>>", this.currentOptions$);
+        console.log("OPTIONS:>>>", this.options$);
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
@@ -86,9 +73,9 @@ export class CodelabQuizComponent {
   }
   
   ngOnDestroy(): void {
-    this.currentQuestionSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
-    this.nextQuestionSubscription?.unsubscribe();
+    this.currentQuestionSubscription.unsubscribe();
+    this.explanationTextSubscription.unsubscribe();
+    this.nextQuestionSubscription.unsubscribe();
   }
 
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
