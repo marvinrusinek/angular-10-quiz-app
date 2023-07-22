@@ -41,9 +41,19 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
+    console.log('Current Question Observable:', this.currentQuestion$);
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
   
     this.currentOptions$ = this.quizStateService.currentOptions$;
+
+    this.currentQuestion$.subscribe((question) => {
+    console.log('THE Current Question:', question);
+    console.log('THE Options:', question?.options);
+  });
+
+    this.currentOptions$.subscribe((options) => {
+      console.log('THE Current Options:', options);
+    });
   
     this.currentOptions$.subscribe((options) => {
       this.options = options;
@@ -58,6 +68,10 @@ export class CodelabQuizComponent {
     this.quizStateService.currentQuestion$.subscribe((question) => {
       console.log('MY Current question:', question);
       this.question = question;
+
+      if (question && question.options) {
+        console.log('MY Options:', question.options);
+      }
     });
   
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
