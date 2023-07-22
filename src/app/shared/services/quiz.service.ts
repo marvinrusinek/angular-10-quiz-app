@@ -178,6 +178,10 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
+    this.currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable().pipe(
+      tap(index => console.log('currentQuestionIndex$:', index))
+    );
+
     this.correctSound = new Howl({
       src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
       onload: () => {
