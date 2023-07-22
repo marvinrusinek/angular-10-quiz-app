@@ -887,6 +887,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     console.log('Next button clicked');
+  
     if (!this.selectedQuiz) {
       return;
     }
@@ -895,7 +896,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const selectedOption = this.form.value.selectedOption;
   
-    // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
   
     if (nextQuestion && nextQuestion.options) {
@@ -903,7 +903,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
+      this.currentOptions.next(nextQuestion.options);
     } else {
       this.nextQuestionText = null;
     }
@@ -924,13 +924,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.submitQuiz();
       this.router.navigate([QuizRoutes.RESULTS]);
     } else {
-      // Use the QuizService method for navigation and updating the current question/options
-      console.log('Navigating to next question with quizId:', this.quizService.quizId);
-      console.log('Navigating to next question with questionIndex:', this.quizService.currentQuestionIndex + 1);
       this.quizService.navigateToNextQuestion();
     }
   }
-  
 
   advanceToPreviousQuestion() {
     this.answers = [];
