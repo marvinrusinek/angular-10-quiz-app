@@ -885,7 +885,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     console.log('Next button clicked');
   
     if (!this.selectedQuiz) {
@@ -926,8 +926,50 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.quizService.navigateToNextQuestion();
     }
-  }
+  } */
 
+  async advanceToNextQuestion(): Promise<void> {
+    console.log('Next button clicked');
+  
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    this.animationState$.next('animationStarted');
+  
+    const selectedOption = this.form.value.selectedOption;
+  
+    // Get the next question
+    const nextQuestion = await this.quizService.getNextQuestion();
+  
+    if (nextQuestion && nextQuestion.options) {
+      this.currentQuestion = nextQuestion;
+      this.nextQuestionText = nextQuestion.questionText;
+      this.quizService.setNextQuestion(nextQuestion);
+      this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+      this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
+    } else {
+      this.nextQuestionText = null;
+    }
+  
+    this.selectedOption = null;
+    this.quizService.resetAll();
+  
+    if (!selectedOption) {
+      return;
+    }
+  
+    this.checkIfAnsweredCorrectly();
+    this.answers = [];
+    this.status = QuizStatus.CONTINUE;
+  
+    if (this.quizService.isLastQuestion()) {
+      this.status = QuizStatus.COMPLETED;
+      this.submitQuiz();
+      this.router.navigate([QuizRoutes.RESULTS]);
+    }
+  }
+  
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
