@@ -14,10 +14,10 @@
       <ng-content select="[question-content]"></ng-content>
 
       <!-- the options -->
-      <ng-container *ngIf="currentOptions$ | async as options">
+      <ng-container *ngIf="options$ | async as options">
         <codelab-quiz-question
           [question]="question"
-          [options]="currentOptions$ | async"
+          [options]="options$ | async"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
@@ -26,8 +26,8 @@
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
           [explanationTextValue$]="explanationTextValue$ | async"
-          [selectionMessage]="selectionMessage$ | async" 
-          [showFeedback]="showFeedback"         
+          [selectionMessage]="selectionMessage$ | async"
+          [showFeedback]="showFeedback"
         ></codelab-quiz-question>
       </ng-container>
       <ng-template #noQuestion>
@@ -39,12 +39,12 @@
       <!-- selection message/next message -->
       <h5 class="selection-message">
         {{ (selectionMessage$ | async) || selectOptionText }}
-      </h5> 
+      </h5>
 
       <!-- paging -->
       <section class="paging">
         <mat-card-actions
-        [class.last-question]="shouldApplyLastQuestionClass()"
+          [class.last-question]="shouldApplyLastQuestionClass()"
         >
           <div class="prev-question-nav" [hidden]="shouldHidePrevQuestionNav()">
             <button
