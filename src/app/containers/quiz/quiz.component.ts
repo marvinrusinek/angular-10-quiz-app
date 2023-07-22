@@ -931,14 +931,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.selectedQuiz) {
       return;
     }
-
+  
     this.animationState$.next('animationStarted');
-
+  
     const selectedOption = this.form.value.selectedOption;
-
+  
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
-
+  
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.nextQuestionText = nextQuestion.questionText;
@@ -948,38 +948,36 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.nextQuestionText = null;
     }
-
+  
     this.selectedOption = null;
     this.quizService.resetAll();
-
+  
     if (!selectedOption) {
       return;
     }
-
+  
     this.checkIfAnsweredCorrectly();
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
-
+  
     if (this.quizService.isLastQuestion()) {
       this.status = QuizStatus.COMPLETED;
       this.submitQuiz();
       this.router.navigate([QuizRoutes.RESULTS]);
     } else {
       this.timerService.resetTimer();
-    }
-
-    // Use the QuizService method for navigation and updating the current question/options
-    this.quizService.navigateToNextQuestion();
-
-    // Update the URL in the browser window
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-      this.quizService.quizId
-    )}/${this.quizService.currentQuestionIndex + 1}`;
-    this.router.navigateByUrl(newUrl);
-  }
-
-
   
+      // Use the QuizService method for navigation and updating the current question/options
+      console.log('Navigating to next question');
+      this.quizService.navigateToNextQuestion();
+  
+      // Update the URL in the browser window
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+        this.quizService.quizId
+      )}/${this.quizService.currentQuestionIndex + 1}`;
+      this.router.navigateByUrl(newUrl);
+    }
+  }  
 
   advanceToPreviousQuestion() {
     this.answers = [];
