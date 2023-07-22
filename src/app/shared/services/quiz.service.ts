@@ -946,84 +946,6 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  /* navigateToNextQuestion(): void {
-    const index = this.currentQuestionIndex$.getValue(); // Get the current index directly
-  
-    if (index < this.quizData.length - 1) {
-      // Increment the currentQuestionIndex
-      const nextIndex = index + 1;
-  
-      // Update the currentQuestionIndexSource
-      this.currentQuestionIndexSource.next(nextIndex);
-  
-      const currentQuiz = this.quizData.find(
-        (quiz) => quiz.quizId === this.quizId
-      );
-  
-      if (currentQuiz) {
-        // Get the next question based on the updated index
-        const nextQuestion: QuizQuestion = currentQuiz.questions[nextIndex];
-  
-        if (nextQuestion && nextQuestion.options) {
-          // Update the current question and options
-          this.currentQuestion.next({ ...nextQuestion });
-          this.options = nextQuestion.options;
-          this.selectionMessage = '';
-          this.questionSource.next(this.currentQuestion.getValue());
-          this.optionsSource.next(nextQuestion.options);
-        } else {
-          console.error('Invalid next question:', nextQuestion);
-        }
-  
-        // Update other properties as needed
-        this.updateQuestion(nextQuestion);
-        this.resetUserSelection();
-        this.updateOtherProperties();
-  
-        // Navigate to the next question
-        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextIndex + 1}`;
-        this.router.navigateByUrl(newUrl);
-      } else {
-        console.error('Invalid quiz:', this.quizId);
-      }
-    } else {
-      // Handle the scenario when there are no more questions
-      console.error('Invalid next question index:', index);
-      console.log('Quiz completed!');
-      this.quizCompleted = true;
-    }
-  } */
-
-  /* navigateToNextQuestion(): void {
-    // Increment the current question index
-    this.currentQuestionIndexSource.next(this.currentQuestionIndex + 1);
-
-    // Retrieve the next question based on the updated index
-    const nextQuestion = this.getCurrentQuiz().questions[this.currentQuestionIndex];
-
-    if (nextQuestion && nextQuestion.options) {
-      // Update the current question and options
-      this.currentQuestion.next({ ...nextQuestion });
-      this.options = nextQuestion.options;
-      this.selectionMessage = '';
-      this.questionSource.next(this.currentQuestion.getValue());
-      this.optionsSource.next(nextQuestion.options);
-
-      this.currentQuestionIndex++;
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-        this.quizId
-      )}/${this.currentQuestionIndex + 1}`;
-      this.router.navigateByUrl(newUrl);
-    } else {
-      console.error('Invalid next question:', nextQuestion);
-    }
-
-    // Update other properties as needed
-    this.updateQuestion(nextQuestion);
-    this.resetUserSelection();
-    this.updateOtherProperties();
-  } */
-
   navigateToNextQuestion(): void {
     // Increment the questionIndex and update the URL in the browser window
     this.currentQuestionIndex++;
@@ -1032,8 +954,6 @@ export class QuizService implements OnDestroy {
     )}/${this.currentQuestionIndex + 1}`;
     this.router.navigateByUrl(newUrl);
   }
-
-  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;

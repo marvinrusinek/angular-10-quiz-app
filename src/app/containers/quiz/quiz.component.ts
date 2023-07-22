@@ -170,16 +170,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
       this.quizService.navigateToNextQuestion();
     });
-
-    this.quizService.currentQuestion.subscribe(question => {
-      // Update your component's currentQuestion property to use in the template
-      this.currentQuestion = question;
-    });
-
-    this.quizService.currentOptions.subscribe(options => {
-      // Update your component's currentOptions property to use in the template
-      this.currentOptions = options;
-    });
   }
 
   ngOnDestroy(): void {
@@ -891,91 +881,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  /* async advanceToNextQuestion(): Promise<void> {
-    console.log('Next button clicked');
-  
-    if (!this.selectedQuiz) {
-      return;
-    }
-  
-    this.animationState$.next('animationStarted');
-  
-    const selectedOption = this.form.value.selectedOption;
-  
-    const nextQuestion = await this.quizService.getNextQuestion();
-  
-    if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion = nextQuestion;
-      this.nextQuestionText = nextQuestion.questionText;
-      this.quizService.setNextQuestion(nextQuestion);
-      this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.currentOptions.next(nextQuestion.options);
-    } else {
-      this.nextQuestionText = null;
-    }
-  
-    this.selectedOption = null;
-    this.quizService.resetAll();
-  
-    if (!selectedOption) {
-      return;
-    }
-  
-    this.checkIfAnsweredCorrectly();
-    this.answers = [];
-    this.status = QuizStatus.CONTINUE;
-  
-    if (this.quizService.isLastQuestion()) {
-      this.status = QuizStatus.COMPLETED;
-      this.submitQuiz();
-      this.router.navigate([QuizRoutes.RESULTS]);
-    } else {
-      this.quizService.navigateToNextQuestion();
-    }
-  } */
-
-  /* async advanceToNextQuestion(): Promise<void> {
-    console.log('Next button clicked');
-  
-    if (!this.selectedQuiz) {
-      return;
-    }
-  
-    this.animationState$.next('animationStarted');
-  
-    const selectedOption = this.form.value.selectedOption;
-  
-    // Get the next question
-    const nextQuestion = await this.quizService.getNextQuestion();
-  
-    if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion = nextQuestion;
-      this.nextQuestionText = nextQuestion.questionText;
-      this.quizService.setNextQuestion(nextQuestion);
-      this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.currentOptions.next(nextQuestion.options); // set the current options observable with the options of the next question
-    } else {
-      this.nextQuestionText = null;
-    }
-  
-    this.selectedOption = null;
-    this.quizService.resetAll();
-  
-    if (!selectedOption) {
-      return;
-    }
-  
-    this.checkIfAnsweredCorrectly();
-    this.answers = [];
-    this.status = QuizStatus.CONTINUE;
-  
-    if (this.quizService.isLastQuestion()) {
-      this.status = QuizStatus.COMPLETED;
-      this.submitQuiz();
-      this.router.navigate([QuizRoutes.RESULTS]);
-    }
-  } */
-  
   async advanceToNextQuestion(): Promise<void> {
     console.log('Next button clicked');
   
@@ -1001,7 +906,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = null;
     }
   }
-    
 
   advanceToPreviousQuestion() {
     this.answers = [];
