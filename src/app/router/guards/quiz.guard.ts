@@ -14,6 +14,11 @@ export class QuizGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+    const quizId = route.params['quizId'];
+    const questionIndex = route.params['questionIndex'];
+    console.log('QuizGuard - quizId:', quizId);
+    console.log('QuizGuard - questionIndex:', questionIndex);
+
     if (this.quizService.isQuizSelected()) {
       return true;
     }
