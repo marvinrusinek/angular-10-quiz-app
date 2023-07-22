@@ -44,7 +44,15 @@ export class CodelabQuizComponent {
     console.log('Current Question Observable:', this.currentQuestion$);
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
   
-    this.currentOptions$ = this.quizStateService.currentOptions$;
+    // this.currentOptions$ = this.quizStateService.currentOptions$;
+
+    this.quizStateService.getCurrentQuestion().subscribe((question) => {
+      this.currentQuestion$ = of(question);
+    });
+    
+    this.quizStateService.currentOptions$.subscribe((options) => {
+      this.currentOptions$.next(options);
+    });
 
     this.currentQuestion$.subscribe((question) => {
     console.log('THE Current Question:', question);
