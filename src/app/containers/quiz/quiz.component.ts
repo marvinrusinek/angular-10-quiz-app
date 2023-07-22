@@ -174,7 +174,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = question;
     });
     this.quizService.currentOptions.subscribe(options => {
-      this.currentOptions = options;
+      this.currentOptions.next(options);
     });
   }
 
