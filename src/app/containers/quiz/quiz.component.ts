@@ -967,12 +967,17 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Fetch and set the options
         const quizId = this.quizService.getCurrentQuizId();
-        this.quizDataService.getOptions(quizId, this.currentQuestionIndex).subscribe((options) => {
+        const nextQuestionIndex = this.currentQuestionIndex;
+        /* this.quizDataService.getOptions(quizId, this.currentQuestionIndex).subscribe((options) => {
           console.log('Options for Next Question:', options);
           this.currentOptions.next(options);
   
           // Emit the next question's text
           this.questionText.next(nextQuestion.questionText);
+        }); */
+        this.quizDataService.getOptions(quizId, nextQuestionIndex).subscribe((options) => {
+          console.log('Options for Next Question:', options);
+          this.quizService.currentOptionsSubject.next(options);
         });
   
         this.quizService.navigateToNextQuestion();
