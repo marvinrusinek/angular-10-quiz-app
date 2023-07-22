@@ -12,12 +12,8 @@ export class QuizStateService {
   private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSubject.asObservable();
 
-  // private currentOptionsSource: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[] | null>(null);
-  // currentOptions$: Observable<Option[] | null> = this.currentOptionsSource.asObservable();
-
-  private currentOptionsSource: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  currentOptions$: Observable<Option[]> = this.currentOptionsSource.asObservable();
-
+  private currentOptionsSubject = new BehaviorSubject<Option[]>([]);
+  currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: Observable<boolean> = this.multipleAnswerSubject.asObservable();
@@ -43,10 +39,9 @@ export class QuizStateService {
       this.currentQuestionSubject.next(question);
       if (question && question.options) {
         console.log('Options:::', question.options);
-        this.currentOptionsSource.next(question.options || []);
+        this.currentOptionsSubject.next(question.options || []);
       } else {
         console.log('No options found.');
-        this.currentOptionsSource.next([]);
       }
     });
   }
@@ -56,7 +51,7 @@ export class QuizStateService {
   }
 
   setCurrentOptions(options: Option[]): void {
-    this.currentOptionsSource.next(options);
+    this.currentOptionsSubject.next(options);
   }
 
   isMultipleAnswer(): Observable<boolean> {
