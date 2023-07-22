@@ -165,6 +165,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
 
+    this.activatedRoute.params.subscribe(params => {
+      // Extract the quizId and questionIndex from the route parameters
+      this.quizId = params['quizId'];
+      this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
+
+      // Update any necessary data in your component based on the quizId and questionIndex
+    });
+
     /* this.quizService.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndex = index;
 
