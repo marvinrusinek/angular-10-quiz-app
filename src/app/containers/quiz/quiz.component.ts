@@ -924,6 +924,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.router.navigate([QuizRoutes.RESULTS]);
     } else {
       // Use the QuizService method for navigation and updating the current question/options
+      console.log('Navigating to next question with quizId:', this.quizService.quizId);
+      console.log('Navigating to next question with questionIndex:', this.quizService.currentQuestionIndex + 1);
       this.quizService.navigateToNextQuestion();
   
       // Update the URL in the browser window
