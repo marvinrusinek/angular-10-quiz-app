@@ -19,6 +19,7 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 export class CodelabQuizComponent { 
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
   @Input() options: Option[] = [];
+  question: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
@@ -46,6 +47,10 @@ export class CodelabQuizComponent {
       console.log('Options received:', options);
     });
 
+    this.quizStateService.currentQuestion$.subscribe((question) => {
+      this.question = question;
+    });
+  
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
