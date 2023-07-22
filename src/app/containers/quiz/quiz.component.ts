@@ -166,22 +166,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getCurrentQuestion();
 
     this.activatedRoute.params.subscribe(params => {
-      // Extract the quizId and questionIndex from the route parameters
       this.quizId = params['quizId'];
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
-
-      // Update any necessary data in your component based on the quizId and questionIndex
+      this.quizService.navigateToNextQuestion();
     });
 
-    /* this.quizService.currentQuestionIndex$.subscribe((index) => {
-      this.currentQuestionIndex = index;
+    this.quizService.currentQuestion.subscribe(question => {
+      // Update your component's currentQuestion property to use in the template
+      this.currentQuestion = question;
+    });
 
-      // Update the URL in the browser window
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-        this.quizId
-      )}/${this.currentQuestionIndex + 1}`;
-      this.router.navigate([newUrl]);
-    }); */
+    this.quizService.currentOptions.subscribe(options => {
+      // Update your component's currentOptions property to use in the template
+      this.currentOptions = options;
+    });
+  }
   }
 
   ngOnDestroy(): void {

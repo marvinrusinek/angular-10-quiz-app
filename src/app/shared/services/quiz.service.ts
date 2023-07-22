@@ -62,7 +62,7 @@ export class QuizService implements OnDestroy {
 
   private currentQuestionSource: Subject<QuizQuestion | null> =
     new Subject<QuizQuestion | null>();
-  private currentQuestion: BehaviorSubject<QuizQuestion | null> =
+  currentQuestion: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   // currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSource.asObservable();
   currentQuestion$ = this.currentQuestionSource.asObservable();
@@ -1018,8 +1018,6 @@ export class QuizService implements OnDestroy {
       console.error('Invalid next question:', nextQuestion);
     }
 
-    }
-
     // Update other properties as needed
     this.updateQuestion(nextQuestion);
     this.resetUserSelection();
@@ -1034,6 +1032,8 @@ export class QuizService implements OnDestroy {
     )}/${this.currentQuestionIndex + 1}`;
     this.router.navigateByUrl(newUrl);
   }
+
+  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
