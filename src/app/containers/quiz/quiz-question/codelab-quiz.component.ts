@@ -42,7 +42,7 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     console.log('Current Question Observable:', this.currentQuestion$);
-    this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
+    // this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
   
     // this.currentOptions$ = this.quizStateService.currentOptions$;
 
