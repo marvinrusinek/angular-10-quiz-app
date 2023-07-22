@@ -939,7 +939,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   } */
   
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     console.log('Advance to next question function called.');
     if (!this.selectedQuiz) {
       return;
@@ -975,7 +975,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Emit the next question's text
           this.questionText.next(nextQuestion.questionText);
         }); */
-        this.quizDataService.getOptions(quizId, nextQuestionIndex).subscribe((options) => {
+        /* this.quizDataService.getOptions(quizId, nextQuestionIndex).subscribe((options) => {
           console.log('Options for Next Question:', options);
           this.quizService.currentOptionsSubject.next(options);
         });
@@ -983,6 +983,60 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.navigateToNextQuestion();
       } else {
         console.log('Next question is undefined');
+        this.nextQuestionText = null;
+      }
+  
+      this.selectedOption = null;
+      this.quizService.resetAll();
+  
+      if (!selectedOption) {
+        return;
+      }
+  
+      this.checkIfAnsweredCorrectly();
+      this.answers = [];
+      this.status = QuizStatus.CONTINUE;
+  
+      if (this.quizService.isLastQuestion()) {
+        this.status = QuizStatus.COMPLETED;
+        this.submitQuiz();
+        this.router.navigate([QuizRoutes.RESULTS]);
+      } else {
+        this.timerService.resetTimer();
+      }
+    }
+  } */
+  
+  async advanceToNextQuestion(): Promise<void> {
+    console.log('Advance to next question function called.');
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    const selectedOption = this.form.value.selectedOption;
+  
+    if (this.form.valid) {
+      this.animationState$.next('animationStarted');
+  
+      const nextQuestion = await this.quizService.getNextQuestion();
+  
+      if (nextQuestion) {
+        console.log('Next Question:', nextQuestion);
+  
+        // Set the options for the next question
+        const quizId = this.quizService.getCurrentQuizId();
+        this.quizDataService.getOptions(quizId, this.currentQuestionIndex + 1).subscribe((options) => {
+          console.log('Options for Next Question:', options);
+          this.quizService.setCurrentOptions(options);
+  
+          // Update the current question
+          this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+          this.quizService.setCurrentQuestion(this.currentQuestionIndex);
+          this.quizService.navigateToNextQuestion();
+        });
+  
+        this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+      } else {
         this.nextQuestionText = null;
       }
   
