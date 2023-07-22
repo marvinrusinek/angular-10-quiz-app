@@ -167,8 +167,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
-      this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
-      this.quizService.navigateToNextQuestion();
+      this.currentQuestionIndex = +params['questionIndex'] - 1;
     });
   }
 
