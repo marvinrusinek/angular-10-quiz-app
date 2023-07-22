@@ -19,10 +19,12 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 export class CodelabQuizComponent { 
   currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  currentOptions$: Observable<Option[]> = this.quizService.options$;
+  // currentOptions$: Observable<Option[]> = this.quizService.options$;
+  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   explanationText$: Observable<string>;
   options: Option[] = [];
-  options$: Observable<string[]>;
+  // options$: Observable<string[]>;
+  options$: Observable<Option[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -39,9 +41,7 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-    this.options$ = this.quizService.options$.pipe(
-      map((options: Option[]) => options?.map((option) => option?.value?.toString()))
-    );
+    this.options$ = this.quizService.options$;
 
     this.quizService.options$.subscribe((options) => {
       console.log('Options received:', options);
@@ -60,7 +60,7 @@ export class CodelabQuizComponent {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion) {
         this.currentQuestion.next(nextQuestion);
-        this.currentOptions$.next(nextQuestion.options.map((option) => option.value.toString()));
+        this.currentOptions$.next(nextQuestion.options);
         // this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
         console.log("CQ:>>>", this.currentQuestion);
         console.log("OPTIONS:>>>", this.options$);
