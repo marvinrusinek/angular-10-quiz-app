@@ -114,6 +114,10 @@ export class MultipleAnswerComponent
       this.quizService.getCorrectAnswers(this.currentQuestion);
     }
 
+    this.currentQuestion$.subscribe((question) => {
+      this.question = question;
+    });
+
     this.currentOptionsSubscription = this.quizStateService
       .getCurrentQuestion()
       .pipe(

@@ -160,10 +160,6 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-    this.currentQuestion$.subscribe((question) => {
-      this.question = question;
-    });
-
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 

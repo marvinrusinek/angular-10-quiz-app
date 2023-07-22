@@ -3,7 +3,7 @@
     <ng-container *ngIf="shouldDisplayOptions()">
       <codelab-question-multiple-answer
         [form]="questionForm"
-        [question]="currentQuestion"
+        [question]="question"
         [questions]="questions"
         [currentQuestion$]="currentQuestion$ | async"
         [currentQuestionIndex]="currentQuestionIndex"
