@@ -25,7 +25,7 @@ export class CodelabQuizComponent {
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   explanationText$: Observable<string>;
   // options$: Observable<string[]>;
-  options$: Observable<Option[]>;
+  options$: Observable<Option[]>; 
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -43,11 +43,12 @@ export class CodelabQuizComponent {
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
 
+    this.currentOptions$ = this.quizStateService.currentOptions$;
 
     this.currentOptions$.subscribe((options) => {
       this.options = options;
     });
-    
+
     this.quizService.options$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
