@@ -42,23 +42,15 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-
+  
     this.currentOptions$ = this.quizStateService.currentOptions$;
-
+  
     this.currentOptions$.subscribe((options) => {
       this.options = options;
     });
 
-    this.quizService.options$.subscribe((options) => {
-      this.currentOptions$.next(options);
-    });
-
     this.quizStateService.currentQuestion$.subscribe((question) => {
       this.question = question;
-    });
-  
-    this.quizStateService.currentOptions$.subscribe((options) => {
-      this.currentOptions$.next(options);
     });
   
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
@@ -75,22 +67,21 @@ export class CodelabQuizComponent {
       if (nextQuestion) {
         this.currentQuestion.next(nextQuestion);
         this.currentOptions$.next(nextQuestion.options);
-        // this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
-        console.log("CQ:>>>", this.currentQuestion);
-        console.log("OPTIONS:>>>", this.options$);
+        // The async pipe in the template will handle this for you
       } else {
         // Handle the scenario when there are no more questions
         // For example, you can navigate to a different page here
         // this.router.navigate(['/quiz-completed']);
       }
     });
-
+  
     this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.explanationTextSubscription = this.explanationText$.subscribe((explanationText) => {
       const displayed = !!explanationText;
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
   }
+  
   
   ngOnDestroy(): void {
     this.currentQuestionSubscription.unsubscribe();
