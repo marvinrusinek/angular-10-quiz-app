@@ -41,7 +41,6 @@ export class CodelabQuizComponent {
 
   ngOnInit(): void {
     this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
-    this.options$ = this.quizService.options$;
 
     this.quizService.options$.subscribe((options) => {
       console.log('Options received:', options);
