@@ -17,11 +17,12 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  currentQuestion: BehaviorSubject<QuizQuestion>;
+  currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
+  currentOptions$: Observable<Option[]> = this.quizService.options$;
   explanationText$: Observable<string>;
   options: Option[] = [];
-  options$: Observable<string[]>;
+  // options$: Observable<string[]>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -55,7 +56,8 @@ export class CodelabQuizComponent {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion) {
         this.currentQuestion.next(nextQuestion);
-        this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
+        this.currentOptions$.next(nextQuestion.options.map((option) => option.value.toString()));
+        // this.options$ = of(nextQuestion.options.map((option) => option.value.toString()));
         console.log("CQ:>>>", this.currentQuestion);
         console.log("OPTIONS:>>>", this.options$);
       } else {
