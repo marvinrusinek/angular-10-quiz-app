@@ -70,7 +70,7 @@ export class QuizService implements OnDestroy {
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
 
-  private currentQuestionIndexSource: Subject<number> = new Subject<number>();
+  currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
   options: Option[] = [];
@@ -1091,11 +1091,11 @@ export class QuizService implements OnDestroy {
     console.log('Navigation completed.');
   } */
 
-  navigateToNextQuestion(): void {
+  /* navigateToNextQuestion(): void {
     this.quizCompleted = false;
 
     // Subscribe to the currentQuestionIndex$ observable
-    this.quizService.currentQuestionIndex$.subscribe((index) => {
+    this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndex = index;
 
       // Check if there are more questions to navigate
@@ -1141,6 +1141,52 @@ export class QuizService implements OnDestroy {
         this.quizId
       )}/${this.currentQuestionIndex + 1}`;
       this.router.navigateByUrl(newUrl);
+    });
+  } */
+
+  navigateToNextQuestion(): void {
+    // Subscribe to the currentQuestionIndex$ observable
+    this.currentQuestionIndex$.subscribe((index) => {
+      // Check if there are more questions to navigate
+      if (index < this.quizData.length - 1) {
+        // Increment the currentQuestionIndex
+        index++;
+
+        // Update the currentQuestionIndexSource
+        this.currentQuestionIndexSource.next(index);
+
+        const currentQuiz = this.quizData.find(
+          (quiz) => quiz.quizId === this.quizId
+        );
+
+        if (currentQuiz) {
+          // Get the next question based on the updated index
+          const nextQuestion: QuizQuestion = currentQuiz.questions[index];
+
+          if (nextQuestion && nextQuestion.options) {
+            // Update the current question and options
+            this.currentQuestion.next({ ...nextQuestion });
+            this.options = nextQuestion.options;
+            this.selectionMessage = '';
+            this.questionSource.next(this.currentQuestion.getValue());
+            this.optionsSource.next(nextQuestion.options);
+          } else {
+            console.error('Invalid next question:', nextQuestion);
+          }
+
+          // Update other properties as needed
+          this.updateQuestion(nextQuestion);
+          this.resetUserSelection();
+          this.updateOtherProperties();
+        } else {
+          console.error('Invalid quiz:', this.quizId);
+        }
+      } else {
+        // Handle the scenario when there are no more questions
+        console.error('Invalid next question index:', index);
+        console.log('Quiz completed!');
+        this.quizCompleted = true;
+      }
     });
   }
 
