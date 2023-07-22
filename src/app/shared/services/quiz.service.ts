@@ -283,6 +283,7 @@ export class QuizService implements OnDestroy {
   }
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
+    console.log('Setting current question index in QuizService:', index);
     const quizId = this.quizId;
     if (quizId) {
       const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
@@ -524,13 +525,17 @@ export class QuizService implements OnDestroy {
   getNextQuestion(): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
+
     if (
       currentQuiz &&
       currentQuiz.questions &&
       nextIndex < currentQuiz.questions.length
     ) {
+      this.setNextQuestion(currentQuiz.questions[nextIndex]);
       return currentQuiz.questions[nextIndex];
     }
+
+    this.nextQuestionSource.next(null);
     return undefined;
   }
 
@@ -915,6 +920,7 @@ export class QuizService implements OnDestroy {
   }
 
   setNextQuestion(nextQuestion: QuizQuestion | null): void {
+    console.log('Setting next question in QuizService:', nextQuestion);
     this.nextQuestionSource.next(nextQuestion);
     this.currentQuestionSource.next(nextQuestion);
   }
