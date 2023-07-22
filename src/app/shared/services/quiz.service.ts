@@ -257,8 +257,9 @@ export class QuizService implements OnDestroy {
     return this.quizResources;
   }
 
-  getCurrentQuiz(): Quiz {
-    return this.quizData[this.currentQuestionIndex];
+  getCurrentQuiz(): Quiz | undefined {
+    // return this.quizData[this.currentQuestionIndex];
+    return this.quizData.find((quiz) => quiz.quizId === this.quizId);
   }
 
   setCurrentQuiz(quiz: Quiz): void {
