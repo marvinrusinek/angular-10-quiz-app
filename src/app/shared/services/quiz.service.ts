@@ -322,15 +322,19 @@ export class QuizService implements OnDestroy {
     return this.questions$;
   }
 
-  getQuestionsForQuiz(
-    quizId: string
-  ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+  getQuestionsForQuiz(quizId: string): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      tap((questions) => {
+        console.log('All Questions:', questions);
+      }),
       map((questions: any) =>
         questions.filter((question) => {
           return question.quizId === quizId;
         })
       ),
+      tap((filteredQuestions) => {
+        console.log('Filtered Questions:', filteredQuestions);
+      }),
       catchError((error: HttpErrorResponse) => {
         console.error('An error occurred while loading questions:', error);
         return throwError('Something went wrong.');
@@ -340,7 +344,7 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
-  }
+  }  
 
   updateQuestions(quizId: string): Promise<void> {
     this.questionsLoaded = true;
