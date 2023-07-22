@@ -1144,6 +1144,7 @@ export class QuizService implements OnDestroy {
   } */
 
   navigateToNextQuestion(): void {
+    console.log('Navigating to next question in QuizService. Current index:', this.currentQuestionIndex);
     // Subscribe to the currentQuestionIndex$ observable
     this.currentQuestionIndex$.subscribe((index) => {
       // Check if there are more questions to navigate

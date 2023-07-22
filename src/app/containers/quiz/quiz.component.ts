@@ -928,6 +928,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }  */
 
   async advanceToNextQuestion(): Promise<void> {
+    console.log('Current index before navigation:', this.quizService.currentQuestionIndex);
     if (!this.selectedQuiz) {
       return;
     }
