@@ -47,7 +47,7 @@ export class CodelabQuizComponent {
     });
 
     this.quizStateService.currentOptions$.subscribe((options) => {
-      this.options = options;
+      this.currentOptions$.next(options);
     });
   
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
