@@ -1,4 +1,19 @@
-<section *ngIf="(currentQuestion$ | async) as currentQuestion" id="question">
+<section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
+  <ng-container *ngIf="currentQuestionIndexValue >= 0 && currentQuestionIndexValue < questions.length">
+    <h3 question-content>
+      <ng-content select="[question-content]"></ng-content>
+      {{ (explanationText$ | async) || questions[currentQuestionIndexValue]?.questionText }}
+
+      <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
+        <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
+          {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
+        </span>
+      </ng-container>
+    </h3>
+  </ng-container>
+</section>
+
+<!--<section *ngIf="(currentQuestion$ | async) as currentQuestion" id="question">
   <h3 question-content>
     <ng-content select="[question-content]"></ng-content>
     {{ (explanationText$ | async) || currentQuestion?.questionText }}
@@ -9,7 +24,7 @@
       </span>
     </ng-container>
   </h3>
-</section>
+</section>-->
 
 
 <!--<section *ngIf="(currentQuestion$ | async) as currentQuestion" id="question">
