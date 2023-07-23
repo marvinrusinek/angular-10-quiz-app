@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
+import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
@@ -20,6 +22,9 @@ export class CodelabQuizComponent {
   // @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
   // @Input() options: Option[] = [];
   question: QuizQuestion;
+  questions: QuizQuestion[];
+  questions$: Observable<QuizQuestion[]>;
+  quizId: string;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
@@ -37,9 +42,11 @@ export class CodelabQuizComponent {
 
   constructor(
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
-    private quizQuestionManagerService: QuizQuestionManagerService
+    private quizQuestionManagerService: QuizQuestionManagerService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -47,6 +54,17 @@ export class CodelabQuizComponent {
     // this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
   
     // this.currentOptions$ = this.quizStateService.currentOptions$;
+
+    this.activatedRoute.paramMap.subscribe((params) => {
+      this.quizId = params.get('quizId');
+      if (this.quizId) {
+        this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+        this.currentQuestion$ = this.questions$;
+        this.currentQuestionIndex$ = this.currentQuestion$.pipe(
+          map((_, index) => index)
+        );
+      }
+    });
 
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
     this.options$ = this.quizService.getOptionsObservable();
