@@ -165,13 +165,22 @@ export class CodelabQuizComponent {
     });
   }
   
-  
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.currentQuestionSubscription.unsubscribe();
     this.explanationTextSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
+  }
+
+  getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
+    if (currentQuestion && questions && questions.length > 0) {
+      const currentQuestionIndex = questions.indexOf(currentQuestion);
+      if (currentQuestionIndex >= 0) {
+        return questions[currentQuestionIndex]?.questionText;
+      }
+    }
+    return '';
   }
 
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
