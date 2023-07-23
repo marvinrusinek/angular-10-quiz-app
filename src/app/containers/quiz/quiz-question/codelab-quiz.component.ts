@@ -39,6 +39,7 @@ export class CodelabQuizComponent {
   currentQuestionSubscription: Subscription;
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
+  currentQuestionIndexValue: number;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -56,7 +57,7 @@ export class CodelabQuizComponent {
   
     // this.currentOptions$ = this.quizStateService.currentOptions$;
 
-    /* this.activatedRoute.paramMap
+    this.activatedRoute.paramMap
       .pipe(
         switchMap((params) => {
           this.quizId = params.get('quizId');
@@ -71,10 +72,14 @@ export class CodelabQuizComponent {
       .subscribe((questions) => {
         if (questions) {
           this.questions = questions;
-          this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
         }
-      }); */
+      });
+
+    this.currentOptions$ = this.quizService.getOptionsObservable();
+    this.currentOptions$.subscribe((options) => {
+      this.options = options;
+    });
 
 
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
@@ -86,6 +91,19 @@ export class CodelabQuizComponent {
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
+
+    this.currentQuestion$.subscribe((question) => {
+      if (question && question.options) {
+        this.options = question.options;
+      }
+    });
+
+    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+    this.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndexValue = index;
+    });
+
+
 
     this.currentQuestion$.subscribe((question) => {
       console.log('Question received:', question);
