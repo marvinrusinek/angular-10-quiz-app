@@ -308,6 +308,10 @@ export class QuizService implements OnDestroy {
     return questionIndex - 1; // subtract 1 to convert to zero-based index
   }
 
+  getCurrentQuestionIndexObservable(): Observable<number> {
+    return this.currentQuestionIndexSubject.asObservable();
+  }
+
   getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
     return this.currentQuestion.asObservable();
   }

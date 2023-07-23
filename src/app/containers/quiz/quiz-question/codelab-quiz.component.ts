@@ -74,6 +74,8 @@ export class CodelabQuizComponent {
       // Update currentQuestion$ based on the new questions
       this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
       console.log('Current question after update:', this.currentQuestion$);
+      this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
+      this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
     });
 
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
