@@ -41,6 +41,7 @@ export class CodelabQuizComponent {
   currentQuestionSubscription: Subscription;
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
+  currentQuestionIndexValue: number;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -70,16 +71,21 @@ export class CodelabQuizComponent {
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions) => {
-      if (questions) {
-        this.questions = questions;
-        // Update currentQuestion$ based on the new questions
-        this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
-        console.log('Current question after update:', this.currentQuestion$);
-        this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
-        this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-      } else {
-        // Handle the case where no questions are available for the given quizId
-      }
+      this.questions = questions;
+      console.log('Questions:', this.questions);
+
+      // Update currentQuestion$ based on the new questions
+      this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
+      console.log('Current question after update:', this.currentQuestion$);
+
+      this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+      console.log('Current question index:', this.currentQuestionIndex$);
+
+      // Store the current value of currentQuestionIndex
+      this.currentQuestionIndex$.subscribe((index) => {
+        this.currentQuestionIndexValue = index;
+        console.log('Current question index value:', this.currentQuestionIndexValue);
+      });
     });
 
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
