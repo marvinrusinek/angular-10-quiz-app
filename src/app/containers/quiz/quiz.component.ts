@@ -174,8 +174,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
     });
 
+    this.quizService.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndex = index;
+      this.quizService.updateCurrentQuestion();
+    });
+
     this.quizService.currentQuestion$.subscribe(question => {
       this.currentQuestion = question;
+      this.explanationTextSource.next(null);
     });
     this.quizService.currentOptions$.subscribe(options => {
       this.currentOptions = options;
