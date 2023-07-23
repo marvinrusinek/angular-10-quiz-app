@@ -131,6 +131,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText$ = this.explanationTextSource.asObservable();
 
   currentQuestionIndex: number = 0;
+  currentQuestionIndex$: Observable<number>;
   totalQuestions = 0;
   questionIndex: number;
   progressValue: number;
