@@ -28,6 +28,7 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  currentQuestionIndex$: Observable<number>;
   // explanationText$: Observable<string>;
   // options$: Observable<string[]>;
   options$: Observable<Option[] | null>; 
