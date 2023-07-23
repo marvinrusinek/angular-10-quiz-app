@@ -121,11 +121,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
   explanationText: string | null;
-  explanationText$: Observable<string | null>;
+  // explanationText$: Observable<string | null>;
   explanationTextValue$: Observable<string | null>;
   cardFooterClass = '';
   nextQuestionText: string | null = null;
   selectOptionText: string = 'Please select an option to continue...';
+
+  private explanationTextSource = new BehaviorSubject<string>(null);
+  explanationText$ = this.explanationTextSource.asObservable();
 
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
@@ -872,7 +875,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHideShowScoreNav(): boolean {
-    return this.questionIndex === this.totalQuestions;
+    return this.questionIndex === this.totalQuestions - 1;
   }
 
   shouldHideProgressBar(): boolean {
@@ -910,6 +913,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
         
         this.quizService.updateCurrentOptions(nextQuestion.options);
+        
+        const explanationTextOfNextQuestion = nextQuestion.questionText;
+        this.explanationTextSource.next(explanationTextOfNextQuestion);
+
         this.quizService.navigateToNextQuestion();
       } else {
         this.nextQuestionText = null;

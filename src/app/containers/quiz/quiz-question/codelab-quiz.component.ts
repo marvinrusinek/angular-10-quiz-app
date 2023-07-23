@@ -23,7 +23,7 @@ export class CodelabQuizComponent {
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  explanationText$: Observable<string>;
+  // explanationText$: Observable<string>;
   // options$: Observable<string[]>;
   options$: Observable<Option[]>; 
   numberOfCorrectAnswers: number = 0;
@@ -32,6 +32,8 @@ export class CodelabQuizComponent {
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   currentQuestionSubscription: Subscription;
+  private explanationTextSource = new BehaviorSubject<string>(null);
+  explanationText$ = this.explanationTextSource.asObservable();
 
   constructor(
     private quizService: QuizService,
