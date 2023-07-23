@@ -77,6 +77,8 @@ export class CodelabQuizComponent {
         console.log('Current question after update:', this.currentQuestion$);
         this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
         this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+      } else {
+        // Handle the case where no questions are available for the given quizId
       }
     });
 
