@@ -958,18 +958,13 @@ export class QuizService implements OnDestroy {
     this.currentOptionsSource.next(options);
   }
 
-  updateCurrentQuestionAndOptions(): void {
+  updateCurrentQuestion(): void {
     if (this.questions.length > 0 && this.currentQuestionIndex < this.questions.length) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
-      if (currentQuestion.options) {
-        this.currentQuestionSource.next(currentQuestion);
-        this.optionsSubject.next(currentQuestion.options);
-      } else {
-        this.currentQuestionSource.next(null);
-        this.optionsSubject.next(null);
-      }
+      this.currentQuestion.next(currentQuestion);
+      this.updateOptions();
     } else {
-      this.currentQuestionSource.next(null);
+      this.currentQuestion.next(null);
       this.optionsSubject.next(null);
     }
   }
