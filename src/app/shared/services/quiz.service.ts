@@ -973,14 +973,15 @@ export class QuizService implements OnDestroy {
     if (this.currentQuestionIndex < this.questions.length) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       if (currentQuestion.options) {
-        this.options = currentQuestion.options;
-        this.optionsSubject.next(this.options);
+        this.optionsSubject.next(currentQuestion.options);
+      } else {
+        this.optionsSubject.next([]); // If there are no options, set an empty array
       }
     } else {
-      this.options = null;
-      this.optionsSubject.next(null);
+      this.optionsSubject.next([]); // If there are no more questions, set an empty array
     }
   }
+  
 
   updateOtherProperties(): void {
     this.showQuestionText$ = of(true);
