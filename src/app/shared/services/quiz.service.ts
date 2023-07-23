@@ -957,6 +957,7 @@ export class QuizService implements OnDestroy {
       this.updateOptions();
     } else {
       this.currentQuestion.next(null);
+      this.optionsSubject.next(null);
     }
   }
 
