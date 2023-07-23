@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -25,8 +25,8 @@ export class CodelabQuizComponent {
   questions: QuizQuestion[];
   questions$: Observable<QuizQuestion[]>;
   quizId: string;
-  // currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: Observable<QuizQuestion | null> = of(null);
+  // currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
@@ -57,15 +57,19 @@ export class CodelabQuizComponent {
   
     // this.currentOptions$ = this.quizStateService.currentOptions$;
 
-    this.activatedRoute.paramMap.subscribe((params) => {
-      this.quizId = params.get('quizId');
-      if (this.quizId) {
-        this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-        this.currentQuestion$ = this.questions$;
-        this.currentQuestionIndex$ = this.currentQuestion$.pipe(
-          map((_, index) => index)
-        );
-      }
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params) => {
+        this.quizId = params.get('quizId');
+        if (this.quizId) {
+          return this.quizDataService.getQuestionsForQuiz(this.quizId);
+        } else {
+          return of(null);
+        }
+      })
+    ).subscribe((questions) => {
+      this.questions = questions;
+      // Update currentQuestion$ based on the new questions
+      this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
     });
 
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
