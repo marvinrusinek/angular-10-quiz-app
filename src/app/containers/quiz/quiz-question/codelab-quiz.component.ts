@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -41,6 +41,7 @@ export class CodelabQuizComponent {
   currentQuestionSubscription: Subscription;
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
+  private destroy$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
@@ -61,11 +62,13 @@ export class CodelabQuizComponent {
       switchMap((params) => {
         this.quizId = params.get('quizId');
         if (this.quizId) {
+          // Use switchMap to transform questions$ to currentQuestion$
           return this.quizDataService.getQuestionsForQuiz(this.quizId);
         } else {
           return of(null);
         }
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe((questions) => {
       this.questions = questions;
       // Update currentQuestion$ based on the new questions
@@ -148,8 +151,9 @@ export class CodelabQuizComponent {
     });
   }
   
-  
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.currentQuestionSubscription.unsubscribe();
     this.explanationTextSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
