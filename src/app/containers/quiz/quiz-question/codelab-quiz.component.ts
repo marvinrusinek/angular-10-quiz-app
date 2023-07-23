@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
-import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
@@ -19,20 +17,15 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  // @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
-  // @Input() options: Option[] = [];
+  @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  @Input() options: Option[] = [];
   question: QuizQuestion;
-  questions: QuizQuestion[];
-  questions$: Observable<QuizQuestion[]>;
-  quizId: string;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  // currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  currentQuestionIndex$: Observable<number>;
   // explanationText$: Observable<string>;
   // options$: Observable<string[]>;
-  options$: Observable<Option[] | null>; 
+  options$: Observable<Option[]>; 
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -41,16 +34,12 @@ export class CodelabQuizComponent {
   currentQuestionSubscription: Subscription;
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
-  currentQuestionIndexValue: number;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
-    private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
-    private quizQuestionManagerService: QuizQuestionManagerService,
-    private activatedRoute: ActivatedRoute
+    private quizQuestionManagerService: QuizQuestionManagerService
   ) {}
 
   ngOnInit(): void {
@@ -58,35 +47,6 @@ export class CodelabQuizComponent {
     // this.currentQuestion = new BehaviorSubject<QuizQuestion>(null);
   
     // this.currentOptions$ = this.quizStateService.currentOptions$;
-
-    this.activatedRoute.paramMap.pipe(
-      switchMap((params) => {
-        this.quizId = params.get('quizId');
-        if (this.quizId) {
-          // Use switchMap to transform questions$ to currentQuestion$
-          return this.quizDataService.getQuestionsForQuiz(this.quizId);
-        } else {
-          return of(null);
-        }
-      }),
-      takeUntil(this.destroy$)
-    ).subscribe((questions) => {
-      if (questions) {
-        this.questions = questions;
-        console.log('Questions:', this.questions); // Check the questions array
-        // Update currentQuestion$ based on the new questions
-        this.currentQuestion$ = this.quizService. getCurrentQuestionObservable();
-        console.log('Current question after update:', this.currentQuestion$);
-        this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-        console.log('Current question index:', this.currentQuestionIndexValue); // Check the currentQuestionIndexValue
-      }
-    });
-
-    this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
-    this.options$ = this.quizService.getOptionsObservable();
-    this.quizService.getOptionsObservable().subscribe((options) => {
-      this.options = options;
-    });
 
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
       console.log('CodelabQuizComponent - Current Question received:', question);
@@ -102,7 +62,6 @@ export class CodelabQuizComponent {
       console.log('Question received:', question);
       if (question && question.options) {
         console.log('Options received::::::::', question.options);
-        this.options = question.options;
       }
     });
 
@@ -141,7 +100,7 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion) {
-        this.currentQuestion$.next(nextQuestion);
+        this.currentQuestion.next(nextQuestion);
         this.currentOptions$.next(nextQuestion.options);
         // The async pipe in the template will handle this for you
       } else {
@@ -156,17 +115,10 @@ export class CodelabQuizComponent {
       const displayed = !!explanationText;
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
-
-    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-    this.currentQuestionIndex$.subscribe((index) => {
-      this.currentQuestionIndexValue = index;
-      console.log('Current question index value:::', this.currentQuestionIndexValue);
-    });
   }
   
+  
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
     this.currentQuestionSubscription.unsubscribe();
     this.explanationTextSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();

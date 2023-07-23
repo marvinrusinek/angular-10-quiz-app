@@ -131,7 +131,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText$ = this.explanationTextSource.asObservable();
 
   currentQuestionIndex: number = 0;
-  currentQuestionIndex$: Observable<number>;
   totalQuestions = 0;
   questionIndex: number;
   progressValue: number;
@@ -175,16 +174,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
     });
 
-    this.currentQuestionIndex$ = this.quizService.currentQuestionIndex$;
-
-    this.quizService.currentQuestionIndex$.subscribe((index) => {
-      this.currentQuestionIndex = index;
-      this.quizService.updateCurrentQuestion();
-    });
-
     this.quizService.currentQuestion$.subscribe(question => {
       this.currentQuestion = question;
-      this.explanationTextSource.next(null);
     });
     this.quizService.currentOptions$.subscribe(options => {
       this.currentOptions = options;
@@ -915,22 +906,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion = await this.quizService.getNextQuestion();
   
     if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion = nextQuestion;
-      // this.nextQuestionText = nextQuestion.questionText;
-      this.quizService.setNextQuestion(nextQuestion);
-      this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.quizService.updateCurrentQuestion();
-      this.quizService.updateOptions(nextQuestion.options);
-  
-      const explanationTextOfNextQuestion = nextQuestion.questionText;
-      this.explanationTextSource.next(explanationTextOfNextQuestion);
-  
-      this.quizService.navigateToNextQuestion();
-    } else {
-      this.nextQuestionText = null;
+      if (nextQuestion && nextQuestion.options) {
+        this.currentQuestion = nextQuestion;
+        this.nextQuestionText = nextQuestion.questionText;
+        this.quizService.setNextQuestion(nextQuestion);
+        this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
+        
+        this.quizService.updateCurrentOptions(nextQuestion.options);
+        
+        const explanationTextOfNextQuestion = nextQuestion.questionText;
+        this.explanationTextSource.next(explanationTextOfNextQuestion);
+
+        this.quizService.navigateToNextQuestion();
+      } else {
+        this.nextQuestionText = null;
+      }
     }
   }
-  
     
   advanceToPreviousQuestion() {
     this.answers = [];
