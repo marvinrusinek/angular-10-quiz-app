@@ -25,7 +25,8 @@ export class CodelabQuizComponent {
   questions: QuizQuestion[];
   questions$: Observable<QuizQuestion[]>;
   quizId: string;
-  currentQuestion$: Observable<QuizQuestion | null> = of(null);
+  // currentQuestion$: Observable<QuizQuestion | null> = of(null);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
@@ -126,7 +127,7 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
       console.log('Next question received:', nextQuestion);
       if (nextQuestion) {
-        this.currentQuestion.next(nextQuestion);
+        this.currentQuestion$.next(nextQuestion);
         this.currentOptions$.next(nextQuestion.options);
         // The async pipe in the template will handle this for you
       } else {
