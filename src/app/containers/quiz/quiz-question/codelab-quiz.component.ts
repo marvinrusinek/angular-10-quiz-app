@@ -71,24 +71,16 @@ export class CodelabQuizComponent {
       }),
       takeUntil(this.destroy$)
     ).subscribe((questions) => {
-      this.questions = questions;
-      console.log('Questions:', this.questions);
-
-      // Update currentQuestion$ based on the new questions
-      this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
-      console.log('Current question after update:', this.currentQuestion$);
-
-      this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-      console.log('Current question index:', this.currentQuestionIndex$);
-
-      // Store the current value of currentQuestionIndex
-      this.currentQuestionIndex$.subscribe((index) => {
-        this.currentQuestionIndexValue = index;
-        console.log('Current question index value:', this.currentQuestionIndexValue);
-      });
+      if (questions) {
+        this.questions = questions;
+        console.log('Questions:', this.questions); // Check the questions array
+        // Update currentQuestion$ based on the new questions
+        this.currentQuestion$ = this.quizService. getCurrentQuestionObservable();
+        console.log('Current question after update:', this.currentQuestion$);
+        this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+        console.log('Current question index:', this.currentQuestionIndexValue); // Check the currentQuestionIndexValue
+      }
     });
-
-    
 
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
     this.options$ = this.quizService.getOptionsObservable();
@@ -163,6 +155,12 @@ export class CodelabQuizComponent {
     this.explanationTextSubscription = this.explanationText$.subscribe((explanationText) => {
       const displayed = !!explanationText;
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
+    });
+
+    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+    this.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndexValue = index;
+      console.log('Current question index value:::', this.currentQuestionIndexValue);
     });
   }
   
