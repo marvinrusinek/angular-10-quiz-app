@@ -42,7 +42,7 @@ enum QuizRoutes {
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  currentQuestionIndex: number = 0;
+  currentQuestionIndex: number = -1;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
@@ -64,7 +64,7 @@ export class QuizService implements OnDestroy {
     new Subject<QuizQuestion | null>();
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
-  currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSource.asObservable();
+  currentQuestion$ = this.currentQuestionSource.asObservable();
   currentQuestionPromise: Promise<QuizQuestion> = null;
   private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
@@ -72,7 +72,7 @@ export class QuizService implements OnDestroy {
   currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
-  options: Option[] | null = null;
+  private options: Option[] | null = null;
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   resources: Resource[];
   quizId: string = '';
@@ -123,8 +123,8 @@ export class QuizService implements OnDestroy {
   nextQuestion$ = this.nextQuestionSource.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
+  options$: Observable<Option[]> = this.optionsSource.asObservable();
   optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[] | null>(null);
-  options$: Observable<Option[]> = this.optionsSubject.asObservable();
 
   currentAnswer = '';
   nextQuestionText = '';
@@ -308,20 +308,12 @@ export class QuizService implements OnDestroy {
     return questionIndex - 1; // subtract 1 to convert to zero-based index
   }
 
-  /* getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
-    return this.currentQuestion.asObservable();
-  } */
-
   getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
-    return this.currentQuestion$;
+    return this.currentQuestion.asObservable();
   }
 
-  /* getOptionsObservable(): Observable<Option[] | null> {
-    return this.optionsSubject.asObservable();
-  } */
-
   getOptionsObservable(): Observable<Option[] | null> {
-    return this.options$;
+    return this.optionsSubject.asObservable();
   }
 
   getCurrentQuizId(): string {
@@ -955,33 +947,13 @@ export class QuizService implements OnDestroy {
   }
 
   updateCurrentOptions(options: Option[]): void {
+    this.optionsSubject.next(options);
     this.currentOptionsSource.next(options);
   }
 
-  updateCurrentQuestion(): void {
-    if (this.questions.length > 0 && this.currentQuestionIndex < this.questions.length) {
-      const currentQuestion = this.questions[this.currentQuestionIndex];
-      this.currentQuestion.next(currentQuestion);
-      this.updateOptions();
-    } else {
-      this.currentQuestion.next(null);
-      this.optionsSubject.next(null);
-    }
+  updateCurrentQuestion(question: QuizQuestion): void {
+    this.currentQuestionSource.next(question);
   }
-
-  updateOptions(): void {
-    if (this.currentQuestionIndex < this.questions.length) {
-      const currentQuestion = this.questions[this.currentQuestionIndex];
-      if (currentQuestion.options) {
-        this.optionsSubject.next(currentQuestion.options);
-      } else {
-        this.optionsSubject.next([]); // If there are no options, set an empty array
-      }
-    } else {
-      this.optionsSubject.next([]); // If there are no more questions, set an empty array
-    }
-  }
-  
 
   updateOtherProperties(): void {
     this.showQuestionText$ = of(true);
@@ -991,7 +963,6 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion(): void {
     this.currentQuestionIndex++;
-    this.updateCurrentQuestion();
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
       this.quizId
     )}/${this.currentQuestionIndex + 1}`;
