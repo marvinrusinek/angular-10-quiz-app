@@ -72,7 +72,7 @@ export class QuizService implements OnDestroy {
   currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
-  options: Option[] = [];
+  private options: Option[] | null = null;
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   resources: Resource[];
   quizId: string = '';
@@ -124,6 +124,7 @@ export class QuizService implements OnDestroy {
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   options$: Observable<Option[]> = this.optionsSource.asObservable();
+  optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[] | null>(null);
 
   currentAnswer = '';
   nextQuestionText = '';
@@ -305,6 +306,14 @@ export class QuizService implements OnDestroy {
       this.activatedRoute.snapshot.paramMap.get('questionIndex');
     const questionIndex = parseInt(questionIndexParam, 10);
     return questionIndex - 1; // subtract 1 to convert to zero-based index
+  }
+
+  getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
+    return this.currentQuestion.asObservable();
+  }
+
+  getOptionsObservable(): Observable<Option[] | null> {
+    return this.optionsSubject.asObservable();
   }
 
   getCurrentQuizId(): string {
