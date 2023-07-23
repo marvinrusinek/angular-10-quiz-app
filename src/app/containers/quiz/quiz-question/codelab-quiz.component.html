@@ -1,7 +1,7 @@
-<section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
-  <h3 question-content>
+<ng-container *ngIf="currentQuestion$ | async as currentQuestion && (currentQuestionIndex$ | async) as currentQuestionIndex" id="question">
+  <h3 question-content *ngIf="questions && questions.length > currentQuestionIndex">
     <ng-content select="[question-content]"></ng-content>
-    {{ (explanationText$ | async) || currentQuestion?.questionText }}
+    {{ (explanationText$ | async) || questions[currentQuestionIndex]?.questionText }}
 
     <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
       <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
@@ -9,7 +9,8 @@
       </span>
     </ng-container>
   </h3>
-</section>
+</ng-container>
+
 
 
 <!--<section *ngIf="currentQuestion" id="question">
