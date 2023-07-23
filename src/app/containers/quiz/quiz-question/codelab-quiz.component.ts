@@ -56,7 +56,7 @@ export class CodelabQuizComponent {
   
     // this.currentOptions$ = this.quizStateService.currentOptions$;
 
-    this.activatedRoute.paramMap
+    /* this.activatedRoute.paramMap
       .pipe(
         switchMap((params) => {
           this.quizId = params.get('quizId');
@@ -74,7 +74,7 @@ export class CodelabQuizComponent {
           this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
         }
-      });
+      }); */
 
 
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
