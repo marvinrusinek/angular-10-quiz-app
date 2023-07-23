@@ -3,7 +3,8 @@
     <h3 question-content>
       <ng-content select="[question-content]"></ng-content>
       <!--{{ (explanationText$ | async) || currentQuestion.questionText }}-->
-      {{ (explanationText$ | async) || questions[currentQuestionIndexValue]?.questionText }}
+      <!--{{ (explanationText$ | async) || questions[currentQuestionIndexValue]?.questionText }}-->
+      {{ (explanationText$ | async) || getQuestionText(currentQuestion, questions) }}
 
       <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
         <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
