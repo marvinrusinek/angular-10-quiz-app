@@ -946,13 +946,34 @@ export class QuizService implements OnDestroy {
     this.selectedOption$.next('');
   }
 
+  updateCurrentQuestion(): void {
+    if (this.currentQuestionIndex < this.questions.length) {
+      const currentQuestion = this.questions[this.currentQuestionIndex];
+      this.currentQuestion.next(currentQuestion);
+      this.updateOptions();
+    } else {
+      this.currentQuestion.next(null);
+      this.updateOptions();
+    }
+  }
+  
+
   updateCurrentOptions(options: Option[]): void {
     this.optionsSubject.next(options);
     this.currentOptionsSource.next(options);
   }
 
-  updateCurrentQuestion(question: QuizQuestion): void {
-    this.currentQuestionSource.next(question);
+  updateOptions(): void {
+    if (this.currentQuestionIndex < this.questions.length) {
+      const currentQuestion = this.questions[this.currentQuestionIndex];
+      if (currentQuestion.options) {
+        this.optionsSubject.next(currentQuestion.options);
+      } else {
+        this.optionsSubject.next([]);
+      }
+    } else {
+      this.optionsSubject.next([]);
+    }
   }
 
   updateOtherProperties(): void {
