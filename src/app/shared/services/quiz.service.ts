@@ -950,6 +950,7 @@ export class QuizService implements OnDestroy {
     if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       this.currentQuestion.next(currentQuestion);
+      this.updateOptions(currentQuestion.options);
     } else {
       this.currentQuestion.next(null);
     }
@@ -960,13 +961,10 @@ export class QuizService implements OnDestroy {
     this.currentOptionsSource.next(options);
   }
 
-  updateOptions(): void {
-    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
-      const currentQuestion = this.questions[this.currentQuestionIndex];
-      if (currentQuestion.options) {
-        this.options = currentQuestion.options;
-        this.optionsSubject.next(this.options);
-      }
+  updateOptions(options: Option[]): void {
+    if (options) {
+      this.options = options;
+      this.optionsSubject.next(this.options);
     } else {
       this.options = null;
       this.optionsSubject.next(null);
