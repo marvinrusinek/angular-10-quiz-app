@@ -947,13 +947,11 @@ export class QuizService implements OnDestroy {
   }
 
   updateCurrentQuestion(): void {
-    if (this.currentQuestionIndex < this.questions.length) {
+    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       this.currentQuestion.next(currentQuestion);
-      this.updateOptions();
     } else {
       this.currentQuestion.next(null);
-      this.updateOptions();
     }
   }
   
@@ -963,15 +961,15 @@ export class QuizService implements OnDestroy {
   }
 
   updateOptions(): void {
-    if (this.currentQuestionIndex < this.questions.length) {
+    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       if (currentQuestion.options) {
-        this.optionsSubject.next(currentQuestion.options);
-      } else {
-        this.optionsSubject.next([]);
+        this.options = currentQuestion.options;
+        this.optionsSubject.next(this.options);
       }
     } else {
-      this.optionsSubject.next([]);
+      this.options = null;
+      this.optionsSubject.next(null);
     }
   }
 
