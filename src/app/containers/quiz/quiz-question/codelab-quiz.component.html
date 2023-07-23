@@ -1,5 +1,5 @@
-<section id="question" question-content>
-  <h3>
+<section id="question">
+  <h3 question-content>
     <ng-content select="[question-content]"></ng-content>
     {{ (explanationText$ | async) || (currentQuestion$ | async)?.questionText }}
 

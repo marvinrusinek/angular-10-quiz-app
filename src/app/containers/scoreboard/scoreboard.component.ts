@@ -5,12 +5,11 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
-  NgZone,
+  SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { ReplaySubject, Subject, throwError } from 'rxjs';
-import { catchError, takeUntil, take, tap } from 'rxjs/operators';
+import { catchError, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -33,8 +32,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private quizService: QuizService,
     private timerService: TimerService,
-    private activatedRoute: ActivatedRoute,
-    private ngZone: NgZone
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
