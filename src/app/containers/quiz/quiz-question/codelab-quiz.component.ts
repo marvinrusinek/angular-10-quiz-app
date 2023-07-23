@@ -101,6 +101,7 @@ export class CodelabQuizComponent {
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
     this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndexValue = index;
+      console.log("CQIV", this.currentQuestionIndexValue);
     });
 
 
@@ -166,6 +167,8 @@ export class CodelabQuizComponent {
   
   
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.currentQuestionSubscription.unsubscribe();
     this.explanationTextSubscription.unsubscribe();
     this.nextQuestionSubscription.unsubscribe();
