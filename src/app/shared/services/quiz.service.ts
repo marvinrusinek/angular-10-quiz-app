@@ -308,12 +308,20 @@ export class QuizService implements OnDestroy {
     return questionIndex - 1; // subtract 1 to convert to zero-based index
   }
 
-  getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
+  /* getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
     return this.currentQuestion.asObservable();
+  } */
+
+  getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
+    return this.currentQuestion$;
   }
 
-  getOptionsObservable(): Observable<Option[] | null> {
+  /* getOptionsObservable(): Observable<Option[] | null> {
     return this.optionsSubject.asObservable();
+  } */
+
+  getOptionsObservable(): Observable<Option[] | null> {
+    return this.options$;
   }
 
   getCurrentQuizId(): string {
