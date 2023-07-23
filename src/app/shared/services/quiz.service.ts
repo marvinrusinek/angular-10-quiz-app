@@ -980,7 +980,7 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion(): void {
     this.currentQuestionIndex++;
-    this.updateCurrentQuestion(this.question);
+    this.updateCurrentQuestion();
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
       this.quizId
     )}/${this.currentQuestionIndex + 1}`;
