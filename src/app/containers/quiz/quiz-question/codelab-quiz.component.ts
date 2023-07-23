@@ -88,6 +88,8 @@ export class CodelabQuizComponent {
       });
     });
 
+    
+
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
     this.options$ = this.quizService.getOptionsObservable();
     this.quizService.getOptionsObservable().subscribe((options) => {
