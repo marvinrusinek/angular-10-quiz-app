@@ -17,8 +17,8 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent { 
-  @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
-  @Input() options: Option[] = [];
+  // @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  // @Input() options: Option[] = [];
   question: QuizQuestion;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
@@ -49,7 +49,7 @@ export class CodelabQuizComponent {
     // this.currentOptions$ = this.quizStateService.currentOptions$;
 
     this.currentQuestion$ = this.quizService.getCurrentQuestionObservable();
-    // this.options$ = this.quizService.getOptionsObservable();
+    this.options$ = this.quizService.getOptionsObservable();
     this.quizService.getOptionsObservable().subscribe((options) => {
       this.options = options;
     });
@@ -68,6 +68,7 @@ export class CodelabQuizComponent {
       console.log('Question received:', question);
       if (question && question.options) {
         console.log('Options received::::::::', question.options);
+        this.options = question.options;
       }
     });
 
