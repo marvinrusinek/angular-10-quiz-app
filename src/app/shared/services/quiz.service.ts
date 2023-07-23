@@ -957,7 +957,6 @@ export class QuizService implements OnDestroy {
     }
   }
   
-
   updateCurrentOptions(options: Option[]): void {
     this.optionsSubject.next(options);
     this.currentOptionsSource.next(options);

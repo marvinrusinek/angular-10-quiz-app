@@ -913,6 +913,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
         
         this.quizService.updateCurrentOptions(nextQuestion.options);
+        this.quizService.updateCurrentQuestion();
         
         const explanationTextOfNextQuestion = nextQuestion.questionText;
         this.explanationTextSource.next(explanationTextOfNextQuestion);
