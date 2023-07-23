@@ -1,4 +1,4 @@
-<ng-container *ngIf="currentQuestion$ | async as currentQuestion && (currentQuestionIndex$ | async) as currentQuestionIndex" id="question">
+<ng-container *ngIf="(currentQuestion$ | async) as currentQuestion && (currentQuestionIndex$ | async) as currentQuestionIndex" id="question">
   <h3 question-content *ngIf="questions && questions.length > currentQuestionIndex">
     <ng-content select="[question-content]"></ng-content>
     {{ (explanationText$ | async) || questions[currentQuestionIndex]?.questionText }}
