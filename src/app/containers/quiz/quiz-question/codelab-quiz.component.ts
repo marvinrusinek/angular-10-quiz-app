@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -145,8 +145,10 @@ export class CodelabQuizComponent {
       }
     });
   
-    this.nextQuestionSubscription = this.quizService.nextQuestion$.subscribe((nextQuestion) => {
-      console.log('Next question received:', nextQuestion);
+    this.nextQuestionSubscription = this.quizService.nextQuestion$.pipe(
+      // Use the tap operator to log the received question for debugging
+      tap((nextQuestion) => console.log('Next question received:', nextQuestion))
+    ).subscribe((nextQuestion) => {
       if (nextQuestion) {
         this.currentQuestion.next(nextQuestion);
         this.currentOptions$.next(nextQuestion.options);
