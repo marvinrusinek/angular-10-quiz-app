@@ -981,13 +981,15 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion(): void {
+  async navigateToNextQuestion(): Promise<void> {
     this.currentQuestionIndex++;
+    console.log('Current question index after navigation:', this.currentQuestionIndex);
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
       this.quizId
     )}/${this.currentQuestionIndex + 1}`;
-    this.router.navigate([newUrl]);
+    await this.router.navigate([newUrl]);
+    console.log('Current question index from QuizService:', this.quizService.getCurrentQuestionIndex());
   }
 
   navigateToPreviousQuestion() {

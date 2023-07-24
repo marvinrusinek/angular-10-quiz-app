@@ -904,6 +904,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
+    console.log('Next question:', nextQuestion);
   
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
@@ -918,7 +919,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       const explanationTextOfNextQuestion = nextQuestion.questionText;
       this.explanationTextSource.next(explanationTextOfNextQuestion);
   
-      this.quizService.navigateToNextQuestion();
+      await this.quizService.navigateToNextQuestion();
+      console.log('After navigation');
 
       // Set options and questionText for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
@@ -928,6 +930,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         this.nextQuestionText = null;
       }
+
+      console.log('Next question text:', this.nextQuestionText);
+      console.log('Current options:', this.currentOptions);
     } else {
       this.nextQuestionText = null;
     }
