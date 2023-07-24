@@ -20,10 +20,10 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 })
 export class CodelabQuizComponent { 
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
+  @Input() question: QuizQuestion;
+  @Input() questions: QuizQuestion[];
   @Input() options: Option[] = [];
   quizId: string = '';
-  question: QuizQuestion;
-  questions: QuizQuestion[];
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
