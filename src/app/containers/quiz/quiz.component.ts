@@ -88,8 +88,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   questions: QuizQuestion[];
   question$!: Observable<QuizQuestion>;
   currentQuestion: QuizQuestion;
-  // currentQuestion$!: Observable<QuizQuestion | null>;
-  currentQuestion$!: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
   // currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentOptions: Option[] = [];
@@ -907,7 +906,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion = await this.quizService.getNextQuestion();
   
     if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion$.next(nextQuestion);
+      this.currentQuestion = nextQuestion;
       this.currentOptions = nextQuestion.options;
   
       this.nextQuestionText = nextQuestion.questionText;
