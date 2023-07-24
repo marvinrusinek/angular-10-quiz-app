@@ -911,7 +911,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
-      
+
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
       this.quizService.updateCurrentOptions(nextQuestion.options);
       
@@ -919,6 +919,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextSource.next(explanationTextOfNextQuestion);
   
       this.quizService.navigateToNextQuestion();
+
+      // Set options and questionText for the next question
+      const nextQuestionIndex = this.currentQuestionIndex + 1;
+      if (this.selectedQuiz.questions[nextQuestionIndex]) {
+        this.nextQuestionText = this.selectedQuiz.questions[nextQuestionIndex].questionText;
+        this.currentOptions = this.selectedQuiz.questions[nextQuestionIndex].options;
+      } else {
+        this.nextQuestionText = null;
+      }
     } else {
       this.nextQuestionText = null;
     }
