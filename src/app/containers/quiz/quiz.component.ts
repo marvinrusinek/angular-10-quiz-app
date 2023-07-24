@@ -892,8 +892,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/  
   async advanceToNextQuestion(): Promise<void> {
-    console.log('Next button clicked');
-  
     if (!this.selectedQuiz) {
       return;
     }
@@ -935,6 +933,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Current options:', this.currentOptions);
     } else {
       this.nextQuestionText = null;
+      this.currentOptions = null;
     }
   }
     
