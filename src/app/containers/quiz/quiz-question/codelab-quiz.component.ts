@@ -195,11 +195,6 @@ export class CodelabQuizComponent {
     return '';
   }
 
-  areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
-    return question1.questionText === question2.questionText &&
-           JSON.stringify(question1.options) === JSON.stringify(question2.options);
-  }  
-
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
     return numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
@@ -216,4 +211,9 @@ export class CodelabQuizComponent {
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
   }
+
+  areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
+    return question1.questionText === question2.questionText &&
+           JSON.stringify(question1.options) === JSON.stringify(question2.options);
+  }  
 }
