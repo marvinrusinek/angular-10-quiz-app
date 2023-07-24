@@ -2,6 +2,12 @@
   <h3 question-content>
     <ng-content select="[question-content]"></ng-content>
     {{ (explanationText$ | async) || getQuestionText(currentQuestion, questions) }}
+
+    <ng-container *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers">
+      <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
+        {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
+      </span>
+    </ng-container>
   </h3>
 </section>
 
