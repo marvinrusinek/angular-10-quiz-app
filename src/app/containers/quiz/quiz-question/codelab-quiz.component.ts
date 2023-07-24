@@ -61,7 +61,6 @@ export class CodelabQuizComponent {
       .pipe(
         switchMap((params) => {
           this.quizId = params.get('quizId');
-          console.log('Current quizId:::', this.quizId);
           if (this.quizId) {
             return this.quizDataService.getQuestionsForQuiz(this.quizId);
           } else {
@@ -71,7 +70,6 @@ export class CodelabQuizComponent {
         takeUntil(this.destroy$)
       )
       .subscribe((questions) => {
-        console.log('Fetched questions:::', questions);
         if (questions) {
           this.questions = questions;
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
@@ -176,10 +174,12 @@ export class CodelabQuizComponent {
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
-    if (currentQuestion && questions && questions.length > 0) {
+    console.log('getQuestionText - currentQuestion:::::>>>>', currentQuestion);
+    console.log('getQuestionText - questions::::::>>>>>>', questions);
+    if (currentQuestion && questions && questions?.length > 0) {
       const currentQuestionIndex = questions.findIndex(q => q === currentQuestion);
       if (currentQuestionIndex >= 0) {
-        return questions[currentQuestionIndex].questionText;
+        return questions[currentQuestionIndex]?.questionText;
       }
     }
     return '';
