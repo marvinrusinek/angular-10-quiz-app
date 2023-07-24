@@ -245,7 +245,7 @@ export class QuizDataService {
         return questions;
       }),
       distinctUntilChanged((prevQuestions, currQuestions) => {
-        // Compare arrays by their length and elements
+        // compare arrays by their length and elements
         return JSON.stringify(prevQuestions) === JSON.stringify(currQuestions);
       })
     );
