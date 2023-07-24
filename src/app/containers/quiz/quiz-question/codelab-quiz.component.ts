@@ -173,17 +173,54 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription.unsubscribe();
   }
 
-  getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
-    console.log('getQuestionText - currentQuestion:::::>>>>', currentQuestion);
-    console.log('getQuestionText - questions::::::>>>>>>', questions);
-    if (currentQuestion && questions && questions?.length > 0) {
-      const currentQuestionIndex = questions.findIndex(q => q === currentQuestion);
+  /* getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
+    console.log('getQuestionText - currentQuestion:', currentQuestion);
+    console.log('getQuestionText - questions:', questions);
+    if (currentQuestion && questions && questions.length > 0) {
+      const currentQuestionIndex = questions.findIndex(q => JSON.stringify(q) === JSON.stringify(currentQuestion));
+      console.log('getQuestionText - currentQuestionIndex:', currentQuestionIndex);
       if (currentQuestionIndex >= 0) {
+        console.log('getQuestionText - questionText:', questions[currentQuestionIndex]?.questionText);
         return questions[currentQuestionIndex]?.questionText;
       }
     }
     return '';
+  } */
+  
+  /* getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
+    console.log('getQuestionText - currentQuestion:', currentQuestion);
+    console.log('getQuestionText - questions:', questions);
+    if (currentQuestion && questions && questions.length > 0) {
+      for (let i = 0; i < questions.length; i++) {
+        if (JSON.stringify(questions[i]) === JSON.stringify(currentQuestion)) {
+          console.log('getQuestionText - currentQuestionIndex:', i);
+          console.log('getQuestionText - questionText:', questions[i].questionText);
+          return questions[i].questionText;
+        }
+      }
+    }
+    return '';
+  } */
+
+  getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
+    console.log('getQuestionText - currentQuestion:', currentQuestion);
+    console.log('getQuestionText - questions:', questions);
+    if (currentQuestion && questions && questions.length > 0) {
+      for (let i = 0; i < questions.length; i++) {
+        if (this.areQuestionsEqual(questions[i], currentQuestion)) {
+          console.log('getQuestionText - currentQuestionIndex:', i);
+          console.log('getQuestionText - questionText:', questions[i].questionText);
+          return questions[i].questionText;
+        }
+      }
+    }
+    return '';
   }
+
+  areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
+    return question1.questionText === question2.questionText &&
+           JSON.stringify(question1.options) === JSON.stringify(question2.options);
+  }  
 
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
     return numberOfCorrectAnswers === 1
