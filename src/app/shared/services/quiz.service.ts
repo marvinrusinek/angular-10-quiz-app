@@ -989,7 +989,7 @@ export class QuizService implements OnDestroy {
       this.quizId
     )}/${this.currentQuestionIndex + 1}`;
     this.router.navigate([newUrl]);
-    console.log('Current question index from QuizService:', this.quizService.getCurrentQuestionIndex());
+    console.log('Current question index from QuizService:', this.getCurrentQuestionIndex());
   }
 
   navigateToPreviousQuestion() {
