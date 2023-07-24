@@ -173,35 +173,6 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription.unsubscribe();
   }
 
-  /* getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
-    console.log('getQuestionText - currentQuestion:', currentQuestion);
-    console.log('getQuestionText - questions:', questions);
-    if (currentQuestion && questions && questions.length > 0) {
-      const currentQuestionIndex = questions.findIndex(q => JSON.stringify(q) === JSON.stringify(currentQuestion));
-      console.log('getQuestionText - currentQuestionIndex:', currentQuestionIndex);
-      if (currentQuestionIndex >= 0) {
-        console.log('getQuestionText - questionText:', questions[currentQuestionIndex]?.questionText);
-        return questions[currentQuestionIndex]?.questionText;
-      }
-    }
-    return '';
-  } */
-  
-  /* getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
-    console.log('getQuestionText - currentQuestion:', currentQuestion);
-    console.log('getQuestionText - questions:', questions);
-    if (currentQuestion && questions && questions.length > 0) {
-      for (let i = 0; i < questions.length; i++) {
-        if (JSON.stringify(questions[i]) === JSON.stringify(currentQuestion)) {
-          console.log('getQuestionText - currentQuestionIndex:', i);
-          console.log('getQuestionText - questionText:', questions[i].questionText);
-          return questions[i].questionText;
-        }
-      }
-    }
-    return '';
-  } */
-
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     console.log('getQuestionText - currentQuestion:', currentQuestion);
     console.log('getQuestionText - questions:', questions);
