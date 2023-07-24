@@ -31,6 +31,7 @@ export class CodelabQuizComponent {
   // options$: Observable<string[]>;
   options$: Observable<Option[]>; 
   currentQuestionIndex$: Observable<number>;
+  nextQuestion$: Observable<QuizQuestion | null>;
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
@@ -144,6 +145,10 @@ export class CodelabQuizComponent {
         this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers);
       }
     });
+
+    this.nextQuestion$ = this.quizService.nextQuestion$.pipe(
+      tap((nextQuestion) => console.log('Next question emitted:', nextQuestion))
+    );
   
     this.nextQuestionSubscription = this.quizService.nextQuestion$.pipe(
       // Use the tap operator to log the received question for debugging
