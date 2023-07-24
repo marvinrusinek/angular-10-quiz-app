@@ -187,8 +187,8 @@ export class CodelabQuizComponent {
       for (let i = 0; i < questions.length; i++) {
         if (this.areQuestionsEqual(questions[i], currentQuestion)) {
           console.log('getQuestionText - currentQuestionIndex:', i);
-          console.log('getQuestionText - questionText:', questions[i].questionText);
-          return questions[i].questionText;
+          console.log('getQuestionText - questionText:', questions[i]?.questionText);
+          return questions[i]?.questionText;
         }
       }
     }
