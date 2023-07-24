@@ -175,9 +175,9 @@ export class CodelabQuizComponent {
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
-      const currentQuestionIndex = questions.indexOf(currentQuestion);
+      const currentQuestionIndex = questions.findIndex(q => q === currentQuestion);
       if (currentQuestionIndex >= 0) {
-        return questions[currentQuestionIndex]?.questionText;
+        return questions[currentQuestionIndex].questionText;
       }
     }
     return '';
