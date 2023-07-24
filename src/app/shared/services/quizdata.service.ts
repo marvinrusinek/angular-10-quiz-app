@@ -246,15 +246,7 @@ export class QuizDataService {
       }),
       distinctUntilChanged((prevQuestions, currQuestions) => {
         // Compare arrays by their length and elements
-        if (prevQuestions.length !== currQuestions.length) {
-          return false;
-        }
-        for (let i = 0; i < prevQuestions.length; i++) {
-          if (prevQuestions[i] !== currQuestions[i]) {
-            return false;
-          }
-        }
-        return true;
+        return JSON.stringify(prevQuestions) === JSON.stringify(currQuestions);
       })
     );
   }

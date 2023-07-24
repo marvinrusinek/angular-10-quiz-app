@@ -61,6 +61,7 @@ export class CodelabQuizComponent {
       .pipe(
         switchMap((params) => {
           this.quizId = params.get('quizId');
+          console.log('Current quizId:::', this.quizId);
           if (this.quizId) {
             return this.quizDataService.getQuestionsForQuiz(this.quizId);
           } else {
@@ -70,6 +71,7 @@ export class CodelabQuizComponent {
         takeUntil(this.destroy$)
       )
       .subscribe((questions) => {
+        console.log('Fetched questions:::', questions);
         if (questions) {
           this.questions = questions;
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
