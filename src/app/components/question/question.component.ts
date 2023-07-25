@@ -658,7 +658,7 @@ export class QuizQuestionComponent
     if (!isOptionSelected) {
       this.selectedOptions = [option];
       this.optionChecked = { [option.optionId]: true };
-      this.showFeedbackForOption = { [option.optionId]: true }; // Show feedback for the selected option
+      this.showFeedbackForOption = { [option.optionId]: true }; // show feedback for the selected option
       this.showFeedback = true;
       this.selectedOption = option;
       this.selectionMessageService.updateSelectionMessage(
