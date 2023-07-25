@@ -1,7 +1,6 @@
 <codelab-quiz-cp-component>
   <section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
     <h3 question-content>
-      <ng-content select="[question-content]"></ng-content>
       <ng-container>
         {{
           (explanationText$ | async) ||
