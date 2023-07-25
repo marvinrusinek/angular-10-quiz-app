@@ -656,26 +656,23 @@ export class QuizQuestionComponent
     const isOptionSelected = index !== -1;
   
     if (!isOptionSelected) {
-      this.selectedOptions.push(option);
-      this.selectedOption = option;
-      this.optionChecked[option.optionId] = true;
-      this.showFeedbackForOption[option.optionId] = true;
+      this.selectedOptions = [option];
+      this.optionChecked = { [option.optionId]: true };
+      this.showFeedbackForOption = { [option.optionId]: true }; // Show feedback for the selected option
       this.showFeedback = true;
+      this.selectedOption = option;
       this.selectionMessageService.updateSelectionMessage(
         'Please click the next button to continue...'
       );
     } else {
-      this.selectedOptions.splice(index, 1);
+      this.selectedOptions = [];
+      this.optionChecked = {};
+      this.showFeedbackForOption = {};
+      this.showFeedback = false;
       this.selectedOption = null;
-      this.optionChecked[option.optionId] = false;
-      this.showFeedbackForOption[option.optionId] = false;
-  
-      if (this.selectedOptions.length === 0) {
-        this.showFeedback = false;
-        this.selectionMessageService.updateSelectionMessage(
-          'Please select an option to continue...'
-        );
-      }
+      this.selectionMessageService.updateSelectionMessage(
+        'Please select an option to continue...'
+      );
     }
   
     this.optionClicked.emit();
@@ -701,7 +698,7 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-
+  
   updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
