@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription, zip } from 'rxjs';
+import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -33,7 +33,7 @@ export class CodelabQuizComponent {
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   numberOfCorrectAnswers: number = 0;
-  numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  // numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   shouldDisplayNumberOfCorrectAnswers: boolean;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
@@ -41,6 +41,7 @@ export class CodelabQuizComponent {
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
   currentQuestionIndexValue: number;
+  numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -170,6 +171,21 @@ export class CodelabQuizComponent {
       const displayed = !!explanationText;
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
+
+    combineLatest([this.currentQuestion$, this.numberOfCorrectAnswers$])
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([question, numberOfCorrectAnswers]) => {
+        if (question) {
+          this.quizQuestionManagerService.setCurrentQuestion(question);
+          this.nextQuestion$.next(question);
+
+          // Update the number of correct answers
+          const numberOfCorrectAnswersCount = this.calculateNumberOfCorrectAnswers(question);
+          this.numberOfCorrectAnswers$.next(numberOfCorrectAnswersCount.toString());
+        }
+      });
   }
   
   ngOnDestroy(): void {
@@ -199,8 +215,8 @@ export class CodelabQuizComponent {
     return numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
-  }
-   
+  } 
+
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
     if (question) {
       return question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
