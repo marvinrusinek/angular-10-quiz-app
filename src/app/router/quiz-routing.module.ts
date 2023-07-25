@@ -10,14 +10,23 @@ import { QuizGuard } from './guards/quiz.guard';
 const routes: Routes = [
   { path: '', redirectTo: 'select', pathMatch: 'full' },
   { path: 'select', component: QuizSelectionComponent, pathMatch: 'full' },
-  { path: 'intro/:quizId', component: IntroductionComponent, pathMatch: 'full' },
-  { path: 'question/:quizId/:questionIndex', component: QuizComponent, pathMatch: 'full',
-    canActivate: [QuizGuard], runGuardsAndResolvers: 'always' },
-  { path: 'results/:quizId', component: ResultsComponent, pathMatch: 'full' }
+  {
+    path: 'intro/:quizId',
+    component: IntroductionComponent,
+    pathMatch: 'full',
+  },
+  {
+    path: 'question/:quizId/:questionIndex',
+    component: QuizComponent,
+    pathMatch: 'full',
+    canActivate: [QuizGuard],
+    runGuardsAndResolvers: 'always',
+  },
+  { path: 'results/:quizId', component: ResultsComponent, pathMatch: 'full' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class QuizRoutingModule {}
