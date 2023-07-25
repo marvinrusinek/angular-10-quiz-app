@@ -701,7 +701,7 @@ export class QuizQuestionComponent
       selectedOptions: this.selectedOptions,
     });
   }
-    
+
   updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
