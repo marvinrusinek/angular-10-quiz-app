@@ -1,14 +1,24 @@
-<section *ngIf="(currentQuestion$ | async) as currentQuestion" id="question">
-  <h3 question-content>
-    <ng-content select="[question-content]"></ng-content>
+<codelab-quiz-cp-component>
+  <section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
+    <h3 question-content>
+      <ng-content select="[question-content]"></ng-content>
       <ng-container>
-        {{ (explanationText$ | async) || getQuestionText(currentQuestion, questions) }} 
+        {{
+          (explanationText$ | async) ||
+            getQuestionText(currentQuestion, questions)
+        }}
 
-        <ng-container *ngIf="(numberOfCorrectAnswers$ | async) as numberOfCorrectAnswers">
-          <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount()">
+        <ng-container
+          *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers"
+        >
+          <span
+            class="number-correct"
+            *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"
+          >
             {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
           </span>
+        </ng-container>
       </ng-container>
-    </ng-container>
-  </h3>
-</section>
+    </h3>
+  </section>
+</codelab-quiz-cp-component>
