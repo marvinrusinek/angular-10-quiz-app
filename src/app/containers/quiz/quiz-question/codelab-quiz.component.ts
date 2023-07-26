@@ -186,6 +186,24 @@ export class CodelabQuizComponent {
     });
 
     // Use combineLatest to combine explanationText$ and currentQuestion$ observables
+    /* this.combinedQuestionData$ = combineLatest([
+      this.explanationText$,
+      this.currentQuestion$,
+      this.numberOfCorrectAnswers$
+    ]).pipe(
+      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
+        // Use the explanationText$ value if available, otherwise get question text
+        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+
+        // Get the number of correct answers text if available
+        const correctAnswersText = numberOfCorrectAnswers !== undefined
+          ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
+          : '';
+
+        return { questionText, correctAnswersText };
+      })
+    ); */
+
     this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       this.currentQuestion$,
