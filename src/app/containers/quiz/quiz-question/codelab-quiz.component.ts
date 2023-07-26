@@ -42,7 +42,7 @@ export class CodelabQuizComponent {
   explanationText$ = this.explanationTextSource.asObservable();
   currentQuestionIndexValue: number;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  combinedData$: Observable<string>;
+  combinedData$: Observable<{ questionText: string; correctAnswersText: string }>;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -173,16 +173,22 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    // Combine the explanationText$, currentQuestion$, and numberOfCorrectAnswers$ observables
-    this.combinedData$ = combineLatest([this.explanationText$, this.currentQuestion$, this.numberOfCorrectAnswers$])
+    // Combine the explanationText$ and currentQuestion$ observables first
+    const combinedText$ = combineLatest([this.explanationText$, this.currentQuestion$])
       .pipe(
-        map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
+        map(([explanationText, currentQuestion]) => {
           // Use the explanationText$ value if available, otherwise get question text
           const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+          return questionText;
+        })
+      );
 
+    // Combine the combinedText$ with numberOfCorrectAnswers$ using switchMap
+    this.combinedData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
+      .pipe(
+        map(([questionText, numberOfCorrectAnswers]) => {
           // Get the number of correct answers text if available
           const correctAnswersText = numberOfCorrectAnswers !== undefined ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers) : '';
-
           return { questionText, correctAnswersText };
         })
       );

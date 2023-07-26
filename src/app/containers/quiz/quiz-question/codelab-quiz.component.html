@@ -65,10 +65,9 @@
 <section *ngIf="combinedData$ | async as data" id="question">
   <h3 question-content>
     <!-- Display the question text -->
-    <span>{{ data.questionText }} </span>
-
+    <span>{{ data?.questionText }} </span>
     <!-- Display the number of correct answers text with appropriate styling -->
-    <span [innerHTML]="data.correctAnswersText" class="number-correct"></span>
+    <span [innerHTML]="data?.correctAnswersText" class="number-correct"></span>
   </h3>
 </section>
 
