@@ -183,11 +183,7 @@ export class CodelabQuizComponent {
           // Get the number of correct answers text if available
           const correctAnswersText = numberOfCorrectAnswers !== undefined ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers) : '';
 
-          // Check if we have both questionText and correctAnswersText, and then style the correctAnswersText
-          const hasCorrectAnswers = !!correctAnswersText;
-          const combinedText = hasCorrectAnswers ? `${questionText} <span style="color: green !important; font-style: italic !important;">${correctAnswersText}</span>` : questionText;
-
-          return combinedText;
+          return { questionText, correctAnswersText };
         })
       );
   }
