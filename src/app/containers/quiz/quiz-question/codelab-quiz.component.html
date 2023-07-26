@@ -1,6 +1,6 @@
 <section *ngIf="combinedQuestionData$ | async as data" id="question">
   <h3 question-content>
-    <span>{{ data?.questionText }} </span>
+    <span *ngIf="data.questionText">{{ data?.questionText }} </span>
     <span *ngIf="data?.correctAnswersText" class="number-correct" [innerHTML]="data?.correctAnswersText"></span>
   </h3>
 </section>
