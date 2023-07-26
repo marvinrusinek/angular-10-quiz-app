@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -185,10 +185,25 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
+    /* this.combinedQuestionData$ = this.explanationText$.pipe(
+      withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
+      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
+        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+
+        const correctAnswersText = numberOfCorrectAnswers !== undefined
+          ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
+          : '';
+
+        return { questionText, correctAnswersText };
+      })
+    ); */
+
     this.combinedQuestionData$ = this.explanationText$.pipe(
       withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
 
         const correctAnswersText = numberOfCorrectAnswers !== undefined
           ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
