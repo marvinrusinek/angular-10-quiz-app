@@ -156,7 +156,7 @@ export class CodelabQuizComponent {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question);
-        this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers);
+        this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers.toString());
       }
     });
 
