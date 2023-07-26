@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, combineLatestWith, forkJoin, Observable, of, ReplaySubject, Subject, Subscription, timer, zip } from 'rxjs';
-import { delay, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { filter, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -185,32 +185,11 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    /* this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
-      this.currentQuestion$,
-      this.numberOfCorrectAnswers$
-    ]).pipe(
-      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        // Use the explanationText$ value if available, otherwise get question text
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-
-        // Get the number of correct answers text if available
-        const correctAnswersText = numberOfCorrectAnswers !== undefined
-          ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
-          : '';
-
-        return { questionText, correctAnswersText };
-      })
-    ); */
-
     this.combinedQuestionData$ = this.explanationText$.pipe(
       withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        // Use the explanationText$ value if available, otherwise get question text
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
 
-        // Get the number of correct answers text if available
         const correctAnswersText = numberOfCorrectAnswers !== undefined
           ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
           : '';
