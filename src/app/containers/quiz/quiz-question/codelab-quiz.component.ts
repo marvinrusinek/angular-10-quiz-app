@@ -202,13 +202,13 @@ export class CodelabQuizComponent {
       withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-
+    
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-
-        const correctAnswersText = questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined
+    
+        const correctAnswersText = questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined && this.numberOfCorrectAnswers > 1
           ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
           : '';
-
+    
         return { questionText, correctAnswersText };
       })
     );
