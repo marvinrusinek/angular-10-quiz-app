@@ -173,7 +173,7 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    this.combinedData$ = combineLatest([this.explanationText$, this.currentQuestion$, this.numberOfCorrectAnswers$])
+    /* this.combinedData$ = combineLatest([this.explanationText$, this.currentQuestion$, this.numberOfCorrectAnswers$])
       .pipe(
         map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
           // Use the explanationText$ value if available, otherwise get question text
@@ -185,6 +185,36 @@ export class CodelabQuizComponent {
           return { questionText, correctAnswersText };
         }),
         tap(() => {}) // Use tap to trigger the emission of the combined data
+      ); */
+
+      // Use a flag to determine when both explanationText$ and currentQuestion$ have emitted their values
+      let flagExplanationTextEmitted = false;
+      let flagCurrentQuestionEmitted = false;
+
+      // Use combineLatest to combine explanationText$ and currentQuestion$ observables
+      const combinedText$ = combineLatest([this.explanationText$, this.currentQuestion$])
+        .pipe(
+          map(([explanationText, currentQuestion]) => {
+            // Set the flags to true when values are emitted
+            flagExplanationTextEmitted = true;
+            flagCurrentQuestionEmitted = true;
+
+            // Use the explanationText$ value if available, otherwise get question text
+            const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+            return questionText;
+          })
+        );
+      
+      // Combine combinedText$ with numberOfCorrectAnswers$ using combineLatest again
+      this.combinedData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
+      .pipe(
+        map(([questionText, numberOfCorrectAnswers]) => {
+          // Get the number of correct answers text if available
+          const correctAnswersText = flagCurrentQuestionEmitted && numberOfCorrectAnswers !== undefined
+            ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
+            : '';
+          return { questionText, correctAnswersText };
+        })
       );
   }
   
