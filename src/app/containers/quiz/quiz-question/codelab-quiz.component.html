@@ -26,3 +26,24 @@
     <span *ngIf="data.correctAnswersText" class="number-correct" [innerHTML]="data?.correctAnswersText"></span>
   </h3>
 </section>
+
+
+<!--<ng-container *ngIf="combinedQuestionData$ | async as data">
+<section id="question">
+  <h3 question-content>
+    <span [innerHTML]="data?.questionText"></span>
+    <span *ngIf="data.correctAnswersText" class="number-correct" [innerHTML]="data?.correctAnswersText"></span>
+  </h3>
+</section>
+</ng-container>
+-->
+
+<!--<ng-container *ngIf="combinedQuestionData$ | async as data">
+<section id="question">
+  <h3 question-content>
+    <span [innerHTML]="data?.questionText"></span>
+
+    <span [innerHTML]="data?.correctAnswersText"></span>
+  </h3>
+</section>
+</ng-container>-->

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, ReplaySubject, Subject, Subscription, timer, zip } from 'rxjs';
 import { delay, filter, map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -43,6 +43,7 @@ export class CodelabQuizComponent {
   currentQuestionIndexValue: number;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   combinedQuestionData$: Observable<{ questionText: string; correctAnswersText: string }>;
+  private combinedDataSubject: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject<{ questionText: string; correctAnswersText: string }>({ questionText: '', correctAnswersText: '' });
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -216,12 +217,25 @@ export class CodelabQuizComponent {
     return '';
   }
 
-  getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
+  /* getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number | undefined): string {
     const correctAnswersText = numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
 
     return correctAnswersText;
+  } */
+
+  getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number | undefined): string {
+    if (numberOfCorrectAnswers === undefined) {
+      return '';
+    }
+
+    const correctAnswersText = numberOfCorrectAnswers === 1
+      ? `(${numberOfCorrectAnswers} answer is correct)`
+      : `(${numberOfCorrectAnswers} answers are correct)`;
+
+    // Apply inline styles for green color and italic font
+    return `<span class="number-correct">${correctAnswersText}</span>`;
   }
 
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
