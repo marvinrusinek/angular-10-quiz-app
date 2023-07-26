@@ -43,7 +43,7 @@ export class CodelabQuizComponent {
   currentQuestionIndexValue: number;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   combinedQuestionData$: Observable<{ questionText: string; correctAnswersText: string }>;
-  private combinedDataSubject: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject<{ questionText: string; correctAnswersText: string }>({ questionText: '', correctAnswersText: '' });
+  combinedDataSubject$: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject({ questionText: '', correctAnswersText: '' });
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -175,7 +175,7 @@ export class CodelabQuizComponent {
     });
 
     // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    /* this.combinedQuestionData$ = combineLatest([
+    this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       this.currentQuestion$,
       this.numberOfCorrectAnswers$
@@ -191,9 +191,7 @@ export class CodelabQuizComponent {
 
         return { questionText, correctAnswersText };
       })
-    ); */
-
-    
+    );
   }
 
   ngOnDestroy(): void {
@@ -241,5 +239,5 @@ export class CodelabQuizComponent {
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return question1.questionText === question2.questionText &&
            JSON.stringify(question1.options) === JSON.stringify(question2.options);
-  }  
+  }
 }
