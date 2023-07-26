@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, Subscription} from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -15,7 +15,7 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
   selector: 'codelab-quiz-cp-component',
   templateUrl: './codelab-quiz.component.html',
   styleUrls: ['./codelab-quiz.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizComponent {
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
@@ -59,6 +59,7 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
+    console.log('Current Question Observable:', this.currentQuestion$);
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
@@ -100,7 +101,15 @@ export class CodelabQuizComponent {
     });
 
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
+      console.log(
+        'CodelabQuizComponent - Current Question received:',
+        question
+      );
       this.currentQuestion$ = of(question);
+      console.log(
+        'CodelabQuizComponent - currentQuestion$:',
+        this.currentQuestion$
+      );
     });
 
     this.quizStateService.currentOptions$.subscribe((options) => {
@@ -119,21 +128,22 @@ export class CodelabQuizComponent {
       this.currentQuestionIndexValue = index;
     });
 
-    /* this.currentQuestion$.subscribe((question) => {
+    this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
         console.log('Options received::::::::', question.options);
       }
-    }); */
+    });
 
-    /* this.currentOptions$.subscribe((options) => {
+    this.currentOptions$.subscribe((options) => {
       console.log('THE Current Options:', options);
-    }); */
+    });
 
     this.currentOptions$.subscribe((options) => {
       this.options = options;
     });
 
     this.quizStateService.currentOptions$.subscribe((options) => {
+      console.log('Options received:', options);
       this.options = options;
     });
 
