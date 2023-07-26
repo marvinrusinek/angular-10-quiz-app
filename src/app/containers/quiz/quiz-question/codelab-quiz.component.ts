@@ -197,32 +197,22 @@ export class CodelabQuizComponent {
 
   private initializeCombinedQuestionData(): void {
     this.combinedQuestionData$ = this.explanationText$.pipe(
-      withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
-      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        const questionText =
-          explanationText ||
-          this.getQuestionText(currentQuestion, this.questions);
-
-        const questionHasMultipleAnswers =
-          this.quizStateService.isMultipleAnswer();
-
+      withLatestFrom(this.currentQuestion$, this.currentOptions$, this.numberOfCorrectAnswers$),
+      map(([explanationText, currentQuestion, currentOptions, numberOfCorrectAnswers]) => {
+        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+  
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
+  
         let correctAnswersText = '';
-        if (
-          questionHasMultipleAnswers &&
-          !explanationText &&
-          numberOfCorrectAnswers !== undefined &&
-          +numberOfCorrectAnswers > 1
-        ) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(
-            +numberOfCorrectAnswers
-          );
+        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
-
-        return { questionText, correctAnswersText };
+  
+        return { questionText, correctAnswersText, currentOptions };
       })
     );
   }
-
+  
   getQuestionText(
     currentQuestion: QuizQuestion,
     questions: QuizQuestion[]
