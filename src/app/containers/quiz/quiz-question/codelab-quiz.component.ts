@@ -222,7 +222,7 @@ export class CodelabQuizComponent {
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
     
         let correctAnswersText = '';
-        if (questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
     
