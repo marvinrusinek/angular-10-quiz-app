@@ -1,49 +1,6 @@
-<!--<section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
-  <h3 question-content>
-    <ng-container>
-      {{
-        (explanationText$ | async) ||
-        getQuestionText(currentQuestion, questions)
-      }}
-
-      <ng-container
-        *ngIf="numberOfCorrectAnswers$ | async as numberOfCorrectAnswers"
-      >
-        <span
-          class="number-correct"
-          *ngIf="shouldDisplayNumberOfCorrectAnswersCount()"
-        >
-          {{ getNumberOfCorrectAnswersText(numberOfCorrectAnswers) }}
-        </span>
-      </ng-container>
-    </ng-container>
-  </h3>
-</section>-->
-
 <section *ngIf="combinedQuestionData$ | async as data" id="question">
   <h3 question-content>
     <span>{{ data?.questionText }} </span>
     <span *ngIf="data.correctAnswersText" class="number-correct" [innerHTML]="data?.correctAnswersText"></span>
   </h3>
 </section>
-
-
-<!--<ng-container *ngIf="combinedQuestionData$ | async as data">
-<section id="question">
-  <h3 question-content>
-    <span [innerHTML]="data?.questionText"></span>
-    <span *ngIf="data.correctAnswersText" class="number-correct" [innerHTML]="data?.correctAnswersText"></span>
-  </h3>
-</section>
-</ng-container>
--->
-
-<!--<ng-container *ngIf="combinedQuestionData$ | async as data">
-<section id="question">
-  <h3 question-content>
-    <span [innerHTML]="data?.questionText"></span>
-
-    <span [innerHTML]="data?.correctAnswersText"></span>
-  </h3>
-</section>
-</ng-container>-->
