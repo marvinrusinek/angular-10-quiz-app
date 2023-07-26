@@ -216,28 +216,12 @@ export class CodelabQuizComponent {
     return '';
   }
 
-  /* getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
-    return numberOfCorrectAnswers === 1
-      ? `(${numberOfCorrectAnswers} answer is correct)`
-      : `(${numberOfCorrectAnswers} answers are correct)`;
-  } */
-
-  /* getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
-    const correctAnswersText = numberOfCorrectAnswers === 1
-      ? ` (${numberOfCorrectAnswers} answer is correct)`
-      : ` (${numberOfCorrectAnswers} answers are correct)`;
-
-    // Apply inline styles for green color and italic font
-    return `<span class="number-correct">${correctAnswersText}</span>`;
-  } */
-
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
     const correctAnswersText = numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
 
-    // Styling in TypeScript using backticks
-    return `<span style="color: green; font-style: italic;">${correctAnswersText}</span>`;
+    return correctAnswersText;
   }
 
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
