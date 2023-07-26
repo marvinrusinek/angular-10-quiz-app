@@ -1,7 +1,21 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import {
+  filter,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+  withLatestFrom,
+} from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -15,7 +29,7 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
   selector: 'codelab-quiz-cp-component',
   templateUrl: './codelab-quiz.component.html',
   styleUrls: ['./codelab-quiz.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CodelabQuizComponent {
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
@@ -26,7 +40,9 @@ export class CodelabQuizComponent {
   quizId: string = '';
   currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>(
+    []
+  );
   options$: Observable<Option[]>;
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
@@ -95,7 +111,7 @@ export class CodelabQuizComponent {
         }
       });
 
-    this.currentOptions$ = this.quizService.getOptionsObservable().asObservable();
+    this.currentOptions$ = this.quizService.getOptionsObservable();
     this.currentOptions$.subscribe((options) => {
       this.options = options;
     });
