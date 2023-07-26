@@ -195,7 +195,7 @@ export class CodelabQuizComponent {
     );
   }
 
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = combineLatest([
       this.currentQuestion$,
       this.currentOptions$
@@ -216,7 +216,32 @@ export class CodelabQuizComponent {
         return { questionText, correctAnswersText, currentOptions };
       })
     );
+  } */
+
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
+      withLatestFrom(this.currentOptions$),
+      map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
+    );
+  
+    this.combinedQuestionData$ = this.explanationText$.pipe(
+      withLatestFrom(currentQuestionAndOptions$, this.numberOfCorrectAnswers$),
+      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
+        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+  
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
+  
+        let correctAnswersText = '';
+        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+        }
+  
+        return { questionText, correctAnswersText, currentOptions };
+      })
+    );
   }
+  
+  
   
   getQuestionText(
     currentQuestion: QuizQuestion,
