@@ -42,7 +42,7 @@ export class CodelabQuizComponent {
   explanationText$ = this.explanationTextSource.asObservable();
   currentQuestionIndexValue: number;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  combinedData$: Observable<{ questionText: string; correctAnswersText: string }>;
+  combinedQuestionData$: Observable<{ questionText: string; correctAnswersText: string }>;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -199,7 +199,7 @@ export class CodelabQuizComponent {
 
   // Combine combinedText$ with numberOfCorrectAnswers$ using combineLatest again,
   // but introduce a delay to ensure both data streams are emitted at the same time
-  this.combinedData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
+  this.combinedQuestionData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
     .pipe(
       map(([questionText, numberOfCorrectAnswers]) => {
         // Introduce a delay of 0ms to synchronize both data streams
