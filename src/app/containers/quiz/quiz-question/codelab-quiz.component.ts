@@ -175,7 +175,7 @@ export class CodelabQuizComponent {
     });
 
     // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       this.currentQuestion$,
       this.numberOfCorrectAnswers$
@@ -191,7 +191,9 @@ export class CodelabQuizComponent {
 
         return { questionText, correctAnswersText };
       })
-    );
+    ); */
+
+    
   }
 
   ngOnDestroy(): void {
