@@ -1,21 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-} from 'rxjs';
-import {
-  filter,
-  map,
-  switchMap,
-  takeUntil,
-  tap,
-  withLatestFrom,
-} from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, Subscription} from 'rxjs';
+import { filter, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -111,7 +97,7 @@ export class CodelabQuizComponent {
         }
       });
 
-    this.currentOptions$ = this.quizService.getOptionsObservable();
+    this.currentOptions$ = this.quizService.getOptionsObservable().asObservable();
     this.currentOptions$.subscribe((options) => {
       this.options = options;
     });
