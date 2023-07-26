@@ -202,7 +202,7 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription.unsubscribe();
   }
 
-  function getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
+  getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
       for (let i = 0; i < questions.length; i++) {
         if (this.areQuestionsEqual(questions[i], currentQuestion)) {
