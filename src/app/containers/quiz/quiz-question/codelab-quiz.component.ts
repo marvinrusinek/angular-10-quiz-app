@@ -2,14 +2,12 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
-  combineLatest,
   Observable,
   of,
   Subject,
   Subscription,
 } from 'rxjs';
 import {
-  filter,
   map,
   switchMap,
   takeUntil,
@@ -40,9 +38,7 @@ export class CodelabQuizComponent {
   quizId: string = '';
   currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>(
-    []
-  );
+  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   options$: Observable<Option[]>;
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
