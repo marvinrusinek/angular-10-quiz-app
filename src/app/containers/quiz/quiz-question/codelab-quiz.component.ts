@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer, zip } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -187,35 +187,36 @@ export class CodelabQuizComponent {
         tap(() => {}) // Use tap to trigger the emission of the combined data
       ); */
 
-      // Use a flag to determine when both explanationText$ and currentQuestion$ have emitted their values
-      let flagExplanationTextEmitted = false;
-      let flagCurrentQuestionEmitted = false;
-
       // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-      const combinedText$ = combineLatest([this.explanationText$, this.currentQuestion$])
-        .pipe(
-          map(([explanationText, currentQuestion]) => {
-            // Set the flags to true when values are emitted
-            flagExplanationTextEmitted = true;
-            flagCurrentQuestionEmitted = true;
+    const combinedText$ = combineLatest([this.explanationText$, this.currentQuestion$])
+    .pipe(
+      map(([explanationText, currentQuestion]) => {
+        // Use the explanationText$ value if available, otherwise get question text
+        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+        return questionText;
+      })
+    );
 
-            // Use the explanationText$ value if available, otherwise get question text
-            const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-            return questionText;
+  // Combine combinedText$ with numberOfCorrectAnswers$ using combineLatest again,
+  // but introduce a delay to ensure both data streams are emitted at the same time
+  this.combinedData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
+    .pipe(
+      map(([questionText, numberOfCorrectAnswers]) => {
+        // Introduce a delay of 0ms to synchronize both data streams
+        return timer(0).pipe(
+          map(() => {
+            // Get the number of correct answers text if available
+            const correctAnswersText = numberOfCorrectAnswers !== undefined
+              ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
+              : '';
+            return { questionText, correctAnswersText };
           })
         );
+      }),
+      // Unwrap the nested observable using switchMap
+      switchMap((dataObservable) => dataObservable)
+    );
       
-      // Combine combinedText$ with numberOfCorrectAnswers$ using combineLatest again
-      this.combinedData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
-      .pipe(
-        map(([questionText, numberOfCorrectAnswers]) => {
-          // Get the number of correct answers text if available
-          const correctAnswersText = flagCurrentQuestionEmitted && numberOfCorrectAnswers !== undefined
-            ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
-            : '';
-          return { questionText, correctAnswersText };
-        })
-      );
   }
   
   ngOnDestroy(): void {
