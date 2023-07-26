@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, ReplaySubject, Subject, Subscription, timer, zip } from 'rxjs';
-import { delay, filter, map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { delay, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -45,8 +45,15 @@ export class CodelabQuizComponent {
   combinedQuestionData$: Observable<{ questionText: string; correctAnswersText?: string }>;
   combinedDataSubject$: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject({ questionText: '', correctAnswersText: '' });
 
-  private explanationTextSubject$ = new BehaviorSubject<string | null>(null);
-  private currentQuestionSubject$ = new BehaviorSubject<any | null>(null);
+  //private explanationTextSubject$ = new BehaviorSubject<string | null>(null);
+  //private currentQuestionSubject$ = new BehaviorSubject<any | null>(null);
+
+  private explanationTextSubject = new BehaviorSubject<string>('');
+  private currentQuestionSubject = new BehaviorSubject<string>('');
+  private numberOfCorrectAnswersSubject = new BehaviorSubject<number | undefined>(undefined);
+
+  private explanationTextReady$ = new BehaviorSubject<boolean>(false);
+  private currentQuestionReady$ = new BehaviorSubject<boolean>(false);
 
   private destroy$ = new Subject<void>();
 
@@ -179,7 +186,7 @@ export class CodelabQuizComponent {
     });
 
     // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    /* this.combinedQuestionData$ = combineLatest([
+    this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       this.currentQuestion$,
       this.numberOfCorrectAnswers$
@@ -195,23 +202,9 @@ export class CodelabQuizComponent {
 
         return { questionText, correctAnswersText };
       })
-    ); */
-
-    this.combinedQuestionData$ = zip(
-      this.explanationText$.pipe(filter(Boolean)), // Filter out falsy values
-      this.currentQuestion$.pipe(filter(Boolean)), // Filter out falsy values
-      this.numberOfCorrectAnswers$.pipe(filter(num => typeof num === 'number')) // Filter out non-number values
-    ).pipe(
-      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        // Use the explanationText value if available, otherwise get question text
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-
-        // Get the number of correct answers text if available
-        const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-
-        return { questionText, correctAnswersText };
-      })
     );
+
+    
   }
 
   ngOnDestroy(): void {
@@ -259,5 +252,17 @@ export class CodelabQuizComponent {
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return question1.questionText === question2.questionText &&
            JSON.stringify(question1.options) === JSON.stringify(question2.options);
+  }
+
+  waitForValues<T, U>(source1: Observable<T>, source2: Observable<U>): Observable<[T, U]> {
+    return source1.pipe(
+      filter(Boolean),
+      switchMap((value1) => {
+        return source2.pipe(
+          filter(Boolean),
+          map((value2) => [value1, value2] as [T, U])
+        );
+      })
+    );
   }
 }
