@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, of, Subject, Subscription, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription, zip } from 'rxjs';
 import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -195,48 +195,28 @@ export class CodelabQuizComponent {
     );
   }
 
-  /* private initializeCombinedQuestionData(): void {
-    this.combinedQuestionData$ = this.explanationText$.pipe(
-      withLatestFrom(this.currentQuestion$, this.currentOptions$, this.numberOfCorrectAnswers$),
-      map(([explanationText, currentQuestion, currentOptions, numberOfCorrectAnswers]) => {
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-  
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-  
-        let correctAnswersText = '';
-        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-  
-        return { questionText, correctAnswersText, currentOptions };
-      })
-    );
-  } */
-
   private initializeCombinedQuestionData(): void {
-    const combinedQuestionAndOptions$ = zip(
+    const currentQuestionAndOptions$ = combineLatest([
       this.currentQuestion$,
       this.currentOptions$
-    );
+    ]);
   
     this.combinedQuestionData$ = this.explanationText$.pipe(
-      withLatestFrom(combinedQuestionAndOptions$, this.numberOfCorrectAnswers$),
+      withLatestFrom(currentQuestionAndOptions$, this.numberOfCorrectAnswers$),
       map(([explanationText, [currentQuestion, currentOptions], numberOfCorrectAnswers]) => {
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-  
+    
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-  
+    
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
-  
+    
         return { questionText, correctAnswersText, currentOptions };
       })
     );
   }
-  
-  
   
   getQuestionText(
     currentQuestion: QuizQuestion,
