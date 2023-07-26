@@ -185,35 +185,6 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    /* this.combinedQuestionData$ = this.explanationText$.pipe(
-      withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
-      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-
-        const correctAnswersText = numberOfCorrectAnswers !== undefined
-          ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
-          : '';
-
-        return { questionText, correctAnswersText };
-      })
-    ); */
-
-    /* this.combinedQuestionData$ = this.explanationText$.pipe(
-      withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
-      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-    
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-    
-        let correctAnswersText = '';
-        if (questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-    
-        return { questionText, correctAnswersText };
-      })
-    ); */
-
     this.combinedQuestionData$ = this.explanationText$.pipe(
       withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
