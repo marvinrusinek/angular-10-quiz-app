@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer, zip } from 'rxjs';
-import { map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { delay, filter, map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -173,83 +173,12 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    /* this.combinedData$ = combineLatest([this.explanationText$, this.currentQuestion$, this.numberOfCorrectAnswers$])
-      .pipe(
-        map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-          // Use the explanationText$ value if available, otherwise get question text
-          const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-
-          // Get the number of correct answers text if available
-          const correctAnswersText = numberOfCorrectAnswers !== undefined ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers) : '';
-
-          return { questionText, correctAnswersText };
-        }),
-        tap(() => {}) // Use tap to trigger the emission of the combined data
-      ); */
-      
-      //////////////////////////////////////////////////
-
-
-      // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    /* const combinedText$ = combineLatest([this.explanationText$, this.currentQuestion$])
-    .pipe(
-      map(([explanationText, currentQuestion]) => {
-        // Use the explanationText$ value if available, otherwise get question text
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-        return questionText;
-      })
-    ); */
-
-  // Combine combinedText$ with numberOfCorrectAnswers$ using combineLatest again,
-  // but introduce a delay to ensure both data streams are emitted at the same time
-  /* this.combinedQuestionData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
-    .pipe(
-      map(([questionText, numberOfCorrectAnswers]) => {
-        // Introduce a delay of 0ms to synchronize both data streams
-        return timer(0).pipe(
-          map(() => {
-            // Get the number of correct answers text if available
-            const correctAnswersText = numberOfCorrectAnswers !== undefined
-              ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
-              : '';
-            return { questionText, correctAnswersText };
-          })
-        );
-      }),
-      // Unwrap the nested observable using switchMap
-      switchMap((dataObservable) => dataObservable)
-    ); */
-      
-    /////////////////////////////////////////////////////
     // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    /* this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
-      this.currentQuestion$,
-      this.numberOfCorrectAnswers$
-    ]).pipe(
-      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
-        // Use the explanationText$ value if available, otherwise get question text
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-
-        // Get the number of correct answers text if available
-        const correctAnswersText = numberOfCorrectAnswers !== undefined
-          ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
-          : '';
-
-        return { questionText, correctAnswersText };
-      })
-    ); */
-
-    //////////////////////////////////////////////////////
     this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       this.currentQuestion$,
       this.numberOfCorrectAnswers$
     ]).pipe(
-      tap(([explanationText, currentQuestion]) => {
-        console.log('explanationText:::>>>', explanationText);
-        console.log('currentQuestion:::>>>', currentQuestion);
-      }),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
         // Use the explanationText$ value if available, otherwise get question text
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
@@ -263,7 +192,7 @@ export class CodelabQuizComponent {
       })
     );
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
