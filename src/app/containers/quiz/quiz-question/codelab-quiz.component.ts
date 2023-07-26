@@ -202,14 +202,10 @@ export class CodelabQuizComponent {
     this.nextQuestionSubscription.unsubscribe();
   }
 
-  getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
-    console.log('getQuestionText - currentQuestion:', currentQuestion);
-    console.log('getQuestionText - questions:', questions);
+  function getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
       for (let i = 0; i < questions.length; i++) {
         if (this.areQuestionsEqual(questions[i], currentQuestion)) {
-          console.log('getQuestionText - currentQuestionIndex:', i);
-          console.log('getQuestionText - questionText:', questions[i]?.questionText);
           return questions[i]?.questionText;
         }
       }
@@ -217,25 +213,12 @@ export class CodelabQuizComponent {
     return '';
   }
 
-  /* getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number | undefined): string {
+  getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number | undefined): string {
     const correctAnswersText = numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
 
     return correctAnswersText;
-  } */
-
-  getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number | undefined): string {
-    if (numberOfCorrectAnswers === undefined) {
-      return '';
-    }
-
-    const correctAnswersText = numberOfCorrectAnswers === 1
-      ? `(${numberOfCorrectAnswers} answer is correct)`
-      : `(${numberOfCorrectAnswers} answers are correct)`;
-
-    // Apply inline styles for green color and italic font
-    return `<span class="number-correct">${correctAnswersText}</span>`;
   }
 
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
