@@ -214,6 +214,10 @@ export class CodelabQuizComponent {
   }
 
   getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number | undefined): string {
+    if (numberOfCorrectAnswers === undefined) {
+      return '';
+    }
+
     const correctAnswersText = numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
