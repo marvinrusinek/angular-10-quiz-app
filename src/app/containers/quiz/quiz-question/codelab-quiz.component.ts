@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, ReplaySubject, Subject, Subscription, timer, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, combineLatestWith, forkJoin, Observable, of, ReplaySubject, Subject, Subscription, timer, zip } from 'rxjs';
 import { delay, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -204,11 +204,8 @@ export class CodelabQuizComponent {
       })
     ); */
 
-    this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
-      this.currentQuestion$,
-      this.numberOfCorrectAnswers$
-    ]).pipe(
+    this.combinedQuestionData$ = this.explanationText$.pipe(
+      withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
         // Use the explanationText$ value if available, otherwise get question text
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
@@ -221,8 +218,6 @@ export class CodelabQuizComponent {
         return { questionText, correctAnswersText };
       })
     );
-
-    
   }
 
   ngOnDestroy(): void {
