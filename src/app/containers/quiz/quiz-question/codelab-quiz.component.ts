@@ -24,36 +24,24 @@ export class CodelabQuizComponent {
   @Input() questions: QuizQuestion[];
   @Input() options: Option[] = [];
   quizId: string = '';
+  currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  // currentOptions$: Observable<Option[]> = this.quizService.options$;
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  // explanationText$: Observable<string>;
-  // options$: Observable<string[]>;
   options$: Observable<Option[]>; 
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   numberOfCorrectAnswers: number = 0;
-  // numberOfCorrectAnswers$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
+  
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   currentQuestionSubscription: Subscription;
+
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
-  currentQuestionIndexValue: number;
-  numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  
   combinedQuestionData$: Observable<{ questionText: string; correctAnswersText?: string }>;
-  combinedDataSubject$: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject({ questionText: '', correctAnswersText: '' });
-
-  // private explanationTextSubject$ = new BehaviorSubject<string | null>(null);
-  // private currentQuestionSubject$ = new BehaviorSubject<any | null>(null);
-
-  private explanationTextSubject = new BehaviorSubject<string>('');
-  private currentQuestionSubject = new BehaviorSubject<string>('');
-  private numberOfCorrectAnswersSubject = new BehaviorSubject<number | undefined>(undefined);
-
-  private explanationTextReady$ = new BehaviorSubject<boolean>(false);
-  private currentQuestionReady$ = new BehaviorSubject<boolean>(false);
 
   private destroy$ = new Subject<void>();
 
@@ -116,13 +104,11 @@ export class CodelabQuizComponent {
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
     this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndexValue = index;
-      console.log("CQIV", this.currentQuestionIndexValue);
     });
 
 
 
     this.currentQuestion$.subscribe((question) => {
-      console.log('Question received:', question);
       if (question && question.options) {
         console.log('Options received::::::::', question.options);
       }
@@ -143,7 +129,6 @@ export class CodelabQuizComponent {
     
 
     this.quizStateService.currentQuestion$.subscribe((question) => {
-      console.log('MY Current question:', question);
       this.question = question;
 
       if (question && question.options) {
@@ -202,7 +187,6 @@ export class CodelabQuizComponent {
     );
   }  
   
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
