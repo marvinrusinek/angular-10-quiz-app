@@ -26,9 +26,7 @@ export class CodelabQuizComponent {
   quizId: string = '';
   currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>(
-    []
-  );
+  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   options$: Observable<Option[]>;
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
@@ -61,7 +59,6 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
-    console.log('Current Question Observable:', this.currentQuestion$);
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
