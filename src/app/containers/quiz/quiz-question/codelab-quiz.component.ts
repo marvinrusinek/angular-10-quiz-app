@@ -42,8 +42,12 @@ export class CodelabQuizComponent {
   explanationText$ = this.explanationTextSource.asObservable();
   currentQuestionIndexValue: number;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  combinedQuestionData$: Observable<{ questionText: string; correctAnswersText: string }>;
+  combinedQuestionData$: Observable<{ questionText: string; correctAnswersText?: string }>;
   combinedDataSubject$: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject({ questionText: '', correctAnswersText: '' });
+
+  private explanationTextSubject$ = new BehaviorSubject<string | null>(null);
+  private currentQuestionSubject$ = new BehaviorSubject<any | null>(null);
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -175,7 +179,7 @@ export class CodelabQuizComponent {
     });
 
     // Use combineLatest to combine explanationText$ and currentQuestion$ observables
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       this.currentQuestion$,
       this.numberOfCorrectAnswers$
@@ -188,6 +192,22 @@ export class CodelabQuizComponent {
         const correctAnswersText = numberOfCorrectAnswers !== undefined
           ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
           : '';
+
+        return { questionText, correctAnswersText };
+      })
+    ); */
+
+    this.combinedQuestionData$ = zip(
+      this.explanationText$.pipe(filter(Boolean)), // Filter out falsy values
+      this.currentQuestion$.pipe(filter(Boolean)), // Filter out falsy values
+      this.numberOfCorrectAnswers$.pipe(filter(num => typeof num === 'number')) // Filter out non-number values
+    ).pipe(
+      map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
+        // Use the explanationText value if available, otherwise get question text
+        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+
+        // Get the number of correct answers text if available
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
 
         return { questionText, correctAnswersText };
       })
