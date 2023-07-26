@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, zip } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -42,6 +42,7 @@ export class CodelabQuizComponent {
   explanationText$ = this.explanationTextSource.asObservable();
   currentQuestionIndexValue: number;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  combinedData$: Observable<string>;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -172,20 +173,23 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    combineLatest([this.currentQuestion$, this.numberOfCorrectAnswers$])
+    // Combine the explanationText$, currentQuestion$, and numberOfCorrectAnswers$ observables
+    this.combinedData$ = combineLatest([this.explanationText$, this.currentQuestion$, this.numberOfCorrectAnswers$])
       .pipe(
-        takeUntil(this.destroy$)
-      )
-      .subscribe(([question, numberOfCorrectAnswers]) => {
-        if (question) {
-          this.quizQuestionManagerService.setCurrentQuestion(question);
-          this.nextQuestion$.next(question);
+        map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
+          // Use the explanationText$ value if available, otherwise get question text
+          const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
 
-          // Update the number of correct answers
-          const numberOfCorrectAnswersCount = this.calculateNumberOfCorrectAnswers(question);
-          this.numberOfCorrectAnswers$.next(numberOfCorrectAnswersCount.toString());
-        }
-      });
+          // Get the number of correct answers text if available
+          const correctAnswersText = numberOfCorrectAnswers !== undefined ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers) : '';
+
+          // Check if we have both questionText and correctAnswersText, and then style the correctAnswersText
+          const hasCorrectAnswers = !!correctAnswersText;
+          const combinedText = hasCorrectAnswers ? `${questionText} <span style="color: green !important; font-style: italic !important;">${correctAnswersText}</span>` : questionText;
+
+          return combinedText;
+        })
+      );
   }
   
   ngOnDestroy(): void {
@@ -211,11 +215,29 @@ export class CodelabQuizComponent {
     return '';
   }
 
-  getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
+  /* getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
     return numberOfCorrectAnswers === 1
       ? `(${numberOfCorrectAnswers} answer is correct)`
       : `(${numberOfCorrectAnswers} answers are correct)`;
-  } 
+  } */
+
+  /* getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
+    const correctAnswersText = numberOfCorrectAnswers === 1
+      ? ` (${numberOfCorrectAnswers} answer is correct)`
+      : ` (${numberOfCorrectAnswers} answers are correct)`;
+
+    // Apply inline styles for green color and italic font
+    return `<span class="number-correct">${correctAnswersText}</span>`;
+  } */
+
+  getNumberOfCorrectAnswersText(numberOfCorrectAnswers: number): string {
+    const correctAnswersText = numberOfCorrectAnswers === 1
+      ? `(${numberOfCorrectAnswers} answer is correct)`
+      : `(${numberOfCorrectAnswers} answers are correct)`;
+
+    // Styling in TypeScript using backticks
+    return `<span style="color: green; font-style: italic;">${correctAnswersText}</span>`;
+  }
 
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
     if (question) {

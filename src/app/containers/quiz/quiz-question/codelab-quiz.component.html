@@ -1,4 +1,4 @@
-<section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
+<!--<section *ngIf="currentQuestion$ | async as currentQuestion" id="question">
   <h3 question-content>
     <ng-container>
       {{
@@ -18,4 +18,50 @@
       </ng-container>
     </ng-container>
   </h3>
+</section>-->
+
+<!--<section *ngIf="combinedData$ | async as combinedData" id="question">
+  <h3 question-content>
+    {{ combinedData }}
+
+  </h3>
+</section>-->
+
+<!--<section *ngIf="combinedData$ | async as data" id="question">
+  <h3 question-content>
+    <span>{{ data.questionText }}</span>
+
+    <ng-container *ngIf="data.correctAnswersText">
+      <span class="correct-answers">{{ data.correctAnswersText }}</span>
+    </ng-container>
+  </h3>
+</section>-->
+
+<!--<section *ngIf="combinedData$ | async as data" id="question">
+  <h3 question-content>
+    <span>{{ data.questionText }}</span>
+  </h3>
+</section>-->
+
+<!--<section *ngIf="combinedData$ | async as combinedText" id="question">
+  <h3 question-content>
+    <span [class.green-italic]="!!combinedText">{{ combinedText }}</span>
+  </h3>
+</section>-->
+
+<!--<section *ngIf="combinedData$ | async as data" id="question">
+  <h3 question-content>
+    <span [innerHTML]="data.questionText + data.correctAnswersText"></span>
+  </h3>
+</section>-->
+
+
+<section *ngIf="combinedData$ | async as combinedText" id="question">
+  <h3 question-content>
+    <!-- Display the combined question text and the number of correct answers text -->
+    <span [innerHTML]="combinedText"></span>
+  </h3>
 </section>
+
+
+
