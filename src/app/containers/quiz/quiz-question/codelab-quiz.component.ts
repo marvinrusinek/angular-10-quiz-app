@@ -1,19 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  BehaviorSubject,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-} from 'rxjs';
-import {
-  map,
-  switchMap,
-  takeUntil,
-  tap,
-  withLatestFrom,
-} from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -71,7 +59,6 @@ export class CodelabQuizComponent {
   ) {}
 
   ngOnInit(): void {
-    console.log('Current Question Observable:', this.currentQuestion$);
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
@@ -113,15 +100,7 @@ export class CodelabQuizComponent {
     });
 
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
-      console.log(
-        'CodelabQuizComponent - Current Question received:',
-        question
-      );
       this.currentQuestion$ = of(question);
-      console.log(
-        'CodelabQuizComponent - currentQuestion$:',
-        this.currentQuestion$
-      );
     });
 
     this.quizStateService.currentOptions$.subscribe((options) => {
@@ -142,12 +121,12 @@ export class CodelabQuizComponent {
 
     this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
-        console.log('Options received::::::::', question.options);
+        console.log('Options received', question.options);
       }
     });
 
     this.currentOptions$.subscribe((options) => {
-      console.log('THE Current Options:', options);
+      console.log('Current Options:', options);
     });
 
     this.currentOptions$.subscribe((options) => {
@@ -155,7 +134,6 @@ export class CodelabQuizComponent {
     });
 
     this.quizStateService.currentOptions$.subscribe((options) => {
-      console.log('Options received:', options);
       this.options = options;
     });
 
@@ -163,7 +141,7 @@ export class CodelabQuizComponent {
       this.question = question;
 
       if (question && question.options) {
-        console.log('MY Options:', question.options);
+        console.log('Options:', question.options);
       }
     });
 
@@ -183,7 +161,7 @@ export class CodelabQuizComponent {
   private initializeNextQuestionSubscription(): void {
     this.nextQuestion$ = this.quizService.nextQuestion$.pipe(
       tap((nextQuestion) =>
-        console.log('Next question emitted:::', nextQuestion)
+        console.log('Next question emitted', nextQuestion)
       )
     );
 
@@ -191,7 +169,7 @@ export class CodelabQuizComponent {
       .pipe(
         // Use the tap operator to log the received question for debugging
         tap((nextQuestion) =>
-          console.log('Next question received:', nextQuestion)
+          console.log('Next question received', nextQuestion)
         )
       )
       .subscribe((nextQuestion) => {
