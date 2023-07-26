@@ -173,24 +173,18 @@ export class CodelabQuizComponent {
       this.quizQuestionManagerService.setExplanationDisplayed(displayed);
     });
 
-    // Combine the explanationText$ and currentQuestion$ observables first
-    const combinedText$ = combineLatest([this.explanationText$, this.currentQuestion$])
+    this.combinedData$ = combineLatest([this.explanationText$, this.currentQuestion$, this.numberOfCorrectAnswers$])
       .pipe(
-        map(([explanationText, currentQuestion]) => {
+        map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
           // Use the explanationText$ value if available, otherwise get question text
           const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-          return questionText;
-        })
-      );
 
-    // Combine the combinedText$ with numberOfCorrectAnswers$ using switchMap
-    this.combinedData$ = combineLatest([combinedText$, this.numberOfCorrectAnswers$])
-      .pipe(
-        map(([questionText, numberOfCorrectAnswers]) => {
           // Get the number of correct answers text if available
           const correctAnswersText = numberOfCorrectAnswers !== undefined ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers) : '';
+
           return { questionText, correctAnswersText };
-        })
+        }),
+        tap(() => {}) // Use tap to trigger the emission of the combined data
       );
   }
   
