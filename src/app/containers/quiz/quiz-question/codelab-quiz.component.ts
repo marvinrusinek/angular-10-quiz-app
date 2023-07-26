@@ -205,11 +205,7 @@ export class CodelabQuizComponent {
 
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
 
-        /* const correctAnswersText = numberOfCorrectAnswers !== undefined
-          ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
-          : ''; */
-
-          const correctAnswersText = questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined
+        const correctAnswersText = questionHasMultipleAnswers && numberOfCorrectAnswers !== undefined
           ? this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers)
           : '';
 
