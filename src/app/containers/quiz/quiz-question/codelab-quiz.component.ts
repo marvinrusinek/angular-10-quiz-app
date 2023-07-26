@@ -198,7 +198,7 @@ export class CodelabQuizComponent {
       })
     ); */
 
-    this.combinedQuestionData$ = this.explanationText$.pipe(
+    /* this.combinedQuestionData$ = this.explanationText$.pipe(
       withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
       map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
         const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
@@ -213,7 +213,23 @@ export class CodelabQuizComponent {
         return { questionText, correctAnswersText };
       })
     );
+  } */
+
+  this.combinedQuestionData$ = this.explanationText$.pipe(
+    withLatestFrom(this.currentQuestion$, this.numberOfCorrectAnswers$),
+    map(([explanationText, currentQuestion, numberOfCorrectAnswers]) => {
+      const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
+      const questionType = currentQuestion.type;
+  
+      let correctAnswersText = '';
+      if (questionType === QuestionType.MultipleAnswer && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+        correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+      }
+  
+      return { questionText, correctAnswersText };
+    }));
   }
+  
 
   ngOnDestroy(): void {
     this.destroy$.next();
