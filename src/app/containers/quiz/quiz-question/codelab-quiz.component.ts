@@ -45,8 +45,8 @@ export class CodelabQuizComponent {
   combinedQuestionData$: Observable<{ questionText: string; correctAnswersText?: string }>;
   combinedDataSubject$: BehaviorSubject<{ questionText: string; correctAnswersText: string }> = new BehaviorSubject({ questionText: '', correctAnswersText: '' });
 
-  //private explanationTextSubject$ = new BehaviorSubject<string | null>(null);
-  //private currentQuestionSubject$ = new BehaviorSubject<any | null>(null);
+  // private explanationTextSubject$ = new BehaviorSubject<string | null>(null);
+  // private currentQuestionSubject$ = new BehaviorSubject<any | null>(null);
 
   private explanationTextSubject = new BehaviorSubject<string>('');
   private currentQuestionSubject = new BehaviorSubject<string>('');
