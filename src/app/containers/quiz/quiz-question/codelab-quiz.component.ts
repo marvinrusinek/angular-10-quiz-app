@@ -284,19 +284,4 @@ export class CodelabQuizComponent {
       JSON.stringify(question1.options) === JSON.stringify(question2.options)
     );
   }
-
-  waitForValues<T, U>(
-    source1: Observable<T>,
-    source2: Observable<U>
-  ): Observable<[T, U]> {
-    return source1.pipe(
-      filter(Boolean),
-      switchMap((value1) => {
-        return source2.pipe(
-          filter(Boolean),
-          map((value2) => [value1, value2] as [T, U])
-        );
-      })
-    );
-  }
 }
