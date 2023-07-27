@@ -9,11 +9,13 @@
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
 
-      <!-- the question -->
-      <codelab-quiz-cp-component></codelab-quiz-cp-component>
+      <!-- the question and options -->
+      <codelab-quiz-cp-component 
+        [question]="question" 
+        [options]="options">
+      </codelab-quiz-cp-component>
       <ng-content select="[question-content]"></ng-content>
 
-      <!-- the options -->
       <ng-container *ngIf="options$ | async as options">
         <codelab-quiz-question
           [question]="question"
