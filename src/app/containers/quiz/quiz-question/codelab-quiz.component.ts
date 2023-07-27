@@ -123,10 +123,8 @@ export class CodelabQuizComponent {
           });
         }
         return [];
-      }),
-      // Use filter to make sure the options are not null or empty
-      filter((options) => options.length > 0)
-    );
+      })
+    );  
       
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
       this.currentQuestion$ = of(question);
