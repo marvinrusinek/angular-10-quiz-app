@@ -18,8 +18,8 @@
         <codelab-quiz-question
           *ngIf="data?.questionText || data?.correctAnswersText"
           [data]="data"
-          [question]="data?.questionText"
-          [options]="data?.currentOptions"
+          [question]="data?.question"
+          [options]="data?.options"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
