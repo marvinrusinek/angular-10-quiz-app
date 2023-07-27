@@ -185,6 +185,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextOptions$ = this.quizService.getNextOptions();
 
     combineLatest([nextQuestion$, nextOptions$]).pipe(
+      tap(([nextQuestion, nextOptions]) => {
+        console.log('Next question:::>>>', nextQuestion);
+        console.log('Next options:::>>>', nextOptions);
+      }),
       map(([nextQuestion, nextOptions]) => {
         return {
           question: nextQuestion as QuizQuestion,
