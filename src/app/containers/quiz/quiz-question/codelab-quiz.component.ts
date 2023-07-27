@@ -65,7 +65,7 @@ export class CodelabQuizComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
 
-    combineLatest([
+    /* combineLatest([
       this.quizService.nextQuestion$, 
       this.quizService.nextOptions$
     ]).subscribe(([nextQuestion, nextOptions]) => {
@@ -73,7 +73,21 @@ export class CodelabQuizComponent {
         this.question$ = of(nextQuestion);
         this.options$ = of(nextOptions);
       }
-    });
+    }); */
+
+    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$])
+      .pipe(
+        map(([nextQuestion, nextOptions]) => {
+          return {
+            question: nextQuestion as QuizQuestion,
+            options: nextOptions as Option[]
+          };
+        })
+      )
+      .subscribe(({ question, options }) => {
+        this.question$ = of(question);
+        this.options$ = of(options);
+      });
   }
 
   ngOnDestroy(): void {
