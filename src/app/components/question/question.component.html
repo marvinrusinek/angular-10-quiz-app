@@ -8,7 +8,7 @@
           [questions]="questions"
           [currentQuestion$]="currentQuestion$ | async"
           [currentQuestionIndex]="currentQuestionIndex"
-          [options]="question?.options"
+          [options]="data?.currentOptions"
           [selectedOptions]="currentQuestion?.selectedOptions"
           [correctAnswers]="correctAnswers"
           [correctMessage]="correctMessage"
@@ -25,7 +25,7 @@
         <codelab-question-single-answer
           [question]="currentQuestion"
           [questions]="questions"
-          [options]="currentQuestion?.options"
+          [options]="data?.currentOptions"
           [currentQuestion]="currentQuestion"
           [currentQuestionIndex]="currentQuestionIndex"
           [selectedOption]="currentQuestion?.selectedOption"
