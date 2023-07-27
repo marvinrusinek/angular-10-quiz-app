@@ -23,7 +23,7 @@ export class CodelabQuizComponent {
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions: QuizQuestion[];
-  @Input() options!: Option[] = [];
+  @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
   quizId: string = '';
   currentQuestionIndexValue: number;
