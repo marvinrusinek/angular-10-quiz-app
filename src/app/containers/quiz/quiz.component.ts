@@ -188,22 +188,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion$ = this.quizService.getNextQuestion();
     const nextOptions$ = this.quizService.getNextOptions();
 
-    /* combineLatest([nextQuestion$, nextOptions$]).pipe(
-      tap(([nextQuestion, nextOptions]) => {
-        console.log('Next question:::>>>', nextQuestion);
-        console.log('Next options:::>>>', nextOptions);
-      }),
-      map(([nextQuestion, nextOptions]) => {
-        return {
-          question: nextQuestion as QuizQuestion,
-          options: nextOptions as Option[],
-        };
-      })
-    ).subscribe(({ question, options }) => {
-      this.question$ = of(question);
-      this.options$ = of(options);
-    }); */
-
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
@@ -218,11 +202,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Subscribe to nextQuestion$ and nextOptions$ and update combinedQuestionDataSubject
-    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$]).subscribe(([nextQuestion, nextOptions]) => {
-      if (nextQuestion && nextOptions) {
-        this.combinedQuestionDataSubject.next({ question: nextQuestion, options: nextOptions });
-      }
+    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$])
+    .pipe(
+      map(([nextQuestion, nextOptions]) => {
+        return {
+          question: nextQuestion as QuizQuestion,
+          options: nextOptions as Option[]
+        };
+      })
+    )
+    .subscribe(({ question, options }) => {
+      this.question$ = of(question);
+      this.options$ = of(options);
     });
   }
 
