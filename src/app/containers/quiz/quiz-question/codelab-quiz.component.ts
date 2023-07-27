@@ -65,7 +65,10 @@ export class CodelabQuizComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
 
-    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$]).subscribe(([nextQuestion, nextOptions]) => {
+    combineLatest([
+      this.quizService.nextQuestion$, 
+      this.quizService.nextOptions$
+    ]).subscribe(([nextQuestion, nextOptions]) => {
       if (nextQuestion && nextOptions) {
         this.question$ = of(nextQuestion);
         this.options$ = of(nextOptions);
