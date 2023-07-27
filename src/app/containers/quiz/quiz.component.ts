@@ -922,27 +922,27 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const selectedOption = this.form.value.selectedOption;
   
-    // Get the next question
-    const nextQuestion = await this.quizService.getNextQuestion();
-    console.log('Next question:', nextQuestion);
+    // Get the next question and options
+    const nextQuestionAndOptions = this.quizService.getNextQuestionAndOptions();
+    console.log('Next question and options:', nextQuestionAndOptions);
   
-    if (nextQuestion && nextQuestion.options) {
-      this.currentQuestion = nextQuestion;
-      this.currentOptions = nextQuestion.options;
+    if (nextQuestionAndOptions) {
+      this.currentQuestion = nextQuestionAndOptions.question;
+      this.currentOptions = nextQuestionAndOptions.options;
   
-      this.nextQuestionText = nextQuestion.questionText;
-      this.quizService.setNextQuestion(nextQuestion);
-
+      this.nextQuestionText = nextQuestionAndOptions.question.questionText;
+      this.quizService.setNextQuestion(nextQuestionAndOptions.question);
+  
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.quizService.updateCurrentOptions(nextQuestion.options);
-      
-      const explanationTextOfNextQuestion = nextQuestion.questionText;
+      this.quizService.updateCurrentOptions(nextQuestionAndOptions.options);
+  
+      const explanationTextOfNextQuestion = nextQuestionAndOptions.question.questionText;
       this.explanationTextSource.next(explanationTextOfNextQuestion);
   
       console.log('Before navigation');
-      this.quizService.navigateToNextQuestion();
+      await this.quizService.navigateToNextQuestion();
       console.log('After navigation');
-
+  
       // Set options and questionText for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       if (this.selectedQuiz.questions[nextQuestionIndex]) {
@@ -951,7 +951,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         this.nextQuestionText = null;
       }
-
+  
       console.log('Next question text:', this.nextQuestionText);
       console.log('Current options:', this.currentOptions);
     } else {
@@ -959,6 +959,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = null;
     }
   }
+  
     
   advanceToPreviousQuestion() {
     this.answers = [];
