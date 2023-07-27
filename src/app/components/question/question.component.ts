@@ -298,7 +298,7 @@ export class QuizQuestionComponent
     return option.optionId;
   }
 
-  shouldDisplayOptions(): boolean {
+  /* shouldDisplayOptions(): boolean {
     return (
       this.currentQuestion?.options && 
       this.currentQuestion.options.length > 0
@@ -310,8 +310,22 @@ export class QuizQuestionComponent
       !this.currentQuestion?.options ||
       this.currentQuestion.options.length === 0
     );
-  }
+  } */
 
+  shouldDisplayOptions(): boolean {
+    return (
+      this.data?.currentOptions && 
+      this.data.currentOptions.length > 0
+    );
+  }
+  
+  shouldHideOptions(): boolean {
+    return (
+      !this.data?.currentOptions ||
+      this.data.currentOptions.length === 0
+    );
+  }
+  
   updateQuestionForm(): void {
     this.updateCorrectMessage();
     this.updateCorrectAnswers();
