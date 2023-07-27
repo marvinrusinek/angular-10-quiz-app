@@ -76,6 +76,9 @@ export class CodelabQuizComponent {
       }
     }); */
 
+    this.currentOptions$ = this.quizService.currentOptionsSubject.asObservable();
+    this.currentQuestion$ = this.quizService.getCurrentQuestion();
+
     combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$])
       .pipe(
         map(([nextQuestion, nextOptions]) => {

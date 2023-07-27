@@ -104,7 +104,7 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<boolean>(false);
   multipleAnswer: boolean = false;
 
-  private currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
+  currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   private currentOptionsSource = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
