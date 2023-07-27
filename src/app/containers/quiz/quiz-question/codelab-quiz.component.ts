@@ -29,7 +29,6 @@ export class CodelabQuizComponent {
   currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
-  options$: Observable<Option[]>;
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   numberOfCorrectAnswers: number = 0;
@@ -65,6 +64,13 @@ export class CodelabQuizComponent {
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
+
+    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$]).subscribe(([nextQuestion, nextOptions]) => {
+      if (nextQuestion && nextOptions) {
+        this.question$ = of(nextQuestion);
+        this.options$ = of(nextOptions);
+      }
+    });
   }
 
   ngOnDestroy(): void {
