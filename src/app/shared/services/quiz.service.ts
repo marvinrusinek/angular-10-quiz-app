@@ -535,8 +535,10 @@ export class QuizService implements OnDestroy {
       currentQuiz.questions &&
       nextIndex < currentQuiz.questions.length
     ) {
-      this.setNextQuestion(currentQuiz.questions[nextIndex]);
-      return currentQuiz.questions[nextIndex];
+      const nextQuestion = currentQuiz.questions[nextIndex];
+      this.nextQuestionSource.next(nextQuestion);
+      this.setNextQuestion(nextQuestion);
+      return nextQuestion;
     }
 
     this.nextQuestionSource.next(null);
@@ -546,15 +548,18 @@ export class QuizService implements OnDestroy {
   getNextOptions(): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
-  
+
     if (
       currentQuiz &&
       currentQuiz.questions &&
       nextIndex < currentQuiz.questions.length
     ) {
-      return currentQuiz.questions[nextIndex].options;
+      const nextOptions = currentQuiz.questions[nextIndex].options;
+      this.nextOptionsSource.next(nextOptions);
+      return nextOptions;
     }
-  
+
+    this.nextOptionsSource.next(null);
     return undefined;
   }
 
