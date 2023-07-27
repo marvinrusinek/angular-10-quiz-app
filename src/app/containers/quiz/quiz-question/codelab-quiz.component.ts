@@ -79,9 +79,9 @@ export class CodelabQuizComponent {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.currentQuestionSubscription.unsubscribe();
-    this.explanationTextSubscription.unsubscribe();
-    this.nextQuestionSubscription.unsubscribe();
+    this.currentQuestionSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
+    this.nextQuestionSubscription?.unsubscribe();
   }
 
   private initializeQuestionData(): void {
