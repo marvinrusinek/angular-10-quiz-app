@@ -5,19 +5,18 @@
   >
     <codelab-quiz-header></codelab-quiz-header>
 
-    <mat-card-content *ngIf="question$ | async as question">
+    <mat-card-content *ngIf="question$ | async as question; (combinedQuestionData$ | async) as data">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
-
+    
       <!-- the question and options -->
-      <codelab-quiz-cp-component 
-        [question]="question" 
-        [options]="options">
-      </codelab-quiz-cp-component>
+      <codelab-quiz-cp-component [question]="question" [options]="options"></codelab-quiz-cp-component>
       <ng-content select="[question-content]"></ng-content>
-
+    
       <ng-container *ngIf="options$ | async as options">
+        <!-- Use data to conditionally render the codelab-quiz-question component -->
         <codelab-quiz-question
+          *ngIf="data?.questionText || data?.correctAnswersText"
           [question]="question"
           [options]="options"
           (answer)="selectedAnswer($event)"
@@ -36,6 +35,7 @@
         <p>No question available.</p>
       </ng-template>
     </mat-card-content>
+    
 
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->

@@ -20,10 +20,10 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 export class CodelabQuizComponent {
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
-  @Input() question: QuizQuestion;
+  @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions: QuizQuestion[];
-  @Input() options: Option[] = [];
+  @Input() options!: Option[] = [];
   @Input() options$: Observable<Option[]>;
   quizId: string = '';
   currentQuestionIndexValue: number;
@@ -43,7 +43,7 @@ export class CodelabQuizComponent {
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
 
-  combinedQuestionData$: Observable<{
+  @Input() combinedQuestionData$!: Observable<{
     questionText: string;
     correctAnswersText?: string;
   }>;

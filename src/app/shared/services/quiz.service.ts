@@ -137,6 +137,9 @@ export class QuizService implements OnDestroy {
   isGettingQuestion = false;
   isGettingCurrentQuestion = false;
 
+  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
+  combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
   public question$ = this.questionSource.asObservable();
   
