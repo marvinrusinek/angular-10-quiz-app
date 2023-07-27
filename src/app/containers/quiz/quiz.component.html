@@ -16,7 +16,7 @@
       <ng-container *ngIf="data?.options">
         <!-- Use data to conditionally render the codelab-quiz-question component -->
         <codelab-quiz-question
-          *ngIf="data?.question?.questionText || data?.question?.correctAnswersText"
+          *ngIf="data?.questionText || data?.correctAnswersText"
           [question]="data?.question"
           [options]="data?.options"
           (answer)="selectedAnswer($event)"
