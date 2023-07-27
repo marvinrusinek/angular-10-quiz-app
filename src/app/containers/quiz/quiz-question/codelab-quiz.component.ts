@@ -46,6 +46,7 @@ export class CodelabQuizComponent {
   @Input() combinedQuestionData$!: Observable<{
     questionText: string;
     correctAnswersText?: string;
+    currentOptions: Option[];
   }>;
 
   private destroy$ = new Subject<void>();
