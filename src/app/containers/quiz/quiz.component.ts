@@ -90,6 +90,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
+  combinedQuestionData$: Observable<any>;
   // currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
@@ -184,10 +185,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion$ = this.quizService.getNextQuestion();
     const nextOptions$ = this.quizService.getNextOptions();
 
-    nextQuestion$.subscribe();
-    nextOptions$.subscribe();
-
-    combineLatest([nextQuestion$, nextOptions$]).pipe(
+    /* combineLatest([nextQuestion$, nextOptions$]).pipe(
       tap(([nextQuestion, nextOptions]) => {
         console.log('Next question:::>>>', nextQuestion);
         console.log('Next options:::>>>', nextOptions);
@@ -201,7 +199,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe(({ question, options }) => {
       this.question$ = of(question);
       this.options$ = of(options);
-    });
+    }); */
+
+    // Combine nextQuestion$ and nextOptions$ using combineLatest
+    this.combinedQuestionData$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$
+    ]).pipe(
+      map(([nextQuestion, nextOptions]) => {
+        return {
+          questionText: nextQuestion?.questionText,
+          correctAnswersText: null,
+          options: nextOptions
+        };
+      })
+    );
   }
 
   ngOnDestroy(): void {
