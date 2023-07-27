@@ -922,27 +922,27 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const selectedOption = this.form.value.selectedOption;
   
-    // Get the next question and options
-    const nextQuestionAndOptions = this.quizService.getNextQuestionAndOptions();
-    console.log('Next question and options:', nextQuestionAndOptions);
+    // Get the next question
+    const nextQuestion = await this.quizService.getNextQuestion();
+    console.log('Next question:', nextQuestion);
   
-    if (nextQuestionAndOptions) {
-      this.currentQuestion = nextQuestionAndOptions.question;
-      this.currentOptions = nextQuestionAndOptions.options;
+    if (nextQuestion && nextQuestion.options) {
+      this.currentQuestion = nextQuestion;
+      this.currentOptions = nextQuestion.options;
   
-      this.nextQuestionText = nextQuestionAndOptions.question.questionText;
-      this.quizService.setNextQuestion(nextQuestionAndOptions.question);
-  
+      this.nextQuestionText = nextQuestion.questionText;
+      this.quizService.setNextQuestion(nextQuestion);
+
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      this.quizService.updateCurrentOptions(nextQuestionAndOptions.options);
-  
-      const explanationTextOfNextQuestion = nextQuestionAndOptions.question.questionText;
+      this.quizService.updateCurrentOptions(nextQuestion.options);
+      
+      const explanationTextOfNextQuestion = nextQuestion.questionText;
       this.explanationTextSource.next(explanationTextOfNextQuestion);
   
       console.log('Before navigation');
-      await this.quizService.navigateToNextQuestion();
+      this.quizService.navigateToNextQuestion();
       console.log('After navigation');
-  
+
       // Set options and questionText for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       if (this.selectedQuiz.questions[nextQuestionIndex]) {
@@ -951,7 +951,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       } else {
         this.nextQuestionText = null;
       }
-  
+
       console.log('Next question text:', this.nextQuestionText);
       console.log('Current options:', this.currentOptions);
     } else {
