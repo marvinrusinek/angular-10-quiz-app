@@ -100,6 +100,9 @@ export class MultipleAnswerComponent
   async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
+    console.log('CodelabQuizMultipleAnswerComponent - Question:', this.question);
+    console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
+
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         console.log('MultipleAnswerComponent destroyed');

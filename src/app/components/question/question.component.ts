@@ -159,6 +159,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('CodelabQuizQuestionComponent - Data:', this.data);
     console.log('QuestionComponent initialized');
     console.log('ngOnInit called');
     console.log('questionForm:', this.questionForm.value);

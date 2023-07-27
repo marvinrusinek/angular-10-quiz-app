@@ -82,6 +82,9 @@ export class CodelabQuizComponent {
         this.question$ = of(question);
         this.options$ = of(options);
       });
+
+    console.log('CodelabQuizCpComponent - Question:', this.question);
+    console.log('CodelabQuizCpComponent - Options:', this.options);
   }
 
   ngOnDestroy(): void {
