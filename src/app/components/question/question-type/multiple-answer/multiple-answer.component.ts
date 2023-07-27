@@ -48,6 +48,11 @@ export class MultipleAnswerComponent
     selectedOption: Option;
   }>();
   @Output() answer = new EventEmitter<number>();
+  @Input() data: {
+    questionText: string;
+    correctAnswersText?: string;
+    currentOptions: Option[];
+  };
   @Input() question!: QuizQuestion;
   // @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestionIndex!: number;
