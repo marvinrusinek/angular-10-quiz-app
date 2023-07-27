@@ -137,9 +137,6 @@ export class QuizService implements OnDestroy {
   isGettingQuestion = false;
   isGettingCurrentQuestion = false;
 
-  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
-  combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
-
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
   public question$ = this.questionSource.asObservable();
   
@@ -150,10 +147,15 @@ export class QuizService implements OnDestroy {
 
   nextQuestionSource: BehaviorSubject<QuizQuestion | null> 
     = new BehaviorSubject<QuizQuestion | null>(null);
-  nextQuestion$: Observable<QuizQuestion | null> = this.nextQuestionSource.asObservable();
+  // nextQuestion$: Observable<QuizQuestion | null> = this.nextQuestionSource.asObservable();
 
   nextOptionsSource = new BehaviorSubject<Option[]>([]);
-  nextOptions$: Observable<Option[]> = this.nextOptionsSource.asObservable();
+  // nextOptions$: Observable<Option[]> = this.nextOptionsSource.asObservable();
+
+  private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  private nextOptionsSubject = new BehaviorSubject<Option[]>(null);
+  nextQuestion$ = this.nextQuestionSubject.asObservable();
+  nextOptions$ = this.nextOptionsSubject.asObservable();
 
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
@@ -541,11 +543,13 @@ export class QuizService implements OnDestroy {
     ) {
       const nextQuestion = currentQuiz.questions[nextIndex];
       this.nextQuestionSource.next(nextQuestion);
+      this.nextQuestionSubject.next(nextQuestion);
       this.setNextQuestion(nextQuestion);
       return nextQuestion;
     }
 
     this.nextQuestionSource.next(null);
+    this.nextQuestionSubject.next(null);
     return undefined;
   }
 
@@ -560,10 +564,12 @@ export class QuizService implements OnDestroy {
     ) {
       const nextOptions = currentQuiz.questions[nextIndex].options;
       this.nextOptionsSource.next(nextOptions);
+      this.nextOptionsSubject.next(nextOptions);
       return nextOptions;
     }
 
     this.nextOptionsSource.next(null);
+    this.nextOptionsSubject.next(null);
     return undefined;
   }
 

@@ -131,6 +131,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
 
+  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
+  combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
   questionIndex: number;
@@ -214,6 +217,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         };
       })
     );
+
+    // Subscribe to nextQuestion$ and nextOptions$ and update combinedQuestionDataSubject
+    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$]).subscribe(([nextQuestion, nextOptions]) => {
+      if (nextQuestion && nextOptions) {
+        this.combinedQuestionDataSubject.next({ question: nextQuestion, options: nextOptions });
+      }
+    });
   }
 
   ngOnDestroy(): void {
