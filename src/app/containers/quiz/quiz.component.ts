@@ -180,6 +180,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.currentOptions$.subscribe(options => {
       this.currentOptions = options;
     });
+
+    const nextQuestion$ = this.quizService.getNextQuestion();
+    const nextOptions$ = this.quizService.getNextOptions();
+
+    combineLatest([nextQuestion$, nextOptions$]).pipe(
+      map(([nextQuestion, nextOptions]) => {
+        return {
+          question: nextQuestion as QuizQuestion,
+          options: nextOptions as Option[],
+        };
+      })
+    ).subscribe(({ question, options }) => {
+      this.question$ = of(question);
+      this.options$ = of(options);
+    });
   }
 
   ngOnDestroy(): void {
