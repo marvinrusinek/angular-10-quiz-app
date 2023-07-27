@@ -540,6 +540,21 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
+  getNextOptions(): Option[] | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+    const nextIndex = this.currentQuestionIndex + 1;
+  
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      nextIndex < currentQuiz.questions.length
+    ) {
+      return currentQuiz.questions[nextIndex].options;
+    }
+  
+    return undefined;
+  }
+
   async getCurrentQuestion(): Promise<QuizQuestion> {
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
