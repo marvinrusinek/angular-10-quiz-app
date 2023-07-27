@@ -951,7 +951,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
-      this.currentOptions = nextQuestion.options;
+      this.currentOptions = nextOptions;
   
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
