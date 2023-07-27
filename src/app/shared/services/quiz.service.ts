@@ -119,13 +119,6 @@ export class QuizService implements OnDestroy {
   shouldDisplayExplanation: boolean = false;
   selectionMessage: string;
 
-  private nextQuestionSource: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
-  nextQuestion$ = this.nextQuestionSource.asObservable();
-
-  private optionsSource: Subject<Option[]> = new Subject<Option[]>();
-  options$: Observable<Option[]> = this.optionsSource.asObservable();
-  optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[] | null>(null);
-
   currentAnswer = '';
   nextQuestionText = '';
   nextQuestionText$: Observable<string>;
@@ -144,11 +137,21 @@ export class QuizService implements OnDestroy {
   isGettingQuestion = false;
   isGettingCurrentQuestion = false;
 
-  private currentQuizSubject = new BehaviorSubject<Quiz>(null);
-  currentQuiz$ = this.currentQuizSubject.asObservable();
-
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
   public question$ = this.questionSource.asObservable();
+  
+  private optionsSource: Subject<Option[]> = new Subject<Option[]>();
+  options$: Observable<Option[]> = this.optionsSource.asObservable();
+  optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[] | null>(null);
+
+  private nextQuestionSource: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  nextQuestion$: Observable<QuizQuestion | null> = this.nextQuestionSource.asObservable();
+
+  private nextOptionsSource = new BehaviorSubject<Option[]>([]);
+  nextOptions$: Observable<Option[]> = this.nextOptionsSource.asObservable();
+
+  private currentQuizSubject = new BehaviorSubject<Quiz>(null);
+  currentQuiz$ = this.currentQuizSubject.asObservable();
 
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
