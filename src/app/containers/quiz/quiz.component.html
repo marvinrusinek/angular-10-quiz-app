@@ -17,7 +17,8 @@
         <!-- Use data to conditionally render the codelab-quiz-question component -->
         <codelab-quiz-question
           *ngIf="data?.questionText || data?.correctAnswersText"
-          [question]="data?.question"
+          [data]="data"
+          [question]="data?.questionText"
           [options]="data?.currentOptions"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
