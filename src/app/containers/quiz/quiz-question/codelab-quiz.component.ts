@@ -82,6 +82,16 @@ export class CodelabQuizComponent {
         };
       })
     );
+
+    // Update the options$ initialization using combineLatest
+    this.options$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
+      map(([currentQuestion, currentOptions]) => {
+        if (currentQuestion && currentQuestion.options) {
+          return currentQuestion.options;
+        }
+        return [];
+      })
+    );
       
     console.log('CodelabQuizCpComponent - Question:', this.question);
     console.log('CodelabQuizCpComponent - Options:', this.options);
