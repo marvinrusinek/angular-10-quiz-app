@@ -108,6 +108,9 @@ export class MultipleAnswerComponent
     console.log('CodelabQuizMultipleAnswerComponent - Question:', this.question);
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
 
+    console.log('data.currentOptions length:', this.data?.currentOptions?.length);
+    console.log('data.currentOptions:', this.data?.currentOptions);
+
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         console.log('MultipleAnswerComponent destroyed');

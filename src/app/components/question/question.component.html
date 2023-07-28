@@ -45,6 +45,7 @@
       <ng-container *ngIf="data?.options && data?.options.length > 0">
         <codelab-question-multiple-answer
           [form]="questionForm"
+          [data]="data"
           [question]="data?.questionText"
           [questions]="questions"
           [currentQuestion$]="currentQuestion$ | async"
@@ -64,6 +65,7 @@
     <ng-container *ngSwitchCase="!multipleAnswer">
       <ng-container *ngIf="data?.options && data?.options.length > 0">
         <codelab-question-single-answer
+          [data]="data"
           [question]="data?.questionText"
           [questions]="questions"
           [options]="data?.options"
