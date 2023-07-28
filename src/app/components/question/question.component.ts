@@ -526,7 +526,7 @@ export class QuizQuestionComponent
       if (question) {
         this.currentQuestion = question;
         this.options = this.currentQuestion.options;
-        this.quizService.setCurrentOptions(this.options);
+        // this.quizService.setCurrentOptions(this.options);
       } else {
         console.error('Invalid Question ID');
       }
@@ -568,7 +568,7 @@ export class QuizQuestionComponent
     console.log("DATA:::>>>", this.data);
     console.log("Correct Answers:::>>>", this.correctAnswers);
     console.log("Current Options:::", this.data?.currentOptions);
-    
+
     if (this.data && this.data?.currentOptions && this.data?.currentOptions?.length > 0) {
       try {
         this.correctMessage = this.quizService.setCorrectMessage(
@@ -609,7 +609,7 @@ export class QuizQuestionComponent
         this.currentQuestion = currentQuestion;
         this.currentOptions = currentQuestion.options;
 
-        this.quizService.setCurrentOptions(currentQuestion.options);
+        // this.quizService.setCurrentOptions(currentQuestion.options);
 
         const { options, answer } = currentQuestion;
 
@@ -628,7 +628,7 @@ export class QuizQuestionComponent
               selected: false,
             } as Option)
         );
-        this.quizService.setCurrentOptions(this.options);
+        // this.quizService.setCurrentOptions(this.options);
 
         // shuffle options only if the shuffleOptions boolean is true
         if (this.shuffleOptions) {
