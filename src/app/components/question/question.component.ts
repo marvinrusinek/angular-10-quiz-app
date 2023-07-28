@@ -277,7 +277,7 @@ export class QuizQuestionComponent
     ) {
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
-        this.currentQuestion,
+        this.data,
         this.correctAnswers
       );
       this.cdRef.detectChanges(); // manually trigger change detection
@@ -561,7 +561,7 @@ export class QuizQuestionComponent
     if (this.question && this.currentQuestion) {
       try {
         this.correctMessage = this.quizService.setCorrectMessage(
-          this.question,
+          this.data,
           this.correctAnswers
         );
       } catch (error) {
