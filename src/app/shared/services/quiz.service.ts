@@ -830,7 +830,7 @@ export class QuizService implements OnDestroy {
     return correctMessage;
   } */
 
-  setCorrectMessage(data: any, correctAnswersArray: any[], options: any[]): string {
+  setCorrectMessage(data: any, correctAnswersArray: any[], currentOptions: Option[]): string {
     const correctOptionNumbers = correctAnswersArray
       .filter(
         (answer) =>
