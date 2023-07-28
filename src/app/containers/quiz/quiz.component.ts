@@ -539,6 +539,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
 
+    this.displayQuestion(this.quizId);
+
     this.question$ = this.quizDataService.getQuestion(
       quizId,
       currentQuestionIndex
@@ -850,10 +852,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizService.shouldExplanationBeDisplayed();
   }
 
-  async displayQuestion(questionId: number) {
+  async displayQuestion(quizId: string) {
     try {
       // Fetch the current question and its options based on the questionId
-      const currentQuestion: QuizQuestion = await this.quizDataService.getQuestionsForQuiz(this.quizId);
+      const currentQuestion: QuizQuestion = await this.quizDataService.getQuestionsForQuiz(quizId);
       const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
 
       // Display the question and options on the screen
