@@ -506,9 +506,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
-
-    this.quizService.setCurrentOptions(this.data?.currentOptions);
-
+  
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
       this.quizStateService.currentOptions$,
@@ -521,26 +519,24 @@ export class QuizComponent implements OnInit, OnDestroy {
         };
       })
     );
-
-    if (this.quizService.currentQuestion$ && this.quizService.options$) {
-      this.options$ = combineLatest([
-        this.quizService.currentQuestion$.pipe(
-          tap((currentQuestion) =>
-            console.log('currentQuestion:', currentQuestion)
-          )
-        ),
-        this.quizService.options$.pipe(
-          tap((options) => console.log('options:', options))
-        ),
-      ]).pipe(
-        map(([currentQuestion, options]) => {
-          return currentQuestion?.options || [];
-        })
-      );
-      this.options$.subscribe((options) => console.log(options));
-    }
+  
+    this.options$ = combineLatest([
+      this.quizService.currentQuestion$.pipe(
+        tap((currentQuestion) =>
+          console.log('currentQuestion:', currentQuestion)
+        )
+      ),
+      this.quizService.options$.pipe(
+        tap((options) => console.log('options:', options))
+      ),
+    ]).pipe(
+      map(([currentQuestion, options]) => {
+        return currentQuestion?.options || [];
+      })
+    );
+    this.options$.subscribe((options) => console.log(options));
   }
-
+  
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
@@ -610,6 +606,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
+      this.quizService.setCurrentOptions(this.data?.currentOptions);
       this.quizService.setCurrentQuestionIndex(+questionIndex);
       this.quizService.setTotalQuestions(questions.length);
 
