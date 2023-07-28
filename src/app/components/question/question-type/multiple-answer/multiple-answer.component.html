@@ -1,8 +1,8 @@
-<ng-container *ngIf="data?.currentOptions">
+<ng-container *ngIf="data?.options">
   <div class="options-container">
     <div
       *ngFor="
-        let option of data?.currentOptions;
+        let option of data?.options;
         let i = index;
         trackBy: trackByFn
       "
@@ -22,6 +22,7 @@
           *ngIf="isSelectedOption(option)"
           [correct]="option?.correct"
           [selected]="isSelectedOption(option)"
+          [options]="data?.options"
         ></codelab-quiz-option-feedback>
 
         <codelab-quiz-feedback
@@ -30,6 +31,7 @@
           [selectedOption]="option"
           [correctMessage]="correctMessage"
           [showFeedback]="showFeedback"
+          [options]="data?.options"
         ></codelab-quiz-feedback>
       </label>
     </div>
