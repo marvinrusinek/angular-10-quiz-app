@@ -501,7 +501,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
+
+    console.log('Before setCurrentOptions');
     this.quizService.setCurrentOptions([]);
+    console.log('After setCurrentOptions');
 
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
