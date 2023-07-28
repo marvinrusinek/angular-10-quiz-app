@@ -786,10 +786,14 @@ export class QuizService implements OnDestroy {
   setCorrectAnswers(question: QuizQuestion, correctAnswerOptions: Option[]): void {
     console.log("CAO:::", this.correctAnswerOptions);
     if (question !== null) {
+      const correctOptionNumbers = correctAnswerOptions
+        .filter((option) => option.correct)
+        .map((option) => option.optionId); // Assuming optionId is the correct identifier
+  
       const correctAnswerExist =
         this.correctAnswers.find((q) => q.questionId === question.explanation) !== undefined;
       if (!correctAnswerExist) {
-        this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
+        this.correctAnswersForEachQuestion.push(correctOptionNumbers);
         this.correctAnswers.push({
           questionId: question.explanation,
           answers: this.correctAnswersForEachQuestion.sort(),
@@ -799,8 +803,9 @@ export class QuizService implements OnDestroy {
         this.correctAnswersForEachQuestion = [];
       }
     }
-    this.correctAnswerOptions = correctAnswerOptions;
+    this.correctAnswerOptions = correctAnswerOptions.map(option => option.optionId);
   }
+  
   
   /* setCorrectMessage(question: any, correctAnswersArray: any[]): string {
     const correctOptionNumbers = correctAnswersArray
