@@ -850,6 +850,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizService.shouldExplanationBeDisplayed();
   }
 
+  async displayQuestion(questionId: number) {
+    try {
+      // Fetch the current question and its options based on the questionId
+      const currentQuestion: QuizQuestion = await this.quizDataService.getQuestionsForQuiz(this.quizId);
+      const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
+
+      // Display the question and options on the screen
+      this.currentQuestion = currentQuestion;
+      this.options = currentQuestion.options;
+
+      // Call setCorrectAnswers with the current question and its correct answer options
+      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+    } catch (error) {
+      console.error('Error fetching and displaying the question:', error);
+    }
+  }
+
   /* async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
