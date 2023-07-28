@@ -1,4 +1,4 @@
-🚀 Welcome to the Angular Quiz App! 🧠
+🚀 <b>Welcome to the Angular Quiz App!</b> 🧠
 
 Are you ready to test your knowledge and dive into the exciting world of Angular? Look no further! This dynamic and engaging Quiz App is being meticulously crafted to challenge your understanding of Angular concepts.
 
