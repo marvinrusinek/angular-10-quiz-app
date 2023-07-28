@@ -66,7 +66,7 @@ export class CodelabQuizComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
 
-    this.currentOptions$ = this.quizService.currentOptionsSubject;
+    // this.currentOptions$ = this.quizService.currentOptionsSubject;
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
 
     combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$])
@@ -115,7 +115,7 @@ export class CodelabQuizComponent {
         }
       });
   
-    this.currentOptions$ = this.quizService.getOptionsObservable().pipe(
+    /* this.currentOptions$ = this.quizService.getOptionsObservable().pipe(
       withLatestFrom(this.currentQuestion$),
       map(([options, currentQuestion]) => {
         // Filter and return the options for the current question
@@ -127,7 +127,7 @@ export class CodelabQuizComponent {
         }
         return [];
       })
-    ); 
+    ); */
       
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
       this.currentQuestion$ = of(question);
