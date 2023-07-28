@@ -558,7 +558,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private updateCorrectMessage(): void {
+  /* private updateCorrectMessage(): void {
     if (this.question && this.currentQuestion) {
       try {
         this.correctMessage = this.quizService.setCorrectMessage(
@@ -571,6 +571,22 @@ export class QuizQuestionComponent
           'An error occurred while updating the correct message:',
           error
         );
+      }
+    } else {
+      this.correctMessage = 'The correct answers are not available yet.';
+    }
+  } */
+
+  private updateCorrectMessage(): void {
+    if (this.data && this.data?.options && this.data?.options?.length > 0) {
+      try {
+        this.correctMessage = this.quizService.setCorrectMessage(
+          this.data,
+          this.correctAnswers,
+          this.data.currentOptions
+        );
+      } catch (error) {
+        console.error('An error occurred while updating the correct message:', error);
       }
     } else {
       this.correctMessage = 'The correct answers are not available yet.';
