@@ -550,6 +550,7 @@ export class QuizQuestionComponent
   }
 
   private updateCorrectAnswers(): void {
+    console.log("Current Options:::>>>", this.data.currentOptions);
     if (this.data && this.data.currentOptions) {
       this.correctAnswers = this.data.currentOptions
         .filter((option) => option.correct)
@@ -559,7 +560,6 @@ export class QuizQuestionComponent
 
   private updateCorrectMessage(): void {
     console.log("DATA:::>>>", this.data);
-    console.log("Current Options:::>>>", this.data?.currentOptions);
     console.log("Correct Answers:::>>>", this.correctAnswers);
     if (this.data && this.data?.currentOptions && this.data?.currentOptions?.length > 0) {
       try {
