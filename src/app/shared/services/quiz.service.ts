@@ -849,7 +849,7 @@ export class QuizService implements OnDestroy {
       return 'The correct answers are not available yet.';
     }
   
-    const correctOptionTexts = this.options
+    const correctOptionTexts = currentOptions
       .filter(option => correctOptionNumbers.includes(option.optionId))
       .map(option => option.text);
   
