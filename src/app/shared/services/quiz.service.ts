@@ -831,6 +831,8 @@ export class QuizService implements OnDestroy {
   } */
 
   setCorrectMessage(data: any, correctAnswersArray: any[], currentOptions: Option[]): string {
+    console.log("CAA", correctAnswersArray);
+    console.log('Function setCorrectMessage() is called.');
     if (!data || !data.options || data.options.length === 0) {
       return 'The correct answers are not available yet.';
     }
@@ -849,6 +851,12 @@ export class QuizService implements OnDestroy {
         }
       });
   
+    console.log('correctOptionNumbers:', correctOptionNumbers);
+
+    if (correctOptionNumbers.length === 0) {
+      return 'The correct answers are not available yet.';
+    }
+
     const correctOptionTexts = currentOptions
       .filter(option => correctOptionNumbers.includes(option.optionId))
       .map(option => option.text);
@@ -859,16 +867,10 @@ export class QuizService implements OnDestroy {
       optionsText === 'Option' ? '' : 's'
     } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   
-    // Check if it's the first question to determine if it should display the specific feedback
-    if (data?.options && data?.options.length > 0) {
-      correctMessage = `That's right! ${correctMessage}`;
-    }
-  
+    console.log("CORRECT MESSAGE:::>>>", correctMessage);
     return correctMessage;
   }
   
-  
-
   // set the text of the previous user answers in an array to show in the following quiz
   setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {
     this.previousAnswers = previousAnswers.map((answer) => {
