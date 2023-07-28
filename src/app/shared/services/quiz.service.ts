@@ -752,7 +752,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
-  setCorrectAnswers(question: QuizQuestion): void {
+  /* setCorrectAnswers(question: QuizQuestion): void {
     if (question !== null) {
       const correctAnswerExist =
         this.correctAnswers.find(
@@ -766,7 +766,23 @@ export class QuizService implements OnDestroy {
         });
       }
     }
+  } */
+
+  setCorrectAnswers(question: QuizQuestion): void {
+    if (question !== null) {
+      this.correctAnswersForEachQuestion = [];
+      const correctAnswerExist = this.correctAnswers.find(
+        (q) => q.questionId === question.explanation
+      ) !== undefined;
+      if (!correctAnswerExist) {
+        this.correctAnswers.push({
+          questionId: question.explanation,
+          answers: this.correctAnswerOptions.sort(),
+        });
+      }
+    }
   }
+  
 
   /* setCorrectMessage(question: any, correctAnswersArray: any[]): string {
     const correctOptionNumbers = correctAnswersArray
