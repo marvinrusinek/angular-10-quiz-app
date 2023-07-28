@@ -10,6 +10,11 @@ import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeedbackComponent {
+  @Input() data: {
+    questionText: string;
+    correctAnswersText?: string;
+    currentOptions: Option[];
+  };
   @Input() question: QuizQuestion;
   @Input() correctMessage: string;
   @Input() selectedOption: Option & { correct: boolean };
