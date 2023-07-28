@@ -21,7 +21,6 @@
           *ngIf="data?.questionText || data?.correctAnswersText"
           [data]="data"
           [question]="data?.questionText"
-          [options]="data?.currentOptions"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
