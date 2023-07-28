@@ -797,7 +797,7 @@ export class QuizService implements OnDestroy {
     } ${areIsText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
   } */
 
-  setCorrectMessage(data: any, correctAnswersArray: any[]): string {
+  /* setCorrectMessage(data: any, correctAnswersArray: any[]): string {
     const correctOptionNumbers = correctAnswersArray
       .filter(
         (answer) =>
@@ -828,7 +828,45 @@ export class QuizService implements OnDestroy {
     }
   
     return correctMessage;
+  } */
+
+  setCorrectMessage(data: any, correctAnswersArray: any[], options: any[]): string {
+    const correctOptionNumbers = correctAnswersArray
+      .filter(
+        (answer) =>
+          typeof answer === 'number' ||
+          (typeof answer === 'object' && answer !== null && answer !== undefined)
+      )
+      .map((answer) => {
+        if (typeof answer === 'number') {
+          return answer + 1;
+        } else if (answer.hasOwnProperty('optionNumber')) {
+          return answer.optionNumber + 1;
+        }
+      });
+  
+    if (correctOptionNumbers.length === 0) {
+      return 'The correct answers are not available yet.';
+    }
+  
+    const correctOptionTexts = options
+      .filter(option => correctOptionNumbers.includes(option.optionNumber))
+      .map(option => option.text);
+  
+    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    let correctMessage = `The correct answer${
+      optionsText === 'Option' ? '' : 's'
+    } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
+  
+    // Check if it's the first question to determine if it should display the specific feedback
+    if (data && data.firstQuestion) {
+      correctMessage = `That's right! ${correctMessage}`;
+    }
+  
+    return correctMessage;
   }
+  
   
 
   // set the text of the previous user answers in an array to show in the following quiz
