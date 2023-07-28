@@ -775,42 +775,31 @@ export class QuizService implements OnDestroy {
     this.correctAnswerOptions = correctAnswerOptions.map(option => option.optionId);
   }
   
-  
-  setCorrectMessage(data: any, correctAnswersArray: any[], currentOptions: Option[]): string {
-    console.log("Current Options:::::", currentOptions);
-    console.log("CAA", correctAnswersArray);
+  setCorrectMessage(
+    data: any,
+    correctAnswerOptions: Option[],
+    currentOptions: Option[]
+  ): string {
+    console.log("CAA", correctAnswerOptions);
     console.log('Function setCorrectMessage() is called.');
+  
     if (!data || !data.options || data.options.length === 0) {
       return 'The correct answers are not available yet.';
     }
-
-    /* const correctOptionNumbers = correctAnswersArray
-      .filter(
-        (answer) =>
-          typeof answer === 'number' ||
-          (typeof answer === 'object' && answer !== null && answer !== undefined)
-      )
-      .map((answer) => {
-        if (typeof answer === 'number') {
-          return answer + 1;
-        } else if (answer.hasOwnProperty('optionNumber')) {
-          return answer.optionNumber + 1;
-        }
-      }); */
-
-    const correctOptionNumbers = correctAnswersArray
-      .filter((option) => option.correct)
-      .map((option) => option.optionId); 
   
-    console.log('correctOptionNumbers:', correctOptionNumbers);
-
-    if (correctOptionNumbers.length === 0) {
+    const correctOptionIds = correctAnswerOptions
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
+  
+    console.log('correctOptionIds:', correctOptionIds);
+  
+    if (correctOptionIds.length === 0) {
       return 'The correct answers are not available yet.';
     }
-
+  
     const correctOptionTexts = currentOptions
-      .filter(option => correctOptionNumbers.includes(option.optionId))
-      .map(option => option.text);
+      .filter((option) => correctOptionIds.includes(option.optionId))
+      .map((option) => option.text);
   
     const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
