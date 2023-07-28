@@ -783,7 +783,8 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  setCorrectAnswers(question: QuizQuestion): void {
+  setCorrectAnswers(question: QuizQuestion, correctAnswerOptions: Option[]): void {
+    console.log("CAO:::", this.correctAnswerOptions);
     if (question !== null) {
       const correctAnswerExist =
         this.correctAnswers.find((q) => q.questionId === question.explanation) !== undefined;
@@ -798,6 +799,7 @@ export class QuizService implements OnDestroy {
         this.correctAnswersForEachQuestion = [];
       }
     }
+    this.correctAnswerOptions = correctAnswerOptions;
   }
   
   /* setCorrectMessage(question: any, correctAnswersArray: any[]): string {
