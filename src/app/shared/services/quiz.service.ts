@@ -757,7 +757,7 @@ export class QuizService implements OnDestroy {
     if (question !== null) {
       const correctOptionNumbers = correctAnswerOptions
         .filter((option) => option.correct)
-        .map((option) => option.optionId); // Assuming optionId is the correct identifier
+        .map((option) => option.optionId);
   
       const correctAnswerExist =
         this.correctAnswers.find((q) => q.questionId === question.explanation) !== undefined;
