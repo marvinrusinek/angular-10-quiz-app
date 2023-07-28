@@ -849,10 +849,6 @@ export class QuizService implements OnDestroy {
         }
       });
   
-    if (correctOptionNumbers.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-  
     const correctOptionTexts = currentOptions
       .filter(option => correctOptionNumbers.includes(option.optionId))
       .map(option => option.text);
