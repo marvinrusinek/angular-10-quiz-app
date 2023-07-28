@@ -242,6 +242,10 @@ export class CodelabQuizComponent {
         return { questionText, correctAnswersText, currentOptions };
       })
     );
+
+    this.combinedQuestionData$.subscribe((data) => {
+      console.log('Combined Question Data:::>>>>>', data);
+    });
   }
    
   getQuestionText(

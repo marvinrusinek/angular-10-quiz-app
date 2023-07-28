@@ -45,7 +45,7 @@
       <ng-container *ngIf="data?.options && data?.options.length > 0">
         <codelab-question-multiple-answer
           [form]="questionForm"
-          [data]="data"
+          [data]="combinedQuestionData$"
           [question]="data?.questionText"
           [questions]="questions"
           [currentQuestion$]="currentQuestion$ | async"
