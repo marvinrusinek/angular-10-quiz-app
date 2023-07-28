@@ -231,6 +231,11 @@ export class QuizQuestionComponent
         console.log('currentQuestion:', this.currentQuestion);
       });
 
+      this.quizService.currentOptions$.subscribe((currentOptions) => {
+        console.log('Current Options:::>>>', currentOptions);
+        // Update this.data or any other logic that depends on currentOptions
+      });
+
       /* if (!this.currentQuestionLoaded) {
         await this.loadCurrentQuestion();
         this.currentQuestionLoaded = true;
