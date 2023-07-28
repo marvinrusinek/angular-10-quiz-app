@@ -860,7 +860,7 @@ export class QuizService implements OnDestroy {
     } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   
     // Check if it's the first question to determine if it should display the specific feedback
-    if (data && data.firstQuestion) {
+    if (options && options.length > 0) {
       correctMessage = `That's right! ${correctMessage}`;
     }
   
