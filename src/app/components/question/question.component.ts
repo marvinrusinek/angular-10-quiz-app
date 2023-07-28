@@ -578,7 +578,7 @@ export class QuizQuestionComponent
   } */
 
   private updateCorrectMessage(): void {
-    if (this.data && this.data?.options && this.data?.options?.length > 0) {
+    if (this.data && this.data?.currentOptions && this.data?.currentOptions?.length > 0) {
       try {
         this.correctMessage = this.quizService.setCorrectMessage(
           this.data,
