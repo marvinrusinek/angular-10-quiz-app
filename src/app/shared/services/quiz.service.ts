@@ -807,7 +807,7 @@ export class QuizService implements OnDestroy {
     } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   
     console.log("CORRECT MESSAGE:::>>>", correctMessage);
-    return correctMessage;
+    return correctMessage; 
   }
   
   // set the text of the previous user answers in an array to show in the following quiz
