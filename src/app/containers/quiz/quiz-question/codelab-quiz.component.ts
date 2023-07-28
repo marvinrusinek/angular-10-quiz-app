@@ -127,7 +127,7 @@ export class CodelabQuizComponent {
         }
         return [];
       })
-    );  
+    ); 
       
     this.quizStateService.getCurrentQuestion().subscribe((question) => {
       this.currentQuestion$ = of(question);
@@ -193,7 +193,6 @@ export class CodelabQuizComponent {
 
     this.nextQuestionSubscription = this.quizService.nextQuestion$
       .pipe(
-        // Use the tap operator to log the received question for debugging
         tap((nextQuestion) =>
           console.log('Next question received', nextQuestion)
         )
