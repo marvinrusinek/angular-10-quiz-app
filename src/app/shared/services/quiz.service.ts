@@ -752,37 +752,6 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
-  /* setCorrectAnswers(question: QuizQuestion): void {
-    if (question !== null) {
-      const correctAnswerExist =
-        this.correctAnswers.find(
-          (q) => q.questionId === question.explanation
-        ) !== undefined;
-      if (!correctAnswerExist) {
-        this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
-        this.correctAnswers.push({
-          questionId: question.explanation,
-          answers: this.correctAnswersForEachQuestion.sort(),
-        });
-      }
-    }
-  } */
-
-  /* setCorrectAnswers(question: QuizQuestion): void {
-    if (question !== null) {
-      this.correctAnswersForEachQuestion = [];
-      const correctAnswerExist = this.correctAnswers.find(
-        (q) => q.questionId === question.explanation
-      ) !== undefined;
-      if (!correctAnswerExist) {
-        this.correctAnswers.push({
-          questionId: question.explanation,
-          answers: this.correctAnswerOptions.sort(),
-        });
-      }
-    }
-  } */
-
   setCorrectAnswers(question: QuizQuestion, correctAnswerOptions: Option[]): void {
     console.log("CAO:::", this.correctAnswerOptions);
     if (question !== null) {
@@ -807,68 +776,6 @@ export class QuizService implements OnDestroy {
   }
   
   
-  /* setCorrectMessage(question: any, correctAnswersArray: any[]): string {
-    const correctOptionNumbers = correctAnswersArray
-      .filter(
-        (answer) =>
-          typeof answer === 'number' ||
-          (typeof answer === 'object' &&
-            answer !== null &&
-            answer !== undefined)
-      )
-      .map((answer) => {
-        if (typeof answer === 'number') {
-          return answer + 1;
-        } else if (answer.hasOwnProperty('optionNumber')) {
-          return answer.optionNumber + 1;
-        }
-      });
-
-    if (correctOptionNumbers.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-
-    const optionsText =
-      correctOptionNumbers.length === 1 ? 'Option' : 'Options';
-    const areIsText = correctOptionNumbers.length === 1 ? 'is' : 'are';
-    return `The correct answer${
-      optionsText === 'Option' ? '' : 's'
-    } ${areIsText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
-  } */
-
-  /* setCorrectMessage(data: any, correctAnswersArray: any[]): string {
-    const correctOptionNumbers = correctAnswersArray
-      .filter(
-        (answer) =>
-          typeof answer === 'number' ||
-          (typeof answer === 'object' && answer !== null && answer !== undefined)
-      )
-      .map((answer) => {
-        if (typeof answer === 'number') {
-          return answer + 1;
-        } else if (answer.hasOwnProperty('optionNumber')) {
-          return answer.optionNumber + 1;
-        }
-      });
-  
-    if (correctOptionNumbers.length === 0) {
-      return 'The correct answers are not available yet.';
-    }
-  
-    const optionsText = correctOptionNumbers.length === 1 ? 'Option' : 'Options';
-    const areIsText = correctOptionNumbers.length === 1 ? 'is' : 'are';
-    let correctMessage = `The correct answer${
-      optionsText === 'Option' ? '' : 's'
-    } ${areIsText} ${optionsText} ${correctOptionNumbers.join(' and ')}.`;
-  
-    // Check if it's the first question to determine if it should display the specific feedback
-    if (data && data.firstQuestion) {
-      correctMessage = `That's right! ${correctMessage}`;
-    }
-  
-    return correctMessage;
-  } */
-
   setCorrectMessage(data: any, correctAnswersArray: any[], currentOptions: Option[]): string {
     console.log("Current Options:::::", currentOptions);
     console.log("CAA", correctAnswersArray);
