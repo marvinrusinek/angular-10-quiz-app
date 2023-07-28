@@ -409,9 +409,10 @@ export class QuizQuestionComponent
             console.log('currentQuestion:', this.currentQuestion);
             this.options = options;
             console.log('options:::::>>', options);
+            this.currentOptions = currentQuestion.options; // added
             this.quizDataService.questionAndOptions = [
               currentQuestion,
-              options,
+              options
             ];
           }
         }
