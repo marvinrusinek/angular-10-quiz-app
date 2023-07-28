@@ -278,7 +278,8 @@ export class QuizQuestionComponent
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.data,
-        this.correctAnswers
+        this.correctAnswers,
+        this.data.options
       );
       this.cdRef.detectChanges(); // manually trigger change detection
     }
@@ -562,7 +563,8 @@ export class QuizQuestionComponent
       try {
         this.correctMessage = this.quizService.setCorrectMessage(
           this.data,
-          this.correctAnswers
+          this.correctAnswers,
+          this.data.options
         );
       } catch (error) {
         console.error(
