@@ -877,7 +877,7 @@ export class QuizService implements OnDestroy {
       return 'The correct answers are not available yet.';
     }
 
-    const correctOptionNumbers = correctAnswersArray
+    /* const correctOptionNumbers = correctAnswersArray
       .filter(
         (answer) =>
           typeof answer === 'number' ||
@@ -889,7 +889,11 @@ export class QuizService implements OnDestroy {
         } else if (answer.hasOwnProperty('optionNumber')) {
           return answer.optionNumber + 1;
         }
-      });
+      }); */
+
+    const correctOptionNumbers = correctAnswersArray
+      .filter((option) => option.correct)
+      .map((option) => option.optionId); 
   
     console.log('correctOptionNumbers:', correctOptionNumbers);
 
