@@ -69,30 +69,20 @@ export class CodelabQuizComponent {
     // this.currentOptions$ = this.quizService.currentOptionsSubject;
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
 
-    /* combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$])
-      .pipe(
-        map(([nextQuestion, nextOptions]) => {
-          return {
-            question: nextQuestion as QuizQuestion,
-            options: nextOptions as Option[]
-          };
-        })
-      )
-      .subscribe(({ question, options }) => {
-        this.question$ = of(question);
-        this.options$ = of(options);
-      }); */
-
-    this.combinedQuestionData$ = combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$]).pipe(
-      map(([nextQuestion, nextOptions]) => {
+    this.combinedQuestionData$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$,
+      this.numberOfCorrectAnswers$
+    ]).pipe(
+      map(([nextQuestion, nextOptions, numberOfCorrectAnswers]) => {
         return {
           questionText: nextQuestion?.questionText || '',
-          correctAnswersText: null,
+          correctAnswersText: this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers),
           currentOptions: nextOptions || [],
         };
       })
     );
-
+      
     console.log('CodelabQuizCpComponent - Question:', this.question);
     console.log('CodelabQuizCpComponent - Options:', this.options);
   }
