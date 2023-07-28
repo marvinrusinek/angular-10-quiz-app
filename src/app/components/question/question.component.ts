@@ -231,6 +231,7 @@ export class QuizQuestionComponent
         console.log('currentQuestion:', this.currentQuestion);
       });
 
+      console.log('ngOnInit of QuizQuestionComponent called');
       this.quizService.currentOptions$.subscribe((currentOptions) => {
         console.log('Current Options:::>>>', currentOptions);
         // Update this.data or any other logic that depends on currentOptions

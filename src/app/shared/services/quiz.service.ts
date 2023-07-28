@@ -946,6 +946,7 @@ export class QuizService implements OnDestroy {
 
   setCurrentOptions(options: Option[]): void {
     this.currentOptionsSubject.next(options);
+    console.log('setCurrentOptions called with:', options);
   }
 
   setChecked(value: boolean): void {
