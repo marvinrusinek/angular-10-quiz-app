@@ -73,6 +73,11 @@ enum QuizStatus {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
+  @Input() data: {
+    questionText: string;
+    correctAnswersText?: string;
+    currentOptions: Option[];
+  };
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -502,9 +507,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
 
-    console.log('Before setCurrentOptions');
-    this.quizService.setCurrentOptions([]);
-    console.log('After setCurrentOptions');
+    this.quizService.setCurrentOptions(this.data?.currentOptions);
 
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
