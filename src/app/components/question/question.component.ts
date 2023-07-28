@@ -550,8 +550,8 @@ export class QuizQuestionComponent
   }
 
   private updateCorrectAnswers(): void {
-    if (this.question && this.question?.options) {
-      this.correctAnswers = this.question.options
+    if (this.data && this.data.currentOptions) {
+      this.correctAnswers = this.data.currentOptions
         .filter((option) => option.correct)
         .map((option) => option.value);
     }
