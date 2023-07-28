@@ -329,7 +329,6 @@ export class QuizQuestionComponent
   }
   
   updateQuestionForm(): void {
-    this.updateCorrectMessage();
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
