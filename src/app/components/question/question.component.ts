@@ -579,7 +579,7 @@ export class QuizQuestionComponent
 
   private updateCorrectMessage(): void {
     console.log("DATA:::", this.data);
-    console.log("QS CA:::", this.correctAnswers);
+    console.log("Correct Answers:", this.correctAnswers);
     if (this.data && this.data?.currentOptions && this.data?.currentOptions?.length > 0) {
       try {
         this.correctMessage = this.quizService.setCorrectMessage(

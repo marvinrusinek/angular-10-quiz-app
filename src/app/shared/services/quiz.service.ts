@@ -768,7 +768,7 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  setCorrectAnswers(question: QuizQuestion): void {
+  /* setCorrectAnswers(question: QuizQuestion): void {
     if (question !== null) {
       this.correctAnswersForEachQuestion = [];
       const correctAnswerExist = this.correctAnswers.find(
@@ -781,9 +781,25 @@ export class QuizService implements OnDestroy {
         });
       }
     }
+  } */
+
+  setCorrectAnswers(question: QuizQuestion): void {
+    if (question !== null) {
+      const correctAnswerExist =
+        this.correctAnswers.find((q) => q.questionId === question.explanation) !== undefined;
+      if (!correctAnswerExist) {
+        this.correctAnswersForEachQuestion.push(this.correctAnswerOptions);
+        this.correctAnswers.push({
+          questionId: question.explanation,
+          answers: this.correctAnswersForEachQuestion.sort(),
+        });
+  
+        // Reset correctAnswersForEachQuestion for the next question
+        this.correctAnswersForEachQuestion = [];
+      }
+    }
   }
   
-
   /* setCorrectMessage(question: any, correctAnswersArray: any[]): string {
     const correctOptionNumbers = correctAnswersArray
       .filter(
@@ -847,6 +863,7 @@ export class QuizService implements OnDestroy {
   } */
 
   setCorrectMessage(data: any, correctAnswersArray: any[], currentOptions: Option[]): string {
+    console.log("Current Options:::::", currentOptions);
     console.log("CAA", correctAnswersArray);
     console.log('Function setCorrectMessage() is called.');
     if (!data || !data.options || data.options.length === 0) {
