@@ -506,7 +506,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
-
+  
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
       this.quizStateService.currentOptions$,
@@ -519,35 +519,21 @@ export class QuizComponent implements OnInit, OnDestroy {
         };
       })
     );
-
-    this.options$ = combineLatest([
-      this.quizService.currentQuestion$.pipe(
-        tap((currentQuestion) =>
-          console.log('currentQuestion:', currentQuestion)
-        )
-      ),
-      this.quizService.options$.pipe(
-        tap((options) => console.log('options:', options))
-      ),
-    ]).pipe(
-      map(([currentQuestion, options]) => {
-        return currentQuestion?.options || [];
-      })
-    );
-    
+  
     // Subscribe to the currentOptions$ observable
     this.options$.subscribe((options) => {
       if (options && options.length > 0) {
         const currentQuestion = this.quizStateService.currentQuestionValue;
-        const correctAnswerOptions = options.filter((option) =>   option.correct);
-
+        const correctAnswerOptions = options.filter((option) => option.correct);
+  
         if (currentQuestion && correctAnswerOptions) {
           this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+          this.updateCorrectMessage(); // Update the correct message after setting the correct answers
         }
       }
     });
   }
-
+  
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
