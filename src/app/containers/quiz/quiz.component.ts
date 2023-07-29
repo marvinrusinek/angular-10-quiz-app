@@ -534,7 +534,18 @@ export class QuizComponent implements OnInit, OnDestroy {
         return currentQuestion?.options || [];
       })
     );
-    this.options$.subscribe((options) => console.log(options));
+    
+    // Subscribe to the currentOptions$ observable
+    this.options$.subscribe((options) => {
+      if (options && options.length > 0) {
+        const currentQuestion = this.quizStateService.currentQuestionValue;
+        const correctAnswerOptions = options.filter((option) =>   option.correct);
+
+        if (currentQuestion && correctAnswerOptions) {
+          this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+        }
+      }
+    });
   }
 
   async getQuestion(): Promise<void> {
