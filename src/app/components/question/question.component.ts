@@ -561,6 +561,7 @@ export class QuizQuestionComponent
       this.correctAnswers = this.data.currentOptions
         .filter((option) => option.correct)
         .map((option) => option.value);
+      console.log('Correct Answers:', this.correctAnswers);
     }
   }
 
