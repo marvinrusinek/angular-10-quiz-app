@@ -52,7 +52,7 @@ export class QuizService implements OnDestroy {
     questionText: string;
     correctAnswersText?: string;
     currentOptions: Option[];
-  };
+  } = null;
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
   quizName$ = new BehaviorSubject<string>('');

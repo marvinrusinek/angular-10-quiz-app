@@ -564,14 +564,11 @@ export class QuizQuestionComponent
     }
   }
 
-  private updateCorrectMessage(): void {
-    if (!this.quizService.data) {
+  /* private updateCorrectMessage(): void {
+    if (!this.quizService.data || !this.quizService.data.currentOptions || this.quizService.data.currentOptions.length === 0) {
       this.correctMessage = 'The correct answers are not available yet.';
       return;
     }
-    console.log("DATA:::>>>", this.quizService.data);
-    console.log("Correct Answers:::>>>", this.quizService.correctAnswers);
-    console.log("Current Options:::", this.quizService.data?.currentOptions);
   
     if (this.quizService.data && this.quizService.data?.currentOptions && this.quizService.data?.currentOptions?.length > 0) {
       try {
@@ -586,9 +583,24 @@ export class QuizQuestionComponent
     } else {
       this.correctMessage = 'The correct answers are not available yet.';
     }
+  } */
+
+  private updateCorrectMessage(): void {
+    if (!this.quizService.data || !this.quizService.data.currentOptions || this.quizService.data.currentOptions.length === 0) {
+      this.correctMessage = 'The correct answers are not available yet.';
+      return;
+    }
+  
+    const correctAnswerOptions = this.quizService.correctAnswers;
+    const currentOptions = this.quizService.data.currentOptions;
+  
+    this.correctMessage = this.quizService.setCorrectMessage(
+      this.quizService.data,
+      correctAnswerOptions,
+      currentOptions
+    );
   }
   
-
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
   }
