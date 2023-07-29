@@ -48,6 +48,11 @@ export class QuizService implements OnDestroy {
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
   quizData: Quiz[] = this.quizInitialState;
   private _quizData$ = new BehaviorSubject<Quiz[]>([]);
+  data: {
+    questionText: string;
+    correctAnswersText?: string;
+    currentOptions: Option[];
+  };
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
   quizName$ = new BehaviorSubject<string>('');
