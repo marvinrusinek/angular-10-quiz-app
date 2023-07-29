@@ -603,14 +603,13 @@ export class QuizQuestionComponent
   } */
 
   private updateCorrectMessage(): void {
+    console.log("QuizService Data:", this.quizService.data);
+    console.log("Correct Answers:", this.quizService.correctAnswers);
+    console.log("Current Options:", this.quizService.data.currentOptions);
     if (!this.quizService.data) {
       this.correctMessage = 'The correct answers are not available yet.';
       return;
     }
-    
-    console.log("QuizService Data:", this.quizService.data);
-    console.log("Correct Answers:", this.quizService.correctAnswers);
-    console.log("Current Options:", this.quizService.data.currentOptions);
   
     if (this.quizService.data && this.quizService.data.currentOptions && this.quizService.data.currentOptions.length > 0) {
       try {

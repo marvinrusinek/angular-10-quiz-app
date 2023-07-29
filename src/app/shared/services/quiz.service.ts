@@ -774,7 +774,8 @@ export class QuizService implements OnDestroy {
         this.correctAnswersForEachQuestion.push(correctOptionNumbers);
         this.correctAnswers.push({
           questionId: question.explanation,
-          answers: this.correctAnswersForEachQuestion.sort(),
+          // answers: this.correctAnswersForEachQuestion.sort(),
+          answers: correctOptionNumbers.sort()
         });
         this.correctAnswersForEachQuestion = [];
       }
