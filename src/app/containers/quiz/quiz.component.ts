@@ -652,8 +652,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.getCurrentQuestion();
   
-      // Emit the current options to the currentOptions$ observable
-      // this.quizService.setCurrentOptions(currentOptions);
+      // Subscribe to currentOptions$ to get the options
+      this.quizService.currentOptions$.subscribe((options) => {
+        this.data.currentOptions = options; // Update the currentOptions in the component
+        this.updateCorrectMessage(); // Call the function to update the correct message
+      });
     });
   }
   

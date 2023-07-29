@@ -605,7 +605,8 @@ export class QuizQuestionComponent
   private updateCorrectMessage(): void {
     console.log("QuizService Data:", this.quizService.data);
     console.log("Correct Answers:", this.quizService.correctAnswers);
-    console.log("Current Options:", this.quizService.data.currentOptions);
+    console.log("Current Options:", this.quizService.data?.currentOptions);
+
     if (!this.quizService.data) {
       this.correctMessage = 'The correct answers are not available yet.';
       return;
@@ -622,7 +623,7 @@ export class QuizQuestionComponent
         console.error('An error occurred while updating the correct message:', error);
       }
     } else {
-      this.correctMessage = 'The correct answers are not available yet.';
+      this.correctMessage = 'The correct answers are not available yet...';
     }
   }
     
