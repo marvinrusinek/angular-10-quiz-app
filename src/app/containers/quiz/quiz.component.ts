@@ -597,6 +597,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+
+    this.quizService.data = null;
   
     this.quizService.getQuizData().pipe(take(1)).subscribe((quizData: Quiz[]) => {
       this.quizService.setQuizData(quizData);
