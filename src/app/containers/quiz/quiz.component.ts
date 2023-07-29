@@ -636,7 +636,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  fetchQuizData(): void {
+  /* fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
   
@@ -658,7 +658,44 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.updateCorrectMessage(); // Call the function to update the correct message
       });
     });
+  } */
+
+  fetchQuizData(): void {
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+  
+    this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
+      const currentQuiz = quizData.find((quiz) => quiz.quizId === this.quizId);
+  
+      if (currentQuiz && currentQuiz.questions.length > questionIndex) {
+        const currentQuestion = currentQuiz.questions[questionIndex];
+  
+        this.quizService.data = {
+          questionText: currentQuestion.questionText,
+          correctAnswersText: this.quizService.data.correctAnswersText,
+          currentOptions: currentQuestion.options
+        };
+  
+        console.log('QuizService Data:', this.quizService.data);
+        this.quizService.setData(this.quizService.data);
+        this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
+      }
+    });
+    
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      this.quizService.setCurrentQuiz(quizId);
+      this.quizService.setQuestions(questions);
+      this.quizService.setCurrentQuestionIndex(+questionIndex);
+      this.quizService.setTotalQuestions(questions.length);
+  
+      if (!this.quizService.questionsLoaded) {
+        this.quizService.updateQuestions(quizId);
+      }
+  
+      this.getCurrentQuestion();
+    });
   }
+  
   
   
   
