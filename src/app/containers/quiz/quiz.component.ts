@@ -660,7 +660,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   } */
 
-  fetchQuizData(): void {
+  /* fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
@@ -670,17 +670,49 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (currentQuiz && currentQuiz.questions.length > questionIndex) {
         const currentQuestion = currentQuiz.questions[questionIndex];
 
-        const combinedQuestionData = {
+        this.data = {
           questionText: currentQuestion.questionText,
           correctAnswersText: this.quizService.data.correctAnswersText,
           currentOptions: currentQuestion.options
         };
 
         console.log('QuizService Data:', this.quizService.data);
-        // this.quizService.setData(this.quizService.data);
-        this.quizService.setCombinedQuestionData(combinedQuestionData);
-        // this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
-        this.quizService.setCurrentOptions(combinedQuestionData.currentOptions);
+        this.quizService.setData(this.quizService.data);
+        // this.quizService.setCombinedQuestionData(combinedQuestionData);
+        this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
+        // this.quizService.setCurrentOptions(combinedQuestionData.currentOptions);
+      }
+    });
+
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      this.quizService.setCurrentQuiz(quizId);
+      this.quizService.setQuestions(questions);
+      this.quizService.setCurrentQuestionIndex(+questionIndex);
+      this.quizService.setTotalQuestions(questions.length);
+
+      if (!this.quizService.questionsLoaded) {
+        this.quizService.updateQuestions(quizId);
+      }
+
+      this.getCurrentQuestion();
+    });
+  } */
+
+  fetchQuizData(): void {
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+
+    this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
+      this.quizService.setQuizData(quizData); // Set the quiz data in the QuizService
+
+      const questionData = this.quizService.getQuestionData(quizId, questionIndex);
+
+      if (questionData) {
+        this.data = questionData;
+        this.quizService.setCurrentOptions(this.data.currentOptions);
+      } else {
+        this.data = null;
+        // this.correctMessage = 'The correct answers are not available yet.';
       }
     });
 
@@ -697,8 +729,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.getCurrentQuestion();
     });
   }
-
-
 
 
   handleOptions(options: Option[]): void {
