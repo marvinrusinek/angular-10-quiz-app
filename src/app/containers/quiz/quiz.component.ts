@@ -34,6 +34,7 @@ import {
   switchMap,
   take,
   tap,
+  withLatestFrom
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -505,11 +506,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
-    this.options$ = this.quizStateService.currentOptions$.pipe(take(1));;
-
-    // Add console logs to check the values emitted by the observables
-    this.currentQuestion$.subscribe((question) => console.log('Current Question::>>', question));
-    this.options$.subscribe((options) => console.log('Options::>>', options));
+    this.options$ = this.quizStateService.currentOptions$;
   
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
@@ -523,20 +520,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         };
       })
     );
-  
-    // Subscribe to the currentOptions$ observable
-    this.options$.subscribe((options) => {
-      if (options && options.length > 0) {
-        const currentQuestion = this.quizStateService.currentQuestionValue;
-        const correctAnswerOptions = options.filter((option) => option.correct);
-  
-        if (currentQuestion && correctAnswerOptions) {
-          this.quizService.setCorrectAnswers(currentQuestion.explanation, correctAnswerOptions);
-          this.updateCorrectMessage(); // Update the correct message after setting the correct answers
-        }
+
+    // Subscribe to the currentOptions$ observable with the latest value from currentQuestion$
+    this.quizStateService.currentQuestion$.pipe(
+      withLatestFrom(this.quizStateService.currentOptions$)
+    ).subscribe(([currentQuestion, correctAnswerOptions]) => {
+      if (currentQuestion && correctAnswerOptions) {
+        this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+        this.updateCorrectMessage(); // Update the correct message after setting the correct answers
       }
     });
-  }  
+  }
   
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
