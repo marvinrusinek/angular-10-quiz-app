@@ -184,13 +184,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.quizService.getQuizData().subscribe((quizData) => {
-      // Extract properties from quizData to set this.data
-      this.data = {
-        questionText: quizData[this.quizId].question.questionText,
-        correctAnswersText: quizData[this.quizId].question.correctAnswersText,
-        currentOptions: quizData[this.quizId].question.options
-      };
-      this.quizService.setCurrentOptions(this.data?.currentOptions);
+      // Assuming quizData is an object with quizIds as keys
+      if (this.quizId in quizData) {
+        // Extract properties from quizData to set this.data for the specific quizId
+        this.data = {
+          questionText: quizData[this.quizId].question.questionText,
+          correctAnswersText: quizData[this.quizId].question.correctAnswersText,
+          currentOptions: quizData[this.quizId].question.options
+        };
+
+        // Now you can call setCurrentOptions with the currentOptions from this.data
+        this.quizService.setCurrentOptions(this.data?.currentOptions);
+      }
     });
 
     this.quizService.currentQuestion$.subscribe(question => {
