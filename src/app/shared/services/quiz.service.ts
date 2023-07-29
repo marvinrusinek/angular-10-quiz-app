@@ -291,20 +291,27 @@ export class QuizService implements OnDestroy {
     currentOptions: Option[];
   } {
     const currentQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-
+  
     if (currentQuiz && currentQuiz.questions.length > questionIndex) {
       const currentQuestion = currentQuiz.questions[questionIndex];
-
+  
+      const correctAnswerOptions = currentQuestion.options.filter((option) => option.correct);
+      const correctAnswersText = this.setCorrectMessage(
+        currentQuestion,
+        correctAnswerOptions,
+        currentQuestion.options
+      );
+  
       return {
         questionText: currentQuestion.questionText,
-        correctAnswersText: this.data.correctAnswersText,
+        correctAnswersText: correctAnswersText,
         currentOptions: currentQuestion.options
       };
     }
-
+  
     return null;
   }
-
+  
   getQuizName(segments: any[]): string {
     return segments[1].toString();
   }
