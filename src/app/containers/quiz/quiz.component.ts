@@ -613,9 +613,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           questionText: currentQuestion.questionText,
           correctAnswersText: this.quizService.data?.correctAnswersText,
           // currentOptions: currentQuestion.options
-          currentOptions: currentQuiz.questions[questionIndex].options
+          // currentOptions: currentQuiz.questions[questionIndex].options
+          currentOptions: currentQuestion.options
         };
-        
+
         console.log('QuizService Data:', this.quizService.data);
         this.quizService.setData(this.quizService.data);
         this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
