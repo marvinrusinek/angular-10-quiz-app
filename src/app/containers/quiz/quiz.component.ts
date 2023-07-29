@@ -703,16 +703,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
     this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
-      this.quizService.setQuizData(quizData); // Set the quiz data in the QuizService
-
+      this.quizService.setQuizData(quizData);
+  
       const questionData = this.quizService.getQuestionData(quizId, questionIndex);
-
+  
       if (questionData) {
         this.data = questionData;
         this.quizService.setCurrentOptions(this.data.currentOptions);
       } else {
         this.data = null;
-        // this.correctMessage = 'The correct answers are not available yet.';
       }
     });
 
