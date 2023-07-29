@@ -184,9 +184,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.quizService.getQuizData().subscribe((quizData) => {
-      // Assuming quizData is an object with quizIds as keys
       if (this.quizId in quizData) {
-        // Extract properties from quizData to set this.data for the specific quizId
         this.data = {
           questionText: quizData[this.quizId].question.questionText,
           correctAnswersText: quizData[this.quizId].question.correctAnswersText,
