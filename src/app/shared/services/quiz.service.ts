@@ -104,7 +104,7 @@ export class QuizService implements OnDestroy {
   status: string;
 
   correctAnswers = [];
-  correctAnswersForEachQuestion = [];
+  private correctAnswersForEachQuestion: { questionId: string; answers: number[] }[] = [];
   correctAnswerOptions: number[] = [];
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
@@ -812,31 +812,26 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectAnswers(question: QuizQuestion, correctAnswerOptions: Option[]): void {
-    console.log("CAO:::", this.correctAnswerOptions);
     if (question !== null) {
       const correctOptionNumbers = correctAnswerOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
-
+  
       const correctAnswerExist =
-        this.correctAnswers.find((q) => q.questionId === question.explanation) !== undefined;
+        this.correctAnswersForEachQuestion.find((q) => q.questionId === question.explanation) !== undefined;
+  
       if (!correctAnswerExist) {
-        this.correctAnswersForEachQuestion.push(correctOptionNumbers);
-        this.correctAnswers.push({
+        this.correctAnswersForEachQuestion.push({
           questionId: question.explanation,
-          // answers: this.correctAnswersForEachQuestion.sort(),
           answers: correctOptionNumbers.sort()
         });
-        this.correctAnswersForEachQuestion = [];
       }
     }
-
-    this.correctAnswerOptions = correctAnswerOptions.map(option => option.optionId);
-
-    // Update the currentOptions in the QuizService here
+  
+    this.correctAnswerOptions = correctAnswerOptions.map((option) => option.optionId);
     this.currentOptionsSubject.next(correctAnswerOptions);
   }
-
+  
   setCorrectMessage(
     data: any,
     correctAnswerOptions: Option[],
