@@ -705,7 +705,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questionData) {
         this.data = questionData;
         this.quizService.setCurrentOptions(this.data.currentOptions);
-        this.quizService.setCorrectAnswers(this.data, this.data.currentOptions);
+        this.quizService.setCorrectAnswers(this.data.questionText, this.data.currentOptions);
         this.updateCorrectMessage(); // Update the correct message after setting the correct answers
       } else {
         this.data = null;
