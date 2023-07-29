@@ -270,10 +270,14 @@ export class QuizQuestionComponent
       }); */
 
       this.quizService.combinedQuestionData$.subscribe((data) => {
-        this.data = data;
-        this.correctAnswers = this.quizService.correctAnswers;
-        this.currentOptions = this.quizService.currentOptions;
-        this.updateCorrectMessage();
+        if (data) {
+          this.data = data;
+          this.correctAnswers = this.quizService.correctAnswers;
+          this.currentOptions = this.quizService.currentOptions;
+          this.updateCorrectMessage();
+        } else {
+          this.correctMessage = 'The correct answers are not available yet.';
+        }
       });
     } catch (error) {
       console.error('Error getting current question:', error);
