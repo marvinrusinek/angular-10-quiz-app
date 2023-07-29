@@ -831,7 +831,7 @@ export class QuizService implements OnDestroy {
     console.log("CAA", correctAnswerOptions);
     console.log('Function setCorrectMessage() is called.');
 
-    if (!data || !data.options || data.options.length === 0) {
+    if (!currentOptions || currentOptions.length === 0) {
       return 'The correct answers are not available yet.';
     }
 
