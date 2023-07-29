@@ -615,8 +615,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           currentOptions: currentQuestion.options
         };
 
-        this.quizService.setData(this.data);
-        this.quizService.setCurrentOptions(this.data?.currentOptions);
+        this.quizService.setData(this.quizService.data);
+        this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
       }
     });
     
