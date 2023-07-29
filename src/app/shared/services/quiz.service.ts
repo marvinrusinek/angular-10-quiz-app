@@ -232,6 +232,10 @@ export class QuizService implements OnDestroy {
     return this.http.get<Quiz[]>('/assets/data/quiz.json');
   }
 
+  setData(data: any) {
+    this.data = data;
+  }
+
   private loadData(): void {
     this.getQuizData()
       .pipe(distinctUntilChanged())
