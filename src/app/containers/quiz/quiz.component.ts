@@ -609,13 +609,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (currentQuiz && currentQuiz.questions.length > questionIndex) {
         const currentQuestion = currentQuiz.questions[questionIndex];
 
-        this.data = {
+        const data = {
           questionText: currentQuestion.questionText,
           correctAnswersText: this.quizService.data.correctAnswersText,
           currentOptions: currentQuestion.options
         };
 
-        this.quizService.setData(this.data);
+        this.quizService.setData(data);
         this.quizService.setCurrentOptions(this.data?.currentOptions);
       }
     });
