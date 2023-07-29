@@ -238,7 +238,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setCurrentQuizForQuizId();
     this.setCurrentQuestion();
     this.quizStateService.setCurrentQuestion(this.currentQuestion$);
-    
+
     this.activatedRoute.paramMap
       .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
       .subscribe(({ quizId, questionIndex, quizData }) => {
@@ -259,8 +259,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
-    
-    this.getExplanationText(); 
+
+    this.getExplanationText();
 
     this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
@@ -506,7 +506,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
-  
+
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
       this.quizStateService.currentOptions$,
@@ -519,7 +519,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         };
       })
     );
-  
+
     this.options$ = combineLatest([
       this.quizService.currentQuestion$.pipe(
         tap((currentQuestion) =>
@@ -536,7 +536,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
     this.options$.subscribe((options) => console.log(options));
   }
-  
+
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
@@ -621,7 +621,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
       }
     });
-    
+
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
@@ -639,19 +639,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   /* fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-  
+
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
       this.quizService.setCurrentQuestionIndex(+questionIndex);
       this.quizService.setTotalQuestions(questions.length);
-  
+
       if (!this.quizService.questionsLoaded) {
         this.quizService.updateQuestions(quizId);
       }
-  
+
       this.getCurrentQuestion();
-  
+
       // Subscribe to currentOptions$ to get the options
       this.quizService.currentOptions$.subscribe((options) => {
         this.data.currentOptions = options; // Update the currentOptions in the component
@@ -663,42 +663,44 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-  
+
     this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
       const currentQuiz = quizData.find((quiz) => quiz.quizId === this.quizId);
-  
+
       if (currentQuiz && currentQuiz.questions.length > questionIndex) {
         const currentQuestion = currentQuiz.questions[questionIndex];
-  
-        this.quizService.data = {
+
+        const combinedQuestionData = {
           questionText: currentQuestion.questionText,
           correctAnswersText: this.quizService.data.correctAnswersText,
           currentOptions: currentQuestion.options
         };
-  
+
         console.log('QuizService Data:', this.quizService.data);
-        this.quizService.setData(this.quizService.data);
-        this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
+        // this.quizService.setData(this.quizService.data);
+        this.quizService.setCombinedQuestionData(combinedQuestionData);
+        // this.quizService.setCurrentOptions(this.quizService.data?.currentOptions);
+        this.quizService.setCurrentOptions(combinedQuestionData.currentOptions);
       }
     });
-    
+
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
       this.quizService.setCurrentQuestionIndex(+questionIndex);
       this.quizService.setTotalQuestions(questions.length);
-  
+
       if (!this.quizService.questionsLoaded) {
         this.quizService.updateQuestions(quizId);
       }
-  
+
       this.getCurrentQuestion();
     });
   }
-  
-  
-  
-  
+
+
+
+
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
       console.error('Options not found');
@@ -1028,25 +1030,25 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.explanationText;
   }
 
-  /************************ paging functions *********************/  
+  /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
       return;
     }
-  
+
     this.animationState$.next('animationStarted');
-  
+
     const selectedOption = this.form.value.selectedOption;
-  
+
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
     const nextOptions = this.quizService.getNextOptions();
     console.log('Next question:', nextQuestion);
-  
+
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.currentOptions = nextOptions;
-  
+
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
 
@@ -1055,10 +1057,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex + 1);
       this.quizService.updateCurrentOptions(nextQuestion.options);
-      
+
       const explanationTextOfNextQuestion = nextQuestion.questionText;
       this.explanationTextSource.next(explanationTextOfNextQuestion);
-  
+
       console.log('Before navigation');
       this.quizService.navigateToNextQuestion();
       console.log('After navigation');
@@ -1079,8 +1081,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = null;
     }
   }
-  
-    
+
+
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
