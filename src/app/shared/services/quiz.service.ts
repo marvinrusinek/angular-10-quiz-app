@@ -148,13 +148,13 @@ export class QuizService implements OnDestroy {
 
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
   public question$ = this.questionSource.asObservable();
-  
+
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
   options$: Observable<Option[]> = this.optionsSource.asObservable();
-  optionsSubject: BehaviorSubject<Option[] | null> 
+  optionsSubject: BehaviorSubject<Option[] | null>
     = new BehaviorSubject<Option[] | null>(null);
 
-  nextQuestionSource: BehaviorSubject<QuizQuestion | null> 
+  nextQuestionSource: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
   // nextQuestion$: Observable<QuizQuestion | null> = this.nextQuestionSource.asObservable();
 
@@ -247,8 +247,8 @@ export class QuizService implements OnDestroy {
     return this.http.get<Quiz[]>('/assets/data/quiz.json');
   }
 
-  setData(data: any) {
-    this.data = data;
+  setQuizData(quizData: Quiz[]): void {
+    this.quizData = quizData;
   }
 
   private loadData(): void {
@@ -283,6 +283,26 @@ export class QuizService implements OnDestroy {
     this.quizResources = QUIZ_RESOURCES || [];
 
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
+  }
+
+  getQuestionData(quizId: string, questionIndex: number): {
+    questionText: string;
+    correctAnswersText: string;
+    currentOptions: Option[];
+  } {
+    const currentQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+
+    if (currentQuiz && currentQuiz.questions.length > questionIndex) {
+      const currentQuestion = currentQuiz.questions[questionIndex];
+
+      return {
+        questionText: currentQuestion.questionText,
+        correctAnswersText: this.data.correctAnswersText,
+        currentOptions: currentQuestion.options
+      };
+    }
+
+    return null;
   }
 
   getQuizName(segments: any[]): string {
@@ -600,16 +620,16 @@ export class QuizService implements OnDestroy {
   getNextQuestionAndOptions(): { question: QuizQuestion; options: Option[] } | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
-  
+
     if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
       const nextQuestion = currentQuiz.questions[nextIndex];
       const nextOptions = nextQuestion.options;
       return { question: nextQuestion, options: nextOptions };
     }
-  
+
     return undefined;
   }
-  
+
   async getCurrentQuestion(): Promise<QuizQuestion> {
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
@@ -790,7 +810,7 @@ export class QuizService implements OnDestroy {
       const correctOptionNumbers = correctAnswerOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
-  
+
       const correctAnswerExist =
         this.correctAnswers.find((q) => q.questionId === question.explanation) !== undefined;
       if (!correctAnswerExist) {
@@ -803,13 +823,13 @@ export class QuizService implements OnDestroy {
         this.correctAnswersForEachQuestion = [];
       }
     }
-    
+
     this.correctAnswerOptions = correctAnswerOptions.map(option => option.optionId);
 
     // Update the currentOptions in the QuizService here
     this.currentOptionsSubject.next(correctAnswerOptions);
   }
-  
+
   setCorrectMessage(
     data: any,
     correctAnswerOptions: Option[],
@@ -817,35 +837,35 @@ export class QuizService implements OnDestroy {
   ): string {
     console.log("CAA", correctAnswerOptions);
     console.log('Function setCorrectMessage() is called.');
-  
+
     if (!data || !data.options || data.options.length === 0) {
       return 'The correct answers are not available yet.';
     }
-  
+
     const correctOptionIds = correctAnswerOptions
       .filter((option) => option.correct)
       .map((option) => option.optionId);
-  
+
     console.log('correctOptionIds:', correctOptionIds);
-  
+
     if (correctOptionIds.length === 0) {
       return 'The correct answers are not available yet.';
     }
-  
+
     const correctOptionTexts = currentOptions
       .filter((option) => correctOptionIds.includes(option.optionId))
       .map((option) => option.text);
-  
+
     const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
     let correctMessage = `The correct answer${
       optionsText === 'Option' ? '' : 's'
     } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
-  
+
     console.log("CORRECT MESSAGE:::>>>", correctMessage);
-    return correctMessage; 
+    return correctMessage;
   }
-  
+
   // set the text of the previous user answers in an array to show in the following quiz
   setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {
     this.previousAnswers = previousAnswers.map((answer) => {
@@ -1015,7 +1035,7 @@ export class QuizService implements OnDestroy {
       this.currentQuestion.next(null);
     }
   }
-  
+
   updateCurrentOptions(options: Option[]): void {
     this.optionsSubject.next(options);
     this.currentOptionsSource.next(options);
