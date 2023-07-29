@@ -265,8 +265,7 @@ export class QuizQuestionComponent
 
       this.quizService.currentOptions$.subscribe((currentOptions) => {
         this.correctAnswers = this.quizService.correctAnswers;
-        this.currentOptions = currentOptions;
-    
+        this.currentOptions = currentOptions;   
         this.updateCorrectMessage();
       });
     } catch (error) {
