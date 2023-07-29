@@ -263,9 +263,16 @@ export class QuizQuestionComponent
       this.getCorrectAnswers();
       // this.updateCorrectMessage();
 
-      this.quizService.currentOptions$.subscribe((currentOptions) => {
+      /* this.quizService.currentOptions$.subscribe((currentOptions) => {
         this.correctAnswers = this.quizService.correctAnswers;
         this.currentOptions = currentOptions;   
+        this.updateCorrectMessage();
+      }); */
+
+      this.quizService.combinedQuestionData$.subscribe((data) => {
+        this.data = data;
+        this.correctAnswers = this.quizService.correctAnswers;
+        this.currentOptions = this.quizService.currentOptions;
         this.updateCorrectMessage();
       });
     } catch (error) {

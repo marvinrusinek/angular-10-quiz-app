@@ -181,6 +181,17 @@ export class QuizService implements OnDestroy {
   highScores: QuizScore[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
+  private combinedQuestionDataSubject: BehaviorSubject<{
+    questionText: string;
+    correctAnswersText: string;
+    currentOptions: Option[];
+  }> = new BehaviorSubject<{
+    questionText: string;
+    correctAnswersText: string;
+    currentOptions: Option[];
+  }>(null);
+  combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+
   unsubscribe$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
@@ -765,6 +776,14 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
+  setCombinedQuestionData(data: {
+    questionText: string;
+    correctAnswersText: string;
+    currentOptions: Option[];
+  }): void {
+    this.combinedQuestionDataSubject.next(data);
+  }
+
   setCorrectAnswers(question: QuizQuestion, correctAnswerOptions: Option[]): void {
     console.log("CAO:::", this.correctAnswerOptions);
     if (question !== null) {
