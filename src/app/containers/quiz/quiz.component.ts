@@ -597,8 +597,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-
-    this.quizService.data = null;
   
     this.quizService.getQuizData().pipe(take(1)).subscribe((quizData: Quiz[]) => {
       this.quizService.setQuizData(quizData);
@@ -608,11 +606,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questionData) {
         this.data = questionData;
         this.quizService.setCurrentOptions(this.data.currentOptions);
-  
-        // Use the current questionId and options to set the correct answers
-        const currentQuestionId = questionData.questionId;
-        const correctAnswerOptions = this.data.currentOptions.filter(option => option.correct);
-        this.quizService.setCorrectAnswers(currentQuestionId, correctAnswerOptions);
+        this.quizService.setCorrectAnswers(questionData);
         this.updateCorrectMessage(); // Update the correct message after setting the correct answers
       } else {
         this.data = null;
