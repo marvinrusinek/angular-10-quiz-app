@@ -607,7 +607,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       const currentQuiz = quizData.find((quiz) => quiz.quizId === this.quizId);
 
       if (currentQuiz && currentQuiz.questions.length > questionIndex) {
-        // Assuming questionIndex is the index of the question you want to display
         const currentQuestion = currentQuiz.questions[questionIndex];
 
         this.data = {
