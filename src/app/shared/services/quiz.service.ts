@@ -813,24 +813,21 @@ export class QuizService implements OnDestroy {
 
   getQuestionId(quizId: string, questionIndex: number): string {
     return `${quizId}-Q${questionIndex + 1}`;
-  }  
-
-  setCorrectAnswers(data: { questionText: string; correctAnswersText: string; currentOptions: Option[]; }): void {
-    if (data !== null) {
-      const correctOptionNumbers = data.currentOptions
+  }
+  
+  setCorrectAnswers(currentOptions: Option[]): void {
+    if (currentOptions !== null) {
+      const correctOptionNumbers = currentOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
   
-      const correctAnswerExist =
-        this.correctAnswers.find((q) => q.questionId === data.questionText) !== undefined;
-      if (!correctAnswerExist) {
+      if (correctOptionNumbers.length > 0) {
         this.correctAnswers.push({
-          questionId: data.questionText,
+          questionId: this.data.questionText,
           answers: correctOptionNumbers.sort()
         });
       }
     }
-    this.currentOptionsSubject.next(data.currentOptions);
   }
 
   setCorrectMessage(
