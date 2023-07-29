@@ -599,7 +599,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestion$;
   }
 
-  fetchQuizData(): void {
+  /* fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
@@ -634,7 +634,29 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.getCurrentQuestion();
     });
+  } */
+
+  fetchQuizData(): void {
+    const quizId = this.activatedRoute.snapshot.params['quizId'];
+    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+  
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      this.quizService.setCurrentQuiz(quizId);
+      this.quizService.setQuestions(questions);
+      this.quizService.setCurrentQuestionIndex(+questionIndex);
+      this.quizService.setTotalQuestions(questions.length);
+  
+      if (!this.quizService.questionsLoaded) {
+        this.quizService.updateQuestions(quizId);
+      }
+  
+      this.getCurrentQuestion();
+  
+      // Emit the current options to the currentOptions$ observable
+      // this.quizService.setCurrentOptions(currentOptions);
+    });
   }
+  
   
   
   handleOptions(options: Option[]): void {
