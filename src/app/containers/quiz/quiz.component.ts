@@ -183,19 +183,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
     });
 
-    this.quizService.getQuizData().subscribe((quizData) => {
-      if (this.quizId in quizData) {
-        this.data = {
-          questionText: quizData[this.quizId].question.questionText,
-          correctAnswersText: quizData[this.quizId].question.correctAnswersText,
-          currentOptions: quizData[this.quizId].question.options
-        };
-
-        // Now you can call setCurrentOptions with the currentOptions from this.data
-        this.quizService.setCurrentOptions(this.data?.currentOptions);
-      }
-    });
-
     this.quizService.currentQuestion$.subscribe(question => {
       this.currentQuestion = question;
     });
@@ -616,10 +603,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
+    this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
+      const currentQuiz = quizData.find((quiz) => quiz.quizId === this.quizId);
+
+      if (currentQuiz && currentQuiz.questions.length > questionIndex) {
+        // Assuming questionIndex is the index of the question you want to display
+        const currentQuestion = currentQuiz.questions[questionIndex];
+
+        this.data = {
+          questionText: currentQuestion.questionText,
+          correctAnswersText: this.quizService.data.correctAnswersText,
+          currentOptions: currentQuestion.options
+        };
+
+        this.quizService.setCurrentOptions(this.data?.currentOptions);
+      }
+    });
+
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuiz(quizId);
       this.quizService.setQuestions(questions);
-      this.quizService.setCurrentOptions(this.data?.currentOptions);
       this.quizService.setCurrentQuestionIndex(+questionIndex);
       this.quizService.setTotalQuestions(questions.length);
 
