@@ -786,6 +786,9 @@ export class QuizService implements OnDestroy {
     }
     
     this.correctAnswerOptions = correctAnswerOptions.map(option => option.optionId);
+
+    // Update the currentOptions in the QuizService here
+    this.currentOptionsSubject.next(correctAnswerOptions);
   }
   
   setCorrectMessage(
