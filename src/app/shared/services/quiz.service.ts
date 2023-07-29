@@ -223,7 +223,7 @@ export class QuizService implements OnDestroy {
     return this._quizData$.asObservable();
   }
 
-  private getQuizData(): Observable<Quiz[]> {
+  getQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>('/assets/data/quiz.json');
   }
 
