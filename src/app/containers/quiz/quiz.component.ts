@@ -721,8 +721,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questionData) {
         this.data = questionData;
         this.quizService.setCurrentOptions(this.data.currentOptions);
+        this.updateCorrectMessage();
       } else {
         this.data = null;
+        this.correctMessage = 'The correct answers are not available yet.';
       }
     });
 
