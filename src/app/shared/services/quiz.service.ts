@@ -811,13 +811,13 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
 
-  setCorrectAnswers(question: QuizQuestion, correctAnswerOptions: Option[]): void {
+  setCorrectAnswers(questionId: string, correctAnswerOptions: Option[]): void {
     if (question !== null) {
       const correctOptionNumbers = correctAnswerOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
   
-      this.correctAnswers[question.explanation] = correctOptionNumbers.sort();
+      this.correctAnswers[questionId] = correctOptionNumbers.sort();
     }
   
     this.correctAnswerOptions = correctAnswerOptions.map((option) => option.optionId);

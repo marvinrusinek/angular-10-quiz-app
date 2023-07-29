@@ -527,7 +527,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const correctAnswerOptions = options.filter((option) => option.correct);
   
         if (currentQuestion && correctAnswerOptions) {
-          this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+          this.quizService.setCorrectAnswers(currentQuestion.explanation, correctAnswerOptions);
           this.updateCorrectMessage(); // Update the correct message after setting the correct answers
         }
       }
@@ -975,9 +975,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Display the question and options on the screen
       this.currentQuestion = currentQuestion;
       this.options = currentQuestion.options;
-
-      // Call setCorrectAnswers with the current question and its correct answer options
-      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
     } catch (error) {
       console.error('Error fetching and displaying the question:', error);
     }
