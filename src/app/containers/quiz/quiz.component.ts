@@ -532,7 +532,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
+  }  
   
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
