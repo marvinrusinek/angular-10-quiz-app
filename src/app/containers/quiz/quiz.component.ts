@@ -612,7 +612,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.data = {
           questionText: currentQuestion.questionText,
           // correctAnswersText: this.quizService.data?.correctAnswersText,
-          correctAnswersText: '',
+          correctAnswersText: this.quizService.data.correctAnswersText,
           currentOptions: currentQuestion.options
         };
 
@@ -635,7 +635,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.getCurrentQuestion();
     });
   }
-
+  
+  
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
       console.error('Options not found');
