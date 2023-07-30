@@ -527,7 +527,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe(([currentQuestion, correctAnswerOptions]) => {
       if (currentQuestion && correctAnswerOptions) {
         this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
-        this.updateCorrectMessage(); // Update the correct message after setting the correct answers
       }
     });
   }

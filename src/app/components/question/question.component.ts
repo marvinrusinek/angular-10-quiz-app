@@ -271,12 +271,10 @@ export class QuizQuestionComponent
       this.loadCurrentQuestion();
       this.toggleOptions();
       this.getCorrectAnswers();
-      // this.updateCorrectMessage();
 
       /* this.quizService.currentOptions$.subscribe((currentOptions) => {
         this.correctAnswers = this.quizService.correctAnswers;
         this.currentOptions = currentOptions;   
-        this.updateCorrectMessage();
       }); */
 
       this.quizService.combinedQuestionData$.subscribe((data) => {
