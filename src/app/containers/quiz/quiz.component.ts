@@ -612,7 +612,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           questionText: this.data.questionText,
           options: this.data.currentOptions,
           explanation: '',
-          type: ''
+          type: this.quizService.QuestionType.MultipleChoice
         };
 
         const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
