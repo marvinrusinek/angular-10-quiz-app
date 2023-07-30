@@ -632,7 +632,7 @@ export class QuizQuestionComponent
       this.data.currentOptions.find(option => option.optionId === optionId)
     );
 
-    this.quizService.setCorrectMessage(this.data, mappedCorrectAnswerOptions, this.data.currentOptions);
+    this.correctMessage = this.quizService.setCorrectMessage(this.data, mappedCorrectAnswerOptions, this.data.currentOptions);
     this.quizService.setCorrectAnswersLoaded(true);
   }
     
