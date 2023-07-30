@@ -647,13 +647,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
-          // Update correct message logic here
+          this.updateCorrectMessage();
         } else {
           this.correctMessage = 'The correct answers are not available yet...';
         }
       }
     );
   }
+
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
