@@ -298,6 +298,7 @@ export class QuizQuestionComponent
     console.log('Initializing component...');
     this.subscriptionToQuestion();
     this.subscribeToCorrectAnswersLoaded();
+    this.fetchCorrectAnswersText();
     this.updateQuestionForm();
   }
 
@@ -621,6 +622,11 @@ export class QuizQuestionComponent
         }
       }
     );
+  }
+
+  private fetchCorrectAnswersText() {
+    this.quizService.setCorrectMessage(this.data, this.quizService.correctAnswerOptions, this.currentOptions);
+    this.quizService.setCorrectAnswersLoaded(true);
   }
     
   private updateMultipleAnswer(): void {
