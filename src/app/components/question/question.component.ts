@@ -298,6 +298,7 @@ export class QuizQuestionComponent
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
+    this.subscribeToCorrectAnswersLoaded();
     this.updateQuestionForm();
   }
 
