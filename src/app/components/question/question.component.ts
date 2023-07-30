@@ -617,18 +617,23 @@ export class QuizQuestionComponent
     }
   } */
 
-  private updateCorrectMessage(): void {
-    if (!this.quizService.data || !this.quizService.data.currentOptions || this.quizService.data.currentOptions.length === 0) {
-      this.correctMessage = 'The correct answers are not available yet.';
-      return;
-    }
-  
-    const currentQuestionId = this.quizService.data.explanation; // Replace 'explanation' with the actual ID property of the question
-  
-    if (currentQuestionId) {
-      this.correctMessage = this.quizService.setCorrectMessage(currentQuestionId);
+  public updateCorrectMessage(): void {
+    if (this.quizService.correctAnswersLoadedSubject.getValue()) {
+      // If the correct answers are loaded, proceed with calculating the correct message
+      if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
+        try {
+          this.correctMessage = this.quizService.setCorrectMessage(
+            this.data,
+            this.correctAnswers,
+            this.data.currentOptions
+          );
+        } catch (error) {
+          console.error('An error occurred while updating the correct message:', error);
+        }
+      }
     } else {
-      this.correctMessage = 'The correct answers are not available yet.';
+      // If the correct answers are not loaded, display the feedback message
+      this.correctMessage = 'The correct answers are not available yet...';
     }
   }
   
