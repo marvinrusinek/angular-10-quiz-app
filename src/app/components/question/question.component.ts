@@ -84,6 +84,8 @@ export class QuizQuestionComponent
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
+  optionsSubscription: Subscription;
+  options$: Observable<Option[]>;
   quiz: Quiz;
   currentQuestionSubscription: Subscription;
   currentQuestionSource: BehaviorSubject<QuizQuestion | null> = 
@@ -165,6 +167,13 @@ export class QuizQuestionComponent
     console.log('questionForm:', this.questionForm.value);
 
     this.selectedOption = null;
+
+    // Subscribe to the options$ observable
+    this.optionsSubscription = this.options$.subscribe((options) => {
+      if (options && options.length > 0) {
+        this.displayQuestion(this.quizService.getCurrentQuizId());
+      }
+    });
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
@@ -312,6 +321,7 @@ export class QuizQuestionComponent
     console.log('QuizQuestionComponent destroyed');
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
+    this.optionsSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
 

@@ -597,25 +597,36 @@ export class QuizComponent implements OnInit, OnDestroy {
   fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-  
-    this.quizService.getQuizData().pipe().subscribe((quizData: Quiz[]) => {
+
+    this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
       this.quizService.setQuizData(quizData);
-  
+
       const questionData = this.quizService.getQuestionData(quizId, questionIndex);
-  
+
       if (questionData) {
         this.data = questionData;
-        this.quizService.setCurrentOptions(this.data.currentOptions);
-  
-        const currentQuestion = this.quizService.getQuestionByExplanation(this.data.questionText);
-        this.quizService.setCorrectAnswers(currentQuestion, this.data.currentOptions);
-  
-        this.updateCorrectMessage(); // Update the correct message after setting the correct answers
+        this.quizService.setCurrentOptions(this.data.options);
+
+        // Create a new instance of QuizQuestion with the required properties
+        const currentQuestion: QuizQuestion = {
+          questionId: '', this.data.question.questionId,
+          questionText: this.data.questionText,
+          options: this.data.currentOptions,
+          explanation: this.data.question.explanation,
+          type: '', this.data.question.type
+        };
+
+        // Call setCorrectAnswers with the current question and its correct options
+        const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
+        this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+
+        // Log to check if the correct data is being used
+        console.log('Question Data:', currentQuestion);
+        console.log('Correct Answer Options:', correctAnswerOptions);
       } else {
         this.data = null;
-        this.correctMessage = 'The correct answers are not available yet.';
       }
-    }); 
+    });
 
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
       this.quizService.setCurrentQuestionIndex(+questionIndex);
