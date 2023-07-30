@@ -310,7 +310,7 @@ export class QuizQuestionComponent
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.data,
-        this.correctAnswers,
+        this.quizService.correctAnswers,
         this.data?.currentOptions
       );
       this.cdRef.detectChanges(); // manually trigger change detection
