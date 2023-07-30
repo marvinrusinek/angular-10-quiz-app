@@ -849,6 +849,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  setCorrectAnswersLoaded(loaded: boolean): void {
+    this.correctAnswersLoadedSubject.next(loaded);
+  }
+
   setCorrectMessage(
     data: any,
     correctAnswerOptions: Option[],
