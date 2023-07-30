@@ -619,7 +619,6 @@ export class QuizQuestionComponent
 
   public updateCorrectMessage(): void {
     if (this.quizService.correctAnswersLoadedSubject.getValue()) {
-      // If the correct answers are loaded, proceed with calculating the correct message
       if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
         try {
           this.correctMessage = this.quizService.setCorrectMessage(
@@ -632,7 +631,6 @@ export class QuizQuestionComponent
         }
       }
     } else {
-      // If the correct answers are not loaded, display the feedback message
       this.correctMessage = 'The correct answers are not available yet...';
     }
   }
