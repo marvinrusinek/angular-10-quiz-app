@@ -232,7 +232,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
-    this.correctAnswersLoadedSubscription.unsubscribe();
+    this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
   private initializeQuiz(): void {
