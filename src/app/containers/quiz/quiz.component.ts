@@ -605,7 +605,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (questionData) {
         this.data = questionData;
-        this.quizService.setCurrentOptions(this.data.options);
+        this.quizService.setCurrentOptions(this.data.currentOptions);
 
         // Create a new instance of QuizQuestion with the required properties
         const currentQuestion: QuizQuestion = {
