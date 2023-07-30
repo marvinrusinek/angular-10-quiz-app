@@ -162,6 +162,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    console.log("MY NGONINIT TEST");
     console.log('CodelabQuizQuestionComponent - Data:', this.data);
     console.log('QuestionComponent initialized');
     console.log('ngOnInit called');
@@ -624,7 +625,7 @@ export class QuizQuestionComponent
     );
   }
 
-  private fetchCorrectAnswersText() {
+  fetchCorrectAnswersText(): void {
     this.quizService.setCorrectAnswerOptions(this.quizService.correctAnswerOptions);
 
     // Map option IDs to Option objects
@@ -633,6 +634,7 @@ export class QuizQuestionComponent
     );
 
     this.correctMessage = this.quizService.setCorrectMessage(this.data, mappedCorrectAnswerOptions, this.data.currentOptions);
+    console.log('MY CORR MSG', this.correctMessage);
     this.quizService.setCorrectAnswersLoaded(true);
   }
     

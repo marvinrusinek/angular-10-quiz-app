@@ -103,7 +103,7 @@ export class MultipleAnswerComponent
   }
   
   async ngOnInit(): Promise<void> {
-    super.ngOnInit();
+    // super.ngOnInit();
 
     console.log('CodelabQuizMultipleAnswerComponent - Question:', this.question);
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);

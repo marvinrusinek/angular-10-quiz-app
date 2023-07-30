@@ -91,7 +91,7 @@ export class SingleAnswerComponent
 
   async ngOnInit(): Promise<void> {
     console.log('options in codelab-question-single-answer', this.options); // not working
-    super.ngOnInit();
+    // super.ngOnInit();
 
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
       map((question) => question.options),
