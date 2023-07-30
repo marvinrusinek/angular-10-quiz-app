@@ -608,11 +608,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCurrentOptions(this.data.currentOptions);
 
         const currentQuestion: QuizQuestion = {
-          questionId: '', this.data.question.questionId,
+          questionId: '',
           questionText: this.data.questionText,
           options: this.data.currentOptions,
-          explanation: this.data.question.explanation,
-          type: '', this.data.question.type
+          explanation: '',
+          type: ''
         };
 
         const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
