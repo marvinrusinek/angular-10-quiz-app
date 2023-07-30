@@ -320,14 +320,14 @@ export class QuizQuestionComponent
 
   ngOnDestroy(): void {
     console.log('QuizQuestionComponent destroyed');
+    this.destroy$.next();
+    this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
-
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
   trackByFn(index: number, option: any) {
