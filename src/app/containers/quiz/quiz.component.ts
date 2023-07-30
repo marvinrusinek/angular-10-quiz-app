@@ -598,7 +598,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
   
-    this.quizService.getQuizData().pipe(take(1)).subscribe((quizData: Quiz[]) => {
+    this.quizService.getQuizData().pipe().subscribe((quizData: Quiz[]) => {
       this.quizService.setQuizData(quizData);
   
       const questionData = this.quizService.getQuestionData(quizId, questionIndex);
@@ -618,9 +618,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     }); 
 
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      this.quizService.setCurrentQuiz(quizId);
-      this.quizService.setQuestions(questions);
       this.quizService.setCurrentQuestionIndex(+questionIndex);
+      // this.quizService.setCurrentQuiz(quizId);
+      this.quizService.setQuestions(questions);
       this.quizService.setTotalQuestions(questions.length);
 
       if (!this.quizService.questionsLoaded) {
