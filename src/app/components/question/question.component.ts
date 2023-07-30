@@ -636,7 +636,6 @@ export class QuizQuestionComponent
       this.correctMessage = 'The correct answers are not available yet...';
     }
   }
-  
     
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
