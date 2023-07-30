@@ -624,7 +624,7 @@ export class QuizQuestionComponent
         try {
           this.correctMessage = this.quizService.setCorrectMessage(
             this.data,
-            this.correctAnswers,
+            this.quizService.correctAnswers,
             this.data.currentOptions
           );
         } catch (error) {
