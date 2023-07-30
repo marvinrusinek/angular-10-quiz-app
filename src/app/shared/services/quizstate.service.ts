@@ -11,12 +11,12 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizStateService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> 
     = new BehaviorSubject<QuizQuestion | null>(null);
-  currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private currentQuestionSource = new Subject<QuizQuestion>();
-  currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSource.asObservable();
+  currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSubject.asObservable();
 
-  currentOptionsSubject = new BehaviorSubject<Option[]>(null);
-  currentOptions$: Observable<Option[]> = of(null);
+  currentOptionsSubject = new BehaviorSubject<Option[]>([]);
+  currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
 
   private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
