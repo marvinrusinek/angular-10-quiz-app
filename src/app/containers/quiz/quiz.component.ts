@@ -607,7 +607,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.data = questionData;
         this.quizService.setCurrentOptions(this.data.currentOptions);
 
-        // Create a new instance of QuizQuestion with the required properties
         const currentQuestion: QuizQuestion = {
           questionId: '', this.data.question.questionId,
           questionText: this.data.questionText,
@@ -616,7 +615,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           type: '', this.data.question.type
         };
 
-        // Call setCorrectAnswers with the current question and its correct options
         const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
         this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
 
