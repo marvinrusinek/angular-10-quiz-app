@@ -625,7 +625,14 @@ export class QuizQuestionComponent
   }
 
   private fetchCorrectAnswersText() {
-    this.quizService.setCorrectMessage(this.data, this.quizService.correctAnswerOptions, this.currentOptions);
+    this.quizService.setCorrectAnswerOptions(this.quizService.correctAnswerOptions);
+
+    // Map option IDs to Option objects
+    const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
+      this.data.currentOptions.find(option => option.optionId === optionId)
+    );
+
+    this.quizService.setCorrectMessage(this.data, mappedCorrectAnswerOptions, this.data.currentOptions);
     this.quizService.setCorrectAnswersLoaded(true);
   }
     
