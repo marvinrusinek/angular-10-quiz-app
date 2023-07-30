@@ -84,6 +84,7 @@ export class QuizQuestionComponent
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
+  correctAnswersLoadedSubscription: Subscription;
   optionsSubscription: Subscription;
   options$: Observable<Option[]>;
   quiz: Quiz;
@@ -635,7 +636,19 @@ export class QuizQuestionComponent
         this.correctMessage = 'The correct answers are not available yet...';
       }
     });
-  }  
+  }
+
+  private subscribeToCorrectAnswersLoaded() {
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
+      (loaded: boolean) => {
+        if (loaded) {
+          this.updateCorrectMessage();
+        } else {
+          this.correctMessage = 'The correct answers are not available yet...';
+        }
+      }
+    );
+  }
     
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
