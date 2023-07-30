@@ -107,6 +107,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   routerSubscription: Subscription;
   questionSubscription: Subscription;
   optionsSubscription: Subscription;
+  correctAnswersLoadedSubscription: Subscription;
   resources: Resource[];
   answers = [];
   answered: boolean = false;
@@ -231,6 +232,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.routerSubscription?.unsubscribe();
     this.questionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
+    this.correctAnswersLoadedSubscription.unsubscribe();
   }
 
   private initializeQuiz(): void {
@@ -641,6 +643,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  private subscribeToCorrectAnswersLoaded() {
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
+      (loaded: boolean) => {
+        if (loaded) {
+          // Update correct message logic here
+        } else {
+          this.correctMessage = 'The correct answers are not available yet...';
+        }
+      }
+    );
+  }
 
   handleOptions(options: Option[]): void {
     if (!options || options.length === 0) {
