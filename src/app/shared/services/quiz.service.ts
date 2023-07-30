@@ -802,6 +802,26 @@ export class QuizService implements OnDestroy {
     return quizSelectionParams;
   }
 
+  getQuestionByExplanation(explanation: string): QuizQuestion | null {
+    if (!this.quizData || this.quizData.length === 0) {
+      return null;
+    }
+  
+    for (const quiz of this.quizData) {
+      for (const question of quiz.questions) {
+        if (question.explanation === explanation) {
+          return question;
+        }
+      }
+    }
+  
+    return null;
+  }
+
+  getQuestionId(quizId: string, questionIndex: number): string {
+    return `${quizId}-Q${questionIndex + 1}`;
+  }
+  
   /********* setter functions ***********/
   setCombinedQuestionData(data: {
     questionText: string;
@@ -810,20 +830,16 @@ export class QuizService implements OnDestroy {
   }): void {
     this.combinedQuestionDataSubject.next(data);
   }
-
-  getQuestionId(quizId: string, questionIndex: number): string {
-    return `${quizId}-Q${questionIndex + 1}`;
-  }
   
-  setCorrectAnswers(currentOptions: Option[]): void {
-    if (currentOptions !== null) {
+  setCorrectAnswers(currentQuestion: QuizQuestion, currentOptions: Option[]): void {
+    if (currentQuestion !== null && currentOptions !== null) {
       const correctOptionNumbers = currentOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
   
       if (correctOptionNumbers.length > 0) {
         this.correctAnswers.push({
-          questionId: this.data.questionText,
+          questionId: currentQuestion.questionText,
           answers: correctOptionNumbers.sort()
         });
       }
