@@ -299,7 +299,13 @@ export class QuizQuestionComponent
     console.log('Initializing component...');
     this.subscriptionToQuestion();
     this.subscribeToCorrectAnswersLoaded();
-    this.fetchCorrectAnswersText();
+
+    const data = {
+      questionText: this.data.questionText,
+      correctAnswersText: this.data.correctAnswersText || '',
+      currentOptions: this.data.currentOptions,
+    };
+    this.fetchCorrectAnswersText(data);
     console.log('MY CORR MSG', this.correctMessage);
     this.updateQuestionForm();
   }
@@ -626,17 +632,17 @@ export class QuizQuestionComponent
     );
   }
 
-  fetchCorrectAnswersText(): void {
+  fetchCorrectAnswersText(data: any): void {
     console.log("Fetching correct answer text...");
     this.quizService.setCorrectAnswerOptions(this.quizService.correctAnswerOptions);
 
     // Map option IDs to Option objects
     const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
-      this.data.currentOptions.find(option => option.optionId === optionId)
+      data.currentOptions.find(option => option.optionId === optionId)
     );
     console.log("mapped cao:", mappedCorrectAnswerOptions);
 
-    this.correctMessage = this.quizService.setCorrectMessage(this.data, mappedCorrectAnswerOptions, this.data.currentOptions);
+    this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, data.currentOptions);
     console.log('MY CORR MSG', this.correctMessage);
     this.quizService.setCorrectAnswersLoaded(true);
   }
