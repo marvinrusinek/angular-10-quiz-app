@@ -58,6 +58,7 @@
           (answer)="updateClassName($event)"
         ></codelab-question-multiple-answer>
       </ng-container>
+      <pre>{{ data | json }}</pre>
       <ng-container *ngIf="!data?.options || data?.options.length === 0">
         No options found for the current question.
       </ng-container>

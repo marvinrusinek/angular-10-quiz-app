@@ -308,6 +308,12 @@ export class QuizQuestionComponent
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
 
+
+    console.log('Before the if condition...');
+    console.log('questionData:', this.questionData);
+    console.log('data:', this.data);
+    console.log('data.currentOptions:', this.data.currentOptions);
+
     if (this.questionData && data && data.currentOptions) {
       console.log('Calling fetchCorrectAnswersText...');
       await this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
