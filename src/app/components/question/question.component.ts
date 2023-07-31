@@ -301,15 +301,18 @@ export class QuizQuestionComponent
     this.subscribeToCorrectAnswersLoaded();
 
     console.log('ngOnInit is called...');
-    /* const data = {
+    const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
       currentOptions: this.data.currentOptions
-    }; */
-    console.log('Before the if condition...');
-    if (this.data && this.data.currentOptions) {
+    };
+    console.log('Data to be passed to fetchCorrectAnswersText:', data);
+
+    if (this.questionData && data && data.currentOptions) {
       console.log('Calling fetchCorrectAnswersText...');
       await this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
+    } else {
+      console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
     }
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
@@ -638,7 +641,7 @@ export class QuizQuestionComponent
     );
   }
 
-  fetchCorrectAnswersText(data: any, currentOptions: Option[]): void {
+  async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
     console.log('Data:', data);
     console.log('Correct answer options:', this.quizService.correctAnswerOptions);
