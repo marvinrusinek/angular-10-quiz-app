@@ -638,24 +638,23 @@ export class QuizQuestionComponent
 
   fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): Promise<void> {
     return new Promise<void>((resolve) => {
-    console.log("Fetching correct answer text...");
-    console.log("Correct answer options:", this.quizService.correctAnswerOptions);
-    console.log("Question Data:", questionData);
-    console.log("Current Options:", currentOptions);
+      console.log("Fetching correct answer text...");
+      console.log("Data:", data);
+      console.log("Correct answer options:", this.quizService.correctAnswerOptions);
     
-    // Ensure this.quizService.correctAnswerOptions is set correctly
-    console.log("Correct answer options:", this.quizService.correctAnswerOptions);
-  
-    // Map option IDs to Option objects
-    const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
-      currentOptions.find(option => option.optionId === optionId)
-    );
-    console.log("Mapped correct answer options:", mappedCorrectAnswerOptions);
-  
-    this.correctMessage = this.quizService.setCorrectMessage(questionData, mappedCorrectAnswerOptions, currentOptions);
-    console.log('MY CORR MSG', this.correctMessage);
-    this.quizService.setCorrectAnswersLoaded(true);
-    resolve();  
+      // Ensure this.quizService.correctAnswerOptions is set correctly
+      console.log("Correct answer options:", this.quizService.correctAnswerOptions);
+    
+      // Map option IDs to Option objects
+      const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
+        currentOptions.find(option => option.optionId === optionId)
+      );
+      console.log("Mapped correct answer options:", mappedCorrectAnswerOptions);
+    
+      this.correctMessage = this.quizService.setCorrectMessage(questionData, mappedCorrectAnswerOptions, currentOptions);
+      console.log('MY CORR MSG', this.correctMessage);
+      this.quizService.setCorrectAnswersLoaded(true);
+      resolve();  
     });
   }
       
