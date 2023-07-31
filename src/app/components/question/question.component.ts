@@ -308,6 +308,7 @@ export class QuizQuestionComponent
       currentOptions: this.data.currentOptions
     };
     if (this.questionData && this.data && this.data.currentOptions) {
+      console.log('Calling fetchCorrectAnswersText...');
       await this.fetchCorrectAnswersText(this.questionData, this.data.currentOptions);
     }
     console.log('MY CORR MSG', this.correctMessage);
