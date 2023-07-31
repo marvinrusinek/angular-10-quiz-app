@@ -62,6 +62,7 @@ export class QuizQuestionComponent
     correctAnswersText?: string;
     currentOptions: Option[];
   };
+  @Input() questionData: QuizQuestion;
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
@@ -306,6 +307,9 @@ export class QuizQuestionComponent
       correctAnswersText: this.data.correctAnswersText || '',
       currentOptions: this.data.currentOptions,
     };
+    if (this.questionData && this.data && this.data.currentOptions) {
+      this.fetchCorrectAnswersText(this.questionData, this.data.currentOptions);
+    }
     this.fetchCorrectAnswersText(data);
     console.log('MY CORR MSG', this.correctMessage);
     this.updateQuestionForm();
