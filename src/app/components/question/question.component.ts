@@ -170,6 +170,10 @@ export class QuizQuestionComponent
     console.log('this.data.currentOptions:', this.data.currentOptions);
     console.log('Data:::', this.data);
 
+    console.log('questionData:', this.questionData);
+    console.log('data:', this.data);
+    console.log('data.currentOptions:', this.data.currentOptions);
+
     this.selectedOption = null;
 
     // Subscribe to the options$ observable
@@ -311,10 +315,9 @@ export class QuizQuestionComponent
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
 
 
-    console.log('Before the if condition...');
-    console.log('questionData:', this.questionData);
-    console.log('data:', this.data);
-    console.log('data.currentOptions:', this.data.currentOptions);
+    console.log('questionData:::', this.questionData);
+    console.log('data:::', this.data);
+    console.log('data.currentOptions:::', this.data.currentOptions);
 
     if (this.questionData && this.data && this.data.currentOptions) {
       console.log('Calling fetchCorrectAnswersText...');
