@@ -79,7 +79,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     correctAnswersText?: string;
     currentOptions: Option[];
   };
-  @Input() questionData: QuizQuestion;
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
