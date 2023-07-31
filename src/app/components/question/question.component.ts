@@ -636,7 +636,8 @@ export class QuizQuestionComponent
     );
   }
 
-  fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): void {
+  fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): Promise<void> {
+    return new Promise<void>((resolve) => {
     console.log("Fetching correct answer text...");
     console.log("Correct answer options:", this.quizService.correctAnswerOptions);
     console.log("Question Data:", questionData);
@@ -654,6 +655,8 @@ export class QuizQuestionComponent
     this.correctMessage = this.quizService.setCorrectMessage(questionData, mappedCorrectAnswerOptions, currentOptions);
     console.log('MY CORR MSG', this.correctMessage);
     this.quizService.setCorrectAnswersLoaded(true);
+    resolve();  
+    });
   }
       
   private updateMultipleAnswer(): void {
