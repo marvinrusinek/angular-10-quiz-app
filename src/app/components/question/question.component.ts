@@ -163,11 +163,10 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log("MY NGONINIT TEST - ngOnInit");
-    console.log('CodelabQuizQuestionComponent - Data:', this.data);
-    console.log('QuestionComponent initialized');
-    console.log('ngOnInit called');
-    console.log('questionForm:', this.questionForm.value);
+    console.log('ngOnInit is called...');
+    console.log('this.questionData:', this.questionData);
+    console.log('this.data:', this.data);
+    console.log('this.data.currentOptions:', this.data.currentOptions);
 
     this.selectedOption = null;
 
@@ -640,7 +639,7 @@ export class QuizQuestionComponent
   fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): Promise<void> {
     return new Promise<void>((resolve) => {
       console.log("Fetching correct answer text...");
-      console.log("Data:", data);
+      console.log("Data:", questionData);
       console.log("Correct answer options:", this.quizService.correctAnswerOptions);
     
       // Ensure this.quizService.correctAnswerOptions is set correctly
