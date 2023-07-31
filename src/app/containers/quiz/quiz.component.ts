@@ -79,6 +79,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     correctAnswersText?: string;
     currentOptions: Option[];
   };
+  @Input() questionData: QuizQuestion;
   @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -613,6 +614,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           explanation: '',
           type: this.quizService.QuestionType.MultipleChoice
         };
+
+        // Pass the data to the QuizQuestionComponent
+        this.questionData = currentQuestion;
 
         const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
         this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);

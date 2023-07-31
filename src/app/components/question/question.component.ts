@@ -300,6 +300,7 @@ export class QuizQuestionComponent
     this.subscriptionToQuestion();
     this.subscribeToCorrectAnswersLoaded();
 
+    console.log('ngOnInit is called...');
     const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
@@ -316,11 +317,11 @@ export class QuizQuestionComponent
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
     ) {
       this.getCorrectAnswers();
-      this.correctMessage = this.quizService.setCorrectMessage(
+      /* this.correctMessage = this.quizService.setCorrectMessage(
         this.data,
         this.quizService.correctAnswers,
         this.data?.currentOptions
-      );
+      ); */
       this.cdRef.detectChanges(); // manually trigger change detection
     }
   }
