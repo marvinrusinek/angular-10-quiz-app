@@ -305,12 +305,11 @@ export class QuizQuestionComponent
     const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
-      currentOptions: this.data.currentOptions,
+      currentOptions: this.data.currentOptions
     };
     if (this.questionData && this.data && this.data.currentOptions) {
-      this.fetchCorrectAnswersText(this.questionData, this.data.currentOptions);
+      await this.fetchCorrectAnswersText(this.questionData, this.data.currentOptions);
     }
-    this.fetchCorrectAnswersText(data);
     console.log('MY CORR MSG', this.correctMessage);
     this.updateQuestionForm();
   }
@@ -639,6 +638,9 @@ export class QuizQuestionComponent
 
   fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): void {
     console.log("Fetching correct answer text...");
+    console.log("Correct answer options:", this.quizService.correctAnswerOptions);
+    console.log("Question Data:", questionData);
+    console.log("Current Options:", currentOptions);
     
     // Ensure this.quizService.correctAnswerOptions is set correctly
     console.log("Correct answer options:", this.quizService.correctAnswerOptions);
