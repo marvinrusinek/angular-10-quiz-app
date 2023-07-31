@@ -306,10 +306,12 @@ export class QuizQuestionComponent
       correctAnswersText: this.data.correctAnswersText || '',
       currentOptions: this.data.currentOptions
     };
+    console.log('Before the if condition...');
     if (this.question && data && data.currentOptions) {
       console.log('Calling fetchCorrectAnswersText...');
-      await this.fetchCorrectAnswersText(this.questionData, this.data.currentOptions);
+      await this.fetchCorrectAnswersText(this.question, data.currentOptions);
     }
+    console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
     this.updateQuestionForm();
   }
