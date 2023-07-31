@@ -637,7 +637,7 @@ export class QuizQuestionComponent
     );
   }
 
-  fetchCorrectAnswersText(data: any): void {
+  fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): void {
     console.log("Fetching correct answer text...");
     
     // Ensure this.quizService.correctAnswerOptions is set correctly
@@ -645,16 +645,15 @@ export class QuizQuestionComponent
   
     // Map option IDs to Option objects
     const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
-      data.currentOptions.find(option => option.optionId === optionId)
+      currentOptions.find(option => option.optionId === optionId)
     );
     console.log("Mapped correct answer options:", mappedCorrectAnswerOptions);
   
-    this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, data.currentOptions);
+    this.correctMessage = this.quizService.setCorrectMessage(questionData, mappedCorrectAnswerOptions, currentOptions);
     console.log('MY CORR MSG', this.correctMessage);
     this.quizService.setCorrectAnswersLoaded(true);
   }
-  
-    
+      
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
   }
