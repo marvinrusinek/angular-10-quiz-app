@@ -301,15 +301,15 @@ export class QuizQuestionComponent
     this.subscribeToCorrectAnswersLoaded();
 
     console.log('ngOnInit is called...');
-    const data = {
+    /* const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
       currentOptions: this.data.currentOptions
-    };
+    }; */
     console.log('Before the if condition...');
-    if (this.question && data && data.currentOptions) {
+    if (this.data && this.data.currentOptions) {
       console.log('Calling fetchCorrectAnswersText...');
-      await this.fetchCorrectAnswersText(this.question, data.currentOptions);
+      await this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
     }
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
@@ -638,26 +638,23 @@ export class QuizQuestionComponent
     );
   }
 
-  fetchCorrectAnswersText(questionData: any, currentOptions: Option[]): Promise<void> {
-    return new Promise<void>((resolve) => {
-      console.log("Fetching correct answer text...");
-      console.log("Data:", questionData);
-      console.log("Correct answer options:", this.quizService.correctAnswerOptions);
-    
-      // Ensure this.quizService.correctAnswerOptions is set correctly
-      console.log("Correct answer options:", this.quizService.correctAnswerOptions);
-    
-      // Map option IDs to Option objects
-      const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
-        currentOptions.find(option => option.optionId === optionId)
-      );
-      console.log("Mapped correct answer options:", mappedCorrectAnswerOptions);
-    
-      this.correctMessage = this.quizService.setCorrectMessage(questionData, mappedCorrectAnswerOptions, currentOptions);
-      console.log('MY CORR MSG', this.correctMessage);
-      this.quizService.setCorrectAnswersLoaded(true);
-      resolve();  
-    });
+  fetchCorrectAnswersText(data: any, currentOptions: Option[]): void {
+    console.log('Fetching correct answer text...');
+    console.log('Data:', data);
+    console.log('Correct answer options:', this.quizService.correctAnswerOptions);
+
+    // Ensure this.quizService.correctAnswerOptions is set correctly
+    console.log('Correct answer options:', this.quizService.correctAnswerOptions);
+
+    // Map option IDs to Option objects
+    const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
+      currentOptions.find(option => option.optionId === optionId)
+    );
+    console.log('Mapped correct answer options:', mappedCorrectAnswerOptions);
+
+    this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, currentOptions);
+    console.log('MY CORR MSG', this.correctMessage);
+    this.quizService.setCorrectAnswersLoaded(true);
   }
       
   private updateMultipleAnswer(): void {
