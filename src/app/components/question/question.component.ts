@@ -306,7 +306,7 @@ export class QuizQuestionComponent
       correctAnswersText: this.data.correctAnswersText || '',
       currentOptions: this.data.currentOptions
     };
-    if (this.questionData && this.data && this.data.currentOptions) {
+    if (this.question && data && data.currentOptions) {
       console.log('Calling fetchCorrectAnswersText...');
       await this.fetchCorrectAnswersText(this.questionData, this.data.currentOptions);
     }
