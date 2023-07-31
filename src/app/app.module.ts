@@ -43,6 +43,7 @@ import { CodelabQuizComponent } from './containers/quiz/quiz-question/codelab-qu
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
+import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
 import { QuizStateService } from './shared/services/quizstate.service';
 import { ExplanationTextService } from './shared/services/explanation-text.service';
 import { SelectionMessageService } from './shared/services/selection-message.service';
@@ -107,6 +108,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizGuard,
     QuizService,
     QuizDataService,
+    QuizQuestionManagerService,
     QuizStateService,
     ExplanationTextService,
     SelectionMessageService,

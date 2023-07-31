@@ -120,6 +120,9 @@ export class QuizService implements OnDestroy {
   totalQuestionsSubject = new BehaviorSubject<number>(0);
   totalQuestions$ = this.totalQuestionsSubject.asObservable();
 
+  private questionDataSubject = new BehaviorSubject<any>(null);
+  questionData$ = this.questionDataSubject.asObservable();
+
   explanation: string;
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -826,6 +829,10 @@ export class QuizService implements OnDestroy {
   }
   
   /********* setter functions ***********/
+  setQuestionData(data: any) {
+    this.questionDataSubject.next(data);
+  }
+  
   setCombinedQuestionData(data: {
     questionText: string;
     correctAnswersText: string;
