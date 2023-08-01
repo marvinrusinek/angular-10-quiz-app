@@ -112,7 +112,7 @@ export class QuizQuestionComponent
   displayExplanation: boolean = false;
   isChangeDetected = false;
   feedbackDisplayed = false;
-  showFeedbackForOption: { [key: string]: boolean } = {};
+  showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
 
   private initialized = false;
@@ -789,7 +789,7 @@ export class QuizQuestionComponent
   
     if (!isOptionSelected) {
       this.selectedOptions = [option];
-      this.optionChecked = { [option.optionId]: true };
+      // this.optionChecked = { [option.optionId]: true };
       this.showFeedbackForOption = { [option.optionId]: true }; // show feedback for the selected option
       this.showFeedback = true;
       this.selectedOption = option;
