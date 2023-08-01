@@ -832,7 +832,7 @@ export class QuizService implements OnDestroy {
   setQuestionData(data: any) {
     this.questionDataSubject.next(data);
   }
-  
+
   setCombinedQuestionData(data: {
     questionText: string;
     correctAnswersText: string;
@@ -886,9 +886,9 @@ export class QuizService implements OnDestroy {
     console.log("correctAnswerOptions:", correctAnswerOptions);
     console.log("currentOptions:", currentOptions);
 
-    if (!currentOptions || currentOptions.length === 0) {
+    /* if (!currentOptions || currentOptions.length === 0) {
       return 'The correct answers are not available yet.';
-    }
+    } */
 
     const correctOptionIds = correctAnswerOptions
       .filter((option) => option.correct)
