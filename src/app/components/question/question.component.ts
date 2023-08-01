@@ -175,6 +175,15 @@ export class QuizQuestionComponent
     console.log('data.currentOptions:', this.data.currentOptions);
 
     this.selectedOption = null;
+    
+    this.quizService.questionData$.subscribe((data) => {
+      if (data) {
+        // The data is available, you can now use it in this component
+        console.log('Question Data:', data);
+        // You can call fetchCorrectAnswersText here or do anything else with the data
+        this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
+      }
+    });
 
     // Subscribe to the options$ observable
     this.optionsSubscription = this.options$.subscribe((options) => {
@@ -284,11 +293,22 @@ export class QuizQuestionComponent
         this.currentOptions = currentOptions;   
       }); */
 
+      this.quizService.setCorrectAnswerOptions(this.correctAnswers);
+
       this.quizService.combinedQuestionData$.subscribe((data) => {
         if (data) {
           this.data = data;
           this.correctAnswers = this.quizService.correctAnswers;
           this.currentOptions = this.quizService.currentOptions;
+
+          if (this.questionData && this.data && this.data.currentOptions) {
+            console.log('Calling fetchCorrectAnswersText...');
+            this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
+            console.log('After fetchCorrectAnswersText...');
+            console.log('MY CORR MSG', this.correctMessage);
+          } else {
+            console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
+          }
         } else {
           this.correctMessage = 'The correct answers are not available yet.';
         }
@@ -319,14 +339,6 @@ export class QuizQuestionComponent
     console.log('data:::', this.data);
     console.log('data.currentOptions:::', this.data.currentOptions);
 
-    if (this.questionData && this.data && this.data.currentOptions) {
-      console.log('Calling fetchCorrectAnswersText...');
-      await this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
-      console.log('After fetchCorrectAnswersText...');
-      console.log('MY CORR MSG', this.correctMessage);
-    } else {
-      console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
-    }
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
     this.updateQuestionForm();
