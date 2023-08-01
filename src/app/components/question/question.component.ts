@@ -181,6 +181,7 @@ export class QuizQuestionComponent
         // The data is available, you can now use it in this component
         console.log('Question Data:', data);
         // You can call fetchCorrectAnswersText here or do anything else with the data
+        this.getCorrectAnswers();
         this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
       }
     });
@@ -303,6 +304,7 @@ export class QuizQuestionComponent
 
           if (this.questionData && this.data && this.data.currentOptions) {
             console.log('Calling fetchCorrectAnswersText...');
+            this.getCorrectAnswers();
             this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
             console.log('After fetchCorrectAnswersText...');
             console.log('MY CORR MSG', this.correctMessage);
