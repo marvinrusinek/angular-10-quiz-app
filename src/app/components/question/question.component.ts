@@ -186,11 +186,11 @@ export class QuizQuestionComponent
     });
 
     // Subscribe to the options$ observable
-    this.optionsSubscription = this.options$.subscribe((options) => {
+    /* this.optionsSubscription = this.options$.subscribe((options) => {
       if (options && options.length > 0) {
-        this.displayQuestion(this.quizService.getCurrentQuizId());
+        this.displayQuestion(this.quizService.getCurrentQuizId()); // not defined in file
       }
-    });
+    }); */
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
