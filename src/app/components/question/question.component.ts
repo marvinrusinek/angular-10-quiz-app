@@ -664,7 +664,7 @@ export class QuizQuestionComponent
   private subscribeToCorrectAnswersLoaded(): void {
     if (true) {
       this.quizService.setCorrectAnswersLoaded(true);
-      this.correctAnswers = this.getCorrectAnswers();
+      this.correctMessage = this.getCorrectAnswers();
       this.updateCorrectMessage();
     } else {
       this.correctMessage = 'The correct answers are not available yet...';
