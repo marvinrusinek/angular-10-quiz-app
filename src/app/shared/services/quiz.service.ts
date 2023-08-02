@@ -854,6 +854,7 @@ export class QuizService implements OnDestroy {
         });
       }
     }
+    this.correctAnswersLoadedSubject.next(true);
   }
 
   

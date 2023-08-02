@@ -654,7 +654,7 @@ export class QuizQuestionComponent
           }
         }
       } else {
-        this.correctMessage = 'The correct answers are not available yet...';
+        this.correctMessage = 'The correct answers are not available yet.';
       }
     });
   }
@@ -663,6 +663,7 @@ export class QuizQuestionComponent
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
+          this.correctAnswers = this.getCorrectAnswers(question);
           this.updateCorrectMessage();
         } else {
           this.correctMessage = 'The correct answers are not available yet...';
