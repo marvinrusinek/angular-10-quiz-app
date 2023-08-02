@@ -747,7 +747,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         : [];
   }
 
-  updateCardFooterClass(): void {
+  /* updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isQuestionAnswered()) {
       this.cardFooterClass = 'multiple-unanswered';
     } else if (!this.multipleAnswer && !this.isQuestionAnswered()) {
@@ -755,7 +755,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.cardFooterClass = '';
     }
-  }
+  } */
 
   private updateProgressValue(): void {
     if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
