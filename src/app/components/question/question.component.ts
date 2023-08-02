@@ -115,6 +115,9 @@ export class QuizQuestionComponent
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
 
+  correctAnswersSubscription: Subscription;
+  correctAnswersLoadedSubscription: Subscription;
+
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -192,6 +195,22 @@ export class QuizQuestionComponent
         this.displayQuestion(this.quizService.getCurrentQuizId()); // not defined in file
       }
     }); */
+
+    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+      this.correctAnswers = correctAnswers;
+      this.updateCorrectMessage(this.correctAnswers);
+    });
+  
+    // Subscribe to the correctAnswersLoaded$ observable
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
+      if (loaded) {
+        // Correct answers are available, get them
+        this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+      } else {
+        // Correct answers are not available
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
