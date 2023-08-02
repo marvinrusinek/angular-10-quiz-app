@@ -677,7 +677,7 @@ export class QuizQuestionComponent
               console.error('An error occurred while updating the correct message:', error);
             }
           } else {
-            this.correctMessage = 'The correct answers are not available yet.';
+            this.correctMessage = 'The correct answers are not available yet...';
           }
         }
       }
