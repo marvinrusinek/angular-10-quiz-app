@@ -1,7 +1,10 @@
 <ng-container *ngIf="data?.options">
   <div
-    *ngFor="let option of data?.options; let i = index; trackBy: trackByFn"
-    class="option-wrapper"
+    *ngFor="
+      let option of data?.options; 
+      let i = index; 
+      trackBy: trackByFn
+    "
   >
     <label class="options">
       <mat-checkbox
