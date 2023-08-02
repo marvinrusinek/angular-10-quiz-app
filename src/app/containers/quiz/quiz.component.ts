@@ -747,7 +747,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         : [];
   }
 
-  /* updateCardFooterClass(): void {
+  // not called anywhere...
+  updateCardFooterClass(): void {
     if (this.multipleAnswer && !this.isQuestionAnswered()) {
       this.cardFooterClass = 'multiple-unanswered';
     } else if (!this.multipleAnswer && !this.isQuestionAnswered()) {
@@ -755,7 +756,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       this.cardFooterClass = '';
     }
-  } */
+  }
 
   private updateProgressValue(): void {
     if (this.questionIndex !== 0 && this.totalQuestions !== 0) {
@@ -783,7 +784,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('none');
   }
 
-  isQuestionAnswered() {
+  isQuestionAnswered(): boolean {
     return this.isOptionSelected;
   }
 
@@ -881,7 +882,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizService.shouldExplanationBeDisplayed();
   }
 
-  async displayQuestion(quizId: string) {
+  async displayQuestion(quizId: string): Promise<void> {
     try {
       // Fetch the current question and its options based on the questionId
       const currentQuestion: QuizQuestion = await this.quizDataService.getQuestionsForQuiz(quizId);
