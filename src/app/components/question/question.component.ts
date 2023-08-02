@@ -622,8 +622,9 @@ export class QuizQuestionComponent
     this.quizService.score++;
   }
 
-  public getCorrectAnswers(): void {
+  public getCorrectAnswers(): number[] {
     this.correctAnswers = this.quizService.getCorrectAnswers(this.question);
+    return this.correctAnswers;
   }
 
   private updateCurrentQuestion(question: QuizQuestion): void {
@@ -664,7 +665,7 @@ export class QuizQuestionComponent
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
-          this.correctAnswers = this.getCorrectAnswers(question);
+          this.correctAnswers = this.getCorrectAnswers();
           this.updateCorrectMessage();
         } else {
           this.correctMessage = 'The correct answers are not available yet...';
