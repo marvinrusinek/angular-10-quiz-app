@@ -44,14 +44,10 @@
    "
    class="options">
     <mat-radio-button
-      [id]="'option' + i"
       [class]="option.styleClass"
-      [value]="option"
       (change)="updateSelectedOption(option, i);
                 selectionChange.emit({ question: question, selectedOption: $event.value })"
       [checked]="option.selected"
-      aria-label="Select option {{ i + 1 }}"
-      [aria-describedby]="'feedback' + i"
       (click)="onOptionClick(option)"
     >
       <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
