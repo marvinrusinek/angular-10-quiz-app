@@ -1,11 +1,11 @@
 <ng-container *ngIf="data?.options"> 
   <div 
     *ngFor="
-    let option of data?.options;
-    let i = index;
-    trackBy: trackByFn
-   "
-   class="options">
+      let option of data?.options;
+      let i = index;
+      trackBy: trackByFn
+    "
+    class="options">
     <mat-radio-button
       [class]="option.styleClass"
       [checked]="option.selected"

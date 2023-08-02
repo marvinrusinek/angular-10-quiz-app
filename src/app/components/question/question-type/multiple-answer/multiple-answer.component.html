@@ -1,39 +1,33 @@
 <ng-container *ngIf="data?.options">
-  <div class="options-container">
-    <div
-      *ngFor="
-        let option of data?.options;
-        let i = index;
-        trackBy: trackByFn
-      "
-      class="option-wrapper"
-    >
-      <label class="options">
-        <mat-checkbox
-          [class]="getOptionClass(option)"
-          [checked]="isSelectedOption(option)"
-          (click)="onOptionClick(option)"
-        >
-          <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
-          <span class="option-text">{{ option?.text }}</span>
-        </mat-checkbox>
+  <div
+    *ngFor="let option of data?.options; let i = index; trackBy: trackByFn"
+    class="option-wrapper"
+  >
+    <label class="options">
+      <mat-checkbox
+        [class]="getOptionClass(option)"
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClick(option)"
+      >
+        <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
+        <span class="option-text">{{ option?.text }}</span>
+      </mat-checkbox>
 
-        <codelab-quiz-option-feedback
-          *ngIf="isSelectedOption(option)"
-          [correct]="option?.correct"
-          [selected]="isSelectedOption(option)"
-          [options]="data?.options"
-        ></codelab-quiz-option-feedback>
+      <codelab-quiz-option-feedback
+        *ngIf="isSelectedOption(option)"
+        [correct]="option?.correct"
+        [selected]="isSelectedOption(option)"
+        [options]="data?.options"
+      ></codelab-quiz-option-feedback>
 
-        <codelab-quiz-feedback
-          *ngIf="shouldDisplayFeedback(option)"
-          [question]="currentQuestion"
-          [selectedOption]="option"
-          [correctMessage]="correctMessage"
-          [showFeedback]="showFeedback"
-          [options]="data?.options"
-        ></codelab-quiz-feedback>
-      </label>
-    </div>
+      <codelab-quiz-feedback
+        *ngIf="shouldDisplayFeedback(option)"
+        [question]="currentQuestion"
+        [selectedOption]="option"
+        [correctMessage]="correctMessage"
+        [showFeedback]="showFeedback"
+        [options]="data?.options"
+      ></codelab-quiz-feedback>
+    </label>
   </div>
 </ng-container>
