@@ -90,10 +90,8 @@ export class QuizService implements OnDestroy {
   answerStatus$ = this.answerStatus.asObservable();
   totalQuestions: number = 0;
 
-  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  private selectedQuizId$: BehaviorSubject<string> =
-    new BehaviorSubject<string>(undefined);
   selectedQuiz: any;
+  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
   selectedQuizId: string | undefined;
   indexOfQuizId: number;
   startedQuizId: string;
@@ -150,23 +148,20 @@ export class QuizService implements OnDestroy {
   isGettingCurrentQuestion = false;
 
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
-  public question$ = this.questionSource.asObservable();
+  question$ = this.questionSource.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
-  options$: Observable<Option[]> = this.optionsSource.asObservable();
   optionsSubject: BehaviorSubject<Option[] | null>
     = new BehaviorSubject<Option[] | null>(null);
-
+  options$: Observable<Option[]> = this.optionsSource.asObservable();
+  
   nextQuestionSource: BehaviorSubject<QuizQuestion | null>
     = new BehaviorSubject<QuizQuestion | null>(null);
-  // nextQuestion$: Observable<QuizQuestion | null> = this.nextQuestionSource.asObservable();
+  private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
+  nextQuestion$ = this.nextQuestionSubject.asObservable();
 
   nextOptionsSource = new BehaviorSubject<Option[]>([]);
-  // nextOptions$: Observable<Option[]> = this.nextOptionsSource.asObservable();
-
-  private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   private nextOptionsSubject = new BehaviorSubject<Option[]>(null);
-  nextQuestion$ = this.nextQuestionSubject.asObservable();
   nextOptions$ = this.nextOptionsSubject.asObservable();
 
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
