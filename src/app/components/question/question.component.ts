@@ -661,10 +661,11 @@ export class QuizQuestionComponent
     });
   }
 
-  private subscribeToCorrectAnswersLoaded() {
+  private subscribeToCorrectAnswersLoaded() { 
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
+          this.quizService.setCorrectAnswersLoaded(true);
           this.correctAnswers = this.getCorrectAnswers();
           this.updateCorrectMessage();
         } else {
