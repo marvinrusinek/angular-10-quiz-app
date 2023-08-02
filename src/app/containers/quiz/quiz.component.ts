@@ -124,17 +124,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctAnswers: any[] = [];
   isOptionSelected = false;
   isDisabled: boolean; // may use later
+  nextQuestionText: string | null = null;
+  selectOptionText: string = 'Please select an option to continue...';
+  cardFooterClass = '';
+
   showExplanation: boolean = false;
   displayExplanation: boolean = false;
   explanationText: string | null;
-  // explanationText$: Observable<string | null>;
   explanationTextValue$: Observable<string | null>;
-  cardFooterClass = '';
-  nextQuestionText: string | null = null;
-  selectOptionText: string = 'Please select an option to continue...';
-
   private explanationTextSource = new BehaviorSubject<string>(null);
-  explanationText$ = this.explanationTextSource.asObservable();
+  explanationText$: Observable<string | null> = this.explanationTextSource.asObservable();
 
   private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
   combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
