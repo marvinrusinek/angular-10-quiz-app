@@ -654,15 +654,22 @@ export class QuizQuestionComponent
           } catch (error) {
             console.error('An error occurred while updating the correct message:', error);
           }
-        }
-      } else {
-        this.correctMessage = 'The correct answers are not available yet.';
+       }
+     } else {
+       this.correctMessage = 'The correct answers are not available yet.';
       }
     });
   }
 
-  private subscribeToCorrectAnswersLoaded(): void { 
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
+  private subscribeToCorrectAnswersLoaded(): void {
+    if (true) {
+      this.quizService.setCorrectAnswersLoaded(true);
+      this.correctAnswers = this.getCorrectAnswers();
+      this.updateCorrectMessage();
+    } else {
+      this.correctMessage = 'The correct answers are not available yet...';
+    }
+    /* this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
           this.quizService.setCorrectAnswersLoaded(true);
@@ -672,7 +679,7 @@ export class QuizQuestionComponent
           this.correctMessage = 'The correct answers are not available yet...';
         }
       }
-    );
+    ); */
   }
 
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
