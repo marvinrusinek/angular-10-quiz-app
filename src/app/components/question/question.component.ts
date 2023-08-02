@@ -176,7 +176,7 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
     
-    this.quizService.questionData$.subscribe((data) => {
+    /* this.quizService.questionData$.subscribe((data) => {
       if (data) {
         // The data is available, you can now use it in this component
         console.log('Question Data:', data);
@@ -184,7 +184,7 @@ export class QuizQuestionComponent
         this.getCorrectAnswers();
         this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
       }
-    });
+    }); */
 
     // Subscribe to the options$ observable
     /* this.optionsSubscription = this.options$.subscribe((options) => {
