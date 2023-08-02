@@ -96,7 +96,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
-  combinedQuestionData$: Observable<any>;
   // currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
@@ -138,7 +137,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText$ = this.explanationTextSource.asObservable();
 
   private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
-  combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+  combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
 
   currentQuestionIndex: number = 0;
   totalQuestions = 0;
@@ -314,7 +313,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadCurrentQuestion() {
+  loadCurrentQuestion(): void {
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
     this.currentQuestion$.subscribe((currentQuestion) => {
       console.log('Current question:::', currentQuestion);
@@ -322,7 +321,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  nextQuestion() {
+  nextQuestion(): void {
     const nextQuestion = this.quizService.getNextQuestion();
     if (nextQuestion) {
       this.currentQuestion$ = of(nextQuestion);
@@ -345,7 +344,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizService.correctOptions;
   }
 
-  onSelectionChange(questionIndex: number, answerIndex: number) {
+  onSelectionChange(questionIndex: number, answerIndex: number): void {
     this.selectedAnswerIndex = answerIndex;
     this.answers[questionIndex] =
       this.questions[questionIndex].options[answerIndex];
