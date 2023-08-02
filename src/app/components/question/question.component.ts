@@ -661,7 +661,7 @@ export class QuizQuestionComponent
     });
   }
 
-  private subscribeToCorrectAnswersLoaded() { 
+  private subscribeToCorrectAnswersLoaded(): void { 
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
