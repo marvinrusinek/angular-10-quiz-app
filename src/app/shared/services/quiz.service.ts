@@ -866,17 +866,6 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
-  // In QuizService
-  /* setCorrectMessage(data: any, correctAnswerOptions: Option[], currentOptions: Option[]): string {
-    console.log("Function setCorrectMessage() is called.");
-    console.log("data:", data);
-    console.log("correctAnswerOptions:", correctAnswerOptions);
-    console.log("currentOptions:", currentOptions);
-
-    return 'This is a hardcoded correct message.';
-  } */
-
-
   setCorrectMessage(
     data: any,
     correctAnswerOptions: Option[],
