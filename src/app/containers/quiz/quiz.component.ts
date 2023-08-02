@@ -1094,10 +1094,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setQuizStatus(this.status);
   }
 
+  // not called anywhere...
   private sendStartedQuizIdToQuizService(): void {
     this.quizService.setStartedQuizId(this.quizId);
   }
 
+  // not called anywhere...
   private sendContinueQuizIdToQuizService(): void {
     this.quizService.setContinueQuizId(this.quizId);
   }
