@@ -1,40 +1,3 @@
-<!--<ng-container *ngIf="options$ | async as options"> 
-  <div class="options" 
-    *ngFor="let option of currentQuestion?.options; let i = index">
-    <mat-radio-button
-      [id]="'option' + i"
-      [class]="option.styleClass"
-      [value]="option"
-      (change)="updateSelectedOption(option, i);
-                selectionChange.emit({ question: question, selectedOption: $event.value })"
-      [checked]="option.selected"
-      aria-label="Select option {{ i + 1 }}"
-      [aria-describedby]="'feedback' + i"
-      (click)="onOptionClick(option)"
-    >
-      <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
-      <span class="option-text" i18n>{{ option.text }}</span>
-
-      <codelab-quiz-option-feedback
-        *ngIf="isSelectedOption(option)"
-        [correct]="option.correct"
-        [selected]="option.selected"
-        [options]="data?.options"
-      >
-      </codelab-quiz-option-feedback>
-    </mat-radio-button>
-
-    <codelab-quiz-feedback
-      *ngIf="selectedOption === option"
-      [question]="question"
-      [selectedOption]="selectedOption?.text"
-      [correctMessage]="correctMessage"
-      [showFeedback]="showFeedback"
-      [options]="data?.options"
-    ></codelab-quiz-feedback>
-  </div>
-</ng-container>-->
-
 <ng-container *ngIf="data?.options"> 
   <div 
     *ngFor="
@@ -45,8 +8,6 @@
    class="options">
     <mat-radio-button
       [class]="option.styleClass"
-      (change)="updateSelectedOption(option, i);
-                selectionChange.emit({ question: question, selectedOption: $event.value })"
       [checked]="option.selected"
       (click)="onOptionClick(option)"
     >
