@@ -305,6 +305,7 @@ export class QuizQuestionComponent
           if (this.questionData && this.data && this.data.currentOptions) {
             console.log('Calling fetchCorrectAnswersText...');
             this.getCorrectAnswers();
+            this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
             this.fetchCorrectAnswersText(this.data, this.data.currentOptions).then(() => {
               console.log('After fetchCorrectAnswersText...');
               console.log('MY CORR MSG', this.correctMessage);
