@@ -662,26 +662,28 @@ export class QuizQuestionComponent
   }
 
   private subscribeToCorrectAnswersLoaded(): void {
-    if (true) {
-      this.quizService.setCorrectAnswersLoaded(true);
-      this.correctAnswers = this.getCorrectAnswers();
-      this.updateCorrectMessage(this.correctAnswers);
-    } else {
-      this.correctMessage = 'The correct answers are not available yet...';
-    }
-    /* this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
-          this.quizService.setCorrectAnswersLoaded(true);
-          this.correctAnswers = this.getCorrectAnswers();
-          this.updateCorrectMessage(this.correctAnswers);
-        } else {
-          this.correctMessage = 'The correct answers are not available yet...';
+          if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
+            try {
+              this.correctAnswers = this.getCorrectAnswers();
+              this.correctMessage = this.quizService.setCorrectMessage(
+                this.data,
+                this.correctAnswers,
+                this.data.currentOptions
+              );
+            } catch (error) {
+              console.error('An error occurred while updating the correct message:', error);
+            }
+          } else {
+            this.correctMessage = 'The correct answers are not available yet.';
+          }
         }
       }
-    ); */
+    );
   }
-
+  
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
     console.log('Data:', data);
