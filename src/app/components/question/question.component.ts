@@ -305,7 +305,10 @@ export class QuizQuestionComponent
           if (this.questionData && this.data && this.data.currentOptions) {
             console.log('Calling fetchCorrectAnswersText...');
             this.getCorrectAnswers();
-            this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
+            this.fetchCorrectAnswersText(this.data, this.data.currentOptions).then(() => {
+              console.log('After fetchCorrectAnswersText...');
+              console.log('MY CORR MSG', this.correctMessage);
+            });
             console.log('After fetchCorrectAnswersText...');
             console.log('MY CORR MSG', this.correctMessage);
           } else {
@@ -668,7 +671,7 @@ export class QuizQuestionComponent
     );
   }
 
-  fetchCorrectAnswersText(data: any, currentOptions: Option[]): void {
+  async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
     console.log('Data:', data);
     console.log('Correct answer options:', this.quizService.correctAnswerOptions);
