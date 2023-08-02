@@ -36,8 +36,13 @@
 </ng-container>-->
 
 <ng-container *ngIf="data?.options"> 
-  <div class="options" 
-    *ngFor="let option of data?.options; let i = index">
+  <div 
+    *ngFor="
+    let option of data?.options;
+    let i = index;
+    trackBy: trackByFn
+   "
+   class="options">
     <mat-radio-button
       [id]="'option' + i"
       [class]="option.styleClass"
