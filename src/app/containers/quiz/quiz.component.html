@@ -10,10 +10,10 @@
       <codelab-scoreboard></codelab-scoreboard>
     
       <!-- the question and options -->
-      <codelab-quiz-cp-component 
+      <codelab-quiz-content-component 
         [question]="data?.questionText" 
         [options]="data?.currentOptions">
-      </codelab-quiz-cp-component>
+      </codelab-quiz-content-component>
       <ng-content select="[question-content]"></ng-content>
     
       <ng-container *ngIf="data?.options">

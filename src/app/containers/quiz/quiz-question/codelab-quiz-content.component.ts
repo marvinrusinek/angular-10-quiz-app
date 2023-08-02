@@ -12,12 +12,12 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 
 @Component({
-  selector: 'codelab-quiz-cp-component',
-  templateUrl: './codelab-quiz.component.html',
-  styleUrls: ['./codelab-quiz.component.scss'],
+  selector: 'codelab-quiz-content-component',
+  templateUrl: './codelab-quiz-content.component.html',
+  styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CodelabQuizComponent {
+export class CodelabQuizContentComponent {
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
   @Input() question!: QuizQuestion;
