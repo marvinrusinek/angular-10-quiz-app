@@ -170,6 +170,10 @@ export class QuizService implements OnDestroy {
   correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   correctAnswersLoaded$: Observable<boolean> = this.correctAnswersLoadedSubject.asObservable();
 
+  private correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
+  correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
+
+
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   loadQuestionsLock: boolean = false;
@@ -843,15 +847,10 @@ export class QuizService implements OnDestroy {
         .map((option) => option.optionId);
   
       if (correctOptionNumbers.length > 0) {
-        this.correctAnswers.push({
-          questionId: currentQuestion.questionText,
-          answers: correctOptionNumbers.sort()
-        });
+        this.correctAnswersSubject.next(correctOptionNumbers.sort());
       }
     }
-    this.correctAnswersLoadedSubject.next(true);
   }
-
   
   setCorrectAnswerOptions(optionIds: number[]) {
     this.correctAnswerOptions = optionIds;
