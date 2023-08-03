@@ -665,25 +665,23 @@ export class QuizQuestionComponent
     });
   }
 
-  private subscribeToCorrectAnswersLoaded(): void {
-    // Subscribe to the correctAnswers$ observable
+  async subscribeToCorrectAnswersLoaded(): Promise<void> {
     this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       if (correctAnswers && correctAnswers.length > 0) {
         this.correctAnswers = correctAnswers;
         this.updateCorrectMessage(this.correctAnswers);
       }
     });
-
-    // Subscribe to the correctAnswersLoaded$ observable
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
-      if (loaded) {
-        // Correct answers are available, get them
-        this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-      } else {
-        // Correct answers are not available
-        this.correctMessage = 'The correct answers are not available yet...';
-      }
-    });
+  
+    // Check if correct answers are already available
+    const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+    if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+      this.correctAnswers = currentCorrectAnswers;
+      this.updateCorrectMessage(this.correctAnswers);
+    } else {
+      // Fetch the correct answers
+      await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+    }
     
     /* this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
