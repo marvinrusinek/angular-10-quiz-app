@@ -155,7 +155,6 @@ export class QuizQuestionComponent
     this.explanationTextService = explanationTextService;
     this.selectionMessageService = selectionMessageService;
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
-    this.correctMessage = '';
 
     this.questionForm = this.fb.group({
       selectedOption: ['']
