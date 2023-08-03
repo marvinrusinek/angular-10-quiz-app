@@ -38,14 +38,10 @@ export class SingleAnswerComponent
   extends QuizQuestionComponent
   implements OnInit, OnDestroy
 {
-  protected quizService: QuizService;
+  /* protected quizService: QuizService;
   protected quizDataService: QuizDataService;
-  protected quizStateService: QuizStateService;
+  protected quizStateService: QuizStateService; */
 
-  @Output() selectionChanged: EventEmitter<{ 
-      question: QuizQuestion, selectedOptions: Option[] 
-    }> = new EventEmitter();
-  @Output() optionSelected: EventEmitter<Option> = new EventEmitter<Option>();
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() currentQuestionIndex!: number;
@@ -89,7 +85,6 @@ export class SingleAnswerComponent
 
   async ngOnInit(): Promise<void> {
     console.log('options in codelab-question-single-answer', this.options); // not working
-    // super.ngOnInit();
 
     this.options$ = this.quizStateService.getCurrentQuestion().pipe(
       map((question) => question.options),
