@@ -190,11 +190,12 @@ export class QuizQuestionComponent
       ).subscribe(() => {
         // Correct answers are available, get them
         const updatedCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+        console.log("UCA", updatedCorrectAnswers); // logging empty array
         if (updatedCorrectAnswers && updatedCorrectAnswers.length > 0) {
           this.correctAnswers = updatedCorrectAnswers;
           this.updateCorrectMessage(this.correctAnswers);
         } else {
-          this.correctMessage = 'The correct answers are not available yet.';
+          this.correctMessage = 'The correct answers are not available yet...';
         }
       });
 
