@@ -85,7 +85,6 @@ export class QuizQuestionComponent
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
-  correctAnswersLoadedSubscription: Subscription;
   optionsSubscription: Subscription;
   options$: Observable<Option[]>;
   quiz: Quiz;
@@ -178,6 +177,8 @@ export class QuizQuestionComponent
     console.log('data.currentOptions:', this.data.currentOptions);
 
     this.selectedOption = null;
+
+    this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     
     /* this.quizService.questionData$.subscribe((data) => {
       if (data) {
@@ -665,11 +666,14 @@ export class QuizQuestionComponent
   }
 
   private subscribeToCorrectAnswersLoaded(): void {
+    // Subscribe to the correctAnswers$ observable
     this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-      this.correctAnswers = correctAnswers;
-      this.updateCorrectMessage(this.correctAnswers);
+      if (correctAnswers && correctAnswers.length > 0) {
+        this.correctAnswers = correctAnswers;
+        this.updateCorrectMessage(this.correctAnswers);
+      }
     });
-  
+
     // Subscribe to the correctAnswersLoaded$ observable
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
       if (loaded) {
@@ -677,7 +681,7 @@ export class QuizQuestionComponent
         this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
       } else {
         // Correct answers are not available
-        this.correctMessage = 'The correct answers are not available yet.';
+        this.correctMessage = 'The correct answers are not available yet...';
       }
     });
     
