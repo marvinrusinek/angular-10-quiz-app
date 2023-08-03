@@ -179,6 +179,7 @@ export class QuizQuestionComponent
 
     // Fetch the correct answers if they are not already available
     const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+    console.log("CCA", currentCorrectAnswers); // logging empty array
     if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
       this.correctAnswers = currentCorrectAnswers;
       this.updateCorrectMessage(this.correctAnswers);
