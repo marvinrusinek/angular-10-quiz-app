@@ -178,8 +178,6 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-    // this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-
     // Fetch the correct answers if they are not already available
     const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
@@ -907,7 +905,9 @@ export class QuizQuestionComponent
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
   }  
-                            
+
+
+  // not called anywhere...                          
   updateSelectedOption(selectedOption: Option, optionIndex: number): void {
     this.alreadyAnswered = true;
     this.answer.emit(optionIndex);
