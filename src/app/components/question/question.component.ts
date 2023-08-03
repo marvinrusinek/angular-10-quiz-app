@@ -179,6 +179,29 @@ export class QuizQuestionComponent
     this.selectedOption = null;
 
     this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+
+    // Subscribe to the correctAnswers$ observable
+    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+      if (correctAnswers && correctAnswers.length > 0) {
+        this.correctAnswers = correctAnswers;
+        this.updateCorrectMessage(this.correctAnswers);
+      }
+    });
+
+    // Check if correct answers are already available
+    const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+    if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+      this.correctAnswers = currentCorrectAnswers;
+      this.updateCorrectMessage(this.correctAnswers);
+    } else {
+      // Fetch the correct answers
+      try {
+        await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+        // Correct answers are now available, the subscription to correctAnswers$ will update the message
+      } catch (error) {
+        console.error('Error while fetching correct answers:', error);
+      }
+    }
     
     /* this.quizService.questionData$.subscribe((data) => {
       if (data) {
@@ -334,7 +357,7 @@ export class QuizQuestionComponent
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
-    this.subscribeToCorrectAnswersLoaded();
+    // this.subscribeToCorrectAnswersLoaded();
 
     console.log('ngOnInit is called...');
     const data = {
@@ -665,7 +688,7 @@ export class QuizQuestionComponent
     });
   }
 
-  async subscribeToCorrectAnswersLoaded(): Promise<void> {
+  /* async subscribeToCorrectAnswersLoaded(): Promise<void> {
     this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       if (correctAnswers && correctAnswers.length > 0) {
         this.correctAnswers = correctAnswers;
@@ -683,7 +706,7 @@ export class QuizQuestionComponent
       await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
     
-    /* this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
           if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
@@ -702,8 +725,8 @@ export class QuizQuestionComponent
           }
         }
       }
-    ); */
-  }
+    );
+  } */
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');

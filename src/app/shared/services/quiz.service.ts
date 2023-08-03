@@ -167,9 +167,9 @@ export class QuizService implements OnDestroy {
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
-  private correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
+  correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
   public correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
-  private correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public correctAnswersLoaded$: Observable<boolean> = this.correctAnswersLoadedSubject.asObservable();
 
   loadingQuestions: boolean = false;
