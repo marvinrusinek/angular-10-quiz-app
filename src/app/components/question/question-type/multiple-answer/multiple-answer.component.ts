@@ -41,15 +41,9 @@ export class MultipleAnswerComponent
   extends QuizQuestionComponent
   implements AfterViewInit, OnInit, OnChanges, OnDestroy
 {
-  @Output() formReady = new EventEmitter<FormGroup>();
-  @Output() optionSelected = new EventEmitter<Option>();
-  @Output() selectionChange = new EventEmitter<{
-    question: QuizQuestion;
-    selectedOption: Option;
-  }>();
   @Output() answer = new EventEmitter<number>();
   @Input() data: {
-    questionText: string;
+    questionText: string; 
     correctAnswersText?: string;
     currentOptions: Option[];
   };
@@ -81,7 +75,7 @@ export class MultipleAnswerComponent
     fb: FormBuilder,
     cdRef: ChangeDetectorRef,
     router: Router
-) {
+  ) {
     super(
         quizService,
         quizDataService,
@@ -103,8 +97,6 @@ export class MultipleAnswerComponent
   }
   
   async ngOnInit(): Promise<void> {
-    // super.ngOnInit();
-
     console.log('CodelabQuizMultipleAnswerComponent - Question:', this.question);
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
 
@@ -161,9 +153,9 @@ export class MultipleAnswerComponent
   }
 
   ngOnDestroy(): void {
-    this.currentOptionsSubscription?.unsubscribe();
     this.destroyed$.next();
     this.destroyed$.complete();
+    this.currentOptionsSubscription?.unsubscribe();
   }
 
   onOptionClick(option: Option): void {
