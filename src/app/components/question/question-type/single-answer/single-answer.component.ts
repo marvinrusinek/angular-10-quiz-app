@@ -38,10 +38,6 @@ export class SingleAnswerComponent
   extends QuizQuestionComponent
   implements OnInit, OnDestroy
 {
-  /* protected quizService: QuizService;
-  protected quizDataService: QuizDataService;
-  protected quizStateService: QuizStateService; */
-
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
   @Input() currentQuestionIndex!: number;
