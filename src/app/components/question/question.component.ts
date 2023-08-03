@@ -400,6 +400,7 @@ export class QuizQuestionComponent
     this.optionsSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
+    this.correctAnswersSubscription?.unsubscribe(); 
     this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
