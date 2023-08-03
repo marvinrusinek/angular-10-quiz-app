@@ -178,29 +178,30 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-    this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+    // this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
 
-    // Subscribe to the correctAnswers$ observable
-    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-      if (correctAnswers && correctAnswers.length > 0) {
-        this.correctAnswers = correctAnswers;
-        this.updateCorrectMessage(this.correctAnswers);
-      }
-    });
-
-    // Check if correct answers are already available
+    // Fetch the correct answers if they are not already available
     const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
       this.correctAnswers = currentCorrectAnswers;
       this.updateCorrectMessage(this.correctAnswers);
     } else {
+      this.quizService.correctAnswersLoaded$.pipe(
+        filter((loaded) => loaded),
+        take(1)
+      ).subscribe(() => {
+        // Correct answers are available, get them
+        const updatedCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+        if (updatedCorrectAnswers && updatedCorrectAnswers.length > 0) {
+          this.correctAnswers = updatedCorrectAnswers;
+          this.updateCorrectMessage(this.correctAnswers);
+        } else {
+          this.correctMessage = 'The correct answers are not available yet.';
+        }
+      });
+
       // Fetch the correct answers
-      try {
-        await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-        // Correct answers are now available, the subscription to correctAnswers$ will update the message
-      } catch (error) {
-        console.error('Error while fetching correct answers:', error);
-      }
+      await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
     
     /* this.quizService.questionData$.subscribe((data) => {
@@ -343,7 +344,7 @@ export class QuizQuestionComponent
             console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
           }
         } else {
-          this.correctMessage = 'The correct answers are not available yet.';
+          this.correctMessage = 'The correct answers are not available yet...';
         }
       });
     } catch (error) {
