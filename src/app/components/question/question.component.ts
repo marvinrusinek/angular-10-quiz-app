@@ -39,12 +39,12 @@ enum QuestionType {
 export class QuizQuestionComponent
   implements OnInit, OnChanges, OnDestroy
 {
+  @Output() answer = new EventEmitter<number>();
+  @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
     question: QuizQuestion;
     selectedOptions: Option[];
   }> = new EventEmitter(); 
-  @Output() answer = new EventEmitter<number>();
-  @Output() answersChange = new EventEmitter<string[]>();
   @Output() shouldDisplayNumberOfCorrectAnswersChanged: EventEmitter<{
     shouldDisplay: boolean;
     numberOfCorrectAnswers: number;
@@ -63,7 +63,6 @@ export class QuizQuestionComponent
     currentOptions: Option[];
   };
   @Input() questionData: QuizQuestion;
-  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
@@ -73,6 +72,7 @@ export class QuizQuestionComponent
   @Input() quizId!: string;
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
+  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
   @Input() explanationTextValue$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>(null);
   @Input() explanationTextValue: string;
