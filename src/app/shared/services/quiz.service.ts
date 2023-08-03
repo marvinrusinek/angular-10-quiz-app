@@ -842,7 +842,7 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
   
-  setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
+  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
     if (question && currentOptions) {
       const correctOptionNumbers = currentOptions
         .filter((option) => option.correct)
