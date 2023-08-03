@@ -2,17 +2,14 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   ViewEncapsulation,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
 
 import { QuizQuestionComponent } from '../../question.component';
 import { Option } from '../../../../shared/models/Option.model';
@@ -82,10 +79,16 @@ export class SingleAnswerComponent
   async ngOnInit(): Promise<void> {
     console.log('options in codelab-question-single-answer', this.options); // not working
 
-    this.options$ = this.quizStateService.getCurrentQuestion().pipe(
+    /* this.options$ = this.quizStateService.getCurrentQuestion().pipe(
       map((question) => question.options),
       takeUntil(this.destroyed$)
-    );
+    ); */ // remove
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        console.log('SingleAnswerComponent destroyed');
+      }
+    });
   }
 
   ngOnDestroy(): void {
