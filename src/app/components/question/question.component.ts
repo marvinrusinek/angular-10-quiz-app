@@ -196,22 +196,6 @@ export class QuizQuestionComponent
       }
     }); */
 
-    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-      this.correctAnswers = correctAnswers;
-      this.updateCorrectMessage(this.correctAnswers);
-    });
-  
-    // Subscribe to the correctAnswersLoaded$ observable
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
-      if (loaded) {
-        // Correct answers are available, get them
-        this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-      } else {
-        // Correct answers are not available
-        this.correctMessage = 'The correct answers are not available yet.';
-      }
-    });
-
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
@@ -681,7 +665,23 @@ export class QuizQuestionComponent
   }
 
   private subscribeToCorrectAnswersLoaded(): void {
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
+    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+      this.correctAnswers = correctAnswers;
+      this.updateCorrectMessage(this.correctAnswers);
+    });
+  
+    // Subscribe to the correctAnswersLoaded$ observable
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
+      if (loaded) {
+        // Correct answers are available, get them
+        this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+      } else {
+        // Correct answers are not available
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
+    
+    /* this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
           if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
@@ -700,7 +700,7 @@ export class QuizQuestionComponent
           }
         }
       }
-    );
+    ); */
   }
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {

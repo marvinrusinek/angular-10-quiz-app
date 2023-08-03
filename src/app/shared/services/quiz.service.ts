@@ -173,7 +173,6 @@ export class QuizService implements OnDestroy {
   private correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
   correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
 
-
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   loadQuestionsLock: boolean = false;
@@ -746,13 +745,17 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCorrectAnswers(question: QuizQuestion): number[] {
+  /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
       return question.options
         .map((option, index) => (option.correct ? index : null))
         .filter((index, i, arr) => index !== null && arr.indexOf(index) === i);
     }
     return [];
+  } */
+
+  getCorrectAnswers(question: QuizQuestion): number[] {
+    return this.correctAnswersSubject.getValue();
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
@@ -840,15 +843,13 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
   
-  setCorrectAnswers(currentQuestion: QuizQuestion, currentOptions: Option[]): void {
-    if (currentQuestion !== null && currentOptions !== null) {
+  setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
+    if (question && currentOptions) {
       const correctOptionNumbers = currentOptions
         .filter((option) => option.correct)
         .map((option) => option.optionId);
   
-      if (correctOptionNumbers.length > 0) {
-        this.correctAnswersSubject.next(correctOptionNumbers.sort());
-      }
+      this.correctAnswersSubject.next(correctOptionNumbers.sort());
     }
   }
   
