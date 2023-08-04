@@ -736,8 +736,8 @@ export class QuizQuestionComponent
   } */
 
   private async subscribeToCorrectAnswersLoaded(): Promise<void> {
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
-      if (loaded) {
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersAvailability$.subscribe((available) => {
+      if (available) {
         const currentCorrectAnswers = this.correctAnswers.find(
           (answer) => answer.questionText === this.question.questionText
         )?.answers;
@@ -758,6 +758,7 @@ export class QuizQuestionComponent
       this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
   }
+  
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');

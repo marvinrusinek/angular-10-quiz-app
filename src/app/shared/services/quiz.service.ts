@@ -172,6 +172,9 @@ export class QuizService implements OnDestroy {
   correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public correctAnswersLoaded$: Observable<boolean> = this.correctAnswersLoadedSubject.asObservable();
 
+  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(false);
+  correctAnswersAvailability$ = this.correctAnswersAvailabilitySubject.asObservable();
+
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   loadQuestionsLock: boolean = false;
@@ -860,7 +863,7 @@ export class QuizService implements OnDestroy {
 
   setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
     if (!question || !currentOptions) {
-      this.correctAnswersLoadedSubject.next(false);
+      this.correctAnswersAvailabilitySubject.next(false);
       return;
     }
   
@@ -874,9 +877,9 @@ export class QuizService implements OnDestroy {
         answers: correctOptionNumbers,
       };
       this.correctAnswers.push(questionData);
-      this.correctAnswersLoadedSubject.next(true);
+      this.correctAnswersAvailabilitySubject.next(true);
     } else {
-      this.correctAnswersLoadedSubject.next(false);
+      this.correctAnswersAvailabilitySubject.next(false);
     }
   }
   
