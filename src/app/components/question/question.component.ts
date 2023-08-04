@@ -177,30 +177,28 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-    // Fetch the correct answers if they are not already available
     const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
-    console.log("CCA", currentCorrectAnswers); // logging empty array
+    console.log('Current correct answers:', currentCorrectAnswers);
+
     if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
       this.correctAnswers = currentCorrectAnswers;
       this.updateCorrectMessage(this.correctAnswers);
     } else {
-      this.quizService.correctAnswersLoaded$.pipe(
-        filter((loaded) => loaded),
-        take(1)
-      ).subscribe(() => {
-        // Correct answers are available, get them
+      console.log('Correct answers are not available. Fetching correct answers...');
+      await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+
+      // After the correct answers are fetched and loaded, they will be available in the next tick
+      setTimeout(() => {
         const updatedCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
-        console.log("UCA", updatedCorrectAnswers); // logging empty array
+        console.log('Updated correct answers:', updatedCorrectAnswers);
+
         if (updatedCorrectAnswers && updatedCorrectAnswers.length > 0) {
           this.correctAnswers = updatedCorrectAnswers;
           this.updateCorrectMessage(this.correctAnswers);
         } else {
-          this.correctMessage = 'The correct answers are not available yet...';
+          this.correctMessage = 'The correct answers are not available yet.';
         }
       });
-
-      // Fetch the correct answers
-      await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
     
     /* this.quizService.questionData$.subscribe((data) => {
