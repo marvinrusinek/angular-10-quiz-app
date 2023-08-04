@@ -374,12 +374,10 @@ export class QuizQuestionComponent
             console.log('Calling fetchCorrectAnswersText...');
             this.getCorrectAnswers();
             this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-            this.fetchCorrectAnswersText(this.data, this.data.currentOptions).then(() => {
-              console.log('After fetchCorrectAnswersText...');
-              console.log('MY CORR MSG', this.correctMessage);
-            });
+            console.log('MY Correct Answers:', this.quizService.correctAnswers);
+            this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
             console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG', this.correctMessage);
+            console.log('MY CORR MSG:::', this.correctMessage);            
           } else {
             console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
           }
@@ -798,7 +796,7 @@ export class QuizQuestionComponent
     }
   } */
 
-  private subscribeToCorrectAnswersLoaded(): void {
+  /* private subscribeToCorrectAnswersLoaded(): void {
     const correctAnswersLoadedAndData$ = combineLatest([
       this.quizService.correctAnswersLoaded$,
       this.quizService.questionData$,
@@ -835,6 +833,69 @@ export class QuizQuestionComponent
       console.log('Before calling setCorrectAnswers - this.data.currentOptions:', this.data.currentOptions);
       this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
+  } */
+
+  /* private subscribeToCorrectAnswersLoaded(): void {
+    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+      if (correctAnswers && correctAnswers.size > 0) {
+        const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
+        if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+          this.correctAnswers = currentCorrectAnswers;
+          this.updateCorrectMessage(this.correctAnswers);
+        } else {
+          this.correctMessage = 'No correct answers found for the current question.';
+        }
+      } else {
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
+  
+    // Fetch the correct answers if they are not already available
+    const currentCorrectAnswers = this.quizService.correctAnswers.get(this.question.questionText);
+    if (!currentCorrectAnswers) {
+      this.quizService.setCorrectAnswers(this.question, this.data.currentOptions || []).then(() => {
+        const updatedCorrectAnswers = this.quizService.correctAnswers.get(this.question.questionText);
+        if (updatedCorrectAnswers && updatedCorrectAnswers.length > 0) {
+          this.correctAnswers = updatedCorrectAnswers;
+          this.updateCorrectMessage(this.correctAnswers);
+        } else {
+          this.correctMessage = 'No correct answers found for the current question.';
+        }
+      });
+    }
+  } */
+
+  /* private subscribeToCorrectAnswersLoaded(): void {
+    this.correctAnswersSubscription = this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+      if (correctAnswers.size > 0) {
+        const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
+        if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+          this.correctAnswers = currentCorrectAnswers;
+          this.updateCorrectMessage(this.correctAnswers);
+        } else {
+          this.correctMessage = 'No correct answers found for the current question.';
+        }
+      } else {
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
+  } */
+
+  private subscribeToCorrectAnswersLoaded(): void {
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(async (loaded) => {
+      if (loaded) {
+        const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+  
+        if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+          this.correctAnswers = currentCorrectAnswers;
+          this.updateCorrectMessage(this.correctAnswers);
+        } else {
+          this.correctMessage = 'No correct answers found for the current question.';
+        }
+      } else {
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
   }
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {

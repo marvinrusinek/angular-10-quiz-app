@@ -101,7 +101,8 @@ export class QuizService implements OnDestroy {
   quizCompleted: boolean;
   status: string;
 
-  correctAnswers: { questionText: string; answers: number[] }[] = [];
+  // correctAnswers: { questionText: string; answers: number[] }[] = [];
+  correctAnswers: Map<string, number[]> = new Map<string, number[]>();
   private correctAnswersForEachQuestion: { questionId: string; answers: number[] }[] = [];
   correctAnswerOptions: number[] = [];
   numberOfCorrectAnswers: number;
@@ -167,8 +168,11 @@ export class QuizService implements OnDestroy {
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
-  correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
-  public correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
+  // correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
+  // public correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
+  private correctAnswersSubject: BehaviorSubject<Map<string, number[]>> = new BehaviorSubject<Map<string, number[]>>(new Map());
+  correctAnswers$: Observable<Map<string, number[]>> = this.correctAnswersSubject.asObservable();
+
   correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public correctAnswersLoaded$: Observable<boolean> = this.correctAnswersLoadedSubject.asObservable();
 
@@ -893,20 +897,46 @@ export class QuizService implements OnDestroy {
     }
   } */
 
+  private fetchQuizQuestions() {
+    // ... Fetch your quiz questions here ...
+  
+    // After fetching the quiz questions, calculate and set the correct answers for each question
+    const correctAnswers = new Map<string, number[]>();
+    this.questions.forEach((question) => {
+      const correctOptionNumbers = question.options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+      correctAnswers.set(question.questionText, correctOptionNumbers);
+    });
+  
+    // Update the correct answers BehaviorSubject with the new data
+    this.correctAnswersSubject.next(correctAnswers);
+  }
+
+  /* setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
+    // Calculate the correct answers for the given question and options
+    const correctOptionNumbers = currentOptions
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
+  
+    // Update the correct answers BehaviorSubject with the new data
+    const correctAnswers = this.correctAnswersSubject.getValue();
+    correctAnswers.set(question.questionText, correctOptionNumbers);
+    this.correctAnswersSubject.next(correctAnswers);
+
+    console.log('Correct Answers:::>>>', this.correctAnswersSubject.getValue());
+  } */
+
   setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
+    console.log('Setting correct answers for question:', question.questionText);
     const correctOptionNumbers = options
       .filter((option) => option.correct)
       .map((option) => option.optionId);
   
-    console.log('QuizService setCorrectAnswers - question:', question);
-    console.log('QuizService setCorrectAnswers - correctOptionNumbers:', correctOptionNumbers);
-  
-    if (question && correctOptionNumbers.length > 0) {
+    if (correctOptionNumbers.length > 0) {
       this.correctAnswers.set(question.questionText, correctOptionNumbers);
-      this.correctAnswersLoadedSubject.next(true);
     }
   }
-  
   
   setCorrectAnswerOptions(optionIds: number[]) {
     this.correctAnswerOptions = optionIds;
