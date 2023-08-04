@@ -928,15 +928,15 @@ export class QuizService implements OnDestroy {
   } */
 
   setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
-    console.log('Setting correct answers for question:', question.questionText);
     const correctOptionNumbers = options
       .filter((option) => option.correct)
       .map((option) => option.optionId);
   
     if (correctOptionNumbers.length > 0) {
       this.correctAnswers.set(question.questionText, correctOptionNumbers);
+      this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
     }
-  }
+  }  
   
   setCorrectAnswerOptions(optionIds: number[]) {
     this.correctAnswerOptions = optionIds;

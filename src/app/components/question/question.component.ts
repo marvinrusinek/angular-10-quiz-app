@@ -884,19 +884,21 @@ export class QuizQuestionComponent
   private subscribeToCorrectAnswersLoaded(): void {
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(async (loaded) => {
       if (loaded) {
-        const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+        this.quizService.correctAnswers$.pipe(take(1)).subscribe((correctAnswers) => {
+          const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
   
-        if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
-          this.correctAnswers = currentCorrectAnswers;
-          this.updateCorrectMessage(this.correctAnswers);
-        } else {
-          this.correctMessage = 'No correct answers found for the current question.';
-        }
+          if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+            this.correctAnswers = currentCorrectAnswers;
+            this.updateCorrectMessage(this.correctAnswers);
+          } else {
+            this.correctMessage = 'No correct answers found for the current question.';
+          }
+        });
       } else {
         this.correctMessage = 'The correct answers are not available yet.';
       }
     });
-  }
+  }  
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
