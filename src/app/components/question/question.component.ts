@@ -178,6 +178,8 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
+    this.quizService.setOptions(this.data?.options);
+
     // Fetch the correct answers if they are not already available
     // const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     /* const currentCorrectAnswers = this.quizService.correctAnswers.find(
@@ -787,23 +789,18 @@ export class QuizQuestionComponent
   } */
 
   private subscribeToCorrectAnswersLoaded(): void {
-    const correctAnswersLoadedAndData$ = combineLatest([
-      this.quizService.correctAnswersLoaded$,
-      this.quizService.questionData$,
-    ]);
-  
-    this.correctAnswersLoadedSubscription = correctAnswersLoadedAndData$.subscribe(
-      async ([correctAnswersLoaded, data]) => {
-        if (correctAnswersLoaded) {
-          const currentCorrectAnswers = this.correctAnswers.find(
-            (answer) => answer.questionText === data?.questionText
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(
+      async (loaded: boolean) => {
+        if (loaded) {
+          const currentCorrectAnswers = this.quizService.correctAnswers.find(
+            (answer) => answer.questionText === this.data.questionText
           )?.answers;
   
           if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
             this.correctAnswers = currentCorrectAnswers;
             this.updateCorrectMessage(this.correctAnswers);
           } else {
-            this.correctMessage = 'The correct answers are not available yet.';
+            this.correctMessage = 'The correct answers are not available yet...';
           }
         } else {
           this.correctMessage = 'The correct answers are not available yet...';
@@ -813,10 +810,12 @@ export class QuizQuestionComponent
   
     // Fetch the correct answers if they are not already available
     this.quizService.correctAnswersLoaded$.pipe(
+      take(1),
       switchMap((loaded) => {
         if (!loaded) {
-          return this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+          return this.quizService.setCorrectAnswers(this.data, this.data.currentOptions);
         }
+        return of(null); // Return an observable with null if already loaded
       })
     ).subscribe();
   }
