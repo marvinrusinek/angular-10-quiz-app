@@ -800,11 +800,9 @@ export class QuizQuestionComponent
 
   private subscribeToCorrectAnswersLoaded(): void {
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(
-      async (loaded: boolean) => {
+      (loaded: boolean) => {
         if (loaded) {
-          const currentCorrectAnswers = this.quizService.correctAnswers.find(
-            (answer) => answer.questionText === this.data.questionText
-          )?.answers;
+          const currentCorrectAnswers = this.quizService.getCorrectAnswersForQuestion(this.data.questionText);
   
           if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
             this.correctAnswers = currentCorrectAnswers;
@@ -819,16 +817,13 @@ export class QuizQuestionComponent
     );
   
     // Fetch the correct answers if they are not already available
-    this.quizService.correctAnswersLoaded$.pipe(
-      take(1),
-      switchMap((loaded) => {
-        if (!loaded) {
-          return this.quizService.setCorrectAnswers(this.data, this.data.currentOptions);
-        }
-        return of(null); // Return an observable with null if already loaded
-      })
-    ).subscribe();
+    const currentCorrectAnswers = this.quizService.getCorrectAnswersForQuestion(this.data.questionText);
+  
+    if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+      this.quizService.setCorrectAnswers(this.data, this.data.currentOptions);
+    }
   }
+  
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
@@ -847,6 +842,9 @@ export class QuizQuestionComponent
     this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, currentOptions);
     console.log('MY CORR MSG', this.correctMessage);
     this.quizService.setCorrectAnswersLoaded(true);
+
+    this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(data.questionText);
+    this.updateCorrectMessage(this.correctAnswers);
   }
   
       
