@@ -178,7 +178,6 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-
     // Fetch the correct answers if they are not already available
     // const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     /* const currentCorrectAnswers = this.quizService.correctAnswers.find(
