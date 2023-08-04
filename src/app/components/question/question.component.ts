@@ -759,7 +759,6 @@ export class QuizQuestionComponent
     }
   }
   
-  
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
     console.log('Data:', data);
