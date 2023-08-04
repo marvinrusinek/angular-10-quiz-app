@@ -935,6 +935,9 @@ export class QuizService implements OnDestroy {
     if (correctOptionNumbers.length > 0) {
       this.correctAnswers.set(question.questionText, correctOptionNumbers);
       this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
+
+      // Emit the correct answers loaded status
+      this.correctAnswersLoadedSubject.next(true);
     }
   }  
   
