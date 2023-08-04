@@ -910,8 +910,13 @@ export class QuizService implements OnDestroy {
     });
   
     // Update the correct answers BehaviorSubject with the new data
-    this.combinedQuestionDataSubject.next(this.data);
     this.correctAnswersSubject.next(correctAnswers);
+
+    this.combinedQuestionDataSubject.next({
+      questionText: this.data.questionText,
+      correctAnswersText: '',
+      currentOptions: this.data.currentOptions
+    });
   }
 
   /* setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
