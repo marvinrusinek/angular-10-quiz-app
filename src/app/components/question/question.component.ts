@@ -177,6 +177,7 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
+
     // Fetch the correct answers if they are not already available
     const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     console.log('Current correct answers:', currentCorrectAnswers);
@@ -187,9 +188,8 @@ export class QuizQuestionComponent
       this.correctAnswersLoaded = true; // Mark correct answers as loaded
     } else {
       console.log('Correct answers are not available. Fetching correct answers...');
-      const correctAnswersLoaded = await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-
-      if (correctAnswersLoaded) {
+      try {
+        await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
         const updatedCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
         console.log('Updated correct answers:', updatedCorrectAnswers);
 
@@ -200,8 +200,8 @@ export class QuizQuestionComponent
         } else {
           this.correctMessage = 'The correct answers are not available yet.';
         }
-      } else {
-        console.log('Error fetching correct answers.');
+      } catch (error) {
+        console.error('Error fetching correct answers:', error);
         this.correctMessage = 'The correct answers are not available yet.';
       }
     }
