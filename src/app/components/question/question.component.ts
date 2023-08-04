@@ -820,10 +820,9 @@ export class QuizQuestionComponent
     const currentCorrectAnswers = this.quizService.getCorrectAnswersForQuestion(this.data.questionText);
   
     if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-      this.quizService.setCorrectAnswers(this.data, this.data.currentOptions);
+      this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
   }
-  
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');

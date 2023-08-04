@@ -765,6 +765,16 @@ export class QuizService implements OnDestroy {
     return answer ? answer.answers : [];
   }
 
+  setCorrectAnswersForQuestion(questionText: string, correctAnswers: number[]): void {
+    const existingCorrectAnswers = this.correctAnswers.find((answer) => answer.questionText === questionText);
+  
+    if (existingCorrectAnswers) {
+      existingCorrectAnswers.answers = correctAnswers;
+    } else {
+      this.correctAnswers.push({ questionText, answers: correctAnswers });
+    }
+  }
+
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
     return Math.round(
       (this.correctAnswersCountSubject.getValue() / this.totalQuestions) * 100
