@@ -736,9 +736,9 @@ export class QuizQuestionComponent
   } */
 
   private subscribeToCorrectAnswersLoaded(): void {
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(async (loaded) => {
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
       if (loaded) {
-        const currentCorrectAnswers = this.quizService.correctAnswers.find(
+        const currentCorrectAnswers = this.correctAnswers.find(
           (answer) => answer.questionText === this.question.questionText
         )?.answers;
   
@@ -746,7 +746,7 @@ export class QuizQuestionComponent
           this.correctAnswers = currentCorrectAnswers;
           this.updateCorrectMessage(this.correctAnswers);
         } else {
-          this.correctMessage = 'The correct answers are not available yet.';
+          this.correctMessage = 'The correct answers are not available yet...';
         }
       } else {
         this.correctMessage = 'The correct answers are not available yet.';

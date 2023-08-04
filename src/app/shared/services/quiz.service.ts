@@ -859,27 +859,24 @@ export class QuizService implements OnDestroy {
   } */
 
   async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
-    if (question !== null && currentOptions !== null) {
-      const correctOptionNumbers = currentOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
+    if (!question || !currentOptions) {
+      this.correctAnswersLoadedSubject.next(false);
+      return;
+    }
   
-      if (correctOptionNumbers.length > 0) {
-        // Find existing correct answers based on questionText
-        const existingCorrectAnswers = this.correctAnswers.find(
-          (answer) => answer.questionText === question.questionText
-        );
+    const correctOptionNumbers = currentOptions
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
   
-        if (existingCorrectAnswers) {
-          existingCorrectAnswers.answers = correctOptionNumbers;
-        } else {
-          this.correctAnswers.push({
-            questionText: question.questionText,
-            answers: correctOptionNumbers,
-          });
-        }
-        this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
-      }
+    if (correctOptionNumbers.length > 0) {
+      const questionData: { questionText: string; answers: number[] } = {
+        questionText: question.questionText,
+        answers: correctOptionNumbers,
+      };
+      this.correctAnswers.push(questionData);
+      this.correctAnswersLoadedSubject.next(true);
+    } else {
+      this.correctAnswersLoadedSubject.next(false);
     }
   }
   
