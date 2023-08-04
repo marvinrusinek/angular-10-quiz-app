@@ -898,7 +898,7 @@ export class QuizQuestionComponent
         this.correctMessage = 'The correct answers are not available yet.';
       }
     });
-  }  
+  }
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
