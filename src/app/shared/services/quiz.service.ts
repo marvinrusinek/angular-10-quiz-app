@@ -876,7 +876,7 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
+  /* setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
     if (question && currentOptions) {
       const correctOptionNumbers = currentOptions
         .filter((option) => option.correct)
@@ -891,7 +891,22 @@ export class QuizService implements OnDestroy {
         this.correctAnswersLoadedSubject.next(true);
       }
     }
+  } */
+
+  setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
+    const correctOptionNumbers = options
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
+  
+    console.log('QuizService setCorrectAnswers - question:', question);
+    console.log('QuizService setCorrectAnswers - correctOptionNumbers:', correctOptionNumbers);
+  
+    if (question && correctOptionNumbers.length > 0) {
+      this.correctAnswers.set(question.questionText, correctOptionNumbers);
+      this.correctAnswersLoadedSubject.next(true);
+    }
   }
+  
   
   setCorrectAnswerOptions(optionIds: number[]) {
     this.correctAnswerOptions = optionIds;

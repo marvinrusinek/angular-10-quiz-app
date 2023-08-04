@@ -831,6 +831,8 @@ export class QuizQuestionComponent
     )?.answers;
   
     if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+      console.log('Before calling setCorrectAnswers - question:', this.question);
+      console.log('Before calling setCorrectAnswers - this.data.currentOptions:', this.data.currentOptions);
       this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
     }
   }
