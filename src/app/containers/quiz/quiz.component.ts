@@ -619,6 +619,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
         this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
         this.quizService.setCorrectAnswersLoaded(true);
+        this.quizService.correctAnswersLoadedSubject.next(true);
 
         // Log to check if the correct data is being used
         console.log('Question Data:', currentQuestion);
