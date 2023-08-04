@@ -842,15 +842,22 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
   
-  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
-    if (question && currentOptions) {
-      const correctOptionNumbers = currentOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
+  async setCorrectAnswers(currentQuestion: QuizQuestion, currentOptions: Option[]): Promise<void> {
+    const correctOptionNumbers = currentOptions
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
   
-      this.correctAnswersSubject.next(correctOptionNumbers.sort());
-      this.correctAnswersLoadedSubject.next(true); // Notify that correct answers are available
+    if (correctOptionNumbers.length > 0) {
+      this.correctAnswers.push({
+        questionId: currentQuestion.questionText,
+        answers: correctOptionNumbers.sort(),
+      });
     }
+  
+    // Simulate some asynchronous task here (replace setTimeout with your actual fetching logic)
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+    this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
   }
   
   setCorrectAnswerOptions(optionIds: number[]) {
