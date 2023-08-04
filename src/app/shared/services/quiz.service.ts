@@ -101,7 +101,7 @@ export class QuizService implements OnDestroy {
   quizCompleted: boolean;
   status: string;
 
-  correctAnswers = [];
+  correctAnswers: { questionId: string; answers: number[] }[] = [];
   private correctAnswersForEachQuestion: { questionId: string; answers: number[] }[] = [];
   correctAnswerOptions: number[] = [];
   numberOfCorrectAnswers: number;
@@ -842,22 +842,20 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
   
-  async setCorrectAnswers(currentQuestion: QuizQuestion, currentOptions: Option[]): Promise<void> {
-    const correctOptionNumbers = currentOptions
-      .filter((option) => option.correct)
-      .map((option) => option.optionId);
+  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
+    if (question !== null && currentOptions !== null) {
+      const correctOptionNumbers = currentOptions
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
   
-    if (correctOptionNumbers.length > 0) {
-      this.correctAnswers.push({
-        questionId: currentQuestion.questionText,
-        answers: correctOptionNumbers.sort(),
-      });
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.push({
+          questionId: question.questionId,
+          answers: correctOptionNumbers,
+        });
+        this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
+      }
     }
-  
-    // Simulate some asynchronous task here (replace setTimeout with your actual fetching logic)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  
-    this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
   }
   
   setCorrectAnswerOptions(optionIds: number[]) {
