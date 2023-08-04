@@ -908,6 +908,9 @@ export class QuizService implements OnDestroy {
         .map((option) => option.optionId);
       correctAnswers.set(question.questionText, correctOptionNumbers);
     });
+
+    // Set the correct answers first
+    this.setCorrectAnswers(correctAnswers, this.question.options);
   
     // Update the correct answers BehaviorSubject with the new data
     this.correctAnswersSubject.next(correctAnswers);
