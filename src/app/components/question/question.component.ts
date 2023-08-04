@@ -369,7 +369,7 @@ export class QuizQuestionComponent
         this.quizService.combinedQuestionData$
       ]);
 
-      /* this.quizService.combinedQuestionData$.subscribe((data) => {
+      this.quizService.combinedQuestionData$.subscribe((data) => {
         if (data) {
           this.data = data;
           // this.correctAnswers = this.quizService.correctAnswers;
@@ -389,9 +389,16 @@ export class QuizQuestionComponent
         } else {
           this.correctMessage = 'The correct answers are not available yet.';
         }
-      }); */
+      });
 
       combined$.subscribe(([correctAnswers, data]) => {
+        console.log('Correct Answers:::>>>', correctAnswers);
+        console.log('Question Data:::>>>', data);
+    
+        // Rest of your code...
+      });
+
+      /* combined$.subscribe(([correctAnswers, data]) => {
         if (data) {
           this.data = data;
           this.currentOptions = this.quizService.currentOptions;
@@ -416,7 +423,7 @@ export class QuizQuestionComponent
         } else {
           this.correctMessage = 'The correct answers are not available yet.';
         }
-      });
+      }); */
     } catch (error) {
       console.error('Error getting current question:', error);
     }

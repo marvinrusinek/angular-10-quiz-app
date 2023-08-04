@@ -602,6 +602,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (questionData) {
         this.data = questionData;
+        this.quizService.fetchQuizQuestions();
         this.quizService.setQuestionData(questionData);
         this.quizService.setCurrentOptions(this.data.currentOptions);
 
