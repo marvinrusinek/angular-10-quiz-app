@@ -179,7 +179,10 @@ export class QuizQuestionComponent
 
 
     // Fetch the correct answers if they are not already available
-    const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+    // const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
+    const currentCorrectAnswers = this.quizService.correctAnswers.find(
+      (answer) => answer.questionText === this.question.questionText
+    )?.answers;
     console.log('Current correct answers:', currentCorrectAnswers);
 
     if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
@@ -317,7 +320,7 @@ export class QuizQuestionComponent
 
       this.loadCurrentQuestion();
       this.toggleOptions();
-      this.getCorrectAnswers();
+      // this.getCorrectAnswers();
 
       /* this.quizService.currentOptions$.subscribe((currentOptions) => {
         this.correctAnswers = this.quizService.correctAnswers;
@@ -360,7 +363,7 @@ export class QuizQuestionComponent
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
-    // this.subscribeToCorrectAnswersLoaded();
+    this.subscribeToCorrectAnswersLoaded();
 
     console.log('ngOnInit is called...');
     const data = {
@@ -731,6 +734,25 @@ export class QuizQuestionComponent
       }
     );
   } */
+
+  private subscribeToCorrectAnswersLoaded(): void {
+    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(async (loaded) => {
+      if (loaded) {
+        const currentCorrectAnswers = this.quizService.correctAnswers.find(
+          (answer) => answer.questionText === this.question.questionText
+        )?.answers;
+  
+        if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+          this.correctAnswers = currentCorrectAnswers;
+          this.updateCorrectMessage(this.correctAnswers);
+        } else {
+          this.correctMessage = 'The correct answers are not available yet.';
+        }
+      } else {
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
+  }
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');

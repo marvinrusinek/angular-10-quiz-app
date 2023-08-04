@@ -101,7 +101,7 @@ export class QuizService implements OnDestroy {
   quizCompleted: boolean;
   status: string;
 
-  correctAnswers: { questionId: string; answers: number[] }[] = [];
+  correctAnswers: { questionText: string; answers: number[] }[] = [];
   private correctAnswersForEachQuestion: { questionId: string; answers: number[] }[] = [];
   correctAnswerOptions: number[] = [];
   numberOfCorrectAnswers: number;
@@ -842,7 +842,7 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
   
-  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
+  /* async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
     if (question !== null && currentOptions !== null) {
       const correctOptionNumbers = currentOptions
         .filter((option) => option.correct)
@@ -853,6 +853,31 @@ export class QuizService implements OnDestroy {
           questionId: question.questionId,
           answers: correctOptionNumbers,
         });
+        this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
+      }
+    }
+  } */
+
+  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
+    if (question !== null && currentOptions !== null) {
+      const correctOptionNumbers = currentOptions
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+  
+      if (correctOptionNumbers.length > 0) {
+        // Find existing correct answers based on questionText
+        const existingCorrectAnswers = this.correctAnswers.find(
+          (answer) => answer.questionText === question.questionText
+        );
+  
+        if (existingCorrectAnswers) {
+          existingCorrectAnswers.answers = correctOptionNumbers;
+        } else {
+          this.correctAnswers.push({
+            questionText: question.questionText,
+            answers: correctOptionNumbers,
+          });
+        }
         this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
       }
     }
