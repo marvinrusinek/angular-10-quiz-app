@@ -398,6 +398,35 @@ export class QuizQuestionComponent
         // Rest of your code...
       });
 
+      combined$.subscribe(([correctAnswers, data]) => {
+        console.log('Correct Answers:::', correctAnswers);
+        console.log('Question Data:::', data);
+    
+        // Ensure that both correctAnswers and data are available
+        if (correctAnswers.size > 0 && data && data.currentOptions) {
+          this.data = data;
+          this.currentOptions = data.currentOptions;
+    
+          // Fetch the correct answers if they are not already available
+          const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
+          if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+            this.quizService.setCorrectAnswers(this.question, data.currentOptions);
+          } else {
+            this.correctAnswers = currentCorrectAnswers;
+            this.updateCorrectMessage(this.correctAnswers);
+          }
+    
+          // Fetch the correct answers text or update it with the correct message
+          this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
+            console.log('After fetchCorrectAnswersText...');
+            console.log('MY CORR MSG:::', this.correctMessage);
+          });
+        } else {
+          console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
+          this.correctMessage = 'The correct answers are not available yet.';
+        }
+      });
+
       /* combined$.subscribe(([correctAnswers, data]) => {
         if (data) {
           this.data = data;
