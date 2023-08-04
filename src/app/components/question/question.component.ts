@@ -178,7 +178,7 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-    this.quizService.setOptions(this.data?.options);
+    /* this.quizService.setOptions(this.data?.options);
 
     this.quizService.correctAnswersLoaded$.pipe(take(1)).subscribe((loaded) => {
       if (!loaded) {
@@ -188,7 +188,7 @@ export class QuizQuestionComponent
       } else {
         this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
       }
-    });
+    }); */
 
     // Fetch the correct answers if they are not already available
     // const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
@@ -799,14 +799,23 @@ export class QuizQuestionComponent
   } */
 
   private subscribeToCorrectAnswersLoaded(): void {
-    this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe(
-      (loaded: boolean) => {
-        if (loaded) {
-          const currentCorrectAnswers = this.quizService.getCorrectAnswersForQuestion(this.data.questionText);
+    const correctAnswersLoadedAndData$ = combineLatest([
+      this.quizService.correctAnswersLoaded$,
+      this.quizService.questionData$,
+    ]);
+  
+    this.correctAnswersLoadedSubscription = correctAnswersLoadedAndData$.subscribe(
+      ([correctAnswersLoaded, data]) => {
+        console.log('correctAnswersLoaded:', correctAnswersLoaded);
+        console.log('data:', data);
+        if (correctAnswersLoaded && data) {
+          const currentCorrectAnswers = this.correctAnswers.find(
+            (answer) => answer.questionText === data.questionText
+          )?.answers;
+          console.log('currentCorrectAnswers:', currentCorrectAnswers);
   
           if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
-            this.correctAnswers = currentCorrectAnswers;
-            this.updateCorrectMessage(this.correctAnswers);
+            this.correctMessage = `The correct answers are ${currentCorrectAnswers.join(' and ')}.`;
           } else {
             this.correctMessage = 'The correct answers are not available yet...';
           }
@@ -817,7 +826,9 @@ export class QuizQuestionComponent
     );
   
     // Fetch the correct answers if they are not already available
-    const currentCorrectAnswers = this.quizService.getCorrectAnswersForQuestion(this.data.questionText);
+    const currentCorrectAnswers = this.correctAnswers.find(
+      (answer) => answer.questionText === this.data.questionText
+    )?.answers;
   
     if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
       this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);

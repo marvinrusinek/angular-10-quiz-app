@@ -761,8 +761,8 @@ export class QuizService implements OnDestroy {
   }
 
   getCorrectAnswersForQuestion(questionText: string): number[] {
-    const answer = this.correctAnswers.find((answer) => answer.questionText === questionText);
-    return answer ? answer.answers : [];
+    const correctAnswers = this.correctAnswers.find((answer) => answer.questionText === questionText);
+    return correctAnswers ? correctAnswers.answers : [];
   }
 
   setCorrectAnswersForQuestion(questionText: string, correctAnswers: number[]): void {
@@ -876,27 +876,20 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
-    if (!question || !currentOptions) {
-      this.correctAnswers = [];
-      this.correctAnswersLoadedSubject.next(false);
-      return;
-    }
+  setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
+    if (question && currentOptions) {
+      const correctOptionNumbers = currentOptions
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
   
-    const correctOptionNumbers = currentOptions
-      .filter((option) => option.correct)
-      .map((option) => option.optionId);
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.push({
+          questionText: question.questionText,
+          answers: correctOptionNumbers.sort(),
+        });
   
-    if (correctOptionNumbers.length > 0) {
-      const questionData = {
-        questionText: question.questionText,
-        answers: correctOptionNumbers,
-      };
-      this.correctAnswers.push(questionData);
-      this.correctAnswersLoadedSubject.next(true);
-    } else {
-      this.correctAnswers = [];
-      this.correctAnswersLoadedSubject.next(false);
+        this.correctAnswersLoadedSubject.next(true);
+      }
     }
   }
   
