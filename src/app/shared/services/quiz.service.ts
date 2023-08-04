@@ -858,7 +858,7 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
+  setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
     if (!question || !currentOptions) {
       this.correctAnswersLoadedSubject.next(false);
       return;
@@ -869,7 +869,7 @@ export class QuizService implements OnDestroy {
       .map((option) => option.optionId);
   
     if (correctOptionNumbers.length > 0) {
-      const questionData: { questionText: string; answers: number[] } = {
+      const questionData = {
         questionText: question.questionText,
         answers: correctOptionNumbers,
       };

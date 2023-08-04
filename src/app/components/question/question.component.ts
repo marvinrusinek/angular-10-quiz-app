@@ -735,7 +735,7 @@ export class QuizQuestionComponent
     );
   } */
 
-  private subscribeToCorrectAnswersLoaded(): void {
+  private async subscribeToCorrectAnswersLoaded(): Promise<void> {
     this.correctAnswersLoadedSubscription = this.quizService.correctAnswersLoaded$.subscribe((loaded) => {
       if (loaded) {
         const currentCorrectAnswers = this.correctAnswers.find(
@@ -752,6 +752,11 @@ export class QuizQuestionComponent
         this.correctMessage = 'The correct answers are not available yet.';
       }
     });
+  
+    // Fetch the correct answers if they are not already available
+    if (!this.correctAnswers || this.correctAnswers.length === 0) {
+      this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+    }
   }
   
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
