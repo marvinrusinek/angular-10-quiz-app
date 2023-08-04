@@ -180,6 +180,16 @@ export class QuizQuestionComponent
 
     this.quizService.setOptions(this.data?.options);
 
+    this.quizService.correctAnswersLoaded$.pipe(take(1)).subscribe((loaded) => {
+      if (!loaded) {
+        this.quizService.setCorrectAnswers(this.data, this.data.currentOptions).then(() => {
+          this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
+        });
+      } else {
+        this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
+      }
+    });
+
     // Fetch the correct answers if they are not already available
     // const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     /* const currentCorrectAnswers = this.quizService.correctAnswers.find(
