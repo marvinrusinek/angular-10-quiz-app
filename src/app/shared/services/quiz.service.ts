@@ -861,9 +861,10 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
+  async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
     if (!question || !currentOptions) {
-      this.correctAnswersAvailabilitySubject.next(false);
+      this.correctAnswers = [];
+      this.correctAnswersLoadedSubject.next(false);
       return;
     }
   
@@ -877,9 +878,10 @@ export class QuizService implements OnDestroy {
         answers: correctOptionNumbers,
       };
       this.correctAnswers.push(questionData);
-      this.correctAnswersAvailabilitySubject.next(true);
+      this.correctAnswersLoadedSubject.next(true);
     } else {
-      this.correctAnswersAvailabilitySubject.next(false);
+      this.correctAnswers = [];
+      this.correctAnswersLoadedSubject.next(false);
     }
   }
   
