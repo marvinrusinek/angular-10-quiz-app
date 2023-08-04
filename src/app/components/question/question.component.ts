@@ -113,7 +113,7 @@ export class QuizQuestionComponent
   feedbackDisplayed = false;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
-
+  correctAnswersLoaded: boolean = false;
   correctAnswersSubscription: Subscription;
   correctAnswersLoadedSubscription: Subscription;
 
@@ -177,28 +177,33 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
+    // Fetch the correct answers if they are not already available
     const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
     console.log('Current correct answers:', currentCorrectAnswers);
 
     if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
       this.correctAnswers = currentCorrectAnswers;
       this.updateCorrectMessage(this.correctAnswers);
+      this.correctAnswersLoaded = true; // Mark correct answers as loaded
     } else {
       console.log('Correct answers are not available. Fetching correct answers...');
-      await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
+      const correctAnswersLoaded = await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
 
-      // After the correct answers are fetched and loaded, they will be available in the next tick
-      setTimeout(() => {
+      if (correctAnswersLoaded) {
         const updatedCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
         console.log('Updated correct answers:', updatedCorrectAnswers);
 
         if (updatedCorrectAnswers && updatedCorrectAnswers.length > 0) {
           this.correctAnswers = updatedCorrectAnswers;
           this.updateCorrectMessage(this.correctAnswers);
+          this.correctAnswersLoaded = true; // Mark correct answers as loaded
         } else {
           this.correctMessage = 'The correct answers are not available yet.';
         }
-      });
+      } else {
+        console.log('Error fetching correct answers.');
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
     }
     
     /* this.quizService.questionData$.subscribe((data) => {
