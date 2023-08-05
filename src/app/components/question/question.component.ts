@@ -502,7 +502,7 @@ export class QuizQuestionComponent
               } else {
                 this.correctAnswers = currentCorrectAnswers;
                 this.updateCorrectMessage(this.correctAnswers);
-                return this.fetchCorrectAnswersText(data, data.currentOptions);
+                return of(undefined);
               }
             })
           );
@@ -514,7 +514,7 @@ export class QuizQuestionComponent
     ).subscribe(
       () => {
         console.log('Subscription next handler');
-        // Any additional logic after loading questions for the quiz
+        this.updateQuestionForm(); // Move it here to ensure it's called after fetching correct answers text
       },
       (error) => {
         console.error('Error while loading quiz questions:', error);
@@ -525,7 +525,7 @@ export class QuizQuestionComponent
       }
     );
   }
-  
+    
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
