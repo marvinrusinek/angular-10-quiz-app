@@ -468,38 +468,70 @@ export class QuizQuestionComponent
     this.quizStateService.setCurrentQuestion(of(question));
   }
 
-  private async loadQuestionsForQuiz(quizId: string): Promise<void> {
-    try {
-      const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(quizId).toPromise();
-      if (questions && questions.length > 0) {
-        this.currentQuestion = questions[0];
-        this.updateCurrentQuestion(this.currentQuestion);
+  private loadQuestionsForQuiz(quizId: string): void {
+    console.log('start of lqfq');
+    console.log('QI:::>>>', quizId);
+    console.log('CQI:::>>>', this.currentQuestionIndex);
   
-        // Fetch the correct answers if they are not already available
-        const currentCorrectAnswers = this.quizService.correctAnswers.get(this.currentQuestion.questionText);
-        if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-          await this.quizService.setCorrectAnswers(this.currentQuestion, this.currentOptions);
-          this.correctAnswers = this.quizService.correctAnswers.get(this.currentQuestion.questionText);
-          this.updateCorrectMessage(this.correctAnswers);
+    this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+      tap((questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.currentQuestion = questions[0];
+          this.updateCurrentQuestion(this.currentQuestion);
         } else {
-          this.correctAnswers = currentCorrectAnswers;
-          this.updateCorrectMessage(this.correctAnswers);
+          console.error('No questions found for quiz with ID:', quizId);
         }
+      }),
+      switchMap((questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.currentQuestion = questions[0];
+          this.updateCurrentQuestion(this.currentQuestion);
+          return this.quizService.combinedQuestionData$.pipe(
+            take(1),
+            tap((data) => {
+              if (data) {
+                this.data = data;
+                this.currentOptions = data.currentOptions;
   
-        // Fetch the correct answers text or update it with the correct message
-        await this.fetchCorrectAnswersText(this.data, this.currentOptions);
-        console.log('After fetchCorrectAnswersText...');
-        console.log('MY CORR MSG:', this.correctMessage);
+                // Fetch the correct answers if they are not already available
+                const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
+                if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+                  this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions);
+                } else {
+                  this.correctAnswers = currentCorrectAnswers;
+                  this.updateCorrectMessage(this.correctAnswers);
+                }
   
-        this.updateQuestionForm();
-      } else {
-        console.error('No questions found for quiz with ID:', quizId);
+                // Fetch the correct answers text or update it with the correct message
+                this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
+                  console.log('After fetchCorrectAnswersText...');
+                  console.log('MY CORR MSG:', this.correctMessage);
+                  this.updateQuestionForm();
+                });
+              } else {
+                console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
+                this.correctMessage = 'The correct answers are not available yet.....';
+              }
+            })
+          );
+        } else {
+          console.error('No questions found for quiz with ID:', quizId);
+          return of(undefined);
+        }
+      })
+    ).subscribe(
+      () => {
+        console.log('Subscription next handler');
+      },
+      (error) => {
+        console.error('Error while loading quiz questions:', error);
+      },
+      () => {
+        console.log('Subscription complete handler');
       }
-    } catch (error) {
-      console.error('Error while loading quiz questions:', error);
-    }
+    );
   }
-    
+
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
