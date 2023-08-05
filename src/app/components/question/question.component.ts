@@ -289,25 +289,7 @@ export class QuizQuestionComponent
             this.currentOptions = data.currentOptions;
 
             this.loadQuestionsForQuiz(this.quizService.quizId);
-      
-            // Fetch the correct answers if they are not already available
-            const currentCorrectAnswers = correctAnswers.get(data.questionText);
-            if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-              this.quizService.setCorrectAnswers(this.question, data.currentOptions);
-            } else {
-              this.correctAnswers = currentCorrectAnswers;
-              this.updateCorrectMessage(this.correctAnswers);
-            }
-      
-            // Fetch the correct answers text or update it with the correct message
-            this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
-              console.log('After fetchCorrectAnswersText...');
-              console.log('MY CORR MSG:', this.correctMessage);
-      
-              // Now that the correct answers and text are fetched, continue with other operations
-              this.loadQuestionsForQuiz(this.quizService.quizId);
-              // ... any other logic that depends on the correct answers and question data ...
-            });
+            this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
           } else {
           console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
           this.correctMessage = 'The correct answers are not available yet...';
@@ -405,6 +387,22 @@ export class QuizQuestionComponent
 
   trackByFn(index: number, option: any) {
     return option.optionId;
+  }
+
+  private async fetchCorrectAnswersAndText(data: any, currentOptions: Option[]): Promise<void> {
+    // Fetch the correct answers if they are not already available
+    const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
+    if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+      await this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions);
+    } else {
+      this.correctAnswers = currentCorrectAnswers;
+      this.updateCorrectMessage(this.correctAnswers);
+    }
+  
+    // Fetch the correct answers text or update it with the correct message
+    await this.fetchCorrectAnswersText(data, data.currentOptions);
+    console.log('After fetchCorrectAnswersText...');
+    console.log('MY CORR MSG:', this.correctMessage);
   }
 
   /* shouldDisplayOptions(): boolean {
