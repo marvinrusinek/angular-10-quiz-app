@@ -899,27 +899,25 @@ export class QuizQuestionComponent
     console.log('Data:', data);
     console.log('Correct answer options:', this.quizService.correctAnswerOptions);
   
+    // Ensure this.quizService.correctAnswerOptions is set correctly
+    console.log('Correct answer options:', this.quizService.correctAnswerOptions);
+  
     // Map option IDs to Option objects
     const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
       currentOptions.find(option => option.optionId === optionId)
     );
     console.log('Mapped correct answer options:', mappedCorrectAnswerOptions);
   
-    // Get the text of the correct answers
-    const correctAnswersText = mappedCorrectAnswerOptions
-      .map(option => option.text)
-      .join(', ');
-  
-    this.correctMessage = `The correct answers are: ${correctAnswersText}.`;
+    this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, currentOptions);
     console.log('MY CORR MSG', this.correctMessage);
-  
-    // Update the correct answers loaded status
     this.quizService.setCorrectAnswersLoaded(true);
   
-    // Update the correct answers for the current question
     this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(data.questionText);
+    console.log('Correct Answers for Question:', this.correctAnswers);
+  
     this.updateCorrectMessage(this.correctAnswers);
   }
+  
         
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
