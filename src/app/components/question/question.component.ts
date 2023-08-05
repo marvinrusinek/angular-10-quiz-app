@@ -506,9 +506,6 @@ export class QuizQuestionComponent
                 this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
                   console.log('After fetchCorrectAnswersText...');
                   console.log('MY CORR MSG:', this.correctMessage);
-  
-                  // Now that the correct answers and text are fetched, continue with other operations
-                  this.toggleOptions();
                   this.updateQuestionForm();
                 });
               } else {
