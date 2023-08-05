@@ -987,6 +987,7 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(
+    data: any,
     correctAnswerOptions: Option[],
     currentOptions: Option[]
   ): string {
@@ -1013,8 +1014,10 @@ export class QuizService implements OnDestroy {
       .filter((option) => correctOptionIds.includes(option.optionId))
       .map((option) => option.text);
 
-    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
-    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    // const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    // const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    const optionsText = data.isMultipleAnswer ? 'Options' : 'Option';
+    const areIsText = data.isMultipleAnswer ? 'are' : 'is';
     let correctMessage = `The correct answer${
       optionsText === 'Option' ? '' : 's'
     } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
