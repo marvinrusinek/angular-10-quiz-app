@@ -290,6 +290,7 @@ export class QuizQuestionComponent
 
             this.loadQuestionsForQuiz(this.quizService.quizId);
             this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
+            this.updateQuestionForm();
           } else {
           console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
           this.correctMessage = 'The correct answers are not available yet...';
@@ -354,7 +355,6 @@ export class QuizQuestionComponent
 
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
-    this.updateQuestionForm();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
