@@ -726,7 +726,7 @@ export class QuizQuestionComponent
     }
   }
 
-  public updateCorrectMessage(correctAnswers: number[]): void {
+  /* public updateCorrectMessage(correctAnswers: number[]): void {
     if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
       if (correctAnswers && correctAnswers.length > 0) {
         this.correctMessage = this.quizService.setCorrectMessage(
@@ -740,8 +740,21 @@ export class QuizQuestionComponent
     } else {
       this.correctMessage = 'The correct answers are not available yet.';
     }
-  } 
+  } */
 
+  public updateCorrectMessage(correctAnswers: number[]): void {
+    if (correctAnswers && correctAnswers.length > 0) {
+      const correctMessage = this.quizService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.data.currentOptions
+      );
+  
+      this.correctMessage = correctMessage;
+    } else {
+      this.correctMessage = 'The correct answers are not available yet.';
+    }
+  }
+  
   private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       const currentCorrectAnswers = correctAnswers.get(this.question.questionText);

@@ -987,7 +987,6 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(
-    data: any,
     correctAnswerOptions: Option[],
     currentOptions: Option[]
   ): string {
