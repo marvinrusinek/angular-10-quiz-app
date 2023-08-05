@@ -104,7 +104,7 @@ export class QuizService implements OnDestroy {
   // correctAnswers: { questionText: string; answers: number[] }[] = [];
   correctAnswers: Map<string, number[]> = new Map<string, number[]>();
   private correctAnswersForEachQuestion: { questionId: string; answers: number[] }[] = [];
-  correctAnswerOptions: number[] = [];
+  correctAnswerOptions: Option[] = [];
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
