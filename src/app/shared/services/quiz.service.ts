@@ -910,7 +910,7 @@ export class QuizService implements OnDestroy {
     });
 
     // Set the correct answers first
-    this.setCorrectAnswers(correctAnswers, this.question.options);
+    this.setCorrectAnswers(correctAnswers);
   
     // Update the correct answers BehaviorSubject with the new data
     this.correctAnswersSubject.next(correctAnswers);
@@ -919,6 +919,14 @@ export class QuizService implements OnDestroy {
       questionText: this.data.questionText,
       correctAnswersText: '',
       currentOptions: this.data.currentOptions
+    });
+
+    // Fetch the correct answers for each question if they are not already available
+    this.questions.forEach((question) => {
+      const currentCorrectAnswers = correctAnswers.get(question.questionText);
+      if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+        this.setCorrectAnswers(question, this.data.currentOptions);
+      }
     });
   }
 

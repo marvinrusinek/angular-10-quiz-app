@@ -407,20 +407,20 @@ export class QuizQuestionComponent
           this.data = data;
           this.currentOptions = data.currentOptions;
     
-          // Fetch the correct answers if they are not already available
-          const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
-          if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-            this.quizService.setCorrectAnswers(this.question, data.currentOptions);
-          } else {
-            this.correctAnswers = currentCorrectAnswers;
-            this.updateCorrectMessage(this.correctAnswers);
-          }
-    
           // Fetch the correct answers text or update it with the correct message
           this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
             console.log('After fetchCorrectAnswersText...');
             console.log('MY CORR MSG:::', this.correctMessage);
           });
+    
+          // Get the current correct answers for the question
+          const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
+          if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
+            this.correctAnswers = currentCorrectAnswers;
+            this.updateCorrectMessage(this.correctAnswers);
+          } else {
+            this.correctMessage = 'No correct answers found for the current question.';
+          }
         } else {
           console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
           this.correctMessage = 'The correct answers are not available yet.';
