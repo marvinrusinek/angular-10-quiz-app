@@ -352,6 +352,7 @@ export class QuizQuestionComponent
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
+    this.subscriptionToOptions();
     // this.subscribeToCorrectAnswersLoaded();
 
     console.log('ngOnInit is called...');
