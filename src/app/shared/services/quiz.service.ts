@@ -986,45 +986,28 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
-  setCorrectMessage(
-    data: any,
-    correctAnswerOptions: Option[],
-    currentOptions: Option[]
-  ): string {
-    console.log("Function setCorrectMessage() is called.");
-    console.log("data:", data);
-    console.log("correctAnswerOptions:", correctAnswerOptions);
-    console.log("currentOptions:", currentOptions);
-
-    /* if (!currentOptions || currentOptions.length === 0) {
+  setCorrectMessage(data: any, correctAnswerOptions: Option[], currentOptions: Option[]): string {
+    if (!data || !correctAnswerOptions || correctAnswerOptions.length === 0) {
       return 'The correct answers are not available yet.';
-    } */
-
+    }
+  
     const correctOptionIds = correctAnswerOptions
       .filter((option) => option.correct)
       .map((option) => option.optionId);
-
-    console.log('correctOptionIds:', correctOptionIds);
-
+  
     if (correctOptionIds.length === 0) {
       return 'The correct answers are not available yet.';
     }
-
+  
     const correctOptionTexts = currentOptions
       .filter((option) => correctOptionIds.includes(option.optionId))
       .map((option) => option.text);
-
-    // const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
-    // const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
-    const optionsText = data.isMultipleAnswer ? 'Options' : 'Option';
-    const areIsText = data.isMultipleAnswer ? 'are' : 'is';
-    let correctMessage = `The correct answer${
-      optionsText === 'Option' ? '' : 's'
-    } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
-
-    console.log("CORRECT MESSAGE:::>>>", correctMessage);
-    return correctMessage;
+  
+    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    return `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   }
+  
 
   // set the text of the previous user answers in an array to show in the following quiz
   setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {

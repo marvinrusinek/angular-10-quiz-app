@@ -496,7 +496,7 @@ export class QuizQuestionComponent
               // Fetch the correct answers if they are not already available
               const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
               if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-                return this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions).pipe(
+                return this.quizService.setCorrectAnswers(this.data, this.currentQuestion, data.currentOptions).pipe(
                   switchMap(() => this.fetchCorrectAnswersText(data, data.currentOptions))
                 );
               } else {
