@@ -281,14 +281,13 @@ export class QuizQuestionComponent
 
       this.quizService.setCorrectAnswerOptions(this.correctAnswers);
 
-        // Fetch the question data and correct answers before proceeding
-        combineLatest([this.quizService.correctAnswers$, this.quizService.combinedQuestionData$]).pipe(
-          take(1)
+      combineLatest([this.quizService.correctAnswers$, this.quizService.combinedQuestionData$]).pipe(
+        take(1)
         ).subscribe(([correctAnswers, data]) => {
           if (data) {
             this.data = data;
             this.currentOptions = data.currentOptions;
-            
+      
             // Fetch the correct answers if they are not already available
             const currentCorrectAnswers = correctAnswers.get(data.questionText);
             if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
@@ -308,12 +307,10 @@ export class QuizQuestionComponent
               // ... any other logic that depends on the correct answers and question data ...
             });
           } else {
-            console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
-            this.correctMessage = 'The correct answers are not available yet...';
+          console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
+          this.correctMessage = 'The correct answers are not available yet...';
           }
         });
-      
-      
         
       combined$.subscribe(([correctAnswersLoaded, data]) => {
         console.log('Correct Answers Loaded:', correctAnswersLoaded);
@@ -461,6 +458,46 @@ export class QuizQuestionComponent
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
+      }),
+      switchMap((questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.currentQuestion = questions[0];
+          this.updateCurrentQuestion(this.currentQuestion);
+          return this.quizService.combinedQuestionData$.pipe(
+            take(1),
+            tap((data) => {
+              if (data) {
+                this.data = data;
+                this.currentOptions = data.currentOptions;
+  
+                // Fetch the correct answers if they are not already available
+                const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
+                if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+                  this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions);
+                } else {
+                  this.correctAnswers = currentCorrectAnswers;
+                  this.updateCorrectMessage(this.correctAnswers);
+                }
+  
+                // Fetch the correct answers text or update it with the correct message
+                this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
+                  console.log('After fetchCorrectAnswersText...');
+                  console.log('MY CORR MSG:', this.correctMessage);
+  
+                  // Now that the correct answers and text are fetched, continue with other operations
+                  this.toggleOptions();
+                  this.updateQuestionForm();
+                });
+              } else {
+                console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
+                this.correctMessage = 'The correct answers are not available yet.';
+              }
+            })
+          );
+        } else {
+          console.error('No questions found for quiz with ID:', quizId);
+          return of(undefined);
+        }
       })
     ).subscribe(
       () => {
@@ -474,7 +511,7 @@ export class QuizQuestionComponent
       }
     );
   }
-  
+
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
@@ -910,14 +947,10 @@ export class QuizQuestionComponent
   
     this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, currentOptions);
     console.log('MY CORR MSG', this.correctMessage);
-    this.quizService.setCorrectAnswersLoaded(true);
   
     this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(data.questionText);
-    console.log('Correct Answers for Question:', this.correctAnswers);
-  
     this.updateCorrectMessage(this.correctAnswers);
-  }
-  
+  }  
         
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
@@ -970,12 +1003,6 @@ export class QuizQuestionComponent
           this.quizService.shuffle(this.options);
         }
       });
-  }
-
-  toggleOptions(): void {
-    this.quizDataService.currentOptions$.subscribe((options) => {
-      this.options = options;
-    });
   }
 
   private resetForm(): void {
