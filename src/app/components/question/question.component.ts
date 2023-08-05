@@ -426,6 +426,7 @@ export class QuizQuestionComponent
           this.correctMessage = 'The correct answers are not available yet.';
         }
       });
+    
 
       /* combined$.subscribe(([correctAnswers, data]) => {
         if (data) {
