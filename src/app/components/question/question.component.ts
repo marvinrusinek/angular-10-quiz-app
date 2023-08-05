@@ -97,7 +97,7 @@ export class QuizQuestionComponent
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   correctAnswers: number[] = [];
-  correctMessage: string = '';
+  correctMessage: string;
   alreadyAnswered = false;
   optionChecked: { [optionId: number]: boolean } = {};
   answers;
@@ -287,6 +287,14 @@ export class QuizQuestionComponent
           if (data) {
             this.data = data;
             this.currentOptions = data.currentOptions;
+
+            // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
+            if (this.currentOptions && correctAnswers) { // Changed this.correctAnswers to correctAnswers
+              this.setCorrectMessage();
+            } else {
+              // Handle the case when correctAnswers is not available yet
+              this.correctMessage = 'The correct answers are not available yet.';
+            }
 
             this.loadQuestionsForQuiz(this.quizService.quizId);
             this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
@@ -766,7 +774,9 @@ export class QuizQuestionComponent
     });
   }
   
-  
+  setCorrectMessage(): void {
+    this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
+  }
   
   private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {

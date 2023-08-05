@@ -986,8 +986,8 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
-  setCorrectMessage(data: any, correctAnswerOptions: Option[], currentOptions: Option[]): string {
-    if (!data || !correctAnswerOptions || correctAnswerOptions.length === 0) {
+  setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): string {
+    if (!correctAnswerOptions || correctAnswerOptions.length === 0) {
       return 'The correct answers are not available yet.';
     }
   
