@@ -740,17 +740,28 @@ export class QuizQuestionComponent
   } */
 
   public updateCorrectMessage(correctAnswers: number[]): void {
-    if (correctAnswers && correctAnswers.length > 0) {
-      const correctMessage = this.quizService.setCorrectMessage(
-        this.quizService.correctAnswerOptions,
-        this.data.currentOptions
-      );
-  
-      this.correctMessage = correctMessage;
-    } else {
-      this.correctMessage = 'The correct answers are not available yet.';
-    }
+    this.quizService.correctAnswersLoadedSubject.subscribe((loaded: boolean) => {
+      if (loaded) {
+        if (this.data && this.data.currentOptions && this.data.currentOptions.length > 0) {
+          if (!this.correctMessage) {
+            try {
+              this.correctMessage = this.quizService.setCorrectMessage(
+                this.data,
+                this.quizService.correctAnswerOptions,
+                this.data.currentOptions
+              );
+            } catch (error) {
+              console.error('An error occurred while updating the correct message:', error);
+            }
+          }
+        }
+      } else {
+        this.correctMessage = 'The correct answers are not available yet.';
+      }
+    });
   }
+  
+  
   
   private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
