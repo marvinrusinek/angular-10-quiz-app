@@ -434,6 +434,14 @@ export class QuizQuestionComponent
   }
   
   updateQuestionForm(): void {
+    // Fetch the correct answers and update the correct message
+    this.getCorrectAnswers();
+    this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+      this.correctAnswers = correctAnswers.get(this.data.questionText);
+      this.updateCorrectMessage(this.correctAnswers);
+    });
+  
+    // Update other form-related logic
     this.updateCorrectAnswers();
     this.updateMultipleAnswer();
     this.resetForm();
