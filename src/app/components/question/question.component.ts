@@ -289,10 +289,9 @@ export class QuizQuestionComponent
             this.currentOptions = data.currentOptions;
 
             // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
-            if (this.currentOptions && correctAnswers) { // Changed this.correctAnswers to correctAnswers
+            if (this.currentOptions && correctAnswers) {
               this.setCorrectMessage();
             } else {
-              // Handle the case when correctAnswers is not available yet
               this.correctMessage = 'The correct answers are not available yet.';
             }
 
