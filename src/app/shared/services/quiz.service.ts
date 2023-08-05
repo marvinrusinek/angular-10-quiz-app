@@ -897,7 +897,7 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  private async fetchQuizQuestions() {
+  async fetchQuizQuestions() {
     // ... Fetch your quiz questions here ...
   
     // After fetching the quiz questions, calculate and set the correct answers for each question

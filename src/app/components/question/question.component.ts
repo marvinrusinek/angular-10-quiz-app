@@ -290,12 +290,26 @@ export class QuizQuestionComponent
 
             this.loadQuestionsForQuiz(this.quizService.quizId);
             this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
-            this.updateQuestionForm();
+
+            // Set correctAnswerOptions in quizService before fetching correct answers
+            this.quizService.setCorrectAnswerOptions(this.correctAnswers);
+
+            // Fetch the correct answers and update the correct message
+            this.getCorrectAnswers();
+
+            // Subscribe to correctAnswers$ to handle correct answer text display
+            this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+              this.correctAnswers = correctAnswers.get(this.data.questionText);
+              this.updateCorrectMessage(this.correctAnswers);
+              this.updateQuestionForm();
+            });
           } else {
           console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
           this.correctMessage = 'The correct answers are not available yet...';
           }
         });
+
+        this.quizService.fetchQuizQuestions();
         
       combined$.subscribe(([correctAnswersLoaded, data]) => {
         console.log('Correct Answers Loaded:', correctAnswersLoaded);
@@ -744,15 +758,12 @@ export class QuizQuestionComponent
   async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
     console.log('Data:', data);
-    console.log('Correct answer options:', this.quizService.correctAnswerOptions);
-  
-    // Ensure this.quizService.correctAnswerOptions is set correctly
-    console.log('Correct answer options:', this.quizService.correctAnswerOptions);
   
     // Map option IDs to Option objects
     const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
       currentOptions.find(option => option.optionId === optionId)
     );
+  
     console.log('Mapped correct answer options:', mappedCorrectAnswerOptions);
   
     this.correctMessage = this.quizService.setCorrectMessage(data, mappedCorrectAnswerOptions, currentOptions);
@@ -760,10 +771,7 @@ export class QuizQuestionComponent
   
     this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(data.questionText);
     this.updateCorrectMessage(this.correctAnswers);
-  
-    // Set correctAnswersLoadedSubject to true after fetching the correct answers
-    this.quizService.setCorrectAnswersLoaded(true);
-  }
+  }  
           
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
