@@ -897,7 +897,7 @@ export class QuizService implements OnDestroy {
     }
   } */
 
-  private fetchQuizQuestions() {
+  private async fetchQuizQuestions() {
     // ... Fetch your quiz questions here ...
   
     // After fetching the quiz questions, calculate and set the correct answers for each question
@@ -911,6 +911,10 @@ export class QuizService implements OnDestroy {
 
     // Set the correct answers first
     this.setCorrectAnswers(correctAnswers);
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    this.fetchCorrectAnswers();
   
     // Update the correct answers BehaviorSubject with the new data
     this.correctAnswersSubject.next(correctAnswers);
@@ -928,6 +932,8 @@ export class QuizService implements OnDestroy {
         this.setCorrectAnswers(question, this.data.currentOptions);
       }
     });
+
+    this.correctAnswersLoadedSubject.next(true);
   }
 
   /* setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
@@ -957,6 +963,20 @@ export class QuizService implements OnDestroy {
       this.correctAnswersLoadedSubject.next(true);
     }
   }  
+
+  private fetchCorrectAnswers(): void {
+    // Assuming you have fetched the quiz questions and stored them in this.questions
+    const correctAnswers = new Map<string, number[]>();
+    this.questions.forEach((question) => {
+      const correctOptionNumbers = question.options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+      correctAnswers.set(question.questionText, correctOptionNumbers);
+    });
+  
+    this.correctAnswersSubject.next(correctAnswers);
+  }
+  
   
   setCorrectAnswerOptions(optionIds: number[]) {
     this.correctAnswerOptions = optionIds;

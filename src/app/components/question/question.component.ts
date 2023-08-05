@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, Subject, Subscription, zip } from 'rxjs';
 import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -178,89 +178,6 @@ export class QuizQuestionComponent
 
     this.selectedOption = null;
 
-    /* this.quizService.setOptions(this.data?.options);
-
-    this.quizService.correctAnswersLoaded$.pipe(take(1)).subscribe((loaded) => {
-      if (!loaded) {
-        this.quizService.setCorrectAnswers(this.data, this.data.currentOptions).then(() => {
-          this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
-        });
-      } else {
-        this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
-      }
-    }); */
-
-    // Fetch the correct answers if they are not already available
-    // const currentCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
-    /* const currentCorrectAnswers = this.quizService.correctAnswers.find(
-      (answer) => answer.questionText === this.question.questionText
-    )?.answers;
-    console.log('Current correct answers:', currentCorrectAnswers);
-
-    if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
-      this.correctAnswers = currentCorrectAnswers;
-      this.updateCorrectMessage(this.correctAnswers);
-      this.correctAnswersLoaded = true; // Mark correct answers as loaded
-    } else {
-      console.log('Correct answers are not available. Fetching correct answers...');
-      try {
-        await this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-        const updatedCorrectAnswers = this.quizService.getCorrectAnswers(this.question);
-        console.log('Updated correct answers:', updatedCorrectAnswers);
-
-        if (updatedCorrectAnswers && updatedCorrectAnswers.length > 0) {
-          this.correctAnswers = updatedCorrectAnswers;
-          this.updateCorrectMessage(this.correctAnswers);
-          this.correctAnswersLoaded = true; // Mark correct answers as loaded
-        } else {
-          this.correctMessage = 'The correct answers are not available yet.';
-        }
-      } catch (error) {
-        console.error('Error fetching correct answers:', error);
-        this.correctMessage = 'The correct answers are not available yet.';
-      }
-    } */
-
-    /* this.questionDataSubscription = this.quizService.questionData$.subscribe((data) => {
-      if (data) {
-        console.log('Data:', data);
-  
-        this.data = data;
-        this.currentOptions = data.currentOptions;
-        this.correctAnswers = this.quizService.correctAnswers;
-        this.updateCorrectMessage(this.correctAnswers);
-  
-        this.fetchCorrectAnswersText(this.data, this.currentOptions);
-      }
-    });
-  
-    this.quizService.correctAnswersLoaded$.subscribe((loaded: boolean) => {
-      if (loaded) {
-        // Correct answers are available, update the correct message
-        this.updateCorrectMessage(this.correctAnswers);
-      } else {
-        // Correct answers are not available yet
-        this.correctMessage = 'The correct answers are not available yet.';
-      }
-    }); */
-    
-    /* this.quizService.questionData$.subscribe((data) => {
-      if (data) {
-        // The data is available, you can now use it in this component
-        console.log('Question Data:', data);
-        // You can call fetchCorrectAnswersText here or do anything else with the data
-        this.getCorrectAnswers();
-        this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
-      }
-    }); */
-
-    // Subscribe to the options$ observable
-    /* this.optionsSubscription = this.options$.subscribe((options) => {
-      if (options && options.length > 0) {
-        this.displayQuestion(this.quizService.getCurrentQuizId()); // not defined in file
-      }
-    }); */
-
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
@@ -364,96 +281,62 @@ export class QuizQuestionComponent
 
       this.quizService.setCorrectAnswerOptions(this.correctAnswers);
 
-      const combined$ = combineLatest([
-        this.quizService.correctAnswers$,
-        this.quizService.combinedQuestionData$
-      ]);
-
-      this.quizService.combinedQuestionData$.subscribe((data) => {
+      combineLatest([this.quizService.correctAnswers$, this.quizService.combinedQuestionData$]).pipe(
+        take(1)
+      ).subscribe(([correctAnswers, data]) => {
         if (data) {
           this.data = data;
-          // this.correctAnswers = this.quizService.correctAnswers;
-          this.currentOptions = this.quizService.currentOptions;
-
-          if (this.questionData && this.data && this.data.currentOptions) {
-            console.log('Calling fetchCorrectAnswersText...');
-            this.getCorrectAnswers();
-            this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-            console.log('MY Correct Answers:', this.quizService.correctAnswers);
-            this.fetchCorrectAnswersText(this.data, this.data.currentOptions);
-            console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG:::', this.correctMessage);            
-          } else {
-            console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
-          }
-        } else {
-          this.correctMessage = 'The correct answers are not available yet.';
-        }
-      });
-
-      combined$.subscribe(([correctAnswers, data]) => {
-        console.log('Correct Answers:::>>>', correctAnswers);
-        console.log('Question Data:::>>>', data);
-    
-        // Rest of your code...
-      });
-
-      combined$.subscribe(([correctAnswers, data]) => {
-        console.log('Correct Answers:::', correctAnswers);
-        console.log('Question Data:::', data);
-    
-        // Ensure that both correctAnswers and data are available
-        if (correctAnswers.size > 0 && data && data.currentOptions) {
-          this.data = data;
           this.currentOptions = data.currentOptions;
+          
+          // Fetch the correct answers if they are not already available
+          const currentCorrectAnswers = correctAnswers.get(data.questionText);
+          if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+            this.quizService.setCorrectAnswers(this.question, data.currentOptions);
+          } else {
+            this.correctAnswers = currentCorrectAnswers;
+            this.updateCorrectMessage(this.correctAnswers);
+          }
     
           // Fetch the correct answers text or update it with the correct message
           this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
             console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG:::', this.correctMessage);
+            console.log('MY CORR MSG:', this.correctMessage);
           });
+        } else {
+          console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
+          this.correctMessage = 'The correct answers are not available yet.';
+        }
+      });
+        
+      combined$.subscribe(([correctAnswersLoaded, data]) => {
+        console.log('Correct Answers Loaded:', correctAnswersLoaded);
+        console.log('Question Data:', data);
     
-          // Get the current correct answers for the question
-          const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
+        if (correctAnswersLoaded && data && data.currentOptions) {
+          this.data = data;
+          this.currentOptions = data.currentOptions;
+    
+          const currentCorrectAnswers = this.quizService.correctAnswers.get(this.question.questionText);
           if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
             this.correctAnswers = currentCorrectAnswers;
             this.updateCorrectMessage(this.correctAnswers);
           } else {
             this.correctMessage = 'No correct answers found for the current question.';
           }
+    
+          this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
+            console.log('After fetchCorrectAnswersText...');
+            console.log('MY CORR MSG:', this.correctMessage);
+          });
         } else {
-          console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
+          console.log('Correct answers or data is not available. Cannot call fetchCorrectAnswersText.');
           this.correctMessage = 'The correct answers are not available yet.';
         }
       });
     
-
-      /* combined$.subscribe(([correctAnswers, data]) => {
-        if (data) {
-          this.data = data;
-          this.currentOptions = this.quizService.currentOptions;
-    
-          if (this.questionData && this.data && this.data.currentOptions) {
-            console.log('Calling fetchCorrectAnswersText...');
-            this.getCorrectAnswers();
-            this.quizService.setCorrectAnswers(this.question, this.data.currentOptions);
-    
-            console.log('MY Correct Answers:', this.quizService.correctAnswers);
-    
-            this.fetchCorrectAnswersText(this.data, this.data.currentOptions).then(() => {
-              console.log('After fetchCorrectAnswersText...');
-              console.log('MY CORR MSG:::', this.correctMessage);
-            });
-    
-            console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG:::', this.correctMessage);
-          } else {
-            console.log('Data or questionData is not available. Cannot call fetchCorrectAnswersText.');
-          }
-        } else {
-          this.correctMessage = 'The correct answers are not available yet.';
-        }
-      }); */
+      // Call fetchQuizQuestions in QuizService if you haven't already
+      this.quizService.fetchQuizQuestions();
+      
     } catch (error) {
       console.error('Error getting current question:', error);
     }
@@ -465,7 +348,7 @@ export class QuizQuestionComponent
 
     console.log('Initializing component...');
     this.subscriptionToQuestion();
-    this.subscribeToCorrectAnswersLoaded();
+    // this.subscribeToCorrectAnswersLoaded();
 
     console.log('ngOnInit is called...');
     const data = {
@@ -982,7 +865,7 @@ export class QuizQuestionComponent
   }
     
   
-  async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
+  /* async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
     console.log('Fetching correct answer text...');
     console.log('Data:', data);
     console.log('Correct answer options:', this.quizService.correctAnswerOptions);
@@ -1002,9 +885,35 @@ export class QuizQuestionComponent
 
     this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(data.questionText);
     this.updateCorrectMessage(this.correctAnswers);
-  }
+  } */
+
+  async fetchCorrectAnswersText(data: any, currentOptions: Option[]): Promise<void> {
+    console.log('Fetching correct answer text...');
+    console.log('Data:', data);
+    console.log('Correct answer options:', this.quizService.correctAnswerOptions);
   
-      
+    // Map option IDs to Option objects
+    const mappedCorrectAnswerOptions: Option[] = this.quizService.correctAnswerOptions.map(optionId =>
+      currentOptions.find(option => option.optionId === optionId)
+    );
+    console.log('Mapped correct answer options:', mappedCorrectAnswerOptions);
+  
+    // Get the text of the correct answers
+    const correctAnswersText = mappedCorrectAnswerOptions
+      .map(option => option.text)
+      .join(', ');
+  
+    this.correctMessage = `The correct answers are: ${correctAnswersText}.`;
+    console.log('MY CORR MSG', this.correctMessage);
+  
+    // Update the correct answers loaded status
+    this.quizService.setCorrectAnswersLoaded(true);
+  
+    // Update the correct answers for the current question
+    this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(data.questionText);
+    this.updateCorrectMessage(this.correctAnswers);
+  }
+        
   private updateMultipleAnswer(): void {
     this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
   }
