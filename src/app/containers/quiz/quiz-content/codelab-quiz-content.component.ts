@@ -45,6 +45,7 @@ export class CodelabQuizContentComponent {
 
   @Input() combinedQuestionData$!: Observable<{
     questionText: string;
+    explanationText?: string;
     correctAnswersText?: string;
     currentOptions: Option[];
   }>;
