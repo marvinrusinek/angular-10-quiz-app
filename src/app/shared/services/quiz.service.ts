@@ -950,26 +950,28 @@ export class QuizService implements OnDestroy {
     console.log('Correct Answers:::>>>', this.correctAnswersSubject.getValue());
   } */
 
-  setCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<Option[]> {
-    return new Promise<Option[]>((resolve) => {
-      const correctOptionNumbers = options
-      .filter((option) => option.correct)
-      .map((option) => option.optionId);
+  private setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): void {
+    if (!correctAnswerOptions || correctAnswerOptions.length === 0) {     
+      this.correctMessage = 'The correct answers are not available yet.....';
+      return;
+    }
   
-      if (correctOptionNumbers.length > 0) {
-        this.correctAnswers.set(question.questionText, correctOptionNumbers);
-        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
-
-        // Emit the correct answers loaded status
-        this.correctAnswersLoadedSubject.next(true);
-      }
-
-      const correctAnswerIds = Array.from(this.correctAnswers.values()).flat();
-      const correctAnswerOptions = options.filter((option) => correctAnswerIds.includes(option.optionId));
-      resolve(correctAnswerOptions);
-    });
+    const correctOptionIds = correctAnswerOptions.filter((option) => option.correct).map((option) => option.optionId);
+  
+    if (correctOptionIds.length === 0) {
+      this.correctMessage = 'The correct answers are not available yet.....';
+      return;
+    }
+  
+    const correctOptionTexts = currentOptions
+      .filter((option) => correctOptionIds.includes(option.optionId))
+      .map((option) => option.text);
+  
+    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
+    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
+    this.correctMessage = `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   }
-
+  
   /* setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
     const correctOptionNumbers = options
       .filter((option) => option.correct)

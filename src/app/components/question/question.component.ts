@@ -549,13 +549,8 @@ export class QuizQuestionComponent
         console.log('Subscription complete handler');
       }
     );
-
-    this.quizService.correctMessage$.subscribe((message) => {
-      console.log('Correct Message Updated:', message);
-      this.correctMessage = message;
-    });
   }
-              
+                
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
