@@ -478,6 +478,8 @@ export class QuizQuestionComponent
   private loadQuestionsForQuiz(quizId: string): void {
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
+    
+   
     console.log('CQI:::>>>', this.currentQuestionIndex);
   
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
@@ -493,14 +495,6 @@ export class QuizQuestionComponent
           } else {
             this.correctAnswers = currentCorrectAnswers;
             this.updateCorrectMessage(this.correctAnswers);
-          }
-  
-          // Fetch the correct answers text or update it with the correct message
-          this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
-            console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG:', this.correctMessage);
-            this.updateQuestionForm();
-            this.setCorrectMessage(); // Move this here
           });
         } else {
           console.error('No questions found for quiz with ID:', quizId);
