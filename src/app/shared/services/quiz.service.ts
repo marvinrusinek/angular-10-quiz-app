@@ -950,7 +950,7 @@ export class QuizService implements OnDestroy {
     console.log('Correct Answers:::>>>', this.correctAnswersSubject.getValue());
   } */
 
-  setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): void {
+  /* setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): void {
     if (!correctAnswerOptions || correctAnswerOptions.length === 0) {     
       this.correctMessage = 'The correct answers are not available yet.....';
       return;
@@ -970,7 +970,7 @@ export class QuizService implements OnDestroy {
     const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
     this.correctMessage = `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
-  }
+  } */
   
   /* setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
     const correctOptionNumbers = options
