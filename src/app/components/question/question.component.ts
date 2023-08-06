@@ -512,6 +512,7 @@ export class QuizQuestionComponent
                 if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
                   this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions).subscribe(() => {
                     this.correctAnswers = this.quizService.correctAnswers.get(data.questionText);
+                    console.log('Current Correct Answers:', this.correctAnswers); // Add this log
                     this.updateCorrectMessage(this.correctAnswers);
                     this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
                       console.log('After fetchCorrectAnswersText...');
@@ -521,6 +522,7 @@ export class QuizQuestionComponent
                   });
                 } else {
                   this.correctAnswers = currentCorrectAnswers;
+                  console.log('Current Correct Answers:', this.correctAnswers); // Add this log
                   this.updateCorrectMessage(this.correctAnswers);
                   this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
                     console.log('After fetchCorrectAnswersText...');
@@ -550,8 +552,13 @@ export class QuizQuestionComponent
         console.log('Subscription complete handler');
       }
     );
+  
+    this.quizService.correctMessage$.subscribe((message) => {
+      console.log('Correct Message Updated:', message);
+      this.correctMessage = message;
+    });
   }
-                
+                  
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
@@ -782,8 +789,10 @@ export class QuizQuestionComponent
   }
   
   setCorrectMessage(): void {
-    this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
-    console.log("", this.correctMessage);
+    if (this.correctAnswers && this.currentOptions) {
+      this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
+      console.log("MY CORR MSG:::>>>", this.correctMessage);
+    }
   }
   
   private subscribeToCorrectAnswers(): void {
