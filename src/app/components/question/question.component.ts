@@ -782,6 +782,7 @@ export class QuizQuestionComponent
   
   setCorrectMessage(): void {
     this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
+    console.log("", this.correctMessage);
   }
   
   private subscribeToCorrectAnswers(): void {
