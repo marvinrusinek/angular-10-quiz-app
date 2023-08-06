@@ -230,7 +230,7 @@ export class CodelabQuizContentComponent {
     );
   }
 
-  private initializeCombinedQuestionData(): void {
+  /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
@@ -256,7 +256,49 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$.subscribe((data) => {
       console.log('Combined Question Data:::>>>>>', data);
     });
+  } */
+
+  private initializeCombinedQuestionData(): void {
+    const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
+      withLatestFrom(this.currentOptions$),
+      map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
+    );
+  
+    this.combinedQuestionData$ = combineLatest([
+      this.explanationText$,
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$
+    ]).pipe(
+      tap(data => console.log('Combined Question Data:', data)),
+      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
+        const questionText = this.getQuestionText(currentQuestion, this.questions);
+  
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
+  
+        let correctAnswersText = '';
+        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+        }
+  
+        const displayText = explanationText || questionText; // Choose explanation or question
+  
+        return { displayText, explanationText, correctAnswersText, currentOptions };
+      })
+    );
+  
+    this.combinedQuestionData$.subscribe((data) => {
+      console.log('Combined Question Data:::>>>>>', data);
+    });
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
    
   getQuestionText(
     currentQuestion: QuizQuestion,

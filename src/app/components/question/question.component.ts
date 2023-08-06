@@ -791,10 +791,11 @@ export class QuizQuestionComponent
   }
   
   setCorrectMessage(): void {
-    if (this.correctAnswers && this.currentOptions) {
-      this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
+    // if (this.correctAnswers && this.currentOptions) {
+      this.correctMessage = this.quizService.setCorrectMessage(this.currentQuestion.options, this.currentOptions);
+      // this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
       console.log("MY CORR MSG:::>>>", this.correctMessage);
-    }
+    // }
   }
   
   private subscribeToCorrectAnswers(): void {
