@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, Subject, Subscription, zip } from 'rxjs';
 import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -478,8 +478,6 @@ export class QuizQuestionComponent
   private loadQuestionsForQuiz(quizId: string): void {
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
-    
-   
     console.log('CQI:::>>>', this.currentQuestionIndex);
   
     this.quizDataService.getQuestionsForQuiz(quizId).pipe(
@@ -495,6 +493,14 @@ export class QuizQuestionComponent
           } else {
             this.correctAnswers = currentCorrectAnswers;
             this.updateCorrectMessage(this.correctAnswers);
+          }
+  
+          // Fetch the correct answers text or update it with the correct message
+          this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
+            console.log('After fetchCorrectAnswersText...');
+            console.log('MY CORR MSG:', this.correctMessage);
+            this.updateQuestionForm();
+            this.setCorrectMessage(); // Move this here
           });
         } else {
           console.error('No questions found for quiz with ID:', quizId);
@@ -550,7 +556,7 @@ export class QuizQuestionComponent
       }
     );
   }
-          
+        
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
