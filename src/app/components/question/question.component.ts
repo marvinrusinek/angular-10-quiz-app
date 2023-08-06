@@ -953,6 +953,15 @@ export class QuizQuestionComponent
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
+
+    const explanationText = this.getExplanationForQuestion(this.question);
+
+    this.combinedQuestionData$.next({
+      questionText: this.questionText,
+      explanationText: explanationText, // Set the explanationText here
+      correctAnswersText: this.correctAnswersText,
+      currentOptions: this.currentOptions,
+    });
   
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)

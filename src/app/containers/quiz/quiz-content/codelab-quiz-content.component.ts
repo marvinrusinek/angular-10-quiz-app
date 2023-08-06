@@ -300,6 +300,7 @@ export class CodelabQuizContentComponent {
   
   
   
+  
    
   getQuestionText(
     currentQuestion: QuizQuestion,

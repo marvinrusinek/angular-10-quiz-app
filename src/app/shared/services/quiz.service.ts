@@ -326,6 +326,10 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
+  getExplanationFromApi(question: string): Observable<string> {
+    return this.http.get<string>(`${this.quizUrl}?question=${encodeURIComponent(question)}`);
+  }
+  
   getResources(): QuizResource[] {
     return this.quizResources;
   }
