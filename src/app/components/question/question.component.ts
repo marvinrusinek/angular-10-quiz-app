@@ -93,10 +93,11 @@ export class QuizQuestionComponent
     new BehaviorSubject<QuizQuestion | null>(null);
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
   currentQuestionLoaded = false;
-  currentOptions: Option[];
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
-  correctAnswers: number[] = [];
+  currentOptions: Option[] | undefined;
+  // correctAnswers: number[] | undefined;
+  correctAnswers: Option[] | undefined;
   correctMessage: string;
   alreadyAnswered = false;
   optionChecked: { [optionId: number]: boolean } = {};

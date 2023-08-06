@@ -1001,11 +1001,19 @@ export class QuizService implements OnDestroy {
   
   
   setCorrectAnswerOptions(optionIds: number[]) {
+    const correctAnswerOptions = this.convertToOptions(optionIds);
     this.correctAnswerOptions = optionIds;
-  }
+    this.setCorrectAnswers(this.currentQuestion.questionText, correctAnswerOptions);
+  }  
 
   setCorrectAnswersLoaded(loaded: boolean): void {
     this.correctAnswersLoadedSubject.next(loaded);
+  }
+
+  private convertToOptions(optionIds: number[]): Option[] {
+    return optionIds.map((optionId) => {
+      return { optionId, text: '' } as Option; // Replace '' with the actual text property if available
+    });
   }
 
   setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): string {
