@@ -490,6 +490,8 @@ export class QuizQuestionComponent
           // Fetch the correct answers if they are not already available
           const currentCorrectAnswers = this.quizService.correctAnswers.get(this.currentQuestion.questionText);
           if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+            console.log('Correct Answers:::>>>', this.correctAnswers);
+            console.log('Current Options:::>>>', this.currentOptions);
             this.quizService.setCorrectAnswers(this.currentQuestion, this.currentQuestion.options);
           }
         } else {

@@ -1017,6 +1017,8 @@ export class QuizService implements OnDestroy {
   }
 
   setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): string {
+    console.log('Correct Answer Options:::>>>', correctAnswerOptions);
+    console.log('Current Options:::>>>', currentOptions);
     if (!correctAnswerOptions || correctAnswerOptions.length === 0) {
       return 'The correct answers are not available yet.';
     }
