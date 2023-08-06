@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, Subject, Subscription, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -556,7 +556,7 @@ export class QuizQuestionComponent
       }
     );
   }
-        
+          
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
