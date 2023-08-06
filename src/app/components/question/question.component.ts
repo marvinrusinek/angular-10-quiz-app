@@ -489,19 +489,23 @@ export class QuizQuestionComponent
           // Fetch the correct answers if they are not already available
           const currentCorrectAnswers = this.quizService.correctAnswers.get(this.currentQuestion.questionText);
           if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-            this.quizService.setCorrectAnswers(this.currentQuestion, this.currentQuestion.options);
+            this.quizService.setCorrectAnswers(this.currentQuestion, this.currentQuestion.options).subscribe(() => {
+              this.updateCorrectMessage(this.quizService.correctAnswers.get(this.currentQuestion.questionText));
+              this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
+                console.log('After fetchCorrectAnswersText...');
+                console.log('MY CORR MSG:', this.correctMessage);
+                this.updateQuestionForm();
+              });
+            });
           } else {
             this.correctAnswers = currentCorrectAnswers;
             this.updateCorrectMessage(this.correctAnswers);
+            this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
+              console.log('After fetchCorrectAnswersText...');
+              console.log('MY CORR MSG:', this.correctMessage);
+              this.updateQuestionForm();
+            });
           }
-  
-          // Fetch the correct answers text or update it with the correct message
-          this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
-            console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG:', this.correctMessage);
-            this.updateQuestionForm();
-            this.setCorrectMessage(); // Move this here
-          });
         } else {
           console.error('No questions found for quiz with ID:', quizId);
         }
@@ -531,7 +535,6 @@ export class QuizQuestionComponent
                   console.log('After fetchCorrectAnswersText...');
                   console.log('MY CORR MSG:', this.correctMessage);
                   this.updateQuestionForm();
-                  this.setCorrectMessage(); // Move this here
                 });
               } else {
                 console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
@@ -556,7 +559,7 @@ export class QuizQuestionComponent
       }
     );
   }
-        
+            
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(
