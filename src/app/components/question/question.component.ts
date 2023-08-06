@@ -489,22 +489,7 @@ export class QuizQuestionComponent
           // Fetch the correct answers if they are not already available
           const currentCorrectAnswers = this.quizService.correctAnswers.get(this.currentQuestion.questionText);
           if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-            this.quizService.setCorrectAnswers(this.currentQuestion, this.currentQuestion.options).subscribe(() => {
-              this.updateCorrectMessage(this.quizService.correctAnswers.get(this.currentQuestion.questionText));
-              this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
-                console.log('After fetchCorrectAnswersText...');
-                console.log('MY CORR MSG:', this.correctMessage);
-                this.updateQuestionForm();
-              });
-            });
-          } else {
-            this.correctAnswers = currentCorrectAnswers;
-            this.updateCorrectMessage(this.correctAnswers);
-            this.fetchCorrectAnswersText(this.currentQuestion, this.currentQuestion.options).then(() => {
-              console.log('After fetchCorrectAnswersText...');
-              console.log('MY CORR MSG:', this.correctMessage);
-              this.updateQuestionForm();
-            });
+            this.quizService.setCorrectAnswers(this.currentQuestion, this.currentQuestion.options);
           }
         } else {
           console.error('No questions found for quiz with ID:', quizId);
@@ -524,18 +509,24 @@ export class QuizQuestionComponent
                 // Fetch the correct answers if they are not already available
                 const currentCorrectAnswers = this.quizService.correctAnswers.get(data.questionText);
                 if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-                  this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions);
+                  this.quizService.setCorrectAnswers(this.currentQuestion, data.currentOptions).subscribe(() => {
+                    this.correctAnswers = this.quizService.correctAnswers.get(data.questionText);
+                    this.updateCorrectMessage(this.correctAnswers);
+                    this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
+                      console.log('After fetchCorrectAnswersText...');
+                      console.log('MY CORR MSG:', this.correctMessage);
+                      this.updateQuestionForm();
+                    });
+                  });
                 } else {
                   this.correctAnswers = currentCorrectAnswers;
                   this.updateCorrectMessage(this.correctAnswers);
+                  this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
+                    console.log('After fetchCorrectAnswersText...');
+                    console.log('MY CORR MSG:', this.correctMessage);
+                    this.updateQuestionForm();
+                  });
                 }
-  
-                // Fetch the correct answers text or update it with the correct message
-                this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
-                  console.log('After fetchCorrectAnswersText...');
-                  console.log('MY CORR MSG:', this.correctMessage);
-                  this.updateQuestionForm();
-                });
               } else {
                 console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
                 this.correctMessage = 'The correct answers are not available yet.....';
@@ -558,8 +549,13 @@ export class QuizQuestionComponent
         console.log('Subscription complete handler');
       }
     );
+
+    this.quizService.correctMessage$.subscribe((message) => {
+      console.log('Correct Message Updated:', message);
+      this.correctMessage = message;
+    });
   }
-            
+              
   async loadCurrentQuestion(): Promise<void> {
     console.log('LCQ');
     console.log(

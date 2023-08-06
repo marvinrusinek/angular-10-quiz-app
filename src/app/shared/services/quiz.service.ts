@@ -950,7 +950,27 @@ export class QuizService implements OnDestroy {
     console.log('Correct Answers:::>>>', this.correctAnswersSubject.getValue());
   } */
 
-  setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
+  setCorrectAnswers(question: QuizQuestion, options: Option[]): Promise<Option[]> {
+    return new Promise<Option[]>((resolve) => {
+      const correctOptionNumbers = options
+      .filter((option) => option.correct)
+      .map((option) => option.optionId);
+  
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.set(question.questionText, correctOptionNumbers);
+        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
+
+        // Emit the correct answers loaded status
+        this.correctAnswersLoadedSubject.next(true);
+      }
+
+      const correctAnswerIds = Array.from(this.correctAnswers.values()).flat();
+      const correctAnswerOptions = options.filter((option) => correctAnswerIds.includes(option.optionId));
+      resolve(correctAnswerOptions);
+    });
+  }
+
+  /* setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
     const correctOptionNumbers = options
       .filter((option) => option.correct)
       .map((option) => option.optionId);
@@ -962,7 +982,7 @@ export class QuizService implements OnDestroy {
       // Emit the correct answers loaded status
       this.correctAnswersLoadedSubject.next(true);
     }
-  }  
+  } */
 
   private fetchCorrectAnswers(): void {
     // Assuming you have fetched the quiz questions and stored them in this.questions
