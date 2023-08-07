@@ -1042,6 +1042,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(
         'Please click the next button to continue...'
       );
+      // Log the currentQuestion object
+      console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
       this.quizQuestionManagerService.setExplanationText(
         this.currentQuestion?.explanation || null
       );
