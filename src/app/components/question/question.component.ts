@@ -107,7 +107,7 @@ export class QuizQuestionComponent
   prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  explanationText$: BehaviorSubject<string> = new BehaviorSubject('');
+  explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
   isChangeDetected = false;
