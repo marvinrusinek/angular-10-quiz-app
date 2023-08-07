@@ -327,6 +327,7 @@ export class QuizService implements OnDestroy {
   }
 
   getExplanationForQuestion(question: QuizQuestion): Observable<string> {
+    console.log('Fetching explanation for question:', question);
     const questionText = question.questionText;
 
     // Construct the API URL with the questionText parameter
