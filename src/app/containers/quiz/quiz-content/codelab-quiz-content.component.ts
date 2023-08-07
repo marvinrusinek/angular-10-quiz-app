@@ -284,7 +284,8 @@ export class CodelabQuizContentComponent {
         }
   
         const displayText = explanationText || questionText; // Choose explanation or question
-  
+        this.quizQuestionManagerService.setExplanationText(explanationText);
+        
         return { displayText, explanationText, correctAnswersText, currentOptions };
       })
     );
