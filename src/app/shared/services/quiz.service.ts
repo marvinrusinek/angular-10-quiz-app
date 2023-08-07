@@ -335,6 +335,14 @@ export class QuizService implements OnDestroy {
     // Make an HTTP GET request to the API to fetch the explanation text
     return this.http.get<string>(url);
   }
+
+  getCorrectAnswersAsString(): string {
+    // Convert the map to a comma-separated string
+    const correctAnswersString = Array.from(this.correctAnswers.values())
+      .map((answer) => answer.join(','))
+      .join(';');
+    return correctAnswersString;
+  }
   
   getResources(): QuizResource[] {
     return this.quizResources;
