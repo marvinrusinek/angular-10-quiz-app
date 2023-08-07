@@ -958,7 +958,7 @@ export class QuizQuestionComponent
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
         this.explanationText$.next(explanationText);
-        // this.explanationTextValue$.next(explanationText);
+        this.explanationTextValue$.next(explanationText);
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
         this.updateFeedbackVisibility();
