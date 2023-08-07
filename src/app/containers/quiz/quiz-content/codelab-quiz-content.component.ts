@@ -48,7 +48,7 @@ export class CodelabQuizContentComponent {
     explanationText?: string;
     correctAnswersText?: string;
     currentOptions: Option[];
-  }>;
+  }> | null = null;
 
   currentDisplayText: string = '';
 
@@ -108,6 +108,21 @@ export class CodelabQuizContentComponent {
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
+  }
+
+  onOptionSelected(option: Option): void {
+    // this.quizQuestionManagerService.setSelectedOption(option);
+    const currentQuestion = this.quizQuestionManagerService.getCurrentQuestion();
+    if (currentQuestion) {
+      const selectedOption = currentQuestion.options.find((opt) => opt.id === option.optionId);
+      if (selectedOption) {
+        this.quizQuestionManagerService.setExplanationText(selectedOption.explanation || null);
+      }
+    }
+  }
+
+  updateExplanationTextForSelectedOption(): void {
+    this.quizQuestionManagerService.updateExplanationTextForSelectedOption();
   }
 
   private initializeQuestionData(): void {
@@ -230,6 +245,7 @@ export class CodelabQuizContentComponent {
     this.explanationTextSubscription = this.explanationText$.subscribe(
       (explanationText) => {
         const displayed = !!explanationText;
+        this.quizQuestionManagerService.setExplanationText(explanationText);
         this.quizQuestionManagerService.setExplanationDisplayed(displayed);
       }
     );
@@ -292,10 +308,11 @@ export class CodelabQuizContentComponent {
     );
   
     this.combinedQuestionData$.subscribe((data) => {
-      this.currentDisplayText = data.questionText; // Set the current display text to the question text
       console.log('Combined Question Data:::>>>>>', data);
     });
   }
+  
+  
   
      
   getQuestionText(

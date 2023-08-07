@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'; 
-
 import { BehaviorSubject } from 'rxjs';
 
+import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model'; 
 
 @Injectable({
@@ -16,8 +16,29 @@ export class QuizQuestionManagerService {
   shouldDisplayExplanation: boolean = false;
   correctAnswersCount: number = 0;
 
+  selectedOption: Option | null = null;
+  explanationTextForSelectedOption: string | null = null;
+
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+
+  setSelectedOption(option: Option | null): void {
+    this.selectedOption = option;
+    this.updateExplanationTextForSelectedOption();
+  }
+
+  updateExplanationTextForSelectedOption(): void {
+    const currentQuestion = this.currentQuestion.getValue();
+    this.explanationTextForSelectedOption = currentQuestion?.explanation || null;
+  }
+
+  getSelectedOption(): Option | null {
+    return this.selectedOption;
+  }
+
+  getExplanationTextForSelectedOption(): string | null {
+    return this.explanationTextForSelectedOption;
+  }
 
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion.next(question);
@@ -38,8 +59,8 @@ export class QuizQuestionManagerService {
    }
 
   getExplanationText(): string | null {
-    // return this.explanationText;
-    return this.explanationTextSubject.getValue();
+    return this.explanationText;
+    // return this.explanationTextSubject.getValue();
   }
 
   setExplanationDisplayed(displayed: boolean): void {
