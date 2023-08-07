@@ -954,15 +954,6 @@ export class QuizQuestionComponent
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
 
-    const explanationText = this.getExplanationForQuestion(this.question);
-
-    this.combinedQuestionData$.next({
-      questionText: this.questionText,
-      explanationText: explanationText, // Set the explanationText here
-      correctAnswersText: this.correctAnswersText,
-      currentOptions: this.currentOptions,
-    });
-  
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
@@ -978,6 +969,35 @@ export class QuizQuestionComponent
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
+
+    // Fetch the explanation text for the selected option
+    const explanationText = this.getExplanationForQuestion(this.question);
+
+    // Update the explanationText$ observable with the explanation text
+    this.explanationText$.next(explanationText);
+
+    // Combine the question data and emit the updated combinedQuestionData$
+    this.combinedQuestionData$.next({
+      questionText: this.questionText,
+      explanationText: explanationText,
+      correctAnswersText: this.correctAnswersText,
+      currentOptions: this.currentOptions,
+    });
+  }
+
+  getExplanationForQuestion(question: string): string {
+    const explanation$ = this.quizService.getExplanationForQuestion(question);
+  
+    explanation$.subscribe(
+      (explanationText: string) => {
+        this.explanationText$.next(explanationText);
+      },
+      (error: any) => {
+        console.error('Error fetching explanation text:', error);
+      }
+    );
+  
+    return ''; // Placeholder return, update it with the actual fetched explanation text
   }
   
   updateFeedbackVisibility(): void {

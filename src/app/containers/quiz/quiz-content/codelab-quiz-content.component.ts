@@ -281,9 +281,10 @@ export class CodelabQuizContentComponent {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
   
-        const displayText = explanationText || questionText; // Choose explanation or question
+        // Choose explanation or question based on whether explanationText exists
+        const displayText = explanationText || questionText;
   
-        return { displayText, explanationText, correctAnswersText, currentOptions };
+        return { questionText, displayText, explanationText, correctAnswersText, currentOptions };
       })
     );
   
@@ -291,17 +292,7 @@ export class CodelabQuizContentComponent {
       console.log('Combined Question Data:::>>>>>', data);
     });
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-   
+     
   getQuestionText(
     currentQuestion: QuizQuestion,
     questions: QuizQuestion[]
