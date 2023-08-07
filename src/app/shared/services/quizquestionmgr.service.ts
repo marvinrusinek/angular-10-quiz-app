@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'; 
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model'; 
@@ -52,15 +52,19 @@ export class QuizQuestionManagerService {
     return this.currentQuestion;
   }
 
-  setExplanationText(text: string): void {
-    this.explanationTextSubject.next(text);
+  setExplanationText(explanation: string): void {
+    this.explanationTextSubject.next(explanation);
     // this.explanationText = text;
-    this.shouldDisplayExplanation = !!text;
+    this.shouldDisplayExplanation = !!explanation;
    }
 
   getExplanationText(): string | null {
     return this.explanationText;
     // return this.explanationTextSubject.getValue();
+  }
+
+  get explanationText$(): Observable<string | null> {
+    return this.explanationTextSubject.asObservable();
   }
 
   setExplanationDisplayed(displayed: boolean): void {

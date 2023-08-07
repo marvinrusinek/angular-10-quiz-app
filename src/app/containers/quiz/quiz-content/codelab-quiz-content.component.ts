@@ -102,6 +102,11 @@ export class CodelabQuizContentComponent {
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
     });
+
+    this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
+      // Update currentDisplayText to display either question text or explanation text
+      this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
+    });
       
     console.log('CodelabQuizCpComponent - Question:', this.question);
     console.log('CodelabQuizCpComponent - Options:', this.options);
