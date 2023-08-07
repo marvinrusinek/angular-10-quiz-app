@@ -1065,6 +1065,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
         this.updateFeedbackVisibility();
+
+        this.combinedQuestionData$.next({
+          questionText: this.currentQuestion.questionText,
+          explanationText: explanationText,
+          correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+          currentOptions: this.currentOptions
+        });
       });
 
     // Emit updated selection
@@ -1074,22 +1081,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Fetch the explanation text for the selected option
-    const explanationText = this.getExplanationForQuestion(this.question);
-    console.log('Fetched explanation for question:', this.question);
-    console.log('Explanation text:', explanationText);
-
-    // Update the explanationText$ observable with the explanation text
-    this.explanationText$.next(explanationText);
-
-    const correctAnswersText = this.quizService.getCorrectAnswersAsString();
-
-    // Combine the question data and emit the updated combinedQuestionData$
-    this.combinedQuestionData$.next({
-      questionText: this.currentQuestion.questionText,
-      explanationText: explanationText,
-      correctAnswersText: correctAnswersText,
-      currentOptions: this.currentOptions,
-    });
+    // const explanationText = this.getExplanationForQuestion(this.question);
   }
 
   getExplanationForQuestion(question: QuizQuestion): string {

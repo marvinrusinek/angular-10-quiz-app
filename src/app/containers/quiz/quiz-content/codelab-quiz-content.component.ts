@@ -266,7 +266,7 @@ export class CodelabQuizContentComponent {
     );
   
     this.combinedQuestionData$ = combineLatest([
-      this.explanationText$, // Ensure that explanationText$ is set correctly
+      this.explanationText$,
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$
     ]).pipe(
