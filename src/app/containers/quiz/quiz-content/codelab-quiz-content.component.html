@@ -1,4 +1,4 @@
-<!--<ng-container *ngIf="(combinedQuestionData$ | async) as data">
+<ng-container *ngIf="(combinedQuestionData$ | async) as data">
   <section id="question" *ngIf="data?.questionText || data?.correctAnswersText">
     <h3 question-content>
       <ng-container *ngIf="data?.questionText as question">
@@ -10,9 +10,9 @@
       </ng-container>
     </h3>
   </section>
-</ng-container>-->
+</ng-container>
 
-<ng-container *ngIf="(combinedQuestionData$ | async) as data">
+<!--<ng-container *ngIf="(combinedQuestionData$ | async) as data">
 <section id="question" *ngIf="data?.displayText || data?.correctAnswersText">
   <h3 question-content>
     <ng-container *ngIf="data?.displayText; else questionBlock">
@@ -30,10 +30,7 @@
     </ng-container>
   </h3>
 </section>
-</ng-container>
-
-
-
+</ng-container>-->
 
 <!--<ng-container *ngIf="(combinedQuestionData$ | async) as data">
   <section id="question" *ngIf="data?.displayText || data?.correctAnswersText">
