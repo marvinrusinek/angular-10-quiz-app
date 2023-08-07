@@ -50,6 +50,8 @@ export class CodelabQuizContentComponent {
     currentOptions: Option[];
   }>;
 
+  currentDisplayText: string = '';
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -284,13 +286,13 @@ export class CodelabQuizContentComponent {
         }
   
         const displayText = explanationText || questionText; // Choose explanation or question
-        this.quizQuestionManagerService.setExplanationText(explanationText);
-        
-        return { displayText, explanationText, correctAnswersText, currentOptions };
+  
+        return { questionText: displayText, explanationText, correctAnswersText, currentOptions };
       })
     );
   
     this.combinedQuestionData$.subscribe((data) => {
+      this.currentDisplayText = data.questionText; // Set the current display text to the question text
       console.log('Combined Question Data:::>>>>>', data);
     });
   }
