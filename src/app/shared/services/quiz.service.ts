@@ -326,8 +326,14 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
-  getExplanationFromApi(question: QuizQuestion): Observable<string> {
-    return this.http.get<string>(`${this.quizUrl}?question=${encodeURIComponent(question)}`);
+  getExplanationForQuestion(question: QuizQuestion): Observable<string> {
+    const questionText = question.questionText;
+
+    // Construct the API URL with the questionText parameter
+    const url = `${this.quizUrl}/explanation?question=${encodeURIComponent(questionText)}`;
+
+    // Make an HTTP GET request to the API to fetch the explanation text
+    return this.http.get<string>(url);
   }
   
   getResources(): QuizResource[] {
