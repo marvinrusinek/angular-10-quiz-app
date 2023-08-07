@@ -98,6 +98,10 @@ export class CodelabQuizContentComponent {
         return [];
       })
     );
+
+    this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
+      this.currentQuestion = question;
+    });
       
     console.log('CodelabQuizCpComponent - Question:', this.question);
     console.log('CodelabQuizCpComponent - Options:', this.options);
