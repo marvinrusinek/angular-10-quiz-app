@@ -985,8 +985,8 @@ export class QuizQuestionComponent
     });
   }
 
-  getExplanationForQuestion(question: string): string {
-    const explanation$ = this.quizService.getExplanationForQuestion(question);
+  getExplanationForQuestion(question: QuizQuestion): string {
+    const explanation$ = this.quizService.getExplanationFromApi(question);
   
     explanation$.subscribe(
       (explanationText: string) => {
