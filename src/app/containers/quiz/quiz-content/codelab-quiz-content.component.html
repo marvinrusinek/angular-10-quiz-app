@@ -12,6 +12,45 @@
   </section>
 </ng-container>
 
+<!--<ng-container *ngIf="(combinedQuestionData$ | async) as data">
+  <section id="question">
+    <h3 question-content>
+      <ng-container *ngIf="!showExplanation; else explanationSection">
+        <span>{{ data?.questionText }}</span>
+      </ng-container>
+      <ng-template #explanationSection>
+        <span>{{ explanationText }}</span>
+      </ng-template>
+    </h3>
+    <ng-container *ngIf="data?.correctAnswersText">
+      <span class="number-correct">{{ data?.correctAnswersText }}</span>
+    </ng-container>
+  </section>
+</ng-container>-->
+
+<ng-container *ngIf="currentDisplayText">
+  <section id="question" *ngIf="currentDisplayText?.questionText || currentDisplayText?.correctAnswersText">
+    <h3 question-content>
+      <ng-container *ngIf="currentDisplayText?.questionText as question">
+        <span>{{ question }} </span>
+      </ng-container>
+
+      <ng-container *ngIf="currentDisplayText?.correctAnswersText">
+        <span class="number-correct">{{ currentDisplayText?.correctAnswersText }}</span>
+      </ng-container>
+    </h3>
+  </section>
+
+  <div *ngIf="currentDisplayText?.explanationText">
+    <!-- Display the explanation text -->
+    <p>{{ currentDisplayText?.explanationText }}</p>
+  </div>
+</ng-container>
+
+
+
+
+
 
 
 <!--<ng-container *ngIf="(combinedQuestionData$ | async) as data">

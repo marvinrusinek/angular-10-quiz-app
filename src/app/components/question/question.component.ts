@@ -1036,6 +1036,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(
       this.currentQuestion?.explanation || null
     );
+    this.quizQuestionManagerService.setSelectedOption(option);
 
     if (!isOptionSelected) {
       this.selectedOptions = [option];

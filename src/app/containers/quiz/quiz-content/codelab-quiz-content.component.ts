@@ -43,7 +43,7 @@ export class CodelabQuizContentComponent {
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
 
-  @Input() combinedQuestionData$!: Observable<{
+  @Input() combinedQuestionData$: Observable<{
     questionText: string;
     explanationText?: string;
     correctAnswersText?: string;
@@ -51,6 +51,7 @@ export class CodelabQuizContentComponent {
   }> | null = null;
 
   currentDisplayText: string = '';
+  showExplanation: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -111,14 +112,22 @@ export class CodelabQuizContentComponent {
   }
 
   onOptionSelected(option: Option): void {
-    // this.quizQuestionManagerService.setSelectedOption(option);
     const currentQuestion = this.quizQuestionManagerService.getCurrentQuestion();
     if (currentQuestion) {
       const selectedOption = currentQuestion.options.find((opt) => opt.id === option.optionId);
       if (selectedOption) {
         this.quizQuestionManagerService.setExplanationText(selectedOption.explanation || null);
+        this.currentDisplayText = selectedOption.explanation || currentQuestion.questionText;
       }
     }
+  }
+
+  onOptionClicked(option: Option): void {
+    // Your existing code in the onOptionClicked method
+
+    this.showExplanation = true; // Set showExplanation to true to display the explanation text
+
+    // Your other existing code
   }
 
   updateExplanationTextForSelectedOption(): void {
@@ -290,7 +299,6 @@ export class CodelabQuizContentComponent {
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$
     ]).pipe(
-      tap(data => console.log('Combined Question Data:::', data)),
       map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
   
@@ -308,12 +316,10 @@ export class CodelabQuizContentComponent {
     );
   
     this.combinedQuestionData$.subscribe((data) => {
+      this.currentDisplayText = data.questionText; // Set the current display text to the question text
       console.log('Combined Question Data:::>>>>>', data);
     });
   }
-  
-  
-  
      
   getQuestionText(
     currentQuestion: QuizQuestion,
