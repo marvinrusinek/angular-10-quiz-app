@@ -1075,6 +1075,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Fetch the explanation text for the selected option
     const explanationText = this.getExplanationForQuestion(this.question);
+    console.log('Fetched explanation for question:', this.question);
+    console.log('Explanation text:', explanationText);
 
     // Update the explanationText$ observable with the explanation text
     this.explanationText$.next(explanationText);

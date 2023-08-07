@@ -266,11 +266,10 @@ export class CodelabQuizContentComponent {
     );
   
     this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
+      this.explanationText$, // Ensure that explanationText$ is set correctly
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$
     ]).pipe(
-      tap(data => console.log('Combined Question Data:', data)),
       map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
   
