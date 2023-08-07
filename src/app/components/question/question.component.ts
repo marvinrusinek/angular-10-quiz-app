@@ -38,6 +38,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
+import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -167,6 +168,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
     protected quizStateService: QuizStateService,
+    protected quizQuestionManagerService: QuizQuestionManagerService,
     protected explanationTextService: ExplanationTextService,
     protected selectionMessageService: SelectionMessageService,
     protected timerService: TimerService,
@@ -178,6 +180,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+    this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
     this.selectionMessageService = selectionMessageService;
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
@@ -1029,6 +1032,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onOptionClicked(option: Option): void {
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
+
+    this.quizQuestionManagerService.setExplanationText(option?.explanation || null);
 
     if (!isOptionSelected) {
       this.selectedOptions = [option];
