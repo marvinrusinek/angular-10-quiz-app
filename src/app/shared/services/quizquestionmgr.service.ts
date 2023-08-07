@@ -16,8 +16,12 @@ export class QuizQuestionManagerService {
   shouldDisplayExplanation: boolean = false;
   correctAnswersCount: number = 0;
 
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion.next(question);
+    this.currentQuestionSubject.next(question);
     const currentQuestionValue = this.currentQuestion.getValue();
     this.numberOfCorrectAnswers = currentQuestionValue.options.filter(option => option.correct).length;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
@@ -28,12 +32,14 @@ export class QuizQuestionManagerService {
   }
 
   setExplanationText(text: string): void {
-    this.explanationText = text;
+    this.explanationTextSubject.next(text);
+    // this.explanationText = text;
     this.shouldDisplayExplanation = !!text;
    }
 
-  getExplanationText(): string {
-    return this.explanationText;
+  getExplanationText(): string | null {
+    // return this.explanationText;
+    return this.explanationTextSubject.getValue();
   }
 
   setExplanationDisplayed(displayed: boolean): void {
