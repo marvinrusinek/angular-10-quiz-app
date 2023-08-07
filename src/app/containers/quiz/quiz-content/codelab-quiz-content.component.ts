@@ -311,15 +311,16 @@ export class CodelabQuizContentComponent {
   
         const displayText = explanationText || questionText; // Choose explanation or question
   
-        return { questionText: displayText, explanationText, correctAnswersText, currentOptions };
+        return { questionText: questionText, explanationText, correctAnswersText, currentOptions };
       })
     );
   
     this.combinedQuestionData$.subscribe((data) => {
-      this.currentDisplayText = data.questionText; // Set the current display text to the question text
+      this.currentDisplayText = data; // Set the current display text to the data object
       console.log('Combined Question Data:::>>>>>', data);
     });
   }
+  
      
   getQuestionText(
     currentQuestion: QuizQuestion,

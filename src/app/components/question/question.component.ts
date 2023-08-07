@@ -1033,12 +1033,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
 
-    this.quizQuestionManagerService.setExplanationText(
-      this.currentQuestion?.explanation || null
-    );
-    this.quizQuestionManagerService.setSelectedOption(option);
-
-    if (!isOptionSelected) {
+   if (!isOptionSelected) {
       this.selectedOptions = [option];
       // this.optionChecked = { [option.optionId]: true };
       this.showFeedbackForOption = { [option.optionId]: true }; // show feedback for the selected option
@@ -1047,6 +1042,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(
         'Please click the next button to continue...'
       );
+      this.quizQuestionManagerService.setExplanationText(
+        this.currentQuestion?.explanation || null
+      );
+      this.quizQuestionManagerService.setSelectedOption(option);
     } else {
       this.selectedOptions = [];
       this.optionChecked = {};
@@ -1056,6 +1055,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.selectionMessageService.updateSelectionMessage(
         'Please select an option to continue...'
       );
+      this.quizQuestionManagerService.setExplanationText(null);
     }
 
     this.optionClicked.emit();
