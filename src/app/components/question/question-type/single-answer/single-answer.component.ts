@@ -17,6 +17,7 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
+import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { TimerService } from '../../../../shared/services/timer.service';
@@ -49,6 +50,7 @@ export class SingleAnswerComponent
     quizService: QuizService,
     quizDataService: QuizDataService,
     quizStateService: QuizStateService,
+    quizQuestionManagerService: QuizQuestionManagerService,
     explanationTextService: ExplanationTextService,
     selectionMessageService: SelectionMessageService,
     timerService: TimerService,
@@ -61,6 +63,7 @@ export class SingleAnswerComponent
       quizService,
       quizDataService,
       quizStateService,
+      quizQuestionManagerService,
       explanationTextService,
       selectionMessageService,
       timerService,
@@ -72,6 +75,7 @@ export class SingleAnswerComponent
     this.quizService = quizService;
     this.quizDataService = quizDataService;
     this.quizStateService = quizStateService;
+    this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
     this.selectionMessageService = selectionMessageService;
   }
