@@ -272,6 +272,7 @@ export class CodelabQuizContentComponent {
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$
     ]).pipe(
+      tap(data => console.log('Combined Question Data:::', data)),
       map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
   
@@ -292,6 +293,7 @@ export class CodelabQuizContentComponent {
       console.log('Combined Question Data:::>>>>>', data);
     });
   }
+  
      
   getQuestionText(
     currentQuestion: QuizQuestion,
