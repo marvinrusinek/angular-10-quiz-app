@@ -281,10 +281,9 @@ export class CodelabQuizContentComponent {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
   
-        // Choose explanation or question based on whether explanationText exists
-        const displayText = explanationText || questionText;
+        const displayText = explanationText || questionText; // Choose explanation or question
   
-        return { questionText, displayText, explanationText, correctAnswersText, currentOptions };
+        return { displayText, explanationText, correctAnswersText, currentOptions };
       })
     );
   
