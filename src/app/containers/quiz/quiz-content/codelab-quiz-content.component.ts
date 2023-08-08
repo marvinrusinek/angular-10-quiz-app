@@ -334,10 +334,16 @@ export class CodelabQuizContentComponent {
       const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
     
-      if (data.explanationText) {
+      if (data.explanationText !== undefined) {
+        console.log('Updating currentDisplayText with explanation...');
         this.currentDisplayText = data.explanationText;
-      } else {
+        this.cdRef.detectChanges();
+      } else if (data.questionText !== undefined) {
+        console.log('Updating currentDisplayText with question...');
         this.currentDisplayText = `${data.questionText} ${correctAnswersText}`;
+        this.cdRef.detectChanges();
+      } else {
+        console.log('Explanation and question text are both undefined');
       }
     });
   }
