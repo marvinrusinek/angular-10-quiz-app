@@ -109,6 +109,8 @@ export class CodelabQuizContentComponent {
   
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
+
+      console.log('Current Question Value:::', this.currentQuestion.value);
   
       // Set the initial value of currentDisplayText to question text
       this.currentDisplayText = this.currentQuestion?.value?.questionText || '';
@@ -116,6 +118,7 @@ export class CodelabQuizContentComponent {
   
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
       this.explanationText = explanationText;
+
       // Update the currentDisplayText to display either the explanation text or the question text
       this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
     });
