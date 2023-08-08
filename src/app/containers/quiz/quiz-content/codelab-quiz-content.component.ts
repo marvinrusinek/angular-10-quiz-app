@@ -125,7 +125,9 @@ export class CodelabQuizContentComponent {
       this.explanationText = explanationText;
 
       // Update the currentDisplayText to display either the explanation text or the question text
-      this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
+      // this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
+      this.currentDisplayText = explanationText || this.currentQuestion.getValue()?.questionText || '';
+
     });
 
     console.log('Current Question:', this.currentQuestion);
