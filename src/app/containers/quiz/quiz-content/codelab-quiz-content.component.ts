@@ -112,6 +112,7 @@ export class CodelabQuizContentComponent {
     });
   
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
+      console.log('Current Question Subscribed:', question);
       this.currentQuestion = question;
 
       console.log('Current Question Value:', this.currentQuestion.getValue());
@@ -126,6 +127,11 @@ export class CodelabQuizContentComponent {
       // Update the currentDisplayText to display either the explanation text or the question text
       this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
     });
+
+    console.log('Current Question:', this.currentQuestion);
+    console.log('Value:', this.currentQuestion?.value);
+    console.log('Value Question Text:', this.currentQuestion?.value?.questionText);
+
   
     console.log('CodelabQuizCpComponent - Question:', this.question);
     console.log('CodelabQuizCpComponent - Options:', this.options);

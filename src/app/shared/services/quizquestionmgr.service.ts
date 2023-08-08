@@ -43,7 +43,9 @@ export class QuizQuestionManagerService {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
+    console.log('Setting Current Question:', question);
     this.currentQuestion.next(question);
+    console.log('Current Question Value After Set:', this.currentQuestion.getValue());
     this.currentQuestionSubject.next(question);
     const currentQuestionValue = this.currentQuestion.getValue();
     this.numberOfCorrectAnswers = currentQuestionValue.options.filter(option => option.correct).length;
