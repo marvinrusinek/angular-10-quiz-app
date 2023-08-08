@@ -42,6 +42,7 @@ export class CodelabQuizContentComponent {
 
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
+  explanationText: string = '';
 
   @Input() combinedQuestionData$: Observable<{
     questionText: string;
@@ -111,7 +112,8 @@ export class CodelabQuizContentComponent {
     });
 
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
-      // Update currentDisplayText to display either question text or explanation text
+      this.explanationText = explanationText;
+      // Update the currentDisplayText to display either the explanation text or the question text
       this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
     });
       
@@ -133,7 +135,12 @@ export class CodelabQuizContentComponent {
       const selectedOption = currentQuestion.options.find((opt) => opt.id === option.optionId);
       if (selectedOption) {
         this.quizQuestionManagerService.setExplanationText(selectedOption.explanation || null);
-        this.currentDisplayText = selectedOption.explanation || currentQuestion.questionText;
+        // this.currentDisplayText = selectedOption.explanation || currentQuestion.questionText;
+
+        this.explanationText = currentQuestion.explanation || null;
+
+        // Update the currentDisplayText to display either the explanation text or the question text
+        this.currentDisplayText = this.explanationText || this.currentQuestion?.value?.questionText || '';
       }
     }
   }
