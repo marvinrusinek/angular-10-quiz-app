@@ -2,7 +2,7 @@
   <section id="question">
     <h3 question-content>
       <!--{{ currentDisplayText }}-->
-      {{ data.explanationText || data.questionText }}
+      {{ data?.explanationText || data?.questionText }}
       <span class="number-correct" *ngIf="data?.correctAnswersText">{{ data?.correctAnswersText }}</span>
     </h3>
   </section>
