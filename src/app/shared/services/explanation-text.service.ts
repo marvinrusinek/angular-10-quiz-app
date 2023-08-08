@@ -13,8 +13,7 @@ export class ExplanationTextService {
   constructor() {}
 
   getExplanationText$(): Observable<string | null> {
-    // return this.explanationText$.asObservable();
-    return this.explanationTextSubject.asObservable();
+    return this.explanationText$.asObservable();
   }
 
   setExplanationText(
