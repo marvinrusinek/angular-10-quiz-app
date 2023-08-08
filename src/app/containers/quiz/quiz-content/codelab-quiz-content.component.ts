@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, from, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -64,7 +64,8 @@ export class CodelabQuizContentComponent {
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -385,6 +386,7 @@ export class CodelabQuizContentComponent {
       if (data.questionText !== undefined) {
         console.log('Updating currentDisplayText...');
         this.currentDisplayText = `${data.questionText} ${correctAnswersText}`;
+        this.cdRef.detectChanges();
       } else {
         console.log('Question text is undefined');
       }
