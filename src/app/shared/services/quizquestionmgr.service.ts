@@ -22,6 +22,8 @@ export class QuizQuestionManagerService {
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
+  private currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+
   setSelectedOption(option: Option | null): void {
     this.selectedOption = option;
     this.updateExplanationTextForSelectedOption();
@@ -65,6 +67,10 @@ export class QuizQuestionManagerService {
 
   get explanationText$(): Observable<string | null> {
     return this.explanationTextSubject.asObservable();
+  }
+
+  getCurrentQuestion$(): Observable<QuizQuestion | null> {
+    return this.currentQuestion$.asObservable();
   }
 
   setExplanationDisplayed(displayed: boolean): void {

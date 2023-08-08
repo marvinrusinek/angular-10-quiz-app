@@ -70,6 +70,8 @@ export class CodelabQuizContentComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
 
+    this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
+
     // this.currentOptions$ = this.quizService.currentOptionsSubject;
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
 
