@@ -26,7 +26,7 @@ export class ExplanationTextService {
     }
   
     try {
-      const correctOptions = question.options.filter((option) => option?.correct);
+      const correctOptions = question?.options?.filter((option) => option?.correct) || [];
       const selectedCorrectOptions = selectedOptions.filter(
         (option) => option?.correct !== undefined && option?.correct
       );
