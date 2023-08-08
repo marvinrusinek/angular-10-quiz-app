@@ -300,7 +300,6 @@ export class CodelabQuizContentComponent {
       }
     );
   }
-  
 
   /* private initializeExplanationTextSubscription(): void {
     const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
@@ -319,35 +318,6 @@ export class CodelabQuizContentComponent {
     });
   } */
   
-
-  /* private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
-      withLatestFrom(this.currentOptions$),
-      map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
-    );
-  
-    this.combinedQuestionData$ = this.explanationText$.pipe(
-      withLatestFrom(currentQuestionAndOptions$, this.numberOfCorrectAnswers$),
-      tap(data => console.log('Combined Question Data:', data)),
-      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
-        const questionText = explanationText || this.getQuestionText(currentQuestion, this.questions);
-  
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-  
-        let correctAnswersText = '';
-        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-  
-        return { questionText, correctAnswersText, currentOptions };
-      })
-    );
-
-    this.combinedQuestionData$.subscribe((data) => {
-      console.log('Combined Question Data:::>>>>>', data);
-    });
-  } */
-
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
