@@ -25,11 +25,6 @@ export class ExplanationTextService {
       return of('');
     }
   
-    if (!question || !question.options) {
-      console.error('Error: Invalid question object or missing options.');
-      return of('');
-    }
-  
     try {
       const correctOptions = question.options.filter((option) => option?.correct);
       const selectedCorrectOptions = selectedOptions.filter(
