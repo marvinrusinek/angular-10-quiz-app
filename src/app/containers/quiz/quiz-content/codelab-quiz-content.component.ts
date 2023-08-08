@@ -68,12 +68,17 @@ export class CodelabQuizContentComponent {
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
+
+    this.quizQuestionManagerService.getCurrentQuestion$().subscribe((question) => {
+      console.log('Current Question:>', question);
+    });
+
     this.initializeCombinedQuestionData();
 
     this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
 
     // this.currentOptions$ = this.quizService.currentOptionsSubject;
-    this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
+    // this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
 
     this.explanationText$ = this.explanationTextService.explanationText$;
 
