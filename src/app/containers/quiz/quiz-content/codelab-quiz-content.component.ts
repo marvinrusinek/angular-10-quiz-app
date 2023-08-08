@@ -335,7 +335,7 @@ export class CodelabQuizContentComponent {
     );
   
     this.combinedQuestionData$.subscribe((data) => {
-      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
+      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(this.currentQuestion.getValue());
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
   
       console.log('Question Text:::>>>', data.questionText);
