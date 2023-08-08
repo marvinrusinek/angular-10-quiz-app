@@ -333,19 +333,23 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$.subscribe((data) => {
       const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-  
-      console.log('Question Text:::>>>', data.questionText);
+    
+      console.log('Explanation Text:::>>>', data.explanationText);
       console.log('Correct Answers Text:::>>>', correctAnswersText);
-      console.log('Question Text:::>>>', data.questionText);
-  
-      if (data.questionText !== undefined) {
+    
+      if (data.explanationText !== undefined) {
         console.log('Updating currentDisplayText...');
+        this.currentDisplayText = data.explanationText;
+        this.cdRef.detectChanges();
+      } else if (data.questionText !== undefined) {
+        console.log('Using question text...');
         this.currentDisplayText = `${data.questionText} ${correctAnswersText}`;
         this.cdRef.detectChanges();
       } else {
-        console.log('Question text is undefined');
+        console.log('Explanation and question text are undefined');
       }
     });
+    
   }
      
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
