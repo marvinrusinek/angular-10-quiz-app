@@ -25,8 +25,8 @@ export class ExplanationTextService {
       return of('');
     }
   
-    if (!question) {
-      console.error('Error: question is undefined');
+    if (!question || !question.options) {
+      console.error('Error: Invalid question object or missing options.');
       return of('');
     }
   
