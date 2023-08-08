@@ -40,6 +40,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -170,6 +171,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected explanationTextService: ExplanationTextService,
+    protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
@@ -1049,6 +1051,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
       console.log('Explanation Text:::>>>>', this.currentQuestion?.explanation);
       this.quizQuestionManagerService.setSelectedOption(option);
+      this.selectedOptionService.setSelectedOptionExplanation(option.explanation);
     } else {
       this.selectedOptions = [];
       this.optionChecked = {};

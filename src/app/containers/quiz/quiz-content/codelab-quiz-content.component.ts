@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, from, Observable, of, Subject, Subscription } from 'rxjs';
-import { filter, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -10,6 +10,7 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
+import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
 @Component({
   selector: 'codelab-quiz-content-component',
@@ -62,8 +63,8 @@ export class CodelabQuizContentComponent {
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
-    private activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private selectedOptionService: SelectedOptionService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -147,26 +148,6 @@ export class CodelabQuizContentComponent {
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
-  }
-
-  onOptionSelected(option: Option): void {
-    const currentQuestion = this.quizQuestionManagerService.getCurrentQuestion();
-    if (currentQuestion) {
-      const selectedOption = currentQuestion.options.find((opt) => opt.id === option.optionId);
-      if (selectedOption) {
-        this.quizQuestionManagerService.setExplanationText(selectedOption.explanation || null);
-        this.explanationText = currentQuestion.explanation || null;
-        this.currentDisplayText = this.explanationText || this.currentQuestion?.value?.questionText || '';
-      }
-    }
-  }
-
-  onOptionClicked(option: Option): void {
-    // Your existing code in the onOptionClicked method
-
-    this.showExplanation = true; // Set showExplanation to true to display the explanation text
-
-    // Your other existing code
   }
 
   updateExplanationTextForSelectedOption(): void {
@@ -288,7 +269,7 @@ export class CodelabQuizContentComponent {
       });
   }
 
-  private initializeExplanationTextSubscription(): void {
+  /* private initializeExplanationTextSubscription(): void {
     this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.explanationTextSubscription = this.explanationText$.subscribe(
       (explanationText) => {
@@ -297,7 +278,46 @@ export class CodelabQuizContentComponent {
         this.quizQuestionManagerService.setExplanationDisplayed(displayed);
       }
     );
+  } */
+
+  private initializeExplanationTextSubscription(): void {
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
+    this.explanationTextSubscription = this.explanationText$.subscribe(
+      (explanationText) => {
+        const displayed = !!explanationText;
+  
+        // Add code to get the selected option's explanation
+        const selectedOptionExplanation = this.selectedOptionService.getSelectedOptionExplanation();
+  
+        // Combine the selected option's explanation with the overall explanation text
+        const combinedExplanationText = selectedOptionExplanation
+          ? `${explanationText}\n\n${selectedOptionExplanation}`
+          : explanationText;
+  
+        this.quizQuestionManagerService.setExplanationText(combinedExplanationText);
+        this.quizQuestionManagerService.setExplanationDisplayed(displayed);
+      }
+    );
   }
+  
+
+  /* private initializeExplanationTextSubscription(): void {
+    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
+    
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      selectedOptionExplanation$
+    ]).pipe(
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
+    );
+  
+    this.explanationTextSubscription = this.explanationText$.subscribe((displayText) => {
+      // Update the necessary values in your service
+      this.quizQuestionManagerService.setExplanationText(displayText);
+      this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
+    });
+  } */
+  
 
   /* private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
