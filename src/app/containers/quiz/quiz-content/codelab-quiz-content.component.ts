@@ -270,17 +270,6 @@ export class CodelabQuizContentComponent {
       });
   }
 
-  /* private initializeExplanationTextSubscription(): void {
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-    this.explanationTextSubscription = this.explanationText$.subscribe(
-      (explanationText) => {
-        const displayed = !!explanationText;
-        this.quizQuestionManagerService.setExplanationText(explanationText);
-        this.quizQuestionManagerService.setExplanationDisplayed(displayed);
-      }
-    );
-  } */
-
   private initializeExplanationTextSubscription(): void {
     this.explanationText$ = this.explanationTextService.getExplanationText$();
     this.explanationTextSubscription = this.explanationText$.subscribe(
