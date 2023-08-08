@@ -22,7 +22,7 @@ export class QuizQuestionManagerService {
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-  private currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
 
   setSelectedOption(option: Option | null): void {
     this.selectedOption = option;

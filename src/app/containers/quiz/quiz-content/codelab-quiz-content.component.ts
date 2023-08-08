@@ -106,6 +106,10 @@ export class CodelabQuizContentComponent {
         return [];
       })
     );
+
+    this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
+      console.log('Subscribed Current Question:', question);
+    });
   
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
