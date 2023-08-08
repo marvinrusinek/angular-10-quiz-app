@@ -111,12 +111,8 @@ export class CodelabQuizContentComponent {
     );
 
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
-      console.log('Subscribed Current Question:', question);
-    });
-  
-    this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       console.log('Current Question Subscribed:', question);
-  
+
       if (question) {
         console.log('Current Question Value:', question.questionText);
   
@@ -335,7 +331,7 @@ export class CodelabQuizContentComponent {
     );
   
     this.combinedQuestionData$.subscribe((data) => {
-      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(this.currentQuestion.getValue());
+      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
   
       console.log('Question Text:::>>>', data.questionText);
