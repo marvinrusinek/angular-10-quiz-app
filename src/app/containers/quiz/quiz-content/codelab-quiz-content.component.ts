@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, from, Observable, of, Subject, Subscription } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -62,7 +62,8 @@ export class CodelabQuizContentComponent {
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -113,20 +114,21 @@ export class CodelabQuizContentComponent {
   
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       console.log('Current Question Subscribed:', question);
-      this.currentQuestion = question;
-
-      console.log('Current Question Value:', this.currentQuestion.getValue());
   
-      // Set the initial value of currentDisplayText to question text
-      this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
+      if (question) {
+        console.log('Current Question Value:', question.questionText);
+  
+        this.currentDisplayText = this.explanationText || question.questionText || '';
+      } else {
+        this.currentDisplayText = this.explanationText || '';
+      }
     });
   
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
       this.explanationText = explanationText;
-
+  
       // Update the currentDisplayText to display either the explanation text or the question text
-      // this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
-      this.currentDisplayText = explanationText || this.currentQuestion.getValue()?.questionText || '';
+      this.currentDisplayText = this.explanationText || this.currentQuestion?.getValue()?.questionText || '';
     });
 
     console.log('Current Question:', this.currentQuestion);
@@ -153,11 +155,7 @@ export class CodelabQuizContentComponent {
       const selectedOption = currentQuestion.options.find((opt) => opt.id === option.optionId);
       if (selectedOption) {
         this.quizQuestionManagerService.setExplanationText(selectedOption.explanation || null);
-        // this.currentDisplayText = selectedOption.explanation || currentQuestion.questionText;
-
         this.explanationText = currentQuestion.explanation || null;
-
-        // Update the currentDisplayText to display either the explanation text or the question text
         this.currentDisplayText = this.explanationText || this.currentQuestion?.value?.questionText || '';
       }
     }
@@ -350,26 +348,35 @@ export class CodelabQuizContentComponent {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
   
-        const displayText = explanationText || questionText; // Choose explanation or question
+        const displayText = explanationText || `${questionText} ${correctAnswersText}`;
   
         return { questionText: questionText, explanationText, correctAnswersText, currentOptions };
       })
     );
   
     this.combinedQuestionData$.subscribe((data) => {
-      this.currentDisplayText = data; // Set the current display text to the data object
-      console.log('Combined Question Data:::>>>>>', data);
+      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
+      const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+  
+      console.log('Question Text:::>>>', data.questionText);
+      console.log('Correct Answers Text:::>>>', correctAnswersText);
+      console.log('Question Text:::>>>', data.questionText);
+  
+      if (data.questionText !== undefined) {
+        console.log('Updating currentDisplayText...');
+        this.currentDisplayText = `${data.questionText} ${correctAnswersText}`;
+      } else {
+        console.log('Question text is undefined');
+      }
     });
   }
-  
      
-  getQuestionText(
-    currentQuestion: QuizQuestion,
-    questions: QuizQuestion[]
-  ): string {
+  getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
       for (let i = 0; i < questions.length; i++) {
+        console.log('Comparing questions:', questions[i], currentQuestion);
         if (this.areQuestionsEqual(questions[i], currentQuestion)) {
+          console.log('Found matching question:', questions[i]);
           return questions[i]?.questionText;
         }
       }
