@@ -110,10 +110,10 @@ export class CodelabQuizContentComponent {
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
 
-      console.log('Current Question Value:::', this.currentQuestion.value);
+      console.log('Current Question Value:', this.currentQuestion.getValue());
   
       // Set the initial value of currentDisplayText to question text
-      this.currentDisplayText = this.currentQuestion?.value?.questionText || '';
+      this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
     });
   
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
