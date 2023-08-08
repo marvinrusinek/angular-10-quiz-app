@@ -69,20 +69,20 @@ export class CodelabQuizContentComponent {
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
-
+  
     this.quizQuestionManagerService.getCurrentQuestion$().subscribe((question) => {
       console.log('Current Question:>', question);
     });
-
+  
     this.initializeCombinedQuestionData();
-
+  
     this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
-
+  
     // this.currentOptions$ = this.quizService.currentOptionsSubject;
     // this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
-
+  
     this.explanationText$ = this.explanationTextService.explanationText$;
-
+  
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
@@ -96,7 +96,7 @@ export class CodelabQuizContentComponent {
         };
       })
     );
-
+  
     // Update the options$ initialization using combineLatest
     this.options$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
       map(([currentQuestion, currentOptions]) => {
@@ -106,20 +106,24 @@ export class CodelabQuizContentComponent {
         return [];
       })
     );
-
+  
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
+  
+      // Set the initial value of currentDisplayText to question text
+      this.currentDisplayText = this.currentQuestion?.value?.questionText || '';
     });
-
+  
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
       this.explanationText = explanationText;
       // Update the currentDisplayText to display either the explanation text or the question text
       this.currentDisplayText = explanationText || this.currentQuestion?.value?.questionText || '';
     });
-      
+  
     console.log('CodelabQuizCpComponent - Question:', this.question);
     console.log('CodelabQuizCpComponent - Options:', this.options);
   }
+  
 
   ngOnDestroy(): void {
     this.destroy$.next();
