@@ -1089,6 +1089,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
 
     console.log('BEFORE setExplanationText - Current Question:', this.currentQuestion);
+    console.log('Received Question Object:', this.question);
 
     console.log('Selected Options:', this.selectedOptions);
     this.explanationTextService
