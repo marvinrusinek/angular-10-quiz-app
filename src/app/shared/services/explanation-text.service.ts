@@ -5,10 +5,12 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExplanationTextService {
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
+    string | null
+  >(null);
 
   constructor() {}
 
@@ -27,17 +29,21 @@ export class ExplanationTextService {
       console.error('Error: selectedOptions is not an array');
       return of('');
     }
-  
+
     try {
-      const correctOptions = question?.options?.filter((option) => option?.correct) || [];
+      const correctOptions =
+        question?.options?.filter((option) => {
+          console.log('Option:', option);
+          console.log('Correct:', option?.correct);
+          return option?.correct;
+        }) || [];
       console.log('Correct Options:::', correctOptions);
-      
+
       const selectedCorrectOptions = selectedOptions.filter(
         (option) => option?.correct === true
       );
       console.log('Selected Correct Options:', selectedCorrectOptions);
       console.log('Correct Options:', correctOptions);
-
 
       if (selectedOptions.length === 0) {
         console.log('Setting Explanation Text to empty');
@@ -79,7 +85,7 @@ export class ExplanationTextService {
           this.explanationText$.next(text);
         }
       }
-  
+
       return this.explanationText$;
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
