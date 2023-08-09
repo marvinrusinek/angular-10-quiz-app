@@ -257,10 +257,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.currentQuestion$ = this.quizStateService.currentQuestion$;
-
     this.getExplanationText();
-
     this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
