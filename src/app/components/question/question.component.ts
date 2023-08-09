@@ -1032,6 +1032,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: Option): void {
+    console.log('Clicked Option:', option);
+    console.log('Correct:', option?.correct);
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
 
@@ -1073,6 +1075,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
 
+    console.log("MY EXPL TEST"),
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {

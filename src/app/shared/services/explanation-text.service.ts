@@ -20,6 +20,9 @@ export class ExplanationTextService {
     selectedOptions: Option[],
     question?: QuizQuestion
   ): Observable<string> {
+    console.log('Question Object:', question);
+    console.log('Question Options:', question?.options);
+
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return of('');
@@ -27,12 +30,14 @@ export class ExplanationTextService {
   
     try {
       const correctOptions = question?.options?.filter((option) => option?.correct) || [];
+      console.log('Correct Options:::', correctOptions);
+      
       const selectedCorrectOptions = selectedOptions.filter(
-        (option) => option?.correct !== undefined && option?.correct
+        (option) => option?.correct === true
       );
-
-      console.log('Correct Options:', correctOptions);
       console.log('Selected Correct Options:', selectedCorrectOptions);
+      console.log('Correct Options:', correctOptions);
+
 
       if (selectedOptions.length === 0) {
         console.log('Setting Explanation Text to empty');
