@@ -94,6 +94,7 @@ export class ExplanationTextService {
       return this.explanationText$;
     }
   }
+}
 
   /* setExplanationText(
     selectedOptions: Option[],
@@ -135,4 +136,4 @@ export class ExplanationTextService {
       return this.explanationText$;
     }
   } */
-}
+
