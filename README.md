@@ -18,4 +18,3 @@ Click on the link below to explore the Angular Codelab website and embark on you
 Get ready to level up your Angular knowledge and have a blast along the way. Enjoy the quiz and happy coding! 😃
 
 #angular #quizapp #codelab #typescript #rxjs #angularmaterial
-
