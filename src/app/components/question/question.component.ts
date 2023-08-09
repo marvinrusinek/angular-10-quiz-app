@@ -159,11 +159,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   @Input() set currentQuestion(value: QuizQuestion) {
+    console.log('Setting currentQuestion:::', value);
     this._currentQuestion = value;
     this.selectedOption =
       value?.selectedOptions?.find(
         (option) => this.isOption(option) && option?.correct
       ) || null;
+    console.log('Selected option:::', this.selectedOption);
   }
 
   constructor(
@@ -1084,9 +1086,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Question Options:::', this.question?.options);
     console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
 
+    console.log('BEFORE setExplanationText - Current Question:', this.currentQuestion);
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
+        console.log('AFTER setExplanationText - Current Question:', this.currentQuestion);
         console.log('Explanation Text:::>>>>', explanationText);
         this.explanationText$.next(explanationText);
         this.explanationTextValue$.next(explanationText);

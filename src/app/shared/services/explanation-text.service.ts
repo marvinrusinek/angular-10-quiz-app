@@ -31,19 +31,15 @@ export class ExplanationTextService {
     }
 
     try {
-      const correctOptions =
-        question?.options?.filter((option) => {
-          console.log('Option:', option);
-          console.log('Correct:', option?.correct);
-          return option?.correct;
-        }) || [];
+      console.log('Question Options:::', question?.options);
+      const correctOptions = question?.options?.filter(option => option?.correct) || [];
       console.log('Correct Options:::', correctOptions);
 
       const selectedCorrectOptions = selectedOptions.filter(
         (option) => option?.correct === true
       );
       console.log('Selected Correct Options:', selectedCorrectOptions);
-      console.log('Correct Options:', correctOptions);
+      console.log('Correct Options:::', correctOptions);
 
       if (selectedOptions.length === 0) {
         console.log('Setting Explanation Text to empty');
