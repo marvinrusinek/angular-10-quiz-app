@@ -32,7 +32,11 @@ export class ExplanationTextService {
 
     try {
       console.log('Question Options:::', question?.options);
-      const correctOptions = question?.options?.filter(option => option?.correct) || [];
+
+      // const correctOptions = question?.options?.filter(option => option?.correct) || [];
+      const correctOptions = (question?.options || []).filter(
+        (option) => option?.correct
+      );
       console.log('Correct Options:::', correctOptions);
 
       const selectedCorrectOptions = selectedOptions.filter(
@@ -78,6 +82,7 @@ export class ExplanationTextService {
         } else {
           const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
           console.log('Setting Explanation Text:', text);
+          console.log('Generated Explanation Text:', text);
           this.explanationText$.next(text);
         }
       }
@@ -89,4 +94,45 @@ export class ExplanationTextService {
       return this.explanationText$;
     }
   }
+
+  /* setExplanationText(
+    selectedOptions: Option[],
+    question?: QuizQuestion
+  ): Observable<string> {
+    if (!Array.isArray(selectedOptions)) {
+      console.error('Error: selectedOptions is not an array');
+      return of('');
+    }
+  
+    try {
+      const correctOptions = (question?.options || []).filter(option => option?.correct);
+      const correctOptionIds = correctOptions.map(option => option.optionId);
+      
+      const selectedCorrectOptions = selectedOptions.filter(
+        option => correctOptionIds.includes(option.optionId)
+      );
+  
+      if (selectedOptions.length === 0) {
+        this.explanationText$.next('');
+      } else if (correctOptions.length === selectedCorrectOptions.length) {
+        if (correctOptions.length === 1) {
+          const correctOption = correctOptions[0];
+          const text = `Option ${correctOption.optionId} is correct because ${question.explanation}`;
+          this.explanationText$.next(text);
+        } else {
+          const correctOptionsString = selectedCorrectOptions.map(option => `Option ${option.optionId}`).join(' and ');
+          const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
+          this.explanationText$.next(text);
+        }
+      } else {
+        this.explanationText$.next('Options are incorrect because...');
+      }
+  
+      return this.explanationText$;
+    } catch (error) {
+      console.error('Error occurred while getting explanation text:', error);
+      this.explanationText$.next('');
+      return this.explanationText$;
+    }
+  } */
 }

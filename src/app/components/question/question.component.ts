@@ -85,6 +85,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions!: Observable<QuizQuestion[]>;
   @Input() options: Option[];
+  @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
@@ -154,7 +155,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private _currentQuestion: QuizQuestion;
 
-  get currentQuestion(): QuizQuestion {
+  /* @Input() get currentQuestion(): QuizQuestion {
     return this._currentQuestion;
   }
 
@@ -166,7 +167,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         (option) => this.isOption(option) && option?.correct
       ) || null;
     console.log('Selected option:::', this.selectedOption);
-  }
+  } */
 
   constructor(
     protected quizService: QuizService,
@@ -213,6 +214,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     this.quizStateService.currentQuestion.subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
+      this.cdRef.detectChanges();
     });
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
@@ -1087,6 +1089,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
 
     console.log('BEFORE setExplanationText - Current Question:', this.currentQuestion);
+
+    console.log('Selected Options:', this.selectedOptions);
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
