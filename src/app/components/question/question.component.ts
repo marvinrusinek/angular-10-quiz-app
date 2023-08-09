@@ -1093,7 +1093,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     console.log('Selected Options:', this.selectedOptions);
     this.explanationTextService
-      .setExplanationText(this.selectedOptions, this.question)
+      .setExplanationText(this.selectedOptions, this.currentQuestion)
       .subscribe((explanationText: string) => {
         console.log('AFTER setExplanationText - Current Question:', this.currentQuestion);
         console.log('Explanation Text:::>>>>', explanationText);

@@ -257,6 +257,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
+      this.currentQuestion$ = this.quizStateService.currentQuestion$;
+
+      // Subscribe to the currentQuestion$ observable to update currentQuestion
+      this.currentQuestion$.subscribe((question) => {
+        this.currentQuestion = question;
+      });
+
     this.getExplanationText();
     this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
