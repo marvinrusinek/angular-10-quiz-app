@@ -157,6 +157,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   get currentQuestion(): QuizQuestion {
     return this._currentQuestion;
   }
+
   @Input() set currentQuestion(value: QuizQuestion) {
     this._currentQuestion = value;
     this.selectedOption =
@@ -207,6 +208,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('data.currentOptions:', this.data.currentOptions);
 
     this.selectedOption = null;
+    
+    this.quizStateService.currentQuestion.subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+    });
 
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
@@ -1054,8 +1059,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.quizQuestionManagerService.setSelectedOption(option);
       this.selectedOptionService.setSelectedOptionExplanation(option.explanation);
 
-      console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
-      console.log('Explanation Text:::>>>>', this.currentQuestion?.explanation);
+      // console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
+      // console.log('Explanation Text:::>>>>', this.currentQuestion?.explanation);
     } else {
       this.selectedOptions = [];
       this.optionChecked = {};
@@ -1077,6 +1082,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     console.log('Question Object:::', this.question);
     console.log('Question Options:::', this.question?.options);
+    console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
+
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
