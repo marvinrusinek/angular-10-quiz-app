@@ -524,13 +524,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
-  private initializeQuizState(question: QuizQuestion): void {
-    console.log('initializeQuizState called');
-    console.log('INIT QUESTION', question);
-
-    this.quizStateService.setCurrentQuestion(of(question));
-  }
-
   private loadQuestionsForQuiz(quizId: string): void {
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
@@ -765,7 +758,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             console.log('Question received:', data.question);
             this.currentQuestion = data.question;
             this.options = this.currentQuestion.options;
-            // this.initializeQuizState(this.currentQuestion);
           }
         }),
         catchError((error) => {
