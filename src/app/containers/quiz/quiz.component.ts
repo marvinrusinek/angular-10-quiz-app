@@ -228,8 +228,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
-    // this.quizStateService.setCurrentQuestion(this.currentQuestion$);
-
+    
     this.activatedRoute.paramMap
       .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
       .subscribe(({ quizId, questionIndex, quizData }) => {
@@ -410,16 +409,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationText = explanationText;
       });
   }
-
-  /* setCurrentQuestion(): void {
-    this.quizStateService.currentQuestion$.subscribe(
-      (question: QuizQuestion) => {
-        this.currentQuestion = question;
-        this.options$ =
-          this.quizStateService.currentOptionsSubject.asObservable();
-      }
-    );
-  } */
 
   private initializeQuizState(): void {
     const currentQuiz = this.quizData.find(
