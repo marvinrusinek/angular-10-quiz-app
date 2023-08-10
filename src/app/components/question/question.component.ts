@@ -146,9 +146,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctAnswersLoadedSubscription: Subscription;
   questionDataSubscription: Subscription;
 
-  private currentQuestionSubject = new BehaviorSubject<any>(null);
-  currentQuestion$ = this.currentQuestionSubject.asObservable();
-
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
