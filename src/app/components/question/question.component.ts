@@ -251,7 +251,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       const quizId = this.quizService.quizId;
       if (quizId) {
         this.quizId = quizId;
-        this.currentQuestion$ = this.currentQuestionSource.asObservable();
         this.loadQuestionsForQuiz(quizId);
       } else {
         console.error('quizId parameter is null or undefined');
@@ -737,11 +736,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   subscriptionToQuestion(): void {
     this.currentQuestionSubscription = this.quizService.currentQuestion$
       .pipe(
-        tap((data: { question: QuizQuestion | null }) => {
-          if (data && data.question) {
-            console.log('Question received:', data.question);
-            this.currentQuestion = data.question;
-            this.options = this.currentQuestion.options;
+        tap((question: QuizQuestion | null) => {
+          if (question) {
+            console.log('Question received:', question);
+            this.currentQuestion = question;
+            this.options = question.options;
           }
         }),
         catchError((error) => {
