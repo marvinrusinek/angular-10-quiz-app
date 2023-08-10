@@ -954,35 +954,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setQuestionOptions(): void {
-    console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
-
-    // Log the selectedQuiz just before checking if it is null or undefined
-    console.log('Value of this.selectedQuiz:', this.selectedQuiz);
-
     this.selectedQuiz
       .pipe(
         take(1),
-        filter((quiz) => !!quiz)
+        filter((quiz) => !!quiz),
+        map((quiz) => quiz.questions[this.currentQuestionIndex])
       )
-      .subscribe((quiz) => {
-        if (!quiz.questions || !quiz.questions[this.currentQuestionIndex]) {
+      .subscribe((currentQuestion) => {
+        if (!currentQuestion) {
           console.error('Question not found');
           return;
         }
-
-        const currentQuestion = quiz.questions[+this.currentQuestionIndex];
+  
         this.currentQuestion = currentQuestion;
         this.currentOptions = currentQuestion.options;
-
-        // this.quizService.setCurrentOptions(currentQuestion.options);
-
+  
         const { options, answer } = currentQuestion;
-
         const answerValue = answer?.values().next().value;
         this.correctOptionIndex = options.findIndex(
           (option) => option.value === answerValue
         );
-
+  
         this.currentOptions = options.map(
           (option, index) =>
             ({
@@ -993,15 +985,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               selected: false,
             } as Option)
         );
-        // this.quizService.setCurrentOptions(this.options);
-
-        // shuffle options only if the shuffleOptions boolean is true
+  
+        // Shuffle options only if the shuffleOptions boolean is true
         if (this.shuffleOptions) {
-          this.quizService.shuffle(this.options);
+          this.quizService.shuffle(this.currentOptions);
         }
       });
   }
-
+  
   private resetForm(): void {
     if (!this.questionForm) {
       return;
