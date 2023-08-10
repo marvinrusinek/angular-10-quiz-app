@@ -199,6 +199,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('Current Question in Child Component:', this.currentQuestion);
     console.log('ngOnInit of QuizQuestionComponent is called.');
     console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
@@ -211,12 +212,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('data.currentOptions:', this.data.currentOptions);
 
     this.selectedOption = null;
-    
-    this.quizStateService.currentQuestion.subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-      this.cdRef.detectChanges();
+    this.quizService.getCurrentQuestion().then((currentQuestion) => {
+      this.currentQuestion = currentQuestion;
     });
-
+    
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
 
@@ -276,11 +275,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('setCurrentQuestion called with:', question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
-
-      this.quizStateService.currentQuestion$.subscribe((question) => {
-        this.currentQuestion = question;
-        console.log('currentQuestion:', this.currentQuestion);
-      });
 
       console.log('ngOnInit of QuizQuestionComponent called');
       this.quizService.currentOptions$.subscribe((currentOptions) => {
@@ -1024,6 +1018,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: Option): void {
+    console.log('Current Question:::>>>>>>', this.currentQuestion);
     console.log('Clicked Option:', option);
     console.log('Correct:', option?.correct);
     const index = this.selectedOptions.findIndex((o) => o === option);
@@ -1074,9 +1069,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('BEFORE setExplanationText - Current Question:', this.currentQuestion);
     console.log('Received Question Object:', this.question);
 
+    console.log('onOptionClicked - Selected Options:', this.selectedOptions);
+    console.log('onOptionClicked - Current Question:', this.currentQuestion);
+
     console.log('Selected Options:', this.selectedOptions);
     this.explanationTextService
-      .setExplanationText(this.selectedOptions, this.currentQuestion)
+      .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
         console.log('AFTER setExplanationText - Current Question:', this.currentQuestion);
         console.log('Explanation Text:::>>>>', explanationText);
