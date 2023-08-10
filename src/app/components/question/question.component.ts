@@ -1008,15 +1008,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: Option): void {
+    if (!this.currentQuestion) {
+      console.error('Current question is undefined.');
+      return;
+    }
     console.log('Current Question in onOptionClicked:::>>>', this.currentQuestion);
     console.log('Current Question:::>>>>>>', this.currentQuestion);
     console.log('Clicked Option:', option);
     console.log('Correct:', option?.correct);
   
-    if (!this.currentQuestion) {
+    /* if (!this.currentQuestion) {
       console.error('Current question is undefined.');
       return;
-    }
+    } */
   
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
