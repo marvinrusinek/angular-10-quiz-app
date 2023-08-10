@@ -1012,58 +1012,62 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Current Question:::>>>>>>', this.currentQuestion);
     console.log('Clicked Option:', option);
     console.log('Correct:', option?.correct);
+  
+    if (!this.currentQuestion) {
+      console.error('Current question is undefined.');
+      return;
+    }
+  
     const index = this.selectedOptions.findIndex((o) => o === option);
     const isOptionSelected = index !== -1;
-
-   if (!isOptionSelected) {
+  
+    console.log('isOptionSelected:', isOptionSelected);
+  
+    if (!isOptionSelected) {
+      console.log('Option is selected.');
+  
       this.selectedOptions = [option];
-      // this.optionChecked = { [option.optionId]: true };
-      this.showFeedbackForOption = { [option.optionId]: true }; // show feedback for the selected option
+      this.showFeedbackForOption = { [option.optionId]: true };
       this.showFeedback = true;
       this.selectedOption = option;
-      this.selectionMessageService.updateSelectionMessage(
-        'Please click the next button to continue...'
-      );
-      
+  
+      console.log('Setting explanation text...');
       this.quizQuestionManagerService.setExplanationText(
         this.currentQuestion?.explanation || null
       );
       
       this.quizQuestionManagerService.setSelectedOption(option);
       this.selectedOptionService.setSelectedOptionExplanation(option.explanation);
-
-      // console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
-      // console.log('Explanation Text:::>>>>', this.currentQuestion?.explanation);
     } else {
+      console.log('Option is unselected.');
+  
       this.selectedOptions = [];
       this.optionChecked = {};
       this.showFeedbackForOption = {};
       this.showFeedback = false;
       this.selectedOption = null;
-      this.selectionMessageService.updateSelectionMessage(
-        'Please select an option to continue...'
-      );
       this.quizQuestionManagerService.setExplanationText(null);
     }
-
+  
     this.optionClicked.emit();
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
-
+  
     console.log('Question Object:::', this.question);
     console.log('Question Options:::', this.question?.options);
     console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
-
+  
     console.log('BEFORE setExplanationText - Current Question:', this.currentQuestion);
     console.log('Received Question Object:', this.question);
-
+  
     console.log('onOptionClicked - Selected Options:', this.selectedOptions);
     console.log('onOptionClicked - Current Question:', this.currentQuestion);
-
+  
     console.log('Selected Options:', this.selectedOptions);
+  
     this.explanationTextService
       .setExplanationText(this.selectedOptions, this.question)
       .subscribe((explanationText: string) => {
@@ -1074,7 +1078,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.isAnswerSelectedChange.emit(true);
         this.toggleVisibility.emit();
         this.updateFeedbackVisibility();
-
+  
         this.combinedQuestionData$.next({
           questionText: this.currentQuestion.questionText,
           explanationText: explanationText,
@@ -1082,13 +1086,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           currentOptions: this.currentOptions
         });
       });
-
+  
     // Emit updated selection
     this.selectionChanged.emit({
       question: this.currentQuestion,
       selectedOptions: this.selectedOptions,
     });
-
+  
     // Fetch the explanation text for the selected option
     // const explanationText = this.getExplanationForQuestion(this.question);
   }
