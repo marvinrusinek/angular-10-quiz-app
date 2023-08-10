@@ -119,7 +119,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   currentQuestionSource: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   questionsAndOptions: [QuizQuestion, Option[]][] = [];
-  currentQuestionLoaded = false;
+  currentQuestionLoaded: boolean = false;
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   currentOptions: Option[] | undefined;
@@ -199,7 +199,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('Current Question in Child Component:', this.currentQuestion);
     console.log('ngOnInit of QuizQuestionComponent is called.');
     console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
@@ -214,9 +213,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOption = null;
 
     this.currentQuestion$ = this.quizService.getCurrentQuestion();
-    this.currentQuestion$.subscribe((currentQuestion) => {
-      this.currentQuestion = currentQuestion;
-    });
+    this.currentQuestion$
+      .pipe(take(1))
+      .subscribe((currentQuestion) => {
+        this.currentQuestion = currentQuestion;
+        this.currentQuestionLoaded = true;
+      });
+    console.log('Current Question in Child Component:::::>>>>>', this.currentQuestion);
+    
     
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
@@ -1020,6 +1024,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: Option): void {
+    console.log('Current Question in onOptionClicked:::>>>', this.currentQuestion);
     console.log('Current Question:::>>>>>>', this.currentQuestion);
     console.log('Clicked Option:', option);
     console.log('Correct:', option?.correct);
