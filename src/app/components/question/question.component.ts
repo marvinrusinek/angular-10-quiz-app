@@ -1021,17 +1021,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     if (!isOptionSelected) {
       const index = this.selectedOptions.findIndex((o) => o === option);
-      const isOptionSelected = index !== -1;
-  
-      if (!isOptionSelected) {
+      if (index === -1) {
+        // Select the option
         this.selectOption(currentQuestion, option);
       } else {
         console.log('Option is already selected.');
       }
     } else {
+      // Unselect the option
       this.unselectOption();
     }
-  }
+  
+    if (this.selectedOptions.length > 0) {
+      this.setExplanationText(currentQuestion, this.selectedOptions);
+    } else {
+      this.explanationText$.next('');
+    }
+  }  
   
   checkOptionSelected(option: any): boolean {
     return this.selectedOptions.includes(option);
@@ -1073,7 +1079,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  setExplanationText(currentQuestion: QuizQuestion, option: any): void {
+  setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
     this.explanationTextService
       .setExplanationText(this.selectedOptions, currentQuestion)
       .subscribe(
