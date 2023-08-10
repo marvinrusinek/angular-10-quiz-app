@@ -153,22 +153,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
 
-  private _currentQuestion: QuizQuestion;
-
-  /* @Input() get currentQuestion(): QuizQuestion {
-    return this._currentQuestion;
-  }
-
-  @Input() set currentQuestion(value: QuizQuestion) {
-    console.log('Setting currentQuestion:::', value);
-    this._currentQuestion = value;
-    this.selectedOption =
-      value?.selectedOptions?.find(
-        (option) => this.isOption(option) && option?.correct
-      ) || null;
-    console.log('Selected option:::', this.selectedOption);
-  } */
-
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
