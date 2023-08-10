@@ -26,6 +26,7 @@
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
           [currentQuestion]="currentQuestion"
+          [currentQuestion$]="currentQuestion$"
           [currentQuestionIndex]="currentQuestionIndex"
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
