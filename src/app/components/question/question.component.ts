@@ -212,9 +212,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('data.currentOptions:', this.data.currentOptions);
 
     this.selectedOption = null;
-    this.quizService.getCurrentQuestion().then((currentQuestion) => {
-      this.currentQuestion = currentQuestion;
-    });
+    
     
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
