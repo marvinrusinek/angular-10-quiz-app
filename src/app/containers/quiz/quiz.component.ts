@@ -560,7 +560,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
       this.options = question?.options || [];
-      // this.initializeQuizState(question);
     });
     return this.currentQuestion$;
   }
