@@ -1011,95 +1011,98 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: any): void {
-    // Subscribe to currentQuestion$ and execute the logic when it emits a value
     this.currentQuestion$.subscribe(currentQuestion => {
       if (currentQuestion) {
-        console.log('Current Question in onOptionClicked:', currentQuestion);
-        console.log('Clicked Option:', option);
-        console.log('Correct:', option?.correct);
-
-        // Your existing logic for handling the option clicked
-        const index = this.selectedOptions.findIndex((o) => o === option);
-        const isOptionSelected = index !== -1;
-
-        console.log('isOptionSelected:', isOptionSelected);
-
-        if (!isOptionSelected) {
-          console.log('Option is selected.');
-  
-      	  this.selectedOptions = [option];
-          this.showFeedbackForOption = { [option.optionId]: true };
-          this.showFeedback = true;
-          this.selectedOption = option;
-  
-          console.log('Setting explanation text...');
-          this.quizQuestionManagerService.setExplanationText(
-            this.currentQuestion?.explanation || null
-          );
-      
-          this.quizQuestionManagerService.setSelectedOption(option);
-          this.selectedOptionService.setSelectedOptionExplanation(option.explanation);
-        } else {
-          console.log('Option is unselected.');
-
-          this.selectedOptions = [];
-          this.optionChecked = {};
-          this.showFeedbackForOption = {};
-          this.showFeedback = false;
-          this.selectedOption = null;
-          this.quizQuestionManagerService.setExplanationText(null);
-        }
-
-	      this.optionClicked.emit();
-    	  this.isOptionSelected = true;
-    	  this.isAnswered = this.selectedOptions.length > 0;
-   	    this.isAnsweredChange.emit(this.isAnswered);
-    	  this.isAnswerSelectedChange.emit(this.isAnswered);
-    	  this.optionSelected.emit(this.isOptionSelected);
-  
-        console.log('Question Object:::', this.question);
-        console.log('Question Options:::', this.question?.options);
-        console.log('CURRENT QUESTION:::>>>>', this.currentQuestion);
-    
-        console.log('BEFORE setExplanationText - Current Question:', this.currentQuestion);
-        console.log('Received Question Object:', this.question);
-    
-        console.log('onOptionClicked - Selected Options:', this.selectedOptions);
-        console.log('onOptionClicked - Current Question:', this.currentQuestion);
-    
-        console.log('Selected Options:', this.selectedOptions);
-
-	      this.explanationTextService
-      	  .setExplanationText(this.selectedOptions, this.question)
-          .subscribe((explanationText: string) => {
-            console.log('AFTER setExplanationText - Current Question:', this.currentQuestion);
-            console.log('Explanation Text:::>>>>', explanationText);
-            this.explanationText$.next(explanationText);
-            this.explanationTextValue$.next(explanationText);
-            this.isAnswerSelectedChange.emit(true);
-            this.toggleVisibility.emit();
-            this.updateFeedbackVisibility();
-  
-            this.combinedQuestionData$.next({
-              questionText: this.currentQuestion.questionText,
-              explanationText: explanationText,
-              correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-              currentOptions: this.currentOptions
-            });
-        });
-
-        // Emit updated selection
-        this.selectionChanged.emit({
-          question: currentQuestion,
-          selectedOptions: this.selectedOptions,
-        });
-
-        // Fetch the explanation text for the selected option
-        // const explanationText = this.getExplanationForQuestion(currentQuestion);
+        this.handleOptionClicked(currentQuestion, option);
       } else {
         console.error('Current question is undefined.');
-        return;
       }
+    });
+  }
+
+  handleOptionClicked(currentQuestion: QuizQuestion, option: any): void {
+    const isOptionSelected = this.checkOptionSelected(option);
+  
+    if (!isOptionSelected) {
+      const index = this.selectedOptions.findIndex((o) => o === option);
+      const isOptionSelected = index !== -1;
+  
+      if (!isOptionSelected) {
+        this.selectOption(currentQuestion, option);
+      } else {
+        console.log('Option is already selected.');
+      }
+    } else {
+      this.unselectOption();
+    }
+  
+    // Rest of the logic
+  }
+  
+
+  checkOptionSelected(option: any): boolean {
+    return this.selectedOptions.includes(option);
+  }
+
+  selectOption(currentQuestion: QuizQuestion, option: any): void {
+    this.selectedOptions = [option];
+    this.showFeedbackForOption = { [option.optionId]: true };
+    this.showFeedback = true;
+    this.selectedOption = option;
+    this.quizQuestionManagerService.setExplanationText(
+      this.currentQuestion?.explanation || null
+    );
+    this.quizQuestionManagerService.setSelectedOption(option);
+    this.selectedOptionService.setSelectedOptionExplanation(option.explanation);
+  
+    this.setExplanationText(currentQuestion, option);
+
+    this.optionClicked.emit();
+    this.isOptionSelected = true;
+    this.isAnswered = this.selectedOptions.length > 0;
+    this.isAnsweredChange.emit(this.isAnswered);
+    this.isAnswerSelectedChange.emit(this.isAnswered);
+    this.optionSelected.emit(this.isOptionSelected);
+
+    this.selectionChanged.emit({
+      question: currentQuestion,
+      selectedOptions: this.selectedOptions,
+    });
+  }
+
+  unselectOption(): void {
+    this.selectedOptions = [];
+    this.optionChecked = {};
+    this.showFeedbackForOption = {};
+    this.showFeedback = false;
+    this.selectedOption = null;
+    this.quizQuestionManagerService.setExplanationText(null);
+  }
+
+  setExplanationText(currentQuestion: QuizQuestion, option: any): void {
+    this.explanationTextService
+      .setExplanationText(this.selectedOptions, currentQuestion)
+      .subscribe(
+        (explanationText: string) => {
+          this.explanationText$.next(explanationText);
+          this.explanationTextValue$.next(explanationText);
+          this.isAnswerSelectedChange.emit(true);
+          this.toggleVisibility.emit();
+          this.updateFeedbackVisibility();
+          this.updateCombinedQuestionData(currentQuestion, explanationText);
+        },
+        (error) => {
+          console.error('Error in setExplanationText:', error);
+        }
+      );
+  }
+  
+  updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
+    this.combinedQuestionData$.next({
+      questionText: currentQuestion.questionText,
+      explanationText: explanationText,
+      correctAnswersText: this.quizService.getCorrectAnswersAsString(),
+      currentOptions: this.currentOptions
     });
   }
 
