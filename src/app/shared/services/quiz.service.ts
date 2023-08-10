@@ -69,6 +69,7 @@ export class QuizService implements OnDestroy {
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
 
+  private currentQuestionObservable: Observable<QuizQuestion>;
   private currentQuestionSource: Subject<QuizQuestion | null> =
     new Subject<QuizQuestion | null>();
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
@@ -666,7 +667,7 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  async getCurrentQuestion(): Promise<QuizQuestion> {
+  /* async getCurrentQuestion(): Promise<QuizQuestion> {
     if (this.currentQuestionPromise) {
       return this.currentQuestionPromise.then(() => {
         return this.getCurrentQuestion();
@@ -710,7 +711,43 @@ export class QuizService implements OnDestroy {
       .toPromise();
 
     return this.currentQuestionPromise;
+  } */
+
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    if (this.currentQuestionObservable) {
+      return this.currentQuestionObservable;
+    }
+  
+    const quizId = this.getCurrentQuizId();
+    this.currentQuestionObservable = this.getQuestionsForQuiz(quizId)
+      .pipe(
+        tap(({ quizId, questions }) => {
+          this.questions = questions;
+          this.questionLoadingSubject.next(true);
+          this.loadingQuestions = false;
+          this.currentQuestionObservable = null;
+        }),
+        catchError((error) => {
+          console.error('Error getting quiz questions:', error);
+          this.questionLoadingSubject.next(false);
+          this.loadingQuestions = false;
+          this.currentQuestionObservable = null;
+          return throwError(error);
+        }),
+        switchMap(({ quizId, questions }) => {
+          if (Array.isArray(questions)) {
+            const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+            this.currentQuestionSubject.next(questions[currentQuestionIndex]);
+            return this.currentQuestionSubject;
+          } else {
+            throw new Error('getCurrentQuestion() did not return an array');
+          }
+        })
+      );
+  
+    return this.currentQuestionObservable;
   }
+  
 
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
