@@ -1009,7 +1009,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onOptionClicked(option: any): void {
     //this.currentQuestion$.subscribe(currentQuestion => {
       //if (currentQuestion) {
-        this.handleOptionClicked(this.currentQuestion, option);
+        this.handleOptionClicked(this.currentQuestion, option); 
       //} else {
         //console.error('Current question is undefined.');
       //}
