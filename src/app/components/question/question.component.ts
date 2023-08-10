@@ -1035,11 +1035,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.unselectOption();
     }
-  
-    // Rest of the logic
   }
   
-
   checkOptionSelected(option: any): boolean {
     return this.selectedOptions.includes(option);
   }
@@ -1057,6 +1054,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     this.setExplanationText(currentQuestion, option);
 
+    // Emit events and update states after the option is selected
     this.optionClicked.emit();
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
