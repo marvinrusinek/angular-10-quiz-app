@@ -184,31 +184,39 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
+  
+    // Centralize the call to getCurrentQuestion()
+    this.quizService.getCurrentQuestion().subscribe(
+      (currentQuestion) => {
+        console.log('My Current Question:', currentQuestion);
+        if (currentQuestion) {
+          this.currentQuestion = currentQuestion;
+          this.currentQuestionLoaded = true;
+          this.initializeComponentWithCurrentQuestion();
+        } else {
+          console.error('No current question available.');
+        }
+      },
+      (error) => {
+        console.error('Error fetching current question:', error);
+      }
+    );
+  
     console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
     console.log('this.data:', this.data);
     console.log('this.data.currentOptions:', this.data.currentOptions);
     console.log('Data:::', this.data);
-
+  
     console.log('questionData:', this.questionData);
     console.log('data:', this.data);
     console.log('data.currentOptions:', this.data.currentOptions);
-
+  
     this.selectedOption = null;
-
-    this.currentQuestion$ = this.quizService.getCurrentQuestion();
-    this.currentQuestion$
-      .pipe(take(1))
-      .subscribe((currentQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.currentQuestionLoaded = true;
-      });
-    console.log('Current Question in Child Component:::::>>>>>', this.currentQuestion);
-    
-    
+  
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
-
+  
       this.questionsObservableSubscription = this.quizService
         .getAllQuestions()
         .pipe(
@@ -221,7 +229,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         )
         .subscribe();
     }
-
+  
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -232,10 +240,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.destroy$.next();
         this.destroy$.complete();
       });
-
+  
     if (!this.initialized) {
       this.initialized = true;
-
+  
       if (this.quizDataService.selectedQuiz$) {
         this.quizDataService.selectedQuiz$.subscribe((quiz) => {
           console.log('selectedQuiz', quiz);
@@ -243,11 +251,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.setQuestionOptions();
         });
       }
-
+  
       of(this.selectedOption)
         .pipe(tap((option) => this.selectedOption$.next(option)))
         .subscribe();
-
+  
       const quizId = this.quizService.quizId;
       if (quizId) {
         this.quizId = quizId;
@@ -256,7 +264,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('quizId parameter is null or undefined');
       }
     }
-
+  
     try {
       const question = this.quizService.getCurrentQuestion();
       console.log('MY Q', question);
@@ -264,18 +272,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('setCurrentQuestion called with:', question);
       console.log('ONINITQI', this.quizId);
       console.log('ONINITCQI', this.currentQuestionIndex);
-
+  
       console.log('ngOnInit of QuizQuestionComponent called');
       this.quizService.currentOptions$.subscribe((currentOptions) => {
         console.log('Current Options:::>>>', currentOptions);
         // Update this.data or any other logic that depends on currentOptions
       });
-
+  
       /* if (!this.currentQuestionLoaded) {
         await this.loadCurrentQuestion();
         this.currentQuestionLoaded = true;
       } */
-
+  
       this.multipleAnswer = new BehaviorSubject<boolean>(false);
       this.quizStateService.isMultipleAnswer();
       if (!this.multipleAnswerSubscription) {
@@ -285,7 +293,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.multipleAnswer.next(value);
           });
       }
-
+  
       this.explanationTextService.explanationText$.next('');
       this.explanationTextSubscription =
         this.explanationTextService.explanationText$.subscribe(
@@ -293,18 +301,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.explanationText$.next(explanationText);
           }
         );
-
+  
       this.loadCurrentQuestion();
       this.toggleOptions();
       // this.getCorrectAnswers();
-
+  
       /* this.quizService.currentOptions$.subscribe((currentOptions) => {
         this.correctAnswers = this.quizService.correctAnswers;
         this.currentOptions = currentOptions;   
       }); */
-
+  
       this.quizService.setCorrectAnswerOptions(this.correctAnswers);
-
+  
       combineLatest([
         this.quizService.correctAnswers$,
         this.quizService.combinedQuestionData$,
@@ -314,7 +322,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           if (data) {
             this.data = data;
             this.currentOptions = data.currentOptions;
-
+  
             // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
             if (this.currentOptions && correctAnswers) {
               this.setCorrectMessage();
@@ -322,19 +330,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               this.correctMessage =
                 'The correct answers are not available yet.';
             }
-
+  
             this.loadQuestionsForQuiz(this.quizService.quizId);
             this.fetchCorrectAnswersAndText(
               this.data,
               this.data.currentOptions
             );
-
+  
             // Set correctAnswerOptions in quizService before fetching correct answers
             this.quizService.setCorrectAnswerOptions(this.correctAnswers);
-
+  
             // Fetch the correct answers and update the correct message
             this.getCorrectAnswers();
-
+  
             // Subscribe to correctAnswers$ to handle correct answer text display
             this.quizService.correctAnswers$.subscribe((correctAnswers) => {
               this.correctAnswers = correctAnswers.get(this.data.questionText);
@@ -349,17 +357,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               'The correct answers are not available yet...';
           }
         });
-
+  
       this.quizService.fetchQuizQuestions();
-
+  
       combined$.subscribe(([correctAnswersLoaded, data]) => {
         console.log('Correct Answers Loaded:', correctAnswersLoaded);
         console.log('Question Data:', data);
-
+  
         if (correctAnswersLoaded && data && data.currentOptions) {
           this.data = data;
           this.currentOptions = data.currentOptions;
-
+  
           const currentCorrectAnswers = this.quizService.correctAnswers.get(
             this.question.questionText
           );
@@ -370,7 +378,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.correctMessage =
               'No correct answers found for the current question.';
           }
-
+  
           this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
             console.log('After fetchCorrectAnswersText...');
             console.log('MY CORR MSG:', this.correctMessage);
@@ -382,23 +390,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.correctMessage = 'The correct answers are not available yet.';
         }
       });
-
+  
       // Call fetchQuizQuestions in QuizService if you haven't already
       this.quizService.fetchQuizQuestions();
     } catch (error) {
       console.error('Error getting current question:', error);
     }
-
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-    this.selectionMessage$.subscribe((message: string) => {
-      this.selectionMessage = message;
-    });
-
+  
     console.log('Initializing component...');
-    this.subscriptionToQuestion();
     this.subscriptionToOptions();
     // this.subscribeToCorrectAnswersLoaded();
-
+  
     console.log('ngOnInit is called...');
     const data = {
       questionText: this.data.questionText,
@@ -406,11 +408,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       currentOptions: this.data.currentOptions,
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
-
+  
     console.log('questionData:::', this.questionData);
     console.log('data:::', this.data);
     console.log('data.currentOptions:::', this.data.currentOptions);
-
+  
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
   }
@@ -734,13 +736,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   subscriptionToQuestion(): void {
-    this.currentQuestionSubscription = this.quizService.currentQuestion$
+    this.currentQuestion$.subscribe(currentQuestion => {
+      console.log('currentQuestion$ emitted:', currentQuestion);
+    });
+    this.quizStateService.currentQuestion$.subscribe(currentQuestion => {
+      console.log('QuizStateService emitted:', currentQuestion);
+    });
+    this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
         tap((question: QuizQuestion | null) => {
+          console.log('Observable emitted:', question);
           if (question) {
             console.log('Question received:', question);
             this.currentQuestion = question;
             this.options = question.options;
+  
+            console.log('this.currentQuestion:', this.currentQuestion);
+            console.log('this.options:', this.options);
           }
         }),
         catchError((error) => {
@@ -748,8 +760,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           return of(null);
         })
       )
-      .subscribe();
+      .subscribe(currentQuestion => {
+        console.log('Current Question emitted:', currentQuestion);
+        // Rest of your code
+      });
   }
+  
 
   subscriptionToOptions(): void {
     this.quizService.currentOptions$.subscribe((options) => {
