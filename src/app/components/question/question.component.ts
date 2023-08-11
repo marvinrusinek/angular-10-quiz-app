@@ -185,14 +185,45 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
   
-    // Centralize the call to getCurrentQuestion()
+    this.subscribeToCurrentQuestion();
+    this.logInitialData();
+    this.selectedOption = null;
+    this.initializeQuizQuestion();
+    this.subscribeToRouterEvents();
+  
+    if (!this.initialized) {
+      this.initialized = true;
+      this.initializeSelectedQuiz();
+      this.initializeSelectedOption();
+      this.loadQuizQuestions();
+  
+      try {
+        this.handleCurrentQuestion();
+        this.subscribeToCurrentOptions();
+        this.initializeMultipleAnswer();
+        this.initializeExplanationText();
+        this.fetchAndSetCurrentQuestion();
+        this.initializeCorrectAnswerOptions();
+        this.subscribeToCorrectAnswersAndData();
+        this.fetchQuizQuestions();
+      } catch (error) {
+        console.error('Error getting current question:', error);
+      }
+    }
+  
+    this.subscribeToSelectionMessage();
+    console.log('Initializing component...');
+    this.subscriptionToOptions();
+    this.logFinalData();
+  }
+  
+  private subscribeToCurrentQuestion(): void {
     this.quizService.getCurrentQuestion().subscribe(
       (currentQuestion) => {
         console.log('My Current Question:', currentQuestion);
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
           this.currentQuestionLoaded = true;
-          this.initializeComponentWithCurrentQuestion();
         } else {
           console.error('No current question available.');
         }
@@ -201,19 +232,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error fetching current question:', error);
       }
     );
+  }
   
+  private logInitialData(): void {
     console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
     console.log('this.data:', this.data);
     console.log('this.data.currentOptions:', this.data.currentOptions);
     console.log('Data:::', this.data);
-  
     console.log('questionData:', this.questionData);
     console.log('data:', this.data);
     console.log('data.currentOptions:', this.data.currentOptions);
+  }
   
-    this.selectedOption = null;
-  
+  private initializeQuizQuestion(): void {
     if (!this.quizStateService.getQuizQuestionCreated()) {
       this.quizStateService.setQuizQuestionCreated();
   
@@ -229,7 +261,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         )
         .subscribe();
     }
+  }
   
+  private subscribeToRouterEvents(): void {
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -240,167 +274,158 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.destroy$.next();
         this.destroy$.complete();
       });
+  }
+
+  private initializeSelectedQuiz(): void {
+    if (this.quizDataService.selectedQuiz$) {
+      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+        console.log('selectedQuiz', quiz);
+        this.selectedQuiz.next(quiz);
+        this.setQuestionOptions();
+      });
+    }
+  }
+
+  private initializeSelectedOption(): void {
+    of(this.selectedOption)
+      .pipe(tap((option) => this.selectedOption$.next(option)))
+      .subscribe();
+  }
+
+  private loadQuizQuestions(): void {
+    this.quizService.fetchQuizQuestions();
+  }
   
-    if (!this.initialized) {
-      this.initialized = true;
+  private handleCurrentQuestion(currentQuestion: QuizQuestion | null): void {
+    if (currentQuestion) {
+      this.currentQuestion = currentQuestion;
+      this.currentQuestionLoaded = true;
+      console.log('Current Question in Child Component:', this.currentQuestion);
+
+      // Continue with the rest of your logic that depends on the current question
+      this.loadQuestionData();
+      this.loadCorrectAnswers();
+      // ... other logic ...
+    } else {
+      console.error('No current question available.');
+    }
+  }
+
+  private subscribeToCurrentOptions(): void {
+    this.quizService.currentOptions$.subscribe((currentOptions) => {
+      console.log('Current Options:::', currentOptions);
+      // Update this.data or any other logic that depends on currentOptions
+    });
+  }
   
-      if (this.quizDataService.selectedQuiz$) {
-        this.quizDataService.selectedQuiz$.subscribe((quiz) => {
-          console.log('selectedQuiz', quiz);
-          this.selectedQuiz.next(quiz);
-          this.setQuestionOptions();
+  private initializeMultipleAnswer(): void {
+    this.multipleAnswer = new BehaviorSubject<boolean>(false);
+    this.quizStateService.isMultipleAnswer();
+  
+    if (!this.multipleAnswerSubscription) {
+      this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$
+        .subscribe((value) => {
+          console.log('Multiple answer value:', value);
+          this.multipleAnswer.next(value);
         });
-      }
+    }
+  }
   
-      of(this.selectedOption)
-        .pipe(tap((option) => this.selectedOption$.next(option)))
-        .subscribe();
-  
-      const quizId = this.quizService.quizId;
-      if (quizId) {
-        this.quizId = quizId;
-        this.loadQuestionsForQuiz(quizId);
-      } else {
-        console.error('quizId parameter is null or undefined');
+  private initializeExplanationText(): void {
+    this.explanationTextService.explanationText$.next('');
+    this.explanationTextSubscription = this.explanationTextService.explanationText$
+      .subscribe((explanationText) => {
+        this.explanationText$.next(explanationText);
+      });
+  }
+
+  private async fetchAndSetCurrentQuestion(): Promise<void> {
+    if (!this.currentQuestionLoaded) {
+      try {
+        const question = await this.quizService.getCurrentQuestion().toPromise();
+        console.log('MY Q', question);
+        this.quizService.setCurrentQuestion(question);
+        console.log('setCurrentQuestion called with:', question);
+        console.log('ONINITQI', this.quizId);
+        console.log('ONINITCQI', this.currentQuestionIndex);
+    
+        if (question) {
+          this.currentQuestion = question;
+          this.currentQuestionLoaded = true;
+          console.log('Current Question in Child Component:', this.currentQuestion);
+        } else {
+          console.error('No current question available.');
+        }
+      } catch (error) {
+        console.error('Error getting current question:', error);
       }
     }
+  }
   
-    try {
-      const question = this.quizService.getCurrentQuestion();
-      console.log('MY Q', question);
-      this.quizService.setCurrentQuestion(question);
-      console.log('setCurrentQuestion called with:', question);
-      console.log('ONINITQI', this.quizId);
-      console.log('ONINITCQI', this.currentQuestionIndex);
+  private initializeCorrectAnswerOptions(): void {
+    this.quizService.setCorrectAnswerOptions(this.correctAnswers);
+  }
   
-      console.log('ngOnInit of QuizQuestionComponent called');
-      this.quizService.currentOptions$.subscribe((currentOptions) => {
-        console.log('Current Options:::>>>', currentOptions);
-        // Update this.data or any other logic that depends on currentOptions
-      });
+  private subscribeToCorrectAnswersAndData(): void {
+    combineLatest([
+      this.quizService.correctAnswers$,
+      this.quizService.combinedQuestionData$
+    ])
+    .pipe(take(1))
+    .subscribe(([correctAnswers, data]) => {
+      if (data) {
+        this.data = data;
+        this.currentOptions = data.currentOptions;
   
-      /* if (!this.currentQuestionLoaded) {
-        await this.loadCurrentQuestion();
-        this.currentQuestionLoaded = true;
-      } */
-  
-      this.multipleAnswer = new BehaviorSubject<boolean>(false);
-      this.quizStateService.isMultipleAnswer();
-      if (!this.multipleAnswerSubscription) {
-        this.multipleAnswerSubscription =
-          this.quizStateService.multipleAnswer$.subscribe((value) => {
-            console.log('Multiple answer value:', value);
-            this.multipleAnswer.next(value);
-          });
-      }
-  
-      this.explanationTextService.explanationText$.next('');
-      this.explanationTextSubscription =
-        this.explanationTextService.explanationText$.subscribe(
-          (explanationText) => {
-            this.explanationText$.next(explanationText);
-          }
-        );
-  
-      this.loadCurrentQuestion();
-      this.toggleOptions();
-      // this.getCorrectAnswers();
-  
-      /* this.quizService.currentOptions$.subscribe((currentOptions) => {
-        this.correctAnswers = this.quizService.correctAnswers;
-        this.currentOptions = currentOptions;   
-      }); */
-  
-      this.quizService.setCorrectAnswerOptions(this.correctAnswers);
-  
-      combineLatest([
-        this.quizService.correctAnswers$,
-        this.quizService.combinedQuestionData$,
-      ])
-        .pipe(take(1))
-        .subscribe(([correctAnswers, data]) => {
-          if (data) {
-            this.data = data;
-            this.currentOptions = data.currentOptions;
-  
-            // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
-            if (this.currentOptions && correctAnswers) {
-              this.setCorrectMessage();
-            } else {
-              this.correctMessage =
-                'The correct answers are not available yet.';
-            }
-  
-            this.loadQuestionsForQuiz(this.quizService.quizId);
-            this.fetchCorrectAnswersAndText(
-              this.data,
-              this.data.currentOptions
-            );
-  
-            // Set correctAnswerOptions in quizService before fetching correct answers
-            this.quizService.setCorrectAnswerOptions(this.correctAnswers);
-  
-            // Fetch the correct answers and update the correct message
-            this.getCorrectAnswers();
-  
-            // Subscribe to correctAnswers$ to handle correct answer text display
-            this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-              this.correctAnswers = correctAnswers.get(this.data.questionText);
-              this.updateCorrectMessage(this.correctAnswers);
-              this.updateQuestionForm();
-            });
-          } else {
-            console.log(
-              'Data is not available. Cannot call fetchCorrectAnswersText.'
-            );
-            this.correctMessage =
-              'The correct answers are not available yet...';
-          }
-        });
-  
-      this.quizService.fetchQuizQuestions();
-  
-      combined$.subscribe(([correctAnswersLoaded, data]) => {
-        console.log('Correct Answers Loaded:', correctAnswersLoaded);
-        console.log('Question Data:', data);
-  
-        if (correctAnswersLoaded && data && data.currentOptions) {
-          this.data = data;
-          this.currentOptions = data.currentOptions;
-  
-          const currentCorrectAnswers = this.quizService.correctAnswers.get(
-            this.question.questionText
-          );
-          if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
-            this.correctAnswers = currentCorrectAnswers;
-            this.updateCorrectMessage(this.correctAnswers);
-          } else {
-            this.correctMessage =
-              'No correct answers found for the current question.';
-          }
-  
-          this.fetchCorrectAnswersText(data, data.currentOptions).then(() => {
-            console.log('After fetchCorrectAnswersText...');
-            console.log('MY CORR MSG:', this.correctMessage);
-          });
+        // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
+        if (this.currentOptions && correctAnswers) {
+          this.setCorrectMessage();
         } else {
-          console.log(
-            'Correct answers or data is not available. Cannot call fetchCorrectAnswersText.'
-          );
           this.correctMessage = 'The correct answers are not available yet.';
         }
-      });
   
-      // Call fetchQuizQuestions in QuizService if you haven't already
-      this.quizService.fetchQuizQuestions();
-    } catch (error) {
-      console.error('Error getting current question:', error);
-    }
+        this.loadQuestionsForQuiz(this.quizService.quizId);
+        this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
   
-    console.log('Initializing component...');
-    this.subscriptionToOptions();
-    // this.subscribeToCorrectAnswersLoaded();
+        // Set correctAnswerOptions in quizService before fetching correct answers
+        this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   
+        // Fetch the correct answers and update the correct message
+        this.getCorrectAnswers();
+  
+        // Subscribe to correctAnswers$ to handle correct answer text display
+        this.quizService.correctAnswers$.subscribe((correctAnswers) => {
+          this.correctAnswers = correctAnswers.get(this.data.questionText);
+          this.updateCorrectMessage(this.correctAnswers);
+          this.updateQuestionForm();
+        });
+      } else {
+        console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
+        this.correctMessage = 'The correct answers are not available yet...';
+      }
+    });
+  }
+
+  private fetchQuizQuestions(): void {
+    this.quizService.fetchQuizQuestions();
+  }
+  
+  private subscribeToSelectionMessage(): void {
+    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
+    this.selectionMessage$.subscribe((message: string) => {
+      this.selectionMessage = message;
+    });
+  }
+  
+  private subscriptionToOptions(): void {
+    this.quizService.currentOptions$.subscribe((options) => {
+      if (options) {
+        this.options = options;
+      }
+    });
+  }
+  
+  private logFinalData(): void {
     console.log('ngOnInit is called...');
     const data = {
       questionText: this.data.questionText,
@@ -408,15 +433,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       currentOptions: this.data.currentOptions,
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
-  
     console.log('questionData:::', this.questionData);
     console.log('data:::', this.data);
     console.log('data.currentOptions:::', this.data.currentOptions);
-  
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
   }
-
+  
   ngOnChanges(changes: SimpleChanges): void {
     if (
       (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
