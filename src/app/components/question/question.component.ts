@@ -212,7 +212,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.subscribeToExplanationText();
         this.initializeMultipleAnswer();
         this.initializeExplanationText();
-        this.fetchAndSetCurrentQuestion();
         this.initializeCorrectAnswerOptions();
         this.subscribeToCorrectAnswersAndData();
         this.fetchQuizQuestions();
@@ -381,29 +380,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private async fetchAndSetCurrentQuestion(): Promise<void> {
-    if (!this.currentQuestionLoaded) {
-      try {
-        const question = await this.quizService.getCurrentQuestion().toPromise();
-        console.log('MY Q', question);
-        this.quizService.setCurrentQuestion(question);
-        console.log('setCurrentQuestion called with:', question);
-        console.log('ONINITQI', this.quizId);
-        console.log('ONINITCQI', this.currentQuestionIndex);
-    
-        if (question) {
-          this.currentQuestion = question;
-          this.currentQuestionLoaded = true;
-          console.log('Current Question in Child Component:', this.currentQuestion);
-        } else {
-          console.error('No current question available.');
-        }
-      } catch (error) {
-        console.error('Error getting current question:', error);
-      }
-    }
-  }
-  
   private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   }
