@@ -216,6 +216,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.subscriptionToOptions();
     this.logFinalData();
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
+      (changes.selectedOptions && !changes.selectedOptions.firstChange)
+    ) {
+      this.getCorrectAnswers();
+      /* this.correctMessage = this.quizService.setCorrectMessage(
+        this.data,
+        this.quizService.correctAnswers,
+        this.data?.currentOptions
+      ); */
+      this.cdRef.detectChanges(); // manually trigger change detection
+    }
+  }
+
+  ngOnDestroy(): void {
+    console.log('QuizQuestionComponent destroyed');
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.questionsObservableSubscription?.unsubscribe();
+    this.currentQuestionSubscription?.unsubscribe();
+    this.optionsSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
+    this.multipleAnswerSubscription?.unsubscribe();
+    this.correctAnswersSubscription?.unsubscribe();
+    this.correctAnswersLoadedSubscription?.unsubscribe();
+  }
+
+  trackByFn(index: number, option: any) {
+    return option.optionId;
+  }
   
   private subscribeToCurrentQuestion(): void {
     this.quizService.getCurrentQuestion().subscribe(
@@ -439,39 +471,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
   }
+
+  private subscribeToExplanationText(): void {
+    this.explanationTextService.explanationText$.subscribe((explanationText) => {
+      this.explanationText$.next(explanationText);
+    });
+  }
   
-  ngOnChanges(changes: SimpleChanges): void {
-    if (
-      (changes.correctAnswers && !changes.correctAnswers.firstChange) ||
-      (changes.selectedOptions && !changes.selectedOptions.firstChange)
-    ) {
-      this.getCorrectAnswers();
-      /* this.correctMessage = this.quizService.setCorrectMessage(
-        this.data,
-        this.quizService.correctAnswers,
-        this.data?.currentOptions
-      ); */
-      this.cdRef.detectChanges(); // manually trigger change detection
-    }
-  }
-
-  ngOnDestroy(): void {
-    console.log('QuizQuestionComponent destroyed');
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.questionsObservableSubscription?.unsubscribe();
-    this.currentQuestionSubscription?.unsubscribe();
-    this.optionsSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
-    this.multipleAnswerSubscription?.unsubscribe();
-    this.correctAnswersSubscription?.unsubscribe();
-    this.correctAnswersLoadedSubscription?.unsubscribe();
-  }
-
-  trackByFn(index: number, option: any) {
-    return option.optionId;
-  }
-
+  
   private async fetchCorrectAnswersAndText(
     data: any,
     currentOptions: Option[]
