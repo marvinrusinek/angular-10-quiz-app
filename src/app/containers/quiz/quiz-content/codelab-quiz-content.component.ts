@@ -72,18 +72,9 @@ export class CodelabQuizContentComponent {
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
-  
-    this.quizQuestionManagerService.getCurrentQuestion$().subscribe((question) => {
-      console.log('Current Question:>', question);
-    });
-  
     this.initializeCombinedQuestionData();
   
-    this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
-  
-    // this.currentOptions$ = this.quizService.currentOptionsSubject;
-    // this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
-  
+    // this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
     this.explanationText$ = this.explanationTextService.explanationText$;
   
     this.combinedQuestionData$ = combineLatest([
@@ -185,9 +176,9 @@ export class CodelabQuizContentComponent {
       })
     ); */
       
-    this.quizStateService.getCurrentQuestion().subscribe((question) => {
+    /* this.quizStateService.getCurrentQuestion().subscribe((question) => {
       this.currentQuestion$ = of(question);
-    });
+    }); */
   
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
@@ -196,30 +187,18 @@ export class CodelabQuizContentComponent {
     this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
         this.options = question.options;
+        console.log('Options received', question.options);
       }
+    });
+
+    this.currentOptions$.subscribe((options) => {
+      this.options = options;
+      console.log('Current Options:', options);
     });
   
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
     this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndexValue = index;
-    });
-  
-    this.currentQuestion$.subscribe((question) => {
-      if (question && question.options) {
-        console.log('Options received', question.options);
-      }
-    });
-  
-    this.currentOptions$.subscribe((options) => {
-      console.log('Current Options:', options);
-    });
-  
-    this.currentOptions$.subscribe((options) => {
-      this.options = options;
-    });
-  
-    this.quizStateService.currentOptions$.subscribe((options) => {
-      this.options = options;
     });
   
     this.quizStateService.currentQuestion$.subscribe((question) => {
@@ -228,6 +207,10 @@ export class CodelabQuizContentComponent {
       if (question && question.options) {
         console.log('Options:', question.options);
       }
+    });
+
+    this.quizStateService.currentOptions$.subscribe((options) => {
+      this.options = options;
     });
   
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
