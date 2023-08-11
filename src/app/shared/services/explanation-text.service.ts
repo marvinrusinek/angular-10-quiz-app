@@ -80,7 +80,9 @@ export class ExplanationTextService {
           console.log('Setting Explanation Text:', text);
           this.explanationText$.next(text);
         } else {
-          const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
+          if (question && question.explanation) {
+            const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
+          }
           console.log('Setting Explanation Text:', text);
           console.log('Generated Explanation Text:', text);
           this.explanationText$.next(text);

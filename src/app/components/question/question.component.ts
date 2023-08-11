@@ -1100,7 +1100,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
-      questionText: currentQuestion.questionText,
+      questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
       currentOptions: this.currentOptions
