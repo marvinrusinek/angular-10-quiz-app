@@ -82,10 +82,10 @@ export class ExplanationTextService {
         } else {
           if (question && question.explanation) {
             const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
+            console.log('Setting Explanation Text:', text);
+            console.log('Generated Explanation Text:', text);
+            this.explanationText$.next(text);
           }
-          console.log('Setting Explanation Text:', text);
-          console.log('Generated Explanation Text:', text);
-          this.explanationText$.next(text);
         }
       }
 
