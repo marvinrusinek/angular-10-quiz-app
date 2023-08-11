@@ -1080,6 +1080,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedbackForOption = { [option.optionId]: true };
     this.showFeedback = true;
     this.selectedOption = option;
+    this.selectionMessageService.updateSelectionMessage(
+      'Please click the next button to continue...'
+    );
+
     this.quizQuestionManagerService.setExplanationText(
       this.currentQuestion?.explanation || null
     );
@@ -1108,6 +1112,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.showFeedbackForOption = {};
     this.showFeedback = false;
     this.selectedOption = null;
+    this.selectionMessageService.updateSelectionMessage(
+      'Please select an option to continue...'
+    );
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
