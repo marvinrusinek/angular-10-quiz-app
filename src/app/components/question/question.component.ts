@@ -198,8 +198,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.loadQuizQuestions();
   
       try {
-        this.handleCurrentQuestion();
+        this.quizService.getCurrentQuestion().subscribe(
+          (currentQuestion) => {
+            console.log('My Current Question:', currentQuestion);
+            this.handleCurrentQuestion(currentQuestion);
+          },
+          (error) => {
+            console.error('Error fetching current question:', error);
+          }
+        );
+
         this.subscribeToCurrentOptions();
+        this.subscribeToExplanationText();
         this.initializeMultipleAnswer();
         this.initializeExplanationText();
         this.fetchAndSetCurrentQuestion();

@@ -128,16 +128,6 @@ export class MultipleAnswerComponent
     this.currentQuestion$.subscribe((question) => {
       this.question = question;
     });
-
-    this.currentOptionsSubscription = this.quizStateService
-      .getCurrentQuestion()
-      .pipe(
-        map((question: QuizQuestion) => question?.options),
-        takeUntil(this.destroyed$)
-      )
-      .subscribe((options) => {
-        console.log('options:', options);
-      });
   }
 
   ngAfterViewInit(): void {
