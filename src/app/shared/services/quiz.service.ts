@@ -668,7 +668,6 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
-    console.log('Inside getCurrentQuestion()');
     if (this.currentQuestionObservable) {
       return this.currentQuestionObservable;
     }
