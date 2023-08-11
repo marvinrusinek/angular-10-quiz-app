@@ -87,11 +87,6 @@ export class SingleAnswerComponent
   ngOnInit(): void {
     console.log('options in codelab-question-single-answer', this.options); // not working
 
-    /* this.options$ = this.quizStateService.getCurrentQuestion().pipe(
-      map((question) => question.options),
-      takeUntil(this.destroyed$)
-    ); */ // remove
-
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         console.log('SingleAnswerComponent destroyed');
