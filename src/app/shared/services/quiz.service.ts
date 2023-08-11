@@ -667,52 +667,6 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  /* async getCurrentQuestion(): Promise<QuizQuestion> {
-    if (this.currentQuestionPromise) {
-      return this.currentQuestionPromise.then(() => {
-        return this.getCurrentQuestion();
-      });
-    }
-
-    const quizId = this.getCurrentQuizId();
-    this.currentQuestionPromise = this.getQuestionsForQuiz(quizId)
-      .pipe(
-        tap(({ quizId, questions }) => {
-          this.questions = questions;
-          this.questionLoadingSubject.next(true);
-          this.loadingQuestions = false;
-          this.currentQuestionPromise = null;
-        }),
-        catchError((error) => {
-          console.error('Error getting quiz questions:', error);
-          this.questionLoadingSubject.next(false);
-          this.loadingQuestions = false;
-          this.currentQuestionPromise = null;
-          return throwError(error);
-        })
-      )
-      .pipe(
-        switchMap(({ quizId, questions }) => {
-          if (Array.isArray(questions)) {
-            const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-            this.currentQuestion.next(questions[currentQuestionIndex]);
-            this.currentQuestionSubject.next({
-              ...this.currentQuestion.getValue(),
-            });
-            return this.currentQuestionSubject.pipe(
-              distinctUntilChanged(),
-              take(1)
-            );
-          } else {
-            throw new Error('getCurrentQuestion() did not return an array');
-          }
-        })
-      )
-      .toPromise();
-
-    return this.currentQuestionPromise;
-  } */
-
   getCurrentQuestion(): Observable<QuizQuestion> {
     console.log('Inside getCurrentQuestion()');
     if (this.currentQuestionObservable) {
