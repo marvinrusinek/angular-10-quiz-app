@@ -262,10 +262,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToCurrentQuestion(): void {
     this.quizService.getCurrentQuestion().subscribe(
       (currentQuestion) => {
-        console.log('My Current Question:', currentQuestion);
+        console.log('My Current Question:::', currentQuestion);
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
           this.currentQuestionLoaded = true;
+          this.cdRef.detectChanges();
         } else {
           console.error('No current question available.');
         }
@@ -1043,14 +1044,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onOptionClicked(option: any): void {
     //this.currentQuestion$.subscribe(currentQuestion => {
       //if (currentQuestion) {
-        this.handleOptionClicked(this.currentQuestion, option); 
+        if (!this.currentQuestion) {
+          this.subscribeToCurrentQuestion(); // Subscribe if currentQuestion is not available yet
+        } else {
+          this.handleOptionClicked(this.currentQuestion, option); // Call your existing logic
+        }
       //} else {
         //console.error('Current question is undefined.');
       //}
     //});
   }
-
+  
   handleOptionClicked(currentQuestion: QuizQuestion, option: any): void {
+    console.log('handleOptionClicked called with:', currentQuestion, option);
     const isOptionSelected = this.checkOptionSelected(option);
   
     if (!isOptionSelected) {
