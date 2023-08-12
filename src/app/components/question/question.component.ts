@@ -134,6 +134,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
+  explanationText: string | null = null;
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
@@ -461,6 +462,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToExplanationText(): void {
     this.explanationTextService.explanationText$.subscribe((explanationText) => {
       this.explanationText$.next(explanationText);
+      this.explanationText = explanationText;
     });
   }
   
@@ -1064,11 +1066,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.unselectOption();
     }
   
-    if (this.selectedOptions.length > 0) {
-      this.setExplanationText(currentQuestion, this.selectedOptions);
-    } else {
-      this.explanationText$.next('');
-    }
+    // Fetch whether the current question is a multiple-answer question
+    this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
+      if (this.selectedOptions.length > 0) {
+        // this.setExplanationText(currentQuestion, this.selectedOptions);
+        this.explanationTextService.setExplanationText(this.selectedOptions, this.currentQuestion);
+      } else {
+        this.explanationText$.next('');
+      }
+    });
   }  
   
   checkOptionSelected(option: any): boolean {

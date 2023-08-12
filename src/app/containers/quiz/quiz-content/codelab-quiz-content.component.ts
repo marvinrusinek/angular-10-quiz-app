@@ -43,7 +43,7 @@ export class CodelabQuizContentComponent {
 
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
-  explanationText: string = '';
+  explanationText: string | null = null;
 
   @Input() combinedQuestionData$: Observable<{
     questionText: string;
@@ -76,6 +76,10 @@ export class CodelabQuizContentComponent {
   
     // this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
     this.explanationText$ = this.explanationTextService.explanationText$;
+
+    this.explanationTextService.explanationText$.subscribe((explanationText) => {
+      this.explanationText = explanationText;
+    });
   
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
