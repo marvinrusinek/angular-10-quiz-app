@@ -689,7 +689,7 @@ export class QuizService implements OnDestroy {
           return throwError(error);
         }),
         switchMap(({ quizId, questions }) => {
-          if (Array.isArray(questions)) {
+          if (Array.isArray(questions) && questions.length > 0) {
             const currentQuestionIndex = this.currentQuestionIndex ?? 0;
             this.currentQuestionSubject.next(questions[currentQuestionIndex]);
             return this.currentQuestionSubject;
