@@ -66,7 +66,9 @@ export class CodelabQuizContentComponent {
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.explanationText$ = this.explanationTextService.getExplanationText$();
+  }
 
   ngOnInit(): void {
     this.initializeQuestionData();
