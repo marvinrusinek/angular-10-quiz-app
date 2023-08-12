@@ -74,14 +74,6 @@ export class CodelabQuizContentComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
   
-    // this.currentQuestion$ = this.quizQuestionManagerService.getCurrentQuestion$();
-    this.explanationText$ = this.explanationTextService.explanationText$;
-
-    this.explanationTextService.explanationText$.subscribe((explanationText) => {
-      this.explanationText = explanationText;
-      this.cdRef.detectChanges();
-    });
-  
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
