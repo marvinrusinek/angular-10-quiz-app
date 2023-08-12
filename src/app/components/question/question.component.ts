@@ -1055,26 +1055,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
-    console.log('handleOptionClicked called with:', currentQuestion, option);
     const isOptionSelected = this.checkOptionSelected(option);
   
     if (!isOptionSelected) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
-        // Select the option
         this.selectOption(currentQuestion, option);
       } else {
         console.log('Option is already selected.');
       }
     } else {
-      // Unselect the option
       this.unselectOption();
     }
   
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.selectedOptions.length > 0) {
-        // this.setExplanationText(currentQuestion, this.selectedOptions);
         this.explanationTextService.setExplanationText([option], currentQuestion);
       } else {
         this.explanationText$.next('');
@@ -1130,8 +1126,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
-    console.log('setExplanationText called with:', currentQuestion, options);
-
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
       .subscribe(
@@ -1139,7 +1133,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.log('Generated explanation text:::', explanationText);
           this.explanationText$.next(explanationText);
           this.explanationTextValue$.next(explanationText);
-          console.log('explanationText$ updated with:', explanationText);
           this.isAnswerSelectedChange.emit(true);
           this.toggleVisibility.emit();
           this.updateFeedbackVisibility();
