@@ -186,6 +186,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
   
+    /* this.quizService.getCurrentQuestion().subscribe(
+      (currentQuestion) => {
+        this.currentQuestion = currentQuestion;
+        this.cdRef.detectChanges();
+        // Call handleOptionClicked here if needed
+      },
+      (error) => {
+        console.error('Error fetching current question:', error);
+      }
+    ); */
+
+    this.quizService.currentQuestion.subscribe((currentQuestion) => {
+      this.currentQuestion = currentQuestion;
+      console.log('Current Question in Subscription:::', currentQuestion);
+    });
+
     this.subscribeToCurrentQuestion();
     this.logInitialData();
     this.selectedOption = null;
@@ -199,16 +215,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.loadQuizQuestions();
   
       try {
-        /* this.quizService.getCurrentQuestion().subscribe(
-          (currentQuestion) => {
-            console.log('My Current Question:', currentQuestion);
-            this.handleCurrentQuestion(currentQuestion);
-          },
-          (error) => {
-            console.error('Error fetching current question:', error);
-          }
-        ); */
-
         this.subscribeToCurrentOptions();
         this.subscribeToExplanationText();
         this.initializeMultipleAnswer();
@@ -1044,18 +1050,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onOptionClicked(option: any): void {
     //this.currentQuestion$.subscribe(currentQuestion => {
       //if (currentQuestion) {
-        if (!this.currentQuestion) {
-          this.subscribeToCurrentQuestion(); // Subscribe if currentQuestion is not available yet
-        } else {
+        //if (!this.currentQuestion) {
+          //this.subscribeToCurrentQuestion(); // Subscribe if currentQuestion is not available yet
+        //} else {
           this.handleOptionClicked(this.currentQuestion, option); // Call your existing logic
-        }
+        //}
       //} else {
         //console.error('Current question is undefined.');
       //}
     //});
   }
   
-  handleOptionClicked(currentQuestion: QuizQuestion, option: any): void {
+  handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     console.log('handleOptionClicked called with:', currentQuestion, option);
     const isOptionSelected = this.checkOptionSelected(option);
   
@@ -1076,7 +1082,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.selectedOptions.length > 0) {
         // this.setExplanationText(currentQuestion, this.selectedOptions);
-        this.explanationTextService.setExplanationText(this.selectedOptions, this.currentQuestion);
+        this.explanationTextService.setExplanationText([option], currentQuestion);
       } else {
         this.explanationText$.next('');
       }
@@ -1131,6 +1137,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
+    console.log('setExplanationText called with:', currentQuestion, options);
+
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
       .subscribe(
@@ -1138,6 +1146,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           console.log('Generated explanation text:::', explanationText);
           this.explanationText$.next(explanationText);
           this.explanationTextValue$.next(explanationText);
+          console.log('explanationText$ updated with:', explanationText);
           this.isAnswerSelectedChange.emit(true);
           this.toggleVisibility.emit();
           this.updateFeedbackVisibility();

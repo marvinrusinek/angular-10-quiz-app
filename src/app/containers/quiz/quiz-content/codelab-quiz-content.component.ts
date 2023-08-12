@@ -78,7 +78,7 @@ export class CodelabQuizContentComponent {
     this.explanationText$ = this.explanationTextService.explanationText$;
 
     this.explanationTextService.explanationText$.subscribe((explanationText) => {
-      console.log('Explanation Text:::>>>>>', explanationText);
+      console.log('Explanation Text:::::>>>>>', explanationText);
       this.explanationText = explanationText;
       this.cdRef.detectChanges();
     });

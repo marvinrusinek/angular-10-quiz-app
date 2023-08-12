@@ -74,10 +74,9 @@ export class QuizService implements OnDestroy {
     new Subject<QuizQuestion | null>();
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
-  currentQuestion$: Observable<QuizQuestion | null>  = this.currentQuestionSource.asObservable();
   currentQuestionPromise: Promise<QuizQuestion> = null;
-  private currentQuestionSubject: BehaviorSubject<QuizQuestion> =
-    new BehaviorSubject<QuizQuestion>(null);
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  public currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSubject.asObservable();
 
   currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
@@ -444,12 +443,16 @@ export class QuizService implements OnDestroy {
         console.error('An error occurred while loading questions:', error);
         return throwError('Something went wrong.');
       }),
-      map((filteredQuestions) => ({ quizId, questions: filteredQuestions })),
+      map((filteredQuestions) => {
+        this.updateCurrentQuestion();
+        return { quizId, questions: filteredQuestions };
+      }),
       distinctUntilChanged(
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
   }
+
   
   updateQuestions(quizId: string): Promise<void> {
     this.questionsLoaded = true;
