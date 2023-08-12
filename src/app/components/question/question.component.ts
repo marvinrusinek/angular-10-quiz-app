@@ -197,12 +197,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     ); */
 
-    this.quizService.currentQuestion.subscribe((currentQuestion) => {
+    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
       console.log('Current Question in Subscription:::', currentQuestion);
     });
 
-    this.subscribeToCurrentQuestion();
+    // this.subscribeToCurrentQuestion();
     this.logInitialData();
     this.selectedOption = null;
     this.initializeQuizQuestion();
@@ -1048,18 +1048,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: any): void {
+    //if (!this.currentQuestion) {
+      // Subscribe to currentQuestion$ if not available yet
+      this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+        this.currentQuestion = currentQuestion;
+        console.log('Current Question in Subscription:::', currentQuestion);
+  
+        // Call handleOptionClicked here after currentQuestion is assigned
+        this.handleOptionClicked(this.currentQuestion, option);
+      });
+    //} else {
+      // Call handleOptionClicked using existing logic
+      //this.handleOptionClicked(this.currentQuestion, option);
+    //}
+  }
+
+  //onOptionClicked(option: any): void {
     //this.currentQuestion$.subscribe(currentQuestion => {
       //if (currentQuestion) {
         //if (!this.currentQuestion) {
           //this.subscribeToCurrentQuestion(); // Subscribe if currentQuestion is not available yet
         //} else {
-          this.handleOptionClicked(this.currentQuestion, option); // Call your existing logic
+          // this.handleOptionClicked(this.currentQuestion, option); // Call your existing logic
         //}
       //} else {
         //console.error('Current question is undefined.');
       //}
     //});
-  }
+  //}
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     console.log('handleOptionClicked called with:', currentQuestion, option);
