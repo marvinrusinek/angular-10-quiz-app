@@ -450,7 +450,7 @@ export class QuizService implements OnDestroy {
       )
     );
   }
-
+  
   updateQuestions(quizId: string): Promise<void> {
     this.questionsLoaded = true;
     return new Promise((resolve, reject) => {
