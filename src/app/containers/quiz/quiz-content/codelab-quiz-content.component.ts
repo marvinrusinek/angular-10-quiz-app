@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, from, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -51,7 +51,7 @@ export class CodelabQuizContentComponent {
     correctAnswersText?: string;
     currentOptions: Option[];
   }> | null = null;
-
+  combinedText$: Observable<string>;
   currentDisplayText: string = '';
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
@@ -74,7 +74,7 @@ export class CodelabQuizContentComponent {
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
-  
+
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
@@ -88,7 +88,7 @@ export class CodelabQuizContentComponent {
         };
       })
     );
-  
+
     // Update the options$ initialization using combineLatest
     this.options$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
       map(([currentQuestion, currentOptions]) => {
@@ -100,25 +100,25 @@ export class CodelabQuizContentComponent {
     );
 
     this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
-      console.log('Current Question Subscribed:', question);
-
       if (question) {
-        console.log('Current Question Value:', question.questionText);
-  
         this.currentDisplayText = this.explanationText || question.questionText || '';
       } else {
         this.currentDisplayText = this.explanationText || '';
       }
     });
-  
+
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
       this.explanationText = explanationText;
-  
+
       // Update the currentDisplayText to display either the explanation text or the question text
       this.currentDisplayText = this.explanationText || this.currentQuestion?.getValue()?.questionText || '';
     });
+
+    this.combinedText$ = merge(
+      this.explanationText$,
+      this.quizStateService.currentQuestion$.pipe(map(question => question?.questionText || ''))
+    );
   }
-  
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -151,11 +151,11 @@ export class CodelabQuizContentComponent {
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
         }
       });
-  
+
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
-  
+
     this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
         this.options = question.options;
@@ -167,15 +167,15 @@ export class CodelabQuizContentComponent {
       this.options = options;
       console.log('Current Options:', options);
     });
-  
+
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
     this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndexValue = index;
     });
-  
+
     this.quizStateService.currentQuestion$.subscribe((question) => {
       this.question = question;
-  
+
       if (question && question.options) {
         console.log('Options:', question.options);
       }
@@ -184,7 +184,7 @@ export class CodelabQuizContentComponent {
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.options = options;
     });
-  
+
     this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
@@ -193,7 +193,7 @@ export class CodelabQuizContentComponent {
         this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers.toString());
       }
     });
-  }  
+  }
 
   private initializeNextQuestionSubscription(): void {
     this.nextQuestion$ = this.quizService.nextQuestion$.pipe(
@@ -223,26 +223,26 @@ export class CodelabQuizContentComponent {
 
   private initializeExplanationTextSubscription(): void {
     const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
-    
+
     this.explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
       selectedOptionExplanation$
     ]).pipe(
       map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
     );
-  
+
     this.explanationTextSubscription = this.explanationText$.subscribe((displayText) => {
       this.quizQuestionManagerService.setExplanationText(displayText);
       this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
     });
   }
-  
+
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
-  
+
     this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       currentQuestionAndOptions$,
@@ -250,24 +250,24 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
-  
+
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-  
+
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
-  
+
         const displayText = explanationText || `${questionText} ${correctAnswersText}`;
-  
+
         return { questionText: questionText, explanationText, correctAnswersText, currentOptions };
       })
     );
-  
+
     this.combinedQuestionData$.subscribe((data) => {
       const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-    
+
       if (data.explanationText !== undefined) {
         console.log('Updating currentDisplayText with explanation...');
         this.currentDisplayText = data.explanationText;
@@ -281,7 +281,7 @@ export class CodelabQuizContentComponent {
       }
     });
   }
-     
+
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
       for (let i = 0; i < questions.length; i++) {
