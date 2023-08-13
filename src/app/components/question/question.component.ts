@@ -1060,7 +1060,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!isOptionSelected) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
-        this.selectedOptions.push(option); // Add the selected option to the array
+        this.selectedOptions.push(option);
         this.selectOption(currentQuestion, option);
       } else {
         console.log('Option is already selected.');
@@ -1077,9 +1077,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.selectedOptions.length > 0) {
-        const selectedOptionsArray = this.selectedOptions.slice(); // Clone the array
+        const selectedOptionsArray = [...this.selectedOptions]; // Clone the array
         console.log('Selected Options:::', this.selectedOptions);
         console.log('Selected Option:::', option);
+        console.log('Selected Options Array:', selectedOptionsArray);
         this.setExplanationText(currentQuestion, selectedOptionsArray);
         // this.explanationTextService.setExplanationText([option], currentQuestion);
       } else {
