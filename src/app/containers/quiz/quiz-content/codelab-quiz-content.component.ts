@@ -248,26 +248,6 @@ export class CodelabQuizContentComponent {
   }
 
   private initializeExplanationTextSubscription(): void {
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-    this.explanationTextSubscription = this.explanationText$.subscribe(
-      (explanationText) => {
-        const displayed = !!explanationText;
-  
-        // Add code to get the selected option's explanation
-        const selectedOptionExplanation = this.selectedOptionService.getSelectedOptionExplanation();
-  
-        // Combine the selected option's explanation with the overall explanation text
-        const combinedExplanationText = selectedOptionExplanation
-          ? `${explanationText}\n\n${selectedOptionExplanation}`
-          : explanationText;
-  
-        this.quizQuestionManagerService.setExplanationText(combinedExplanationText);
-        this.quizQuestionManagerService.setExplanationDisplayed(displayed);
-      }
-    );
-  }
-
-  /* private initializeExplanationTextSubscription(): void {
     const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
     
     this.explanationText$ = combineLatest([
@@ -278,11 +258,10 @@ export class CodelabQuizContentComponent {
     );
   
     this.explanationTextSubscription = this.explanationText$.subscribe((displayText) => {
-      // Update the necessary values in your service
       this.quizQuestionManagerService.setExplanationText(displayText);
       this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
     });
-  } */
+  }
   
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
