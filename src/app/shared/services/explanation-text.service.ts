@@ -20,6 +20,9 @@ export class ExplanationTextService {
     selectedOptions: Option[],
     question?: QuizQuestion
   ): Observable<string> {
+    console.log('selectedOptions:', selectedOptions);
+    console.log('Array.isArray(selectedOptions):', Array.isArray(selectedOptions));
+
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return of('');
