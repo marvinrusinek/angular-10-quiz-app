@@ -1061,6 +1061,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!isOptionSelected && index === -1) {
       this.selectedOptions.push(option);
+      console.log('After Click - selectedOptions:', this.selectedOptions);
       this.selectOption(currentQuestion, option);
     } else {
       if (index !== -1) {
@@ -1073,7 +1074,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.selectedOptions.length > 0) {
-        const selectedOptionsArray = [...this.selectedOptions]; // Clone the array
+        const selectedOptionsArray = [...this.selectedOptions] as Option[];
         console.log('Selected Options:', selectedOptionsArray);
         console.log('Selected Options:::', this.selectedOptions);
         console.log('Selected Option:::', option);
@@ -1089,6 +1090,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } 
   
   checkOptionSelected(option: Option): boolean {
+    console.log('Checking if option is selected:', option);
     return this.selectedOptions.includes(option);
   }
 
@@ -1137,7 +1139,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
     console.log("MY OPTIONS:::", options);
-    console.log("Number of Options:", options.length);
+    console.log("Number of Options:", this.selectedOptions.length);
     console.log("Single Option:", options[0]);
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
