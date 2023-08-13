@@ -1061,9 +1061,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!isOptionSelected) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
-        // this.selectedOptions.push(option);
-        const updatedOptions = [...this.selectedOptions, option];
-        this.selectedOptions = updatedOptions;
+        this.selectedOptions.push(option);
+        // const updatedOptions = [...this.selectedOptions, option];
+        // this.selectedOptions = updatedOptions;
         this.selectOption(currentQuestion, option);
       } else {
         console.log('Option is already selected.');
