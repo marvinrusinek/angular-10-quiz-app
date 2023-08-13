@@ -160,24 +160,6 @@ export class CodelabQuizContentComponent {
         }
       });
   
-    /* this.currentOptions$ = this.quizService.getOptionsObservable().pipe(
-      withLatestFrom(this.currentQuestion$),
-      map(([options, currentQuestion]) => {
-        // Filter and return the options for the current question
-        if (currentQuestion && options) {
-          return options.filter((option) => {
-            // Assuming each option has a unique id and each question has a unique id
-            return currentQuestion.options.some((qOption) => qOption.optionId === option.optionId);
-          });
-        }
-        return [];
-      })
-    ); */
-      
-    /* this.quizStateService.getCurrentQuestion().subscribe((question) => {
-      this.currentQuestion$ = of(question);
-    }); */
-  
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
