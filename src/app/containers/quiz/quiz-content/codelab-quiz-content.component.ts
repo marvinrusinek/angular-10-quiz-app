@@ -139,10 +139,6 @@ export class CodelabQuizContentComponent {
     this.nextQuestionSubscription?.unsubscribe();
   }
 
-  /* updateExplanationTextForSelectedOption(): void {
-    this.quizQuestionManagerService.updateExplanationTextForSelectedOption();
-  } */
-
   shouldDisplayCorrectAnswersText(data: any): boolean {
     return this.shouldDisplayNumberOfCorrectAnswersCount() &&
            data?.correctAnswersText &&
