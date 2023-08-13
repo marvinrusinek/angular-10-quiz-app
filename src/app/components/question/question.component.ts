@@ -1060,7 +1060,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const index = this.selectedOptions.findIndex((o) => o === option);
 
     if (!isOptionSelected && index === -1) {
-      this.selectedOptions.push(option);
+      this.selectedOptions.push(option as Option);
       console.log('After Click - selectedOptions:', this.selectedOptions);
       this.selectOption(currentQuestion, option);
     } else {
@@ -1091,7 +1091,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   checkOptionSelected(option: Option): boolean {
     console.log('Checking if option is selected:', option);
-    return this.selectedOptions.includes(option);
+    return this.selectedOptions.includes(option as Option);
   }
 
   selectOption(currentQuestion: QuizQuestion, option: any): void {
