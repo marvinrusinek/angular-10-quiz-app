@@ -1088,7 +1088,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   } 
   
-  checkOptionSelected(option: any): boolean {
+  checkOptionSelected(option: Option): boolean {
     return this.selectedOptions.includes(option);
   }
 
