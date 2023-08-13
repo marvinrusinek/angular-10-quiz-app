@@ -17,29 +17,18 @@ export class QuizQuestionManagerService {
   correctAnswersCount: number = 0;
 
   selectedOption: Option | null = null;
-  explanationTextForSelectedOption: string | null = null;
 
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
 
-  setSelectedOption(option: Option | null): void {
+  setSelectedOption(option: Option): void {
     this.selectedOption = option;
-    this.updateExplanationTextForSelectedOption();
-  }
-
-  updateExplanationTextForSelectedOption(): void {
-    const currentQuestion = this.currentQuestion.getValue();
-    this.explanationTextForSelectedOption = currentQuestion?.explanation || null;
   }
 
   getSelectedOption(): Option | null {
     return this.selectedOption;
-  }
-
-  getExplanationTextForSelectedOption(): string | null {
-    return this.explanationTextForSelectedOption;
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
@@ -58,13 +47,11 @@ export class QuizQuestionManagerService {
 
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
-    // this.explanationText = text;
     this.shouldDisplayExplanation = !!explanation;
    }
 
   getExplanationText(): string | null {
     return this.explanationText;
-    // return this.explanationTextSubject.getValue();
   }
 
   get explanationText$(): Observable<string | null> {
