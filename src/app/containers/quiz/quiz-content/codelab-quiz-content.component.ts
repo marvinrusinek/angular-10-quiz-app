@@ -56,6 +56,7 @@ export class CodelabQuizContentComponent {
   displayCorrectAnswers: boolean = false;
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
+  displayCorrectAnswersText: boolean;
 
   private destroy$ = new Subject<void>();
 
@@ -121,8 +122,9 @@ export class CodelabQuizContentComponent {
     );
 
     this.combinedQuestionData$.subscribe(data => {
-      this.displayCorrectAnswers = this.shouldDisplayNumberOfCorrectAnswersCount() &&
-        !!data?.correctAnswersText && !this.isExplanationTextDisplayed;
+      this.displayCorrectAnswersText = this.shouldDisplayNumberOfCorrectAnswersCount() &&
+                                      data?.correctAnswersText &&
+                                      !this.isExplanationTextDisplayed;
     });
   }
 
@@ -137,6 +139,13 @@ export class CodelabQuizContentComponent {
   updateExplanationTextForSelectedOption(): void {
     this.quizQuestionManagerService.updateExplanationTextForSelectedOption();
   }
+
+  shouldDisplayCorrectAnswersText(data: any): boolean {
+    return this.shouldDisplayNumberOfCorrectAnswersCount() &&
+           data?.correctAnswersText &&
+           !this.isExplanationTextDisplayed;
+  }
+  
 
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
