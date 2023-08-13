@@ -4,7 +4,9 @@
       <span *ngIf="combinedText$ | async as combinedText">
         {{ combinedText }}
       </span>
-      <span class="number-correct" *ngIf="shouldDisplayNumberOfCorrectAnswersCount() && data?.correctAnswersText && !isExplanationTextDisplayed">{{ data?.correctAnswersText }}</span>
+      <span class="number-correct" *ngIf="displayCorrectAnswers">
+        {{ data?.correctAnswersText }}
+      </span>
     </h3>
   </section>
 </ng-container>

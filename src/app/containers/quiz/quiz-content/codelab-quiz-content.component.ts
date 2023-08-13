@@ -53,6 +53,7 @@ export class CodelabQuizContentComponent {
   }> | null = null;
   combinedText$: Observable<string>;
   currentDisplayText: string = '';
+  displayCorrectAnswers: boolean = false;
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
 
@@ -118,6 +119,11 @@ export class CodelabQuizContentComponent {
       this.explanationText$,
       this.quizStateService.currentQuestion$.pipe(map(question => question?.questionText || ''))
     );
+
+    this.combinedQuestionData$.subscribe(data => {
+      this.displayCorrectAnswers = this.shouldDisplayNumberOfCorrectAnswersCount() &&
+        !!data?.correctAnswersText && !this.isExplanationTextDisplayed;
+    });
   }
 
   ngOnDestroy(): void {
