@@ -118,13 +118,16 @@ export class CodelabQuizContentComponent {
 
     this.combinedText$ = merge(
       this.explanationText$,
-      this.quizStateService.currentQuestion$.pipe(map(question => question?.questionText || ''))
+      this.quizStateService.currentQuestion$.pipe(
+        map(question => question?.questionText || '')
+      )
     );
 
     this.combinedQuestionData$.subscribe(data => {
-      this.displayCorrectAnswersText = this.shouldDisplayNumberOfCorrectAnswersCount() &&
-                                      data?.correctAnswersText &&
-                                      !this.isExplanationTextDisplayed;
+      this.displayCorrectAnswersText = 
+        this.shouldDisplayNumberOfCorrectAnswersCount() &&
+        data?.correctAnswersText &&
+        !this.isExplanationTextDisplayed;
     });
   }
 
