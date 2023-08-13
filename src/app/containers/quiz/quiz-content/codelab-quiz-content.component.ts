@@ -117,14 +117,6 @@ export class CodelabQuizContentComponent {
       // Update the currentDisplayText to display either the explanation text or the question text
       this.currentDisplayText = this.explanationText || this.currentQuestion?.getValue()?.questionText || '';
     });
-
-    console.log('Current Question:', this.currentQuestion);
-    console.log('Value:', this.currentQuestion?.value);
-    console.log('Value Question Text:', this.currentQuestion?.value?.questionText);
-
-  
-    console.log('CodelabQuizCpComponent - Question:', this.question);
-    console.log('CodelabQuizCpComponent - Options:', this.options);
   }
   
 
