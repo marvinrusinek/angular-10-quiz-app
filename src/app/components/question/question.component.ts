@@ -1057,25 +1057,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     console.log('Before Click - selectedOptions:', this.selectedOptions);
     const isOptionSelected = this.checkOptionSelected(option);
+    const index = this.selectedOptions.findIndex((o) => o === option);
 
-    if (!isOptionSelected) {
-      const index = this.selectedOptions.findIndex((o) => o === option);
+    if (isOptionSelected) {
+      if (index !== -1) {
+        this.selectedOptions.splice(index, 1);
+      }
+      this.unselectOption();
+      console.log('After Click - selectedOptions:', this.selectedOptions);
+    } else {
       if (index === -1) {
         this.selectedOptions.push(option);
-        // const updatedOptions = [...this.selectedOptions, option];
-        // this.selectedOptions = updatedOptions;
         this.selectOption(currentQuestion, option);
       } else {
         console.log('Option is already selected.');
       }
-    } else {
-      // Unselect the option and remove it from selectedOptions array
-      const index = this.selectedOptions.findIndex((o) => o === option);
-      if (index !== -1) {
-        this.selectedOptions.splice(index, 1); // Remove the unselected option
-      }
-      this.unselectOption();
-      console.log('After Click - selectedOptions:', this.selectedOptions);
     }
 
     // Fetch whether the current question is a multiple-answer question
