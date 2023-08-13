@@ -1055,8 +1055,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
+    console.log('Before Click - selectedOptions:', this.selectedOptions);
     const isOptionSelected = this.checkOptionSelected(option);
-  
+
     if (!isOptionSelected) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
@@ -1074,22 +1075,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.selectedOptions.splice(index, 1); // Remove the unselected option
       }
       this.unselectOption();
+      console.log('After Click - selectedOptions:', this.selectedOptions);
     }
-  
+
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.selectedOptions.length > 0) {
         const selectedOptionsArray = [...this.selectedOptions]; // Clone the array
+        console.log('Selected Options:', selectedOptionsArray);
         console.log('Selected Options:::', this.selectedOptions);
         console.log('Selected Option:::', option);
         console.log('Selected Options Array:', selectedOptionsArray);
+        console.log('Before calling setExplanationText - selectedOptionsArray:', selectedOptionsArray);
         this.setExplanationText(currentQuestion, selectedOptionsArray);
+
         // this.explanationTextService.setExplanationText([option], currentQuestion);
       } else {
         this.explanationText$.next('');
       }
     });
-  }  
+  } 
   
   checkOptionSelected(option: any): boolean {
     return this.selectedOptions.includes(option);
@@ -1146,6 +1151,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .setExplanationText(options, currentQuestion)
       .subscribe(
         (explanationText: string) => {
+          console.log('Generated Explanation Text:', explanationText);
           this.explanationText$.next(explanationText);
           this.explanationTextValue$.next(explanationText);
           this.isAnswerSelectedChange.emit(true);

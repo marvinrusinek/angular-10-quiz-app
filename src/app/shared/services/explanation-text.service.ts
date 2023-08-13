@@ -22,6 +22,9 @@ export class ExplanationTextService {
   ): Observable<string> {
     console.log('selectedOptions:', selectedOptions);
     console.log('Array.isArray(selectedOptions):', Array.isArray(selectedOptions));
+    console.log('setExplanationText received selectedOptions:', selectedOptions);
+    console.log('setExplanationText received Array.isArray(selectedOptions):', Array.isArray(selectedOptions));
+    console.log('setExplanationText received options:', selectedOptions);
 
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
