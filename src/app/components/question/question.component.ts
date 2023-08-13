@@ -1060,7 +1060,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (!isOptionSelected) {
       const index = this.selectedOptions.findIndex((o) => o === option);
       if (index === -1) {
-        this.selectedOptions.push(option);
+        // this.selectedOptions.push(option);
+        const updatedOptions = [...this.selectedOptions, option];
+        this.selectedOptions = updatedOptions;
         this.selectOption(currentQuestion, option);
       } else {
         console.log('Option is already selected.');
@@ -1138,6 +1140,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
     console.log("MY OPTIONS:::", options);
+    console.log("Number of Options:", options.length);
     console.log("Single Option:", options[0]);
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
