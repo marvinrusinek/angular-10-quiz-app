@@ -54,6 +54,7 @@ export class CodelabQuizContentComponent {
 
   currentDisplayText: string = '';
   showExplanation: boolean = false;
+  isExplanationTextDisplayed: boolean = false;
 
   private destroy$ = new Subject<void>();
 
