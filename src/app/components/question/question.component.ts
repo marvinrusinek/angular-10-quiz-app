@@ -1071,7 +1071,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.selectedOptions.length > 0) {
-        this.explanationTextService.setExplanationText([option], currentQuestion);
+        const selectedOptionsArray = this.selectedOptions.slice(); // Clone the array
+        this.setExplanationText(currentQuestion, selectedOptionsArray);
+        // this.explanationTextService.setExplanationText([option], currentQuestion);
       } else {
         this.explanationText$.next('');
       }
@@ -1126,6 +1128,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
+    console.log("MY OPTIONS:::", options);
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
       .subscribe(
