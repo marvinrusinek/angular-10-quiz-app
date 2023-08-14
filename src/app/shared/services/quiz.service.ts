@@ -326,17 +326,6 @@ export class QuizService implements OnDestroy {
     return segments[1].toString();
   }
 
-  getExplanationForQuestion(question: QuizQuestion): Observable<string> {
-    console.log('Fetching explanation for question:', question);
-    const questionText = question.questionText;
-
-    // Construct the API URL with the questionText parameter
-    const url = `${this.quizUrl}/explanation?question=${encodeURIComponent(questionText)}`;
-
-    // Make an HTTP GET request to the API to fetch the explanation text
-    return this.http.get<string>(url);
-  }
-
   getCorrectAnswersAsString(): string {
     // Convert the map to a comma-separated string
     const correctAnswersString = Array.from(this.correctAnswers.values())

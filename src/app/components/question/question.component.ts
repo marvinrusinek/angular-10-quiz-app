@@ -1128,21 +1128,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  getExplanationForQuestion(question: QuizQuestion): string {
-    const explanation$ = this.quizService.getExplanationForQuestion(question);
-
-    explanation$.subscribe(
-      (explanationText: string) => {
-        this.explanationText$.next(explanationText);
-      },
-      (error: any) => {
-        console.error('Error fetching explanation text:', error);
-      }
-    );
-
-    return ''; // Placeholder return, update it with the actual fetched explanation text
-  }
-
   updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
