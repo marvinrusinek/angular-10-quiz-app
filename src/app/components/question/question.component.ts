@@ -762,15 +762,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
   
-
-  subscriptionToOptions(): void {
-    this.quizService.currentOptions$.subscribe((options) => {
-      if (options) {
-        this.options = options;
-      }
-    });
-  }
-
   setQuizQuestion(quizId: string | null | undefined): void {
     if (!quizId) {
       console.error('Quiz ID is undefined');
