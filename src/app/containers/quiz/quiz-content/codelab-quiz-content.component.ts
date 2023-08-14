@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, from, merge, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -138,13 +138,6 @@ export class CodelabQuizContentComponent {
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
   }
-
-  shouldDisplayCorrectAnswersText(data: any): boolean {
-    return this.shouldDisplayNumberOfCorrectAnswersCount() &&
-           data?.correctAnswersText &&
-           !this.isExplanationTextDisplayed;
-  }
-  
 
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
@@ -334,6 +327,12 @@ export class CodelabQuizContentComponent {
     return 0;
   }
 
+  shouldDisplayCorrectAnswersText(data: any): boolean {
+    return this.shouldDisplayNumberOfCorrectAnswersCount() &&
+           data?.correctAnswersText &&
+           !this.isExplanationTextDisplayed;
+  }
+  
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
   }
