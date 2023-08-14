@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -19,8 +19,7 @@ import {
   of,
   ReplaySubject,
   Subject,
-  Subscription,
-  zip,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -29,7 +28,7 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -47,7 +46,7 @@ import { TimerService } from '../../shared/services/timer.service';
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false',
+  TrueFalse = 'true_false'
 }
 
 @Component({
@@ -186,17 +185,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
   
-    /* this.quizService.getCurrentQuestion().subscribe(
-      (currentQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.cdRef.detectChanges();
-        // Call handleOptionClicked here if needed
-      },
-      (error) => {
-        console.error('Error fetching current question:', error);
-      }
-    ); */
-
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
       console.log('Current Question in Subscription:::', currentQuestion);
