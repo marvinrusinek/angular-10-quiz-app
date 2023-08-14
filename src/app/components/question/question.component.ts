@@ -188,7 +188,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     this.logInitialData();
     this.initializeQuizQuestion();
-    this.subscribeToCurrentQuestion();
     this.subscribeToRouterEvents();
   
     if (!this.initialized) {
@@ -198,6 +197,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.loadQuizQuestions();
   
       try {
+        this.subscribeToCurrentQuestion();
         this.subscribeToCurrentOptions();
         this.subscribeToExplanationText();
         this.initializeMultipleAnswer();
