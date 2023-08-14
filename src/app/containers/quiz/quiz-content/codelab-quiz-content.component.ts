@@ -166,13 +166,11 @@ export class CodelabQuizContentComponent {
     this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
         this.options = question.options;
-        console.log('Options received', question.options);
       }
     });
 
     this.currentOptions$.subscribe((options) => {
       this.options = options;
-      console.log('Current Options:', options);
     });
 
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
