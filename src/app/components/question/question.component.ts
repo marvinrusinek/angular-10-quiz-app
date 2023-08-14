@@ -1073,16 +1073,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.setExplanationText(currentQuestion, option);
 
     // Emit events and update states after the option is selected
-    this.optionClicked.emit();
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
+    this.optionClicked.emit();
     this.isAnsweredChange.emit(this.isAnswered);
     this.isAnswerSelectedChange.emit(this.isAnswered);
     this.optionSelected.emit(this.isOptionSelected);
 
     this.selectionChanged.emit({
       question: currentQuestion,
-      selectedOptions: this.selectedOptions,
+      selectedOptions: this.selectedOptions
     });
   }
 
