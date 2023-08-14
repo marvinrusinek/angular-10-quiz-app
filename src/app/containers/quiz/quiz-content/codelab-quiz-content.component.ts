@@ -37,10 +37,10 @@ export class CodelabQuizContentComponent {
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
 
+  currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
-  currentQuestionSubscription: Subscription;
-
+  
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
