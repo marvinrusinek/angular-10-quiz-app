@@ -294,7 +294,6 @@ export class CodelabQuizContentComponent {
       for (let i = 0; i < questions.length; i++) {
         console.log('Comparing questions:', questions[i], currentQuestion);
         if (this.areQuestionsEqual(questions[i], currentQuestion)) {
-          console.log('Found matching question:', questions[i]);
           return questions[i]?.questionText;
         }
       }
