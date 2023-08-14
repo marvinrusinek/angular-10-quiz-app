@@ -184,16 +184,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
-  
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      this.currentQuestion = currentQuestion;
-      console.log('Current Question in Subscription:::', currentQuestion);
-    });
-
-    // this.subscribeToCurrentQuestion();
-    this.logInitialData();
     this.selectedOption = null;
+    
+    this.logInitialData();
     this.initializeQuizQuestion();
+    this.subscribeToCurrentQuestion();
     this.subscribeToRouterEvents();
   
     if (!this.initialized) {
@@ -254,7 +249,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private subscribeToCurrentQuestion(): void {
-    this.quizService.getCurrentQuestion().subscribe(
+    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+      this.currentQuestion = currentQuestion;
+      console.log('Current Question in Subscription:::', currentQuestion);
+    });
+
+    /* this.quizService.getCurrentQuestion().subscribe(
       (currentQuestion) => {
         console.log('My Current Question:::', currentQuestion);
         if (currentQuestion) {
@@ -268,7 +268,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       (error) => {
         console.error('Error fetching current question:', error);
       }
-    );
+    ); */
   }
   
   private logInitialData(): void {
