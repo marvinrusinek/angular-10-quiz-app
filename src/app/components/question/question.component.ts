@@ -252,22 +252,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestion = currentQuestion;
       console.log('Current Question in Subscription:::', currentQuestion);
     });
-
-    /* this.quizService.getCurrentQuestion().subscribe(
-      (currentQuestion) => {
-        console.log('My Current Question:::', currentQuestion);
-        if (currentQuestion) {
-          this.currentQuestion = currentQuestion;
-          this.currentQuestionLoaded = true;
-          this.cdRef.detectChanges();
-        } else {
-          console.error('No current question available.');
-        }
-      },
-      (error) => {
-        console.error('Error fetching current question:', error);
-      }
-    ); */
   }
   
   private logInitialData(): void {
