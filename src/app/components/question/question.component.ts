@@ -211,7 +211,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     this.subscribeToSelectionMessage();
-    console.log('Initializing component...');
     this.subscriptionToOptions();
     this.logFinalData();
   }
