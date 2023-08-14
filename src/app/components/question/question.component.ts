@@ -758,7 +758,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe(currentQuestion => {
         console.log('Current Question emitted:', currentQuestion);
-        // Rest of your code
       });
   }
   
