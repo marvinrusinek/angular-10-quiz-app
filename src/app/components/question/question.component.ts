@@ -197,12 +197,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       try {
         this.subscribeToCurrentQuestion();
         this.subscribeToCurrentOptions();
+        this.subscribeToCorrectAnswersAndData();
         this.subscribeToExplanationText();
         this.initializeMultipleAnswer();
         this.initializeExplanationText();
-        this.initializeCorrectAnswerOptions();
+        // this.initializeCorrectAnswerOptions();
         // this.subscribeToCorrectAnswers();
-        this.subscribeToCorrectAnswersAndData();
         this.fetchQuizQuestions();
       } catch (error) {
         console.error('Error getting current question:', error);
@@ -358,9 +358,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private initializeCorrectAnswerOptions(): void {
+  /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
-  }
+  } */
   
   private subscribeToCorrectAnswersAndData(): void {
     combineLatest([
