@@ -39,7 +39,6 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
-import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -1067,7 +1066,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestion?.explanation || null
     );
     this.quizQuestionManagerService.setSelectedOption(option);
-    this.selectedOptionService.setSelectedOptionExplanation(option.explanation);
   
     this.setExplanationText(currentQuestion, option);
 
