@@ -877,16 +877,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-      const currentCorrectAnswers = correctAnswers.get(
-        this.question.questionText
-      );
-
+      const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
+  
       if (currentCorrectAnswers && currentCorrectAnswers.length > 0) {
         this.correctAnswers = currentCorrectAnswers;
-        this.updateCorrectMessage(this.correctAnswers);
+        this.setCorrectMessage();
       } else {
-        this.correctMessage =
-          'No correct answers found for the current question.';
+        this.correctMessage = 'No correct answers found for the current question.';
       }
     });
   }
