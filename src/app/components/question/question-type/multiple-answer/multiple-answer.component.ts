@@ -25,7 +25,6 @@ import { QuizDataService } from '../../../../shared/services/quizdata.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
-import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { TimerService } from '../../../../shared/services/timer.service';
 
@@ -72,7 +71,6 @@ export class MultipleAnswerComponent
     quizStateService: QuizStateService,
     quizQuestionManagerService: QuizQuestionManagerService,
     explanationTextService: ExplanationTextService,
-    selectedOptionService: SelectedOptionService,
     selectionMessageService: SelectionMessageService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
@@ -86,7 +84,6 @@ export class MultipleAnswerComponent
         quizStateService,
         quizQuestionManagerService,
         explanationTextService,
-        selectedOptionService,
         selectionMessageService,
         timerService,
         activatedRoute,
