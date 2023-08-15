@@ -46,6 +46,7 @@ import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
 import { QuizStateService } from './shared/services/quizstate.service';
 import { ExplanationTextService } from './shared/services/explanation-text.service';
+import { SelectedOptionService } from './shared/services/selectedoption.service';
 import { SelectionMessageService } from './shared/services/selection-message.service';
 import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
@@ -77,7 +78,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     ChallengeComponent,
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
-    JoinPipe,
+    JoinPipe
   ],
   imports: [
     CommonModule,
@@ -111,10 +112,11 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizQuestionManagerService,
     QuizStateService,
     ExplanationTextService,
+    SelectedOptionService,
     SelectionMessageService,
     TimerService,
     CountdownService,
-    StopwatchService,
+    StopwatchService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
