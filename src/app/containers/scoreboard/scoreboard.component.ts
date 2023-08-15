@@ -25,7 +25,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   answer: number;
   totalQuestions: number;
   questionNumber: number;
-  badge: string;
+  badgeText: string;
   unsubscribe$ = new Subject<void>();
   private totalQuestions$ = new ReplaySubject<number>(1);
 
@@ -58,7 +58,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
             )
             .subscribe((totalQuestions) => {
               this.totalQuestions$.next(totalQuestions);
-              this.updateBadge(this.questionNumber, totalQuestions);
+              this.updateBadgeText(this.questionNumber, totalQuestions);
             });
         }
       });
@@ -83,12 +83,12 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  updateBadge(questionNumber: number, totalQuestions: number): void {
+  updateBadgeText(questionNumber: number, totalQuestions: number): void {
     if (questionNumber && totalQuestions > 0) {
-      this.badge =
+      this.badgeText =
         'Question ' + questionNumber + ' of ' + totalQuestions;
     } else {
-      this.badge = '';
+      this.badgeText = '';
     }
   }
 }
