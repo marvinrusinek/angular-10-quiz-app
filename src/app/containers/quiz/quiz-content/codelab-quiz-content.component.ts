@@ -10,6 +10,7 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
+import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
 @Component({
   selector: 'codelab-quiz-content-component',
@@ -65,6 +66,7 @@ export class CodelabQuizContentComponent {
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
+    private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
   ) {}
@@ -225,12 +227,14 @@ export class CodelabQuizContentComponent {
   }
 
   private initializeExplanationTextSubscription(): void {
-    /* this.explanationText$ = combineLatest([
+    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
+
+    this.explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
       selectedOptionExplanation$
     ]).pipe(
       map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
-    ); */
+    );
 
     this.explanationTextSubscription = this.explanationText$.subscribe((displayText) => {
       this.quizQuestionManagerService.setExplanationText(displayText);
