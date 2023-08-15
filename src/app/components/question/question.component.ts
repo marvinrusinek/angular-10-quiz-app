@@ -371,10 +371,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     .subscribe(([correctAnswers, data]) => {
       if (data) {
         this.data = data;
+        this.correctAnswers = correctAnswers.get(data.questionText);
         this.currentOptions = data.currentOptions;
-  
+
         // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
-        if (this.currentOptions && correctAnswers) {
+        if (this.currentOptions && this.correctAnswers) {
           this.setCorrectMessage();
         } else {
           this.correctMessage = 'The correct answers are not available yet.';
