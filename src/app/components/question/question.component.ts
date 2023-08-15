@@ -201,6 +201,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.initializeMultipleAnswer();
         this.initializeExplanationText();
         this.initializeCorrectAnswerOptions();
+        // this.subscribeToCorrectAnswers();
         this.subscribeToCorrectAnswersAndData();
         this.fetchQuizQuestions();
       } catch (error) {
@@ -875,7 +876,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // }
   }
 
-  private subscribeToCorrectAnswers(): void {
+  /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       const currentCorrectAnswers = correctAnswers.get(this.question.questionText);
   
@@ -886,7 +887,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.correctMessage = 'No correct answers found for the current question.';
       }
     });
-  }
+  } */
 
   async fetchCorrectAnswersText(
     data: any,
