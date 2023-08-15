@@ -370,21 +370,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.correctMessage = 'The correct answers are not available yet.';
         }
   
-        // this.loadQuestionsForQuiz(this.quizService.quizId);
         this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
-  
-        // Set correctAnswerOptions in quizService before fetching correct answers
         this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   
         // Fetch the correct answers and update the correct message
-        this.getCorrectAnswers();
+        // this.getCorrectAnswers();
   
-        // Subscribe to correctAnswers$ to handle correct answer text display
-        this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-          this.correctAnswers = correctAnswers.get(this.data.questionText);
-          this.updateCorrectMessage(this.correctAnswers);
-          this.updateQuestionForm();
-        });
+        this.updateCorrectMessage(this.correctAnswers);
+        this.updateQuestionForm();
       } else {
         console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
         this.correctMessage = 'The correct answers are not available yet...';
