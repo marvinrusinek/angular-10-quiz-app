@@ -159,7 +159,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected explanationTextService: ExplanationTextService,
-    protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
