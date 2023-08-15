@@ -198,9 +198,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.subscribeToCurrentQuestion();
         this.subscribeToCurrentOptions();
         this.subscribeToCorrectAnswersAndData();
-        this.subscribeToExplanationText();
         this.initializeMultipleAnswer();
-        this.initializeExplanationText();
         // this.initializeCorrectAnswerOptions();
         // this.subscribeToCorrectAnswers();
         this.fetchQuizQuestions();
@@ -350,14 +348,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  private initializeExplanationText(): void {
-    this.explanationTextService.explanationText$.next('');
-    this.explanationTextSubscription = this.explanationTextService.explanationText$
-      .subscribe((explanationText) => {
-        this.explanationText$.next(explanationText);
-      });
-  }
-
   /* private initializeCorrectAnswerOptions(): void {
     this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   } */
@@ -437,14 +427,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG', this.correctMessage);
   }
 
-  private subscribeToExplanationText(): void {
-    this.explanationTextService.explanationText$.subscribe((explanationText) => {
-      this.explanationText$.next(explanationText);
-      this.explanationText = explanationText;
-    });
-  }
-  
-  
   private async fetchCorrectAnswersAndText(
     data: any,
     currentOptions: Option[]
