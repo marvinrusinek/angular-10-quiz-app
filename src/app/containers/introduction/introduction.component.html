@@ -47,8 +47,9 @@
           >Shuffle Questions and Answers</mat-checkbox-label
         >
       </mat-checkbox>
-
-      <button *ngIf="selectedQuiz"
+      
+      <mat-button 
+        *ngIf="selectedQuiz"
         type="button"
         mat-raised-button
         disableRipple="true"
@@ -61,7 +62,7 @@
             >play_arrow</mat-icon
           ></span
         >
-      </button>
+      </mat-button>
     </mat-card-actions>
   </mat-card>
 </ng-container>

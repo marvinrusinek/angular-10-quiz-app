@@ -33,17 +33,21 @@ mat-card-actions {
 
   mat-checkbox {
     text-align: center;
+    padding-bottom: 20px;
   }
 
-  button {
+  mat-button {
     display: block;
     margin: 0 auto;
     background: $vivid-blue;
     color: $black;
+    width: 180px;
+
+    &:hover {
+      border: 2px solid $black;
+    }
   }
-  button:hover {
-    border: 2px solid $vivid-blue;
-  }
+  
 }
 
 
