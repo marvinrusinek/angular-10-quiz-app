@@ -121,8 +121,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   currentOptions: Option[] | undefined;
-  // correctAnswers: number[] | undefined;
-  correctAnswers: Option[] | undefined;
+  correctAnswers: number[] | undefined;
   correctMessage: string;
   alreadyAnswered = false;
   optionChecked: { [optionId: number]: boolean } = {};
