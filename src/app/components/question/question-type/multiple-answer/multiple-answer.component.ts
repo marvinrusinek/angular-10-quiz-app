@@ -96,7 +96,6 @@ export class MultipleAnswerComponent
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
-    this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.selectedOptions = [];
   }
