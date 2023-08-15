@@ -7,11 +7,10 @@ import {
   Output,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription, throwError } from 'rxjs';
+import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
