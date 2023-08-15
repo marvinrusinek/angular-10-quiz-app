@@ -380,7 +380,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.correctMessage = 'The correct answers are not available yet.';
         }
   
-        this.loadQuestionsForQuiz(this.quizService.quizId);
+        // this.loadQuestionsForQuiz(this.quizService.quizId);
         this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
   
         // Set correctAnswerOptions in quizService before fetching correct answers
