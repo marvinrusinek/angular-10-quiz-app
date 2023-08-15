@@ -913,8 +913,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(
       data.questionText
     );
-    this.updateCorrectMessage(this.correctAnswers);
-
+    
     // Call the isMultipleAnswer function to determine if the question is a multiple-answer question
     data.isMultipleAnswer = await this.quizStateService
       .isMultipleAnswer()
