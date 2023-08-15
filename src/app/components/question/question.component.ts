@@ -352,21 +352,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
   
   private subscribeToCorrectAnswersAndData(): void {
+    console.log('Subscribing to correctAnswers$ and combinedQuestionData$');
+  
     combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$
     ])
     .pipe(take(1))
     .subscribe(([correctAnswers, data]) => {
+      console.log('Subscription triggered with data:', data);
+  
       if (data) {
         this.data = data;
         this.correctAnswers = correctAnswers.get(data.questionText);
         this.currentOptions = data.currentOptions;
-
-        // Ensure that currentOptions and correctAnswers are populated with the correct data before calling setCorrectMessage
+  
         if (this.currentOptions && this.correctAnswers) {
+          console.log('Current options and correct answers are available.');
           this.setCorrectMessage();
         } else {
+          console.log('Current options and/or correct answers are not available.');
           this.correctMessage = 'The correct answers are not available yet.';
         }
   
@@ -376,6 +381,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         // Fetch the correct answers and update the correct message
         // this.getCorrectAnswers();
   
+        console.log('Updating correct message and question form.');
         this.updateCorrectMessage(this.correctAnswers);
         this.updateQuestionForm();
       } else {
@@ -384,6 +390,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
+  
 
   private fetchQuizQuestions(): void {
     this.quizService.fetchQuizQuestions();
