@@ -378,6 +378,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (this.currentOptions && this.correctAnswers) {
           console.log('Current options and correct answers are available.');
           this.setCorrectMessage();
+          this.updateCorrectMessage(this.correctMessage);
         } else {
           console.log('Current options and/or correct answers are not available.');
           this.correctMessage = 'The correct answers are not available yet.';
@@ -472,6 +473,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   shouldHideOptions(): boolean {
     return !this.data?.currentOptions || this.data.currentOptions.length === 0;
+  }
+
+  updateCorrectMessage(message: string): void {
+    this.quizService.updateCorrectMessage(message);
   }
 
   updateQuestionForm(): void {

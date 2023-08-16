@@ -110,6 +110,7 @@ export class QuizService implements OnDestroy {
     answers: number[];
   }[] = [];
   correctAnswerOptions: Option[] = [];
+  correctMessage$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
@@ -458,6 +459,10 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
+  }
+
+  updateCorrectMessage(message: string): void {
+    this.correctMessage$.next(message);
   }
 
   updateQuestions(quizId: string): Promise<void> {
