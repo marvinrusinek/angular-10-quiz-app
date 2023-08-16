@@ -1072,18 +1072,13 @@ export class QuizService implements OnDestroy {
 
   async fetchQuizQuestions(quizId: string) {
     try {
-      const quizUrlWithId = `${this.quizUrl}/${quizId}`;
-
-      const quizQuestions = await this.http
-        .get<QuizQuestion[]>(quizUrlWithId)
-        .toPromise();
-
-      this.questions = quizQuestions;
+      const quizId = this.quizId;
+      const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
+      this.questions = questions;
 
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
       this.questions.forEach((question) => {
-        console.log('Current question:::::::::::::::::::>>>>>', question);
         if (question.options) {
           const correctOptionNumbers = question?.options
             .filter((option) => option?.correct)

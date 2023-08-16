@@ -309,7 +309,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuizQuestions(): void {
-    this.quizService.fetchQuizQuestions();
+    this.quizService.fetchQuizQuestions(this.quizId);
   }
   
   private handleCurrentQuestion(currentQuestion: QuizQuestion | null): void {
@@ -402,7 +402,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
 
   private fetchQuizQuestions(): void {
-    this.quizService.fetchQuizQuestions();
+    this.quizService.fetchQuizQuestions(this.quizId);
   }
   
   private subscribeToSelectionMessage(): void {
