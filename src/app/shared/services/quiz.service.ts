@@ -1080,8 +1080,8 @@ export class QuizService implements OnDestroy {
       const correctAnswers = new Map<string, number[]>();
       this.questions.forEach((question) => {
         if (question.options) {
-          const correctOptionNumbers = question?.options
-            .filter((option) => option?.correct)
+          const correctOptionNumbers = question.options
+            ?.filter((option) => option?.correct)
             .map((option) => option.optionId);
           correctAnswers.set(question.questionText, correctOptionNumbers);
         } else {
