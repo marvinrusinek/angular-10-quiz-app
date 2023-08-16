@@ -319,10 +319,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestionLoaded = true;
       console.log('Current Question in Child Component:', this.currentQuestion);
 
-      // Continue with the rest of your logic that depends on the current question
-      this.loadQuestionData();
-      this.loadCorrectAnswers();
-      // ... other logic ...
+      this.loadQuestionsForQuiz(this.quizId);
+      this.quizService.fetchCorrectAnswers();
     } else {
       console.error('No current question available.');
     }
