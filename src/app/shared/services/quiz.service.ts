@@ -1089,14 +1089,24 @@ export class QuizService implements OnDestroy {
       // Continue with the rest of your logic
       await new Promise((resolve) => setTimeout(resolve, 2000));
       this.fetchCorrectAnswers();
+
       this.correctAnswersSubject.next(correctAnswers);
 
-      // Update combinedQuestionDataSubject and fetch correct answers if needed
-      this.combinedQuestionDataSubject.next({
+      const combinedQuestionData = {
         questionText: this.data.questionText,
         correctAnswersText: '',
         currentOptions: this.data.currentOptions,
-      });
+      };
+
+      console.log('Combined Question Data to Emit:', combinedQuestionData);
+      this.combinedQuestionDataSubject.next(combinedQuestionData);
+      
+      // Update combinedQuestionDataSubject and fetch correct answers if needed
+      /* this.combinedQuestionDataSubject.next({
+        questionText: this.data.questionText,
+        correctAnswersText: '',
+        currentOptions: this.data.currentOptions,
+      }); */
 
       // Fetch the correct answers for each question if they are not already available
       this.questions.forEach((question) => {
@@ -1121,7 +1131,7 @@ export class QuizService implements OnDestroy {
         .map((option) => option.optionId);
       correctAnswers.set(question.questionText, correctOptionNumbers);
     });
-
+    console.log('Correct Answers Data to Emit:', correctAnswers);
     this.correctAnswersSubject.next(correctAnswers);
   }
 
