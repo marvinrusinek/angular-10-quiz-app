@@ -29,7 +29,8 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap
+  tap,
+  withLatestFrom
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -354,12 +355,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToCorrectAnswersAndData(): void {
     console.log('Subscribing to correctAnswers$ and combinedQuestionData$');
   
-    combineLatest([
+    /* combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$
     ])
     .pipe(take(1))
-    .subscribe(([correctAnswers, data]) => {
+    .subscribe(([correctAnswers, data]) => { */
+    this.quizService.combinedQuestionData$
+      .pipe(
+        startWith(null),
+        withLatestFrom(this.quizService.correctAnswers$),
+        take(1)
+      )
+    .subscribe(([data, correctAnswers]) => {
       console.log('Subscription triggered with correctAnswers:', correctAnswers);
       console.log('Subscription triggered with data:', data);
   
