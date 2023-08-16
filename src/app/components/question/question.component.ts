@@ -25,6 +25,7 @@ import {
   catchError,
   filter,
   map,
+  startWith,
   switchMap,
   take,
   takeUntil,
@@ -354,8 +355,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Subscribing to correctAnswers$ and combinedQuestionData$');
   
     combineLatest([
-      this.quizService.correctAnswers$,
-      this.quizService.combinedQuestionData$
+      this.quizService.correctAnswers$.pipe(startWith(new Map())),
+      this.quizService.combinedQuestionData$.pipe(startWith(null))
     ])
     .pipe(take(1))
     .subscribe(([correctAnswers, data]) => {
