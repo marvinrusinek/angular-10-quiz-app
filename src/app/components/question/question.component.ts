@@ -474,10 +474,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return !this.data?.currentOptions || this.data.currentOptions.length === 0;
   }
 
-  updateCorrectMessage(message: string): void {
-    this.quizService.updateCorrectMessage(message);
-  }
-
   updateQuestionForm(): void {
     // Fetch the correct answers and update the correct message
     this.getCorrectAnswers();
@@ -836,7 +832,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     );
   }
-  
 
   setCorrectMessage(): void {
     // if (this.correctAnswers && this.currentOptions) {
