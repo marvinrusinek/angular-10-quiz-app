@@ -1089,7 +1089,6 @@ export class QuizService implements OnDestroy {
         }
       });
 
-      // Continue with the rest of your logic
       await new Promise((resolve) => setTimeout(resolve, 2000));
       this.fetchCorrectAnswers();
 
