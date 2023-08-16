@@ -1070,7 +1070,7 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  async fetchQuizQuestions(quizId: string) {
+  async fetchQuizQuestions() {
     try {
       const quizId = this.quizId;
       const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
