@@ -761,22 +761,10 @@ export class QuizService implements OnDestroy {
   } */
 
   getCorrectAnswers(question: QuizQuestion): number[] {
-    return this.correctAnswersSubject.getValue();
-  }
-
-  getCorrectAnswersForQuestion(questionText: string): number[] {
-    const correctAnswers = this.correctAnswers.find((answer) => answer.questionText === questionText);
-    return correctAnswers ? correctAnswers.answers : [];
-  }
-
-  setCorrectAnswersForQuestion(questionText: string, correctAnswers: number[]): void {
-    const existingCorrectAnswers = this.correctAnswers.find((answer) => answer.questionText === questionText);
-  
-    if (existingCorrectAnswers) {
-      existingCorrectAnswers.answers = correctAnswers;
-    } else {
-      this.correctAnswers.push({ questionText, answers: correctAnswers });
-    }
+    // return this.correctAnswersSubject.getValue();
+    const correctAnswersMap = this.correctAnswersSubject.getValue();
+    const correctAnswersForQuestion = correctAnswersMap.get(question.questionText) || [];
+    return correctAnswersForQuestion;
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
@@ -864,39 +852,6 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
   
-  /* async setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): Promise<void> {
-    if (question !== null && currentOptions !== null) {
-      const correctOptionNumbers = currentOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-  
-      if (correctOptionNumbers.length > 0) {
-        this.correctAnswers.push({
-          questionId: question.questionId,
-          answers: correctOptionNumbers,
-        });
-        this.correctAnswersLoadedSubject.next(true); // Mark correct answers as loaded
-      }
-    }
-  } */
-
-  /* setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
-    if (question && currentOptions) {
-      const correctOptionNumbers = currentOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-  
-      if (correctOptionNumbers.length > 0) {
-        this.correctAnswers.push({
-          questionText: question.questionText,
-          answers: correctOptionNumbers.sort(),
-        });
-  
-        this.correctAnswersLoadedSubject.next(true);
-      }
-    }
-  } */
-
   async fetchQuizQuestions() {
     // ... Fetch your quiz questions here ...
   
@@ -936,20 +891,6 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(true);
   }
 
-  /* setCorrectAnswers(question: QuizQuestion, currentOptions: Option[]): void {
-    // Calculate the correct answers for the given question and options
-    const correctOptionNumbers = currentOptions
-      .filter((option) => option.correct)
-      .map((option) => option.optionId);
-  
-    // Update the correct answers BehaviorSubject with the new data
-    const correctAnswers = this.correctAnswersSubject.getValue();
-    correctAnswers.set(question.questionText, correctOptionNumbers);
-    this.correctAnswersSubject.next(correctAnswers);
-
-    console.log('Correct Answers:::>>>', this.correctAnswersSubject.getValue());
-  } */
-
   /* setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): void {
     if (!correctAnswerOptions || correctAnswerOptions.length === 0) {     
       this.correctMessage = 'The correct answers are not available yet.....';
@@ -972,7 +913,7 @@ export class QuizService implements OnDestroy {
     this.correctMessage = `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   } */
   
-  /* setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
+  setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
     const correctOptionNumbers = options
       .filter((option) => option.correct)
       .map((option) => option.optionId);
@@ -984,7 +925,7 @@ export class QuizService implements OnDestroy {
       // Emit the correct answers loaded status
       this.correctAnswersLoadedSubject.next(true);
     }
-  } */
+  }
 
   private fetchCorrectAnswers(): void {
     // Assuming you have fetched the quiz questions and stored them in this.questions
