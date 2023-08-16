@@ -1080,10 +1080,15 @@ export class QuizService implements OnDestroy {
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
       this.questions.forEach((question) => {
-        const correctOptionNumbers = question.options
-          .filter((option) => option.correct)
-          .map((option) => option.optionId);
-        correctAnswers.set(question.questionText, correctOptionNumbers);
+        console.log('Current question:', question);
+        if (question.options) {
+          const correctOptionNumbers = question.options
+            .filter((option) => option.correct)
+            .map((option) => option.optionId);
+          correctAnswers.set(question.questionText, correctOptionNumbers);
+        } else {
+          console.log('Options are undefined for question:', question);
+        }
       });
 
       // Continue with the rest of your logic
@@ -1100,7 +1105,7 @@ export class QuizService implements OnDestroy {
 
       console.log('Combined Question Data to Emit:', combinedQuestionData);
       this.combinedQuestionDataSubject.next(combinedQuestionData);
-      
+
       // Update combinedQuestionDataSubject and fetch correct answers if needed
       /* this.combinedQuestionDataSubject.next({
         questionText: this.data.questionText,
