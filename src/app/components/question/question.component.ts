@@ -442,7 +442,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
     } else {
       this.correctAnswers = currentCorrectAnswers;
-      this.updateCorrectMessage(this.correctAnswers);
     }
 
     // Fetch the correct answers text or update it with the correct message
@@ -478,7 +477,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.getCorrectAnswers();
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
       this.correctAnswers = correctAnswers.get(this.data.questionText);
-      this.updateCorrectMessage(this.correctAnswers);
     });
 
     // Update other form-related logic
@@ -548,7 +546,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                           'Current Correct Answers:',
                           this.correctAnswers
                         ); // Add this log
-                        this.updateCorrectMessage(this.correctAnswers);
                         this.fetchCorrectAnswersText(
                           data,
                           data.currentOptions
@@ -563,8 +560,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                     console.log(
                       'Current Correct Answers:',
                       this.correctAnswers
-                    ); // Add this log
-                    this.updateCorrectMessage(this.correctAnswers);
+                    );
                     this.fetchCorrectAnswersText(
                       data,
                       data.currentOptions
