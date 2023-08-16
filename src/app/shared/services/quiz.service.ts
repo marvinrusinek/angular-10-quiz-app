@@ -1147,12 +1147,12 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountSubject.next(value);
   }
 
-  updateQuestion(question: QuizQuestion): void {
-    this.currentQuestion.next({ ...question });
-  }
-
   resetUserSelection(): void {
     this.selectedOption$.next('');
+  }
+
+  updateQuestion(question: QuizQuestion): void {
+    this.currentQuestion.next({ ...question });
   }
 
   updateCurrentQuestion(): void {
