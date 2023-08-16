@@ -64,6 +64,12 @@ enum QuizStatus {
   COMPLETED = 'completed',
 }
 
+enum QuestionType {
+  SingleAnswer = 'single_answer',
+  MultipleAnswer = 'multiple_answer',
+  TrueFalse = 'true_false'
+}
+
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
@@ -584,7 +590,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           questionText: this.data.questionText,
           options: this.data.currentOptions,
           explanation: '',
-          type: this.quizService.QuestionType.MultipleChoice
+          type: QuestionType.MultipleAnswer
         };
 
         // Pass the data to the QuizQuestionComponent
