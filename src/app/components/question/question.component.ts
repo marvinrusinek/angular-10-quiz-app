@@ -851,10 +851,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   setCorrectMessage(): void {
     // if (this.correctAnswers && this.currentOptions) {
     this.correctMessage = this.quizService.setCorrectMessage(
-      this.currentQuestion.options,
+      this.quizService.correctAnswerOptions,
       this.currentOptions
     );
-    // this.correctMessage = this.quizService.setCorrectMessage(this.correctAnswers, this.currentOptions);
     console.log('MY CORR MSG:::>>>', this.correctMessage);
     // }
   }
