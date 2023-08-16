@@ -352,14 +352,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private subscribeToCorrectAnswersAndData(): void {
     console.log('Subscribing to correctAnswers$ and combinedQuestionData$');
-
-    this.quizService.correctAnswers$.subscribe((correctAnswers) => {
-      console.log('Correct Answers:::::>>>', correctAnswers);
-    });
-    
-    this.quizService.combinedQuestionData$.subscribe((combinedData) => {
-      console.log('Combined Question Data:::>>>', combinedData);
-    });
   
     combineLatest([
       this.quizService.correctAnswers$,
@@ -369,7 +361,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     .subscribe(([correctAnswers, data]) => {
       console.log('Subscription triggered with correctAnswers:', correctAnswers);
       console.log('Subscription triggered with data:', data);
-        
+  
       if (data) {
         this.data = data;
         this.correctAnswers = correctAnswers.get(data.questionText);
@@ -382,20 +374,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           console.log('Current options and/or correct answers are not available.');
           this.correctMessage = 'The correct answers are not available yet.';
+          this.updateCorrectMessage(this.correctMessage); // Update with the error message
         }
   
         this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
         this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   
-        // Fetch the correct answers and update the correct message
-        // this.getCorrectAnswers();
-  
         console.log('Updating correct message and question form.');
-        this.updateCorrectMessage(this.correctAnswers);
         this.updateQuestionForm();
       } else {
         console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
         this.correctMessage = 'The correct answers are not available yet...';
+        this.updateCorrectMessage(this.correctMessage); // Update with the error message
       }
     });
   }
