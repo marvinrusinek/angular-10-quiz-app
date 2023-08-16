@@ -53,9 +53,9 @@ export class QuizService implements OnDestroy {
     correctAnswersText?: string;
     currentOptions: Option[];
   } = {
-    questionText: "",
-    correctAnswersText: "",
-    currentOptions: []
+    questionText: '',
+    correctAnswersText: '',
+    currentOptions: [],
   };
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
@@ -75,8 +75,10 @@ export class QuizService implements OnDestroy {
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestionPromise: Promise<QuizQuestion> = null;
-  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
-  public currentQuestion$: Observable<QuizQuestion | null> = this.currentQuestionSubject.asObservable();
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
+  public currentQuestion$: Observable<QuizQuestion | null> =
+    this.currentQuestionSubject.asObservable();
 
   currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
@@ -103,7 +105,10 @@ export class QuizService implements OnDestroy {
 
   // correctAnswers: { questionText: string; answers: number[] }[] = [];
   correctAnswers: Map<string, number[]> = new Map<string, number[]>();
-  private correctAnswersForEachQuestion: { questionId: string; answers: number[] }[] = [];
+  private correctAnswersForEachQuestion: {
+    questionId: string;
+    answers: number[];
+  }[] = [];
   correctAnswerOptions: Option[] = [];
   numberOfCorrectAnswers: number;
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
@@ -114,7 +119,8 @@ export class QuizService implements OnDestroy {
 
   currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   private currentOptionsSource = new BehaviorSubject<Option[]>([]);
-  currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
+  currentOptions$: Observable<Option[]> =
+    this.currentOptionsSubject.asObservable();
 
   totalQuestionsSubject = new BehaviorSubject<number>(0);
   totalQuestions$ = this.totalQuestionsSubject.asObservable();
@@ -152,12 +158,13 @@ export class QuizService implements OnDestroy {
   question$ = this.questionSource.asObservable();
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
-  optionsSubject: BehaviorSubject<Option[] | null>
-    = new BehaviorSubject<Option[] | null>(null);
+  optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
+    Option[] | null
+  >(null);
   options$: Observable<Option[]> = this.optionsSource.asObservable();
-  
-  nextQuestionSource: BehaviorSubject<QuizQuestion | null>
-    = new BehaviorSubject<QuizQuestion | null>(null);
+
+  nextQuestionSource: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
   private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   nextQuestion$ = this.nextQuestionSubject.asObservable();
 
@@ -170,14 +177,21 @@ export class QuizService implements OnDestroy {
 
   // correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
   // public correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
-  private correctAnswersSubject: BehaviorSubject<Map<string, number[]>> = new BehaviorSubject<Map<string, number[]>>(new Map());
-  correctAnswers$: Observable<Map<string, number[]>> = this.correctAnswersSubject.asObservable();
+  private correctAnswersSubject: BehaviorSubject<Map<string, number[]>> =
+    new BehaviorSubject<Map<string, number[]>>(new Map());
+  correctAnswers$: Observable<Map<string, number[]>> =
+    this.correctAnswersSubject.asObservable();
 
-  correctAnswersLoadedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  public correctAnswersLoaded$: Observable<boolean> = this.correctAnswersLoadedSubject.asObservable();
+  correctAnswersLoadedSubject: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
+  public correctAnswersLoaded$: Observable<boolean> =
+    this.correctAnswersLoadedSubject.asObservable();
 
-  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(false);
-  correctAnswersAvailability$ = this.correctAnswersAvailabilitySubject.asObservable();
+  private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
+    false
+  );
+  correctAnswersAvailability$ =
+    this.correctAnswersAvailabilitySubject.asObservable();
 
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
@@ -216,9 +230,9 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
-    this.currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable().pipe(
-      tap(index => console.log('currentQuestionIndex$:', index))
-    );
+    this.currentQuestionIndex$ = this.currentQuestionIndexSource
+      .asObservable()
+      .pipe(tap((index) => console.log('currentQuestionIndex$:', index)));
 
     this.correctSound = new Howl({
       src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
@@ -295,33 +309,38 @@ export class QuizService implements OnDestroy {
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
   }
 
-  getQuestionData(quizId: string, questionIndex: number): {
+  getQuestionData(
+    quizId: string,
+    questionIndex: number
+  ): {
     questionText: string;
     correctAnswersText: string;
     currentOptions: Option[];
   } {
     const currentQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-  
+
     if (currentQuiz && currentQuiz.questions.length > questionIndex) {
       const currentQuestion = currentQuiz.questions[questionIndex];
-  
-      const correctAnswerOptions = currentQuestion.options.filter((option) => option.correct);
+
+      const correctAnswerOptions = currentQuestion.options.filter(
+        (option) => option.correct
+      );
       const correctAnswersText = this.setCorrectMessage(
         currentQuestion,
         correctAnswerOptions,
         currentQuestion.options
       );
-  
+
       return {
         questionText: currentQuestion.questionText,
         correctAnswersText: correctAnswersText,
-        currentOptions: currentQuestion.options
+        currentOptions: currentQuestion.options,
       };
     }
-  
+
     return null;
   }
-  
+
   getQuizName(segments: any[]): string {
     return segments[1].toString();
   }
@@ -333,7 +352,7 @@ export class QuizService implements OnDestroy {
       .join(';');
     return correctAnswersString;
   }
-  
+
   getResources(): QuizResource[] {
     return this.quizResources;
   }
@@ -440,7 +459,7 @@ export class QuizService implements OnDestroy {
       )
     );
   }
-  
+
   updateQuestions(quizId: string): Promise<void> {
     this.questionsLoaded = true;
     return new Promise((resolve, reject) => {
@@ -644,11 +663,17 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  getNextQuestionAndOptions(): { question: QuizQuestion; options: Option[] } | undefined {
+  getNextQuestionAndOptions():
+    | { question: QuizQuestion; options: Option[] }
+    | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
 
-    if (currentQuiz && currentQuiz.questions && nextIndex < currentQuiz.questions.length) {
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      nextIndex < currentQuiz.questions.length
+    ) {
       const nextQuestion = currentQuiz.questions[nextIndex];
       const nextOptions = nextQuestion.options;
       return { question: nextQuestion, options: nextOptions };
@@ -661,37 +686,35 @@ export class QuizService implements OnDestroy {
     if (this.currentQuestionObservable) {
       return this.currentQuestionObservable;
     }
-  
+
     const quizId = this.getCurrentQuizId();
-    this.currentQuestionObservable = this.getQuestionsForQuiz(quizId)
-      .pipe(
-        tap(({ quizId, questions }) => {
-          this.questions = questions;
-          this.questionLoadingSubject.next(true);
-          this.loadingQuestions = false;
-          this.currentQuestionObservable = null;
-        }),
-        catchError((error) => {
-          console.error('Error getting quiz questions:', error);
-          this.questionLoadingSubject.next(false);
-          this.loadingQuestions = false;
-          this.currentQuestionObservable = null;
-          return throwError(error);
-        }),
-        switchMap(({ quizId, questions }) => {
-          if (Array.isArray(questions) && questions.length > 0) {
-            const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-            this.currentQuestionSubject.next(questions[currentQuestionIndex]);
-            return this.currentQuestionSubject;
-          } else {
-            throw new Error('getCurrentQuestion() did not return an array');
-          }
-        })
-      );
-  
+    this.currentQuestionObservable = this.getQuestionsForQuiz(quizId).pipe(
+      tap(({ quizId, questions }) => {
+        this.questions = questions;
+        this.questionLoadingSubject.next(true);
+        this.loadingQuestions = false;
+        this.currentQuestionObservable = null;
+      }),
+      catchError((error) => {
+        console.error('Error getting quiz questions:', error);
+        this.questionLoadingSubject.next(false);
+        this.loadingQuestions = false;
+        this.currentQuestionObservable = null;
+        return throwError(error);
+      }),
+      switchMap(({ quizId, questions }) => {
+        if (Array.isArray(questions) && questions.length > 0) {
+          const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+          this.currentQuestionSubject.next(questions[currentQuestionIndex]);
+          return this.currentQuestionSubject;
+        } else {
+          throw new Error('getCurrentQuestion() did not return an array');
+        }
+      })
+    );
+
     return this.currentQuestionObservable;
   }
-  
 
   async getQuestionAndOptionsFromCacheOrFetch(
     questionIndex: number
@@ -763,7 +786,8 @@ export class QuizService implements OnDestroy {
   getCorrectAnswers(question: QuizQuestion): number[] {
     // return this.correctAnswersSubject.getValue();
     const correctAnswersMap = this.correctAnswersSubject.getValue();
-    const correctAnswersForQuestion = correctAnswersMap.get(question.questionText) || [];
+    const correctAnswersForQuestion =
+      correctAnswersMap.get(question.questionText) || [];
     return correctAnswersForQuestion;
   }
 
@@ -823,7 +847,7 @@ export class QuizService implements OnDestroy {
     if (!this.quizData || this.quizData.length === 0) {
       return null;
     }
-  
+
     for (const quiz of this.quizData) {
       for (const question of quiz.questions) {
         if (question.explanation === explanation) {
@@ -831,14 +855,14 @@ export class QuizService implements OnDestroy {
         }
       }
     }
-  
+
     return null;
   }
 
   getQuestionId(quizId: string, questionIndex: number): string {
     return `${quizId}-Q${questionIndex + 1}`;
   }
-  
+
   /********* setter functions ***********/
   setQuestionData(data: any) {
     this.questionDataSubject.next(data);
@@ -851,53 +875,12 @@ export class QuizService implements OnDestroy {
   }): void {
     this.combinedQuestionDataSubject.next(data);
   }
-  
-  async fetchQuizQuestions() {
-    try {
-      const quizQuestions = await this.http.get<QuizQuestion[]>(this.quizUrl).toPromise();
-      this.questions = quizQuestions;
-    
-      // Calculate and set the correct answers for each question
-      const correctAnswers = new Map<string, number[]>();
-      this.questions.forEach((question) => {
-        const correctOptionNumbers = question.options
-          .filter((option) => option.correct)
-          .map((option) => option.optionId);
-        correctAnswers.set(question.questionText, correctOptionNumbers);
-      });
-  
-      // Continue with the rest of your logic
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      this.fetchCorrectAnswers();
-      this.correctAnswersSubject.next(correctAnswers);
-  
-      // Update combinedQuestionDataSubject and fetch correct answers if needed
-      this.combinedQuestionDataSubject.next({
-        questionText: this.data.questionText,
-        correctAnswersText: '',
-        currentOptions: this.data.currentOptions
-      });
-  
-      // Fetch the correct answers for each question if they are not already available
-      this.questions.forEach((question) => {
-        const currentCorrectAnswers = correctAnswers.get(question.questionText);
-        if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-          this.setCorrectAnswers(question, this.data.currentOptions);
-        }
-      });
-  
-      this.correctAnswersLoadedSubject.next(true);
-  
-    } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-    }
-  }
 
   setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
     const correctOptionNumbers = options
       .filter((option) => option.correct)
       .map((option) => option.optionId);
-  
+
     if (correctOptionNumbers.length > 0) {
       this.correctAnswers.set(question.questionText, correctOptionNumbers);
       this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
@@ -907,20 +890,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  private fetchCorrectAnswers(): void {
-    // Assuming you have fetched the quiz questions and stored them in this.questions
-    const correctAnswers = new Map<string, number[]>();
-    this.questions.forEach((question) => {
-      const correctOptionNumbers = question.options
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-      correctAnswers.set(question.questionText, correctOptionNumbers);
-    });
-  
-    this.correctAnswersSubject.next(correctAnswers);
-  }
-  
-  
   setCorrectAnswerOptions(optionIds: number[]) {
     const correctAnswerOptions = this.convertToOptions(optionIds);
     this.correctAnswerOptions = correctAnswerOptions;
@@ -931,13 +900,10 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(loaded);
   }
 
-  private convertToOptions(optionIds: number[]): Option[] {
-    return optionIds.map((optionId) => {
-      return { optionId, text: '' } as Option; // Replace '' with the actual text property if available
-    });
-  }
-
-  setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): string {
+  setCorrectMessage(
+    correctAnswerOptions: Option[],
+    currentOptions: Option[]
+  ): string {
     console.log('Correct Answer Options:::>>>', correctAnswerOptions);
     console.log('Current Options:::>>>', currentOptions);
     if (!Array.isArray(correctAnswerOptions)) {
@@ -948,24 +914,25 @@ export class QuizService implements OnDestroy {
     if (!correctAnswerOptions || correctAnswerOptions.length === 0) {
       return 'The correct answers are not available yet.';
     }
-  
+
     const correctOptionIds = correctAnswerOptions
       .filter((option) => option.correct)
       .map((option) => option.optionId);
-  
+
     if (correctOptionIds.length === 0) {
       return 'The correct answers are not available yet.';
     }
-  
+
     const correctOptionTexts = currentOptions
       .filter((option) => correctOptionIds.includes(option.optionId))
       .map((option) => option.text);
-  
+
     const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
     const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
-    return `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
+    return `The correct answer${
+      optionsText === 'Option' ? '' : 's'
+    } ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
   }
-  
 
   // set the text of the previous user answers in an array to show in the following quiz
   setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {
@@ -1002,18 +969,6 @@ export class QuizService implements OnDestroy {
 
   setQuizStatus(value: string): void {
     this.status = value;
-  }
-
-  isQuizSelected() {
-    return this.selectedQuizId !== null;
-  }
-
-  getSelectedQuizId(): Observable<string> {
-    return this.quizId$.asObservable();
-  }
-
-  getSelectedQuiz(): Observable<Quiz> {
-    return this.selectedQuiz$;
   }
 
   setStartedQuizId(value: string) {
@@ -1115,6 +1070,79 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
+  async fetchQuizQuestions() {
+    try {
+      const quizQuestions = await this.http
+        .get<QuizQuestion[]>(this.quizUrl)
+        .toPromise();
+      this.questions = quizQuestions;
+
+      // Calculate and set the correct answers for each question
+      const correctAnswers = new Map<string, number[]>();
+      this.questions.forEach((question) => {
+        const correctOptionNumbers = question.options
+          .filter((option) => option.correct)
+          .map((option) => option.optionId);
+        correctAnswers.set(question.questionText, correctOptionNumbers);
+      });
+
+      // Continue with the rest of your logic
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      this.fetchCorrectAnswers();
+      this.correctAnswersSubject.next(correctAnswers);
+
+      // Update combinedQuestionDataSubject and fetch correct answers if needed
+      this.combinedQuestionDataSubject.next({
+        questionText: this.data.questionText,
+        correctAnswersText: '',
+        currentOptions: this.data.currentOptions,
+      });
+
+      // Fetch the correct answers for each question if they are not already available
+      this.questions.forEach((question) => {
+        const currentCorrectAnswers = correctAnswers.get(question.questionText);
+        if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+          this.setCorrectAnswers(question, this.data.currentOptions);
+        }
+      });
+
+      this.correctAnswersLoadedSubject.next(true);
+    } catch (error) {
+      console.error('Error fetching quiz questions:', error);
+    }
+  }
+
+  private fetchCorrectAnswers(): void {
+    // Assuming you have fetched the quiz questions and stored them in this.questions
+    const correctAnswers = new Map<string, number[]>();
+    this.questions.forEach((question) => {
+      const correctOptionNumbers = question.options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+      correctAnswers.set(question.questionText, correctOptionNumbers);
+    });
+
+    this.correctAnswersSubject.next(correctAnswers);
+  }
+
+  private convertToOptions(optionIds: number[]): Option[] {
+    return optionIds.map((optionId) => {
+      return { optionId, text: '' } as Option; // Replace '' with the actual text property if available
+    });
+  }
+
+  isQuizSelected() {
+    return this.selectedQuizId !== null;
+  }
+
+  getSelectedQuizId(): Observable<string> {
+    return this.quizId$.asObservable();
+  }
+
+  getSelectedQuiz(): Observable<Quiz> {
+    return this.selectedQuiz$;
+  }
+
   sendCorrectCountToResults(value: number): void {
     this.correctAnswersCountSubject.next(value);
   }
@@ -1128,7 +1156,10 @@ export class QuizService implements OnDestroy {
   }
 
   updateCurrentQuestion(): void {
-    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
+    if (
+      this.currentQuestionIndex >= 0 &&
+      this.currentQuestionIndex < this.questions.length
+    ) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       this.currentQuestion.next(currentQuestion);
       this.updateOptions(currentQuestion.options);
@@ -1160,12 +1191,18 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   navigateToNextQuestion(): Promise<boolean> {
     this.currentQuestionIndex++;
-    console.log('Current question index after navigation:', this.currentQuestionIndex);
+    console.log(
+      'Current question index after navigation:',
+      this.currentQuestionIndex
+    );
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-      this.quizId
-    )}/${this.currentQuestionIndex + 1}`;
-    console.log('Current question index from QuizService:', this.getCurrentQuestionIndex());
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
+      this.currentQuestionIndex + 1
+    }`;
+    console.log(
+      'Current question index from QuizService:',
+      this.getCurrentQuestionIndex()
+    );
     return this.router.navigate([newUrl]);
   }
 
@@ -1174,7 +1211,7 @@ export class QuizService implements OnDestroy {
     this.router.navigate([
       QuizRoutes.QUESTION,
       this.quizId,
-      this.currentQuestionIndex
+      this.currentQuestionIndex,
     ]);
     this.resetAll();
   }
