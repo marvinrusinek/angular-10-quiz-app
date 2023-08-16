@@ -1090,8 +1090,6 @@ export class QuizService implements OnDestroy {
         } else {
           console.log('Options are undefined for question:', question);
         }
-      
-        // Rest of the code...
       });
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
