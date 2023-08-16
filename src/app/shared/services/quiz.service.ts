@@ -864,9 +864,6 @@ export class QuizService implements OnDestroy {
       correctAnswers.set(question.questionText, correctOptionNumbers);
     });
 
-    // Set the correct answers first
-    this.setCorrectAnswers(correctAnswers);
-
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     this.fetchCorrectAnswers();
