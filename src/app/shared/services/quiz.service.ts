@@ -891,28 +891,6 @@ export class QuizService implements OnDestroy {
     this.correctAnswersLoadedSubject.next(true);
   }
 
-  /* setCorrectMessage(correctAnswerOptions: Option[], currentOptions: Option[]): void {
-    if (!correctAnswerOptions || correctAnswerOptions.length === 0) {     
-      this.correctMessage = 'The correct answers are not available yet.....';
-      return;
-    }
-  
-    const correctOptionIds = correctAnswerOptions.filter((option) => option.correct).map((option) => option.optionId);
-  
-    if (correctOptionIds.length === 0) {
-      this.correctMessage = 'The correct answers are not available yet.....';
-      return;
-    }
-  
-    const correctOptionTexts = currentOptions
-      .filter((option) => correctOptionIds.includes(option.optionId))
-      .map((option) => option.text);
-  
-    const optionsText = correctOptionTexts.length === 1 ? 'Option' : 'Options';
-    const areIsText = correctOptionTexts.length === 1 ? 'is' : 'are';
-    this.correctMessage = `The correct answer${optionsText === 'Option' ? '' : 's'} ${areIsText} ${optionsText} ${correctOptionTexts.join(' and ')}.`;
-  } */
-  
   setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
     const correctOptionNumbers = options
       .filter((option) => option.correct)

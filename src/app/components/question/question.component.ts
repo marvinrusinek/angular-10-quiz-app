@@ -360,8 +360,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     ])
     .pipe(take(1))
     .subscribe(([correctAnswers, data]) => {
+      console.log('Subscription triggered with correctAnswers:', correctAnswers);
       console.log('Subscription triggered with data:', data);
-  
+        
       if (data) {
         this.data = data;
         this.correctAnswers = correctAnswers.get(data.questionText);
