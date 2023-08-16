@@ -1074,15 +1074,16 @@ export class QuizService implements OnDestroy {
     try {
       const quizId = this.quizId;
       const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
+      console.log('Fetched Quiz Questions:::', questions);
       this.questions = questions;
 
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
       this.questions.forEach((question) => {
         if (question.options) {
-          const correctOptionNumbers = question.options
+          const correctOptionNumbers = question?.options
             ?.filter((option) => option?.correct)
-            .map((option) => option.optionId);
+            .map((option) => option?.optionId);
           correctAnswers.set(question.questionText, correctOptionNumbers);
         } else {
           console.log('Options are undefined for question:', question);
