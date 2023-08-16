@@ -814,7 +814,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               if (!this.correctMessage) {
                 try {
                   this.correctMessage = this.quizService.setCorrectMessage(
-                    this.data,
                     this.quizService.correctAnswerOptions,
                     this.data.currentOptions
                   );
