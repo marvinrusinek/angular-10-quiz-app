@@ -246,6 +246,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private subscribeToCurrentQuestion(): void {
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
+      this.handleCurrentQuestion(currentQuestion);
       console.log('Current Question in Subscription:::', currentQuestion);
     });
   }
