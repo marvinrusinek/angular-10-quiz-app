@@ -200,7 +200,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.initializeMultipleAnswer();
         // this.initializeCorrectAnswerOptions();
         // this.subscribeToCorrectAnswers();
-        this.fetchQuizQuestions();
+        
       } catch (error) {
         console.error('Error getting current question:', error);
       }
@@ -398,11 +398,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.correctMessage = 'The correct answers are not available yet...';
       }
     });
-  }
-  
-
-  private fetchQuizQuestions(): void {
-    this.quizService.fetchQuizQuestions();
   }
   
   private subscribeToSelectionMessage(): void {
