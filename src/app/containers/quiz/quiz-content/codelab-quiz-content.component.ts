@@ -315,13 +315,13 @@ export class CodelabQuizContentComponent {
   }
 
   calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
-    if (question) {
-      return question.options.reduce(
-        (count, option) => count + (option.correct ? 1 : 0),
-        0
-      );
+    if (question && question.options) {
+      const numberOfCorrectAnswers = question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
+      return numberOfCorrectAnswers;
+    } else {
+      console.log('Question or options are undefined.');
+      return 0;
     }
-    return 0;
   }
 
   shouldDisplayCorrectAnswersText(data: any): boolean {
