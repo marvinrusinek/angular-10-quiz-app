@@ -275,11 +275,9 @@ export class CodelabQuizContentComponent {
       .pipe(
         takeUntil(this.destroy$),
         distinctUntilChanged((prev, curr) => {
-          // Compare relevant properties to determine if emissions are distinct
           return (
             prev.currentOptions === curr.currentOptions ||
             prev.explanationText === curr.explanationText
-            // Add other relevant properties as needed
           );
         }),
         catchError(error => {
@@ -295,11 +293,9 @@ export class CodelabQuizContentComponent {
         if (data.explanationText !== undefined) {
           console.log('Updating currentDisplayText with explanation...');
           this.currentDisplayText = data.explanationText;
-          this.cdRef.detectChanges();
         } else if (data.questionText !== undefined) {
           console.log('Updating currentDisplayText with question...');
           this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
-          this.cdRef.detectChanges();
         } else {
           console.log('Explanation and question text are both undefined');
         }
