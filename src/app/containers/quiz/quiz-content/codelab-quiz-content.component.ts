@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -274,6 +274,14 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$
       .pipe(
         takeUntil(this.destroy$),
+        distinctUntilChanged((prev, curr) => {
+          // Compare relevant properties to determine if emissions are distinct
+          return (
+            prev.currentOptions === curr.currentOptions &&
+            prev.explanationText === curr.explanationText
+            // Add other relevant properties as needed
+          );
+        }),
         catchError(error => {
           console.error('An error occurred:', error);
           throw error;
