@@ -409,7 +409,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   updateCorrectMessageText(message: string): void {
     this.quizService.updateCorrectMessageText(message);
-  }
+  } 
   
   private logFinalData(): void {
     console.log('ngOnInit is called...');
