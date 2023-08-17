@@ -282,7 +282,7 @@ export class CodelabQuizContentComponent {
         this.cdRef.detectChanges();
       } else if (data.questionText !== undefined) {
         console.log('Updating currentDisplayText with question...');
-        this.currentDisplayText = `${data.questionText} ${correctAnswersText}`;
+        this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
         this.cdRef.detectChanges();
       } else {
         console.log('Explanation and question text are both undefined');
