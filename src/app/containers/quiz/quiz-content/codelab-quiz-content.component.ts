@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@a
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { isEqual } from 'lodash';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -346,9 +347,6 @@ export class CodelabQuizContentComponent {
   }
 
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
-    return (
-      question1.questionText === question2.questionText &&
-      JSON.stringify(question1.options) === JSON.stringify(question2.options)
-    );
+    return isEqual(question1, question2);
   }
 }
