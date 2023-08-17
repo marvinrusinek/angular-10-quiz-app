@@ -461,7 +461,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  updateCorrectMessage(message: string): void {
+  updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
   }
 

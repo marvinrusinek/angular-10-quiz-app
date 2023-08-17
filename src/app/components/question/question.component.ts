@@ -372,11 +372,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (this.currentOptions && this.correctAnswers) {
           console.log('Current options and correct answers are available.');
           this.setCorrectMessage();
-          this.updateCorrectMessage(this.correctMessage);
+          this.updateCorrectMessageText(this.correctMessage);
         } else {
           console.log('Current options and/or correct answers are not available.');
           this.correctMessage = 'The correct answers are not available yet.';
-          this.updateCorrectMessage(this.correctMessage); // Update with the error message
+          this.updateCorrectMessageText(this.correctMessage); // Update with the error message
         }
   
         this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
@@ -387,7 +387,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         console.log('Data is not available. Cannot call fetchCorrectAnswersText.');
         this.correctMessage = 'The correct answers are not available yet...';
-        this.updateCorrectMessage(this.correctMessage); // Update with the error message
+        this.updateCorrectMessageText(this.correctMessage); // Update with the error message
       }
     });
   }
@@ -405,6 +405,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.options = options;
       }
     });
+  }
+
+  updateCorrectMessageText(message: string): void {
+    this.quizService.updateCorrectMessageText(message);
   }
   
   private logFinalData(): void {
