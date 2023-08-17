@@ -289,8 +289,7 @@ export class CodelabQuizContentComponent {
         })
       )
       .subscribe(data => {
-        const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
-        const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersText = correctAnswersText;
 
         if (data.explanationText !== undefined) {
