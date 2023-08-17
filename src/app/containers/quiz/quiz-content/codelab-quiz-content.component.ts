@@ -279,9 +279,9 @@ export class CodelabQuizContentComponent {
       })
     );
 
-    this.combinedQuestionData$.subscribe(data => {
+    /* this.combinedQuestionData$.subscribe(data => {
       this.shouldDisplayCorrectAnswers = this.shouldDisplayCorrectAnswersText(data);
-    });
+    }); */
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
