@@ -1131,10 +1131,11 @@ export class QuizService implements OnDestroy {
     // Assuming you have fetched the quiz questions and stored them in this.questions
     const correctAnswers = new Map<string, number[]>();
     this.questions.forEach((question) => {
-      const correctOptionNumbers = question.options
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-      correctAnswers.set(question.questionText, correctOptionNumbers);
+      const correctOptionNumbers = question?.options
+        ?.filter((option) => option?.correct)
+        .map((option) => option?.optionId) ?? [];
+      
+      correctAnswers.set(question?.questionText ?? '', correctOptionNumbers);
     });
     console.log('Correct Answers Data to Emit:', correctAnswers);
     this.correctAnswersSubject.next(correctAnswers);

@@ -865,7 +865,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       // Fetch the current question and its options based on the questionId
       const currentQuestion: QuizQuestion = await this.quizDataService.getQuestionsForQuiz(quizId);
-      const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
+
+      if (currentQuestion && currentQuestion.options) {
+        const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
+      } else {
+        console.log('Current question or options are undefined.');
+      }
 
       // Display the question and options on the screen
       this.currentQuestion = currentQuestion;
