@@ -206,7 +206,6 @@ export class CodelabQuizContentComponent {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
-        // this.numberOfCorrectAnswers$.next(this.numberOfCorrectAnswers.toString());
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersTextSource.next(correctAnswersText); // Set the correct answers text here
       }
@@ -273,7 +272,6 @@ export class CodelabQuizContentComponent {
 
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          // this.correctAnswersTextSource.next(this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers));
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
 
