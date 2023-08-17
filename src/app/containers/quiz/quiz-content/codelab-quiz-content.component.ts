@@ -267,7 +267,7 @@ export class CodelabQuizContentComponent {
 
         const displayText = explanationText || `${questionText} ${correctAnswersText}`;
 
-        return { questionText: questionText, explanationText, correctAnswersText, currentOptions };
+        return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
       })
     );
 
