@@ -279,12 +279,6 @@ export class CodelabQuizContentComponent {
     /* this.combinedQuestionData$
       .pipe(
         takeUntil(this.destroy$),
-        distinctUntilChanged((prev, curr) => {
-          return (
-            prev.currentOptions === curr.currentOptions ||
-            prev.explanationText === curr.explanationText
-          );
-        }),
         catchError(error => {
           console.error('An error occurred:', error);
           throw error;
@@ -293,7 +287,7 @@ export class CodelabQuizContentComponent {
       .subscribe(data => {
         // const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         // this.correctAnswersText = correctAnswersText;
-        // this.correctAnswersText = data.correctAnswersText;
+        //this.correctAnswersText = data.correctAnswersText;
 
         if (data.explanationText !== undefined) {
           console.log('Updating currentDisplayText with explanation...');
@@ -305,6 +299,20 @@ export class CodelabQuizContentComponent {
           console.log('Explanation and question text are both undefined');
         }
       }); */
+
+      /* this.combinedQuestionData$
+        .pipe(
+          takeUntil(this.destroy$)
+        )
+        .subscribe(data => {
+          if (data.explanationText !== undefined) {
+            this.currentDisplayText = data.explanationText;
+          } else if (data.questionText !== undefined) {
+            this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
+          } else {
+            console.log('Explanation and question text are both undefined');
+          }
+        }); */
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
