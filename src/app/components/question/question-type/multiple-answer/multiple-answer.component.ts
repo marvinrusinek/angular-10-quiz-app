@@ -121,9 +121,13 @@ export class MultipleAnswerComponent
       this.quizService.getCorrectAnswers(this.currentQuestion);
     }
 
-    this.currentQuestion$.subscribe((question) => {
-      this.question = question;
-    });
+    if (this.currentQuestion$) {
+      this.currentQuestion$.subscribe((question) => {
+        this.question = question;
+      });
+    } else {
+      console.log('this.currentQuestion$ is null.');
+    }    
   }
 
   ngAfterViewInit(): void {
