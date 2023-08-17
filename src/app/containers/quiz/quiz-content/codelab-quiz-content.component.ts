@@ -274,7 +274,7 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$.subscribe((data) => {
       const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      this.correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      this.correctAnswersText = correctAnswersText;
 
       if (data.explanationText !== undefined) {
         console.log('Updating currentDisplayText with explanation...');
