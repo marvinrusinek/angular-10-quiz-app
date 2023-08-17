@@ -267,7 +267,7 @@ export class CodelabQuizContentComponent {
 
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+          this.correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
 
         const displayText = explanationText || `${questionText} ${correctAnswersText}`;
@@ -293,7 +293,7 @@ export class CodelabQuizContentComponent {
       .subscribe(data => {
         // const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         // this.correctAnswersText = correctAnswersText;
-        this.correctAnswersText = data.correctAnswersText;
+        // this.correctAnswersText = data.correctAnswersText;
 
         /* if (data.explanationText !== undefined) {
           console.log('Updating currentDisplayText with explanation...');
