@@ -271,7 +271,7 @@ export class CodelabQuizContentComponent {
     );
 
     this.combinedQuestionData$.subscribe((data) => {
-      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentQuestion);
+      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
 
       if (data.explanationText !== undefined) {
@@ -315,9 +315,9 @@ export class CodelabQuizContentComponent {
     return correctAnswersText;
   }
 
-  calculateNumberOfCorrectAnswers(question: QuizQuestion): number {
-    if (question) {
-      const numberOfCorrectAnswers = question.options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
+  calculateNumberOfCorrectAnswers(options: Option[]): number {
+    if (options) {
+      const numberOfCorrectAnswers = options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
       return numberOfCorrectAnswers;
     } else {
       console.log('Question or options are undefined.');
