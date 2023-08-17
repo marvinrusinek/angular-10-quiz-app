@@ -1,17 +1,3 @@
-<!--<ng-container *ngIf="combinedQuestionData$ | async as data">
-  <section id="question">
-    <h3 question-content>
-      <span *ngIf="combinedText$ | async as combinedText">
-        {{ combinedText }}
-      </span>
-      <span class="number-correct" 
-        *ngIf="shouldDisplayCorrectAnswersText(data)">
-        {{ correctAnswersText }}
-      </span>
-    </h3>
-  </section>
-</ng-container>-->
-
 <ng-container *ngIf="combinedQuestionData$ | async as data">
   <section id="question">
     <h3 question-content>
@@ -19,10 +5,9 @@
         {{ combinedText }}
       </span>
       <span class="number-correct" 
-      *ngIf="shouldDisplayCorrectAnswers">
+        *ngIf="shouldDisplayCorrectAnswersText(data)">
         {{ data.correctAnswersText }}
       </span>
     </h3>
   </section>
 </ng-container>
-
