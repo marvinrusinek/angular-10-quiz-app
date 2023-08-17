@@ -271,23 +271,25 @@ export class CodelabQuizContentComponent {
       })
     );
 
-    this.combinedQuestionData$.subscribe((data) => {
-      const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
-      const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-      this.correctAnswersText = correctAnswersText;
+    this.combinedQuestionData$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        this.correctAnswersText = correctAnswersText;
 
-      if (data.explanationText !== undefined) {
-        console.log('Updating currentDisplayText with explanation...');
-        this.currentDisplayText = data.explanationText;
-        this.cdRef.detectChanges();
-      } else if (data.questionText !== undefined) {
-        console.log('Updating currentDisplayText with question...');
-        this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
-        this.cdRef.detectChanges();
-      } else {
-        console.log('Explanation and question text are both undefined');
-      }
-    });
+        if (data.explanationText !== undefined) {
+          console.log('Updating currentDisplayText with explanation...');
+          this.currentDisplayText = data.explanationText;
+          this.cdRef.detectChanges();
+        } else if (data.questionText !== undefined) {
+          console.log('Updating currentDisplayText with question...');
+          this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
+          this.cdRef.detectChanges();
+        } else {
+          console.log('Explanation and question text are both undefined');
+        }
+      });
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
