@@ -330,7 +330,7 @@ export class CodelabQuizContentComponent {
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
-    if (options) {
+    if (options !== null && options !== undefined) {
       const numberOfCorrectAnswers = options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
       return numberOfCorrectAnswers;
     } else {
