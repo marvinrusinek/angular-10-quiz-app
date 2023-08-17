@@ -199,8 +199,8 @@ export class CodelabQuizContentComponent {
     this.currentQuestionSubscription = this.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
-        const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
-        this.numberOfCorrectAnswers$.next(numberOfCorrectAnswers.toString());
+        this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
+        this.numberOfCorrectAnswers$.next(this.numberOfCorrectAnswers.toString());
       }
     });
   }
