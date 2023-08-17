@@ -321,7 +321,7 @@ export class CodelabQuizContentComponent {
       const numberOfCorrectAnswers = options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
       return numberOfCorrectAnswers;
     } else {
-      console.log('Question or options are undefined.');
+      console.log('Options array is undefined.');
       return 0;
     }
   }
