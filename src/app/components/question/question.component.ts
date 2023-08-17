@@ -25,12 +25,10 @@ import {
   catchError,
   filter,
   map,
-  startWith,
   switchMap,
   take,
   takeUntil,
-  tap,
-  withLatestFrom
+  tap
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -219,12 +217,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       (changes.selectedOptions && !changes.selectedOptions.firstChange)
     ) {
       this.getCorrectAnswers();
-      /* this.correctMessage = this.quizService.setCorrectMessage(
-        this.data,
-        this.quizService.correctAnswers,
-        this.data?.currentOptions
-      ); */
-      this.cdRef.detectChanges(); // manually trigger change detection
+      this.correctMessage = this.quizService.setCorrectMessage(
+        this.quizService.correctAnswerOptions,
+        this.data.currentOptions
+      );
+      this.cdRef.detectChanges();
     }
   }
 

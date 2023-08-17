@@ -327,9 +327,8 @@ export class QuizService implements OnDestroy {
         (option) => option.correct
       );
       const correctAnswersText = this.setCorrectMessage(
-        currentQuestion,
         correctAnswerOptions,
-        currentQuestion.options
+        this.data.currentOptions
       );
 
       return {
