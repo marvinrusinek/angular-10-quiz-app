@@ -80,6 +80,8 @@ export class CodelabQuizContentComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
 
+    const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers$.value);
+
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
@@ -89,7 +91,7 @@ export class CodelabQuizContentComponent {
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: '',
-          correctAnswersText: this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers),
+          correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion,
           currentOptions: nextOptions || [],
         };
@@ -289,10 +291,11 @@ export class CodelabQuizContentComponent {
         })
       )
       .subscribe(data => {
-        const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-        this.correctAnswersText = correctAnswersText;
+        // const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
+        // this.correctAnswersText = correctAnswersText;
+        this.correctAnswersText = data.correctAnswersText;
 
-        if (data.explanationText !== undefined) {
+        /* if (data.explanationText !== undefined) {
           console.log('Updating currentDisplayText with explanation...');
           this.currentDisplayText = data.explanationText;
         } else if (data.questionText !== undefined) {
@@ -300,7 +303,7 @@ export class CodelabQuizContentComponent {
           this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
         } else {
           console.log('Explanation and question text are both undefined');
-        }
+        } */
       });
   }
 
