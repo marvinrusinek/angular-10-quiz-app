@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
@@ -272,7 +272,13 @@ export class CodelabQuizContentComponent {
     );
 
     this.combinedQuestionData$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('An error occurred:', error);
+          throw error;
+        })
+      )
       .subscribe(data => {
         const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
         const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
