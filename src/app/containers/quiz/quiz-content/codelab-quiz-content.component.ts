@@ -276,7 +276,7 @@ export class CodelabQuizContentComponent {
       })
     );
 
-    this.combinedQuestionData$
+    /* this.combinedQuestionData$
       .pipe(
         takeUntil(this.destroy$),
         distinctUntilChanged((prev, curr) => {
@@ -295,7 +295,7 @@ export class CodelabQuizContentComponent {
         // this.correctAnswersText = correctAnswersText;
         // this.correctAnswersText = data.correctAnswersText;
 
-        /* if (data.explanationText !== undefined) {
+        if (data.explanationText !== undefined) {
           console.log('Updating currentDisplayText with explanation...');
           this.currentDisplayText = data.explanationText;
         } else if (data.questionText !== undefined) {
@@ -303,8 +303,8 @@ export class CodelabQuizContentComponent {
           this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
         } else {
           console.log('Explanation and question text are both undefined');
-        } */
-      });
+        }
+      }); */
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
