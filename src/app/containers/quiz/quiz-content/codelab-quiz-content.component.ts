@@ -278,10 +278,6 @@ export class CodelabQuizContentComponent {
         return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
       })
     );
-
-    /* this.combinedQuestionData$.subscribe(data => {
-      this.shouldDisplayCorrectAnswers = this.shouldDisplayCorrectAnswersText(data);
-    }); */
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
