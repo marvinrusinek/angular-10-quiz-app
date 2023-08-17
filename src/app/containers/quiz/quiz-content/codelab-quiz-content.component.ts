@@ -44,7 +44,7 @@ export class CodelabQuizContentComponent {
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   
-  private correctAnswersTextSource = new BehaviorSubject<string>('');
+  private correctAnswersTextSource = new BehaviorSubject<string>(null);
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   private explanationTextSource = new BehaviorSubject<string>(null);
@@ -206,7 +206,9 @@ export class CodelabQuizContentComponent {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
-        this.numberOfCorrectAnswers$.next(this.numberOfCorrectAnswers.toString());
+        // this.numberOfCorrectAnswers$.next(this.numberOfCorrectAnswers.toString());
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
+        this.correctAnswersTextSource.next(correctAnswersText); // Set the correct answers text here
       }
     });
   }
