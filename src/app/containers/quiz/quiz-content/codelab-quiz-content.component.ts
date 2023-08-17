@@ -316,6 +316,7 @@ export class CodelabQuizContentComponent {
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
+    console.log('Options::>>', options);
     if (options) {
       const numberOfCorrectAnswers = options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
       return numberOfCorrectAnswers;
