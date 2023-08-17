@@ -36,6 +36,7 @@ export class CodelabQuizContentComponent {
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
+  correctAnswersText: string = '';
 
   currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
@@ -273,6 +274,7 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$.subscribe((data) => {
       const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
       const correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      this.correctAnswersText = this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
 
       if (data.explanationText !== undefined) {
         console.log('Updating currentDisplayText with explanation...');
@@ -316,7 +318,6 @@ export class CodelabQuizContentComponent {
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
-    console.log('Options::>>', options);
     if (options) {
       const numberOfCorrectAnswers = options.reduce((count, option) => count + (option.correct ? 1 : 0), 0);
       return numberOfCorrectAnswers;
