@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, distinctUntilChanged, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -37,12 +37,16 @@ export class CodelabQuizContentComponent {
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
+  shouldDisplayCorrectAnswers: boolean = false;
   correctAnswersText: string = '';
 
   currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   
+  private correctAnswersTextSource = new BehaviorSubject<string>('');
+  correctAnswersText$ = this.correctAnswersTextSource.asObservable();
+
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
@@ -267,52 +271,17 @@ export class CodelabQuizContentComponent {
 
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          this.correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+          // this.correctAnswersTextSource.next(this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers));
+          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
-
-        const displayText = explanationText || `${questionText} ${correctAnswersText}`;
 
         return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
       })
     );
 
-    /* this.combinedQuestionData$
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError(error => {
-          console.error('An error occurred:', error);
-          throw error;
-        })
-      )
-      .subscribe(data => {
-        // const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-        // this.correctAnswersText = correctAnswersText;
-        //this.correctAnswersText = data.correctAnswersText;
-
-        if (data.explanationText !== undefined) {
-          console.log('Updating currentDisplayText with explanation...');
-          this.currentDisplayText = data.explanationText;
-        } else if (data.questionText !== undefined) {
-          console.log('Updating currentDisplayText with question...');
-          this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
-        } else {
-          console.log('Explanation and question text are both undefined');
-        }
-      }); */
-
-      /* this.combinedQuestionData$
-        .pipe(
-          takeUntil(this.destroy$)
-        )
-        .subscribe(data => {
-          if (data.explanationText !== undefined) {
-            this.currentDisplayText = data.explanationText;
-          } else if (data.questionText !== undefined) {
-            this.currentDisplayText = `${data.questionText} ${this.correctAnswersText}`;
-          } else {
-            console.log('Explanation and question text are both undefined');
-          }
-        }); */
+    this.combinedQuestionData$.subscribe(data => {
+      this.shouldDisplayCorrectAnswers = this.shouldDisplayCorrectAnswersText(data);
+    });
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
