@@ -49,6 +49,7 @@ export class CodelabQuizContentComponent {
     questionText: string;
     explanationText?: string;
     correctAnswersText?: string;
+    currentQuestion: QuizQuestion;
     currentOptions: Option[];
   }> | null = null;
   combinedText$: Observable<string>;
