@@ -277,7 +277,7 @@ export class CodelabQuizContentComponent {
         distinctUntilChanged((prev, curr) => {
           // Compare relevant properties to determine if emissions are distinct
           return (
-            prev.currentOptions === curr.currentOptions &&
+            prev.currentOptions === curr.currentOptions ||
             prev.explanationText === curr.explanationText
             // Add other relevant properties as needed
           );
