@@ -373,7 +373,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (this.data.questionText && this.data.correctAnswersText && this.data.currentOptions) {
           this.quizService.combinedQuestionDataSubject.next(this.data);
         }
-        
+
         if (this.currentOptions && this.correctAnswers) {
           console.log('Current options and correct answers are available.');
           this.setCorrectMessage(this.correctAnswers);

@@ -206,7 +206,7 @@ export class QuizService implements OnDestroy {
   highScores: QuizScore[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
-  combinedQuestionDataSubject: BehaviorSubject<{
+  private combinedQuestionDataSubject: BehaviorSubject<{
     questionText: string;
     correctAnswersText: string;
     currentOptions: Option[];
@@ -214,11 +214,7 @@ export class QuizService implements OnDestroy {
     questionText: string;
     correctAnswersText: string;
     currentOptions: Option[];
-  }>({
-    questionText: '',
-    correctAnswersText: '',
-    currentOptions: []
-  });
+  }>(null);
   combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
   unsubscribe$ = new Subject<void>();
