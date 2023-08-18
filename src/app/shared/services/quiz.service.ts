@@ -1127,7 +1127,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  private fetchCorrectAnswers(): void {
+  fetchCorrectAnswers(): void {
     // Assuming you have fetched the quiz questions and stored them in this.questions
     const correctAnswers = new Map<string, number[]>();
     this.questions.forEach((question) => {
