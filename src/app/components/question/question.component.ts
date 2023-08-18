@@ -369,9 +369,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('currentOptions:', this.currentOptions);
         console.log('correctAnswers:', this.correctAnswers);
 
-        // Check if the values in data are not empty or null
+        // Update combinedQuestionDataSubject with question data
         if (this.data.questionText && this.data.correctAnswersText && this.data.currentOptions) {
-          this.quizService.combinedQuestionDataSubject.next(this.data);
+          this.quizService.combinedQuestionDataSubject.next({
+            questionText: this.data.questionText,
+            correctAnswersText: '',
+            currentOptions: this.data.currentOptions
+          });
         }
 
         if (this.currentOptions && this.correctAnswers) {
