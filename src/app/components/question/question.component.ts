@@ -368,7 +368,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
         if (this.currentOptions && this.correctAnswers) {
           console.log('Current options and correct answers are available.');
-          this.setCorrectMessage();
+          this.setCorrectMessage(this.correctAnswers);
           this.updateCorrectMessageText(this.correctMessage);
         } else {
           console.log('Current options and/or correct answers are not available.');
@@ -793,7 +793,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  public updateCorrectMessage(correctAnswers: number[]): void {
+  public setCorrectMessage(correctAnswers: number[]): void {
     this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
@@ -827,15 +827,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  setCorrectMessage(): void {
+  /* setCorrectMessage(correctAnswerOptions, options): void {
     // if (this.correctAnswers && this.currentOptions) {
-    this.correctMessage = this.quizService.setCorrectMessage(
-      this.quizService.correctAnswerOptions,
-      this.currentOptions
-    );
+    this.correctMessage = this.quizService.setCorrectMessage(correctAnswerOptions, options);
     console.log('MY CORR MSG:::>>>', this.correctMessage);
     // }
-  }
+  } */
 
   /* private subscribeToCorrectAnswers(): void {
     this.quizService.correctAnswers$.subscribe((correctAnswers) => {
