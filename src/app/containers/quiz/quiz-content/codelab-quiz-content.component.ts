@@ -207,7 +207,7 @@ export class CodelabQuizContentComponent {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-        this.correctAnswersTextSource.next(correctAnswersText); // Set the correct answers text here
+        this.correctAnswersTextSource.next(correctAnswersText);
       }
     });
   }
