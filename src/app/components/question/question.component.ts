@@ -366,6 +366,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.correctAnswers = correctAnswers.get(data.questionText);
         this.currentOptions = data.currentOptions;
   
+        console.log('currentOptions:', this.currentOptions);
+        console.log('correctAnswers:', this.correctAnswers);
+
+        // Check if the values in data are not empty or null
+        if (this.data.questionText && this.data.correctAnswersText && this.data.currentOptions) {
+          this.quizService.combinedQuestionDataSubject.next(this.data);
+        }
+        
         if (this.currentOptions && this.correctAnswers) {
           console.log('Current options and correct answers are available.');
           this.setCorrectMessage(this.correctAnswers);
@@ -375,7 +383,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.correctMessage = 'The correct answers are not available yet.';
           this.updateCorrectMessageText(this.correctMessage); // Update with the error message
         }
-  
+
         this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
         this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   
