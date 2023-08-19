@@ -85,7 +85,7 @@ export class CodelabQuizContentComponent {
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
 
-    const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers$.value);
+    const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(+this.numberOfCorrectAnswers$.value);
 
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
