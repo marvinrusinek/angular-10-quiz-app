@@ -60,7 +60,7 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(): Observable<boolean> {
+  /* isMultipleAnswer(): Observable<boolean> {
     const question = this.currentQuestion.value;
     if (!question) {
       console.error('Question is not defined');
@@ -77,8 +77,27 @@ export class QuizStateService {
     }
   
     return this.multipleAnswerSubject.asObservable();
-  }
+  } */
 
+  isMultipleAnswer(): boolean {
+    const question = this.currentQuestion.value;
+    if (!question) {
+      console.error('Question is not defined');
+      return false;
+    }
+  
+    if (question && question.options) {
+      const correctOptions = question.options?.filter((option) => option.correct);
+      const isMultipleAnswer = correctOptions.length > 1;
+      this.setMultipleAnswer(isMultipleAnswer);
+      return isMultipleAnswer; // Return the boolean value
+    } else {
+      console.error('Question options not found.', question);
+      this.setMultipleAnswer(false);
+      return false; // Return false in case of no options
+    }
+  }
+  
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
