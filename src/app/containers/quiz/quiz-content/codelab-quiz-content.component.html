@@ -15,9 +15,9 @@
   <section id="question">
     <h3 question-content>
       <p>{{ nextQuestionText }}</p>
-      <span *ngIf="combinedText$ | async as combinedText">
+      <!--<span *ngIf="combinedText$ | async as combinedText">
         {{ combinedText }}
-      </span>
+      </span>-->
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswersText(data)">
         {{ correctAnswersText$ | async }}
       </span>
