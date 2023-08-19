@@ -315,20 +315,10 @@ export class CodelabQuizContentComponent {
   }
 
   shouldDisplayCorrectAnswersText(data: any): boolean {
-    const shouldDisplayNumberOfCorrectAnswers = this.shouldDisplayNumberOfCorrectAnswersCount();
-    const hasCorrectAnswersText = !!data?.correctAnswersText;
-    const isExplanationTextDisplayed = this.isExplanationTextDisplayed;
-  
-    console.log('shouldDisplayNumberOfCorrectAnswers:', shouldDisplayNumberOfCorrectAnswers);
-    console.log('hasCorrectAnswersText:', hasCorrectAnswersText);
-    console.log('isExplanationTextDisplayed:', isExplanationTextDisplayed);
-  
-    const result = shouldDisplayNumberOfCorrectAnswers && hasCorrectAnswersText && !isExplanationTextDisplayed;
-    console.log('Result:', result);
-  
-    return result;
+    return this.shouldDisplayNumberOfCorrectAnswersCount() &&
+           data?.correctAnswersText &&
+           !this.isExplanationTextDisplayed;
   }
-  
   
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
