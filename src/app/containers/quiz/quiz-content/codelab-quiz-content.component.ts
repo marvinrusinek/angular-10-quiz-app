@@ -322,20 +322,11 @@ export class CodelabQuizContentComponent {
   } */
 
   shouldDisplayCorrectAnswersText(data: any): boolean {
-    const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data);
-    const hasMultipleCorrectAnswers = this.quizStateService.isMultipleAnswer();
-  
-    console.log('Number of Correct Answers:', numberOfCorrectAnswers);
-    console.log('Has Multiple Correct Answers:', hasMultipleCorrectAnswers);
-    console.log('Display Correct Answers Count:', this.shouldDisplayNumberOfCorrectAnswersCount());
-    console.log('Is Explanation Text Displayed:', this.isExplanationTextDisplayed);
+    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
   
     return numberOfCorrectAnswers > 1 &&
-           hasMultipleCorrectAnswers &&
-           this.shouldDisplayNumberOfCorrectAnswersCount() &&
            !this.isExplanationTextDisplayed;
   }
-  
   
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
