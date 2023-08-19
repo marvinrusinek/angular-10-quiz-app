@@ -323,10 +323,17 @@ export class CodelabQuizContentComponent {
 
   shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data);
-    return numberOfCorrectAnswers > 1 &&
-           this.shouldDisplayNumberOfCorrectAnswersCount() &&
-           !this.isExplanationTextDisplayed;
+    console.log('Number of Correct Answers:', numberOfCorrectAnswers);
+  
+    const shouldDisplayCorrectCount = this.shouldDisplayNumberOfCorrectAnswersCount();
+    console.log('Should Display Correct Count:', shouldDisplayCorrectCount);
+  
+    const isExplanationTextDisplayed = this.isExplanationTextDisplayed;
+    console.log('Is Explanation Text Displayed:', isExplanationTextDisplayed);
+  
+    return numberOfCorrectAnswers > 1 && shouldDisplayCorrectCount && !isExplanationTextDisplayed;
   }
+  
   
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
