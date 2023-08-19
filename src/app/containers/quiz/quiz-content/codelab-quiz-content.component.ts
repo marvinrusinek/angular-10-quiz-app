@@ -315,12 +315,6 @@ export class CodelabQuizContentComponent {
     return numberOfCorrectAnswers;
   }
 
-  /* shouldDisplayCorrectAnswersText(data: any): boolean {
-    return this.shouldDisplayNumberOfCorrectAnswersCount() &&
-           data?.correctAnswersText &&
-           !this.isExplanationTextDisplayed;
-  } */
-
   shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
   
