@@ -1205,23 +1205,25 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion(): Promise<boolean> {
-    this.currentQuestionIndex++;
-    console.log(
-      'Current question index after navigation:',
-      this.currentQuestionIndex
-    );
-    this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
-      this.currentQuestionIndex + 1
-    }`;
-    console.log(
-      'Current question index from QuizService:',
-      this.getCurrentQuestionIndex()
-    );
-    return this.router.navigate([newUrl]);
+  async navigateToNextQuestion(): Promise<boolean> {
+    try {
+      this.currentQuestionIndex++;
+      this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+  
+      const nextQuestionIndex = this.currentQuestionIndex + 1;
+      if (nextQuestionIndex >= this.selectedQuiz.questions.length) {
+        // Handle reaching the end of questions
+        return false;
+      }
+  
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+      return await this.router.navigate([newUrl]);
+    } catch (error) {
+      console.error('Error during navigation:', error);
+      return false;
+    }
   }
-
+  
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
