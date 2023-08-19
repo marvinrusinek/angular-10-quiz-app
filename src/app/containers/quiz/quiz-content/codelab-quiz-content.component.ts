@@ -115,19 +115,16 @@ export class CodelabQuizContentComponent {
       })
     );
 
-    this.quizQuestionManagerService.currentQuestion$.subscribe((question) => {
-      if (question) {
-        this.currentDisplayText = this.explanationText || question.questionText || '';
-      } else {
-        this.currentDisplayText = this.explanationText || '';
-      }
-    });
-
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
       this.explanationText = explanationText;
-
-      // Update the currentDisplayText to display either the explanation text or the question text
-      this.currentDisplayText = this.explanationText || this.currentQuestion?.getValue()?.questionText || '';
+    
+      // Update the currentDisplayText only if the explanation text is not empty
+      if (this.explanationText) {
+        this.currentDisplayText = this.explanationText;
+      } else {
+        // If explanation text is empty, show the question text
+        this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
+      }
     });
 
     /* this.combinedText$ = merge(
