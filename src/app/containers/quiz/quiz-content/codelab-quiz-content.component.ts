@@ -100,7 +100,7 @@ export class CodelabQuizContentComponent {
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion,
-          currentOptions: nextOptions || [],
+          currentOptions: nextOptions || []
         };
       })
     );
