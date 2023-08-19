@@ -92,6 +92,7 @@ export class CodelabQuizContentComponent {
       this.numberOfCorrectAnswers$
     ]).pipe(
       map(([nextQuestion, nextOptions, numberOfCorrectAnswers]) => {
+        this.nextQuestionText = nextQuestion?.questionText || '';
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: '',
