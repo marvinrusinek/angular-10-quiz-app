@@ -150,12 +150,13 @@ export class CodelabQuizContentComponent {
       })
     );
 
+    /* probably remove 
     this.combinedQuestionData$.subscribe(data => {
       this.displayCorrectAnswersText = 
         this.shouldDisplayNumberOfCorrectAnswersCount() &&
         data?.correctAnswersText &&
         !this.isExplanationTextDisplayed;
-    });
+    }); */
   }
 
   ngOnDestroy(): void {
