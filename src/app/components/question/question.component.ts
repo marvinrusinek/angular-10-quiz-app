@@ -351,6 +351,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private subscribeToCorrectAnswersAndData(): void {
     console.log('Subscribing to correctAnswers$ and combinedQuestionData$');
+
+    // Log emissions of the combinedQuestionData$ observable
+    this.quizService.combinedQuestionData$.subscribe((data) => {
+      console.log('Combined Question Data:::>>', data);
+    });
   
     combineLatest([
       this.quizService.correctAnswers$,
@@ -377,7 +382,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             currentOptions: this.data.currentOptions
           });
         }
-
+        console.log("CA:", this.correctAnswers);
         if (this.currentOptions && this.correctAnswers) {
           console.log('Current options and correct answers are available.');
           this.setCorrectMessage(this.correctAnswers);
