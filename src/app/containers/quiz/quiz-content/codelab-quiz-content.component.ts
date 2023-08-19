@@ -130,21 +130,21 @@ export class CodelabQuizContentComponent {
       this.currentDisplayText = this.explanationText || this.currentQuestion?.getValue()?.questionText || '';
     });
 
-    /* this.combinedText$ = merge(
+    this.combinedText$ = merge(
       this.explanationText$,
       this.quizStateService.currentQuestion$.pipe(
         map(question => question?.questionText || '')
       )
-    ); */
+    );
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.explanationText$,
       this.quizStateService.currentQuestion$.pipe(
         map(question => question?.questionText || '')
       )
     ]).pipe(
       map(([explanationText, currentQuestionText]) => `${explanationText} ${currentQuestionText}`)
-    );
+    ); */
     
 
     this.combinedQuestionData$.subscribe(data => {
