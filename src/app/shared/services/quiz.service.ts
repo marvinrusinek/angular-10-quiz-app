@@ -1212,7 +1212,6 @@ export class QuizService implements OnDestroy {
   
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       if (nextQuestionIndex >= this.selectedQuiz.questions.length) {
-        // Handle reaching the end of questions
         return false;
       }
   
