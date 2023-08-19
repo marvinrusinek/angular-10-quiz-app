@@ -87,23 +87,17 @@ export class QuizStateService {
     }
   
     if (question && question.options) {
-      const correctOptions = question.options?.filter((option) => option.correct);
-      const isMultipleAnswer = correctOptions.length > 1;
-      this.setMultipleAnswer(isMultipleAnswer);
-      return isMultipleAnswer; // Return the boolean value
+      const correctOptions = question.options.filter(option => option.correct);
+      return correctOptions.length > 1;
     } else {
       console.error('Question options not found.', question);
-      this.setMultipleAnswer(false);
-      return false; // Return false in case of no options
+      return false;
     }
   }
   
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
-    this.multipleAnswer$.subscribe((value) => {
-      this.multipleAnswerSubject.next(value);
-    });
-  }
+  }  
 
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
