@@ -64,6 +64,7 @@ export class CodelabQuizContentComponent {
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
   displayCorrectAnswersText: boolean;
+  nextQuestionText: string = '';
 
   private destroy$ = new Subject<void>();
 
@@ -314,11 +315,13 @@ export class CodelabQuizContentComponent {
     return numberOfCorrectAnswers;
   }
 
-  shouldDisplayCorrectAnswersText(data: any): boolean {
+  /* shouldDisplayCorrectAnswersText(data: any): boolean {
     return this.shouldDisplayNumberOfCorrectAnswersCount() &&
            data?.correctAnswersText &&
            !this.isExplanationTextDisplayed;
-  }
+  } */
+
+
   
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
