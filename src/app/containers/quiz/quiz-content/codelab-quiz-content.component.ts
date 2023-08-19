@@ -90,13 +90,14 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
-      this.numberOfCorrectAnswers$
+      this.numberOfCorrectAnswers$,
+      this.explanationText$
     ]).pipe(
-      map(([nextQuestion, nextOptions, numberOfCorrectAnswers]) => {
+      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
         this.nextQuestionText = nextQuestion?.questionText || '';
         return {
           questionText: nextQuestion?.questionText || '',
-          explanationText: '',
+          explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion,
           currentOptions: nextOptions || [],
@@ -129,12 +130,22 @@ export class CodelabQuizContentComponent {
       this.currentDisplayText = this.explanationText || this.currentQuestion?.getValue()?.questionText || '';
     });
 
-    this.combinedText$ = merge(
+    /* this.combinedText$ = merge(
       this.explanationText$,
       this.quizStateService.currentQuestion$.pipe(
         map(question => question?.questionText || '')
       )
+    ); */
+
+    this.combinedText$ = combineLatest([
+      this.explanationText$,
+      this.quizStateService.currentQuestion$.pipe(
+        map(question => question?.questionText || '')
+      )
+    ]).pipe(
+      map(([explanationText, currentQuestionText]) => `${explanationText} ${currentQuestionText}`)
     );
+    
 
     this.combinedQuestionData$.subscribe(data => {
       this.displayCorrectAnswersText = 
