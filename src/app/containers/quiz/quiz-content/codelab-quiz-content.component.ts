@@ -321,7 +321,17 @@ export class CodelabQuizContentComponent {
            !this.isExplanationTextDisplayed;
   } */
 
-
+  shouldDisplayCorrectAnswersText(data: any): boolean {
+    const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data);
+    return numberOfCorrectAnswers > 1 &&
+           this.shouldDisplayNumberOfCorrectAnswersCount() &&
+           !this.isExplanationTextDisplayed;
+  }
+  
+  getNumberOfCorrectAnswers(data: any): number {
+    const correctAnswers = data?.correctAnswers || [];
+    return correctAnswers.length;
+  }
   
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
