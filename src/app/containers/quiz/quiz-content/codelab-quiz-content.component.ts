@@ -179,7 +179,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
     
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
       this.shouldDisplayExplanation$
@@ -198,7 +198,26 @@ export class CodelabQuizContentComponent {
         // Display question text for the current question
         return nextQuestion.questionText;
       })
-    );
+    ); */
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return of('');
+        }
+    
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
+          return of(explanationText);
+        }
+    
+        return of(nextQuestion.questionText);
+      })
+    );    
   }
 
   
