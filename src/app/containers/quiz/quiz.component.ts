@@ -46,6 +46,7 @@ import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
@@ -161,6 +162,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private quizStateService: QuizStateService,
     private timerService: TimerService,
     private explanationTextService: ExplanationTextService,
+    private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -1001,12 +1003,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       console.log('Next question text:', this.nextQuestionText);
       console.log('Current options:', this.currentOptions);
+
+      this.selectedOptionService.setSelectedOptionExplanation('');
     } else {
       this.nextQuestionText = null;
       this.currentOptions = null;
     }
   }
-
 
   advanceToPreviousQuestion() {
     this.answers = [];
