@@ -986,7 +986,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.updateCurrentOptions(nextQuestion.options);
 
       const explanationTextOfNextQuestion = nextQuestion.questionText;
-      this.explanationTextSource.next(explanationTextOfNextQuestion);
+      this.explanationTextSource.next(explanationTextOfNextQuestion); 
 
       console.log('Before navigation');
       this.quizService.navigateToNextQuestion();
