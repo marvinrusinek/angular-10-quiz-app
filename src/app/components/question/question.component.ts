@@ -990,7 +990,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       const selectedOptionExplanation = this.currentQuestion.explanation;
       this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
-    });   
+    }); 
+    
+    // Toggle the shouldDisplayExplanation to switch between question and explanation
+    this.explanationTextService.shouldDisplayExplanation$.pipe(take(1)).subscribe(currentValue => {
+      this.explanationTextService.setShouldDisplayExplanation(!currentValue);
+    });
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
