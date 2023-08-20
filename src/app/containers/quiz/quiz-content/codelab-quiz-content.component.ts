@@ -402,6 +402,81 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return of('');
+        }
+
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false);
+          return of(explanationText);
+        }
+
+        return this.nextQuestion$.pipe(
+          take(1),
+          map(newNextQuestion => newNextQuestion.questionText)
+        );
+      })
+    ); */
+
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      map(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return '';
+        }
+
+        // Display explanation text if requested and available
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
+          return explanationText;
+        }
+
+        // Display question text for the current question
+        return nextQuestion.questionText;
+      })
+    ); */
+
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$
+    ]).pipe(
+      map(([nextQuestion, explanationText]) => {
+        if (!nextQuestion) {
+          return '';
+        }
+
+        // Display explanation text if available, otherwise display question text
+        return explanationText || nextQuestion.questionText;
+      })
+    );
+
+    // Subscribe to nextQuestion$ to set the explanation text for the next question
+    this.nextQuestion$.subscribe(nextQuestion => {
+      if (nextQuestion) {
+        this.explanationTextService.setExplanationText([], nextQuestion);
+      }
+    }); */
+
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
@@ -427,6 +502,7 @@ export class CodelabQuizContentComponent {
         );
       })
     );
+
 
 
 
