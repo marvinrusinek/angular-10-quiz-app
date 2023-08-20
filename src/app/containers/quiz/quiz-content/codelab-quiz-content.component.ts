@@ -323,7 +323,7 @@ export class CodelabQuizContentComponent {
 
         return nextQuestion.questionText;
       })
-    );
+    ); 
 
 
 
