@@ -242,7 +242,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.quizService.nextQuestion$,
       this.explanationTextService.isExplanationTextDisplayed$,
       this.explanationTextService.nextExplanationText$,
@@ -253,6 +253,25 @@ export class CodelabQuizContentComponent {
         }
 
         if (isExplanationTextDisplayed && explanationText) {
+          return [explanationText];
+        }
+
+        return [nextQuestion.questionText];
+      })
+    ); */
+
+    this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.explanationTextService.isExplanationTextDisplayed$,
+      this.explanationTextService.explanationText$,
+    ]).pipe(
+      map(([nextQuestion, isExplanationTextDisplayed, explanationText]) => {
+        if (!nextQuestion) {
+          return [];
+        }
+
+        if (isExplanationTextDisplayed && explanationText) {
+          this.explanationTextService.setIsExplanationTextDisplayed(false);
           return [explanationText];
         }
 

@@ -990,7 +990,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       const selectedOptionExplanation = this.currentQuestion.explanation;
       this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
-      this.explanationTextService.setIsExplanationTextDisplayed(true);
     });   
   }
   
@@ -1081,6 +1080,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log("Number of Options:", this.selectedOptions.length);
     console.log("Single Option:", options[0]);
     this.isExplanationTextDisplayed = true;
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
       .subscribe(
