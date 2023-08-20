@@ -10,6 +10,10 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
+  private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
+  isExplanationTextDisplayed$: Observable<boolean> =
+    this.isExplanationTextDisplayedSource.asObservable();
+
   constructor() {}
 
   getExplanationText$(): Observable<string | null> {
@@ -37,6 +41,12 @@ export class ExplanationTextService {
       const selectedCorrectOptions = selectedOptions.filter(
         (option) => option?.correct === true
       );
+
+      const shouldDisplayExplanation =
+        selectedCorrectOptions.length > 0 &&
+        selectedCorrectOptions.length !== correctOptions.length;
+
+      this.isExplanationTextDisplayedSource.next(shouldDisplayExplanation);
 
       if (selectedOptions.length === 0) {
         this.explanationText$.next('');

@@ -144,6 +144,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctAnswersSubscription: Subscription;
   correctAnswersLoadedSubscription: Subscription;
   questionDataSubscription: Subscription;
+  isExplanationTextDisplayed: boolean = false;
 
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -1078,6 +1079,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log("MY OPTIONS:::", options);
     console.log("Number of Options:", this.selectedOptions.length);
     console.log("Single Option:", options[0]);
+    this.isExplanationTextDisplayed = true;
     this.explanationTextService
       .setExplanationText(options, currentQuestion)
       .subscribe(

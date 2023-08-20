@@ -155,16 +155,17 @@ export class CodelabQuizContentComponent {
       map(([nextQuestion, explanationText, numberOfCorrectAnswers]) => {
         const nextQuestionText = nextQuestion?.questionText || '';
         const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-
-        // Use the explanation text directly
-        const explanation = explanationText || '';
-
-        // Replace nextQuestionText with explanation if available
+    
+        // Use the explanation text directly if it's being displayed
+        const explanation = this.isExplanationTextDisplayed ? explanationText || '' : '';
+    
+        // Display nextQuestionText if explanation is not available
         const combinedText = explanation || nextQuestionText;
-
+    
         return combinedText;
       })
     );
+    
     
 
     /* this.combinedText$ = combineLatest([
