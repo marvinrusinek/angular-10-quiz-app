@@ -90,7 +90,6 @@ export class ExplanationTextService {
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       this.explanationText$.next('');
-      this.setNextExplanationText(text);
       return this.explanationText$;
     }
   }
