@@ -987,6 +987,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       const explanationTextOfNextQuestion = nextQuestion.questionText;
       this.explanationTextSource.next(explanationTextOfNextQuestion);
+      this.explanationTextService.setExplanationText([], nextQuestion);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
       this.explanationTextService.setShouldPersistExplanationTextAcrossOptions(false);
 
