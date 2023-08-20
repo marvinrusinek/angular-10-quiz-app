@@ -190,7 +190,6 @@ export class CodelabQuizContentComponent {
         data?.correctAnswersText &&
         !this.isExplanationTextDisplayed;
     }); */
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
