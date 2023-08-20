@@ -130,7 +130,7 @@ export class CodelabQuizContentComponent {
       }
     });
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
 
@@ -154,9 +154,9 @@ export class CodelabQuizContentComponent {
           map(newNextQuestion => newNextQuestion.questionText)
         );
       })
-    );
+    ); */
 
-    /* this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
 
@@ -175,11 +175,9 @@ export class CodelabQuizContentComponent {
           return of(explanationText);
         }
     
-        return this.explanationTextService.setExplanationText([], nextQuestion).pipe(
-          map(newExplanationText => newExplanationText || nextQuestion.questionText)
-        );
+        return of(nextQuestion.questionText);
       })
-    ); */ 
+    );     
   }
 
   
