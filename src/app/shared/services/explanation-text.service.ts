@@ -109,4 +109,8 @@ export class ExplanationTextService {
   setIsExplanationTextDisplayed(display: boolean): void {
     this.isExplanationTextDisplayedSource.next(display);
   }
+
+  getLastDisplayedExplanationText(): string {
+    return this.lastDisplayedExplanationText;
+  }
 }
