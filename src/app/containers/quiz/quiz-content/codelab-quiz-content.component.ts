@@ -169,17 +169,17 @@ export class CodelabQuizContentComponent {
         if (!nextQuestion) {
           return of('');
         }
-
+    
         if (shouldDisplayExplanation && explanationText) {
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
-
+    
         return this.explanationTextService.setExplanationText([], nextQuestion).pipe(
           map(newExplanationText => newExplanationText || nextQuestion.questionText)
         );
       })
-    );
+    );    
   }
 
   
