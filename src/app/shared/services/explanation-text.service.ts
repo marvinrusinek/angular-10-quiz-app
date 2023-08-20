@@ -29,6 +29,10 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
+  get explanationText(): Observable<string> {
+    return this.explanationText$.asObservable();
+  }
+
   setExplanationText(
     selectedOptions: Option[],
     question?: QuizQuestion
