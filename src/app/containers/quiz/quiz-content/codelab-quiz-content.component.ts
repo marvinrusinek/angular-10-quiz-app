@@ -156,8 +156,33 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    
-    
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return of('');
+        }
+
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false);
+          return of(explanationText);
+        }
+
+        return this.explanationTextService.setExplanationText([], nextQuestion).pipe(
+          map(newExplanationText => newExplanationText || nextQuestion.questionText)
+        );
+      })
+    );
+  }
+
+  
     /* probably remove 
     this.combinedQuestionData$.subscribe(data => {
       this.displayCorrectAnswersText = 
