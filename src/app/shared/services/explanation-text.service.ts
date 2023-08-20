@@ -126,4 +126,8 @@ export class ExplanationTextService {
   getLastDisplayedExplanationText(): string {
     return this.lastDisplayedExplanationText;
   }
+
+  clearExplanationText(): void {
+    this.explanationText$.next('');
+  }
 }

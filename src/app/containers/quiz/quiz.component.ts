@@ -1013,6 +1013,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.selectedOptionService.setSelectedOptionExplanation('');
     } else {
+      this.explanationTextService.clearExplanationText();
       this.nextQuestionText = null;
       this.currentOptions = null;
     }
