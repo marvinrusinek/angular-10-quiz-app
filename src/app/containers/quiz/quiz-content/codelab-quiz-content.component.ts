@@ -147,7 +147,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.quizService.nextQuestion$,
       this.explanationTextService.explanationText$,
       this.numberOfCorrectAnswers$,
@@ -164,7 +164,69 @@ export class CodelabQuizContentComponent {
     
         return combinedText;
       })
+    ); */
+
+    /* this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.explanationTextService.explanationText$,
+      this.numberOfCorrectAnswers$,
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(
+      map(([nextQuestion, explanationText, numberOfCorrectAnswers, isExplanationTextDisplayed]) => {
+        const nextQuestionText = nextQuestion?.questionText || '';
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+    
+        // Use the explanation text directly if it's being displayed
+        const explanation = isExplanationTextDisplayed ? explanationText || '' : '';
+    
+        // Display nextQuestionText if explanation is not available
+        const combinedText = explanation || nextQuestionText;
+    
+        return combinedText;
+      })
+    ); */
+
+    /* this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.explanationTextService.explanationText$,
+      this.numberOfCorrectAnswers$,
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(
+      map(([nextQuestion, explanationText, numberOfCorrectAnswers, isExplanationTextDisplayed]) => {
+        const nextQuestionText = nextQuestion?.questionText || '';
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+    
+        // Use the explanation text directly if it's being displayed
+        const explanation = isExplanationTextDisplayed ? explanationText || '' : '';
+    
+        // Display nextQuestionText if explanation is not available
+        const combinedText = explanation || nextQuestionText;
+    
+        return combinedText;
+      })
+    ); */
+
+    this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.explanationTextService.explanationText$,
+      this.numberOfCorrectAnswers$,
+      this.explanationTextService.isExplanationTextDisplayed$,
+    ]).pipe(
+      map(([nextQuestion, explanationText, numberOfCorrectAnswers, isExplanationTextDisplayed]) => {
+        const nextQuestionText = nextQuestion?.questionText || '';
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+    
+        // Use the explanation text directly if it's being displayed
+        const explanation = isExplanationTextDisplayed ? explanationText || '' : '';
+    
+        // Display nextQuestionText if explanation is not available
+        const combinedText = explanation || nextQuestionText;
+    
+        return combinedText;
+      })
     );
+    
+    
     
     
 
