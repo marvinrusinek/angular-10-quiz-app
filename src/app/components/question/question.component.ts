@@ -990,6 +990,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       const selectedOptionExplanation = this.currentQuestion.explanation;
       this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
+      this.explanationTextService.setIsExplanationTextDisplayed(true);
     });   
   }
   
