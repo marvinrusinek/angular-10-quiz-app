@@ -66,6 +66,7 @@ export class CodelabQuizContentComponent {
   displayCorrectAnswersText: boolean;
   nextQuestionText: string = '';
   displayExplanation$: Observable<boolean>;
+  isExplanationTextDisplayed$: Observable<boolean>;
 
   private destroy$ = new Subject<void>();
 
@@ -260,31 +261,48 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.quizService.nextQuestion$,
       this.explanationTextService.isExplanationTextDisplayed$,
       this.explanationTextService.explanationText$,
     ]).pipe(
       map(([nextQuestion, isExplanationTextDisplayed, explanationText]) => {
         if (!nextQuestion) {
-          return [];
+          return '';
+        }
+    
+        if (isExplanationTextDisplayed && explanationText) {
+          return explanationText;
+        }
+    
+        return nextQuestion.questionText;
+      })
+    ); */
+
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.isExplanationTextDisplayed$,
+      this.explanationText$
+    ]).pipe(
+      map(([nextQuestion, isExplanationTextDisplayed, explanationText]) => {
+        if (!nextQuestion) {
+          return '';
         }
 
         if (isExplanationTextDisplayed && explanationText) {
-          this.explanationTextService.setIsExplanationTextDisplayed(false);
-          return [explanationText];
+          this.explanationTextService.setIsExplanationTextDisplayed(false); // Reset the display flag
+          return explanationText;
         }
 
-        return [nextQuestion.questionText];
+        return nextQuestion.questionText;
       })
     );
-    
-    
-    
-    
-    
-    
-    
+
+
 
     /* this.combinedText$ = combineLatest([
       this.quizService.nextQuestion$,

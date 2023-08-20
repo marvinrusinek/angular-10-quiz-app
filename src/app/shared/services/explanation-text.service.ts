@@ -43,6 +43,12 @@ export class ExplanationTextService {
     // Update the last displayed explanation text
     this.lastDisplayedExplanationText = this.explanationText$.value;
 
+    if (question && question.explanation) {
+      this.nextExplanationTextSource.next(question.explanation);
+    } else {
+      this.nextExplanationTextSource.next('');
+    }
+
     // Set the isExplanationTextDisplayed flag
     this.isExplanationTextDisplayedSource.next(true);
 
