@@ -134,7 +134,7 @@ export class CodelabQuizContentComponent {
       )
     ); */
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.quizService.nextQuestion$,
       this.explanationText$,
       this.numberOfCorrectAnswers$,
@@ -145,7 +145,64 @@ export class CodelabQuizContentComponent {
         const explanation = +numberOfCorrectAnswers > 1 ? explanationText : '';
         return `${nextQuestionText} ${explanation}`;
       })
+    ); */
+
+    this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.explanationTextService.explanationText$,
+      this.numberOfCorrectAnswers$,
+    ]).pipe(
+      map(([nextQuestion, explanationText, numberOfCorrectAnswers]) => {
+        const nextQuestionText = nextQuestion?.questionText || '';
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+
+        // Use the explanation text directly
+        const explanation = explanationText || '';
+
+        // Replace nextQuestionText with explanation if available
+        const combinedText = explanation || nextQuestionText;
+
+        return combinedText;
+      })
     );
+    
+
+    /* this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.selectedOptionService.selectedOptionExplanation$,
+      this.numberOfCorrectAnswers$,
+    ]).pipe(
+      map(([nextQuestion, selectedOptionExplanation, numberOfCorrectAnswers]) => {
+        const isOptionSelected = !!selectedOptionExplanation;
+        const textToShow = isOptionSelected ? selectedOptionExplanation : nextQuestion?.questionText || '';
+        return textToShow;
+      })
+    ); */
+
+    /* this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.selectedOptionService.selectedOptionExplanation$,
+      this.numberOfCorrectAnswers$,
+    ]).pipe(
+      map(([nextQuestion, selectedOptionExplanation, numberOfCorrectAnswers]) => {
+        const isOptionSelected = !!selectedOptionExplanation;
+        const explanation = isOptionSelected ? selectedOptionExplanation : nextQuestion?.questionText || '';
+        const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+        
+        let combinedText = '';
+        
+        if (isOptionSelected && numberOfCorrectAnswers > 1) {
+          combinedText = `${explanation} ${correctAnswersText}`;
+        } else {
+          combinedText = explanation;
+        }
+        
+        return combinedText;
+      })
+    ); */
+    
+    
+    
 
     /* probably remove 
     this.combinedQuestionData$.subscribe(data => {
