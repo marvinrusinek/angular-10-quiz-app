@@ -285,7 +285,6 @@ export class CodelabQuizContentComponent {
     
     
     
-    
 
     /* this.combinedText$ = combineLatest([
       this.quizService.nextQuestion$,

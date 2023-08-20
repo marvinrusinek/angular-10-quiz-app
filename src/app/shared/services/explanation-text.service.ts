@@ -17,6 +17,8 @@ export class ExplanationTextService {
   isExplanationTextDisplayed$: Observable<boolean> =
     this.isExplanationTextDisplayedSource.asObservable();
 
+  lastDisplayedExplanationText: string = '';
+
   constructor() {}
 
   getExplanationText$(): Observable<string | null> {
@@ -37,6 +39,12 @@ export class ExplanationTextService {
       console.error('Error: selectedOptions is not an array');
       return of('');
     }
+
+    // Update the last displayed explanation text
+    this.lastDisplayedExplanationText = this.explanationText$.value;
+
+    // Set the isExplanationTextDisplayed flag
+    this.isExplanationTextDisplayedSource.next(true);
 
     try {
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
