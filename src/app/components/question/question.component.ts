@@ -988,7 +988,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.handleOptionClicked(this.currentQuestion, option);
     });
 
-    const selectedOptionExplanation = this.currentQuestion.explanation; // Use the actual source of explanation
+    const selectedOptionExplanation = this.currentQuestion.explanation;
     this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
   }
   
