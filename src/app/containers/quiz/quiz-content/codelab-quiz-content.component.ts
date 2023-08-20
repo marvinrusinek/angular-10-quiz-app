@@ -302,7 +302,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
 
@@ -321,13 +321,68 @@ export class CodelabQuizContentComponent {
           return explanationText;
         }
 
-        /* if (this.explanationTextService.shouldPersistExplanationTextAcrossOptions) {
+        if (this.explanationTextService.shouldPersistExplanationTextAcrossOptions) {
           return explanationText || '';
-        } */
+        }
 
         return nextQuestion.questionText;
       })
-    ); 
+    ); */
+
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+    
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      map(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return '';
+        }
+    
+        // Display explanation text if requested
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
+          return explanationText;
+        }
+    
+        // Display question text if explanation text is not present or not requested
+        return nextQuestion.questionText;
+      })
+    ); */
+
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      map(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return '';
+        }
+
+        // Display explanation text if requested and available
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
+          return explanationText;
+        }
+
+        // Display question text for the current question
+        return nextQuestion.questionText;
+      })
+    );
+    
+
+
+
+    
 
 
 
