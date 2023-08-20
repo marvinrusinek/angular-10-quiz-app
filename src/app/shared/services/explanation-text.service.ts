@@ -10,6 +10,9 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
+  private nextExplanationTextSource = new BehaviorSubject<string>('');
+  nextExplanationText$ = this.nextExplanationTextSource.asObservable();
+
   private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationTextDisplayed$: Observable<boolean> =
     this.isExplanationTextDisplayedSource.asObservable();
@@ -62,6 +65,7 @@ export class ExplanationTextService {
           const correctOptionsString = correctOptionIndices.join(' and ');
           const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
           this.explanationText$.next(text);
+          this.setNextExplanationText(text);
         }
       } else {
         const correctOptionIndices = correctOptions.map(
@@ -72,10 +76,12 @@ export class ExplanationTextService {
         if (correctOptions.length === 1) {
           const text = `Option ${optionIndicesString} is correct because ${question.explanation}`;
           this.explanationText$.next(text);
+          this.setNextExplanationText(text);
         } else {
           if (question && question.explanation) {
             const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
             this.explanationText$.next(text);
+            this.setNextExplanationText(text);
           }
         }
       }
@@ -84,7 +90,12 @@ export class ExplanationTextService {
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       this.explanationText$.next('');
+      this.setNextExplanationText(text);
       return this.explanationText$;
     }
+  }
+
+  setNextExplanationText(explanationText: string): void {
+    this.nextExplanationTextSource.next(explanationText);
   }
 }
