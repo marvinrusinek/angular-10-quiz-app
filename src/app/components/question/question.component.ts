@@ -39,6 +39,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 
@@ -157,6 +158,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected explanationTextService: ExplanationTextService,
+    protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
@@ -169,6 +171,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService = quizStateService;
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
+    this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
@@ -984,6 +987,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestion = currentQuestion;
       this.handleOptionClicked(this.currentQuestion, option);
     });
+
+    const selectedOptionExplanation = this.currentQuestion.explanation; // Use the actual source of explanation
+    this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
