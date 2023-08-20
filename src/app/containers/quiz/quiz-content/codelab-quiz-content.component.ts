@@ -490,18 +490,24 @@ export class CodelabQuizContentComponent {
         if (!nextQuestion) {
           return of('');
         }
-
+    
         if (shouldDisplayExplanation && explanationText) {
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
-
-        return this.nextQuestion$.pipe(
-          take(1),
-          map(newNextQuestion => newNextQuestion.questionText)
+    
+        return this.explanationTextService.setExplanationText([], nextQuestion).pipe(
+          switchMap(updatedExplanationText => {
+            if (updatedExplanationText) {
+              return of(updatedExplanationText);
+            } else {
+              return of(nextQuestion.questionText);
+            }
+          })
         );
       })
     );
+    
 
 
 
