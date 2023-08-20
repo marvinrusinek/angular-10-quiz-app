@@ -983,13 +983,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onOptionClicked(option: Option): void {
+    const selectedOptionExplanation = this.currentQuestion.explanation;
+    this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
+
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
       this.handleOptionClicked(this.currentQuestion, option);
     });
-
-    const selectedOptionExplanation = this.currentQuestion.explanation;
-    this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
