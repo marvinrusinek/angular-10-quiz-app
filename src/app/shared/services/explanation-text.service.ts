@@ -17,6 +17,9 @@ export class ExplanationTextService {
   isExplanationTextDisplayed$: Observable<boolean> =
     this.isExplanationTextDisplayedSource.asObservable();
 
+  private shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
+  shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
+
   lastDisplayedExplanationText: string = '';
 
   constructor() {}
@@ -114,6 +117,10 @@ export class ExplanationTextService {
 
   setIsExplanationTextDisplayed(display: boolean): void {
     this.isExplanationTextDisplayedSource.next(display);
+  }
+
+  setShouldDisplayExplanation(shouldDisplay: boolean): void {
+    this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
 
   getLastDisplayedExplanationText(): string {

@@ -67,6 +67,7 @@ export class CodelabQuizContentComponent {
   nextQuestionText: string = '';
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
+  shouldDisplayExplanation$: Observable<boolean>;
 
   private destroy$ = new Subject<void>();
 
@@ -279,7 +280,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
 
@@ -294,13 +295,36 @@ export class CodelabQuizContentComponent {
         }
 
         if (isExplanationTextDisplayed && explanationText) {
-          this.explanationTextService.setIsExplanationTextDisplayed(false); // Reset the display flag
+          return explanationText;
+        }
+
+        return nextQuestion.questionText;
+      })
+    ); */
+
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      map(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return '';
+        }
+
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
           return explanationText;
         }
 
         return nextQuestion.questionText;
       })
     );
+
 
 
 
