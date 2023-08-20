@@ -130,7 +130,7 @@ export class CodelabQuizContentComponent {
       }
     });
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
 
@@ -154,7 +154,9 @@ export class CodelabQuizContentComponent {
           map(newNextQuestion => newNextQuestion.questionText)
         );
       })
-    );
+    ); */
+
+    
     
     /* probably remove 
     this.combinedQuestionData$.subscribe(data => {
