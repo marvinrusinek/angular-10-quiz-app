@@ -65,6 +65,7 @@ export class CodelabQuizContentComponent {
   isExplanationTextDisplayed: boolean = false;
   displayCorrectAnswersText: boolean;
   nextQuestionText: string = '';
+  displayExplanation$: Observable<boolean>;
 
   private destroy$ = new Subject<void>();
 
@@ -226,25 +227,25 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.combinedText$ = combineLatest([
-      this.quizService.nextQuestion$,
-      this.explanationTextService.explanationText$,
-      this.numberOfCorrectAnswers$,
-      this.explanationTextService.isExplanationTextDisplayed$,
-    ]).pipe(
-      map(([nextQuestion, explanationText, numberOfCorrectAnswers, isExplanationTextDisplayed]) => {
-        const nextQuestionText = nextQuestion?.questionText || '';
-        const correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-    
-        // Use the explanation text directly if it's being displayed
-        const explanation = isExplanationTextDisplayed ? explanationText || '' : '';
-    
-        // Display nextQuestionText if explanation is not available
-        const combinedText = explanation || nextQuestionText;
-    
-        return combinedText;
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.nextExplanationText$;
+
+    this.displayExplanation$ = this.explanationTextService.isExplanationTextDisplayed$;
+
+    this.combinedText$ = combineLatest([this.nextQuestion$, this.explanationText$, this.displayExplanation$]).pipe(
+      map(([nextQuestion, explanationText, displayExplanation]) => {
+        if (displayExplanation) {
+          return explanationText || '';
+        } else {
+          return nextQuestion?.questionText || '';
+        }
       })
     );
+
+    
+    
+    
+    
     
     
     

@@ -97,4 +97,8 @@ export class ExplanationTextService {
   setNextExplanationText(explanationText: string): void {
     this.nextExplanationTextSource.next(explanationText);
   }
+
+  setIsExplanationTextDisplayed(display: boolean): void {
+    this.isExplanationTextDisplayedSource.next(display);
+  }
 }
