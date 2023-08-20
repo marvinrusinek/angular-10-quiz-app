@@ -988,6 +988,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       const explanationTextOfNextQuestion = nextQuestion.questionText;
       this.explanationTextSource.next(explanationTextOfNextQuestion); 
 
+      // Set explanation text for the question after next
+      const nextNextQuestion = await this.quizService.getNextQuestion();
+      if (nextNextQuestion) {
+        this.explanationTextService.setNextExplanationText(nextNextQuestion.explanation);
+      }
+
       console.log('Before navigation');
       this.quizService.navigateToNextQuestion();
       console.log('After navigation');
