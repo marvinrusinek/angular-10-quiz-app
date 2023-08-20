@@ -227,7 +227,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.nextExplanationText$;
 
     this.displayExplanation$ = this.explanationTextService.isExplanationTextDisplayed$;
@@ -240,9 +240,25 @@ export class CodelabQuizContentComponent {
           return nextQuestion?.questionText || '';
         }
       })
-    );
+    ); */
 
-    
+    this.combinedText$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.explanationTextService.isExplanationTextDisplayed$,
+      this.explanationTextService.nextExplanationText$,
+    ]).pipe(
+      map(([nextQuestion, isExplanationTextDisplayed, explanationText]) => {
+        if (!nextQuestion) {
+          return [];
+        }
+
+        if (isExplanationTextDisplayed && explanationText) {
+          return [explanationText];
+        }
+
+        return [nextQuestion.questionText];
+      })
+    );
     
     
     
