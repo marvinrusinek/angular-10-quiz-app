@@ -21,7 +21,7 @@ export class ExplanationTextService {
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
   lastDisplayedExplanationText: string = '';
-  private shouldPersistExplanationTextAcrossOptions = false;
+  shouldPersistExplanationTextAcrossOptions: boolean = false;
 
   constructor() {}
 

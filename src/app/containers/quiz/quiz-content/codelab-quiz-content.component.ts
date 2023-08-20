@@ -316,9 +316,13 @@ export class CodelabQuizContentComponent {
           return '';
         }
 
-        if (shouldDisplayExplanation && explanationText) {
+        /* if (shouldDisplayExplanation && explanationText) {
           this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
           return explanationText;
+        } */
+
+        if (this.explanationTextService.shouldPersistExplanationTextAcrossOptions) {
+          return explanationText || '';
         }
 
         return nextQuestion.questionText;
