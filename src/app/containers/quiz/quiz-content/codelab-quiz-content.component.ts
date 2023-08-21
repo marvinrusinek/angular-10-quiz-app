@@ -241,6 +241,10 @@ export class CodelabQuizContentComponent {
         return of(nextQuestion.questionText);
       })
     ); 
+
+    this.explanationText$.subscribe(explanationText => {
+      console.log('Explanation Text:::>>', explanationText);
+    });    
   }
 
   
