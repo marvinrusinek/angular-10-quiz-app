@@ -993,14 +993,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }); 
     
     // Toggle the shouldDisplayExplanation to switch between question and explanation
-    /* this.explanationTextService.shouldDisplayExplanation$.pipe(take(1)).subscribe(currentValue => {
+    this.explanationTextService.shouldDisplayExplanation$.pipe(take(1)).subscribe(currentValue => {
       console.log('Current value of shouldDisplayExplanation$: ', currentValue);
       
       // Toggle the value and log the new value
       this.explanationTextService.setShouldDisplayExplanation(!currentValue);
       console.log('New value of shouldDisplayExplanation$: ', !currentValue);
-    }); */
-    this.explanationTextService.setShouldDisplayExplanation(true);
+    });
 
     // const nextQuestion = this.quizService.getNextQuestion();
     // this.explanationTextService.setExplanationText(this.selectedOptions, nextQuestion);

@@ -234,7 +234,7 @@ export class CodelabQuizContentComponent {
         }
     
         if (shouldDisplayExplanation && explanationText) {
-          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
+          this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
     
@@ -242,9 +242,20 @@ export class CodelabQuizContentComponent {
       })
     ); 
 
-    this.explanationText$.subscribe(explanationText => {
-      console.log('Explanation Text:::>>', explanationText);
-    });    
+    this.combinedText$.subscribe(combinedText => {
+      console.log('Combined Text:::>>', combinedText);
+      console.log('Should Display Explanation:::>>', this.shouldDisplayExplanation$);
+      console.log('Explanation Text:::>>', this.explanationText$);
+    });
+
+    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
+      console.log('Should Display Explanation:', value);
+    });
+    
+    this.explanationTextService.explanationText$.subscribe(value => {
+      console.log('Explanation Text:', value);
+    });
+    
   }
 
   
