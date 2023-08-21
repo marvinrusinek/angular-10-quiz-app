@@ -31,6 +31,7 @@ import {
   tap
 } from 'rxjs/operators';
 
+import { CanComponentDeactivate } from '../../shared/models/can-component-deactivate.interface';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -54,7 +55,7 @@ enum QuestionType {
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, CanComponentDeactivate {
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
