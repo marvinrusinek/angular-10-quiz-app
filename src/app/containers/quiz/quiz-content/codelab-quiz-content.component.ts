@@ -237,7 +237,7 @@ export class CodelabQuizContentComponent {
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
-    
+
         return of(nextQuestion.questionText);
       })
     ); 

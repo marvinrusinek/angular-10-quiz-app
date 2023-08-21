@@ -43,6 +43,8 @@ export class ExplanationTextService {
     console.log('setExplanationText received Array.isArray(selectedOptions):', Array.isArray(selectedOptions));
     console.log('setExplanationText received options:', selectedOptions);
 
+    
+
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return of('');
@@ -59,6 +61,9 @@ export class ExplanationTextService {
 
     // Set the isExplanationTextDisplayed flag
     this.isExplanationTextDisplayedSource.next(true);
+
+    console.log('Explanation Text Service - Explanation Text:', this.explanationText$.value);
+    console.log('Explanation Text Service - Should Display Explanation:', this.shouldDisplayExplanationSource.value);
 
     try {
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
