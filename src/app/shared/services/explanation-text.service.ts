@@ -23,7 +23,10 @@ export class ExplanationTextService {
   lastDisplayedExplanationText: string = '';
   shouldPersistExplanationTextAcrossOptions: boolean = false;
 
-  constructor() {}
+  constructor() {
+    this.explanationText$.next('');
+    this.shouldDisplayExplanationSource.next(false);
+  }
 
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
