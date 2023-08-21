@@ -146,4 +146,9 @@ export class ExplanationTextService {
   clearExplanationText(): void {
     this.explanationText$.next('');
   }
+
+  resetExplanationState() {
+    this.explanationText$ = new BehaviorSubject<string | null>(null);
+    this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
+  }
 }
