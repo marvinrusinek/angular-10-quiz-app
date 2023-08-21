@@ -997,8 +997,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(!currentValue);
     });
 
-    const nextQuestion = this.quizService.getNextQuestion();
-    this.explanationTextService.setExplanationText(this.selectedOptions, nextQuestion);
+    // const nextQuestion = this.quizService.getNextQuestion();
+    // this.explanationTextService.setExplanationText(this.selectedOptions, nextQuestion);
 
     // this.explanationTextService.setShouldPersistExplanationTextAcrossOptions(true);
   }
