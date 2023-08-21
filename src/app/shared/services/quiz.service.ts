@@ -1205,7 +1205,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion(): Promise<boolean> {
+  /* navigateToNextQuestion(): Promise<boolean> {
     this.currentQuestionIndex++;
     console.log(
       'Current question index after navigation:',
@@ -1220,7 +1220,31 @@ export class QuizService implements OnDestroy {
       this.getCurrentQuestionIndex()
     );
     return this.router.navigate([newUrl]);
+  } */
+
+  navigateToNextQuestion(): Promise<boolean> {
+    const nextQuestionIndex = this.currentQuestionIndex + 1;
+    if (nextQuestionIndex >= this.selectedQuiz.questions.length) {
+      // All questions have been answered, navigate to a result or completion page
+      return Promise.resolve(false); // Indicate navigation failure
+    }
+  
+    this.currentQuestionIndex = nextQuestionIndex;
+    console.log(
+      'Current question index after navigation:',
+      this.currentQuestionIndex
+    );
+    this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
+      nextQuestionIndex + 1
+    }`;
+    console.log(
+      'Current question index from QuizService:',
+      this.getCurrentQuestionIndex()
+    );
+    return this.router.navigate([newUrl]);
   }
+  
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
