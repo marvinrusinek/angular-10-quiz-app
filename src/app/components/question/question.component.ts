@@ -1200,4 +1200,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
   }
+
+  canDeactivate(): boolean {
+    if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
+      return true; // Allow navigation
+    } else {
+      return window.confirm(
+        'You have unanswered questions. Are you sure you want to leave?'
+      );
+    }
+  }
 } 
