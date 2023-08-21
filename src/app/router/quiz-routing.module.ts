@@ -6,6 +6,7 @@ import { QuizComponent } from '../containers/quiz/quiz.component';
 import { QuizSelectionComponent } from '../containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from '../containers/results/results.component';
 import { QuizGuard } from './guards/quiz.guard';
+import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'select', pathMatch: 'full' },
@@ -20,6 +21,7 @@ const routes: Routes = [
     component: QuizComponent,
     pathMatch: 'full',
     canActivate: [QuizGuard],
+    canDeactivate: [CanDeactivateGuard],
     runGuardsAndResolvers: 'always',
   },
   { path: 'results/:quizId', component: ResultsComponent, pathMatch: 'full' },
