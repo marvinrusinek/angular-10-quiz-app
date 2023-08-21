@@ -233,7 +233,7 @@ export class CodelabQuizContentComponent {
           return of('');
         }
     
-        if (shouldDisplayExplanation && explanationText) {
+        if (shouldDisplayExplanation && explanationText !== null) {
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
