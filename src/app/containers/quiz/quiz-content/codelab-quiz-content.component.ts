@@ -140,6 +140,11 @@ export class CodelabQuizContentComponent {
       this.shouldDisplayExplanation$
     ]).pipe(
       switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+
+        console.log('combinedText$ - Next Question:', nextQuestion);
+        console.log('combinedText$ - Explanation Text:', explanationText);
+        console.log('combinedText$ - Should Display Explanation:', shouldDisplayExplanation);
+        
         if (!nextQuestion) {
           return of('');
         }
