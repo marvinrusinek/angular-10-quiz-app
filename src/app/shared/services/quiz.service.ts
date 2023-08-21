@@ -1223,6 +1223,9 @@ export class QuizService implements OnDestroy {
     return this.router.navigate([newUrl]);
   }
 
+  
+  
+
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
