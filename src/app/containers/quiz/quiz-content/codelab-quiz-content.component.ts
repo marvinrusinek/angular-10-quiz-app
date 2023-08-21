@@ -156,9 +156,9 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
+    /* this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
-    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$; */
 
     /* this.combinedText$ = combineLatest([
       this.nextQuestion$,
@@ -177,7 +177,7 @@ export class CodelabQuizContentComponent {
     
         return of(nextQuestion.questionText);
       })
-    ); */
+    ); */   
     
     /* this.combinedText$ = combineLatest([
       this.nextQuestion$,
@@ -200,6 +200,29 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
+    /* this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      map(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return '';
+        }
+    
+        if (shouldDisplayExplanation && explanationText) {
+          this.explanationTextService.setShouldDisplayExplanation(false); // Reset to false
+          return explanationText;
+        }
+    
+        return nextQuestion.questionText;
+      })
+    ); */
+    
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
@@ -217,7 +240,7 @@ export class CodelabQuizContentComponent {
     
         return of(nextQuestion.questionText);
       })
-    );    
+    ); 
   }
 
   
