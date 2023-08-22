@@ -937,8 +937,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  shouldHideNextQuestionNav(): boolean {
-    return this.currentQuestionIndex === this.selectedQuiz.questions.length - 1;
+  shouldHideNextQuestionNav() {
+    return (
+      this.selectedQuiz &&
+      this.currentQuestionIndex === this.selectedQuiz.questions.length - 1
+    );
   }
 
   shouldHideShowScoreNav(): boolean {
