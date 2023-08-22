@@ -45,7 +45,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         })
       )
       .subscribe((params: Params) => {
-        if (params.questionIndex) {
+        if (params.questionIndex !== undefined) {
           this.questionNumber = +params.questionIndex;
           this.timerService.resetTimer();
           this.quizService.totalQuestions$
