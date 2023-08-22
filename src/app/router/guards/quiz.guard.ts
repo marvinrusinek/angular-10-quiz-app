@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
+import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({
@@ -18,12 +20,26 @@ export class QuizGuard implements CanActivate {
     const questionIndex = route.params['questionIndex'];
     console.log('QuizGuard - quizId:', quizId);
     console.log('QuizGuard - questionIndex:', questionIndex);
-
-    if (this.quizService.isQuizSelected()) {
-      return true;
-    }
-    console.log('QuizGuard canActivate: quiz not selected');
-    this.router.navigate(['/select']);
-    return false;
-  }  
+  
+    return this.quizService.getSelectedQuiz().pipe(
+      map((selectedQuiz: Quiz) => {
+        const totalQuestions = selectedQuiz.questions.length;
+  
+        if (questionIndex >= totalQuestions) {
+          this.router.navigate(['/quiz', quizId, 'question', totalQuestions - 1]);
+          return false;
+        } else if (questionIndex < 1) {
+          this.router.navigate(['/quiz', quizId, 'question', 1]);
+          return false;
+        }
+  
+        return true;
+      }),
+      catchError(() => {
+        console.log('QuizGuard canActivate: quiz not selected');
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    );
+  } 
 }
