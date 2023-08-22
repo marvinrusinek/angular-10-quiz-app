@@ -39,7 +39,7 @@ export class QuizGuard implements CanActivate {
         }
   
         // Check if questionIndex is out of range
-        if (questionIndex >= totalQuestions) {
+        if (questionIndex > totalQuestions) {
           this.router.navigate(['/question', quizId, totalQuestions - 1]);
           return of(false);
         } else if (questionIndex < 1) {
