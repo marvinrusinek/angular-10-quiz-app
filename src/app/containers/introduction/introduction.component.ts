@@ -85,7 +85,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('No quiz selected');
       return;
     }
-
+  
     this.quizDataService
       .getQuizById(quizId)
       .pipe(
@@ -98,14 +98,16 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         const foundQuiz = this.quizDataService.quizzes.find(
           (q) => q.quizId === quizId
         );
+        console.log('Found quiz:', foundQuiz);
         if (foundQuiz) {
-          this.quizDataService.setSelectedQuiz(foundQuiz);
+          this.quizDataService.setSelectedQuiz(foundQuiz); // Set the selected quiz
+          console.log('Selected quiz:', this.quizDataService.getSelectedQuiz());
           this.quizDataService.selectedQuizSubject.next(foundQuiz);
           this.quizSelected.emit(quizId);
-          this.router.navigate(['/question/', quizId, 1]);
+          this.router.navigate(['/question', quizId, 1]); // Navigate to the first question
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
         }
       });
-  }
+  }  
 }

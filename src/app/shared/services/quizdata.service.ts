@@ -51,7 +51,7 @@ export class QuizDataService {
 
   selectedQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  selectedQuizSubject = new BehaviorSubject<Quiz>(null);
+  selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
   currentQuestion$: QuizQuestion;
   options$: Option[];

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -15,31 +15,44 @@ export class QuizGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId = route.params['quizId'];
-    const questionIndex = route.params['questionIndex'];
-    console.log('QuizGuard - quizId:', quizId);
-    console.log('QuizGuard - questionIndex:', questionIndex);
+    const questionIndex = +route.params['questionIndex']; // Convert to a number
   
     return this.quizService.getSelectedQuiz().pipe(
-      map((selectedQuiz: Quiz) => {
-        const totalQuestions = selectedQuiz.questions.length;
-  
-        if (questionIndex >= totalQuestions) {
-          this.router.navigate(['/quiz', quizId, 'question', totalQuestions - 1]);
-          return false;
-        } else if (questionIndex < 1) {
-          this.router.navigate(['/quiz', quizId, 'question', 1]);
+      tap(selectedQuiz => console.log('Selected quiz in guard:', selectedQuiz)),
+      map(selectedQuiz => {
+        if (!selectedQuiz) {
+          console.error('Selected quiz is null.');
+          this.router.navigate(['/select']);
           return false;
         }
   
+        const totalQuestions = selectedQuiz.questions.length;
+  
+        // Check if it's the introduction route
+        if (questionIndex === 0) {
+          return true;
+        }
+  
+        // Check if questionIndex is out of range
+        if (questionIndex >= totalQuestions) {
+          this.router.navigate(['/question', quizId, totalQuestions - 1]);
+          return false;
+        } else if (questionIndex < 1) {
+          this.router.navigate(['/question', quizId, 1]);
+          return false;
+        }
+  
+        // Allow navigation to the question route
         return true;
       }),
-      catchError(() => {
-        console.log('QuizGuard canActivate: quiz not selected');
+      catchError(error => {
+        console.error(`Error fetching selected quiz: ${error}`);
         this.router.navigate(['/select']);
         return of(false);
       })
     );
-  } 
+  }
+  
 }
