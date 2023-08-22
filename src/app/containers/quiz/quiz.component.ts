@@ -910,11 +910,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************** template logic functions ******************/
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
-  }
-
-  isLastQuestion(): boolean {
-    return this.currentQuestionIndex === this.selectedQuiz.questions.length - 1;
-  }  
+  } 
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return (
