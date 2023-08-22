@@ -22,6 +22,8 @@ export class QuizGuard implements CanActivate {
     return this.quizDataService.selectedQuizSubject.pipe(
       tap(selectedQuiz => console.log('Selected quiz in guard:', selectedQuiz)),
       switchMap(selectedQuiz => {
+        console.log('quizId:', quizId);
+        console.log('questionIndex:', questionIndex);
         if (!selectedQuiz) {
           console.error('Selected quiz is null.');
           this.router.navigate(['/select']);
@@ -29,6 +31,7 @@ export class QuizGuard implements CanActivate {
         }
   
         const totalQuestions = selectedQuiz.questions.length;
+        console.log('totalQuestions:', totalQuestions);
   
         // Check if it's the introduction route
         if (questionIndex === 0) {
