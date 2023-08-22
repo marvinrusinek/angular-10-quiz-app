@@ -81,6 +81,7 @@
   
           <div
             class="next-question-nav"
+            *ngIf="!isLastQuestion()"
             [hidden]="shouldHideNextQuestionNav()"
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"

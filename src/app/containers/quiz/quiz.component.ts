@@ -912,6 +912,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.numberOfCorrectAnswers > 1;
   }
 
+  isLastQuestion(): boolean {
+    return this.currentQuestionIndex === this.selectedQuiz.questions.length - 1;
+  }  
+
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return (
       this.shouldDisplayNumberOfCorrectAnswers &&

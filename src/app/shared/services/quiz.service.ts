@@ -1217,26 +1217,19 @@ export class QuizService implements OnDestroy {
     );
     return this.router.navigate([newUrl]);
   } */
-
-  navigateToNextQuestion(): Promise<boolean> {
-    const nextQuestionIndex = this.currentQuestionIndex + 1;
   
-    if (nextQuestionIndex >= this.selectedQuiz.questions.length) {
-      console.log('Navigated past the last question.');
-      return Promise.resolve(false); // Indicate navigation failure
+  navigateToNextQuestion(): void {
+    if (this.currentQuestionIndex < this.selectedQuiz.questions.length - 1) {
+      this.currentQuestionIndex++;
+      this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+  
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
+        this.currentQuestionIndex + 1
+      }`;
+  
+      this.router.navigate([newUrl]);
     }
-  
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-  
-    this.currentQuestionIndex++;
-    this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-  
-    console.log('Current question index after navigation:', this.currentQuestionIndex);
-    console.log('Current question index from QuizService:', this.getCurrentQuestionIndex());
-  
-    return this.router.navigate([newUrl]);
   }
-  
   
   
   
