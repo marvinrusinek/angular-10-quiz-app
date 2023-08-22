@@ -1200,7 +1200,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  /* navigateToNextQuestion(): Promise<boolean> {
+  navigateToNextQuestion(): Promise<boolean> {
     this.currentQuestionIndex++;
     console.log(
       'Current question index after navigation:',
@@ -1216,24 +1216,8 @@ export class QuizService implements OnDestroy {
       this.getCurrentQuestionIndex()
     );
     return this.router.navigate([newUrl]);
-  } */
-  
-  navigateToNextQuestion(): void {
-    if (this.currentQuestionIndex < this.selectedQuiz.questions.length - 1) {
-      this.currentQuestionIndex++;
-      this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-  
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
-        this.currentQuestionIndex + 1
-      }`;
-  
-      this.router.navigate([newUrl]);
-    }
   }
   
-  
-  
-
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
