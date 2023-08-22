@@ -31,7 +31,6 @@ import {
   tap
 } from 'rxjs/operators';
 
-import { CanComponentDeactivate } from '../../shared/models/can-component-deactivate.interface';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -55,7 +54,7 @@ enum QuestionType {
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, CanComponentDeactivate {
+export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -1199,16 +1198,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy, CanC
           sound.play();
         }
       });
-    }
-  }
-
-  canDeactivate(): boolean {
-    if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
-      return true; // Allow navigation
-    } else {
-      return window.confirm(
-        'You have unanswered questions. Are you sure you want to leave?'
-      );
     }
   }
 } 
