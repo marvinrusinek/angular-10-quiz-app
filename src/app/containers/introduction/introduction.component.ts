@@ -95,15 +95,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe((quiz) => {
-        const foundQuiz = this.quizDataService.quizzes.find(
-          (q) => q.quizId === quizId
-        );
-        console.log('Found quiz:', foundQuiz);
+        const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === quizId);
         if (foundQuiz) {
-          this.quizDataService.setSelectedQuiz(foundQuiz); // Set the selected quiz
-          console.log('Selected quiz:', this.quizDataService.getSelectedQuiz());
           this.quizDataService.selectedQuizSubject.next(foundQuiz);
-          this.quizSelected.emit(quizId);
           this.router.navigate(['/question', quizId, 1]); // Navigate to the first question
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
