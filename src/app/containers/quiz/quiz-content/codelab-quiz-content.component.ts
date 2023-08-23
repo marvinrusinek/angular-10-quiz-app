@@ -69,6 +69,7 @@ export class CodelabQuizContentComponent {
   isExplanationTextDisplayed$: Observable<boolean>;
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed: boolean = false;
+  showNumberOfCorrectAnswersText: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -348,8 +349,10 @@ export class CodelabQuizContentComponent {
   
     // Determine if it's a multiple-answer question
     const isMultipleAnswer = numberOfCorrectAnswers > 1;
+
+    this.showNumberOfCorrectAnswersText = !isMultipleAnswer && !this.isExplanationTextDisplayed;
   
-    return !isMultipleAnswer && !this.isExplanationTextDisplayed && !this.isExplanationDisplayed;
+    return this.showNumberOfCorrectAnswersText;
   }
   
   getNumberOfCorrectAnswers(data: any): number {
