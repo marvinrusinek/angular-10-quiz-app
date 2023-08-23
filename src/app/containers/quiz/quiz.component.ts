@@ -966,10 +966,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  shouldHideShowScoreNav(): boolean {
-     return this.currentQuestionIndex === this.selectedQuiz$.value.questions.length - 1;
+  shouldHideShowScoreNav() {
+    const selectedQuiz = this.selectedQuiz$.value;
+  
+    if (!selectedQuiz || !selectedQuiz.questions) {
+      return false;
+    }
+  
+    return this.currentQuestionIndex === selectedQuiz.questions.length - 1;
   }
-
+  
   shouldDisplayShowScoreButton(): boolean {
     return this.questionIndex === this.lastQuestionIndex;
   }
