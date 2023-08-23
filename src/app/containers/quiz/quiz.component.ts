@@ -201,6 +201,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.lastQuestionIndex = this.totalQuestions - 1;
           console.log('totalQuestions:', this.totalQuestions);
           console.log('lastQuestionIndex:', this.lastQuestionIndex);
+          console.log('Question Index:::', this.questionIndex);
           console.log('shouldHideShowScoreNav:', this.shouldHideShowScoreNav());
         } else {
           console.error('Selected quiz is null.');
@@ -968,7 +969,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('totalQuestions:', this.totalQuestions);
     // return this.questionIndex === this.totalQuestions - 1;
     // return this.currentQuestionIndex === this.totalQuestions - 1;
-    return this.questionIndex !== this.totalQuestions - 1;
+    // return this.questionIndex !== this.totalQuestions - 1;
+    // return this.currentQuestionIndex === this.lastQuestionIndex;
+    return this.currentQuestionIndex === this.totalQuestions - 1;
+  }
+
+  shouldDisplayShowScoreButton(): boolean {
+    return this.questionIndex === this.lastQuestionIndex;
   }
 
   isLastQuestion(): boolean {

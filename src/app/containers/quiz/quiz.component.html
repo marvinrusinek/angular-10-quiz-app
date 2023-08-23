@@ -44,6 +44,8 @@
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
       <h5 class="selection-message">
+      Question Index: {{ questionIndex }}<br>
+      Last Question Index: {{ lastQuestionIndex }}
         {{ (selectionMessage$ | async) || selectOptionText }}
       </h5>
   
@@ -95,7 +97,7 @@
             </button>
           </div>
   
-          <div class="show-score-nav" *ngIf="questionIndex === lastQuestionIndex">
+          <div class="show-score-nav" *ngIf="shouldHideShowScoreNav()">
             <button
               type="submit"
               mat-raised-button
