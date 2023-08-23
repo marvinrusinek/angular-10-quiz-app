@@ -145,7 +145,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
   combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
 
-  currentQuestionIndex: number = 0;
+  currentQuestionIndex: number = -1;
+  lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
   progressValue: number;
@@ -189,14 +190,24 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
+    
+      console.log('quizId:', this.quizId);
+      console.log('questionIndex:', this.questionIndex);
+      console.log('currentQuestionIndex:', this.currentQuestionIndex);
+    
       this.quizService.getSelectedQuiz().subscribe(selectedQuiz => {
         if (selectedQuiz) {
           this.totalQuestions = selectedQuiz.questions.length;
+          this.lastQuestionIndex = this.totalQuestions - 1;
+          console.log('totalQuestions:', this.totalQuestions);
+          console.log('lastQuestionIndex:', this.lastQuestionIndex);
+          console.log('shouldHideShowScoreNav:', this.shouldHideShowScoreNav());
         } else {
           console.error('Selected quiz is null.');
         }
       });
     });
+    
 
     const nextQuestion$ = this.quizService.getNextQuestion();
     const nextOptions$ = this.quizService.getNextOptions();
