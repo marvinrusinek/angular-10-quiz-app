@@ -186,7 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
 
-    this.activatedRoute.params.subscribe(params => {
+    /* this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
@@ -207,6 +207,31 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Selected quiz is null.');
         }
       });
+    }); */
+
+    this.activatedRoute.params.pipe(
+      take(1),
+      switchMap(params => {
+        this.quizId = params['quizId'];
+        this.questionIndex = +params['questionIndex'];
+        this.currentQuestionIndex = this.questionIndex - 1;
+        
+        console.log('quizId:', this.quizId);
+        console.log('questionIndex:', this.questionIndex);
+        console.log('currentQuestionIndex:', this.currentQuestionIndex);
+    
+        return this.quizService.getSelectedQuiz();
+      })
+    ).subscribe(selectedQuiz => {
+      if (selectedQuiz) {
+        this.totalQuestions = selectedQuiz.questions.length;
+        this.lastQuestionIndex = this.totalQuestions - 1;
+        console.log('totalQuestions:', this.totalQuestions);
+        console.log('lastQuestionIndex:', this.lastQuestionIndex);
+        console.log('shouldHideShowScoreNav:', this.shouldHideShowScoreNav());
+      } else {
+        console.error('Selected quiz is null.');
+      }
     });
     
 
