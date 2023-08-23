@@ -187,7 +187,15 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
+      this.questionIndex = +params['questionIndex'];
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
+      this.quizService.getSelectedQuiz().subscribe(selectedQuiz => {
+        if (selectedQuiz) {
+          this.totalQuestions = selectedQuiz.questions.length;
+        } else {
+          console.error('Selected quiz is null.');
+        }
+      });
     });
 
     const nextQuestion$ = this.quizService.getNextQuestion();
@@ -950,6 +958,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     // return this.questionIndex === this.totalQuestions - 1;
     // return this.currentQuestionIndex === this.totalQuestions - 1;
     return this.questionIndex !== this.totalQuestions - 1;
+  }
+
+  isLastQuestion(): boolean {
+    return this.questionIndex === this.totalQuestions - 1;
   }
   
   shouldHideProgressBar(): boolean {
