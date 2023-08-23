@@ -175,6 +175,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     console.log('QuizComponent constructor called');
+
+    this.selectedQuiz$ = this.quizService.getSelectedQuiz() as Observable<Quiz>;
   }
 
   ngOnInit(): void {
@@ -186,17 +188,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
 
-    /* this.activatedRoute.params.subscribe(params => {
+    this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
       this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
-    
+       
       console.log('quizId:', this.quizId);
       console.log('questionIndex:', this.questionIndex);
       console.log('currentQuestionIndex:', this.currentQuestionIndex);
     
       this.quizService.getSelectedQuiz().subscribe(selectedQuiz => {
         if (selectedQuiz) {
+          this.quiz = selectedQuiz;
           this.totalQuestions = selectedQuiz.questions.length;
           this.lastQuestionIndex = this.totalQuestions - 1;
           console.log('totalQuestions:', this.totalQuestions);
@@ -207,33 +210,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Selected quiz is null.');
         }
       });
-    }); */
-
-    this.activatedRoute.params.pipe(
-      take(1),
-      switchMap(params => {
-        this.quizId = params['quizId'];
-        this.questionIndex = +params['questionIndex'];
-        this.currentQuestionIndex = this.questionIndex - 1;
-        
-        console.log('quizId:', this.quizId);
-        console.log('questionIndex:', this.questionIndex);
-        console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    
-        return this.quizService.getSelectedQuiz();
-      })
-    ).subscribe(selectedQuiz => {
-      if (selectedQuiz) {
-        this.totalQuestions = selectedQuiz.questions.length;
-        this.lastQuestionIndex = this.totalQuestions - 1;
-        console.log('totalQuestions:', this.totalQuestions);
-        console.log('lastQuestionIndex:', this.lastQuestionIndex);
-        console.log('shouldHideShowScoreNav:', this.shouldHideShowScoreNav());
-      } else {
-        console.error('Selected quiz is null.');
-      }
     });
-    
 
     const nextQuestion$ = this.quizService.getNextQuestion();
     const nextOptions$ = this.quizService.getNextOptions();
@@ -991,17 +968,20 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldHideShowScoreNav(): boolean {
     console.log('questionIndex:', this.questionIndex);
+  
+    // Check if necessary data is available
+    if (this.totalQuestions === undefined || this.lastQuestionIndex === undefined) {
+      console.log('Waiting for data to be fetched...');
+      return false; // Don't show the button until data is available
+    }
+  
     console.log('totalQuestions:', this.totalQuestions);
-    // return this.questionIndex === this.totalQuestions - 1;
-    // return this.currentQuestionIndex === this.totalQuestions - 1;
-    // return this.questionIndex !== this.totalQuestions - 1;
-    // return this.currentQuestionIndex === this.lastQuestionIndex;
-    // return this.currentQuestionIndex === this.totalQuestions - 1;
-
     console.log('currentQuestionIndex:', this.currentQuestionIndex);
     console.log('lastQuestionIndex:', this.lastQuestionIndex);
-    return this.currentQuestionIndex === this.lastQuestionIndex;
+    // return this.currentQuestionIndex === this.lastQuestionIndex;
+    return this.quiz && this.questionIndex === this.quiz.questions.length - 1;
   }
+  
 
   shouldDisplayShowScoreButton(): boolean {
     return this.questionIndex === this.lastQuestionIndex;

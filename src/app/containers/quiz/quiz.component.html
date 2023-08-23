@@ -81,7 +81,7 @@
             </button>
           </div>
   
-          <div class="next-question-nav" [hidden]="shouldHideNextQuestionNav()"
+          <div class="next-question-nav" [hidden]="totalQuestions !== undefined && lastQuestionIndex !== undefined"
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
@@ -97,8 +97,8 @@
             </button>
           </div>
   
-          <div class="show-score-nav" *ngIf="shouldHideShowScoreNav()">
-            <button
+          <div class="show-score-nav" *ngIf="(selectedQuiz$ | async) as selectedQuiz">
+            <button *ngIf="questionIndex === selectedQuiz.questions.length - 1"
               type="submit"
               mat-raised-button
               disableRipple="true"
