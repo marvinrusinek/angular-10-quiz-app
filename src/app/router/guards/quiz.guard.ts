@@ -16,7 +16,6 @@ export class QuizGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
   
     return this.quizDataService.getSelectedQuiz().pipe(
@@ -27,7 +26,7 @@ export class QuizGuard implements CanActivate {
           return false;
         }
   
-        const totalQuestions = selectedQuiz.questions.length;
+        const totalQuestions = selectedQuiz?.questions.length;
   
         if (questionIndex < 0 || questionIndex > totalQuestions) {
           this.router.navigate(['/select']);
