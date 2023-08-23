@@ -959,21 +959,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  shouldHideNextQuestionNav() {
+  shouldHideNextQuestionNav(): boolean {
     return (
       this.selectedQuiz &&
       this.currentQuestionIndex === this.selectedQuiz.questions.length - 1
     );
   }
 
-  shouldHideShowScoreNav() {
+  shouldHideShowScoreNav(): boolean {
     const selectedQuiz = this.selectedQuiz$.value;
   
     if (!selectedQuiz || !selectedQuiz.questions) {
       return false;
     }
   
-    return this.currentQuestionIndex === selectedQuiz.questions.length - 1;
+    return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
   }
   
   shouldDisplayShowScoreButton(): boolean {
