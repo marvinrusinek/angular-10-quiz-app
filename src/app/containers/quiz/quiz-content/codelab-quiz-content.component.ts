@@ -160,8 +160,6 @@ export class CodelabQuizContentComponent {
 
     this.combinedText$.subscribe(combinedText => {
       console.log('Combined Text:::>>', combinedText);
-      console.log('Should Display Explanation:::>>', this.shouldDisplayExplanation$);
-      console.log('Explanation Text:::>>', this.explanationText$);
     });
 
     this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
