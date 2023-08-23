@@ -350,7 +350,7 @@ export class CodelabQuizContentComponent {
     // Determine if it's a multiple-answer question
     const isMultipleAnswer = numberOfCorrectAnswers > 1;
 
-    this.showNumberOfCorrectAnswersText = !isMultipleAnswer && !this.isExplanationTextDisplayed;
+    this.showNumberOfCorrectAnswersText = isMultipleAnswer && !this.isExplanationTextDisplayed;
   
     return this.showNumberOfCorrectAnswersText;
   }
