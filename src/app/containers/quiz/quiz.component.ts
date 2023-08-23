@@ -972,6 +972,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     // return this.questionIndex !== this.totalQuestions - 1;
     // return this.currentQuestionIndex === this.lastQuestionIndex;
     // return this.currentQuestionIndex === this.totalQuestions - 1;
+
+    console.log('currentQuestionIndex:', this.currentQuestionIndex);
+    console.log('lastQuestionIndex:', this.lastQuestionIndex);
     return this.currentQuestionIndex === this.lastQuestionIndex;
   }
 
