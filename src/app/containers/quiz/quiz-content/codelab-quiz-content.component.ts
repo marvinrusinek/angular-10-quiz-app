@@ -68,6 +68,7 @@ export class CodelabQuizContentComponent {
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   shouldDisplayExplanation$: Observable<boolean>;
+  isExplanationDisplayed: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -171,14 +172,6 @@ export class CodelabQuizContentComponent {
     });
   }
  
-    /* probably remove 
-    this.combinedQuestionData$.subscribe(data => {
-      this.displayCorrectAnswersText = 
-        this.shouldDisplayNumberOfCorrectAnswersCount() &&
-        data?.correctAnswersText &&
-        !this.isExplanationTextDisplayed;
-    }); */
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -353,8 +346,10 @@ export class CodelabQuizContentComponent {
   shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
   
-    return numberOfCorrectAnswers > 1 &&
-           !this.isExplanationTextDisplayed;
+    // Determine if it's a multiple-answer question
+    const isMultipleAnswer = numberOfCorrectAnswers > 1;
+  
+    return !isMultipleAnswer && !this.isExplanationTextDisplayed && !this.isExplanationDisplayed;
   }
   
   getNumberOfCorrectAnswers(data: any): number {
