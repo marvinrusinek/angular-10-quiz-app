@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
+import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -17,7 +17,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
   styleUrls: ['./codelab-quiz-content.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent {
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
