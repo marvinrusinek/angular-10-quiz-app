@@ -44,8 +44,6 @@
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
       <h5 class="selection-message">
-      Question Index: {{ currentQuestionIndex }}<br>
-      Last Question Index: {{ lastQuestionIndex }}
         {{ (selectionMessage$ | async) || selectOptionText }}
       </h5>
   
