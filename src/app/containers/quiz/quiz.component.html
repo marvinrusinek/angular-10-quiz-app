@@ -44,7 +44,7 @@
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- selection message/next message -->
       <h5 class="selection-message">
-      Question Index: {{ questionIndex }}<br>
+      Question Index: {{ currentQuestionIndex }}<br>
       Last Question Index: {{ lastQuestionIndex }}
         {{ (selectionMessage$ | async) || selectOptionText }}
       </h5>
@@ -81,7 +81,7 @@
             </button>
           </div>
   
-          <div class="next-question-nav" [hidden]="totalQuestions !== undefined && lastQuestionIndex !== undefined"
+          <div class="next-question-nav" [hidden]="shouldHideShowScoreNav()"
             matTooltip="Next Question &raquo;"
             matTooltipPosition="above"
           >
@@ -97,8 +97,8 @@
             </button>
           </div>
   
-          <div class="show-score-nav" *ngIf="(selectedQuiz$ | async) as selectedQuiz">
-            <button *ngIf="questionIndex === selectedQuiz.questions.length - 1"
+          <div class="show-score-nav">
+            <button *ngIf="shouldHideShowScoreNav()"
               type="submit"
               mat-raised-button
               disableRipple="true"

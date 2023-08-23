@@ -176,7 +176,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     console.log('QuizComponent constructor called');
 
-    this.selectedQuiz$ = this.quizService.getSelectedQuiz() as Observable<Quiz>;
+    this.selectedQuiz$ = this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
   }
 
   ngOnInit(): void {
@@ -967,21 +967,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHideShowScoreNav(): boolean {
-    console.log('questionIndex:', this.questionIndex);
-  
-    // Check if necessary data is available
-    if (this.totalQuestions === undefined || this.lastQuestionIndex === undefined) {
-      console.log('Waiting for data to be fetched...');
-      return false; // Don't show the button until data is available
-    }
-  
-    console.log('totalQuestions:', this.totalQuestions);
-    console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    console.log('lastQuestionIndex:', this.lastQuestionIndex);
-    // return this.currentQuestionIndex === this.lastQuestionIndex;
-    return this.quiz && this.questionIndex === this.quiz.questions.length - 1;
+     return this.currentQuestionIndex === this.selectedQuiz$.value.questions.length - 1;
   }
-  
 
   shouldDisplayShowScoreButton(): boolean {
     return this.questionIndex === this.lastQuestionIndex;
