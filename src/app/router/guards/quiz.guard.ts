@@ -19,7 +19,7 @@ export class QuizGuard implements CanActivate {
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex']; // Convert to a number
   
-    return this.quizDataService.selectedQuizSubject.pipe(
+    /* return this.quizDataService.selectedQuizSubject.pipe(
       tap(selectedQuiz => console.log('Selected quiz in guard:', selectedQuiz)),
       switchMap(selectedQuiz => {
         console.log('quizId:', quizId);
@@ -31,7 +31,6 @@ export class QuizGuard implements CanActivate {
         }
   
         const totalQuestions = selectedQuiz.questions.length;
-        console.log('totalQuestions:', totalQuestions);
   
         // Check if it's the introduction route
         if (questionIndex === 0) {
@@ -49,6 +48,30 @@ export class QuizGuard implements CanActivate {
   
         // Allow navigation to the question route
         return of(true);
+      }),
+      catchError(error => {
+        console.error(`Error fetching selected quiz: ${error}`);
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    ); */
+
+    return this.quizDataService.getSelectedQuiz().pipe(
+      map(selectedQuiz => {
+        if (!selectedQuiz) {
+          console.error('Selected quiz is null.');
+          this.router.navigate(['/select']);
+          return false;
+        }
+  
+        const totalQuestions = selectedQuiz.questions.length;
+  
+        if (questionIndex < 0 || questionIndex > totalQuestions) {
+          this.router.navigate(['/select']);
+          return false;
+        }
+  
+        return true;
       }),
       catchError(error => {
         console.error(`Error fetching selected quiz: ${error}`);
