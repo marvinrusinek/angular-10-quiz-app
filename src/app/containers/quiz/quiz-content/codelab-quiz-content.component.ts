@@ -95,17 +95,37 @@ export class CodelabQuizContentComponent {
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
+    this.setupExplanationTextSubscription();
+    this.setupCombinedQuestionData();
+    this.setupOptions();
+    this.setupExplanationTextDisplay();
+  }
 
+  private setupExplanationTextSubscription(): void {
+    this.quizQuestionManagerService.explanationText$.subscribe(explanationText => {
+      this.explanationText = explanationText;
+  
+      // Update the currentDisplayText only if the explanation text is not empty
+      if (this.explanationText) {
+        this.currentDisplayText = this.explanationText;
+      } else {
+        // If explanation text is empty, show the question text
+        this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
+      }
+    });
+  }
+
+  private setupCombinedQuestionData(): void {
     const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(+this.numberOfCorrectAnswers$.value);
 
     this.combinedQuestionData$ = combineLatest([
-      this.quizService.nextQuestion$,
+      this.nextQuestion$,
       this.quizService.nextOptions$,
       this.numberOfCorrectAnswers$,
       this.explanationText$
     ]).pipe(
       map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
-        this.nextQuestionText = nextQuestion?.questionText || '';
+        const correctAnswersTextOnInit = this.calculateCorrectAnswersText(+numberOfCorrectAnswers);
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
@@ -115,7 +135,9 @@ export class CodelabQuizContentComponent {
         };
       })
     );
+  }
 
+  private setupOptions(): void {
     // Update the options$ initialization using combineLatest
     this.options$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
       map(([currentQuestion, currentOptions]) => {
@@ -125,23 +147,9 @@ export class CodelabQuizContentComponent {
         return [];
       })
     );
+  }
 
-    this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
-      this.explanationText = explanationText;
-    
-      // Update the currentDisplayText only if the explanation text is not empty
-      if (this.explanationText) {
-        this.currentDisplayText = this.explanationText;
-      } else {
-        // If explanation text is empty, show the question text
-        this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
-      }
-    });
-
-    this.nextQuestion$ = this.quizService.nextQuestion$;
-    this.explanationText$ = this.explanationTextService.explanationText$;
-    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
-    
+  private setupExplanationTextDisplay(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
@@ -151,12 +159,12 @@ export class CodelabQuizContentComponent {
         if (!nextQuestion) {
           return of('');
         }
-    
+  
         if (shouldDisplayExplanation && explanationText !== null) {
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
-
+  
         return of(nextQuestion.questionText);
       })
     );
@@ -189,6 +197,10 @@ export class CodelabQuizContentComponent {
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
         }
       });
+
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
 
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
