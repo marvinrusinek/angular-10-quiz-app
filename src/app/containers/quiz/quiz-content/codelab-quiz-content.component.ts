@@ -72,6 +72,11 @@ export class CodelabQuizContentComponent {
   shouldDisplayCorrectAnswersText$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   displayCorrectAnswersText: boolean = false;
 
+  private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(false);
+  shouldDisplayCorrectAnswers$: Observable<boolean> = this.shouldDisplayCorrectAnswersSource.asObservable();
+
+  shouldDisplayCorrectAnswersAfterQuestion: boolean = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -292,7 +297,7 @@ export class CodelabQuizContentComponent {
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
 
-    /* this.combinedQuestionData$ = combineLatest([
+    this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -308,25 +313,6 @@ export class CodelabQuizContentComponent {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
 
-        return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
-      })
-    ); */
-
-    this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
-    ]).pipe(
-      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
-        const questionText = this.getQuestionText(currentQuestion, this.questions);
-    
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-    
-        const correctAnswersText = questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers > 1
-          ? this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers)
-          : '';
-    
         return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
       })
     );
@@ -365,7 +351,7 @@ export class CodelabQuizContentComponent {
     return numberOfCorrectAnswers;
   }
 
-  /* shouldDisplayCorrectAnswersText(data: any): boolean {
+  shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
     
     // Determine if it's a multiple-answer question
@@ -374,21 +360,8 @@ export class CodelabQuizContentComponent {
     this.displayCorrectAnswersText = isMultipleAnswer && !this.isExplanationTextDisplayed;
   
     return this.displayCorrectAnswersText;
-  } */
-
-  shouldDisplayCorrectAnswersText(data: any): boolean {
-    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
-    
-    // Determine if it's a multiple-answer question
-    const questionHasMultipleAnswers = numberOfCorrectAnswers > 1;
-    
-    // Display the correct answers text only if it's a multiple-answer question
-    // and the explanation text is not displayed
-    this.displayCorrectAnswersText = questionHasMultipleAnswers && !this.isExplanationTextDisplayed;
-  
-    return this.isExplanationTextDisplayed ? false : this.displayCorrectAnswersText;
   }
-  
+
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
     console.log('Correct Answers:', correctAnswers);
