@@ -22,7 +22,6 @@ export class QuizGuard implements CanActivate {
     return this.quizDataService.selectedQuizSubject.pipe(
       tap(selectedQuiz => console.log('Selected quiz in guard:', selectedQuiz)),
       switchMap(selectedQuiz => {
-        // console.log('quizId:', quizId);
         console.log('questionIndex:', questionIndex);
         if (!selectedQuiz) {
           console.error('Selected quiz is null.');
@@ -55,29 +54,5 @@ export class QuizGuard implements CanActivate {
         return of(false);
       })
     );
-  
-    /* return this.quizDataService.getSelectedQuiz().pipe(
-      map((selectedQuiz: Quiz) => {
-        if (!selectedQuiz) {
-          console.error('Selected quiz is null.');
-          this.router.navigate(['/select']);
-          return false;
-        }
-  
-        const totalQuestions = selectedQuiz?.questions.length;
-  
-        if (questionIndex < 0 || questionIndex > totalQuestions) {
-          this.router.navigate(['/select']);
-          return false;
-        }
-  
-        return true;
-      }),
-      catchError(error => {
-        console.error(`Error fetching selected quiz: ${error}`);
-        this.router.navigate(['/select']);
-        return of(false);
-      })
-    ); */
   }  
 }
