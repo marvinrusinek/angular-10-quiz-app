@@ -129,10 +129,6 @@ export class CodelabQuizContentComponent {
         }
       });
 
-    this.nextQuestion$ = this.quizService.nextQuestion$;
-    this.explanationText$ = this.explanationTextService.explanationText$;
-    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
-
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
     });
@@ -261,6 +257,10 @@ export class CodelabQuizContentComponent {
   private setupCombinedQuestionData(): void {
     const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(+this.numberOfCorrectAnswers$.value);
 
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$;
+
     this.combinedQuestionData$ = combineLatest([
       this.nextQuestion$,
       this.quizService.nextOptions$,
@@ -268,7 +268,6 @@ export class CodelabQuizContentComponent {
       this.explanationText$
     ]).pipe(
       map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
-        const correctAnswersTextOnInit = this.calculateCorrectAnswersText(+numberOfCorrectAnswers);
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
