@@ -1208,9 +1208,18 @@ export class QuizService implements OnDestroy {
     );
 
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
+
+    setTimeout(() => {
+      const newUrl = [
+        QuizRoutes.QUESTION + encodeURIComponent(this.quizId),
+        this.currentQuestionIndex + 1
+      ];
+      this.router.navigate(newUrl);
+    }, 0);
+
+    /* const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${
       this.currentQuestionIndex + 1
-    }`;
+    }`; */
     console.log(
       'Current question index from QuizService:',
       this.getCurrentQuestionIndex()
