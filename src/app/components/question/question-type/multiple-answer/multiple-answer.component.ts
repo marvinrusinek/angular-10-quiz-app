@@ -124,14 +124,6 @@ export class MultipleAnswerComponent
       this.options = this.currentQuestion?.options;
       this.quizService.getCorrectAnswers(this.currentQuestion);
     }
-
-    /* if (this.currentQuestion$) {
-      this.currentQuestion$.subscribe((question) => {
-        this.question = question;
-      });
-    } else {
-      console.log('this.currentQuestion$ is null.');
-    } */
   }
 
   ngAfterViewInit(): void {
