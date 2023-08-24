@@ -164,7 +164,16 @@ export class CodelabQuizContentComponent {
 
         return of(nextQuestion.questionText);
       })
-    ); 
+    );
+
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$
+    ]).pipe(
+      map(([numberOfCorrectAnswers, isExplanationDisplayed]) =>
+        +numberOfCorrectAnswers > 1 && !isExplanationDisplayed
+      )
+    );
 
     this.combinedText$.subscribe(combinedText => {
       console.log('Combined Text:::>>', combinedText);
