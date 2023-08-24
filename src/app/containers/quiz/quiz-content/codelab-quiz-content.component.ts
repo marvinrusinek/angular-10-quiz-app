@@ -365,9 +365,13 @@ export class CodelabQuizContentComponent {
     
     // Determine if it's a multiple-answer question
     const isMultipleAnswer = numberOfCorrectAnswers > 1;
-  
-    this.displayCorrectAnswersText = isMultipleAnswer && !this.isExplanationTextDisplayed;
-  
+    
+    // Determine if the explanation text is displayed
+    const isExplanationDisplayed = !!data.explanationText;
+    
+    // Display the correct answer text only for multiple-answer questions and when explanation is not displayed
+    this.displayCorrectAnswersText = isMultipleAnswer && !isExplanationDisplayed;
+    
     return this.displayCorrectAnswersText;
   }
 
