@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
@@ -16,9 +16,47 @@ export class QuizGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
+
+    return this.quizDataService.selectedQuizSubject.pipe(
+      tap(selectedQuiz => console.log('Selected quiz in guard:', selectedQuiz)),
+      switchMap(selectedQuiz => {
+        // console.log('quizId:', quizId);
+        console.log('questionIndex:', questionIndex);
+        if (!selectedQuiz) {
+          console.error('Selected quiz is null.');
+          this.router.navigate(['/select']);
+          return of(false);
+        }
   
-    return this.quizDataService.getSelectedQuiz().pipe(
+        const totalQuestions = selectedQuiz.questions.length;
+  
+        // Check if it's the introduction route
+        if (questionIndex === 0) {
+          return of(true);
+        }
+  
+        // Check if questionIndex is out of range
+        if (questionIndex > totalQuestions) {
+          this.router.navigate(['/question', quizId, totalQuestions - 1]);
+          return of(false);
+        } else if (questionIndex < 1) {
+          this.router.navigate(['/question', quizId, 1]);
+          return of(false);
+        }
+  
+        // Allow navigation to the question route
+        return of(true);
+      }),
+      catchError(error => {
+        console.error(`Error fetching selected quiz: ${error}`);
+        this.router.navigate(['/select']);
+        return of(false);
+      })
+    );
+  
+    /* return this.quizDataService.getSelectedQuiz().pipe(
       map((selectedQuiz: Quiz) => {
         if (!selectedQuiz) {
           console.error('Selected quiz is null.');
@@ -40,6 +78,6 @@ export class QuizGuard implements CanActivate {
         this.router.navigate(['/select']);
         return of(false);
       })
-    );
+    ); */
   }  
 }
