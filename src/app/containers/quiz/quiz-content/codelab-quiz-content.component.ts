@@ -63,13 +63,14 @@ export class CodelabQuizContentComponent {
   displayCorrectAnswers: boolean = false;
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
-  displayCorrectAnswersText: boolean;
   nextQuestionText: string = '';
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed: boolean = false;
   showNumberOfCorrectAnswersText: boolean = false;
+  shouldDisplayCorrectAnswersText$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  displayCorrectAnswersText: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -291,7 +292,7 @@ export class CodelabQuizContentComponent {
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
 
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -303,10 +304,29 @@ export class CodelabQuizContentComponent {
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
 
         let correctAnswersText = '';
-        if (questionHasMultipleAnswers && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1 && !isExplanationTextDisplayed) {
+        if (questionHasMultipleAnswers && !isExplanationTextDisplayed && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
 
+        return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
+      })
+    ); */
+
+    this.combinedQuestionData$ = combineLatest([
+      this.explanationText$,
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$
+    ]).pipe(
+      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
+        const questionText = this.getQuestionText(currentQuestion, this.questions);
+    
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
+    
+        const correctAnswersText = questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers > 1
+          ? this.getNumberOfCorrectAnswersText(numberOfCorrectAnswers)
+          : '';
+    
         return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
       })
     );
@@ -345,15 +365,28 @@ export class CodelabQuizContentComponent {
     return numberOfCorrectAnswers;
   }
 
-  shouldDisplayCorrectAnswersText(data: any): boolean {
+  /* shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
-  
+    
     // Determine if it's a multiple-answer question
     const isMultipleAnswer = numberOfCorrectAnswers > 1;
+  
+    this.displayCorrectAnswersText = isMultipleAnswer && !this.isExplanationTextDisplayed;
+  
+    return this.displayCorrectAnswersText;
+  } */
 
-    this.showNumberOfCorrectAnswersText = isMultipleAnswer && !this.isExplanationTextDisplayed;
-
-    return this.showNumberOfCorrectAnswersText;
+  shouldDisplayCorrectAnswersText(data: any): boolean {
+    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
+    
+    // Determine if it's a multiple-answer question
+    const questionHasMultipleAnswers = numberOfCorrectAnswers > 1;
+    
+    // Display the correct answers text only if it's a multiple-answer question
+    // and the explanation text is not displayed
+    this.displayCorrectAnswersText = questionHasMultipleAnswers && !this.isExplanationTextDisplayed;
+  
+    return this.isExplanationTextDisplayed ? false : this.displayCorrectAnswersText;
   }
   
   getNumberOfCorrectAnswers(data: any): number {
