@@ -160,18 +160,6 @@ export class CodelabQuizContentComponent {
         return of(nextQuestion.questionText);
       })
     );
-
-    this.combinedText$.subscribe(combinedText => {
-      console.log('Combined Text:::>>', combinedText);
-    });
-
-    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => {
-      console.log('Should Display Explanation:', value);
-    });
-    
-    this.explanationTextService.explanationText$.subscribe(value => {
-      console.log('Explanation Text:', value);
-    });
   }
  
   ngOnDestroy(): void {
