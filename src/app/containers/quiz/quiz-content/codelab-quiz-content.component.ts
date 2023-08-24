@@ -101,75 +101,6 @@ export class CodelabQuizContentComponent {
     this.setupExplanationTextDisplay();
   }
 
-  private setupExplanationTextSubscription(): void {
-    this.quizQuestionManagerService.explanationText$.subscribe(explanationText => {
-      this.explanationText = explanationText;
-  
-      // Update the currentDisplayText only if the explanation text is not empty
-      if (this.explanationText) {
-        this.currentDisplayText = this.explanationText;
-      } else {
-        // If explanation text is empty, show the question text
-        this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
-      }
-    });
-  }
-
-  private setupCombinedQuestionData(): void {
-    const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(+this.numberOfCorrectAnswers$.value);
-
-    this.combinedQuestionData$ = combineLatest([
-      this.nextQuestion$,
-      this.quizService.nextOptions$,
-      this.numberOfCorrectAnswers$,
-      this.explanationText$
-    ]).pipe(
-      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
-        const correctAnswersTextOnInit = this.calculateCorrectAnswersText(+numberOfCorrectAnswers);
-        return {
-          questionText: nextQuestion?.questionText || '',
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersTextOnInit,
-          currentQuestion: nextQuestion,
-          currentOptions: nextOptions || []
-        };
-      })
-    );
-  }
-
-  private setupOptions(): void {
-    // Update the options$ initialization using combineLatest
-    this.options$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
-      map(([currentQuestion, currentOptions]) => {
-        if (currentQuestion && currentQuestion.options) {
-          return currentQuestion.options;
-        }
-        return [];
-      })
-    );
-  }
-
-  private setupExplanationTextDisplay(): void {
-    this.combinedText$ = combineLatest([
-      this.nextQuestion$,
-      this.explanationText$,
-      this.shouldDisplayExplanation$
-    ]).pipe(
-      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
-        if (!nextQuestion) {
-          return of('');
-        }
-  
-        if (shouldDisplayExplanation && explanationText !== null) {
-          this.explanationTextService.setShouldDisplayExplanation(false);
-          return of(explanationText);
-        }
-  
-        return of(nextQuestion.questionText);
-      })
-    );
-  }
- 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -311,6 +242,75 @@ export class CodelabQuizContentComponent {
         return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
       })
     );    
+  }
+
+  private setupExplanationTextSubscription(): void {
+    this.quizQuestionManagerService.explanationText$.subscribe(explanationText => {
+      this.explanationText = explanationText;
+  
+      // Update the currentDisplayText only if the explanation text is not empty
+      if (this.explanationText) {
+        this.currentDisplayText = this.explanationText;
+      } else {
+        // If explanation text is empty, show the question text
+        this.currentDisplayText = this.currentQuestion?.getValue()?.questionText || '';
+      }
+    });
+  }
+
+  private setupCombinedQuestionData(): void {
+    const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(+this.numberOfCorrectAnswers$.value);
+
+    this.combinedQuestionData$ = combineLatest([
+      this.nextQuestion$,
+      this.quizService.nextOptions$,
+      this.numberOfCorrectAnswers$,
+      this.explanationText$
+    ]).pipe(
+      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
+        const correctAnswersTextOnInit = this.calculateCorrectAnswersText(+numberOfCorrectAnswers);
+        return {
+          questionText: nextQuestion?.questionText || '',
+          explanationText: explanationText,
+          correctAnswersText: correctAnswersTextOnInit,
+          currentQuestion: nextQuestion,
+          currentOptions: nextOptions || []
+        };
+      })
+    );
+  }
+
+  private setupOptions(): void {
+    // Update the options$ initialization using combineLatest
+    this.options$ = combineLatest([this.currentQuestion$, this.currentOptions$]).pipe(
+      map(([currentQuestion, currentOptions]) => {
+        if (currentQuestion && currentQuestion.options) {
+          return currentQuestion.options;
+        }
+        return [];
+      })
+    );
+  }
+
+  private setupExplanationTextDisplay(): void {
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.explanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion) {
+          return of('');
+        }
+  
+        if (shouldDisplayExplanation && explanationText !== null) {
+          this.explanationTextService.setShouldDisplayExplanation(false);
+          return of(explanationText);
+        }
+  
+        return of(nextQuestion.questionText);
+      })
+    );
   }
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
