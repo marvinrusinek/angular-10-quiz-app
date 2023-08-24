@@ -306,26 +306,6 @@ export class CodelabQuizContentComponent {
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
 
-    /* this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
-    ]).pipe(
-      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationTextDisplayed]) => {
-        const questionText = this.getQuestionText(currentQuestion, this.questions);
-
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-
-        let correctAnswersText = '';
-        if (questionHasMultipleAnswers && !isExplanationTextDisplayed && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-
-        return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
-      })
-    ); */
-
     this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       currentQuestionAndOptions$,
