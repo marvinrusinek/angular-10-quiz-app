@@ -183,6 +183,20 @@ export class CodelabQuizContentComponent {
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersTextSource.next(correctAnswersText);
 
+        const questionIndex = this.questions.indexOf(question);
+        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        
+        // Set the explanation text only if it's not empty
+        if (explanationText) {
+          this.explanationTextService.setExplanationText([], question).subscribe();
+        }
+
+        // Get the current explanation text
+        const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(this.questions.indexOf(question));
+            
+        // Reset the explanation state for the new question
+        this.explanationTextService.resetExplanationState();
+
         // this.updateExplanationText(question);
       }
     });
@@ -306,7 +320,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
@@ -336,7 +350,21 @@ export class CodelabQuizContentComponent {
           currentOptions: currentOptions
         };
       })
+    ); */
+
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.isExplanationTextDisplayed$,
+    ]).pipe(
+      map(([{ currentQuestion }, isExplanationDisplayed]) => {
+        const questionIndex = this.questions.indexOf(currentQuestion);
+        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        return {
+          explanationText: explanationText
+        };
+      })
     );
+    
 
     this.combinedQuestionData$.subscribe(data => {
       console.log('Combined Question Data:::>>>>>))))', data);
