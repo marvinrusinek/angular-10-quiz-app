@@ -298,7 +298,7 @@ export class CodelabQuizContentComponent {
           map(explanationTextForQuestion => ({
             questionText: questionText,
             currentQuestion: currentQuestion,
-            explanationText: explanationTextForQuestion, // Use explanationTextForQuestion here
+            explanationText: explanationTextForQuestion,
             correctAnswersText: correctAnswersText,
             currentOptions: currentOptions
           }))
