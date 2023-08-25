@@ -99,6 +99,21 @@ export class CodelabQuizContentComponent {
     this.setupCombinedQuestionData();
     this.setupOptions();
     this.setupExplanationTextDisplay();
+
+    // Combine explanationTextService's observable with selectedOptionExplanation$
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      this.selectedOptionService.selectedOptionExplanation$
+    ]).pipe(
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
+    );
+    
+    // Subscribe to explanationText$ if needed
+    this.explanationText$.subscribe(explanationText => {
+      // Do something with the explanation text if needed
+      // For example, update your component's explanationText property
+      this.explanationText = explanationText;
+    });
   }
 
   ngOnDestroy(): void {
@@ -167,6 +182,26 @@ export class CodelabQuizContentComponent {
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersTextSource.next(correctAnswersText);
+
+        this.updateExplanationText(question);
+      }
+    });
+  }
+
+  private updateExplanationText(question: QuizQuestion): void {
+    // Combine explanationTextService's observable with selectedOptionExplanation$
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      this.selectedOptionService.selectedOptionExplanation$
+    ]).pipe(
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
+    );
+    
+    // Subscribe to explanationText$ if needed
+    this.explanationText$.subscribe(explanationText => {
+      // Update the explanation text only if the question matches the current question
+      if (this.areQuestionsEqual(question, this.question)) {
+        this.explanationText = explanationText;
       }
     });
   }
