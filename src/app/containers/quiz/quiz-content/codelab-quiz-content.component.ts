@@ -251,7 +251,7 @@ export class CodelabQuizContentComponent {
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
 
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -277,6 +277,33 @@ export class CodelabQuizContentComponent {
           }))
         );
       })
+    ); */
+
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+      this.explanationText$
+    ]).pipe(
+      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed, explanationText]) => {
+        const questionText = this.getQuestionText(currentQuestion, this.questions);
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
+        let correctAnswersText = '';
+  
+        if (questionHasMultipleAnswers && !isExplanationDisplayed && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+        }
+  
+        return this.getExplanationTextForQuestion(currentQuestion).pipe(
+          map(explanationTextForQuestion => ({
+            questionText: questionText,
+            currentQuestion: currentQuestion,
+            explanationText: explanationTextForQuestion, // Use explanationTextForQuestion here
+            correctAnswersText: correctAnswersText,
+            currentOptions: currentOptions
+          }))
+        );
+      })
     );
 
     this.combinedQuestionData$.subscribe(data => {
@@ -289,12 +316,11 @@ export class CodelabQuizContentComponent {
       this.explanationTextService.getExplanationText$(),
       this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
-      tap(([explanationText, selectedOptionExplanation]) => {
-        console.log('Explanation Text:', explanationText);
-        console.log('Selected Option Explanation:', selectedOptionExplanation);
-      }),
       map(([explanationText, selectedOptionExplanation]) => {
-        return this.areQuestionsEqual(question, this.question) ? selectedOptionExplanation || explanationText : '';
+        // Assuming that question has a unique identifier, replace this.question with question
+        return this.areQuestionsEqual(question, this.question)
+          ? selectedOptionExplanation || explanationText
+          : '';
       })
     );
   }
