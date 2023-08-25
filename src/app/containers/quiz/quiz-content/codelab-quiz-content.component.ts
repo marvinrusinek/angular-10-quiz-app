@@ -190,19 +190,16 @@ export class CodelabQuizContentComponent {
 
   private updateExplanationText(question: QuizQuestion): void {
     // Combine explanationTextService's observable with selectedOptionExplanation$
-    this.explanationText$ = combineLatest([
+    const explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
       this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
       map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
     );
     
-    // Subscribe to explanationText$ if needed
-    this.explanationText$.subscribe(explanationText => {
-      // Update the explanation text only if the question matches the current question
-      if (this.areQuestionsEqual(question, this.question)) {
-        this.explanationText = explanationText;
-      }
+    // Subscribe to explanationText$ and update the explanation text accordingly
+    explanationText$.subscribe(explanationText => {
+      this.explanationText = this.areQuestionsEqual(question, this.question) ? explanationText : null;
     });
   }
 
