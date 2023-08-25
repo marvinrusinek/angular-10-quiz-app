@@ -288,10 +288,12 @@ export class CodelabQuizContentComponent {
       this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
       map(([explanationText, selectedOptionExplanation]) => {
-        return this.areQuestionsEqual(question, this.question) ? selectedOptionExplanation || explanationText : '';
+        const text = this.areQuestionsEqual(question, this.question) ? selectedOptionExplanation || explanationText : '';
+        console.log(`Explanation text for question "${question.questionText}": ${text}`);
+        return text;
       })
     );
-  }
+  }  
 
   private setupExplanationTextSubscription(): void {
     this.quizQuestionManagerService.explanationText$.subscribe(explanationText => {
