@@ -257,29 +257,31 @@ export class CodelabQuizContentComponent {
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$
     ]).pipe(
-      map(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
+      switchMap(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
-    
+  
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-    
+  
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !isExplanationDisplayed && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
-    
-        // return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
-
+  
         return this.getExplanationTextForQuestion(currentQuestion).pipe(
-          map(explanationText => ({
+          map(explanationTextForQuestion => ({
             questionText: questionText,
             currentQuestion: currentQuestion,
-            explanationText: explanationText,
+            explanationText: explanationTextForQuestion,
             correctAnswersText: correctAnswersText,
             currentOptions: currentOptions
           }))
         );
       })
     );
+
+    this.combinedQuestionData$.subscribe(data => {
+      console.log('Combined Question Data:::>>>>>', data);
+    });
   }
 
   private getExplanationTextForQuestion(question: QuizQuestion): Observable<string> {
