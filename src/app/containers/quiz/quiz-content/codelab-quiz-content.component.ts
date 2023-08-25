@@ -183,7 +183,7 @@ export class CodelabQuizContentComponent {
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersTextSource.next(correctAnswersText);
 
-        this.updateExplanationText(question);
+        // this.updateExplanationText(question);
       }
     });
   }
@@ -267,9 +267,30 @@ export class CodelabQuizContentComponent {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
     
-        return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
+        // return { questionText: questionText, currentQuestion, explanationText, correctAnswersText, currentOptions };
+
+        return this.getExplanationTextForQuestion(currentQuestion).pipe(
+          map(explanationText => ({
+            questionText: questionText,
+            currentQuestion: currentQuestion,
+            explanationText: explanationText,
+            correctAnswersText: correctAnswersText,
+            currentOptions: currentOptions
+          }))
+        );
       })
     );    
+  }
+
+  private getExplanationTextForQuestion(question: QuizQuestion): Observable<string> {
+    return combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      this.selectedOptionService.selectedOptionExplanation$
+    ]).pipe(
+      map(([explanationText, selectedOptionExplanation]) => {
+        return this.areQuestionsEqual(question, this.question) ? selectedOptionExplanation || explanationText : '';
+      })
+    );
   }
 
   private setupExplanationTextSubscription(): void {
