@@ -9,6 +9,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 })
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  explanations: string[] = [];
 
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
@@ -28,12 +29,20 @@ export class ExplanationTextService {
     this.shouldDisplayExplanationSource.next(false);
   }
 
+  get explanationText(): Observable<string> {
+    return this.explanationText$.asObservable();
+  }
+
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
   }
 
-  get explanationText(): Observable<string> {
-    return this.explanationText$.asObservable();
+  setExplanationForQuestionIndex(index: number, explanation: string): void {
+    this.explanations[index] = explanation;
+  }
+
+  getExplanationForQuestionIndex(index: number): string | null {
+    return this.explanations[index] || null;
   }
 
   setExplanationText(

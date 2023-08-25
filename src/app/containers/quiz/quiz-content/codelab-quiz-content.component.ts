@@ -279,7 +279,7 @@ export class CodelabQuizContentComponent {
       })
     ); */
 
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
@@ -303,6 +303,33 @@ export class CodelabQuizContentComponent {
             currentOptions: currentOptions
           }))
         );
+      })
+    ); */
+
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$,
+    ]).pipe(
+      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
+        const questionText = this.getQuestionText(currentQuestion, this.questions);
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
+        let correctAnswersText = '';
+  
+        if (questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+        }
+  
+        const questionIndex = this.questions.indexOf(currentQuestion);
+        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+  
+        return of({
+          questionText: questionText,
+          currentQuestion: currentQuestion,
+          explanationText: explanationText,
+          correctAnswersText: correctAnswersText,
+          currentOptions: currentOptions
+        });
       })
     );
 
