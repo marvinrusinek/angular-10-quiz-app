@@ -188,7 +188,7 @@ export class CodelabQuizContentComponent {
         
         // Set the explanation text only if it's not empty
         if (explanationText) {
-          this.explanationTextService.setExplanationText([], question).subscribe();
+          this.explanationTextService.setExplanationText([], question);
         }
 
         // Get the current explanation text
