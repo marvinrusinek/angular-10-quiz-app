@@ -64,12 +64,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     // get initial value
     this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
-
-    this.selectedQuizSubscription =
-      this.quizDataService.selectedQuiz$.subscribe((selectedQuiz) => {
-        this.selectedQuiz = selectedQuiz;
-        console.log('Selected quiz:', this.selectedQuiz);
-      });
   }
 
   ngOnDestroy(): void {

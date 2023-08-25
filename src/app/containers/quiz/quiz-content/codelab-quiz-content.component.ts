@@ -251,7 +251,7 @@ export class CodelabQuizContentComponent {
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
 
-    /* this.combinedQuestionData$ = combineLatest([
+    this.combinedQuestionData$ = combineLatest([
       this.explanationText$,
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -279,44 +279,16 @@ export class CodelabQuizContentComponent {
           }))
         );
       })
-    ); */
-
-    this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
-    ]).pipe(
-      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
-        const questionText = this.getQuestionText(currentQuestion, this.questions);
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-        let correctAnswersText = '';
-    
-        if (questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-    
-        return this.getExplanationTextForQuestion(currentQuestion).pipe(
-          map(explanationText => ({
-            questionText: questionText,
-            currentQuestion: currentQuestion,
-            explanationText: explanationText,
-            correctAnswersText: correctAnswersText,
-            currentOptions: currentOptions
-          }))
-        );
-      })
     );
   }
 
-  private getExplanationTextForQuestion(currentQuestion: QuizQuestion): Observable<string> {
+  private getExplanationTextForQuestion(question: QuizQuestion): Observable<string> {
     return combineLatest([
       this.explanationTextService.getExplanationText$(),
       this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
       map(([explanationText, selectedOptionExplanation]) => {
-        const text = this.areQuestionsEqual(currentQuestion, this.question) ? selectedOptionExplanation || explanationText : '';
-        console.log(`Explanation text for question "${currentQuestion.questionText}": ${text}`);
-        return text;
+        return this.areQuestionsEqual(question, this.question) ? selectedOptionExplanation || explanationText : '';
       })
     );
   }
