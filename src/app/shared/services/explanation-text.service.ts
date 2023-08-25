@@ -41,9 +41,14 @@ export class ExplanationTextService {
     this.explanations[index] = explanation;
   }
 
-  getExplanationForQuestionIndex(index: number): string | null {
-    console.log('Explanation Service - Index:', index);
-    return this.explanations[index] || null;
+  getExplanationForQuestionIndex(index: number): string {
+    const explanationArray = this.explanations;
+  
+    if (index >= 0 && index < explanationArray.length) {
+      return explanationArray[index] || '';
+    }
+  
+    return '';
   }
 
   setExplanationText(
