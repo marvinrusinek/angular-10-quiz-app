@@ -287,6 +287,10 @@ export class CodelabQuizContentComponent {
       this.explanationTextService.getExplanationText$(),
       this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
+      tap(([explanationText, selectedOptionExplanation]) => {
+        console.log('Explanation Text:', explanationText);
+        console.log('Selected Option Explanation:', selectedOptionExplanation);
+      }),
       map(([explanationText, selectedOptionExplanation]) => {
         return this.areQuestionsEqual(question, this.question) ? selectedOptionExplanation || explanationText : '';
       })
