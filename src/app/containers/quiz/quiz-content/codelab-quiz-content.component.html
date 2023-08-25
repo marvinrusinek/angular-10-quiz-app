@@ -7,6 +7,7 @@
       <span class="number-correct" *ngIf="shouldDisplayCorrectAnswersText(data)">
         {{ correctAnswersText$ | async }}
       </span>
+      {{ data.question?.explanation }}
     </h3>
   </section>
 </ng-container>

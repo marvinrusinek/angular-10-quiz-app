@@ -42,6 +42,7 @@ export class ExplanationTextService {
   }
 
   getExplanationForQuestionIndex(index: number): string | null {
+    console.log('Explanation Service - Index:', index);
     return this.explanations[index] || null;
   }
 

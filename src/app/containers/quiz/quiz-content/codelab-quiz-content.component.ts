@@ -311,6 +311,7 @@ export class CodelabQuizContentComponent {
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
     ]).pipe(
+      tap(data => console.log('Observable Data:', data)),
       map(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
@@ -323,6 +324,7 @@ export class CodelabQuizContentComponent {
         const questionIndex = this.questions.indexOf(currentQuestion);
         console.log('Question Index:::>>>', questionIndex);
   
+        console.log('Setting explanation text for question:', currentQuestion.questionText);
         const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
         console.log('Explanation Text:::>>>', explanationText);
   
@@ -337,7 +339,7 @@ export class CodelabQuizContentComponent {
     );
 
     this.combinedQuestionData$.subscribe(data => {
-      console.log('Combined Question Data:::>>>>>', data);
+      console.log('Combined Question Data:::>>>>>))))', data);
     });
   }
 
