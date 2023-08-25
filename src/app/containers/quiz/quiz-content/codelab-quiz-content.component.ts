@@ -311,7 +311,7 @@ export class CodelabQuizContentComponent {
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
     ]).pipe(
-      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
+      map(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
         const questionText = this.getQuestionText(currentQuestion, this.questions);
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
         let correctAnswersText = '';
@@ -321,15 +321,18 @@ export class CodelabQuizContentComponent {
         }
   
         const questionIndex = this.questions.indexOf(currentQuestion);
-        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        console.log('Question Index:::>>>', questionIndex);
   
-        return of({
+        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        console.log('Explanation Text:::>>>', explanationText);
+  
+        return {
           questionText: questionText,
           currentQuestion: currentQuestion,
           explanationText: explanationText,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions
-        });
+        };
       })
     );
 
