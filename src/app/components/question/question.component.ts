@@ -230,7 +230,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('QuizQuestionComponent destroyed');
     this.destroy$.next();
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
@@ -290,7 +289,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
-        console.log('QuizQuestionComponent destroyed');
         this.destroy$.next();
         this.destroy$.complete();
       });
