@@ -338,20 +338,6 @@ export class CodelabQuizContentComponent {
     });
   }
 
-  private getExplanationTextForQuestion(question: QuizQuestion): Observable<string> {
-    return combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$
-    ]).pipe(
-      map(([explanationText, selectedOptionExplanation]) => {
-        // Assuming that question has a unique identifier, replace this.question with question
-        return this.areQuestionsEqual(question, this.question)
-          ? selectedOptionExplanation || explanationText
-          : '';
-      })
-    );
-  }
-
   private setupExplanationTextSubscription(): void {
     this.quizQuestionManagerService.explanationText$.subscribe(explanationText => {
       this.explanationText = explanationText;
