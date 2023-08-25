@@ -74,8 +74,8 @@ export class ExplanationTextService {
     // Set the isExplanationTextDisplayed flag
     this.isExplanationTextDisplayedSource.next(true);
 
-    console.log('Explanation Text Service - Explanation Text:', this.explanationText$.value);
-    console.log('Explanation Text Service - Should Display Explanation:', this.shouldDisplayExplanationSource.value);
+    // console.log('Explanation Text Service - Explanation Text:', this.explanationText$.value);
+    // console.log('Explanation Text Service - Should Display Explanation:', this.shouldDisplayExplanationSource.value);
 
     try {
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
