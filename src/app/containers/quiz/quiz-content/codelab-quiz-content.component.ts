@@ -203,7 +203,11 @@ export class CodelabQuizContentComponent {
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
       }
-    });  
+    });
+    
+    this.explanationText$.subscribe(explanationText => {
+      this.explanationText = explanationText;
+    });    
   }
 
   private updateExplanationText(question: QuizQuestion): void {
