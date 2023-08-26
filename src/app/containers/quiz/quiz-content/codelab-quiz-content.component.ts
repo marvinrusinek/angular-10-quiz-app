@@ -183,9 +183,9 @@ export class CodelabQuizContentComponent {
         this.correctAnswersTextSource.next(correctAnswersText);
   
         this.questions = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
-        this.currentQuestion.next(this.questions[0]);
+        this.currentQuestion.next(question);
 
-        this.updateExplanationText(this.currentQuestion.getValue());
+        this.updateExplanationForQuestion(this.currentQuestion.getValue());
   
         // Get the index of the current question
         const questionIndex = this.questions.indexOf(question);
@@ -209,9 +209,7 @@ export class CodelabQuizContentComponent {
     });    
   }
 
-  
-
-  private updateExplanationText(question: QuizQuestion): void {
+  updateExplanationForQuestion(question: QuizQuestion): void {
     // Combine explanationTextService's observable with selectedOptionExplanation$
     const explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
@@ -222,7 +220,11 @@ export class CodelabQuizContentComponent {
     
     // Subscribe to explanationText$ and update the explanation text accordingly
     explanationText$.subscribe(explanationText => {
-      this.explanationText = this.areQuestionsEqual(question, this.question) ? explanationText : null;
+      if (this.areQuestionsEqual(question, this.question)) {
+        this.explanationText = explanationText;
+      } else {
+        this.explanationText = null;
+      }
     });
   }
 
