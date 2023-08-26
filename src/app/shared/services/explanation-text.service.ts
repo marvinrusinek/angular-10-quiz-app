@@ -159,11 +159,16 @@ export class ExplanationTextService {
   }
 
   clearExplanationText(): void {
+    console.log('clearExplanationText() called');
     this.explanationText$.next('');
   }
 
   resetExplanationState() {
+    console.log('resetExplanationState() called');
+    this.explanations = [];
     this.explanationText$ = new BehaviorSubject<string | null>(null);
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
+    this.isExplanationTextDisplayedSource.next(false);
+    this.shouldDisplayExplanationSource.next(false);
   }
 }
