@@ -175,40 +175,6 @@ export class CodelabQuizContentComponent {
       this.options = options;
     });
 
-    // this.currentQuestion$ = this.quizStateService.getCurrentQuestion();
-    /* this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe((question: QuizQuestion) => {
-      if (question) {
-        this.quizQuestionManagerService.setCurrentQuestion(question);
-        this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
-        const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
-        this.correctAnswersTextSource.next(correctAnswersText);
-    
-        const quizId = this.quizId;
-        if (quizId) {
-          this.quizDataService.getQuestionsForQuiz(quizId).toPromise().then(questions => {
-            this.questions = questions;
-    
-            console.log("this.questions", this.questions);
-            const questionIndex = this.questions.indexOf(question);
-            const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
-    
-            // Set the explanation text only if it's not empty
-            if (explanationText) {
-              this.explanationTextService.setExplanationText([], question);
-            }
-    
-            // Get the current explanation text
-            const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(this.questions.indexOf(question));
-    
-            // Reset the explanation state for the new question
-            // this.explanationTextService.resetExplanationState();
-    
-            // this.updateExplanationText(question);
-          });
-        }
-      }
-    }); */
-
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe(async (question: QuizQuestion) => {
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
@@ -306,7 +272,7 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
+      this.isExplanationTextDisplayed$
     ]).pipe(
       tap(data => console.log('Observable Data:', data)),
       map(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
