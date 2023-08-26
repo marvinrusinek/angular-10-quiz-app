@@ -224,6 +224,9 @@ export class CodelabQuizContentComponent {
   
         // Get the index of the current question
         const questionIndex = this.questions.indexOf(question);
+
+        // Reset the explanation state for the new question
+        // this.explanationTextService.resetExplanationState();
   
         // Set the explanation text only if it's not empty
         const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
@@ -300,61 +303,6 @@ export class CodelabQuizContentComponent {
       map(([currentQuestion, currentOptions]) => ({ currentQuestion, currentOptions }))
     );
 
-    /* this.combinedQuestionData$ = combineLatest([
-      this.explanationText$,
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
-    ]).pipe(
-      switchMap(([explanationText, { currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
-        const questionText = this.getQuestionText(currentQuestion, this.questions);
-  
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-  
-        let correctAnswersText = '';
-        if (questionHasMultipleAnswers && !isExplanationDisplayed && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-  
-        return this.getExplanationTextForQuestion(currentQuestion).pipe(
-          map(explanationTextForQuestion => ({
-            questionText: questionText,
-            currentQuestion: currentQuestion,
-            explanationText: explanationTextForQuestion,
-            correctAnswersText: correctAnswersText,
-            currentOptions: currentOptions
-          }))
-        );
-      })
-    ); */
-
-    /* this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.explanationText$
-    ]).pipe(
-      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed, explanationText]) => {
-        const questionText = this.getQuestionText(currentQuestion, this.questions);
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
-        let correctAnswersText = '';
-  
-        if (questionHasMultipleAnswers && !isExplanationDisplayed && !explanationText && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
-        }
-  
-        return this.getExplanationTextForQuestion(currentQuestion).pipe(
-          map(explanationTextForQuestion => ({
-            questionText: questionText,
-            currentQuestion: currentQuestion,
-            explanationText: explanationTextForQuestion,
-            correctAnswersText: correctAnswersText,
-            currentOptions: currentOptions
-          }))
-        );
-      })
-    ); */
-
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -386,21 +334,7 @@ export class CodelabQuizContentComponent {
         };
       })
     );
-
-    /* this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.isExplanationTextDisplayed$,
-    ]).pipe(
-      map(([{ currentQuestion }, isExplanationDisplayed]) => {
-        const questionIndex = this.questions.indexOf(currentQuestion);
-        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
-        return {
-          explanationText: explanationText
-        };
-      })
-    ); */
     
-
     this.combinedQuestionData$.subscribe(data => {
       console.log('Combined Question Data:::>>>>>))))', data);
     });
