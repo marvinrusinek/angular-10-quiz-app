@@ -194,10 +194,10 @@ export class CodelabQuizContentComponent {
         // this.explanationTextService.resetExplanationState();
   
         // Set the explanation text only if it's not empty
-        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
-        if (explanationText) {
-          this.explanationTextService.setExplanationText([], question);
-        }
+        // const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        // if (explanationText) {
+          // this.explanationTextService.setExplanationText([], question);
+        // }
   
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
@@ -295,8 +295,8 @@ export class CodelabQuizContentComponent {
         console.log('Question Index:::>>>', questionIndex);
   
         console.log('Setting explanation text for question:', currentQuestion.questionText);
-        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
-        console.log('Explanation Text:::>>>', explanationText);
+        // const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        // console.log('Explanation Text:::>>>', explanationText);
   
         return {
           questionText: questionText,
