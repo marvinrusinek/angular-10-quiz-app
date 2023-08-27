@@ -375,17 +375,17 @@ export class CodelabQuizContentComponent {
           return of('');
         }
   
-        console.log('Next Question:', nextQuestion); // Add this line
-        console.log('Explanation Text:', explanationText); // Add this line
-        console.log('Should Display Explanation:', shouldDisplayExplanation); // Add this line
+        console.log('Next Question:', nextQuestion);
+        console.log('Explanation Text:', explanationText);
+        console.log('Should Display Explanation:', shouldDisplayExplanation);
   
         if (shouldDisplayExplanation && explanationText !== null) {
-          console.log('Displaying Explanation Text'); // Add this line
+          console.log('Displaying Explanation Text');
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
   
-        console.log('Displaying Next Question Text'); // Add this line
+        console.log('Displaying Next Question Text');
         return of(nextQuestion.questionText);
       })
     );
