@@ -295,8 +295,8 @@ export class CodelabQuizContentComponent {
         console.log('Question Index:::>>>', questionIndex);
   
         console.log('Setting explanation text for question:', currentQuestion.questionText);
-        // const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
-        // console.log('Explanation Text:::>>>', explanationText);
+        const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);
+        console.log('Explanation Text:::>>>', explanationText);
   
         return {
           questionText: questionText,
@@ -375,15 +375,22 @@ export class CodelabQuizContentComponent {
           return of('');
         }
   
+        console.log('Next Question:', nextQuestion); // Add this line
+        console.log('Explanation Text:', explanationText); // Add this line
+        console.log('Should Display Explanation:', shouldDisplayExplanation); // Add this line
+  
         if (shouldDisplayExplanation && explanationText !== null) {
+          console.log('Displaying Explanation Text'); // Add this line
           this.explanationTextService.setShouldDisplayExplanation(false);
           return of(explanationText);
         }
   
+        console.log('Displaying Next Question Text'); // Add this line
         return of(nextQuestion.questionText);
       })
     );
   }
+  
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
