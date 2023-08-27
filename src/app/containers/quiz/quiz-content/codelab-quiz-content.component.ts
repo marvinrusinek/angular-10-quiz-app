@@ -371,13 +371,13 @@ export class CodelabQuizContentComponent {
       this.shouldDisplayExplanation$
     ]).pipe(
       switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
-        if (!nextQuestion) {
-          return of('');
-        }
-  
         console.log('Next Question:', nextQuestion);
         console.log('Explanation Text:', explanationText);
         console.log('Should Display Explanation:', shouldDisplayExplanation);
+
+        if (!nextQuestion) {
+          return of('');
+        }
   
         if (shouldDisplayExplanation && explanationText !== null) {
           console.log('Displaying Explanation Text');
