@@ -299,9 +299,7 @@ export class CodelabQuizContentComponent {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
   
-        
         console.log('Question Index:::>>>', questionIndex);
-        // const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
         console.log('Setting explanation text for question:', currentQuestion.questionText);
         console.log('Explanation Text:::>>>', explanationText);
   
