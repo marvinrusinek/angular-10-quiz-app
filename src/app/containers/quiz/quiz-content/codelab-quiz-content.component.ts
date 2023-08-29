@@ -288,19 +288,18 @@ export class CodelabQuizContentComponent {
         // const questionText = this.getQuestionText(currentQuestion, this.questions);
         const questionText = currentQuestion ? currentQuestion.questionText : '';
 
-
-        const explanationText = this.explanationTextService.getExplanationTextForIndex(this.questions.indexOf(currentQuestion));
+        const questionIndex = this.questions.indexOf(currentQuestion);
+        const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
     
         const explanationToDisplay = isExplanationDisplayed ? explanationText : '';
 
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
         let correctAnswersText = '';
-  
         if (questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
           correctAnswersText = this.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
   
-        const questionIndex = this.questions.indexOf(currentQuestion);
+        
         console.log('Question Index:::>>>', questionIndex);
         // const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
         console.log('Setting explanation text for question:', currentQuestion.questionText);
