@@ -293,6 +293,7 @@ export class CodelabQuizContentComponent {
   
         const questionIndex = this.questions.indexOf(currentQuestion);
         console.log('Question Index:::>>>', questionIndex);
+        const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
   
         console.log('Setting explanation text for question:', currentQuestion.questionText);
         const explanationText = this.explanationTextService.getExplanationForQuestionIndex(questionIndex);

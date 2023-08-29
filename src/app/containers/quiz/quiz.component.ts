@@ -143,7 +143,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText$: Observable<string | null> = this.explanationTextSource.asObservable();
 
   private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
-  combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
+  
+  : Observable<any> = this.combinedQuestionDataSubject.asObservable();
 
   currentQuestionIndex: number = -1;
   lastQuestionIndex: number;
