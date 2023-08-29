@@ -22,7 +22,6 @@ export class ExplanationTextService {
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
   lastDisplayedExplanationText: string = '';
-  shouldPersistExplanationTextAcrossOptions: boolean = false;
 
   constructor() {
     this.explanationText$.next('');
@@ -148,10 +147,6 @@ export class ExplanationTextService {
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
-  }
-
-  setShouldPersistExplanationTextAcrossOptions(shouldPersist: boolean): void {
-    this.shouldPersistExplanationTextAcrossOptions = shouldPersist;
   }
 
   getLastDisplayedExplanationText(): string {
