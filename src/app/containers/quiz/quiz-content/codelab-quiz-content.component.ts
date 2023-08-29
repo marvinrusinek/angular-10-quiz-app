@@ -286,13 +286,17 @@ export class CodelabQuizContentComponent {
       tap(data => console.log('Observable Data:', data)),
       map(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
         // const questionText = this.getQuestionText(currentQuestion, this.questions);
+        // Calculate question text
         const questionText = currentQuestion ? currentQuestion.questionText : '';
 
+        // Get explanation text for the current question's index
         const questionIndex = this.questions.indexOf(currentQuestion);
         const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
     
+        // Determine which explanation text to display
         const explanationToDisplay = isExplanationDisplayed ? explanationText : '';
 
+        // Other calculations, e.g., correct answers text
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
         let correctAnswersText = '';
         if (questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
