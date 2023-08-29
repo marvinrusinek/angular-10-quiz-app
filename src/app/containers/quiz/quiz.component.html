@@ -11,8 +11,11 @@
     
       <!-- the question and options -->
       <codelab-quiz-content-component 
+        [questions]="questions"
         [question]="data?.questionText" 
-        [options]="data?.currentOptions">
+        [options]="data?.currentOptions"
+        [explanationText]="explanationText$ | async"  
+      >
       </codelab-quiz-content-component>
       <ng-content select="[question-content]"></ng-content>
     
