@@ -190,7 +190,8 @@ export class CodelabQuizContentComponent {
         const explanationText = question.explanation;
         this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
 
-        this.updateExplanationForQuestion(this.currentQuestion.getValue());
+        // this.updateExplanationForQuestion(this.currentQuestion.getValue());
+        this.updateExplanationForQuestion(question);
 
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
