@@ -184,11 +184,13 @@ export class CodelabQuizContentComponent {
   
         this.questions = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
         this.currentQuestion.next(question);
-
-        this.updateExplanationForQuestion(this.currentQuestion.getValue());
   
         // Get the index of the current question
         const questionIndex = this.questions.indexOf(question);
+        const explanationText = question.explanation;
+        this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
+
+        this.updateExplanationForQuestion(this.currentQuestion.getValue());
 
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
