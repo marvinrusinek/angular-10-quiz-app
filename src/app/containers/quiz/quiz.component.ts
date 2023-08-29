@@ -1033,6 +1033,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set explanation text for the question after next
       const nextNextQuestion = await this.quizService.getNextQuestion();
       if (nextNextQuestion) {
+        const nextNextQuestionIndex = this.questions.indexOf(nextNextQuestion);
+        console.log('Next next question index:', nextNextQuestionIndex);
         this.explanationTextService.setNextExplanationText(nextNextQuestion.explanation);
       }
 
