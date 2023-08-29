@@ -296,7 +296,7 @@ export class CodelabQuizContentComponent {
         // const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
     
         // Determine which explanation text to display
-        const explanationText = isExplanationDisplayed ? this.nextExplanationText : '';
+        const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
         const explanationToDisplay = isExplanationDisplayed ? explanationText : '';
         
         // Other calculations, e.g., correct answers text
@@ -313,7 +313,7 @@ export class CodelabQuizContentComponent {
         return {
           questionText: questionText,
           currentQuestion: currentQuestion,
-          explanationText: explanationText,
+          explanationText: explanationToDisplay,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions
         };
