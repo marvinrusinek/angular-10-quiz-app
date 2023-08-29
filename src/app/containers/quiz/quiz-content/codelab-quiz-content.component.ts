@@ -64,6 +64,7 @@ export class CodelabQuizContentComponent {
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
   nextQuestionText: string = '';
+  nextExplanationText: string = '';
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   shouldDisplayExplanation$: Observable<boolean>;
@@ -188,6 +189,7 @@ export class CodelabQuizContentComponent {
         // Get the index of the current question
         const questionIndex = this.questions.indexOf(question);
         const explanationText = question.explanation;
+        this.nextExplanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
         this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
 
         this.updateExplanationForQuestion(question);
@@ -291,11 +293,12 @@ export class CodelabQuizContentComponent {
 
         // Get explanation text for the current question's index
         const questionIndex = this.questions.indexOf(currentQuestion);
-        const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
+        // const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
     
         // Determine which explanation text to display
+        const explanationText = isExplanationDisplayed ? this.nextExplanationText : '';
         const explanationToDisplay = isExplanationDisplayed ? explanationText : '';
-
+        
         // Other calculations, e.g., correct answers text
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
         let correctAnswersText = '';
@@ -310,7 +313,7 @@ export class CodelabQuizContentComponent {
         return {
           questionText: questionText,
           currentQuestion: currentQuestion,
-          explanationText: explanationToDisplay,
+          explanationText: explanationText,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions
         };
