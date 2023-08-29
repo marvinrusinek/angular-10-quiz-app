@@ -141,8 +141,8 @@ export class ExplanationTextService {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  setIsExplanationTextDisplayed(display: boolean): void {
-    this.isExplanationTextDisplayedSource.next(display);
+  setIsExplanationTextDisplayed(isDisplayed: boolean): void {
+    this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
