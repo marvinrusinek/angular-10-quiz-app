@@ -132,6 +132,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isOptionSelected = false;
   isDisabled: boolean; // may use later
   nextQuestionText: string | null = null;
+  nextExplanationText: string | null = null;
   selectOptionText: string = 'Please select an option to continue...';
   cardFooterClass = '';
 
@@ -1045,10 +1046,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
 
       // Set options and questionText for the next question
+      // Set options and questionText for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       if (this.selectedQuiz.questions[nextQuestionIndex]) {
-        this.nextQuestionText = this.selectedQuiz.questions[nextQuestionIndex].questionText;
-        this.currentOptions = this.selectedQuiz.questions[nextQuestionIndex].options;
+        const nextQuestion = this.selectedQuiz.questions[nextQuestionIndex];
+        this.nextQuestionText = nextQuestion.questionText;
+        this.currentOptions = nextQuestion.options;
+        this.nextExplanationText = nextQuestion.explanation;
       } else {
         this.nextQuestionText = null;
       }
