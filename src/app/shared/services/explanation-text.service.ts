@@ -82,8 +82,10 @@ export class ExplanationTextService {
 
     if (question && question.explanation) {
       this.nextExplanationTextSource.next(question.explanation);
+      this.explText = question.explanation;
     } else {
       this.nextExplanationTextSource.next('');
+      this.explText = '';
     }
 
     // Set the isExplanationTextDisplayed flag
