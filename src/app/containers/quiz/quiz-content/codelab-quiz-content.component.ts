@@ -391,7 +391,8 @@ export class CodelabQuizContentComponent {
           return of('');
         }
   
-        if (shouldDisplayExplanation && explanationText !== null) {
+        console.log('EXPLTEXT', this.explanationTextService.explText);
+        if (shouldDisplayExplanation && this.explanationTextService.explText !== '') {
           console.log('Displaying Explanation Text');
           this.explanationTextService.setShouldDisplayExplanation(false);
           // return of(nextQuestion.explanation);
