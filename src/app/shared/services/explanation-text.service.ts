@@ -9,6 +9,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 })
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  explText: string = '';
   explanations: string[] = [];
   private explanationTexts: { [questionIndex: number]: string } = {};
 
@@ -112,13 +113,13 @@ export class ExplanationTextService {
         );
 
         if (correctOptions.length === 1) {
-          const text = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-          this.explanationText$.next(text);
+          this.explText = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+          this.explanationText$.next(this.explText);
         } else if (correctOptions.length > 1) {
           const correctOptionsString = correctOptionIndices.join(' and ');
-          const text = `Options ${correctOptionsString} are correct because ${question.explanation}`;
-          this.explanationText$.next(text);
-          this.setNextExplanationText(text);
+          this.explText = `Options ${correctOptionsString} are correct because ${question.explanation}`;
+          this.explanationText$.next(this.explText);
+          this.setNextExplanationText(this.explText);
         }
       } else {
         const correctOptionIndices = correctOptions.map(
@@ -127,14 +128,14 @@ export class ExplanationTextService {
         const optionIndicesString = correctOptionIndices.join(' and ');
 
         if (correctOptions.length === 1) {
-          const text = `Option ${optionIndicesString} is correct because ${question.explanation}`;
-          this.explanationText$.next(text);
-          this.setNextExplanationText(text);
+          this.explText = `Option ${optionIndicesString} is correct because ${question.explanation}`;
+          this.explanationText$.next(this.explText);
+          this.setNextExplanationText(this.explText);
         } else {
           if (question && question.explanation) {
-            const text = `Options ${optionIndicesString} are correct because ${question.explanation}`;
-            this.explanationText$.next(text);
-            this.setNextExplanationText(text);
+            this.explText = `Options ${optionIndicesString} are correct because ${question.explanation}`;
+            this.explanationText$.next(this.explText);
+            this.setNextExplanationText(this.explText);
           }
         }
       }

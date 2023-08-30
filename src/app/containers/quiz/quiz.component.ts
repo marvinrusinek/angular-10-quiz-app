@@ -1042,6 +1042,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.nextExplanationText = '';
       }
 
+      this.explanationTextService.setNextExplanationText('');
       const navigationSuccess = await this.quizService.navigateToNextQuestion();
       
       if (!navigationSuccess) {
