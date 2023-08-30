@@ -146,8 +146,12 @@ export class ExplanationTextService {
     }
   }
 
-  setNextExplanationText(explanationText: string): void {
+  setNextExplanationText(explanationText: string) {
     this.nextExplanationTextSource.next(explanationText);
+  }
+
+  getNextExplanationText(): Observable<string> {
+    return this.nextExplanationText$;
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
