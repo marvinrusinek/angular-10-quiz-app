@@ -364,7 +364,6 @@ export class CodelabQuizContentComponent {
       })
     );
   }
-  
 
   private setupOptions(): void {
     // Update the options$ initialization using combineLatest
