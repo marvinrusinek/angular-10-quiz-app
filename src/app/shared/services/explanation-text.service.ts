@@ -117,11 +117,13 @@ export class ExplanationTextService {
         if (correctOptions.length === 1) {
           this.explText = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
           this.explanationText$.next(this.explText);
+          console.log("SETEXPLTEXT", this.explText);
         } else if (correctOptions.length > 1) {
           const correctOptionsString = correctOptionIndices.join(' and ');
           this.explText = `Options ${correctOptionsString} are correct because ${question.explanation}`;
           this.explanationText$.next(this.explText);
           this.setNextExplanationText(this.explText);
+          console.log("SETEXPLTEXT", this.explText);
         }
       } else {
         const correctOptionIndices = correctOptions.map(
@@ -133,11 +135,13 @@ export class ExplanationTextService {
           this.explText = `Option ${optionIndicesString} is correct because ${question.explanation}`;
           this.explanationText$.next(this.explText);
           this.setNextExplanationText(this.explText);
+          console.log("SETEXPLTEXT", this.explText);
         } else {
           if (question && question.explanation) {
             this.explText = `Options ${optionIndicesString} are correct because ${question.explanation}`;
             this.explanationText$.next(this.explText);
             this.setNextExplanationText(this.explText);
+            console.log("SETEXPLTEXT", this.explText);
           }
         }
       }
