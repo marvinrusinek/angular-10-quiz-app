@@ -821,8 +821,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.answers[0] = option;
     }
 
-    this.explanationTextService.setExplanationText(this.answers, this.question);
-
     this.selectedOption$.next(option);
   }
 
