@@ -808,7 +808,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   selectedAnswer(option: Option): void {
     this.answered = true;
     this.checkIfAnsweredCorrectly();
-    console.log('ET', this.explanationText);
 
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
