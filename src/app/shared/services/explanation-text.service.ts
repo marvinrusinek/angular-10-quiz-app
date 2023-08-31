@@ -154,6 +154,7 @@ export class ExplanationTextService {
   }
 
   setNextExplanationText(explanationText: string) {
+    console.log('Setting next explanation text:', explanationText);
     this.nextExplanationTextSource.next(explanationText);
   }
 
