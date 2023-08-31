@@ -380,7 +380,7 @@ export class CodelabQuizContentComponent {
   private setupExplanationTextDisplay(): void {
     this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
 
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.nextExplanationText$,
       this.shouldDisplayExplanation$
@@ -405,7 +405,42 @@ export class CodelabQuizContentComponent {
         console.log('Displaying Next Question Text');
         return of(nextQuestion.questionText);
       })
-    );
+    ); */
+
+    this.combinedText$ = combineLatest([
+      this.nextQuestion$,
+      this.nextExplanationText$,
+      this.shouldDisplayExplanation$
+    ]).pipe(
+      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+        return of(nextQuestion).pipe(
+          tap(nextQuestion => {
+            console.log('Next Question:', nextQuestion);
+            console.log('Explanation Text:', explanationText);
+            console.log('Should Display Explanation:', shouldDisplayExplanation);
+          }),
+          switchMap(() => {
+            if (!nextQuestion) {
+              return of('');
+            }
+    
+            return of(nextQuestion).pipe(
+              tap(() => console.log('EXPLTEXT', explanationText)),
+              switchMap(() => {
+                if (shouldDisplayExplanation && explanationText !== '') {
+                  console.log('Displaying Explanation Text');
+                  this.explanationTextService.setShouldDisplayExplanation(false);
+                  return of(explanationText);
+                }
+    
+                console.log('Displaying Next Question Text');
+                return of(nextQuestion.questionText);
+              })
+            );
+          })
+        );
+      })
+    );    
   }
   
 
