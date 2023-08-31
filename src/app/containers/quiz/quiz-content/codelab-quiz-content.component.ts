@@ -379,6 +379,17 @@ export class CodelabQuizContentComponent {
 
   private setupExplanationTextDisplay(): void {
     this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
+    console.log("NET Observable:", this.nextExplanationText$);
+
+    this.nextExplanationText$.subscribe(
+      (explanationText) => {
+        console.log("NET Emitted Value:", explanationText);
+      },
+      (error) => {
+        console.error("NET Error:", error);
+      }
+    );
+
 
     /* this.combinedText$ = combineLatest([
       this.nextQuestion$,
