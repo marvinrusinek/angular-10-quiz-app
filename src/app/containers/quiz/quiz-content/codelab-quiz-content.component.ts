@@ -65,6 +65,7 @@ export class CodelabQuizContentComponent {
   isExplanationTextDisplayed: boolean = false;
   nextQuestionText: string = '';
   nextExplanationText: string = '';
+  nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   shouldDisplayExplanation$: Observable<boolean>;
@@ -377,9 +378,11 @@ export class CodelabQuizContentComponent {
   }
 
   private setupExplanationTextDisplay(): void {
+    this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
+
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
-      this.explanationTextService.nextExplanationText$,
+      this.nextExplanationText$,
       this.shouldDisplayExplanation$
     ]).pipe(
       switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
