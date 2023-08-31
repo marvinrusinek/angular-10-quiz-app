@@ -142,6 +142,8 @@ export class ExplanationTextService {
             this.explanationText$.next(this.explText);
             this.setNextExplanationText(this.explText);
             console.log("SETEXPLTEXT", this.explText);
+          } else {
+            this.explText = '';
           }
         }
       }
