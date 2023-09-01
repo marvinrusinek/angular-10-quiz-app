@@ -155,9 +155,22 @@ export class ExplanationTextService {
     }
   }
 
+  updateExplanationText(explanationText: string) {
+    try {
+      this.nextExplanationTextSource.next(explanationText);
+      console.log('Updated explanation text:', explanationText);
+    } catch (error) {
+      console.error('Error updating explanation text:', error);
+    }
+  }
+
   setNextExplanationText(explanationText: string) {
-    console.log('Setting next explanation text:', explanationText);
-    this.nextExplanationTextSource.next(explanationText);
+    try {
+      console.log('Setting next explanation text:', explanationText);
+      this.nextExplanationTextSource.next(explanationText);
+    } catch (error) {
+      console.error('Error updating explanation text:', error);
+    }
   }
 
   getNextExplanationText(): Observable<string> {
