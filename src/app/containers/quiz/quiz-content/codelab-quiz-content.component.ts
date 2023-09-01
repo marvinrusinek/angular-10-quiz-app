@@ -390,34 +390,6 @@ export class CodelabQuizContentComponent {
       }
     );
 
-
-    /* this.combinedText$ = combineLatest([
-      this.nextQuestion$,
-      this.nextExplanationText$,
-      this.shouldDisplayExplanation$
-    ]).pipe(
-      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
-        console.log('Next Question:', nextQuestion);
-        console.log('Explanation Text:', explanationText);
-        console.log('Should Display Explanation:', shouldDisplayExplanation);
-
-        if (!nextQuestion) {
-          return of('');
-        }
-  
-        console.log('EXPLTEXT', explanationText);
-        if (shouldDisplayExplanation && explanationText !== '') {
-          console.log('Displaying Explanation Text');
-          this.explanationTextService.setShouldDisplayExplanation(false);
-          // return of(nextQuestion.explanation);
-          return of(explanationText);
-        }
-  
-        console.log('Displaying Next Question Text');
-        return of(nextQuestion.questionText);
-      })
-    ); */
-
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.nextExplanationText$,
