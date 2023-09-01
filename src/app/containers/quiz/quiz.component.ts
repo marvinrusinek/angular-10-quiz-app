@@ -1039,9 +1039,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setNextExplanationText(nextNextQuestion.explanation);
       } else {
         this.nextExplanationText = '';
+        this.explanationTextService.setNextExplanationText('');
       }
 
-      this.explanationTextService.setNextExplanationText('');
       const navigationSuccess = await this.quizService.navigateToNextQuestion();
       
       if (!navigationSuccess) {
