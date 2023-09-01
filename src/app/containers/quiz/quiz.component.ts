@@ -1043,7 +1043,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const navigationSuccess = await this.quizService.navigateToNextQuestion();
       
       if (!navigationSuccess) {
-        return;
+        throw new Error("Navigation to the next question failed.");
       }
 
       // Set options and questionText for the next question

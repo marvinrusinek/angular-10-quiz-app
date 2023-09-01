@@ -1082,6 +1082,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
+    console.log("currentQuestion:", currentQuestion);
     console.log("MY OPTIONS:::", options);
     console.log("Number of Options:", this.selectedOptions.length);
     console.log("Single Option:", options[0]);
@@ -1091,6 +1092,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .setExplanationText(options, currentQuestion)
       .subscribe(
         (explanationText: string) => {
+          console.log("explanationText:>>", explanationText);
           this.explanationText$.next(explanationText);
           this.explanationTextValue$.next(explanationText);
           this.isAnswerSelectedChange.emit(true);
