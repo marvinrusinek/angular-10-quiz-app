@@ -1028,8 +1028,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('Selected Options Array:', selectedOptionsArray);
         console.log('Before calling setExplanationText - selectedOptionsArray:', selectedOptionsArray);
         this.setExplanationText(currentQuestion, selectedOptionsArray);
-
-        // this.explanationTextService.setExplanationText([option], currentQuestion);
       } else {
         this.explanationText$.next('');
       }
@@ -1055,7 +1053,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
     this.quizQuestionManagerService.setSelectedOption(option);
   
-    this.setExplanationText(currentQuestion, option);
+    this.setExplanationText(currentQuestion, [option]);
 
     // Emit events and update states after the option is selected
     this.isOptionSelected = true;
