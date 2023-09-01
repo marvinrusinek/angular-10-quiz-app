@@ -1010,6 +1010,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextOptions = this.quizService.getNextOptions();
     console.log('Next question:', nextQuestion);
 
+    console.log('Current question:::>>>>>', this.currentQuestion);
+
     if (nextQuestion && nextQuestion.options) {
       this.currentQuestion = nextQuestion;
       this.currentOptions = nextOptions;
@@ -1046,7 +1048,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         throw new Error("Navigation to the next question failed.");
       }
 
-      // Set options and questionText for the next question
       // Set options and questionText for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       if (this.selectedQuiz.questions[nextQuestionIndex]) {
