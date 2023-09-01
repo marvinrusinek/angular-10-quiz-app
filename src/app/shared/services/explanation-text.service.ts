@@ -70,8 +70,6 @@ export class ExplanationTextService {
     console.log('setExplanationText received Array.isArray(selectedOptions):', Array.isArray(selectedOptions));
     console.log('setExplanationText received options:', selectedOptions);
 
-    
-
     if (!Array.isArray(selectedOptions)) {
       console.error('Error: selectedOptions is not an array');
       return of('');

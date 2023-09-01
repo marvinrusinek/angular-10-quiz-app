@@ -1000,7 +1000,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (!this.selectedQuiz) {
       return;
     }
-  
+
+    console.log("Current Question:", this.currentQuestion);
+    console.log("Explanation for Current Question:", this.currentQuestion?.explanation);
+
     this.animationState$.next('animationStarted');
   
     const selectedOption = this.form.value.selectedOption;
