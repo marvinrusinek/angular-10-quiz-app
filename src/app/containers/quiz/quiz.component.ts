@@ -996,7 +996,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
       return;
     }
@@ -1071,7 +1071,83 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = null;
       this.currentOptions = null;
     }
-  }
+  } */
+
+  async advanceToNextQuestion(): Promise<void> {
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    this.animationState$.next('animationStarted');
+  
+    const selectedOption = this.form.value.selectedOption;
+  
+    // Get the next question
+    const nextQuestion = await this.quizService.getNextQuestion();
+    const nextOptions = this.quizService.getNextOptions();
+    console.log('Next question:', nextQuestion);
+  
+    // Check if there are more questions
+    if (nextQuestion && nextQuestion.options) {
+      this.currentQuestion = nextQuestion;
+      this.currentOptions = nextOptions;
+  
+      this.nextQuestionText = nextQuestion.questionText;
+      this.quizService.setNextQuestion(nextQuestion);
+  
+      this.quizService.nextQuestionSource.next(nextQuestion);
+      this.quizService.nextOptionsSource.next(nextOptions);
+  
+      // Increment the current question index
+      this.currentQuestionIndex += 1;
+  
+      const explanationTextOfNextQuestion = nextQuestion.explanation;
+      this.explanationTextSource.next(explanationTextOfNextQuestion);
+      // this.explanationTextService.setExplanationText([], nextQuestion);
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+  
+      // Set explanation text for the question after next
+      const nextNextQuestion = await this.quizService.getNextQuestion();
+      if (nextNextQuestion) {
+        const nextNextQuestionIndex = this.questions.indexOf(nextNextQuestion);
+        console.log('Next next question index:', nextNextQuestionIndex);
+        this.nextExplanationText = nextNextQuestion.explanation;
+        this.explanationTextService.setNextExplanationText(nextNextQuestion.explanation);
+      } else {
+        this.nextExplanationText = '';
+        this.explanationTextService.setNextExplanationText('');
+      }
+  
+      const navigationSuccess = await this.quizService.navigateToNextQuestion();
+      
+      if (!navigationSuccess) {
+        throw new Error("Navigation to the next question failed.");
+      }
+  
+      // Set options and questionText for the next question
+      const nextQuestionIndex = this.currentQuestionIndex + 1;
+      if (this.selectedQuiz.questions[nextQuestionIndex]) {
+        const nextQuestion = this.selectedQuiz.questions[nextQuestionIndex];
+        this.nextQuestionText = nextQuestion.questionText;
+        this.currentOptions = nextQuestion.options;
+        this.nextExplanationText = nextQuestion.explanation;
+      } else {
+        this.nextQuestionText = null;
+      }
+  
+      console.log('Next question text:', this.nextQuestionText);
+      console.log('Current options:', this.currentOptions);
+  
+      this.selectedOptionService.setSelectedOptionExplanation('');
+    } else {
+      console.log('Before clearing explanation text');
+      this.explanationTextService.clearExplanationText();
+      this.explanationTextService.resetExplanationState();
+      console.log('After clearing explanation text');
+      this.nextQuestionText = null;
+      this.currentOptions = null;
+    }
+  }  
 
   advanceToPreviousQuestion() {
     this.answers = [];
