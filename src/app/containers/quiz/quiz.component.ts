@@ -1012,6 +1012,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Check if there are more questions
     if (nextQuestion && nextQuestion.options) {
+      this.currentQuestionIndex += 1;
       this.currentQuestion = nextQuestion;
       this.currentOptions = nextOptions;
   
@@ -1021,12 +1022,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.nextQuestionSource.next(nextQuestion);
       this.quizService.nextOptionsSource.next(nextOptions);
   
-      // Increment the current question index
-      this.currentQuestionIndex += 1;
-  
       const explanationTextOfNextQuestion = nextQuestion.explanation;
       this.explanationTextSource.next(explanationTextOfNextQuestion);
-      // this.explanationTextService.setExplanationText([], nextQuestion);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
   
       // Set explanation text for the question after next
@@ -1042,7 +1039,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       const navigationSuccess = await this.quizService.navigateToNextQuestion();
-      
+  
       if (!navigationSuccess) {
         throw new Error("Navigation to the next question failed.");
       }
@@ -1070,7 +1067,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = null;
       this.currentOptions = null;
     }
-  }  
+  }
+  
 
   advanceToPreviousQuestion() {
     this.answers = [];
