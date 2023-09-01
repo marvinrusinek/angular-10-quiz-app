@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError, NavigationCancel } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
@@ -1200,7 +1200,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion(): Promise<boolean> {
+  /* navigateToNextQuestion(): Promise<boolean> {
     this.currentQuestionIndex++;
     console.log(
       'Current question index after navigation:',
@@ -1217,6 +1217,35 @@ export class QuizService implements OnDestroy {
       this.getCurrentQuestionIndex()
     );
     return this.router.navigate([newUrl]);
+  } */
+
+  navigateToNextQuestion(): Promise<boolean> {
+    this.currentQuestionIndex++;
+    console.log('Current question index after navigation:', this.currentQuestionIndex);
+    this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+
+    // Use Router events to track navigation success or failure
+    return new Promise<boolean>((resolve, reject) => {
+      const navigationSubscription = this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel))
+        .subscribe((event) => {
+          if (event instanceof NavigationEnd) {
+            console.log('Navigation successful.');
+            resolve(true); // Navigation succeeded
+          } else {
+            console.error('Navigation failed.');
+            resolve(false); // Navigation failed
+          }
+
+          // Unsubscribe from the events to prevent memory leaks
+          navigationSubscription.unsubscribe();
+        });
+
+      // Initiate the navigation
+      this.router.navigate([newUrl]);
+    });
   }
   
   navigateToPreviousQuestion() {
