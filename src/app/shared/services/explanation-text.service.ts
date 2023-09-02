@@ -306,7 +306,7 @@ export class ExplanationTextService {
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
       this.explanationText$.next('');
-      return this.explanationText$;
+      return of(this.explText);
     }
   }  
 
