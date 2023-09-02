@@ -323,44 +323,36 @@ export class ExplanationTextService {
       // Update the last displayed explanation text
       this.lastDisplayedExplanationText = this.explanationText$.value;
   
-      if (question && question.explanation) {
-        this.nextExplanationTextSource.next(question.explanation);
-        this.explText = question.explanation;
-      } else {
-        this.nextExplanationTextSource.next('');
-        this.explText = '';
+      // Determine if there are correct options
+      const correctOptions = question?.options?.filter(option => option?.correct) || [];
+      const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
+  
+      // Create the explanation text
+      let explanationText = '';
+  
+      if (selectedCorrectOptions.length > 0) {
+        const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
+  
+        if (correctOptionIndices.length === 1) {
+          explanationText = `Option ${correctOptionIndices[0]}`;
+        } else {
+          const correctOptionsString = correctOptionIndices.join(' and ');
+          explanationText = `Options ${correctOptionsString}`;
+        }
+  
+        explanationText += ' ';
+        
+        if (correctOptions.length === 1) {
+          explanationText += 'is';
+        } else {
+          explanationText += 'are';
+        }
+  
+        explanationText += ' correct because ';
       }
   
-      // Set the isExplanationTextDisplayed flag
-      this.isExplanationTextDisplayedSource.next(true);
-  
-      const correctOptions = question?.options?.filter(option => option?.correct) || [];
-  
-      const selectedCorrectOptions = selectedOptions.filter(
-        (option) => option?.correct === true
-      );
-  
-      const shouldDisplayExplanation =
-        selectedCorrectOptions.length > 0 &&
-        selectedCorrectOptions.length !== correctOptions.length;
-  
-      this.isExplanationTextDisplayedSource.next(shouldDisplayExplanation);
-  
-      let explanationText: string;
-  
-      if (shouldDisplayExplanation) {
-        const correctOptionIndices = correctOptions.map(
-          (option) => question.options.indexOf(option) + 1
-        );
-  
-        if (correctOptions.length === 1) {
-          explanationText = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-        } else if (correctOptions.length > 1) {
-          const correctOptionsString = correctOptionIndices.join(' and ');
-          explanationText = `Options ${correctOptionsString} are correct because ${question.explanation}`;
-        }
-      } else {
-        explanationText = '';
+      if (question && question.explanation) {
+        explanationText += question.explanation;
       }
   
       // Store the explanation text for the current question
@@ -380,7 +372,8 @@ export class ExplanationTextService {
       return of('');
     }
   }
-  
+    
+    
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
