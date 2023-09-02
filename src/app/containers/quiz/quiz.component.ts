@@ -1006,8 +1006,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.animationState$.next('animationStarted');
   
-    const selectedOption = this.form.value.selectedOption;
-  
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
     const nextOptions = this.quizService.getNextOptions();

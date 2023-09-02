@@ -344,14 +344,10 @@ export class ExplanationTextService {
         } else {
           explanationText += 'are correct because ';
         }
+      }
   
-        if (question && question.explanation) {
-          explanationText += question.explanation;
-        }
-      } else {
-        if (question && question.explanation) {
-          explanationText = question.explanation;
-        }
+      if (question && question.explanation) {
+        explanationText += question.explanation;
       }
   
       // Store the explanation text for the current question
@@ -371,7 +367,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
-      
+          
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
