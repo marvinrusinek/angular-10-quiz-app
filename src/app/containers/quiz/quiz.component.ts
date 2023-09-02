@@ -176,8 +176,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
-    console.log('QuizComponent constructor called');
-
     this.selectedQuiz$ = this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
   }
 
