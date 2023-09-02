@@ -257,6 +257,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuiz(): void {
+    this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
