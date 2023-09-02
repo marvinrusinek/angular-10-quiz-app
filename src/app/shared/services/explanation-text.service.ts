@@ -155,8 +155,8 @@ export class ExplanationTextService {
 
   setExplanationText(
     selectedOptions: Option[],
-    question?: QuizQuestion,
-    currentQuestionIndex: number
+    question: QuizQuestion,
+    currentQuestionIndex?: number
   ): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
@@ -207,7 +207,6 @@ export class ExplanationTextService {
           this.setNextExplanationText(this.explText);
   
           // Store the explanation text for the current question
-          const currentQuestionIndex = this.currentQuestionIndex;
           this.setExplanationForQuestionIndex(
             currentQuestionIndex,
             this.explText
@@ -233,7 +232,6 @@ export class ExplanationTextService {
           this.setNextExplanationText(this.explText);
   
           // Store the explanation text for the current question
-          const currentQuestionIndex = this.currentQuestionIndex;
           this.setExplanationForQuestionIndex(
             currentQuestionIndex,
             this.explText
@@ -253,7 +251,6 @@ export class ExplanationTextService {
             this.setNextExplanationText(this.explText);
   
             // Store the explanation text for the current question
-            const currentQuestionIndex = this.currentQuestionIndex;
             this.setExplanationForQuestionIndex(
               currentQuestionIndex,
               this.explText
@@ -278,7 +275,6 @@ export class ExplanationTextService {
       return this.explanationText$;
     }
   }
-  
 
   updateExplanationText(explanationText: string) {
     try {
