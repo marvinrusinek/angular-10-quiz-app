@@ -466,20 +466,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('MY CORR MSG:', this.correctMessage);
   }
 
-  /* shouldDisplayOptions(): boolean {
-    return (
-      this.currentQuestion?.options && 
-      this.currentQuestion.options.length > 0
-    );
-  }
-
-  shouldHideOptions(): boolean {
-    return (
-      !this.currentQuestion?.options ||
-      this.currentQuestion.options.length === 0
-    );
-  } */
-
   shouldDisplayOptions(): boolean {
     return this.data?.options && this.data.options.length > 0;
   }
@@ -487,6 +473,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   shouldHideOptions(): boolean {
     return !this.data?.options || this.data.options.length === 0;
   }
+
+  shouldDisplayTextContent(): boolean {
+    return this.data?.questionText || this.data?.correctAnswersText;
+  } 
 
   updateQuestionForm(): void {
     // Fetch the correct answers and update the correct message

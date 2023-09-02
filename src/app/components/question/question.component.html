@@ -1,5 +1,5 @@
 <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
-  <ng-container *ngIf="data?.questionText || data?.correctAnswersText">
+  <ng-container *ngIf="shouldDisplayTextContent()">
     <ng-container *ngSwitchCase="multipleAnswer">
       <ng-container *ngIf="shouldDisplayOptions()">
         <codelab-question-multiple-answer
