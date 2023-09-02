@@ -475,8 +475,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   shouldDisplayTextContent(): boolean {
-    return this.data?.questionText || this.data?.correctAnswersText;
-  } 
+    return !!this.data?.questionText || !!this.data?.correctAnswersText;
+  }  
 
   updateQuestionForm(): void {
     // Fetch the correct answers and update the correct message
