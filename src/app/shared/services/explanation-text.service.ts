@@ -123,7 +123,7 @@ export class ExplanationTextService {
             currentQuestionIndex
           );
   
-          // Use currentExplanation as needed ...
+          console.log("Current Explanation:", currentExplanation);
   
           console.log("SETEXPLTEXT", this.explText);
         }
@@ -148,7 +148,7 @@ export class ExplanationTextService {
             currentQuestionIndex
           );
   
-          // Use currentExplanation as needed ...
+          console.log("Current Explanation:", currentExplanation);
   
           console.log("SETEXPLTEXT", this.explText);
         } else {
@@ -167,7 +167,7 @@ export class ExplanationTextService {
               currentQuestionIndex
             );
   
-            // Use currentExplanation as needed ...
+            console.log("Current Explanation:", currentExplanation);
   
             console.log("SETEXPLTEXT", this.explText);
           } else {
