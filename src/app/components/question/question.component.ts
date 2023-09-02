@@ -77,7 +77,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     questionText: string;
     explanationText?: string;
     correctAnswersText?: string;
-    currentOptions: Option[];
+    options: Option[];
   };
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
@@ -481,11 +481,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   shouldDisplayOptions(): boolean {
-    return this.data?.currentOptions && this.data.currentOptions.length > 0;
+    return this.data?.options && this.data.options.length > 0;
   }
 
   shouldHideOptions(): boolean {
-    return !this.data?.currentOptions || this.data.currentOptions.length === 0;
+    return !this.data?.options || this.data.options.length === 0;
   }
 
   updateQuestionForm(): void {
