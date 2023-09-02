@@ -183,7 +183,7 @@ export class ExplanationTextService {
     }
   } */
 
-  setExplanationText(
+  /* setExplanationText(
     selectedOptions: Option[],
     question: QuizQuestion,
     currentQuestionIndex?: number
@@ -308,8 +308,79 @@ export class ExplanationTextService {
       this.explanationText$.next('');
       return of(this.explText);
     }
-  }  
+  } */
 
+  setExplanationText(
+    selectedOptions: Option[],
+    question: QuizQuestion,
+    currentQuestionIndex?: number
+  ): Observable<string> {
+    try {
+      if (!Array.isArray(selectedOptions)) {
+        throw new Error('selectedOptions is not an array');
+      }
+  
+      // Update the last displayed explanation text
+      this.lastDisplayedExplanationText = this.explanationText$.value;
+  
+      if (question && question.explanation) {
+        this.nextExplanationTextSource.next(question.explanation);
+        this.explText = question.explanation;
+      } else {
+        this.nextExplanationTextSource.next('');
+        this.explText = '';
+      }
+  
+      // Set the isExplanationTextDisplayed flag
+      this.isExplanationTextDisplayedSource.next(true);
+  
+      const correctOptions = question?.options?.filter(option => option?.correct) || [];
+  
+      const selectedCorrectOptions = selectedOptions.filter(
+        (option) => option?.correct === true
+      );
+  
+      const shouldDisplayExplanation =
+        selectedCorrectOptions.length > 0 &&
+        selectedCorrectOptions.length !== correctOptions.length;
+  
+      this.isExplanationTextDisplayedSource.next(shouldDisplayExplanation);
+  
+      let explanationText: string;
+  
+      if (shouldDisplayExplanation) {
+        const correctOptionIndices = correctOptions.map(
+          (option) => question.options.indexOf(option) + 1
+        );
+  
+        if (correctOptions.length === 1) {
+          explanationText = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+        } else if (correctOptions.length > 1) {
+          const correctOptionsString = correctOptionIndices.join(' and ');
+          explanationText = `Options ${correctOptionsString} are correct because ${question.explanation}`;
+        }
+      } else {
+        explanationText = '';
+      }
+  
+      // Store the explanation text for the current question
+      this.setExplanationForQuestionIndex(currentQuestionIndex, explanationText);
+  
+      // Retrieve the explanation text for the current question
+      const currentExplanation = this.getExplanationForQuestionIndex(currentQuestionIndex);
+  
+      console.log('Current Explanation:', currentExplanation);
+  
+      this.explanationText$.next(explanationText);
+  
+      return of(explanationText);
+    } catch (error) {
+      console.error('Error occurred while getting explanation text:', error);
+      this.explanationText$.next('');
+      return of('');
+    }
+  }
+  
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
