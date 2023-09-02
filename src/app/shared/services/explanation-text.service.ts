@@ -320,9 +320,6 @@ export class ExplanationTextService {
         throw new Error('selectedOptions is not an array');
       }
   
-      // Update the last displayed explanation text
-      this.lastDisplayedExplanationText = this.explanationText$.value;
-  
       // Determine if there are correct options
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
       const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
@@ -343,12 +340,10 @@ export class ExplanationTextService {
         explanationText += ' ';
   
         if (correctOptionIndices.length === 1) {
-          explanationText += 'is';
+          explanationText += 'is correct because ';
         } else {
-          explanationText += 'are';
+          explanationText += 'are correct because ';
         }
-  
-        explanationText += ' correct because ';
   
         if (question && question.explanation) {
           explanationText += question.explanation;
@@ -375,8 +370,8 @@ export class ExplanationTextService {
       this.explanationText$.next('');
       return of('');
     }
-  }  
-    
+  }
+      
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
