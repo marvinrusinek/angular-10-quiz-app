@@ -341,18 +341,22 @@ export class ExplanationTextService {
         }
   
         explanationText += ' ';
-        
-        if (correctOptions.length === 1) {
+  
+        if (correctOptionIndices.length === 1) {
           explanationText += 'is';
         } else {
           explanationText += 'are';
         }
   
         explanationText += ' correct because ';
-      }
   
-      if (question && question.explanation) {
-        explanationText += question.explanation;
+        if (question && question.explanation) {
+          explanationText += question.explanation;
+        }
+      } else {
+        if (question && question.explanation) {
+          explanationText = question.explanation;
+        }
       }
   
       // Store the explanation text for the current question
@@ -371,8 +375,7 @@ export class ExplanationTextService {
       this.explanationText$.next('');
       return of('');
     }
-  }
-    
+  }  
     
   updateExplanationText(explanationText: string) {
     try {
