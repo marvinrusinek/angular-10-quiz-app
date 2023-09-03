@@ -370,6 +370,10 @@ export class ExplanationTextService {
   
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
       const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
+
+      console.log('selectedOptions:', selectedOptions);
+      console.log('correctOptions:', correctOptions);
+      console.log('selectedCorrectOptions:', selectedCorrectOptions);
   
       let explanationText = '';
   
