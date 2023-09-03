@@ -111,19 +111,20 @@ export class ExplanationTextService {
 
   formatExplanationText(
     selectedOptions: Option[],
-    question: QuizQuestion,
-    currentQuestionIndex?: number
+    question: QuizQuestion
   ): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
         throw new Error('selectedOptions is not an array');
       }
   
-      // Logic to determine the correct explanation format based on question type
       let explanationText = '';
   
-      if (selectedOptions.length > 0) {
-        const correctOptions = question.options.filter((option) => option.correct);
+      // Check if there are selected correct options
+      const correctOptions = question.options.filter(option => option.correct);
+      const selectedCorrectOptions = selectedOptions.filter(option => option.correct);
+  
+      if (selectedCorrectOptions.length > 0) {
         const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
   
         if (correctOptionIndices.length === 1) {
@@ -142,27 +143,14 @@ export class ExplanationTextService {
         explanationText += ` ${question.explanation}`;
       }
   
-      // Store the explanation text for the current question
-      this.setExplanationForQuestionIndex(
-        currentQuestionIndex,
-        explanationText
-      );
-  
-      // Retrieve the explanation text for the current question
-      const currentExplanation = this.getExplanationForQuestionIndex(
-        currentQuestionIndex
-      );
-  
-      this.explanationText$.next(explanationText);
-  
+      // Return the formatted explanation
       return of(explanationText);
     } catch (error) {
       console.error('Error occurred while formatting explanation text:', error);
-      this.explanationText$.next('');
       return of('');
     }
   }
-    
+      
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
