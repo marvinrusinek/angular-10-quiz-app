@@ -360,22 +360,19 @@ export class ExplanationTextService {
 
   setExplanationText(
     selectedOptions: Option[],
-    question: QuizQuestion,
-    currentQuestionIndex?: number
+    question: QuizQuestion
   ): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
         throw new Error('selectedOptions is not an array');
       }
   
-      // Determine if there are correct options
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
       const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
   
-      // Create the explanation text
       let explanationText = '';
   
-      if (correctOptions.length > 0) {
+      if (selectedCorrectOptions.length > 0) {
         const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
   
         if (correctOptionIndices.length === 1) {
@@ -392,14 +389,6 @@ export class ExplanationTextService {
         explanationText += question.explanation;
       }
   
-      // Store the explanation text for the current question
-      this.setExplanationForQuestionIndex(currentQuestionIndex, explanationText);
-  
-      // Retrieve the explanation text for the current question
-      const currentExplanation = this.getExplanationForQuestionIndex(currentQuestionIndex);
-  
-      console.log('Current Explanation:', currentExplanation);
-  
       this.explanationText$.next(explanationText);
   
       return of(explanationText);
@@ -409,7 +398,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
-              
+                
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
