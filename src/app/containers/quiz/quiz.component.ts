@@ -357,7 +357,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getNextQuestion(): void {
-    const nextQuestion = this.quizService.getNextQuestion(); // Replace with your logic to get the next question
+    const nextQuestion = this.quizService.getNextQuestion();
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
       this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
