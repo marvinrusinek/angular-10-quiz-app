@@ -615,12 +615,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap((question) => {
         this.currentQuestion = question;
         this.options = question?.options || [];
+        this.loadExplanationTextForCurrentQuestion();
+        this.displayCurrentQuestionAndExplanation();
       }),
-      switchMap((question) => this.loadExplanationTextForCurrentQuestion(question)),
-      map(() => this.currentQuestion)
+      map((question) => this.currentQuestion)
     );
   }
-
+  
   fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
