@@ -276,7 +276,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.loadCurrentQuestion();
   
           // Load the first question's explanation text
-          const firstQuestion = this.getFirstQuestion();
+          const firstQuestion = this.quizService.getFirstQuestion();
           if (firstQuestion) {
             this.explanationTextService.setNextExplanationText(firstQuestion.explanation);
           }
@@ -584,14 +584,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       quizId,
       currentQuestionIndex + 1,
     ]); */
-  }
-
-  getFirstQuestion(): QuizQuestion | undefined {
-    if (this.questions.length > 0) {
-      return this.questions[0];
-    } else {
-      return undefined;
-    }
   }
 
   /* getCurrentQuestion(): Observable<QuizQuestion> {
