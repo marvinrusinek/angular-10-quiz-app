@@ -401,7 +401,6 @@ export class CodelabQuizContentComponent {
           tap(nextQuestion => {
             console.log('Next Question:', nextQuestion);
             console.log('Explanation Text:', explanationText);
-            console.log('Next Explanation Text:', nextExplanationText);
             console.log('Should Display Explanation:', shouldDisplayExplanation);
           }),
           switchMap(() => {
@@ -409,16 +408,19 @@ export class CodelabQuizContentComponent {
               return of('');
             }
     
-            let explanationToDisplay = shouldDisplayExplanation ? explanationText : nextExplanationText;
+            return of(nextQuestion).pipe(
+              tap(() => console.log('EXPLTEXT', explanationText)),
+              switchMap(() => {
+                if (shouldDisplayExplanation && nextExplanationText !== '') {
+                  console.log('Displaying Explanation Text');
+                  this.explanationTextService.setShouldDisplayExplanation(false);
+                  return of(nextExplanationText);
+                }
     
-            if (explanationToDisplay && explanationToDisplay !== '') {
-              console.log('Displaying Explanation Text');
-              this.explanationTextService.setShouldDisplayExplanation(false);
-              return of(explanationToDisplay);
-            }
-    
-            console.log('Displaying Next Question Text');
-            return of(nextQuestion.questionText);
+                console.log('Displaying Next Question Text');
+                return of(nextQuestion.questionText);
+              })
+            );
           })
         );
       })
