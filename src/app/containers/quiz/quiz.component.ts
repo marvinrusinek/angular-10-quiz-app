@@ -360,7 +360,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion = this.quizService.getNextQuestion(); // Replace with your logic to get the next question
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
-      // this.explanationTextService.setExplanationText([], nextQuestion);
+      this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
     } else {
       this.currentQuestion = null;
     }
