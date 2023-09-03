@@ -408,18 +408,8 @@ export class CodelabQuizContentComponent {
               return of('');
             }
     
-            const isFirstQuestion = this.quizService.currentQuestionIndex === 0;
-    
-            if (isFirstQuestion) {
-              // Load the explanation text for the first question
-              const firstQuestion = this.quizService.getFirstQuestion();
-              if (firstQuestion) {
-                this.explanationTextService.setNextExplanationText(firstQuestion.explanation);
-              }
-            }
-    
             return of(nextQuestion).pipe(
-              tap(() => console.log('EXPLTEXT', nextExplanationText)),
+              tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
                 if (shouldDisplayExplanation && nextExplanationText !== '') {
                   console.log('Displaying Explanation Text');
@@ -434,7 +424,7 @@ export class CodelabQuizContentComponent {
           })
         );
       })
-    );    
+    ); 
   }
   
 
