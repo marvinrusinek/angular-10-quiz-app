@@ -310,6 +310,14 @@ export class QuizService implements OnDestroy {
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
   }
 
+  getFirstQuestion(): QuizQuestion | undefined {
+    if (this.questions.length > 0) {
+      return this.questions[0];
+    } else {
+      return undefined;
+    }
+  }
+
   getQuestionData(
     quizId: string,
     questionIndex: number
