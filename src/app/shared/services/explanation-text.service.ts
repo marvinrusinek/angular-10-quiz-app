@@ -362,49 +362,54 @@ export class ExplanationTextService {
     selectedOptions: Option[],
     question: QuizQuestion,
     currentQuestionIndex?: number
-): Observable<string> {
+  ): Observable<string> {
     try {
-        if (!Array.isArray(selectedOptions)) {
-            throw new Error('selectedOptions is not an array');
+      if (!Array.isArray(selectedOptions)) {
+        throw new Error('selectedOptions is not an array');
+      }
+  
+      // Determine if there are correct options
+      const correctOptions = question?.options?.filter(option => option?.correct) || [];
+      const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
+  
+      // Create the explanation text
+      let explanationText = '';
+  
+      if (selectedCorrectOptions.length > 0) {
+        const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
+  
+        if (correctOptionIndices.length === 1) {
+          explanationText = `Option ${correctOptionIndices[0]}`;
+        } else {
+          const correctOptionsString = correctOptionIndices.join(' and ');
+          explanationText = `Options ${correctOptionsString}`;
         }
-
-        // Determine if there are correct options
-        const correctOptions = question?.options?.filter(option => option?.correct) || [];
-        const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
-
-        // Create the explanation text
-        let explanationText = '';
-
-        if (selectedCorrectOptions.length > 0) {
-            const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
-            explanationText = correctOptionIndices.length === 1
-                ? `Option ${correctOptionIndices[0]} is correct`
-                : `Options ${correctOptionIndices.join(' and ')} are correct`;
-
-            explanationText += ' because ';
-        }
-
-        if (question && question.explanation) {
-            explanationText += question.explanation;
-        }
-
-        // Store the explanation text for the current question
-        this.setExplanationForQuestionIndex(currentQuestionIndex, explanationText);
-
-        // Retrieve the explanation text for the current question
-        const currentExplanation = this.getExplanationForQuestionIndex(currentQuestionIndex);
-
-        console.log('Current Explanation:', currentExplanation);
-
-        this.explanationText$.next(explanationText);
-
-        return of(explanationText);
+  
+        explanationText += ' are correct because ';
+      }
+  
+      if (question && question.explanation) {
+        explanationText += question.explanation;
+      }
+  
+      // Store the explanation text for the current question
+      this.setExplanationForQuestionIndex(currentQuestionIndex, explanationText);
+  
+      // Retrieve the explanation text for the current question
+      const currentExplanation = this.getExplanationForQuestionIndex(currentQuestionIndex);
+  
+      console.log('Current Explanation:', currentExplanation);
+  
+      this.explanationText$.next(explanationText);
+  
+      return of(explanationText);
     } catch (error) {
-        console.error('Error occurred while getting explanation text:', error);
-        this.explanationText$.next('');
-        return of('');
+      console.error('Error occurred while getting explanation text:', error);
+      this.explanationText$.next('');
+      return of('');
     }
   }
+  
             
   updateExplanationText(explanationText: string) {
     try {
