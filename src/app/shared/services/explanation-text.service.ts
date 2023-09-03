@@ -375,7 +375,7 @@ export class ExplanationTextService {
       // Create the explanation text
       let explanationText = '';
   
-      if (selectedCorrectOptions.length > 0) {
+      if (correctOptions.length > 0) {
         const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
   
         if (correctOptionIndices.length === 1) {
@@ -409,8 +409,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
-  
-            
+              
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
