@@ -408,11 +408,11 @@ export class CodelabQuizContentComponent {
               return of('');
             }
     
-            const isFirstQuestion = this.currentQuestionIndex === 0;
+            const isFirstQuestion = this.quizService.currentQuestionIndex === 0;
     
             if (isFirstQuestion) {
               // Load the explanation text for the first question
-              const firstQuestion = this.getFirstQuestion();
+              const firstQuestion = this.quizService.getFirstQuestion();
               if (firstQuestion) {
                 this.explanationTextService.setNextExplanationText(firstQuestion.explanation);
               }
