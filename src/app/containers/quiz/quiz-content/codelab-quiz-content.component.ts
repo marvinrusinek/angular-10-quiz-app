@@ -408,8 +408,18 @@ export class CodelabQuizContentComponent {
               return of('');
             }
     
+            const isFirstQuestion = this.currentQuestionIndex === 0;
+    
+            if (isFirstQuestion) {
+              // Load the explanation text for the first question
+              const firstQuestion = this.getFirstQuestion();
+              if (firstQuestion) {
+                this.explanationTextService.setNextExplanationText(firstQuestion.explanation);
+              }
+            }
+    
             return of(nextQuestion).pipe(
-              tap(() => console.log('EXPLTEXT', explanationText)),
+              tap(() => console.log('EXPLTEXT', nextExplanationText)),
               switchMap(() => {
                 if (shouldDisplayExplanation && nextExplanationText !== '') {
                   console.log('Displaying Explanation Text');
