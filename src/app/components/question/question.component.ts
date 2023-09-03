@@ -1078,11 +1078,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log("Single Option:", options[0]);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-
-
     
     this.explanationTextService
-      .setExplanationText(options, currentQuestion, this.currentQuestionIndex)
+      .formatExplanationText(options, currentQuestion, this.currentQuestionIndex)
       .subscribe(
         (explanationText: string) => {
           this.explanationText$.next(explanationText);
