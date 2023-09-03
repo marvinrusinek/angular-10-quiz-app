@@ -796,6 +796,63 @@ export class QuizComponent implements OnInit, OnDestroy {
     return numberOfCorrectAnswers;
   }
 
+  /************** explanation functions *********************/
+  loadExplanationTextForCurrentQuestion(): void {
+    const currentQuestion = this.quizData[this.currentQuestionIndex];
+      
+    if (this.isQuizQuestion(currentQuestion)) {
+      // Assuming each question has an 'explanation' property
+      this.explanationText = currentQuestion.explanation;
+    } else {
+      // Handle the case when the current question doesn't exist
+      this.explanationText = '';
+    }
+  }
+  
+  displayCurrentQuestionAndExplanation(): void {
+    // Display the current question and explanation in your template
+    // You can bind the question and explanation to your HTML elements
+  }
+  
+  clearExplanationText(): void {
+    // Clear or hide the explanation text, depending on your UI implementation
+    this.explanationText = '';
+  }
+  
+  loadExplanationTextForNextQuestion(): void {
+    // Load the explanation text for the next question
+    const nextQuestionIndex = this.currentQuestionIndex + 1;
+  
+    if (nextQuestionIndex < this.quizData.length) {
+      const nextQuestion = this.quizData[nextQuestionIndex];
+        
+      if (this.isQuizQuestion(nextQuestion)) {
+        this.explanationText = nextQuestion.explanation;
+      } else {
+        // Handle the case when the next question doesn't exist
+        this.explanationText = '';
+      }
+    } else {
+       // Handle the case when there are no more questions
+      this.explanationText = '';
+    }
+  }
+  
+  onAnswerSelectedOrNextQuestionClicked(): void {
+    // Clear or hide the explanation text
+    this.clearExplanationText();
+  
+    // Load explanation text for the next question
+    this.loadExplanationTextForNextQuestion();
+  
+    // Display the next question and explanation
+    this.displayCurrentQuestionAndExplanation();
+  
+    // Move to the next question
+    this.currentQuestionIndex++;
+  }
+
+
   animationDoneHandler(): void {
     this.animationState$.next('none');
   }
