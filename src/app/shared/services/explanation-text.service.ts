@@ -72,7 +72,7 @@ export class ExplanationTextService {
   
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
       const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
-
+  
       console.log('selectedOptions:', selectedOptions);
       console.log('correctOptions:', correctOptions);
       console.log('selectedCorrectOptions:', selectedCorrectOptions);
@@ -80,7 +80,9 @@ export class ExplanationTextService {
       let explanationText = '';
   
       if (selectedCorrectOptions.length > 0) {
-        const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
+        const correctOptionIndices = correctOptions.map(
+          option => question.options.indexOf(option) + 1
+        );
   
         if (correctOptionIndices.length === 1) {
           explanationText = `Option ${correctOptionIndices[0]}`;
@@ -98,21 +100,22 @@ export class ExplanationTextService {
       }
   
       // Store the explanation text for the current question
-      this.setExplanationForQuestionIndex(currentQuestionIndex, explanationText);
+      this.setExplanationTextForIndex(currentQuestionIndex, explanationText);
   
       // Retrieve the explanation text for the current question
-      const currentExplanation = this.getExplanationForQuestionIndex(currentQuestionIndex);
+      const currentExplanation = this.getExplanationTextForIndex(currentQuestionIndex);
   
-      this.explanationText$.next(explanationText);
+      // Notify observers about the updated explanation text
+      this.updateExplanationText(explanationText);
   
       return of(explanationText);
     } catch (error) {
       console.error('Error occurred while getting explanation text:', error);
-      this.explanationText$.next('');
+      this.updateExplanationText('');
       return of('');
     }
   }
-                    
+  
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);

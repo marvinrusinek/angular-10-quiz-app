@@ -429,7 +429,7 @@ export class CodelabQuizContentComponent {
           })
         );
       })
-    );    
+    );
   }
   
 
