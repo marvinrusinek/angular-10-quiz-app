@@ -393,13 +393,15 @@ export class CodelabQuizContentComponent {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
+      this.nextExplanationText$,
       this.shouldDisplayExplanation$
     ]).pipe(
-      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
           tap(nextQuestion => {
             console.log('Next Question:', nextQuestion);
             console.log('Explanation Text:', explanationText);
+            console.log('Next Explanation Text:', nextExplanationText);
             console.log('Should Display Explanation:', shouldDisplayExplanation);
           }),
           switchMap(() => {
@@ -407,23 +409,20 @@ export class CodelabQuizContentComponent {
               return of('');
             }
     
-            return of(nextQuestion).pipe(
-              tap(() => console.log('EXPLTEXT', explanationText)),
-              switchMap(() => {
-                if (shouldDisplayExplanation && explanationText !== '') {
-                  console.log('Displaying Explanation Text');
-                  this.explanationTextService.setShouldDisplayExplanation(false);
-                  return of(explanationText);
-                }
+            let explanationToDisplay = shouldDisplayExplanation ? explanationText : nextExplanationText;
     
-                console.log('Displaying Next Question Text');
-                return of(nextQuestion.questionText);
-              })
-            );
+            if (explanationToDisplay && explanationToDisplay !== '') {
+              console.log('Displaying Explanation Text');
+              this.explanationTextService.setShouldDisplayExplanation(false);
+              return of(explanationToDisplay);
+            }
+    
+            console.log('Displaying Next Question Text');
+            return of(nextQuestion.questionText);
           })
         );
       })
-    ); 
+    );    
   }
   
 
