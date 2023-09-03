@@ -377,6 +377,7 @@ export class CodelabQuizContentComponent {
   }
 
   private setupExplanationTextDisplay(): void {
+    this.explanationText$ = this.explanationTextService.explanationText$;
     this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
     console.log("NET Observable:", this.nextExplanationText$);
 
