@@ -383,7 +383,8 @@ export class ExplanationTextService {
           explanationText = `Options ${correctOptionsString}`;
         }
   
-        explanationText += ' are correct because ';
+        explanationText += correctOptionIndices.length === 1 ? ' is' : ' are';
+        explanationText += ' correct because ';
       }
   
       if (question && question.explanation) {
@@ -405,7 +406,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
-                  
+                    
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);
