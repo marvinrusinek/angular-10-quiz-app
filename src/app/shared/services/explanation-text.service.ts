@@ -337,13 +337,7 @@ export class ExplanationTextService {
           explanationText = `Options ${correctOptionsString}`;
         }
   
-        explanationText += ' ';
-  
-        if (correctOptionIndices.length === 1) {
-          explanationText += 'is correct because ';
-        } else {
-          explanationText += 'are correct because ';
-        }
+        explanationText += ' are correct because ';
       }
   
       if (question && question.explanation) {
@@ -367,7 +361,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
-              
+                
   updateExplanationText(explanationText: string) {
     try {
       this.nextExplanationTextSource.next(explanationText);

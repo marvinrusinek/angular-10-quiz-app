@@ -393,9 +393,10 @@ export class CodelabQuizContentComponent {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
+      this.nextExplanationText$,
       this.shouldDisplayExplanation$
     ]).pipe(
-      switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
+      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
           tap(nextQuestion => {
             console.log('Next Question:', nextQuestion);
@@ -410,10 +411,10 @@ export class CodelabQuizContentComponent {
             return of(nextQuestion).pipe(
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
-                if (shouldDisplayExplanation && explanationText !== '') {
+                if (shouldDisplayExplanation && nextExplanationText !== '') {
                   console.log('Displaying Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
-                  return of(explanationText);
+                  return of(nextExplanationText);
                 }
     
                 console.log('Displaying Next Question Text');
