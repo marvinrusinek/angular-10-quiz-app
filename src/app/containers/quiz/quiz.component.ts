@@ -1059,14 +1059,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("Current Question:", this.currentQuestion);
     console.log("Explanation for Current Question:", this.currentQuestion?.explanation);
   
+    // Update the explanation for the current question first
+    this.explanationTextSource.next(this.currentQuestion?.explanation);
+
+    // Start animation or any other operations
     this.animationState$.next('animationStarted');
   
+    // Handle user input or answer selection
     this.onAnswerSelectedOrNextQuestionClicked();
   
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
+  
+    // Logging the explanation for the current and next questions
     console.log('Explanation for Current Question:', this.currentQuestion?.explanation);
     console.log('Explanation for Next Question:', nextQuestion?.explanation);
+  
     const nextOptions = this.quizService.getNextOptions();
     console.log('Next question:', nextQuestion);
   
@@ -1076,16 +1084,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = nextQuestion;
       this.currentOptions = nextOptions;
   
+      // Update the text for the next question
       this.nextQuestionText = nextQuestion.questionText;
       this.quizService.setNextQuestion(nextQuestion);
   
+      // Notify any subscribers of the next question
       this.quizService.nextQuestionSource.next(nextQuestion);
       this.quizService.nextOptionsSource.next(nextOptions);
   
+      // Set the explanation text for the next question
       const explanationTextOfNextQuestion = nextQuestion.explanation;
       this.explanationTextService.setNextExplanationText(explanationTextOfNextQuestion);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
   
+      // Navigate to the next question (if applicable)
       const navigationSuccess = await this.quizService.navigateToNextQuestion();
   
       if (!navigationSuccess) {
@@ -1108,8 +1120,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Next question text:', this.nextQuestionText);
       console.log('Current options:', this.currentOptions);
   
+      // Clear any previous selected option explanation
       this.selectedOptionService.setSelectedOptionExplanation('');
     } else {
+      // Handle the end of the quiz or any cleanup
       console.log('Before clearing explanation text');
       this.explanationTextService.clearExplanationText();
       this.explanationTextService.resetExplanationState();
@@ -1119,7 +1133,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = null;
     }
   }
-  
+    
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
