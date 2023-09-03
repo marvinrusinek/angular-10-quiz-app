@@ -802,7 +802,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     if (this.isQuizQuestion(currentQuestion)) {
       // Assuming you fetch the explanation text asynchronously from a service
-      this.explanationText = question.explanation;
+      this.explanationText = question.explanation || '';
     } else {
       // Handle the case when the current question doesn't exist
       this.explanationText = '';
