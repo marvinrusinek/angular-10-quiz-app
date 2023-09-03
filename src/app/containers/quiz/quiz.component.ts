@@ -591,34 +591,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     ]); */
   }
 
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
-    this.currentQuestion$ = this.quizService.currentQuestion$.pipe(
-      map((data) => (data ? (data.question as QuizQuestion) : null))
-    );
-    return this.currentQuestion$;
-  } */
-
- 
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
-    this.currentQuestion$ = this.quizService.currentQuestion$;
-    this.currentQuestion$.subscribe((question) => {
-      this.currentQuestion = question;
-      this.options = question?.options || [];
-    });
-    this.loadExplanationTextForCurrentQuestion();
-    this.displayCurrentQuestionAndExplanation();
-    return this.currentQuestion$;
-  } */
-
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.quizService.currentQuestion$.pipe(
       tap((question) => {
         this.currentQuestion = question;
         this.options = question?.options || [];
-        this.loadExplanationTextForCurrentQuestion();
+        
+        // Load the explanation text for the current question
+        this.loadExplanationTextForCurrentQuestion(question);
+        
+        // Display the question and explanation
         this.displayCurrentQuestionAndExplanation();
       }),
-      map((question) => this.currentQuestion)
+      map((question) => this.currentQuestion) // Map to the current question
     );
   }
   
@@ -812,27 +797,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************** explanation functions *********************/
-  /* loadExplanationTextForCurrentQuestion(): void {
-    const currentQuestion = this.quizData[this.currentQuestionIndex];
-      
-    if (this.isQuizQuestion(currentQuestion)) {
-      // Assuming each question has an 'explanation' property
-      this.explanationText = currentQuestion.explanation;
-    } else {
-      // Handle the case when the current question doesn't exist
-      this.explanationText = '';
-    }
-  } */
-
-  loadExplanationTextForCurrentQuestion(): Observable<string> {
+  loadExplanationTextForCurrentQuestion(question: QuizQuestion): void {
     const currentQuestion = this.quizData[this.currentQuestionIndex];
   
     if (this.isQuizQuestion(currentQuestion)) {
       // Assuming you fetch the explanation text asynchronously from a service
-      return this.explanationTextService.getExplanationText$();
+      this.explanationText = question.explanation;
     } else {
       // Handle the case when the current question doesn't exist
-      return of(''); // Return an empty string as an observable
+      this.explanationText = '';
     }
   }
   
