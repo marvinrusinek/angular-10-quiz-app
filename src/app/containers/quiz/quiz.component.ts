@@ -793,7 +793,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************** explanation functions *********************/
   loadExplanationTextForCurrentQuestion(): void {
-    // Get the current question from your data source
+    this.explanationText = '';
     const currentQuestion = this.quizData[this.currentQuestionIndex];
     
     if (this.isQuizQuestion(currentQuestion)) {
