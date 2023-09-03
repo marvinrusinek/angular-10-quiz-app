@@ -1076,8 +1076,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.clearExplanationText();
       this.explanationTextService.resetExplanationState();
       console.log('After clearing explanation text');
-      this.nextQuestionText = null;
+      this.selectedOptions = null;
       this.currentOptions = null;
+      this.nextQuestionText = null;
     }
   }
   
