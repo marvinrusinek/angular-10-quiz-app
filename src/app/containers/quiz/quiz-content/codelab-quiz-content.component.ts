@@ -408,6 +408,7 @@ export class CodelabQuizContentComponent {
               return of('');
             }
     
+            // Use the latest explanationText and nextExplanationText here
             return of(nextQuestion).pipe(
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
@@ -415,7 +416,7 @@ export class CodelabQuizContentComponent {
                   this.explanationTextService.setShouldDisplayExplanation(false);
                   return of(explanationText);
                 }
-
+    
                 if (shouldDisplayExplanation && nextExplanationText !== '') {
                   console.log('Displaying Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
@@ -429,7 +430,7 @@ export class CodelabQuizContentComponent {
           })
         );
       })
-    );
+    );    
   }
   
 
