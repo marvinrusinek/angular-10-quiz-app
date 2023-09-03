@@ -1081,7 +1081,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     const currentQuestionIndex = this.currentQuestionIndex;
     this.explanationTextService
-      .formatExplanationText(options, currentQuestion, currentQuestionIndex)
+      .formatExplanationText(options, currentQuestion)
       .subscribe(
         (explanationText: string) => {
           this.explanationText$.next(explanationText);
