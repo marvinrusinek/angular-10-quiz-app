@@ -599,9 +599,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         
         // Load the explanation text for the current question
         this.loadExplanationTextForCurrentQuestion(question);
-        
-        // Display the question and explanation
-        this.displayCurrentQuestionAndExplanation();
       }),
       map((question) => this.currentQuestion) // Map to the current question
     );
@@ -805,13 +802,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-  displayCurrentQuestionAndExplanation(): void {
-    // Display the current question and explanation in your template
-    // You can bind the question and explanation to your HTML elements
-  }
-  
   clearExplanationText(): void {
-    // Clear or hide the explanation text, depending on your UI implementation
     this.explanationText = '';
   }
   
@@ -840,9 +831,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Load explanation text for the next question
     this.loadExplanationTextForNextQuestion();
-  
-    // Display the next question and explanation
-    this.displayCurrentQuestionAndExplanation();
   
     // Move to the next question
     this.currentQuestionIndex++;
