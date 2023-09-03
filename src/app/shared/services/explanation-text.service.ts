@@ -316,10 +316,6 @@ export class ExplanationTextService {
     currentQuestionIndex?: number
   ): Observable<string> {
     try {
-      if (!Array.isArray(selectedOptions)) {
-        throw new Error('selectedOptions is not an array');
-      }
-  
       // Determine if there are correct options
       const correctOptions = question?.options?.filter(option => option?.correct) || [];
       const selectedCorrectOptions = selectedOptions.filter(option => option?.correct === true);
@@ -361,6 +357,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
+  
                 
   updateExplanationText(explanationText: string) {
     try {
