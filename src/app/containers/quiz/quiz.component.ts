@@ -596,11 +596,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       tap((question) => {
         this.currentQuestion = question;
         this.options = question?.options || [];
-        
-        // Load the explanation text for the current question
-        this.loadExplanationTextForCurrentQuestion(question);
+        this.loadExplanationTextForCurrentQuestion();
       }),
-      map((question) => this.currentQuestion) // Map to the current question
+      map((question) => this.currentQuestion)
     );
   }
   
@@ -794,13 +792,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************** explanation functions *********************/
-  loadExplanationTextForCurrentQuestion(question: QuizQuestion): void {
-    if (this.isQuizQuestion(question)) {
-      this.explanationText = question.explanation || '';
+  loadExplanationTextForCurrentQuestion(): void {
+    // Get the current question from your data source
+    const currentQuestion = this.quizData[this.currentQuestionIndex];
+    
+    if (this.isQuizQuestion(currentQuestion)) {
+      // Assuming each question has an 'explanation' property
+      this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
     } else {
-      this.explanationText = '';
+      // Handle the case when the current question doesn't exist
+      this.explanationTextService.setNextExplanationText('');
     }
-  }
+  }  
   
   clearExplanationText(): void {
     this.explanationText = '';
