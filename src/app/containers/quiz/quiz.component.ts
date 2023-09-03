@@ -279,6 +279,8 @@ export class QuizComponent implements OnInit, OnDestroy {
                 const currentQuestion = this.quizData[currentQuestionIndex];
                 if (this.isQuizQuestion(currentQuestion)) {
                     this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
+                } else {
+                  console.error('Question not found:', currentQuestionIndex);
                 }
             } else {
                 console.error('Invalid question index:', questionIndex);
