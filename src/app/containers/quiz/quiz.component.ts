@@ -259,32 +259,40 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.setCurrentQuizForQuizId();
-    
+  
     this.activatedRoute.paramMap
       .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
       .subscribe(({ quizId, questionIndex, quizData }) => {
         this.quizData = quizData.questions;
         this.quizId = quizId;
-
+  
         const currentQuestionIndex = questionIndex - 1;
-
+  
         if (
           currentQuestionIndex >= 0 &&
           currentQuestionIndex < this.quizData.length
         ) {
           this.initializeQuizState();
           this.loadCurrentQuestion();
+  
+          // Load the first question's explanation text
+          const firstQuestion = this.quizService.getFirstQuestion();
+          if (firstQuestion) {
+            // Set the initial explanation text for the first question
+            this.explanationTextService.setNextExplanationText(firstQuestion.explanation);
+          }
         } else {
           console.error('Invalid question index:', questionIndex);
         }
       });
-
+  
     this.getExplanationText();
     this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
   }
+  
 
   private fetchAllQuestions(): void {
     this.quizService.getAllQuestions().subscribe((questions) => {

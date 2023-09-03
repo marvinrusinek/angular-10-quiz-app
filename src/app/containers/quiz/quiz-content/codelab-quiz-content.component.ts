@@ -392,7 +392,7 @@ export class CodelabQuizContentComponent {
 
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
-      this.nextExplanationText$,
+      this.explanationText$,
       this.shouldDisplayExplanation$
     ]).pipe(
       switchMap(([nextQuestion, explanationText, shouldDisplayExplanation]) => {
