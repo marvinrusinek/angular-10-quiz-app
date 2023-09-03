@@ -598,13 +598,27 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestion$;
   } */
 
-  getCurrentQuestion(): Observable<QuizQuestion> {
+ 
+  /* getCurrentQuestion(): Observable<QuizQuestion> {
     this.currentQuestion$ = this.quizService.currentQuestion$;
     this.currentQuestion$.subscribe((question) => {
       this.currentQuestion = question;
       this.options = question?.options || [];
     });
+    this.loadExplanationTextForCurrentQuestion();
+    this.displayCurrentQuestionAndExplanation();
     return this.currentQuestion$;
+  } */
+
+  getCurrentQuestion(): Observable<QuizQuestion> {
+    return this.quizService.currentQuestion$.pipe(
+      tap((question) => {
+        this.currentQuestion = question;
+        this.options = question?.options || [];
+      }),
+      switchMap((question) => this.loadExplanationTextForCurrentQuestion(question)),
+      map(() => this.currentQuestion)
+    );
   }
 
   fetchQuizData(): void {
@@ -797,7 +811,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************** explanation functions *********************/
-  loadExplanationTextForCurrentQuestion(): void {
+  /* loadExplanationTextForCurrentQuestion(): void {
     const currentQuestion = this.quizData[this.currentQuestionIndex];
       
     if (this.isQuizQuestion(currentQuestion)) {
@@ -806,6 +820,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     } else {
       // Handle the case when the current question doesn't exist
       this.explanationText = '';
+    }
+  } */
+
+  loadExplanationTextForCurrentQuestion(): Observable<string> {
+    const currentQuestion = this.quizData[this.currentQuestionIndex];
+  
+    if (this.isQuizQuestion(currentQuestion)) {
+      // Assuming you fetch the explanation text asynchronously from a service
+      return this.explanationTextService.getExplanationText$();
+    } else {
+      // Handle the case when the current question doesn't exist
+      return of(''); // Return an empty string as an observable
     }
   }
   
@@ -1073,6 +1099,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log("Explanation for Current Question:", this.currentQuestion?.explanation);
 
     this.animationState$.next('animationStarted');
+
+    this.onAnswerSelectedOrNextQuestionClicked();
   
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
