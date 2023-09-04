@@ -1110,7 +1110,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         .pipe(
           map(questionsArray => {
             const length = questionsArray.length;
-            console.log("Length of Questions Array:::", length);
             return length;
           })
         )
