@@ -269,22 +269,22 @@ export class QuizComponent implements OnInit, OnDestroy {
             const currentQuestionIndex = questionIndex - 1;
 
             if (
-                currentQuestionIndex >= 0 &&
-                currentQuestionIndex < this.quizData.length
+              currentQuestionIndex >= 0 &&
+              currentQuestionIndex < this.quizData.length
             ) {
-                this.initializeQuizState();
-                this.loadCurrentQuestion();
-
-                // Load the current question's explanation text
-                const currentQuestion = this.quizData[currentQuestionIndex];
-                if (this.isQuizQuestion(currentQuestion)) {
-                    this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
-                } else {
+              this.initializeQuizState();
+              this.loadCurrentQuestion();
+          
+              // Load the current question's explanation text
+              const currentQuestion = this.quizData[currentQuestionIndex];
+              if (this.isQuizQuestion(currentQuestion)) {
+                  this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
+              } else {
                   console.error('Question not found:', currentQuestionIndex);
-                }
-            } else {
-                console.error('Invalid question index:', questionIndex);
-            }
+              }
+          } else {
+              console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+          }
         });
 
     this.getExplanationText();
