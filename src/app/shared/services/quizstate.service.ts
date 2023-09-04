@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -61,24 +61,27 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(): Observable<boolean> {
-    const question = this.currentQuestion.value;
-    if (!question) {
-      console.error('Question is not defined');
-      return of(false);
-    }
+    return this.currentQuestion.pipe(
+      map((question) => {
+        if (!question) {
+          console.error('Question is not defined');
+          return false;
+        }
   
-    if (question && question.options) {
-      const correctOptions = question.options?.filter((option) => option.correct);
-      const isMultipleAnswer = correctOptions.length > 1;
-      this.setMultipleAnswer(isMultipleAnswer);
-    } else {
-      console.error('Question options not found.', question);
-      this.setMultipleAnswer(false);
-    }
-  
-    return this.multipleAnswerSubject.asObservable();
+        if (question && question.options) {
+          const correctOptions = question.options?.filter((option) => option.correct);
+          const isMultipleAnswer = correctOptions.length > 1;
+          this.setMultipleAnswer(isMultipleAnswer);
+          return isMultipleAnswer;
+        } else {
+          console.error('Question options not found.', question);
+          this.setMultipleAnswer(false);
+          return false;
+        }
+      })
+    );
   }
-  
+    
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
