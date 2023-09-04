@@ -13,6 +13,9 @@ export class ExplanationTextService {
   explanations: string[] = [];
   private explanationTexts: { [questionIndex: number]: string } = {};
 
+  private currentExplanationTextSource = new BehaviorSubject<string>('');
+  currentExplanationText$ = this.currentExplanationTextSource.asObservable();
+
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
@@ -111,14 +114,16 @@ export class ExplanationTextService {
 
   formatExplanationText(
     selectedOptions: Option[],
-    question: QuizQuestion
+    question: QuizQuestion,
+    nextQuestion: QuizQuestion | null
   ): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
         throw new Error('selectedOptions is not an array');
       }
   
-      let explanationText = '';
+      let currentExplanationText = '';
+      let nextExplanationText = '';
   
       // Check if there are selected correct options
       const correctOptions = question.options.filter(option => option.correct);
@@ -128,33 +133,45 @@ export class ExplanationTextService {
         const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
   
         if (correctOptionIndices.length === 1) {
-          explanationText = `Option ${correctOptionIndices[0]}`;
+          currentExplanationText = `Option ${correctOptionIndices[0]}`;
         } else {
           const correctOptionsString = correctOptionIndices.join(' and ');
-          explanationText = `Options ${correctOptionsString}`;
+          currentExplanationText = `Options ${correctOptionsString}`;
         }
   
-        explanationText += correctOptionIndices.length === 1
+        currentExplanationText += correctOptionIndices.length === 1
           ? ' is correct because'
           : ' are correct because';
       }
   
       if (question.explanation) {
-        explanationText += ` ${question.explanation}`;
+        currentExplanationText += ` ${question.explanation}`;
       }
   
+      // Check if there is a next question and calculate its explanation text
+      if (nextQuestion) {
+        // Calculate the next explanation text based on your application's logic
+        // You can use a similar approach as above to determine nextExplanationText
+        nextExplanationText = ''; // Calculate the next explanation text here
+      }
+  
+      // Call the method to update explanation texts for the current and next questions
+      this.updateExplanationTextForCurrentAndNext(currentExplanationText, nextExplanationText);
+  
       // Return the formatted explanation
-      return of(explanationText);
+      return of(currentExplanationText);
     } catch (error) {
       console.error('Error occurred while formatting explanation text:', error);
       return of('');
     }
   }
-      
-  updateExplanationText(explanationText: string) {
+    
+  updateExplanationTextForCurrentAndNext(currentExplanationText: string, nextExplanationText: string) {
     try {
-      this.nextExplanationTextSource.next(explanationText);
-      console.log('Updated explanation text:', explanationText);
+      this.currentExplanationTextSource.next(currentExplanationText);
+      this.nextExplanationTextSource.next(nextExplanationText);
+      console.log('Updated explanation text for current question:', currentExplanationText);
+      console.log('Updated explanation text for next question:', nextExplanationText);
     } catch (error) {
       console.error('Error updating explanation text:', error);
     }
