@@ -1102,11 +1102,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
     console.log("Subscribing to questions$ observable...");
-  
+
     // Subscribe to the observable to get the questions array
-    this.quizService.questions$.subscribe((questionsArray: QuizQuestion[]) => {
+    this.questions$.subscribe((questionsArray: QuizQuestion[]) => {
       // Check if there's a next question available
-      if (this.currentQuestionIndex < questionsArray.length - 1) {
+      if (this.currentQuestionIndex < this.quizService.questions$.length - 1) {
         const nextQuestion = questionsArray[this.currentQuestionIndex + 1];
   
         this.explanationTextService
