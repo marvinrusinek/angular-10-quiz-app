@@ -322,7 +322,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.currentQuestionLoaded = true;
       console.log('Current Question in Child Component:', this.currentQuestion);
 
-      this.loadQuestionsForQuiz(this.quizId);
+      if (this.quizId !== null && this.quizId !== undefined) {
+        this.loadQuestionsForQuiz(this.quizId);
+      } else {
+        console.error('quizId is null or undefined.');
+      }
+      
       this.quizService.fetchCorrectAnswers();
     } else {
       console.error('No current question available.');
