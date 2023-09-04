@@ -248,21 +248,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private subscribeToCurrentQuestion(): void {
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion !== null && currentQuestion !== undefined) {
-        this.currentQuestion = currentQuestion;
-
-        if (this.quizId !== null && this.quizId !== undefined) {
+    if (this.quizId) {
+      this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+        if (currentQuestion !== null && currentQuestion !== undefined) {
+          // Handle current question with access to this.quizId
           this.handleCurrentQuestion(currentQuestion);
+          console.log('Current Question in Subscription:::', currentQuestion);
         } else {
-          console.error('quizId is null or undefined.');
+          console.error('No current question available.');
         }
-
-        console.log('Current Question in Subscription:::', currentQuestion);
-      } else {
-        console.error('No current question available.');
-      }
-    });
+      });
+    } else {
+      console.error('quizId is null or undefined.');
+    }
   }
   
   private logInitialData(): void {
@@ -504,14 +502,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuestionsForQuiz(quizId: string): void {
-    console.log('start of lqfq');
-    console.log('QI:::>>>', quizId);
-    console.log('CQI:::>>>', this.currentQuestionIndex);
-
     if (!quizId) {
       console.error('quizId is null or undefined.');
       return;
     }
+    console.log('start of lqfq');
+    console.log('QI:::>>>', quizId);
+    console.log('CQI:::>>>', this.currentQuestionIndex);
+
+
 
     this.quizDataService
       .getQuestionsForQuiz(quizId)
