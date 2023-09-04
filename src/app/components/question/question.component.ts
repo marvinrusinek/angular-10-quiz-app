@@ -251,7 +251,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       if (currentQuestion !== null && currentQuestion !== undefined) {
         this.currentQuestion = currentQuestion;
-        this.handleCurrentQuestion(currentQuestion);
+
+        if (this.quizId !== null && this.quizId !== undefined) {
+          this.handleCurrentQuestion(currentQuestion);
+        } else {
+          console.error('quizId is null or undefined.');
+        }
+
         console.log('Current Question in Subscription:::', currentQuestion);
       } else {
         console.error('No current question available.');
