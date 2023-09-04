@@ -1106,7 +1106,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Subscribe to the observable to get the questions array
     this.questions$.subscribe((questionsArray: QuizQuestion[]) => {
       // Check if there's a next question available
-      if (this.currentQuestionIndex < this.quizService.questions$.length - 1) {
+      this.quizService.questions$
+        .pipe(
+          map(questionsArray => {
+            const length = questionsArray.length;
+            console.log("Length of Questions Array:::", length);
+            return length;
+          })
+      )
+      .subscribe(length => {
+        // Check if there's a next question available
+        if (this.currentQuestionIndex < length - 1) {
         const nextQuestion = questionsArray[this.currentQuestionIndex + 1];
   
         this.explanationTextService
