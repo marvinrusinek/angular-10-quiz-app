@@ -508,6 +508,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('QI:::>>>', quizId);
     console.log('CQI:::>>>', this.currentQuestionIndex);
 
+    if (!quizId) {
+      console.error('quizId is null or undefined.');
+      return;
+    }
+
     this.quizDataService
       .getQuestionsForQuiz(quizId)
       .pipe(
