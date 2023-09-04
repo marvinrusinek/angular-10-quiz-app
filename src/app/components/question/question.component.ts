@@ -200,11 +200,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.loadQuizQuestions();
   
       try {
-        this.activatedRoute.params.subscribe((params) => {
-          this.quizId = params['quizId'];
-          this.subscribeToCurrentQuestion();
-        });
-        
+        this.subscribeToCurrentQuestion();
         this.subscribeToCurrentOptions();
         this.subscribeToCorrectAnswersAndData();
         this.initializeMultipleAnswer();
@@ -252,19 +248,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private subscribeToCurrentQuestion(): void {
-    if (this.quizId) {
-      this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-        if (currentQuestion !== null && currentQuestion !== undefined) {
-          // Handle current question with access to this.quizId
+    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+      if (currentQuestion !== null && currentQuestion !== undefined) {
+        this.currentQuestion = currentQuestion;
+
+        if (this.quizId !== null && this.quizId !== undefined) {
           this.handleCurrentQuestion(currentQuestion);
-          console.log('Current Question in Subscription:::', currentQuestion);
         } else {
-          console.error('No current question available.');
+          console.error('quizId is null or undefined.');
         }
-      });
-    } else {
-      console.error('quizId is null or undefined.');
-    }
+
+        console.log('Current Question in Subscription:::', currentQuestion);
+      } else {
+        console.error('No current question available.');
+      }
+    });
   }
   
   private logInitialData(): void {
@@ -506,15 +504,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private loadQuestionsForQuiz(quizId: string): void {
-    if (!quizId) {
-      console.error('quizId is null or undefined.');
-      return;
-    }
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
     console.log('CQI:::>>>', this.currentQuestionIndex);
 
-
+    if (!quizId) {
+      console.error('quizId is null or undefined.');
+      return;
+    }
 
     this.quizDataService
       .getQuestionsForQuiz(quizId)
