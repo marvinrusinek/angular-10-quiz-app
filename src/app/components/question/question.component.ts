@@ -1080,24 +1080,30 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log("Single Option:", options[0]);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-    
-    const nextQuestion = this.questions[this.currentQuestionIndex + 1];
-
-    this.explanationTextService
-      .formatExplanationText(options, currentQuestion, nextQuestion)
-      .subscribe(
-        (explanationText: string) => {
-          this.explanationText$.next(explanationText);
-          this.explanationTextValue$.next(explanationText);
-          this.isAnswerSelectedChange.emit(true);
-          this.toggleVisibility.emit();
-          this.updateFeedbackVisibility();
-          this.updateCombinedQuestionData(currentQuestion, explanationText);
-        },
-        (error) => {
-          console.error('Error in setExplanationText:', error);
-        }
-      );
+  
+    // Check if there's a next question available
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      const nextQuestion = this.questions[this.currentQuestionIndex + 1];
+  
+      this.explanationTextService
+        .formatExplanationText(options, currentQuestion, nextQuestion)
+        .subscribe(
+          (explanationText: string) => {
+            this.explanationText$.next(explanationText);
+            this.explanationTextValue$.next(explanationText);
+            this.isAnswerSelectedChange.emit(true);
+            this.toggleVisibility.emit();
+            this.updateFeedbackVisibility();
+            this.updateCombinedQuestionData(currentQuestion, explanationText);
+          },
+          (error) => {
+            console.error('Error in setExplanationText:', error);
+          }
+        );
+    } else {
+      // Handle the case where there is no next question (end of the quiz or similar)
+      // You can display a message or take appropriate action here
+    }
   }
   
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
