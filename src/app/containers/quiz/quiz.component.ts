@@ -1051,7 +1051,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  /* async advanceToNextQuestion(): Promise<void> {
+  async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
       return;
     }
@@ -1132,9 +1132,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = null;
       this.nextQuestionText = null;
     }
-  } */
+  }
 
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
       return;
     }
@@ -1205,7 +1205,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error("Error occurred while advancing to the next question:", error);
     }
-  }
+  } */
   
       
   advanceToPreviousQuestion() {
