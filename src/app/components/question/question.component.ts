@@ -249,9 +249,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private subscribeToCurrentQuestion(): void {
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      this.currentQuestion = currentQuestion;
-      this.handleCurrentQuestion(currentQuestion);
-      console.log('Current Question in Subscription:::', currentQuestion);
+      if (currentQuestion !== null && currentQuestion !== undefined) {
+        this.currentQuestion = currentQuestion;
+        this.handleCurrentQuestion(currentQuestion);
+        console.log('Current Question in Subscription:::', currentQuestion);
+      } else {
+        console.error('No current question available.');
+      }
     });
   }
   
