@@ -188,11 +188,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
     this.selectedOption = null;
-
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-      this.subscribeToCurrentQuestion();
-    });
     
     this.logInitialData();
     this.initializeQuizQuestion();
@@ -205,6 +200,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.loadQuizQuestions();
   
       try {
+        this.activatedRoute.params.subscribe((params) => {
+          this.quizId = params['quizId'];
+          this.subscribeToCurrentQuestion();
+        });
+        
         this.subscribeToCurrentOptions();
         this.subscribeToCorrectAnswersAndData();
         this.initializeMultipleAnswer();
