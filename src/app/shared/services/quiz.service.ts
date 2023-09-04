@@ -885,20 +885,27 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.next(data);
   }
 
-  setCorrectAnswers(question: QuizQuestion, options: Option[]): void {
-    const correctOptionNumbers = options
-      .filter((option) => option.correct)
-      .map((option) => option.optionId);
-
-    if (correctOptionNumbers.length > 0) {
-      this.correctAnswers.set(question.questionText, correctOptionNumbers);
-      this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
-
-      // Emit the correct answers loaded status
-      this.correctAnswersLoadedSubject.next(true);
-    }
+  setCorrectAnswers(question: QuizQuestion, options: Option[]): Observable<void> {
+    return new Observable((observer) => {
+      const correctOptionNumbers = options
+        .filter((option) => option.correct)
+        .map((option) => option.optionId);
+  
+      if (correctOptionNumbers.length > 0) {
+        this.correctAnswers.set(question.questionText, correctOptionNumbers);
+        this.correctAnswersSubject.next(this.correctAnswers); // Emit the updated correct answers
+  
+        // Emit the correct answers loaded status
+        this.correctAnswersLoadedSubject.next(true);
+        
+        observer.next(); // Emit a completion signal
+        observer.complete();
+      } else {
+        observer.error('No correct options found.');
+      }
+    });
   }
-
+  
   setCorrectAnswerOptions(optionIds: number[]) {
     const correctAnswerOptions = this.convertToOptions(optionIds);
     this.correctAnswerOptions = correctAnswerOptions;

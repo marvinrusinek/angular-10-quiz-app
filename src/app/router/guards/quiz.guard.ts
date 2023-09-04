@@ -25,6 +25,8 @@ export class QuizGuard implements CanActivate {
           this.router.navigate(['/select']);
           return of(false);
         }
+
+        console.log('Selected quiz::::>>>', selectedQuiz);
   
         const totalQuestions = selectedQuiz.questions.length;
   
