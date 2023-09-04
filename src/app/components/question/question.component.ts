@@ -73,6 +73,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
   @Output() isAnswered: boolean = false;
+  @Output() quizEnded: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -1104,6 +1105,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           );
       } else {
         console.log('No next question available. Quiz has ended.');
+
+        const quizCompleted = true;
+        if (quizCompleted) {
+          this.quizEnded.emit(true);
+        }
       }
     });
   }
