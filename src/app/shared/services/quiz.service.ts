@@ -901,7 +901,7 @@ export class QuizService implements OnDestroy {
         observer.next(); // Emit a completion signal
         observer.complete();
       } else {
-        observer.error('No correct options found.');
+        observer.error('No correct options found.'); // Emit an error if needed
       }
     });
   }
