@@ -1199,11 +1199,13 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  async getNextQuestionWithExplanation(): Promise<QuizQuestion> {
+  async getNextQuestionWithExplanation(): Promise<{ nextQuestion: QuizQuestion, explanationText: string }> {
+    let explanationText = '';
+
     // Fetch the next question and its explanation
     const nextQuestion = await this.getNextQuestion();
     nextQuestion.explanation = await this.fetchExplanationForQuestion(nextQuestion);
-    return nextQuestion;
+    return { nextQuestion, explanationText };
   }
 
   async fetchExplanationForQuestion(question: QuizQuestion): Promise<string> {
