@@ -1051,7 +1051,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   /************************ paging functions *********************/
-  async advanceToNextQuestion(): Promise<void> {
+  /* async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz) {
       return;
     }
@@ -1132,7 +1132,81 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = null;
       this.nextQuestionText = null;
     }
+  } */
+
+  async advanceToNextQuestion(): Promise<void> {
+    if (!this.selectedQuiz) {
+      return;
+    }
+  
+    console.log("Current Question:", this.currentQuestion);
+    console.log("Explanation for Current Question:", this.currentQuestion?.explanation);
+  
+    // Start animation or any other operations
+    this.animationState$.next('animationStarted');
+  
+    this.onAnswerSelectedOrNextQuestionClicked();
+  
+    try {
+      // Get the next question with explanation
+      const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation();
+  
+      if (nextQuestion) {
+        this.currentQuestionIndex += 1;
+        this.currentQuestion = nextQuestion;
+        this.currentOptions = nextQuestion.options;
+  
+        // Update the text for the next question
+        this.nextQuestionText = nextQuestion.questionText;
+        this.quizService.setNextQuestion(nextQuestion);
+  
+        // Notify any subscribers of the next question
+        this.quizService.nextQuestionSource.next(nextQuestion);
+  
+        // Set the explanation text for the next question
+        this.explanationTextService.setNextExplanationText(explanationText);
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
+  
+        // Navigate to the next question (if applicable)
+        const navigationSuccess = await this.quizService.navigateToNextQuestion();
+  
+        if (!navigationSuccess) {
+          throw new Error("Navigation to the next question failed.");
+        }
+  
+        // Clear explanation text for the previous question
+        this.explanationTextService.clearExplanationText();
+  
+        // Set options and questionText for the next question
+        const nextQuestionIndex = this.currentQuestionIndex + 1;
+        if (this.selectedQuiz.questions[nextQuestionIndex]) {
+          const nextQuestion = this.selectedQuiz.questions[nextQuestionIndex];
+          this.nextQuestionText = nextQuestion.questionText;
+          this.currentOptions = nextQuestion.options;
+        } else {
+          this.nextQuestionText = null;
+        }
+  
+        console.log('Next question text:', this.nextQuestionText);
+        console.log('Current options:', this.currentOptions);
+  
+        // Clear any previous selected option explanation
+        this.selectedOptionService.setSelectedOptionExplanation('');
+      } else {
+        // Handle the end of the quiz or any cleanup
+        console.log('Before clearing explanation text');
+        this.explanationTextService.clearExplanationText();
+        this.explanationTextService.resetExplanationState();
+        console.log('After clearing explanation text');
+        this.selectedOptions = null;
+        this.currentOptions = null;
+        this.nextQuestionText = null;
+      }
+    } catch (error) {
+      console.error("Error occurred while advancing to the next question:", error);
+    }
   }
+  
       
   advanceToPreviousQuestion() {
     this.answers = [];
