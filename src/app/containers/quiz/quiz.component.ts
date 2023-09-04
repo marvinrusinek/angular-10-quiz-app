@@ -1070,12 +1070,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Get the next question
     const nextQuestion = await this.quizService.getNextQuestion();
-  
+    const nextOptions = this.quizService.getNextOptions();
+
     // Logging the explanation for the current and next questions
     console.log('Explanation for Current Question:', this.currentQuestion?.explanation);
     console.log('Explanation for Next Question:', nextQuestion?.explanation);
   
-    const nextOptions = this.quizService.getNextOptions();
     console.log('Next question:', nextQuestion);
   
     // Check if there are more questions
