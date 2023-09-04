@@ -405,7 +405,9 @@ export class CodelabQuizContentComponent {
             console.log('Should Display Explanation:', shouldDisplayExplanation);
           }),
           switchMap(() => {
-            
+            if (!nextQuestion) {
+              return of('');
+            }
     
             // Use the latest explanationText and nextExplanationText here
             return of(nextQuestion).pipe(
