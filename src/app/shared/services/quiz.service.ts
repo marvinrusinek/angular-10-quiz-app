@@ -85,6 +85,7 @@ export class QuizService implements OnDestroy {
 
   private options: Option[] | null = null;
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  selectedOptions: Option[] = [];
   resources: Resource[];
   quizId: string = '';
   answers: number[];
@@ -372,6 +373,10 @@ export class QuizService implements OnDestroy {
     });
 
     this.currentQuizSubject.next(quiz);
+  }
+
+  addSelectedOption(option: Option) {
+    this.selectedOptions.push(option);
   }
 
   setAnswerStatus(status: boolean) {
