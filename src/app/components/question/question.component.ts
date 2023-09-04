@@ -1081,8 +1081,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     
+    const nextQuestion = this.questions[this.currentQuestionIndex + 1];
+
     this.explanationTextService
-      .formatExplanationText(options, currentQuestion)
+      .formatExplanationText(options, currentQuestion, nextQuestion)
       .subscribe(
         (explanationText: string) => {
           this.explanationText$.next(explanationText);
