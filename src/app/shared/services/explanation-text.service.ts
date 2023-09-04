@@ -275,9 +275,8 @@ export class ExplanationTextService {
         currentExplanationText += ` ${question.explanation}`;
       }
   
-      // Check if there is a next question and calculate its explanation text
+      // Check if there is a next question
       if (nextQuestion) {
-        // Check if there are correct options for the next question
         const nextCorrectOptions = nextQuestion.options.filter(option => option.correct);
   
         if (nextCorrectOptions.length > 0) {
