@@ -166,7 +166,7 @@ export class ExplanationTextService {
     }
   } */
 
-  formatExplanationText(
+  /* formatExplanationText(
     selectedOptions: Option[],
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
@@ -236,9 +236,90 @@ export class ExplanationTextService {
       console.error('Error occurred while formatting explanation text:', error);
       return of('');
     }
-  }
+  } */
+
+  formatExplanationText(
+    selectedOptions: Option[],
+    question: QuizQuestion,
+    nextQuestion: QuizQuestion | null
+  ): Observable<string> {
+    try {
+      if (!Array.isArray(selectedOptions)) {
+        throw new Error('selectedOptions is not an array');
+      }
   
-    
+      let currentExplanationText = '';
+      let nextExplanationText = '';
+      let combinedExplanationText = '';
+  
+      // Check if there are selected correct options for the current question
+      const correctOptions = question.options.filter(option => option.correct);
+      const selectedCorrectOptions = selectedOptions.filter(option => option.correct);
+  
+      if (selectedCorrectOptions.length > 0) {
+        const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
+  
+        if (correctOptionIndices.length === 1) {
+          currentExplanationText = `Option ${correctOptionIndices[0]}`;
+        } else {
+          const correctOptionsString = correctOptionIndices.join(' and ');
+          currentExplanationText = `Options ${correctOptionsString}`;
+        }
+  
+        currentExplanationText += correctOptionIndices.length === 1
+          ? ' is correct because'
+          : ' are correct because';
+      }
+  
+      if (question.explanation) {
+        currentExplanationText += ` ${question.explanation}`;
+      }
+  
+      // Check if there is a next question and calculate its explanation text
+      if (nextQuestion) {
+        // Check if there are correct options for the next question
+        const nextCorrectOptions = nextQuestion.options.filter(option => option.correct);
+  
+        if (nextCorrectOptions.length > 0) {
+          const nextCorrectOptionIndices = nextCorrectOptions.map(option => nextQuestion.options.indexOf(option) + 1);
+  
+          if (nextCorrectOptionIndices.length === 1) {
+            nextExplanationText = `Option ${nextCorrectOptionIndices[0]}`;
+          } else {
+            const nextCorrectOptionsString = nextCorrectOptionIndices.join(' and ');
+            nextExplanationText = `Options ${nextCorrectOptionsString}`;
+          }
+  
+          nextExplanationText += nextCorrectOptionIndices.length === 1
+            ? ' is correct because'
+            : ' are correct because';
+        }
+  
+        if (nextQuestion.explanation) {
+          nextExplanationText += ` ${nextQuestion.explanation}`;
+        }
+      }
+  
+      // Combine the current and next explanation texts
+      if (currentExplanationText && nextExplanationText) {
+        combinedExplanationText = `${currentExplanationText} and ${nextExplanationText}`;
+      } else if (currentExplanationText) {
+        combinedExplanationText = currentExplanationText;
+      } else if (nextExplanationText) {
+        combinedExplanationText = nextExplanationText;
+      }
+  
+      // Call the method to update explanation texts for the current and next questions
+      this.updateExplanationTextForCurrentAndNext(combinedExplanationText, '');
+  
+      // Return the formatted explanation
+      return of(combinedExplanationText);
+    } catch (error) {
+      console.error('Error occurred while formatting explanation text:', error);
+      return of('');
+    }
+  }
+      
   updateExplanationTextForCurrentAndNext(currentExplanationText: string, nextExplanationText: string) {
     try {
       this.currentExplanationTextSource.next(currentExplanationText);
