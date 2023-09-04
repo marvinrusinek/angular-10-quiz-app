@@ -263,11 +263,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
     console.log('this.data:', this.data);
-    console.log('this.data.currentOptions:', this.data.currentOptions);
-    console.log('Data:::', this.data);
-    console.log('questionData:', this.questionData);
-    console.log('data:', this.data);
-    console.log('data.currentOptions:', this.data.currentOptions);
+    console.log('this.data.currentOptions:', this.data?.currentOptions);
   }
   
   private initializeQuizQuestion(): void {
