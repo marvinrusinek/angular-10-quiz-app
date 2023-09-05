@@ -352,16 +352,11 @@ export class ExplanationTextService {
           if (question.explanation) {
             combinedExplanationText += ` ${question.explanation}`;
           }
-  
-          // Add a line break or separator between explanations for different questions
-          if (i < questions.length - 1) {
-            combinedExplanationText += '\n\n'; // Adjust this for your desired formatting
-          }
         }
       }
   
       // Call the method to update explanation text
-      this.updateExplanationText(combinedExplanationText);
+      this.updateExplanationTextForCurrentAndNext(combinedExplanationText);
   
       // Return the formatted explanation
       return of(combinedExplanationText);
