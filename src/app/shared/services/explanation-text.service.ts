@@ -356,7 +356,7 @@ export class ExplanationTextService {
       }
   
       // Call the method to update explanation text
-      this.updateExplanationTextForCurrentAndNext(combinedExplanationText);
+      this.updateExplanationTextForCurrentAndNext(combinedExplanationText, '');
   
       // Return the formatted explanation
       return of(combinedExplanationText);
