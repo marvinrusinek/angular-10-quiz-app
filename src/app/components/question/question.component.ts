@@ -1032,8 +1032,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
-      if (this.quizService.selectedOptions.length > 0) {
-        const selectedOptionsArray = [...this.quizService.selectedOptions] as Option[];
+      if (this.selectedOptions.length > 0) {
+        const selectedOptionsArray = [...this.selectedOptions] as Option[];
         console.log('Selected Options:', selectedOptionsArray);
         console.log('Selected Options:::', this.selectedOptions);
         console.log('Selected Option:::', option);

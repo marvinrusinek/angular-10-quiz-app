@@ -238,7 +238,7 @@ export class ExplanationTextService {
     }
   } */
 
-  /* formatExplanationText(
+  formatExplanationText(
     selectedOptions: Option[],
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
@@ -309,53 +309,6 @@ export class ExplanationTextService {
       }
   
       // Call the method to update explanation texts for the current and next questions
-      this.updateExplanationTextForCurrentAndNext(combinedExplanationText, '');
-  
-      // Return the formatted explanation
-      return of(combinedExplanationText);
-    } catch (error) {
-      console.error('Error occurred while formatting explanation text:', error);
-      return of('');
-    }
-  } */
-
-  formatExplanationText(
-    selectedOptions: Option[],
-    questions: QuizQuestion[]
-  ): Observable<string> {
-    try {
-      if (!Array.isArray(selectedOptions)) {
-        throw new Error('selectedOptions is not an array');
-      }
-  
-      let combinedExplanationText = '';
-  
-      for (let i = 0; i < questions.length; i++) {
-        const question = questions[i];
-        const correctOptions = question.options.filter(option => option.correct);
-        const selectedCorrectOptions = selectedOptions.filter(option => option.correct);
-  
-        if (selectedCorrectOptions.length > 0) {
-          const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
-  
-          if (correctOptionIndices.length === 1) {
-            combinedExplanationText += `Option ${correctOptionIndices[0]}`;
-          } else {
-            const correctOptionsString = correctOptionIndices.join(' and ');
-            combinedExplanationText += `Options ${correctOptionsString}`;
-          }
-  
-          combinedExplanationText += correctOptionIndices.length === 1
-            ? ' are correct because'
-            : ' is correct because';
-  
-          if (question.explanation) {
-            combinedExplanationText += ` ${question.explanation}`;
-          }
-        }
-      }
-  
-      // Call the method to update explanation text
       this.updateExplanationTextForCurrentAndNext(combinedExplanationText, '');
   
       // Return the formatted explanation
