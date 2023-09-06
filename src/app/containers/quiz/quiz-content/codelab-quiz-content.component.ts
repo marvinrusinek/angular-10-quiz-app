@@ -500,12 +500,14 @@ export class CodelabQuizContentComponent {
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
                 if (shouldDisplayExplanation && explanationText !== '') {
+                  console.log('Satisfying Condition: Displaying Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
                   return of(explanationText);
                 }
     
                 if (shouldDisplayExplanation && nextExplanationText !== '') {
                   console.log('Displaying Explanation Text');
+                  console.log('Satisfying Condition: Displaying Next Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
                   return of(nextExplanationText);
                 }
