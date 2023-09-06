@@ -187,7 +187,12 @@ export class CodelabQuizContentComponent {
         // this.currentQuestion.next(question);
   
         // Get the index of the current question
-        const questionIndex = this.questions.indexOf(question);
+        // const questionIndex = questions.indexOf(question);
+        const questionIndex = questions.findIndex(q => q.questionText === question.questionText);
+
+        console.log('Current Question:>', question);
+        console.log('All Questions:>', questions);
+        console.log('Question Index:>', questionIndex);
         
         if (questionIndex !== -1) {
           const explanationText = question.explanation;
