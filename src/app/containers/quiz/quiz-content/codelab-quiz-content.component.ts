@@ -383,14 +383,14 @@ export class CodelabQuizContentComponent {
 
     this.explanationTextService.currentExplanationText$.subscribe(
       (currentExplanationText) => {
-        console.log('Current Explanation Text:', currentExplanationText);
+        console.log('Current Explanation Text::>>', currentExplanationText);
         // You can update a component property here to display the current explanation text
       }
     );
   
     this.explanationTextService.nextExplanationText$.subscribe(
       (nextExplanationText) => {
-        console.log('Next Explanation Text:', nextExplanationText);
+        console.log('Next Explanation Text::>>', nextExplanationText);
         // You can update a component property here to display the next explanation text
       }
     );
