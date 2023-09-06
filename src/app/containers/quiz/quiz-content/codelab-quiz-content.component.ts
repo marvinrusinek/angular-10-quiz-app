@@ -453,6 +453,29 @@ export class CodelabQuizContentComponent {
       }
     );
 
+    this.nextQuestionSubscription = this.nextQuestion$.subscribe(
+      (nextQuestion) => {
+        if (nextQuestion) {
+          // Handle the display of the next question and its explanation text
+          
+          // Use ExplanationTextService to fetch the explanation text for the next question
+          const currentQuestionIndex = this.questions.findIndex(
+            (question) => question === this.currentQuestion.value
+          );
+          if (currentQuestionIndex !== -1) {
+            // Check if the current question is in the questions array
+            const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
+              currentQuestionIndex + 1
+            ); // Fetch the explanation text for the next question
+          } else {
+            console.warn('Current question not found in the questions array.');
+          }
+        } else {
+          // Handle the end of the quiz or any cleanup
+        }
+      }
+    );
+
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,

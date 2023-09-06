@@ -1082,7 +1082,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Update the text for the next question
         this.nextQuestionText = nextQuestion.questionText;
-        this.quizService.setNextQuestion(nextQuestion);
+        this.quizService.setNextQuestion(nextQuestion, explanationText);
   
         // Notify any subscribers of the next question
         this.quizService.nextQuestionSource.next(nextQuestion);
