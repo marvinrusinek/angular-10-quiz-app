@@ -194,7 +194,7 @@ export class CodelabQuizContentComponent {
         console.log('All Questions:>', questions);
         console.log('Question Index:>', questionIndex);
         
-        if (questionIndex !== -1) {
+        if (questionIndex !== -1) { 
           const explanationText = question.explanation;
           // this.nextExplanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
           this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
