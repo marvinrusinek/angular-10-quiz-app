@@ -194,6 +194,9 @@ export class QuizService implements OnDestroy {
   correctAnswersAvailability$ =
     this.correctAnswersAvailabilitySubject.asObservable();
 
+  private nextExplanationTextSource = new BehaviorSubject<string>('');
+  nextExplanationText$ = this.nextExplanationTextSource.asObservable();
+
   loadingQuestions: boolean = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
   loadQuestionsLock: boolean = false;
