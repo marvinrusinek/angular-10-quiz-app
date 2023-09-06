@@ -462,13 +462,17 @@ export class CodelabQuizContentComponent {
           const currentQuestionIndex = this.questions.findIndex(
             (question) => question === this.currentQuestion.value
           );
-          if (currentQuestionIndex !== -1) {
-            // Check if the current question is in the questions array
+
+          const nextQuestionIndex = currentQuestionIndex + 1;
+
+          if (nextQuestionIndex < this.questions.length) {
+            // Fetch the explanation text for the next question
             const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
-              currentQuestionIndex + 1
+              nextQuestionIndex
             ); // Fetch the explanation text for the next question
+            this.nextExplanationText = nextExplanationText;
           } else {
-            console.warn('Current question not found in the questions array.');
+            this.nextExplanationText = '';
           }
         } else {
           // Handle the end of the quiz or any cleanup
