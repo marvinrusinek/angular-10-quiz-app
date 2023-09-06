@@ -499,6 +499,9 @@ export class CodelabQuizContentComponent {
             return of(nextQuestion).pipe(
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
+                console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
+                console.log('explanationText:', explanationText);
+
                 if (shouldDisplayExplanation && explanationText !== '') {
                   console.log('Satisfying Condition: Displaying Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
