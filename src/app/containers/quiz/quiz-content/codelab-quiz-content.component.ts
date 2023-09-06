@@ -211,13 +211,13 @@ export class CodelabQuizContentComponent {
         console.log('After fetching questions:', questions);
 
         // Iterate through each question and update the explanationTexts object
-        questions.forEach((q, index) => {
-          const questionIndex = index;
-          const explanationText = q.explanation;
-          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
-
-          console.log('Explanation Texts Object for Question', questionIndex, ':', this.explanationTextService.explanationTexts);
-        }); 
+        questions.forEach((question) => {
+          const questionKey = question.questionText; // Use the question text as a unique key
+          const explanationText = question.explanation;
+          this.explanationTextService.setExplanationTextForKey(questionKey, explanationText);
+        
+          console.log('Explanation Texts Object for Question', questionKey, ':', this.explanationTextService.explanationTexts);
+        });
 
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
