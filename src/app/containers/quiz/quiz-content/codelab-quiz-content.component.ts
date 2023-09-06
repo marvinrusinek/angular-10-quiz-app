@@ -183,7 +183,7 @@ export class CodelabQuizContentComponent {
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersTextSource.next(correctAnswersText);
   
-        const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
+        /* const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
         // this.currentQuestion.next(question);
         console.log('After fetching questions:', questions);
   
@@ -205,7 +205,20 @@ export class CodelabQuizContentComponent {
           this.updateExplanationForQuestion(question);
         } else {
           console.warn('Current question not found in the questions array.');
-        }
+        } */
+
+        const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
+        console.log('After fetching questions:', questions);
+
+        // Iterate through each question and update the explanationTexts object
+        questions.forEach((q, index) => {
+          const questionIndex = index;
+          const explanationText = q.explanation;
+          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
+
+          console.log('Explanation Texts Object for Question', questionIndex, ':', this.explanationTextService.explanationTexts);
+        }); 
+
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
   
