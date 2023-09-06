@@ -11,7 +11,7 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   explText: string = '';
   explanations: string[] = [];
-  private explanationTexts: { [questionIndex: number]: string } = {};
+  explanationTexts: { [questionIndex: number]: string } = {};
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
