@@ -210,6 +210,27 @@ export class CodelabQuizContentComponent {
         const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
         console.log('After fetching questions:', questions);
 
+        // Get the index of the current question
+        const questionIndex = questions.indexOf(question);
+
+        console.log('Current Question:>', question);
+        console.log('All Questions:>', questions);
+        console.log('Question Index:>', questionIndex);
+
+        if (questionIndex !== -1) {
+          const explanationText = question.explanation;
+          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
+
+          console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
+
+          this.updateExplanationForQuestion(question);
+        } else {
+          console.warn('Current question not found in the questions array.');
+        }
+
+        /* const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
+        console.log('After fetching questions:', questions);
+
         // Iterate through each question and update the explanationTexts object
         questions.forEach((question) => {
           const questionKey = question.questionText; // Use the question text as a unique key
@@ -217,7 +238,7 @@ export class CodelabQuizContentComponent {
           this.explanationTextService.setExplanationTextForKey(questionKey, explanationText);
         
           console.log('Explanation Texts Object for Question', questionKey, ':', this.explanationTextService.explanationTexts);
-        });
+        }); */
 
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
