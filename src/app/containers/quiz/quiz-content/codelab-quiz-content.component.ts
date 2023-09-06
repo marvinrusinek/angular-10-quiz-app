@@ -183,19 +183,23 @@ export class CodelabQuizContentComponent {
         const correctAnswersText = this.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
         this.correctAnswersTextSource.next(correctAnswersText);
   
-        this.questions = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
-        this.currentQuestion.next(question);
+        const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
+        // this.currentQuestion.next(question);
   
         // Get the index of the current question
         const questionIndex = this.questions.indexOf(question);
-        const explanationText = question.explanation;
-        this.nextExplanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
-        this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
+        
+        if (questionIndex !== -1) {
+          const explanationText = question.explanation;
+          // this.nextExplanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
+          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
 
-        console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
+          console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
 
-        this.updateExplanationForQuestion(question);
-
+          this.updateExplanationForQuestion(question);
+        } else {
+          console.warn('Current question not found in the questions array.');
+        }
         // Reset the explanation state for the new question
         // this.explanationTextService.resetExplanationState();
   
