@@ -57,10 +57,10 @@ export class ExplanationTextService {
 
   setExplanationTextForIndex(index: number, explanation: string): void {
     this.explanationTexts[index] = explanation;
-}
+  }
 
   getExplanationTextForIndex(index: number): string | undefined {
-      return this.explanationTexts[index];
+    return this.explanationTexts[index];
   }
 
   /* setExplanationText(
