@@ -93,7 +93,6 @@ export class CodelabQuizContentComponent {
 
   ngOnInit(): void {
     this.initializeQuestionData();
-    this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
     this.setupExplanationTextSubscription();
@@ -276,32 +275,6 @@ export class CodelabQuizContentComponent {
         this.explanationText = null;
       }
     });
-  }
-
-  private initializeNextQuestionSubscription(): void {
-    this.nextQuestion$ = this.quizService.nextQuestion$.pipe(
-      tap((nextQuestion) =>
-        console.log('Next question emitted', nextQuestion)
-      )
-    );
-
-    this.nextQuestionSubscription = this.quizService.nextQuestion$
-      .pipe(
-        tap((nextQuestion) =>
-          console.log('Next question received', nextQuestion)
-        )
-      )
-      .subscribe((nextQuestion) => {
-        if (nextQuestion) {
-          this.currentQuestion.next(nextQuestion);
-          this.currentOptions$.next(nextQuestion.options);
-          // The async pipe in the template will handle this for you
-        } else {
-          // Handle the scenario when there are no more questions
-          // For example, you can navigate to a different page here
-          // this.router.navigate(['/quiz-completed']);
-        }
-      });
   }
 
   private initializeExplanationTextSubscription(): void {
