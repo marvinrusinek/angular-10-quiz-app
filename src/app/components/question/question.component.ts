@@ -108,7 +108,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }> = new Subject();
 
   isMultipleAnswer$: Observable<boolean>;
-  questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
+  questions$: Observable<QuizQuestion[]>;
   questionsObservableSubscription: Subscription;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
@@ -1016,7 +1016,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     console.log('Before Click - selectedOptions:', this.selectedOptions);
     const isOptionSelected = this.checkOptionSelected(option);
-    const index = this.quizService.selectedOptions.findIndex((o) => o === option);
+    const index = this.selectedOptions.findIndex((o) => o === option);
 
     if (!isOptionSelected && index === -1) {
       this.selectedOptions.push(option as Option);
