@@ -185,6 +185,7 @@ export class CodelabQuizContentComponent {
   
         const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
         // this.currentQuestion.next(question);
+        console.log('After fetching questions:', questions);
   
         // Get the index of the current question
         // const questionIndex = questions.indexOf(question);
