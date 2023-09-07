@@ -175,7 +175,9 @@ export class CodelabQuizContentComponent {
       this.options = options;
     });
 
-    this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe(async (question: QuizQuestion) => {
+    this.currentQuestionSubscription = this.quizStateService.currentQuestion$.pipe(
+      tap((question) => console.log('currentQuestion$ emitted:', question))
+    ).subscribe(async (question: QuizQuestion) => {
       console.log('Current Question Subscription Triggered for Question:', question);
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
