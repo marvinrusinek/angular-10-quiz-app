@@ -68,6 +68,7 @@ export class CodelabQuizContentComponent {
   nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
+  shouldDisplayExplanation: boolean = false;
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed: boolean = false;
   showNumberOfCorrectAnswersText: boolean = false;
@@ -467,10 +468,19 @@ export class CodelabQuizContentComponent {
             const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               nextQuestionIndex
             ); // Fetch the explanation text for the next question
-            this.nextExplanationText = nextExplanationText;
+            this.shouldDisplayExplanation$.subscribe((shouldDisplayExplanation) => {
+              if (shouldDisplayExplanation) {
+                // Handle the case when explanations should be displayed
+                this.nextExplanationText = nextExplanationText;
+              } else {
+                // Handle the case when explanations should not be displayed
+                this.nextExplanationText = '';
+              }
+            });
           } else {
             this.nextExplanationText = '';
           }
+          
         } else {
           // Handle the end of the quiz or any cleanup
         }
