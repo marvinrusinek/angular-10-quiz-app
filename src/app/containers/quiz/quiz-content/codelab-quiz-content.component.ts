@@ -428,7 +428,6 @@ export class CodelabQuizContentComponent {
       (currentExplanationText) => {
         console.log('Current Explanation Text::>>', currentExplanationText);
         this.explanationText = currentExplanationText;
-        // You can update a component property here to display the current explanation text
       }
     );
   
@@ -436,7 +435,6 @@ export class CodelabQuizContentComponent {
       (nextExplanationText) => {
         console.log('Next Explanation Text::>>', nextExplanationText);
         this.nextExplanationText = nextExplanationText;
-        // You can update a component property here to display the next explanation text
       }
     );
   
