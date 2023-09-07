@@ -148,13 +148,11 @@ export class CodelabQuizContentComponent {
       this.currentOptions$.next(options);
     });
 
-    this.currentQuestion$.subscribe((question) => {
-      if (question && question.options) {
-        this.options = question.options;
-      }
+    this.currentOptions$.subscribe((options) => {
+      this.options = options;
     });
 
-    this.currentOptions$.subscribe((options) => {
+    this.quizStateService.currentOptions$.subscribe((options) => {
       this.options = options;
     });
 
@@ -163,17 +161,31 @@ export class CodelabQuizContentComponent {
       this.currentQuestionIndexValue = index;
     });
 
-    this.quizStateService.currentQuestion$.subscribe((question) => {
+    // Subscribe to currentQuestion$ and handle subsequent questions
+    this.quizStateService.currentQuestion$
+    .pipe(
+      takeUntil(this.destroy$)
+    )
+    .subscribe((question) => {
       this.question = question;
-
+      
       if (question && question.options) {
         console.log('Options:', question.options);
       }
+      
+      // Handle other logic for subsequent questions here
     });
-
-    this.quizStateService.currentOptions$.subscribe((options) => {
-      this.options = options;
-    });
+    
+    // Subscribe to currentQuestion$ and set options
+    this.quizStateService.currentQuestion$
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe((question) => {
+        if (question && question.options) {
+          this.options = question.options;
+        }
+      });
 
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$.pipe(
       tap((question) => console.log('currentQuestion$ emitted:', question))
