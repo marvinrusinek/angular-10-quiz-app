@@ -176,6 +176,7 @@ export class CodelabQuizContentComponent {
     });
 
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe(async (question: QuizQuestion) => {
+      console.log('Current Question Subscription Triggered for Question:', question);
       if (question) {
         this.quizQuestionManagerService.setCurrentQuestion(question);
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
