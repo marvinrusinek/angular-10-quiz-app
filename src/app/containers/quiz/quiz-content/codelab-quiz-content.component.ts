@@ -448,7 +448,7 @@ export class CodelabQuizContentComponent {
   
           const nextQuestionIndex = currentQuestionIndex + 1;
   
-          if (nextQuestionIndex < this.questions.length) {
+          if (nextQuestionIndex < this.questions?.length) {
             // Fetch the explanation text for the next question
             const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               nextQuestionIndex
