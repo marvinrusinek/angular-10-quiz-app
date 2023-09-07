@@ -455,14 +455,12 @@ export class CodelabQuizContentComponent {
       (nextQuestion) => {
         if (nextQuestion) {
           // Handle the display of the next question and its explanation text
-          
-          // Use ExplanationTextService to fetch the explanation text for the next question
           const currentQuestionIndex = this.questions.findIndex(
             (question) => question === this.currentQuestion.value
           );
-
+    
           const nextQuestionIndex = currentQuestionIndex + 1;
-
+    
           if (nextQuestionIndex < this.questions.length) {
             // Fetch the explanation text for the next question
             const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
@@ -480,13 +478,12 @@ export class CodelabQuizContentComponent {
           } else {
             this.nextExplanationText = '';
           }
-          
         } else {
           // Handle the end of the quiz or any cleanup
         }
       }
     );
-
+    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
