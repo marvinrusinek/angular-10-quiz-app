@@ -266,20 +266,21 @@ export class QuizComponent implements OnInit, OnDestroy {
             this.quizData = quizData.questions;
             this.quizId = quizId;
 
-            const currentQuestionIndex = questionIndex;
+            const currentQuestionIndex = questionIndex - 1;
 
             console.log('questionIndex:', questionIndex);
             console.log('this.quizData.length:', this.quizData.length);
-            
+
             if (
-              currentQuestionIndex >= 1 &&
-              currentQuestionIndex <= this.quizData.length
+              currentQuestionIndex >= 0 &&
+              currentQuestionIndex < this.quizData.length
             ) {
               this.initializeQuizState();
               this.loadCurrentQuestion();
             
               // Load the current question's explanation text
               const currentQuiz = this.quizData[currentQuestionIndex];
+              console.log("CQ", currentQuiz);
               if (currentQuiz && currentQuiz.questions) {
                 const currentQuestion = currentQuiz.questions[currentQuestionIndex];
                 console.log('Current Question:::>>', currentQuestion);
