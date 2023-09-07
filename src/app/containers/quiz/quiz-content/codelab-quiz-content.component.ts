@@ -225,6 +225,15 @@ export class CodelabQuizContentComponent {
 
           console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
 
+          // Determine the index of the next question
+          const nextQuestionIndex = questionIndex + 1;
+
+          // Retrieve the explanation text for the next question
+          const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
+
+          // Update the property for displaying the next explanation text
+          this.nextExplanationText = nextExplanationText;
+
           this.updateExplanationForQuestion(question);
         } else {
           console.warn('Current question not found in the questions array.');
