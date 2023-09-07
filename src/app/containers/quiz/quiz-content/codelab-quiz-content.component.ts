@@ -431,6 +431,8 @@ export class CodelabQuizContentComponent {
     this.explanationTextService.currentExplanationText$.subscribe(
       (currentExplanationText) => {
         console.log('Current Explanation Text::>>', currentExplanationText);
+        this.currentExplanationText = currentExplanationText;
+        this.shouldDisplayExplanation = true;
         // You can update a component property here to display the current explanation text
       }
     );
@@ -439,6 +441,8 @@ export class CodelabQuizContentComponent {
       (nextExplanationText) => {
         console.log('Next Explanation Text::>>', nextExplanationText);
         // You can update a component property here to display the next explanation text
+        this.nextExplanationText = nextExplanationText;
+        this.shouldDisplayExplanation = true;
       }
     );
 
