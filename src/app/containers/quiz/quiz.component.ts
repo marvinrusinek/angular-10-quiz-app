@@ -283,6 +283,9 @@ export class QuizComponent implements OnInit, OnDestroy {
               console.log("CQ", currentQuiz);
               console.log("CQ questions", currentQuiz.questions);
               if (currentQuiz && currentQuiz.questions) {
+                const questions = currentQuiz.questions;
+                console.log('Questions:::>>>', questions);
+
                 const currentQuestion = currentQuiz.questions[currentQuestionIndex];
                 console.log('Current Question:::>>', currentQuestion);
                 if (this.isQuizQuestion(currentQuestion)) {
