@@ -1103,47 +1103,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     console.log("Subscribing to questions$ observable...");
   
-    // Subscribe to the observable to get the questions array
-    this.questions$.subscribe((questionsArray: QuizQuestion[]) => {
-      // Check if there's a next question available
-      this.quizService.questions$
-        .pipe(
-          map(questionsArray => {
-            const length = questionsArray.length;
-            return length;
-          })
-        )
-        .subscribe(length => {
+    // Get the questions array from questions$ observable
+    this.questions$
+      .pipe(
+        switchMap((questionsArray: QuizQuestion[]) => {
+          const length = questionsArray.length;
+          return this.quizService.questions$.pipe(
+            map(() => length)
+          );
+        }),
+        switchMap((length) => {
           // Check if there's a next question available
           if (this.currentQuestionIndex < length - 1) {
-            const nextQuestion = questionsArray[this.currentQuestionIndex + 1];
-  
-            this.explanationTextService
-              .formatExplanationText(options, currentQuestion, nextQuestion)
-              .subscribe(
-                (explanationText: string) => {
-                  this.explanationText$.next(explanationText);
-                  this.explanationTextValue$.next(explanationText);
-                  this.isAnswerSelectedChange.emit(true);
-                  this.toggleVisibility.emit();
-                  this.updateFeedbackVisibility();
-                  this.updateCombinedQuestionData(currentQuestion, explanationText);
-                },
-                (error) => {
-                  console.error('Error in setExplanationText:', error);
-                }
-              );
+            const nextQuestion = this.questionsArray[this.currentQuestionIndex + 1];
+            return this.explanationTextService.formatExplanationText(options, currentQuestion, nextQuestion);
           } else {
             console.log('No next question available. Quiz has ended.');
-  
-            const quizCompleted = true;
-            if (quizCompleted) {
-              this.quizEnded.emit(true);
-            }
+            return of(''); // No explanation text when the quiz ends
           }
-        });
-    });
-  }
+        })
+      )
+      .subscribe(
+        (explanationText: string) => {
+          this.explanationText$.next(explanationText);
+          this.explanationTextValue$.next(explanationText);
+          this.isAnswerSelectedChange.emit(true);
+          this.toggleVisibility.emit();
+          this.updateFeedbackVisibility();
+          this.updateCombinedQuestionData(currentQuestion, explanationText);
+        },
+        (error) => {
+          console.error('Error in setExplanationText:', error);
+        }
+      );
+  }  
   
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
