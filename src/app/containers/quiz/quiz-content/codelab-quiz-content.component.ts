@@ -423,16 +423,12 @@ export class CodelabQuizContentComponent {
   private setupExplanationTextDisplay(): void {
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
-    console.log("NET Observable:", this.nextExplanationText$);
-
-    console.log('Explanation Text Observable:', this.explanationText$);
-    console.log('Next Explanation Text Observable:', this.nextExplanationText$);
-
-    this.explanationTextService.currentExplanationText$.subscribe(
+  
+    this.explanationTextService.explanationText$.subscribe(
       (currentExplanationText) => {
         console.log('Current Explanation Text::>>', currentExplanationText);
         this.explanationText = currentExplanationText;
-        this.shouldDisplayExplanation = true;
+        // You can update a component property here to display the current explanation text
       }
     );
   
@@ -440,19 +436,10 @@ export class CodelabQuizContentComponent {
       (nextExplanationText) => {
         console.log('Next Explanation Text::>>', nextExplanationText);
         this.nextExplanationText = nextExplanationText;
-        this.shouldDisplayExplanation = true;
+        // You can update a component property here to display the next explanation text
       }
     );
-
-    this.nextExplanationText$.subscribe(
-      (explanationText) => {
-        console.log("NET Emitted Value:", explanationText);
-      },
-      (error) => {
-        console.error("NET Error:", error);
-      }
-    );
-
+  
     this.nextQuestionSubscription = this.nextQuestion$.subscribe(
       (nextQuestion) => {
         if (nextQuestion) {
@@ -460,17 +447,19 @@ export class CodelabQuizContentComponent {
           const currentQuestionIndex = this.questions.findIndex(
             (question) => question === this.currentQuestion.value
           );
-    
+  
           const nextQuestionIndex = currentQuestionIndex + 1;
-    
+  
           if (nextQuestionIndex < this.questions.length) {
             // Fetch the explanation text for the next question
             const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               nextQuestionIndex
-            ); // Fetch the explanation text for the next question
-
+            );
+  
+            // Update shouldDisplayExplanation$ before using it in switchMap
             this.explanationTextService.setShouldDisplayExplanation(true);
-
+  
+            // You can access shouldDisplayExplanation$ outside of this subscription
             this.shouldDisplayExplanation$.subscribe((shouldDisplayExplanation) => {
               if (shouldDisplayExplanation) {
                 // Handle the case when explanations should be displayed
@@ -488,7 +477,7 @@ export class CodelabQuizContentComponent {
         }
       }
     );
-    
+  
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationText$,
@@ -507,27 +496,27 @@ export class CodelabQuizContentComponent {
             if (!nextQuestion) {
               return of('');
             }
-    
+  
             // Use the latest explanationText and nextExplanationText here
             return of(nextQuestion).pipe(
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
                 console.log('shouldDisplayExplanation::', shouldDisplayExplanation);
                 console.log('explanationText::', explanationText);
-
+  
                 if (shouldDisplayExplanation && explanationText !== '') {
                   console.log('Satisfying Condition: Displaying Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
                   return of(explanationText);
                 }
-    
+  
                 if (shouldDisplayExplanation && nextExplanationText !== '') {
                   console.log('Displaying Explanation Text');
                   console.log('Satisfying Condition: Displaying Next Explanation Text');
                   this.explanationTextService.setShouldDisplayExplanation(false);
                   return of(nextExplanationText);
                 }
-    
+  
                 console.log('Displaying Next Question Text');
                 return of(nextQuestion.questionText);
               })
@@ -535,9 +524,8 @@ export class CodelabQuizContentComponent {
           })
         );
       })
-    );    
+    );
   }
-  
 
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
