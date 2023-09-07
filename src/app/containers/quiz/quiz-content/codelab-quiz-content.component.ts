@@ -466,6 +466,9 @@ export class CodelabQuizContentComponent {
             const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               nextQuestionIndex
             ); // Fetch the explanation text for the next question
+
+            this.shouldDisplayExplanation$.next(true);
+
             this.shouldDisplayExplanation$.subscribe((shouldDisplayExplanation) => {
               if (shouldDisplayExplanation) {
                 // Handle the case when explanations should be displayed
