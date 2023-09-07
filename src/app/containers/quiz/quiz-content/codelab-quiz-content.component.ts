@@ -442,7 +442,7 @@ export class CodelabQuizContentComponent {
       (nextQuestion) => {
         if (nextQuestion) {
           // Handle the display of the next question and its explanation text
-          const currentQuestionIndex = this.questions.findIndex(
+          const currentQuestionIndex = this.questions?.findIndex(
             (question) => question === this.currentQuestion?.value
           );
   
