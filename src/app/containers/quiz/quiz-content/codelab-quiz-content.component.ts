@@ -431,7 +431,7 @@ export class CodelabQuizContentComponent {
     this.explanationTextService.currentExplanationText$.subscribe(
       (currentExplanationText) => {
         console.log('Current Explanation Text::>>', currentExplanationText);
-        this.currentExplanationText = currentExplanationText;
+        this.explanationText = currentExplanationText;
         this.shouldDisplayExplanation = true;
         // You can update a component property here to display the current explanation text
       }
