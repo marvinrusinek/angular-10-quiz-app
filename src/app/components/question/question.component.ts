@@ -1093,50 +1093,62 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
-    console.log("currentQuestion:", currentQuestion);
-    console.log("MY OPTIONS:::", options);
-    console.log("Number of Options:", this.selectedOptions.length);
-    console.log("Single Option:", options[0]);
+  setExplanationText(
+    currentQuestion: QuizQuestion,
+    options: Option[]
+): void {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-  
-    console.log("Subscribing to questions$ observable...");
-  
-    // Get the questions array from questions$ observable
+
+    console.log('Subscribing to questions$ observable...');
+
+    // Subscribe to the observable to get the questions array
     this.questions$
-      .pipe(
-        switchMap((questionsArray: QuizQuestion[]) => {
-          const length = questionsArray.length;
-          return this.quizService.questions$.pipe(
-            map(() => length)
-          );
-        }),
-        switchMap((length) => {
-          // Check if there's a next question available
-          if (this.currentQuestionIndex < length - 1) {
-            const nextQuestion = this.questionsArray[this.currentQuestionIndex + 1];
-            return this.explanationTextService.formatExplanationText(options, currentQuestion, nextQuestion);
-          } else {
-            console.log('No next question available. Quiz has ended.');
-            return of(''); // No explanation text when the quiz ends
-          }
-        })
-      )
-      .subscribe(
-        (explanationText: string) => {
-          this.explanationText$.next(explanationText);
-          this.explanationTextValue$.next(explanationText);
-          this.isAnswerSelectedChange.emit(true);
-          this.toggleVisibility.emit();
-          this.updateFeedbackVisibility();
-          this.updateCombinedQuestionData(currentQuestion, explanationText);
-        },
-        (error) => {
-          console.error('Error in setExplanationText:', error);
-        }
-      );
-  }  
+        .pipe(
+            switchMap((questionsArray: QuizQuestion[]) => {
+                const length = questionsArray.length;
+                return this.quizService.questions$.pipe(
+                    map(() => length)
+                );
+            }),
+            switchMap((length) => {
+                // Check if there's a next question available
+                if (this.currentQuestionIndex < length - 1) {
+                    return this.questions$.pipe(
+                        map((questionsArray: QuizQuestion[]) => {
+                            return questionsArray[this.currentQuestionIndex + 1];
+                        })
+                    );
+                } else {
+                    console.log('No next question available. Quiz has ended.');
+                    return of(null); // No explanation text when the quiz ends
+                }
+            })
+        )
+        .subscribe(
+            (nextQuestion: QuizQuestion | null) => {
+                if (nextQuestion) {
+                    this.explanationTextService
+                        .formatExplanationText(options, currentQuestion, nextQuestion)
+                        .subscribe(
+                            (explanationText: string) => {
+                                this.explanationText$.next(explanationText);
+                                this.isAnswerSelectedChange.emit(true);
+                                this.toggleVisibility.emit();
+                                this.updateFeedbackVisibility();
+                                this.updateCombinedQuestionData(currentQuestion, explanationText);
+                            },
+                            (error) => {
+                                console.error('Error in setExplanationText:', error);
+                            }
+                        );
+                } else {
+                    console.log('No next question available. Quiz has ended.');
+                    this.explanationText$.next('');
+                }
+            }
+        );
+  }
   
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
