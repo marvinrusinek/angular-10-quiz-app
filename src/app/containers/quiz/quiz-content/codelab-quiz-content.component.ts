@@ -396,15 +396,18 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.quizService.nextOptions$,
       this.numberOfCorrectAnswers$,
-      this.explanationText$
+      this.explanationText$,
+      this.nextExplanationText$
     ]).pipe(
-      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
+      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText, nextExplanationText]) => {
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
-          currentQuestion: nextQuestion,
-          currentOptions: nextOptions || []
+          currentQuestion: this.currentQuestion,
+          // currentOptions: nextOptions || [],
+          currentOptions$: nextOptions || [],
+          nextExplanationText: nextExplanationText
         };
       })
     );
