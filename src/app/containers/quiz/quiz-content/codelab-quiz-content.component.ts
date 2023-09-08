@@ -430,17 +430,17 @@ export class CodelabQuizContentComponent {
     console.log('Explanation Text Observable:', this.explanationText$);
     console.log('Next Explanation Text Observable:', this.nextExplanationText$);
 
-    this.explanationTextService.currentExplanationText$.subscribe(
+    this.explanationTextService.explanationText$.subscribe(
       (currentExplanationText) => {
         console.log('Current Explanation Text::>>', currentExplanationText);
-        // You can update a component property here to display the current explanation text
+        this.explanationText = currentExplanationText;
       }
     );
   
     this.explanationTextService.nextExplanationText$.subscribe(
       (nextExplanationText) => {
         console.log('Next Explanation Text::>>', nextExplanationText);
-        // You can update a component property here to display the next explanation text
+        this.nextExplanationText = nextExplanationText;
       }
     );
 
