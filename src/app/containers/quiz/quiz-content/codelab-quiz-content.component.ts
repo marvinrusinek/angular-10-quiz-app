@@ -462,9 +462,11 @@ export class CodelabQuizContentComponent {
           const currentQuestionIndex = this.questions.findIndex(
             (question) => question === this.currentQuestion.value
           );
+          let nextExplanationText: string;
+
           if (currentQuestionIndex !== -1) {
             // Check if the current question is in the questions array
-            const nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
+            nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               currentQuestionIndex + 1
             ); // Fetch the explanation text for the next question
           } else {
