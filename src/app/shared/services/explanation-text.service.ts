@@ -8,9 +8,9 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class ExplanationTextService {
-  // explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  private explanationTextSource = new BehaviorSubject<string>(null);
-  explanationText$ = this.explanationTextSource.asObservable();
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  // private explanationTextSource = new BehaviorSubject<string>(null);
+  // explanationText$ = this.explanationTextSource.asObservable();
   
   explText: string = '';
   explanations: string[] = [];
@@ -32,16 +32,16 @@ export class ExplanationTextService {
   lastDisplayedExplanationText: string = '';
 
   constructor() {
-    this.explanationTextSource.next('');
+    this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
   }
 
   get explanationText(): Observable<string> {
-    return this.explanationText$;
+    return this.explanationText$.asObservable();
   }
 
   getExplanationText$(): Observable<string | null> {
-    return this.explanationText$;
+    return this.explanationText$.asObservable();
   }
 
   setExplanationForQuestionIndex(index: number, explanation: string): void {
