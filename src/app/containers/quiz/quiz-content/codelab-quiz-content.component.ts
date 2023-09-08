@@ -499,15 +499,16 @@ export class CodelabQuizContentComponent {
             return of(nextQuestion).pipe(
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
-                if (shouldDisplayExplanation && explanationText !== '') {
-                  this.explanationTextService.setShouldDisplayExplanation(false);
-                  return of(explanationText);
-                }
-    
-                if (shouldDisplayExplanation && nextExplanationText !== '') {
-                  console.log('Displaying Explanation Text');
-                  this.explanationTextService.setShouldDisplayExplanation(false);
-                  return of(nextExplanationText);
+
+                if (shouldDisplayExplanation) {
+                  if (explanationText !== '') {
+                    this.explanationTextService.setShouldDisplayExplanation(false);
+                    return of(explanationText);
+                  }
+                  if (nextExplanationText !== '') {
+                    this.explanationTextService.setShouldDisplayExplanation(false);
+                    return of(nextExplanationText);
+                  }
                 }
     
                 console.log('Displaying Next Question Text');
