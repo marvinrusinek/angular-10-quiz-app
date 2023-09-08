@@ -32,16 +32,16 @@ export class ExplanationTextService {
   lastDisplayedExplanationText: string = '';
 
   constructor() {
-    this.explanationText$.next('');
+    this.explanationTextSource.next('');
     this.shouldDisplayExplanationSource.next(false);
   }
 
   get explanationText(): Observable<string> {
-    return this.explanationText$.asObservable();
+    return this.explanationText$;
   }
 
   getExplanationText$(): Observable<string | null> {
-    return this.explanationText$.asObservable();
+    return this.explanationText$;
   }
 
   setExplanationForQuestionIndex(index: number, explanation: string): void {
