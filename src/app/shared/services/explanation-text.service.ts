@@ -8,7 +8,10 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class ExplanationTextService {
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  // explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  private explanationTextSource = new BehaviorSubject<string>(null);
+  explanationText$ = this.explanationTextSource.asObservable();
+  
   explText: string = '';
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
@@ -16,7 +19,7 @@ export class ExplanationTextService {
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
 
-  private nextExplanationTextSource = new BehaviorSubject<string>('');
+  private nextExplanationTextSource = new BehaviorSubject<string>(null);
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
