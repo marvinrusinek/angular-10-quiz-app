@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError, NavigationCancel } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd, NavigationError, NavigationCancel } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
@@ -8,7 +8,7 @@ import {
   of,
   Subject,
   Subscription,
-  throwError,
+  throwError
 } from 'rxjs';
 import {
   catchError,
@@ -17,8 +17,7 @@ import {
   map,
   shareReplay,
   switchMap,
-  take,
-  tap,
+  tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _ from 'lodash';
