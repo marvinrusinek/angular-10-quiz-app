@@ -515,7 +515,6 @@ export class CodelabQuizContentComponent {
     );
   }
   
-
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
     if (currentQuestion && questions && questions.length > 0) {
       for (let i = 0; i < questions.length; i++) {
