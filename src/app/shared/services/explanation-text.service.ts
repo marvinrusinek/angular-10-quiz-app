@@ -27,6 +27,8 @@ export class ExplanationTextService {
   private shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
 
+  private shouldDisplayExplanationSubject = new BehaviorSubject<boolean>(false);
+
   lastDisplayedExplanationText: string = '';
 
   constructor() {
