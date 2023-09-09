@@ -396,18 +396,15 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.quizService.nextOptions$,
       this.numberOfCorrectAnswers$,
-      this.explanationText$,
-      this.nextExplanationText$
+      this.explanationText$
     ]).pipe(
-      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText, nextExplanationText]) => {
+      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
-          currentQuestion: this.currentQuestion,
-          // currentOptions: nextOptions || [],
-          currentOptions$: nextOptions || [],
-          nextExplanationText: nextExplanationText
+          currentQuestion: nextQuestion,
+          currentOptions: nextOptions || []
         };
       })
     );
@@ -465,6 +462,7 @@ export class CodelabQuizContentComponent {
           const currentQuestionIndex = this.questions.findIndex(
             (question) => question === this.currentQuestion.value
           );
+
           let nextExplanationText: string;
 
           if (currentQuestionIndex !== -1) {
@@ -489,19 +487,43 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
-          tap(nextQuestion => {
+          /* tap(nextQuestion => {
             console.log('Next Question:', nextQuestion);
             console.log('Explanation Text:', explanationText);
             console.log('Next Explanation Text:', nextExplanationText);
             console.log('Should Display Explanation:', shouldDisplayExplanation);
-          }),
+          }), */
           switchMap(() => {
             if (!nextQuestion) {
               return of('');
             }
+
+            let textToDisplay = '';
+
+            if (shouldDisplayExplanation) {
+              if (explanationText !== '') {
+                textToDisplay = explanationText;
+              } else if (nextExplanationText !== '') {
+                textToDisplay = nextExplanationText;
+              }
+            }
+  
+            if (textToDisplay === '') {
+              // If no explanation text to display, show the question text
+              textToDisplay = nextQuestion.questionText;
+            }
+
+            // Debug logs
+            console.log('Next Question:', nextQuestion);
+            console.log('Explanation Text:', explanationText);
+            console.log('Next Explanation Text:', nextExplanationText);
+            console.log('Should Display Explanation:', shouldDisplayExplanation);
+            console.log('Text to Display:', textToDisplay);
+  
+            return of(textToDisplay);
     
             // Use the latest explanationText and nextExplanationText here
-            return of(nextQuestion).pipe(
+            /* return of(nextQuestion).pipe(
               tap(() => console.log('EXPLTEXT', explanationText)),
               switchMap(() => {
                 if (shouldDisplayExplanation) {
@@ -518,7 +540,7 @@ export class CodelabQuizContentComponent {
                 console.log('Displaying Next Question Text');
                 return of(nextQuestion.questionText);
               })
-            );
+            ); */
           })
         );
       })
