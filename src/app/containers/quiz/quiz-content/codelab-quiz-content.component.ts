@@ -512,7 +512,7 @@ export class CodelabQuizContentComponent {
           })
         );
       })
-    );    
+    );
   }
   
 
