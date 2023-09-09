@@ -141,8 +141,6 @@ export class ExplanationTextService {
     }
   }
   
-  
-      
   updateExplanationTextForCurrentAndNext(currentExplanationText: string, nextExplanationText: string) {
     try {
       this.currentExplanationTextSource.next(currentExplanationText);
