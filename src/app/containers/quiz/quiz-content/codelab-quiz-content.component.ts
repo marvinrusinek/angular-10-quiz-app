@@ -483,7 +483,7 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.explanationTextService.explanationText$,
       this.explanationTextService.nextExplanationText$,
-      this.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(

@@ -9,8 +9,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 })
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  // private explanationTextSource = new BehaviorSubject<string>(null);
-  // explanationText$ = this.explanationTextSource.asObservable();
   
   explText: string = '';
   explanations: string[] = [];
