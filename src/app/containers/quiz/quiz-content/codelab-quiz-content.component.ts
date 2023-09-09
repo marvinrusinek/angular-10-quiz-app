@@ -459,8 +459,8 @@ export class CodelabQuizContentComponent {
           // Handle the display of the next question and its explanation text
           
           // Use ExplanationTextService to fetch the explanation text for the next question
-          const currentQuestionIndex = this.questions.findIndex(
-            (question) => question === this.currentQuestion.value
+          const currentQuestionIndex = this.questions?.findIndex(
+            (question) => question === this.currentQuestion?.value
           );
 
           let nextExplanationText: string;
