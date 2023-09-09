@@ -498,7 +498,8 @@ export class CodelabQuizContentComponent {
               return of('');
             }
 
-            let textToDisplay = '';
+            // Initialize textToDisplay with the question text
+            let textToDisplay = nextQuestion.questionText;
 
             if (shouldDisplayExplanation) {
               if (explanationText !== '') {
@@ -506,11 +507,6 @@ export class CodelabQuizContentComponent {
               } else if (nextExplanationText !== '') {
                 textToDisplay = nextExplanationText;
               }
-            }
-  
-            if (textToDisplay === '') {
-              // If no explanation text to display, show the question text
-              textToDisplay = nextQuestion.questionText;
             }
 
             // Debug logs
