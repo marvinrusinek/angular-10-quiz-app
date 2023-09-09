@@ -487,18 +487,11 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
-          /* tap(nextQuestion => {
-            console.log('Next Question:', nextQuestion);
-            console.log('Explanation Text:', explanationText);
-            console.log('Next Explanation Text:', nextExplanationText);
-            console.log('Should Display Explanation:', shouldDisplayExplanation);
-          }), */
           switchMap(() => {
             if (!nextQuestion) {
               return of('');
             }
 
-            // Initialize textToDisplay with the question text
             let textToDisplay = nextQuestion.questionText;
 
             if (shouldDisplayExplanation) {
@@ -509,7 +502,6 @@ export class CodelabQuizContentComponent {
               }
             }
 
-            // Debug logs
             console.log('Next Question:', nextQuestion);
             console.log('Explanation Text:', explanationText);
             console.log('Next Explanation Text:', nextExplanationText);
@@ -517,26 +509,6 @@ export class CodelabQuizContentComponent {
             console.log('Text to Display:', textToDisplay);
   
             return of(textToDisplay);
-    
-            // Use the latest explanationText and nextExplanationText here
-            /* return of(nextQuestion).pipe(
-              tap(() => console.log('EXPLTEXT', explanationText)),
-              switchMap(() => {
-                if (shouldDisplayExplanation) {
-                  if (explanationText !== '') {
-                    this.explanationTextService.setShouldDisplayExplanation(false);
-                    return of(explanationText);
-                  }
-                  if (nextExplanationText !== '') {
-                    this.explanationTextService.setShouldDisplayExplanation(false);
-                    return of(nextExplanationText);
-                  }
-                }
-    
-                console.log('Displaying Next Question Text');
-                return of(nextQuestion.questionText);
-              })
-            ); */
           })
         );
       })
