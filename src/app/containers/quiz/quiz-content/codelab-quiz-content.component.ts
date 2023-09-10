@@ -144,6 +144,12 @@ export class CodelabQuizContentComponent {
         if (questions) {
           this.questions = questions;
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+
+          // Collect explanations for all questions
+          this.questionsWithExplanations = questions.map((question) => ({
+            question,
+            explanation: question.explanation || ''
+          }));
         }
       });
 
@@ -506,14 +512,18 @@ export class CodelabQuizContentComponent {
               return of('');
             }
 
-            let textToDisplay = nextQuestion.questionText;
+            let textToDisplay = '';
 
             if (shouldDisplayExplanation) {
-              if (explanationText !== '') {
-                textToDisplay = explanationText;
-              } else if (nextExplanationText !== '') {
-                textToDisplay = nextExplanationText;
+              // Use the questionsWithExplanations array to find the corresponding question-explanation pair
+              const matchingPair = this.questionsWithExplanations.find(pair => pair.question === nextQuestion);
+              if (matchingPair) {
+                textToDisplay = matchingPair.explanation || nextQuestion.questionText;
+              } else {
+                textToDisplay = nextQuestion.questionText;
               }
+            } else {
+              textToDisplay = nextQuestion.questionText;
             }
 
             console.log('Next Question:', nextQuestion);
