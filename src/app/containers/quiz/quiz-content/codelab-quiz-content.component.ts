@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
@@ -136,17 +136,31 @@ export class CodelabQuizContentComponent {
         switchMap((params) => {
           this.quizId = params.get('quizId');
           if (this.quizId) {
-            return this.quizDataService.getQuestionsForQuiz(this.quizId);
+            // return this.quizDataService.getQuestionsForQuiz(this.quizId);
+            return forkJoin([
+              this.quizDataService.getQuestionsForQuiz(this.quizId),
+              this.quizDataService.getAllExplanationTextsForQuiz(this.quizId)
+            ]);
           } else {
-            return of(null);
+            // return of(null);
+            return of([null, []]);
           }
         }),
         takeUntil(this.destroy$)
       )
-      .subscribe((questions) => {
+      .subscribe(([questions, explanationTexts]) => {
         if (questions) {
           this.questions = questions;
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+
+          // Store explanation texts in an array
+          this.explanationTextService.explanationTexts = explanationTexts;
+
+          // Initialize the current question index
+          this.quizService.currentQuestionIndex = 0;
+
+          // Fetch the initial explanation text
+          this.fetchExplanationText();
 
           // Collect explanations for all questions
           this.questionsWithExplanations = questions.map((question) => ({
