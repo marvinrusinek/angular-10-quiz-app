@@ -1005,6 +1005,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     // Set shouldDisplayExplanation to true for all option clicks
     this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.toggleExplanationDisplay(true);
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
