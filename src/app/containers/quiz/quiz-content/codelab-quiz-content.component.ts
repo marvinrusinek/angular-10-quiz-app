@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
 import { Option } from '../../../shared/models/Option.model';
@@ -522,6 +522,27 @@ export class CodelabQuizContentComponent {
               }
             }
 
+            /* let textToDisplay = '';
+
+            if (shouldDisplayExplanation) {
+              if (explanationText !== '') {
+                textToDisplay = explanationText;
+              } else {
+                const currentQuestionIndex = this.questionsWithExplanations.findIndex(
+                  (item) => item.question === nextQuestion
+                );
+
+                if (currentQuestionIndex !== -1) {
+                  const explanation = this.questionsWithExplanations[currentQuestionIndex].explanation;
+                  if (explanation) {
+                    textToDisplay = explanation;
+                  }
+                }
+              }
+            } else {
+              textToDisplay = nextQuestion.questionText;
+            } */
+
             console.log('Next Question:', nextQuestion);
             console.log('Explanation Text:', explanationText);
             console.log('Next Explanation Text:', nextExplanationText);
@@ -531,7 +552,8 @@ export class CodelabQuizContentComponent {
             return of(textToDisplay);
           })
         );
-      })
+      }),
+      startWith('')
     );
   }
   
