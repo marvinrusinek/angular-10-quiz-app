@@ -60,6 +60,7 @@ export class CodelabQuizContentComponent {
   }> | null = null;
   combinedText$: Observable<string>;
   currentDisplayText: string = '';
+  displayedText: string = '';
   displayCorrectAnswers: boolean = false;
   showExplanation: boolean = false;
   isExplanationTextDisplayed: boolean = false;
@@ -492,6 +493,7 @@ export class CodelabQuizContentComponent {
               return of('');
             }
 
+            /* this.explanationTextService.setShouldDisplayExplanation(false);
             let textToDisplay = nextQuestion.questionText;
 
             if (shouldDisplayExplanation) {
@@ -500,7 +502,11 @@ export class CodelabQuizContentComponent {
               } else if (nextExplanationText !== '') {
                 textToDisplay = nextExplanationText;
               }
-            }
+            } */
+
+            let textToDisplay = shouldDisplayExplanation ? explanationText : nextQuestion.questionText;
+
+            return of(textToDisplay);
 
             console.log('Next Question:', nextQuestion);
             console.log('Explanation Text:', explanationText);
@@ -508,7 +514,7 @@ export class CodelabQuizContentComponent {
             console.log('Should Display Explanation:', shouldDisplayExplanation);
             console.log('Text to Display:', textToDisplay);
   
-            return of(textToDisplay);
+            // return of(textToDisplay);
           })
         );
       })
