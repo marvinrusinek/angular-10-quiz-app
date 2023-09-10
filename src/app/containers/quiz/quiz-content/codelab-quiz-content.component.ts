@@ -623,9 +623,7 @@ export class CodelabQuizContentComponent {
     const isQuestionDisplayed = !!data.questionText;
 
     // Display the correct answer text only when all conditions are met
-    this.displayCorrectAnswersText = isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
-
-    return this.displayCorrectAnswersText;
+    return isMultipleAnswer && !isExplanationDisplayed && isQuestionDisplayed;
   }
 
   getNumberOfCorrectAnswers(data: any): number {
