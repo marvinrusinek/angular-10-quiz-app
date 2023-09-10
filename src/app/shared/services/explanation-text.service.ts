@@ -95,10 +95,6 @@ export class ExplanationTextService {
           : 'are correct because');
       }
   
-      if (question.explanation) {
-        currentExplanationParts.push(question.explanation);
-      }
-  
       // Check if there is a next question
       if (nextQuestion) {
         const nextCorrectOptions = nextQuestion.options.filter(option => option.correct);
@@ -116,10 +112,6 @@ export class ExplanationTextService {
           nextExplanationParts.push(nextCorrectOptionIndices.length === 1
             ? 'is correct because'
             : 'are correct because');
-        }
-  
-        if (nextQuestion.explanation) {
-          nextExplanationParts.push(nextQuestion.explanation);
         }
       }
   
@@ -139,7 +131,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
-  
+    
   updateExplanationTextForCurrentAndNext(currentExplanationText: string, nextExplanationText: string) {
     try {
       this.currentExplanationTextSource.next(currentExplanationText);
