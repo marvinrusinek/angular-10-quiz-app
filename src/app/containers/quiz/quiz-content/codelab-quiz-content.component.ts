@@ -75,6 +75,7 @@ export class CodelabQuizContentComponent {
   showNumberOfCorrectAnswersText: boolean = false;
   shouldDisplayCorrectAnswersText$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   displayCorrectAnswersText: boolean = false;
+  explanationDisplayed: boolean = false;
 
   private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$: Observable<boolean> = this.shouldDisplayCorrectAnswersSource.asObservable();
@@ -92,7 +93,7 @@ export class CodelabQuizContentComponent {
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute
   ) {
-    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.setShouldDisplayExplanation(false);
   }
 
   ngOnInit(): void {
@@ -617,10 +618,13 @@ export class CodelabQuizContentComponent {
     
     // Determine if the explanation text is displayed
     const isExplanationDisplayed = !!data.explanationText;
-    
-    // Display the correct answer text only for multiple-answer questions and when explanation is not displayed
-    this.displayCorrectAnswersText = isMultipleAnswer && !isExplanationDisplayed;
-    
+
+    // Determine if the question text is displayed
+    const isQuestionDisplayed = !!data.questionText;
+
+    // Display the correct answer text only when all conditions are met
+    this.displayCorrectAnswersText = isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
+
     return this.displayCorrectAnswersText;
   }
 
