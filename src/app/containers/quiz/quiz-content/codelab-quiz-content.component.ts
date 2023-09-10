@@ -483,6 +483,10 @@ export class CodelabQuizContentComponent {
           } else {
             console.warn('Current question not found in the questions array.');
           }
+
+          // Create a question-explanation pair and add it to the array
+          const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
+          this.questionsWithExplanations.push(questionWithExplanation);
         } else {
           // Handle the end of the quiz or any cleanup
         }
