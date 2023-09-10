@@ -512,18 +512,14 @@ export class CodelabQuizContentComponent {
               return of('');
             }
 
-            let textToDisplay = '';
+            let textToDisplay = nextQuestion.questionText;
 
             if (shouldDisplayExplanation) {
-              // Use the questionsWithExplanations array to find the corresponding question-explanation pair
-              const matchingPair = this.questionsWithExplanations.find(pair => pair.question === nextQuestion);
-              if (matchingPair) {
-                textToDisplay = matchingPair.explanation || nextQuestion.questionText;
-              } else {
-                textToDisplay = nextQuestion.questionText;
+              if (explanationText !== '') {
+                textToDisplay = explanationText;
+              } else if (nextExplanationText !== '') {
+                textToDisplay = nextExplanationText;
               }
-            } else {
-              textToDisplay = nextQuestion.questionText;
             }
 
             console.log('Next Question:', nextQuestion);
