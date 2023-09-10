@@ -91,7 +91,9 @@ export class CodelabQuizContentComponent {
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) {
+    this.explanationTextService.setShouldDisplayExplanation(true);
+  }
 
   ngOnInit(): void {
     this.initializeQuestionData();
