@@ -33,6 +33,7 @@ export class CodelabQuizContentComponent {
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
+  questionsWithExplanations: { question: QuizQuestion, explanation: string }[] = [];
   numberOfCorrectAnswers: number = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
@@ -460,13 +461,21 @@ export class CodelabQuizContentComponent {
           // Handle the display of the next question and its explanation text
           
           // Use ExplanationTextService to fetch the explanation text for the next question
-          const currentQuestionIndex = this.questions?.findIndex(
-            (question) => question === this.currentQuestion?.value
+          const currentQuestionIndex = this.questionsWithExplanations?.findIndex(
+            (item) => item.question === nextQuestion
           );
 
           let nextExplanationText: string;
 
           if (currentQuestionIndex !== -1) {
+            // Check if the current question is in the questionsWithExplanations array
+            const nextQuestionItem = this.questionsWithExplanations[currentQuestionIndex + 1];
+
+            if (nextQuestionItem) {
+              nextExplanationText = nextQuestionItem.explanation;
+            }
+
+
             // Check if the current question is in the questions array
             nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               currentQuestionIndex + 1
