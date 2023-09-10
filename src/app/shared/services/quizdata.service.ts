@@ -224,6 +224,15 @@ export class QuizDataService {
     );
   }
 
+  getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
+    return this.getQuiz(quizId).pipe(
+      map((quiz: Quiz) => {
+        const explanationTexts = quiz.questions.map((question) => question.explanation || '');
+        return explanationTexts;
+      })
+    );
+  }
+  
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       map(([question, options]) => question),
