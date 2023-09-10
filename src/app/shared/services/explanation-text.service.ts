@@ -151,6 +151,10 @@ export class ExplanationTextService {
     }
   }
 
+  toggleExplanationDisplay(shouldDisplay: boolean): void {
+    this.shouldDisplayExplanationSource.next(shouldDisplay);
+  }
+
   setNextExplanationText(explanationText: string) {
     try {
       console.log('Setting next explanation text:', explanationText);
