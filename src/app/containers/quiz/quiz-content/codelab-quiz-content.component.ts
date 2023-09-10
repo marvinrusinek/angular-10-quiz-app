@@ -525,6 +525,23 @@ export class CodelabQuizContentComponent {
             /* let textToDisplay = '';
 
             if (shouldDisplayExplanation) {
+              const currentQuestionIndex = this.questionsWithExplanations.findIndex(
+                (item) => item.question === nextQuestion
+              );
+
+              if (currentQuestionIndex !== -1) {
+                const explanation = this.questionsWithExplanations[currentQuestionIndex].explanation;
+                if (explanation) {
+                  textToDisplay = explanation;
+                }
+              }
+            } else {
+              textToDisplay = nextQuestion.questionText;
+            } */
+
+            /* let textToDisplay = '';
+
+            if (shouldDisplayExplanation) {
               if (explanationText !== '') {
                 textToDisplay = explanationText;
               } else {
