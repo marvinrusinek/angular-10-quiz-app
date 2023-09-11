@@ -518,8 +518,8 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
-          switchMap((currentQuestion) => {
-            if (!currentQuestion) {
+          switchMap((nextQuestion) => {
+            if (!nextQuestion) {
               return of('');
             }
 
