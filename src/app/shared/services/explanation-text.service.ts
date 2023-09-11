@@ -32,7 +32,7 @@ export class ExplanationTextService {
   lastDisplayedExplanationText: string = '';
 
   constructor() {
-    this.explanationText$.next('');
+    this.explanationText$.next(null);
     this.shouldDisplayExplanationSource.next(false);
   }
 

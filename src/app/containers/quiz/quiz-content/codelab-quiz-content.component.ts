@@ -478,40 +478,37 @@ export class CodelabQuizContentComponent {
       }
     );
 
+    // Initialize the questionsWithExplanations array with the first question and an empty explanation
+    this.questionsWithExplanations = [];
+
+    // Subscribe to the nextQuestion$ observable
     this.nextQuestionSubscription = this.nextQuestion$.subscribe(
       (nextQuestion) => {
         if (nextQuestion) {
-          // Use ExplanationTextService to fetch the explanation text for the next question
-          const currentQuestionIndex = this.questionsWithExplanations?.findIndex(
-            (item) => item.question === nextQuestion
-          );
-    
-          let nextExplanationText: string;
-    
-          if (currentQuestionIndex !== -1) {
-            // Check if the current question is in the questionsWithExplanations array
-            const nextQuestionItem = this.questionsWithExplanations[currentQuestionIndex + 1];
-    
-            if (nextQuestionItem) {
-              nextExplanationText = nextQuestionItem.explanation;
+          if (this.questionsWithExplanations.length === 0) {
+            // This is the first question, so initialize the array with an empty explanation
+            this.questionsWithExplanations.push({ question: nextQuestion, explanation: '' });
+          } else {
+            // Use ExplanationTextService to fetch the explanation text for the next question
+            const currentQuestionIndex = this.questionsWithExplanations.length - 1;
+            let nextExplanationText: string;
+
+            if (currentQuestionIndex >= 0) {
+              const currentQuestionItem = this.questionsWithExplanations[currentQuestionIndex];
+              nextExplanationText = currentQuestionItem.explanation;
             }
-    
-            // Check if the current question is in the questions array
-            if (!nextExplanationText) {
-              nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
-                currentQuestionIndex + 1
-              );
-            }
+
+            // Create a question-explanation pair and add it to the array
+            const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
+            this.questionsWithExplanations.push(questionWithExplanation);
           }
-    
-          // Create a question-explanation pair and add it to the array
-          const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
-          this.questionsWithExplanations.push(questionWithExplanation);
         } else {
           // Handle the end of the quiz or any cleanup
         }
       }
     );
+
+    
     
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
@@ -521,8 +518,8 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
-          switchMap(() => {
-            if (!nextQuestion) {
+          switchMap((currentQuestion) => {
+            if (!currentQuestion) {
               return of('');
             }
 
