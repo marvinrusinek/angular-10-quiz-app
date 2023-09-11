@@ -160,7 +160,7 @@ export class CodelabQuizContentComponent {
           this.quizService.currentQuestionIndex = 0;
 
           // Fetch the initial explanation text
-          // this.fetchExplanationText();
+          this.fetchExplanationText();
 
           // Collect explanations for all questions
           this.questionsWithExplanations = questions.map((question) => ({
@@ -478,38 +478,44 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    // Initialize the questionsWithExplanations array with the first question and an empty explanation
-    this.questionsWithExplanations = [];
-
-    // Subscribe to the nextQuestion$ observable
     this.nextQuestionSubscription = this.nextQuestion$.subscribe(
       (nextQuestion) => {
         if (nextQuestion) {
-          if (this.questionsWithExplanations.length === 0) {
-            // This is the first question, so initialize the array with an empty explanation
-            this.questionsWithExplanations.push({ question: nextQuestion, explanation: '' });
-          } else {
-            // Use ExplanationTextService to fetch the explanation text for the next question
-            const currentQuestionIndex = this.questionsWithExplanations.length - 1;
-            let nextExplanationText: string;
+          // Handle the display of the next question and its explanation text
+          
+          // Use ExplanationTextService to fetch the explanation text for the next question
+          const currentQuestionIndex = this.questionsWithExplanations?.findIndex(
+            (item) => item.question === nextQuestion
+          );
 
-            if (currentQuestionIndex >= 0) {
-              const currentQuestionItem = this.questionsWithExplanations[currentQuestionIndex];
-              nextExplanationText = currentQuestionItem.explanation;
+          let nextExplanationText: string;
+
+          if (currentQuestionIndex !== -1) {
+            // Check if the current question is in the questionsWithExplanations array
+            const nextQuestionItem = this.questionsWithExplanations[currentQuestionIndex + 1];
+
+            if (nextQuestionItem) {
+              nextExplanationText = nextQuestionItem.explanation;
             }
 
-            // Create a question-explanation pair and add it to the array
-            const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
-            this.questionsWithExplanations.push(questionWithExplanation);
+
+            // Check if the current question is in the questions array
+            nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
+              currentQuestionIndex + 1
+            ); // Fetch the explanation text for the next question
+          } else {
+            console.warn('Current question not found in the questions array.');
           }
+
+          // Create a question-explanation pair and add it to the array
+          const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
+          this.questionsWithExplanations.push(questionWithExplanation);
         } else {
           // Handle the end of the quiz or any cleanup
         }
       }
     );
 
-    
-    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.explanationText$,
@@ -518,7 +524,7 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
         return of(nextQuestion).pipe(
-          switchMap((nextQuestion) => {
+          switchMap(() => {
             if (!nextQuestion) {
               return of('');
             }
