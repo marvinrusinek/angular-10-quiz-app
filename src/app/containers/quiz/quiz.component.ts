@@ -1109,6 +1109,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
         } else {
           this.nextQuestionText = null;
+
+          // Keep the last question and options displayed
+          this.currentOptions = options;
         }
   
         console.log('Next question text:', this.nextQuestionText);
