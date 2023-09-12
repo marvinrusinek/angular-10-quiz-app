@@ -1103,10 +1103,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Set options and questionText for the next question
         const nextQuestionIndex = this.currentQuestionIndex + 1;
-        if (this.selectedQuiz.questions[nextQuestionIndex]) {
+        if (nextQuestionIndex < this.selectedQuiz.questions.length) {
           const nextQuestion = this.selectedQuiz.questions[nextQuestionIndex];
           this.nextQuestionText = nextQuestion.questionText;
-          // No need to update this.currentOptions again here
+          this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
         } else {
           this.nextQuestionText = null;
         }
