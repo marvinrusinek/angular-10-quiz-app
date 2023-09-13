@@ -1146,38 +1146,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       );
   }
-
-  /* setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
-    this.isExplanationTextDisplayed = true;
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
-  
-    const nextQuestion = this.quizService.getNextQuestion();
-  
-    if (nextQuestion) {
-      this.explanationTextService
-        .formatExplanationText(options, currentQuestion, nextQuestion)
-        .subscribe(
-          (explanationText: string) => {
-            this.explanationText$.next(explanationText);
-            this.isAnswerSelectedChange.emit(true);
-            this.toggleVisibility.emit();
-            this.updateFeedbackVisibility();
-            this.updateCombinedQuestionData(currentQuestion, explanationText);
-          },
-          (error) => {
-            console.error('Error in setExplanationText:', error);
-          }
-        );
-    } else {
-      console.log('No next question available. Quiz has ended.');
-      this.explanationText$.next('');
-  
-      const quizCompleted = true; // check if the quiz is completed here
-      if (quizCompleted) {
-        this.quizEnded.emit(true);
-      }
-    }
-  } */
     
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
