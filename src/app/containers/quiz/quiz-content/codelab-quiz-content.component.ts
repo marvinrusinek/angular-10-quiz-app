@@ -520,16 +520,17 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.explanationTextService.explanationText$,
       this.explanationTextService.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.quizDataService.getQuestionsForQuiz(this.quizId)
     ]).pipe(
-      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
+      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation, selectedQuizQuestions]) => {
         return of(nextQuestion).pipe(
           switchMap(() => {
             if (!nextQuestion) {
               return of('');
             }
 
-            let textToDisplay = nextQuestion.questionText;
+            /* let textToDisplay = nextQuestion.questionText;
 
             if (shouldDisplayExplanation) {
               if (explanationText !== '') {
@@ -543,7 +544,16 @@ export class CodelabQuizContentComponent {
             console.log('Explanation Text:', explanationText);
             console.log('Next Explanation Text:', nextExplanationText);
             console.log('Should Display Explanation:', shouldDisplayExplanation);
-            console.log('Text to Display:', textToDisplay);
+            console.log('Text to Display:', textToDisplay); */
+
+            // Determine the index of the next question in the selected quiz
+            const nextQuestionIndex = selectedQuizQuestions.findIndex(q => q === nextQuestion);
+
+            // Fetch the explanation text for the next question based on the index
+            const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
+
+            // Decide which text to display based on shouldDisplayExplanation
+            const textToDisplay = shouldDisplayExplanation ? nextExplanationText || nextExplanation || explanationText : nextQuestion.questionText;
   
             return of(textToDisplay);
           })
