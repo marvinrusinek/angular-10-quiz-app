@@ -60,7 +60,7 @@ export class ExplanationTextService {
   }
 
   getExplanationTextForIndex(index: number): string | undefined {
-    return this.explanationTexts[index];
+    return this.explanationTexts[index] || '';
   }
 
   formatExplanationText(
