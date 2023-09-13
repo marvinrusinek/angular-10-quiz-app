@@ -1088,7 +1088,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  /* setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
+  setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
@@ -1145,9 +1145,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           }
         }
       );
-  } */
+  }
 
-  setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
+  /* setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
@@ -1177,7 +1177,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.quizEnded.emit(true);
       }
     }
-  }
+  } */
     
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
