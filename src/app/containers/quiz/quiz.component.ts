@@ -1108,10 +1108,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.nextQuestionText = nextQuestion.questionText;
           this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
         } else {
-          this.nextQuestionText = null;
-
-          // Keep the last question and options displayed
-          this.currentOptions = options;
+          // You've reached the last question, so keep the options and question text displayed
+          // without clearing them
         }
   
         console.log('Next question text:', this.nextQuestionText);
@@ -1132,7 +1130,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error("Error occurred while advancing to the next question:", error);
     }
-  }  
+  }
+  
      
   advanceToPreviousQuestion() {
     this.answers = [];
