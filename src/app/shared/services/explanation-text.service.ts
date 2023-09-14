@@ -68,6 +68,7 @@ export class ExplanationTextService {
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
   ): Observable<string> {
+    console.log('formatExplanationText called with:', selectedOptions, question, nextQuestion);
     try {
       if (!Array.isArray(selectedOptions)) {
         throw new Error('selectedOptions is not an array');
@@ -125,7 +126,12 @@ export class ExplanationTextService {
       this.updateExplanationTextForCurrentAndNext(combinedExplanationText, '');
   
       // Return the formatted explanation
-      return of(combinedExplanationText);
+      // return of(combinedExplanationText);
+      return of(combinedExplanationText).pipe(
+        tap((text) => {
+          console.log('Generated Explanation Text:', text);
+        })
+      );
     } catch (error) {
       console.error('Error occurred while formatting explanation text:', error);
       return of('');
