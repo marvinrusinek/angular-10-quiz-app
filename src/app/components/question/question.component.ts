@@ -1027,14 +1027,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
-      if (this.selectedOptions.length > 0) {
-        const selectedOptionsArray = [...this.selectedOptions] as Option[];
-        console.log('Selected Options:', selectedOptionsArray);
+      if (this.quizService.selectedOptions.length > 0) {
+        // const selectedOptionsArray = [...this.selectedOptions] as Option[];
+        // console.log('Selected Options:', selectedOptionsArray);
+        console.log('Selected Options QS:::', this.quizService.selectedOptions);
         console.log('Selected Options:::', this.selectedOptions);
         console.log('Selected Option:::', option);
-        console.log('Selected Options Array:', selectedOptionsArray);
-        console.log('Before calling setExplanationText - selectedOptionsArray:', selectedOptionsArray);
-        this.setExplanationText(currentQuestion, selectedOptionsArray);
+        // console.log('Selected Options Array:', selectedOptionsArray);
+        // console.log('Before calling setExplanationText - selectedOptionsArray:', selectedOptionsArray);
+        this.setExplanationText(currentQuestion, this.quizService.selectedOptions);
       } else {
         this.explanationText$.next('');
       }
