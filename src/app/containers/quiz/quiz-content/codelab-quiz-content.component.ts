@@ -529,10 +529,8 @@ export class CodelabQuizContentComponent {
             if (!nextQuestion) {
               return of('');
             }
-
-            // Determine the index of the next question in the selected quiz
-            // const nextQuestionIndex = selectedQuizQuestions.findIndex(q => q === nextQuestion);
-            const currentQuestionIndex = selectedQuizQuestions.findIndex(q => q.questionText === nextQuestion.questionText);
+            
+            const currentQuestionIndex = selectedQuizQuestions.findIndex(q => q === nextQuestion);
 
             let nextQuestionIndex = currentQuestionIndex + 1;
 
