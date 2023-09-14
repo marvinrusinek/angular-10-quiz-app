@@ -1009,7 +1009,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
-    console.log('Before Click - selectedOptions:', this.selectedOptions);
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((o) => o === option);
 
@@ -1028,13 +1027,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
       if (this.quizService.selectedOptions.length > 0) {
-        // const selectedOptionsArray = [...this.selectedOptions] as Option[];
-        // console.log('Selected Options:', selectedOptionsArray);
-        console.log('Selected Options QS:::', this.quizService.selectedOptions);
-        console.log('Selected Options:::', this.selectedOptions);
-        console.log('Selected Option:::', option);
-        // console.log('Selected Options Array:', selectedOptionsArray);
-        // console.log('Before calling setExplanationText - selectedOptionsArray:', selectedOptionsArray);
         this.setExplanationText(currentQuestion, this.quizService.selectedOptions);
       } else {
         this.explanationText$.next('');
