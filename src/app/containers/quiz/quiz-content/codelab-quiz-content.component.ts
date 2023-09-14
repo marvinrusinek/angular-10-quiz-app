@@ -544,7 +544,8 @@ export class CodelabQuizContentComponent {
             console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
 
             // Decide which text to display based on shouldDisplayExplanation
-            const textToDisplay = shouldDisplayExplanation ? nextExplanationText || nextExplanation || explanationText : nextQuestion.questionText;
+            // const textToDisplay = shouldDisplayExplanation ? nextExplanationText || nextExplanation || explanationText : nextQuestion.questionText;
+            const textToDisplay = nextQuestion.questionText;
 
             /* let textToDisplay = nextQuestion.questionText;
             
