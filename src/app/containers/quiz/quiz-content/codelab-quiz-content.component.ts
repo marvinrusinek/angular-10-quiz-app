@@ -548,16 +548,6 @@ export class CodelabQuizContentComponent {
 
             let textToDisplay = nextQuestion.questionText;
 
-            /* let textToDisplay = nextQuestion.questionText;
-            
-            if (shouldDisplayExplanation) {
-              if (explanationText !== '') {
-                textToDisplay = explanationText;
-              } else if (nextExplanationText !== '') {
-                textToDisplay = nextExplanationText;
-              }
-            } */
-
             console.log('Next Question:', nextQuestion);
             console.log('Next Question Index:', nextQuestionIndex);
             console.log('Explanation Text:', explanationText);
