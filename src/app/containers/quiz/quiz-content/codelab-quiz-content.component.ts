@@ -532,7 +532,13 @@ export class CodelabQuizContentComponent {
 
             // Determine the index of the next question in the selected quiz
             // const nextQuestionIndex = selectedQuizQuestions.findIndex(q => q === nextQuestion);
-            const nextQuestionIndex = selectedQuizQuestions.findIndex(q => q.questionText === nextQuestion.questionText);
+            const currentQuestionIndex = selectedQuizQuestions.findIndex(q => q.questionText === nextQuestion.questionText);
+
+            let nextQuestionIndex = currentQuestionIndex + 1;
+
+            if (nextQuestionIndex >= selectedQuizQuestions.length) {
+              nextQuestionIndex = -1;
+            }
 
             // Fetch the explanation text for the next question based on the index
             const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
