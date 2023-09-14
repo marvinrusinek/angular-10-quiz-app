@@ -530,7 +530,7 @@ export class CodelabQuizContentComponent {
               return of('');
             }
             
-            const currentQuestionIndex = selectedQuizQuestions.findIndex(q => q === nextQuestion);
+            const currentQuestionIndex = selectedQuizQuestions.findIndex(q => q.questionText === nextQuestion.questionText);
 
             let nextQuestionIndex = currentQuestionIndex + 1;
 
