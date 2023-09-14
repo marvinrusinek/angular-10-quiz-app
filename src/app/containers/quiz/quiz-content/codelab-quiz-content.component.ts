@@ -539,6 +539,7 @@ export class CodelabQuizContentComponent {
             }
 
             // Fetch the explanation text for the next question based on the index
+            const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(currentQuestionIndex);
             const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
 
             console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
@@ -546,7 +547,10 @@ export class CodelabQuizContentComponent {
             // Decide which text to display based on shouldDisplayExplanation
             // const textToDisplay = shouldDisplayExplanation ? nextExplanationText || nextExplanation || explanationText : nextQuestion.questionText;
 
-            let textToDisplay = nextQuestion.questionText;
+            // let textToDisplay = nextQuestion.questionText;
+            const textToDisplay = shouldDisplayExplanation
+              ? nextExplanationText || nextExplanation || currentExplanation || nextQuestion.questionText
+              : nextQuestion.questionText;
 
             console.log('Next Question:', nextQuestion);
             console.log('Next Question Index:', nextQuestionIndex);
