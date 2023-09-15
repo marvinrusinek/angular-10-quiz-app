@@ -69,7 +69,7 @@ export class ExplanationTextService {
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
   ): Observable<string> {
-    console.log("SET TEST");
+    console.log("FET TEST");
     console.log('formatExplanationText called with:', selectedOptions, question, nextQuestion);
     try {
       if (!Array.isArray(selectedOptions)) {
