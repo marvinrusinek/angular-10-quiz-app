@@ -45,10 +45,6 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  setExplanationForQuestionIndex(index: number, explanation: string): void {
-    this.explanations[index] = explanation;
-  }
-
   getExplanationForQuestionIndex(index: number): string {
     if (index >= 0 && index < this.explanations.length) {
       return this.explanations[index] || '';
