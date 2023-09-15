@@ -69,6 +69,7 @@ export class ExplanationTextService {
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
   ): Observable<string> {
+    console.log("SET TEST");
     console.log('formatExplanationText called with:', selectedOptions, question, nextQuestion);
     try {
       if (!Array.isArray(selectedOptions)) {
@@ -125,6 +126,8 @@ export class ExplanationTextService {
   
       // Call the method to update explanation texts for the current and next questions
       this.updateExplanationTextForCurrentAndNext(combinedExplanationText, '');
+
+      console.log('Return value before piping:', combinedExplanationText);
   
       // Return the formatted explanation
       // return of(combinedExplanationText);
