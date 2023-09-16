@@ -405,19 +405,6 @@ export class CodelabQuizContentComponent {
     console.log('Explanation Text Observable:', this.explanationText$);
     console.log('Next Explanation Text Observable:', this.nextExplanationText$);
 
-    /* this.explanationTextService.explanationText$.subscribe((currentExplanationText) => {
-      console.log('Current Explanation Text:', currentExplanationText);
-    
-      // Check if this is the expected explanation text (for the 2nd question)
-      if (currentExplanationText) {
-        console.log('Explanation text for 2nd question:', currentExplanationText);
-      } else {
-        console.log('No explanation text for the 2nd question.');
-      }
-    
-      this.explanationText = currentExplanationText;
-    }); */
-
     this.explanationTextService.explanationText$.subscribe(
       (currentExplanationText) => {
         console.log('Received explanation text:', currentExplanationText);
