@@ -222,7 +222,7 @@ export class CodelabQuizContentComponent {
 
           console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
 
-          this.updateExplanationForQuestion(question);
+          this.updateExplanationForQuestion(nextQuestion);
         } else {
           console.warn('Current question not found in the questions array.');
         }
