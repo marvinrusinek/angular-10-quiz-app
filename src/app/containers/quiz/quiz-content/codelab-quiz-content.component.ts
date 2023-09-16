@@ -153,22 +153,19 @@ export class CodelabQuizContentComponent {
           this.questions = questions;
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
 
-          // Store explanation texts in an array
-          this.explanationTextService.explanationTexts = explanationTexts;
-
           // Initialize the current question index
           this.quizService.currentQuestionIndex = 0;
-
-          // Fetch the initial explanation text
-          this.fetchExplanationText();
 
           // Collect explanations for all questions
           this.questionsWithExplanations = questions.map((question) => ({
             question,
             explanation: question.explanation || ''
           }));
+
+          // Store explanation texts in an array
+          this.explanationTextService.explanationTexts = explanationTexts;
         }
-      });
+      }); 
 
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
@@ -218,9 +215,10 @@ export class CodelabQuizContentComponent {
         console.log('All Questions:>', questions);
         console.log('Question Index:>', questionIndex);
 
-        if (questionIndex !== -1) {
-          const explanationText = question.explanation;
-          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
+        if (questionIndex !== -1 && questionIndex < questions.length - 1) {
+          const nextQuestion = questions[questionIndex + 1];
+          const nextExplanationText = question.explanation;
+          this.explanationTextService.setExplanationTextForIndex(questionIndex + 1, nextExplanationText);
 
           console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
 
@@ -229,7 +227,7 @@ export class CodelabQuizContentComponent {
           console.warn('Current question not found in the questions array.');
         }
       }
-    });
+    }); 
     
     this.explanationText$.subscribe(explanationText => {
       this.explanationText = explanationText;
@@ -575,4 +573,4 @@ export class CodelabQuizContentComponent {
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
-} 
+}
