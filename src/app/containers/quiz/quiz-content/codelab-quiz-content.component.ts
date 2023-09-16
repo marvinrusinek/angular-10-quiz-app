@@ -405,7 +405,7 @@ export class CodelabQuizContentComponent {
     console.log('Explanation Text Observable:', this.explanationText$);
     console.log('Next Explanation Text Observable:', this.nextExplanationText$);
 
-    this.explanationTextService.explanationText$.subscribe((currentExplanationText) => {
+    /* this.explanationTextService.explanationText$.subscribe((currentExplanationText) => {
       console.log('Current Explanation Text:', currentExplanationText);
     
       // Check if this is the expected explanation text (for the 2nd question)
@@ -416,7 +416,18 @@ export class CodelabQuizContentComponent {
       }
     
       this.explanationText = currentExplanationText;
-    });
+    }); */
+
+    this.explanationTextService.explanationText$.subscribe(
+      (currentExplanationText) => {
+        console.log('Received explanation text:', currentExplanationText);
+        this.explanationText = currentExplanationText;
+      },
+      (error) => {
+        console.error('Error in explanationText$ observable:', error);
+      }
+    );
+    
     
     this.explanationTextService.nextExplanationText$.subscribe(
       (nextExplanationText) => {
