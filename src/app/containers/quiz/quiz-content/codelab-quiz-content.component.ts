@@ -217,7 +217,7 @@ export class CodelabQuizContentComponent {
 
         if (questionIndex !== -1 && questionIndex < questions.length - 1) {
           const nextQuestion = questions[questionIndex + 1];
-          const nextExplanationText = question.explanation;
+          const nextExplanationText = nextQuestion.explanation;
           this.explanationTextService.setExplanationTextForIndex(questionIndex + 1, nextExplanationText);
 
           console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
