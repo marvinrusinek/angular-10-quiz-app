@@ -153,19 +153,22 @@ export class CodelabQuizContentComponent {
           this.questions = questions;
           this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
 
+          // Store explanation texts in an array
+          this.explanationTextService.explanationTexts = explanationTexts;
+
           // Initialize the current question index
           this.quizService.currentQuestionIndex = 0;
+
+          // Fetch the initial explanation text
+          this.fetchExplanationText();
 
           // Collect explanations for all questions
           this.questionsWithExplanations = questions.map((question) => ({
             question,
             explanation: question.explanation || ''
           }));
-
-          // Store explanation texts in an array
-          this.explanationTextService.explanationTexts = explanationTexts;
         }
-      }); 
+      });
 
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
@@ -215,19 +218,18 @@ export class CodelabQuizContentComponent {
         console.log('All Questions:>', questions);
         console.log('Question Index:>', questionIndex);
 
-        if (questionIndex !== -1 && questionIndex < questions.length - 1) {
-          const nextQuestion = questions[questionIndex + 1];
-          const nextExplanationText = nextQuestion.explanation;
-          this.explanationTextService.setExplanationTextForIndex(questionIndex + 1, nextExplanationText);
+        if (questionIndex !== -1) {
+          const explanationText = question.explanation;
+          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
 
           console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
 
-          this.updateExplanationForQuestion(nextQuestion);
+          this.updateExplanationForQuestion(question);
         } else {
           console.warn('Current question not found in the questions array.');
         }
       }
-    }); 
+    });
     
     this.explanationText$.subscribe(explanationText => {
       this.explanationText = explanationText;
@@ -407,20 +409,11 @@ export class CodelabQuizContentComponent {
 
     this.explanationTextService.explanationText$.subscribe(
       (currentExplanationText) => {
-        if (currentExplanationText) {
-          console.log('Received explanation text:', currentExplanationText);
-          this.explanationText = currentExplanationText;
-        } else {
-          console.log('No explanation text received.');
-        }
-      },
-      (error) => {
-        console.error('Error in explanationText$ observable:', error);
+        console.log('Current Explanation Text::>>', currentExplanationText);
+        this.explanationText = currentExplanationText;
       }
     );
-    
-    
-    
+  
     this.explanationTextService.nextExplanationText$.subscribe(
       (nextExplanationText) => {
         console.log('Next Explanation Text::>>', nextExplanationText);
@@ -436,10 +429,6 @@ export class CodelabQuizContentComponent {
         console.error("NET Error:", error);
       }
     );
-
-    this.nextQuestion$.subscribe((nextQuestion) => {
-      console.log('Next Question:>', nextQuestion);
-    });
 
     this.nextQuestionSubscription = this.nextQuestion$.subscribe(
       (nextQuestion) => {
@@ -466,10 +455,6 @@ export class CodelabQuizContentComponent {
             nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               currentQuestionIndex + 1
             ); // Fetch the explanation text for the next question
-
-            console.log('Current Question:', nextQuestion);
-            console.log('Current Question Index:', currentQuestionIndex);
-            console.log('Next Explanation Text:', nextExplanationText);
           } else {
             console.warn('Current question not found in the questions array.');
           }
@@ -590,4 +575,4 @@ export class CodelabQuizContentComponent {
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
-}
+} 
