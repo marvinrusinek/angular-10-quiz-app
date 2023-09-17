@@ -28,6 +28,7 @@ export class CodelabQuizContentComponent {
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
   quizId: string = '';
+  questionIndex: number;
   currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
@@ -135,6 +136,7 @@ export class CodelabQuizContentComponent {
       .pipe(
         switchMap((params) => {
           this.quizId = params.get('quizId');
+          this.questionIndex = params.get('questionIndex');
           if (this.quizId) {
             // return this.quizDataService.getQuestionsForQuiz(this.quizId);
             return forkJoin([
@@ -171,7 +173,7 @@ export class CodelabQuizContentComponent {
         this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
       
         // Fetch the initial explanation text
-        this.fetchExplanationText();
+        this.fetchExplanationText(this.questionIndex);
       });
       
 
