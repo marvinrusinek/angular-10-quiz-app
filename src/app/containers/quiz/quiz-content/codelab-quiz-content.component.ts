@@ -136,7 +136,7 @@ export class CodelabQuizContentComponent {
       .pipe(
         switchMap((params) => {
           this.quizId = params.get('quizId');
-          this.questionIndex = params.get('questionIndex');
+          this.questionIndex = +params.get('questionIndex');
           if (this.quizId) {
             // return this.quizDataService.getQuestionsForQuiz(this.quizId);
             return forkJoin([
