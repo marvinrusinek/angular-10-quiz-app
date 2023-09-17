@@ -9,7 +9,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root',
 })
 export class ExplanationTextService {
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  // explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   
   explText: string = '';
   explanations: string[] = [];
