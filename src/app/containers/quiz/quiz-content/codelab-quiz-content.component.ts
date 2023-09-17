@@ -407,13 +407,18 @@ export class CodelabQuizContentComponent {
 
     this.explanationTextService.explanationText$.subscribe(
       (currentExplanationText) => {
-        console.log('Received explanation text:', currentExplanationText);
-        this.explanationText = currentExplanationText;
+        if (currentExplanationText) {
+          console.log('Received explanation text:', currentExplanationText);
+          this.explanationText = currentExplanationText;
+        } else {
+          console.log('No explanation text received.');
+        }
       },
       (error) => {
         console.error('Error in explanationText$ observable:', error);
       }
     );
+    
     
     
     this.explanationTextService.nextExplanationText$.subscribe(
@@ -431,6 +436,10 @@ export class CodelabQuizContentComponent {
         console.error("NET Error:", error);
       }
     );
+
+    this.nextQuestion$.subscribe((nextQuestion) => {
+      console.log('Next Question:>', nextQuestion);
+    });
 
     this.nextQuestionSubscription = this.nextQuestion$.subscribe(
       (nextQuestion) => {
