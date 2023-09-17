@@ -149,26 +149,31 @@ export class CodelabQuizContentComponent {
         takeUntil(this.destroy$)
       )
       .subscribe(([questions, explanationTexts]) => {
-        if (questions) {
-          this.questions = questions;
-          this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-
-          // Store explanation texts in an array
-          this.explanationTextService.explanationTexts = explanationTexts;
-
-          // Initialize the current question index
-          this.quizService.currentQuestionIndex = 0;
-
-          // Fetch the initial explanation text
-          this.fetchExplanationText();
-
-          // Collect explanations for all questions
-          this.questionsWithExplanations = questions.map((question) => ({
-            question,
-            explanation: question.explanation || ''
-          }));
+        if (!questions) {
+          // Handle the case when questions are not available
+          return;
         }
+      
+        // Store explanation texts in an array
+        this.explanationTextService.explanationTexts = explanationTexts;
+      
+        // Collect explanations for all questions
+        this.questionsWithExplanations = questions.map((question) => ({
+          question,
+          explanation: question.explanation || ''
+        }));
+      
+        // Initialize the current question index
+        this.quizService.currentQuestionIndex = 0;
+      
+        // Set the questions
+        this.questions = questions;
+        this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+      
+        // Fetch the initial explanation text
+        this.fetchExplanationText();
       });
+      
 
     this.quizStateService.currentOptions$.subscribe((options) => {
       this.currentOptions$.next(options);
@@ -236,7 +241,12 @@ export class CodelabQuizContentComponent {
       this.explanationText = explanationText;
     });    
   }
-
+  
+  fetchExplanationText(questionIndex: number): string {
+    const explanation = this.explanationTextService.getExplanationTextForIndex(questionIndex);
+    return explanation || '';
+  }
+   
   updateExplanationForQuestion(question: QuizQuestion): void {
     // Combine explanationTextService's observable with selectedOptionExplanation$
     const explanationText$ = combineLatest([

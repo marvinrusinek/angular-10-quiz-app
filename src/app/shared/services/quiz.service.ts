@@ -1211,56 +1211,22 @@ export class QuizService implements OnDestroy {
       this.options = null;
       this.optionsSubject.next(null);
     }
-  }
+  }  
 
   async getNextQuestionWithExplanation(): Promise<{ nextQuestion: QuizQuestion, explanationText: string }> {
-    let explanationText = '';
-
-    // Fetch the next question and its explanation
-    const nextQuestion = await this.getNextQuestion();
-    nextQuestion.explanation = await this.fetchExplanationForQuestion(nextQuestion);
-    return { nextQuestion, explanationText };
-  }
-
-  async fetchExplanationForQuestion(question: QuizQuestion): Promise<string> {
     try {
-      if (!question || !question.options || !Array.isArray(question.options)) {
-        throw new Error('Invalid question or options.');
-      }
+      // Fetch the next question
+      const nextQuestion = await this.getNextQuestion();
   
-      const selectedOptions = this.selectedOptions; // Replace this with how you get selected options
-      let explanationText = '';
+      // Obtain the explanation text
+      const explanationText = nextQuestion.explanation;
   
-      // Check if there are selected correct options
-      const correctOptions = question.options.filter(option => option.correct);
-      const selectedCorrectOptions = selectedOptions.filter(option => option.correct);
-  
-      if (selectedCorrectOptions.length > 0) {
-        const correctOptionIndices = correctOptions.map(option => question.options.indexOf(option) + 1);
-  
-        if (correctOptionIndices.length === 1) {
-          explanationText = `Option ${correctOptionIndices[0]}`;
-        } else {
-          const correctOptionsString = correctOptionIndices.join(' and ');
-          explanationText = `Options ${correctOptionsString}`;
-        }
-  
-        explanationText += correctOptionIndices.length === 1
-          ? ' is correct because'
-          : ' are correct because';
-      }
-  
-      if (question.explanation) {
-        explanationText += ` ${question.explanation}`;
-      }
-  
-      return explanationText;
+      return { nextQuestion, explanationText };
     } catch (error) {
-      console.error('Error occurred while formatting explanation text:', error);
-      return '';
+      console.error('Error occurred while fetching next question with explanation:', error);
+      throw error;
     }
   }
-  
 
   /********* navigation functions ***********/
   navigateToNextQuestion(): Promise<boolean> {
