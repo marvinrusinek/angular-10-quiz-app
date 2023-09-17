@@ -457,6 +457,10 @@ export class CodelabQuizContentComponent {
             nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
               currentQuestionIndex + 1
             ); // Fetch the explanation text for the next question
+
+            console.log('Current Question:', nextQuestion);
+            console.log('Current Question Index:', currentQuestionIndex);
+            console.log('Next Explanation Text:', nextExplanationText);
           } else {
             console.warn('Current question not found in the questions array.');
           }
