@@ -218,13 +218,14 @@ export class CodelabQuizContentComponent {
         console.log('All Questions:>', questions);
         console.log('Question Index:>', questionIndex);
 
-        if (questionIndex !== -1) {
-          const explanationText = question.explanation;
-          this.explanationTextService.setExplanationTextForIndex(questionIndex, explanationText);
-
+        if (questionIndex !== -1 && questionIndex < questions.length - 1) {
+          const nextQuestion = questions[questionIndex + 1];
+          const nextExplanationText = nextQuestion.explanation; // Use the explanation from the next question
+          this.explanationTextService.setExplanationTextForIndex(questionIndex + 1, nextExplanationText);
+        
           console.log('Explanation Texts Object:', this.explanationTextService.explanationTexts);
-
-          this.updateExplanationForQuestion(question);
+        
+          this.updateExplanationForQuestion(nextQuestion);
         } else {
           console.warn('Current question not found in the questions array.');
         }
@@ -575,4 +576,4 @@ export class CodelabQuizContentComponent {
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
-} 
+}
