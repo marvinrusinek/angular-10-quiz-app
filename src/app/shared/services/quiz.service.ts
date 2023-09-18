@@ -1233,9 +1233,9 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex++;
     console.log('Current question index after navigation:', this.currentQuestionIndex);
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-
+  
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-
+  
     // Use Router events to track navigation success or failure
     return new Promise<boolean>((resolve, reject) => {
       const navigationSubscription = this.router.events
@@ -1244,19 +1244,23 @@ export class QuizService implements OnDestroy {
           if (event instanceof NavigationEnd) {
             console.log('Navigation successful.');
             resolve(true); // Navigation succeeded
-          } else {
-            console.error('Navigation failed.');
-            resolve(false); // Navigation failed
+          } else if (event instanceof NavigationError) {
+            console.error('Navigation error:', event.error);
+            resolve(false); // Navigation error
+          } else if (event instanceof NavigationCancel) {
+            console.warn('Navigation canceled.');
+            resolve(false); // Navigation canceled
           }
-
+  
           // Unsubscribe from the events to prevent memory leaks
           navigationSubscription.unsubscribe();
         });
-
+  
       // Initiate the navigation
       this.router.navigate([newUrl]);
     });
   }
+  
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
