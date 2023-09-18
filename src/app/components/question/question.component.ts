@@ -995,7 +995,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   onOptionClicked(option: Option): void {
     this.quizService.addSelectedOption(option);
 
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
       this.handleOptionClicked(this.currentQuestion, option);
   
