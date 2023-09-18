@@ -45,6 +45,7 @@ export class CodelabQuizContentComponent {
   currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
+  selectedOptionSubscription: Subscription;
   
   private correctAnswersTextSource = new BehaviorSubject<string>(null);
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
@@ -117,9 +118,16 @@ export class CodelabQuizContentComponent {
     
     // Subscribe to explanationText$ if needed
     this.explanationText$.subscribe(explanationText => {
-      // Do something with the explanation text if needed
-      // For example, update your component's explanationText property
       this.explanationText = explanationText;
+    });
+
+    // Subscribe to the selectedOptionExplanation$ observable and store the subscription
+    this.selectedOptionSubscription = this.selectedOptionService.selectedOptionExplanation$.subscribe((explanationText) => {
+      if (explanationText) {
+        this.explanationText = explanationText;
+      } else {
+        this.explanationText = 'No explanation available.';
+      }
     });
   }
 
@@ -129,6 +137,7 @@ export class CodelabQuizContentComponent {
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
+    this.selectedOptionSubscription.unsubscribe();
   }
 
   private initializeQuestionData(): void {
