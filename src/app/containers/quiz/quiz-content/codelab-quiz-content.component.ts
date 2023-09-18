@@ -147,13 +147,11 @@ export class CodelabQuizContentComponent {
           this.quizId = params.get('quizId');
           this.questionIndex = +params.get('questionIndex');
           if (this.quizId) {
-            // return this.quizDataService.getQuestionsForQuiz(this.quizId);
             return forkJoin([
               this.quizDataService.getQuestionsForQuiz(this.quizId),
               this.quizDataService.getAllExplanationTextsForQuiz(this.quizId)
             ]);
           } else {
-            // return of(null);
             return of([null, []]);
           }
         }),
@@ -161,7 +159,6 @@ export class CodelabQuizContentComponent {
       )
       .subscribe(([questions, explanationTexts]) => {
         if (!questions) {
-          // Handle the case when questions are not available
           return;
         }
       
