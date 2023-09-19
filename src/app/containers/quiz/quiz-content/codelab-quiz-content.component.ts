@@ -177,9 +177,6 @@ export class CodelabQuizContentComponent {
         // Set the questions
         this.questions = questions;
         this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-      
-        // Fetch the initial explanation text
-        // this.fetchExplanationText(this.questionIndex);
       });
       
 

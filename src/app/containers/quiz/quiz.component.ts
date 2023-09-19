@@ -1076,6 +1076,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex += 1;
         this.currentQuestion = nextQuestion;
         this.currentOptions = options; // Update with the options for the next question
+
+        console.log('Current Question Index:', this.currentQuestionIndex);
+        console.log('Next Question Text:', nextQuestion.questionText);
   
         // Update the text for the next question
         this.nextQuestionText = nextQuestion.questionText;
