@@ -246,11 +246,6 @@ export class CodelabQuizContentComponent {
       this.explanationText = explanationText;
     });    
   }
-  
-  fetchExplanationText(questionIndex: number): string {
-    const explanation = this.explanationTextService.getExplanationTextForIndex(questionIndex);
-    return explanation || '';
-  }
    
   updateExplanationForQuestion(question: QuizQuestion): void {
     // Combine explanationTextService's observable with selectedOptionExplanation$
