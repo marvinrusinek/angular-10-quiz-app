@@ -1011,8 +1011,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   fetchExplanationText(questionIndex: number): string {
     const explanation = this.explanationTextService.getExplanationTextForIndex(questionIndex);
+    console.log('Fetching explanation for index:', questionIndex, 'Explanation:', explanation);
     return explanation || '';
-  }
+  }  
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
