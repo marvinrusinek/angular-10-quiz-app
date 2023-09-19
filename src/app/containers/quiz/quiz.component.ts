@@ -1062,9 +1062,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    console.log("Current Question:", this.currentQuestion);
-    console.log("Explanation for Current Question:", this.currentQuestion?.explanation);
-  
     // Start animation or any other operations
     this.animationState$.next('animationStarted');
   
@@ -1112,9 +1109,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentOptions = [];
         }
   
-        console.log('Next question text:', this.nextQuestionText);
-        console.log('Current options:', this.currentOptions);
-  
         // Clear any previous selected option explanation
         this.selectedOptionService.setSelectedOptionExplanation('');
       } else {
@@ -1132,7 +1126,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-     
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
