@@ -8,11 +8,13 @@ import { ResultsComponent } from '../containers/results/results.component';
 import { QuizGuard } from './guards/quiz.guard';
 
 const routes: Routes = [
-  { path: '',
+  { 
+    path: '',
     redirectTo: 'select', 
     pathMatch: 'full'
   },
-  { path: 'select', 
+  { 
+    path: 'select', 
     component: QuizSelectionComponent, 
     pathMatch: 'full'
   },
@@ -28,7 +30,8 @@ const routes: Routes = [
     canActivate: [QuizGuard],
     runGuardsAndResolvers: 'always'
   },
-  { path: 'results/:quizId', 
+  { 
+    path: 'results/:quizId', 
     component: ResultsComponent, 
     pathMatch: 'full' 
   }
