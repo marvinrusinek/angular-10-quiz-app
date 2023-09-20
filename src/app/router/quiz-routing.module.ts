@@ -8,8 +8,14 @@ import { ResultsComponent } from '../containers/results/results.component';
 import { QuizGuard } from './guards/quiz.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'select', pathMatch: 'full' },
-  { path: 'select', component: QuizSelectionComponent, pathMatch: 'full' },
+  { path: '',
+    redirectTo: 'select', 
+    pathMatch: 'full'
+  },
+  { path: 'select', 
+    component: QuizSelectionComponent, 
+    pathMatch: 'full'
+  },
   {
     path: 'intro/:quizId',
     component: IntroductionComponent,
@@ -22,11 +28,14 @@ const routes: Routes = [
     canActivate: [QuizGuard],
     runGuardsAndResolvers: 'always'
   },
-  { path: 'results/:quizId', component: ResultsComponent, pathMatch: 'full' }
+  { path: 'results/:quizId', 
+    component: ResultsComponent, 
+    pathMatch: 'full' 
+  }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { enableTracing: true })],
   exports: [RouterModule],
 })
 export class QuizRoutingModule {}
