@@ -1235,33 +1235,40 @@ export class QuizService implements OnDestroy {
     console.log('Current question index after navigation:', this.currentQuestionIndex);
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
   
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-    console.log('New URL:', newUrl);
+    // Check if the next question index is within the valid range of questions
+    if (this.currentQuestionIndex < this.selectedQuiz.questions.length) {
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      console.log('New URL:', newUrl);
   
-    try {
-      // Use Router events to track navigation success or failure
-      const navigationSubscription = this.router.events
-        .pipe(filter(event => event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel))
-        .subscribe((event) => {
-          if (event instanceof NavigationEnd) {
-            console.log('Navigation successful.');
-            navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
-          } else if (event instanceof NavigationError) {
-            console.error('Navigation error:', event.error);
-            navigationSubscription.unsubscribe(); // Unsubscribe on error
-          } else if (event instanceof NavigationCancel) {
-            console.warn('Navigation canceled.');
-            navigationSubscription.unsubscribe(); // Unsubscribe on cancel
-          }
-        });
+      try {
+        // Use Router events to track navigation success or failure
+        const navigationSubscription = this.router.events
+          .pipe(filter(event => event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel))
+          .subscribe((event) => {
+            if (event instanceof NavigationEnd) {
+              console.log('Navigation successful.');
+              navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
+            } else if (event instanceof NavigationError) {
+              console.error('Navigation error:', event.error);
+              navigationSubscription.unsubscribe(); // Unsubscribe on error
+            } else if (event instanceof NavigationCancel) {
+              console.warn('Navigation canceled.');
+              navigationSubscription.unsubscribe(); // Unsubscribe on cancel
+            }
+          });
   
-      // Initiate the navigation
-      await this.router.navigate([newUrl]);
-      console.log('Navigation initiated successfully.');
-      return true; // Navigation succeeded
-    } catch (error) {
-      console.error('Navigation initiation error:', error);
-      return false; // Navigation initiation error
+        // Initiate the navigation
+        await this.router.navigate([newUrl]);
+        console.log('Navigation initiated successfully.');
+        return true; // Navigation succeeded
+      } catch (error) {
+        console.error('Navigation initiation error:', error);
+        return false; // Navigation initiation error
+      }
+    } else {
+      // Handle the end of the quiz, e.g., navigate to the results page
+      this.router.navigate([`/results/${this.quizId}`]);
+      return false; // End of quiz reached
     }
   }
   
