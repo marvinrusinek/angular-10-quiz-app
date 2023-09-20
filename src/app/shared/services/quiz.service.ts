@@ -742,14 +742,6 @@ export class QuizService implements OnDestroy {
       console.error('Error fetching question and options:', error);
       throw error;
     }
-
-    const [question, options] = await this.fetchQuestionAndOptions(
-      questionIndex
-    );
-
-    this.questionsAndOptions[questionIndex] = [question, options];
-
-    return [question, options];
   }
 
   async fetchQuestionAndOptions(
