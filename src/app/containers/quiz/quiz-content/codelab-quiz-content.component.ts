@@ -486,7 +486,7 @@ export class CodelabQuizContentComponent {
       switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation, selectedQuizQuestions]) => {
         return of(nextQuestion).pipe(
           switchMap(() => {
-            if (!nextQuestion) {
+            if (!nextQuestion || !nextQuestion.questionText) {
               return of('');
             }
             
