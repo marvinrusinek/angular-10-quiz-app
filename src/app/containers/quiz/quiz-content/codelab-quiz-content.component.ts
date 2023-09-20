@@ -220,11 +220,13 @@ export class CodelabQuizContentComponent {
         const questions: QuizQuestion[] = await this.quizDataService.getQuestionsForQuiz(this.quizId).toPromise();
         console.log('After fetching questions:', questions);
 
-        // Get the index of the current question
-        const questionIndex = questions.indexOf(question);
+        console.log('Current Question:>', question.questionText);
+        console.log('All Questions:>', questions.map(q => q.questionText));
 
-        console.log('Current Question:>', question);
-        console.log('All Questions:>', questions);
+        // Get the index of the current question
+        // const questionIndex = questions.indexOf(question);
+        const questionIndex = questions.findIndex(q => q.questionText === question.questionText);
+
         console.log('Question Index:>', questionIndex);
 
         if (questionIndex !== -1 && questionIndex < questions.length - 1) {
@@ -473,7 +475,7 @@ export class CodelabQuizContentComponent {
         // Handle the end of the quiz or any cleanup
       }
     });
-    
+
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.explanationText$,

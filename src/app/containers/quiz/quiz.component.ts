@@ -341,7 +341,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.setSelectedQuizById(quizId);
     this.quizDataService.selectedQuiz$.subscribe((quiz) => {
       this.selectedQuiz = quiz;
-      console.log('setOptions() called. selectedQuiz:', this.selectedQuiz);
       if (!this.optionsSet) {
         this.setOptions();
         this.optionsSet = true;
@@ -842,7 +841,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.loadExplanationTextForNextQuestion();
   
     // Move to the next question
-    this.currentQuestionIndex++;
+    // this.currentQuestionIndex++;
   }
 
 
@@ -1073,6 +1072,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       const options = await this.quizService.getNextOptions(); // Get options for the next question
   
       if (nextQuestion) {
+        // Clear explanation text for the current question
+        this.clearExplanationText();
+
         this.currentQuestionIndex += 1;
         this.currentQuestion = nextQuestion;
         this.currentOptions = options; // Update with the options for the next question

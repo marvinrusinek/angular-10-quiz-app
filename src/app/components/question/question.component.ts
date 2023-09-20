@@ -308,7 +308,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initializeSelectedQuiz(): void {
     if (this.quizDataService.selectedQuiz$) {
       this.quizDataService.selectedQuiz$.subscribe((quiz) => {
-        console.log('selectedQuiz', quiz);
         this.selectedQuiz.next(quiz);
         this.setQuestionOptions();
       });
