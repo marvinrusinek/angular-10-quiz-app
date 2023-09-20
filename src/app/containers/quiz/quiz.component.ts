@@ -1062,10 +1062,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Advance to Next Question Aborted: Selected Quiz:', this.selectedQuiz, 'Is Navigating:', this.isNavigating);
       return;
     }
-  
-    this.isNavigating = true;
 
     try {
+      // Set isNavigating to true at the beginning to prevent multiple navigations
+      this.isNavigating = true;
+
       // Start animation or any other operations
       console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
@@ -1147,6 +1148,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error("Error occurred while advancing to the next question:", error);
     } finally {
+      // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
   }
