@@ -610,11 +610,19 @@ export class QuizService implements OnDestroy {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
       attemptDateTime: new Date(),
-      score: this.correctAnswers.length,
+      score: this.calculateTotalCorrectAnswers(),
       totalQuestions: this.questions.length,
     };
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
+  }
+
+  calculateTotalCorrectAnswers(): number {
+    let totalCorrect = 0;
+    for (const answerArray of this.correctAnswers.values()) {
+      totalCorrect += answerArray.length;
+    }
+    return totalCorrect;
   }
 
   getQuizLength(): number {
@@ -1278,7 +1286,7 @@ export class QuizService implements OnDestroy {
     this.answers = null;
     this.correctAnswersForEachQuestion = [];
     this.correctAnswerOptions = [];
-    this.correctOptions = '';
+    this.correctOptions = [];
     this.correctMessage = '';
     this.explanationText.next('');
     this.currentQuestionIndex = 0;
