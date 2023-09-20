@@ -1229,7 +1229,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  navigateToNextQuestion(): Promise<boolean> {
+  async navigateToNextQuestion(): Promise<boolean> {
     console.log('navigateToNextQuestion called');
     this.currentQuestionIndex++;
     console.log('Current question index after navigation:', this.currentQuestionIndex);
@@ -1238,38 +1238,32 @@ export class QuizService implements OnDestroy {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
     console.log('New URL:', newUrl);
   
-    // Use Router events to track navigation success or failure
-    return new Promise<boolean>((resolve, reject) => {
+    try {
+      // Use Router events to track navigation success or failure
       const navigationSubscription = this.router.events
         .pipe(filter(event => event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel))
         .subscribe((event) => {
           if (event instanceof NavigationEnd) {
             console.log('Navigation successful.');
-            resolve(true); // Navigation succeeded
+            navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
           } else if (event instanceof NavigationError) {
             console.error('Navigation error:', event.error);
-            resolve(false); // Navigation error
+            navigationSubscription.unsubscribe(); // Unsubscribe on error
           } else if (event instanceof NavigationCancel) {
             console.warn('Navigation canceled.');
-            resolve(false); // Navigation canceled
+            navigationSubscription.unsubscribe(); // Unsubscribe on cancel
           }
-  
-          // Unsubscribe from the events to prevent memory leaks
-          navigationSubscription.unsubscribe();
         });
   
-      console.log('Navigating to URL:', newUrl);
-
       // Initiate the navigation
-      this.router.navigate([newUrl])
-        .then(() => console.log('Navigation initiated successfully.'))
-        .catch(error => {
-          console.error('Navigation initiation error:', error);
-          resolve(false); // Navigation initiation error
-        });
-    });
+      await this.router.navigate([newUrl]);
+      console.log('Navigation initiated successfully.');
+      return true; // Navigation succeeded
+    } catch (error) {
+      console.error('Navigation initiation error:', error);
+      return false; // Navigation initiation error
+    }
   }
-  
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
