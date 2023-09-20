@@ -120,6 +120,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   multipleAnswer: boolean = false;
   indexOfQuizId: number;
   status: QuizStatus;
+  isNavigating: boolean = false;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -1057,7 +1058,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    if (!this.selectedQuiz) {
+    if (!this.selectedQuiz || this.isNavigating) {
       return;
     }
   
@@ -1071,6 +1072,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.onAnswerSelectedOrNextQuestionClicked();
   
     try {
+      this.isNavigating = true;
+
       // Get the next question with explanation
       console.log('Fetching next question with explanation...');
       const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation();
