@@ -440,44 +440,40 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    this.nextQuestionSubscription = this.nextQuestion$.subscribe(
-      (nextQuestion) => {
-        if (nextQuestion) {
-          // Handle the display of the next question and its explanation text
-          
-          // Use ExplanationTextService to fetch the explanation text for the next question
-          const currentQuestionIndex = this.questionsWithExplanations?.findIndex(
-            (item) => item.question === nextQuestion
-          );
-
-          let nextExplanationText: string;
-
-          if (currentQuestionIndex !== -1) {
-            // Check if the current question is in the questionsWithExplanations array
-            const nextQuestionItem = this.questionsWithExplanations[currentQuestionIndex + 1];
-
-            if (nextQuestionItem) {
-              nextExplanationText = nextQuestionItem.explanation;
-            }
-
-
-            // Check if the current question is in the questions array
-            nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
-              currentQuestionIndex + 1
-            ); // Fetch the explanation text for the next question
-          } else {
-            console.warn('Current question not found in the questions array.');
+    this.nextQuestionSubscription = this.nextQuestion$.subscribe((nextQuestion) => {
+      if (nextQuestion) {
+        // Handle the display of the next question and its explanation text
+        
+        // Use ExplanationTextService to fetch the explanation text for the next question
+        const currentQuestionIndex = this.questionsWithExplanations?.findIndex(
+          (item) => item.question === nextQuestion
+        );
+    
+        let nextExplanationText: string;
+    
+        if (currentQuestionIndex !== -1) {
+          // Check if the current question is in the questionsWithExplanations array
+          const nextQuestionItem = this.questionsWithExplanations[currentQuestionIndex + 1];
+    
+          if (nextQuestionItem) {
+            nextExplanationText = nextQuestionItem.explanation;
           }
-
-          // Create a question-explanation pair and add it to the array
-          const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
-          this.questionsWithExplanations.push(questionWithExplanation);
         } else {
-          // Handle the end of the quiz or any cleanup
+          // The current question is not in the questionsWithExplanations array,
+          // so fetch the explanation text from your service or source as needed.
+          nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
+            currentQuestionIndex + 1
+          ); // Fetch the explanation text for the next question
         }
+    
+        // Create a question-explanation pair and add it to the array
+        const questionWithExplanation = { question: nextQuestion, explanation: nextExplanationText };
+        this.questionsWithExplanations.push(questionWithExplanation);
+      } else {
+        // Handle the end of the quiz or any cleanup
       }
-    );
-
+    });
+    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.explanationText$,
