@@ -520,7 +520,7 @@ export class QuizService implements OnDestroy {
 
       if (quiz) {
         console.log('Updating questions array with quiz:', quiz);
-        this.currentQuestionPromise = this.getCurrentQuestion();
+        this.currentQuestionPromise = this.getCurrentQuestion().toPromise();
         this.currentQuestionPromise
           .then(() => {
             this.questions = quiz.questions;
