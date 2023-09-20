@@ -1059,20 +1059,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (!this.selectedQuiz || this.isNavigating) {
+      console.log('Advance to Next Question Aborted: Selected Quiz:', this.selectedQuiz, 'Is Navigating:', this.isNavigating);
       return;
     }
   
-    // Start animation or any other operations
-    this.animationState$.next('animationStarted');
+    this.isNavigating = true;
 
-    console.log('Advance to Next Question Clicked');
-    console.log('Current Question Index (Before Advancing):', this.currentQuestionIndex);
-    console.log('Selected Quiz:', this.selectedQuiz);
-
-    this.onAnswerSelectedOrNextQuestionClicked();
-  
     try {
-      this.isNavigating = true;
+      // Start animation or any other operations
+      console.log('Advance to Next Question Clicked');
+      this.animationState$.next('animationStarted');
+
+      console.log('Current Question Index (Before Advancing):', this.currentQuestionIndex);
+      console.log('Selected Quiz:', this.selectedQuiz);
+
+      this.onAnswerSelectedOrNextQuestionClicked();
 
       // Get the next question with explanation
       console.log('Fetching next question with explanation...');
@@ -1113,6 +1114,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('After Navigation. Current URL:', this.router.url);
   
         if (!navigationSuccess) {
+          console.error('Navigation to the next question failed.');
           throw new Error("Navigation to the next question failed.");
         }
   
@@ -1144,6 +1146,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error("Error occurred while advancing to the next question:", error);
+    } finally {
+      this.isNavigating = false;
     }
   }
   
