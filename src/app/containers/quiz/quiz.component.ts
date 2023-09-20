@@ -1065,7 +1065,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.animationState$.next('animationStarted');
 
     console.log('Advance to Next Question Clicked');
-  
+    console.log('Current Question Index (Before Advancing):', this.currentQuestionIndex);
+    console.log('Selected Quiz:', this.selectedQuiz);
+
     this.onAnswerSelectedOrNextQuestionClicked();
   
     try {
@@ -1086,7 +1088,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestion = nextQuestion;
         this.currentOptions = options; // Update with the options for the next question
 
-        console.log('Current Question Index:::>>>', this.currentQuestionIndex);
+        console.log('Current Question Index (After Advancing):', this.currentQuestionIndex);
         console.log('Next Question Text:::>>>', nextQuestion.questionText);
   
         // Update the text for the next question
