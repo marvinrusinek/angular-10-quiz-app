@@ -1091,8 +1091,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setNextExplanationText(explanationText);
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
+        console.log('Before Navigation. Current URL:', this.router.url);
+
         // Navigate to the next question (if applicable)
         const navigationSuccess = await this.quizService.navigateToNextQuestion();
+
+        console.log('After Navigation. Current URL:', this.router.url);
   
         if (!navigationSuccess) {
           throw new Error("Navigation to the next question failed.");
