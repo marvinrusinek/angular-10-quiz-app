@@ -1088,7 +1088,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Clear explanation text for the current question
         this.clearExplanationText();
 
-        this.currentQuestionIndex += 1;
+        this.currentQuestionIndex++;
         this.currentQuestion = nextQuestion;
         this.currentOptions = options; // Update with the options for the next question
 
