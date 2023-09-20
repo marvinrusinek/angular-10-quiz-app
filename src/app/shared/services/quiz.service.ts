@@ -1230,11 +1230,13 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   navigateToNextQuestion(): Promise<boolean> {
+    console.log('navigateToNextQuestion called');
     this.currentQuestionIndex++;
     console.log('Current question index after navigation:', this.currentQuestionIndex);
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
   
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+    console.log('New URL:', newUrl);
   
     // Use Router events to track navigation success or failure
     return new Promise<boolean>((resolve, reject) => {
