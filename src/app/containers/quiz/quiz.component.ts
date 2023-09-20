@@ -1062,25 +1062,25 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Advance to Next Question Aborted: Selected Quiz:', this.selectedQuiz, 'Is Navigating:', this.isNavigating);
       return;
     }
-
+  
     try {
       // Set isNavigating to true at the beginning to prevent multiple navigations
       this.isNavigating = true;
-
+  
       // Start animation or any other operations
       console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
-
+  
       console.log('Current Question Index (Before Advancing):', this.currentQuestionIndex);
       console.log('Selected Quiz:', this.selectedQuiz);
-
+  
       this.onAnswerSelectedOrNextQuestionClicked();
-
+  
       // Get the next question with explanation
       console.log('Fetching next question with explanation...');
       const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation();
       console.log('Next question with explanation received:', nextQuestion);
-
+  
       console.log('Fetching options for the next question...');
       const options = await this.quizService.getNextOptions(); // Get options for the next question
       console.log('Options for the next question received:', options);
@@ -1088,19 +1088,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (nextQuestion) {
         // Clear explanation text for the current question
         this.clearExplanationText();
-
+  
         this.currentQuestionIndex++;
         this.currentQuestion = nextQuestion;
-        this.currentOptions = options; // Update with the options for the next question
-
-        console.log('Current Question Index (After Advancing):', this.currentQuestionIndex);
-        console.log('Next Question Text:::>>>', nextQuestion.questionText);
   
         // Update the text for the next question
-        this.nextQuestionText = nextQuestion.questionText;
-        this.quizService.setNextQuestion(nextQuestion, explanationText);
+        this.nextQuestionText = nextQuestion.questionText; // Update here
   
         // Notify any subscribers of the next question
+        this.quizService.setNextQuestion(nextQuestion, explanationText);
         this.quizService.nextQuestionSource.next(nextQuestion);
   
         // Set the explanation text for the next question
@@ -1108,10 +1104,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         console.log('Before Navigation. Current URL:', this.router.url);
-
+  
         // Navigate to the next question (if applicable)
         const navigationSuccess = await this.quizService.navigateToNextQuestion();
-
+  
         console.log('After Navigation. Current URL:', this.router.url);
   
         if (!navigationSuccess) {
@@ -1119,17 +1115,12 @@ export class QuizComponent implements OnInit, OnDestroy {
           throw new Error("Navigation to the next question failed.");
         }
   
-        // Clear explanation text for the previous question
-        this.explanationTextService.clearExplanationText();
-  
         // Set options and questionText for the next question
         const nextQuestionIndex = this.currentQuestionIndex + 1;
         if (nextQuestionIndex < this.selectedQuiz.questions.length) {
           const nextQuestion = this.selectedQuiz.questions[nextQuestionIndex];
-          this.nextQuestionText = nextQuestion.questionText;
           this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
         } else {
-          this.nextQuestionText = 'End of Quiz';
           this.currentOptions = [];
         }
   
