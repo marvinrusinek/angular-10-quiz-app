@@ -1259,7 +1259,12 @@ export class QuizService implements OnDestroy {
         });
   
       // Initiate the navigation
-      this.router.navigate([newUrl]);
+      this.router.navigate([newUrl])
+        .then(() => console.log('Navigation initiated successfully.'))
+        .catch(error => {
+          console.error('Navigation initiation error:', error);
+          resolve(false); // Navigation initiation error
+        });
     });
   }
   
