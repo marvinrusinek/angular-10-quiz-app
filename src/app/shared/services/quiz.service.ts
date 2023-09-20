@@ -644,7 +644,7 @@ export class QuizService implements OnDestroy {
       const nextQuestion = currentQuiz.questions[nextIndex];
       this.nextQuestionSource.next(nextQuestion);
       this.nextQuestionSubject.next(nextQuestion);
-      this.setNextQuestion(nextQuestion);
+      this.setNextQuestion(nextQuestion, '');
       return nextQuestion;
     }
 
