@@ -1258,6 +1258,8 @@ export class QuizService implements OnDestroy {
           navigationSubscription.unsubscribe();
         });
   
+      console.log('Navigating to URL:', newUrl);
+
       // Initiate the navigation
       this.router.navigate([newUrl])
         .then(() => console.log('Navigation initiated successfully.'))
