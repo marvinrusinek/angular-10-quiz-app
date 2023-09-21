@@ -524,7 +524,7 @@ export class CodelabQuizContentComponent {
     
         console.log('Next Question:', nextQuestion);
         console.log('Next Question Index:', nextQuestionIndex);
-        console.log('Explanation Text:', explanationText);
+        console.log('Explanation Text:::::>>>>>', nextQuestion.explanation);
         console.log('Next Explanation Text:', nextExplanationText);
         console.log('Should Display Explanation:', shouldDisplayExplanation);
         console.log('Text to Display:', textToDisplay);
