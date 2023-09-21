@@ -1240,8 +1240,6 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   async navigateToNextQuestion(): Promise<boolean> {
-    console.log('navigateToNextQuestion() called');
-  
     // Check if already navigating, and if so, return false to prevent multiple navigations
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1263,16 +1261,19 @@ export class QuizService implements OnDestroy {
     // Check if the next question index is within the valid range of questions
     if (this.currentQuestionIndex < totalQuestions) {
       const nextQuestionIndex = this.currentQuestionIndex;
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
+      const newUrl = `${QuizRoutes.QUESTION}/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
       console.log('New URL:', newUrl);
   
       try {
-        // Use Router events to track navigation success or failure
-        const navigationEnd = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).pipe(take(1)).toPromise();
-  
         // Initiate the navigation
         await this.router.navigate([newUrl]);
         console.log('Navigation initiated successfully.');
+  
+        // Use Router events to track navigation success or failure
+        const navigationEnd = this.router.events.pipe(
+          filter(event => event instanceof NavigationEnd),
+          take(1)
+        ).toPromise();
   
         // Wait for the NavigationEnd event to ensure navigation completion
         await navigationEnd;
@@ -1291,7 +1292,7 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false; // Set isNavigating to false when reaching the end
       return false; // End of quiz reached
     }
-  }
+  }  
 
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
