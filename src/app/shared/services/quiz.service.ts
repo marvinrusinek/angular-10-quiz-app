@@ -1240,7 +1240,6 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   async navigateToNextQuestion(): Promise<boolean> {
-    // Check if already navigating, and if so, return false to prevent multiple navigations
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return false;
@@ -1249,51 +1248,42 @@ export class QuizService implements OnDestroy {
     // Set isNavigating to true at the beginning to prevent multiple navigations
     this.isNavigating = true;
   
-    this.currentQuestionIndex++;
-    console.log('Current question index after navigation:', this.currentQuestionIndex);
-    this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+    try {
+      this.currentQuestionIndex++;
+      this.currentQuestionIndexSource.next(this.currentQuestionIndex);
   
-    // Get the total number of questions using an observable
-    const totalQuestions: number = await this.getTotalQuestions().toPromise();
+      const totalQuestions: number = await this.getTotalQuestions().toPromise();
   
-    console.log('Total Questions:', totalQuestions);
+      if (this.currentQuestionIndex < totalQuestions) {
+        const nextQuestionIndex = this.currentQuestionIndex;
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
+        console.log('New URL:', newUrl);
   
-    // Check if the next question index is within the valid range of questions
-    if (this.currentQuestionIndex < totalQuestions) {
-      const nextQuestionIndex = this.currentQuestionIndex;
-      const newUrl = `${QuizRoutes.QUESTION}/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
-      console.log('New URL:', newUrl);
-  
-      try {
-        // Initiate the navigation
         await this.router.navigate([newUrl]);
-        console.log('Navigation initiated successfully.');
   
         // Use Router events to track navigation success or failure
-        const navigationEnd = this.router.events.pipe(
-          filter(event => event instanceof NavigationEnd),
-          take(1)
-        ).toPromise();
-  
-        // Wait for the NavigationEnd event to ensure navigation completion
-        await navigationEnd;
+        await this.router.events
+          .pipe(
+            filter(event => event instanceof NavigationEnd),
+            take(1)
+          )
+          .toPromise();
   
         return true; // Navigation succeeded
-      } catch (error) {
-        console.error('Navigation initiation error:', error);
-        return false; // Navigation initiation error
-      } finally {
-        // Ensure that isNavigating is always set to false
-        this.isNavigating = false;
+      } else {
+        // Handle the end of the quiz, e.g., navigate to the results page
+        this.router.navigate([`/results/${this.quizId}`]);
+        return false; // End of quiz reached
       }
-    } else {
-      // Handle the end of the quiz, e.g., navigate to the results page
-      this.router.navigate([`/results/${this.quizId}`]);
-      this.isNavigating = false; // Set isNavigating to false when reaching the end
-      return false; // End of quiz reached
+    } catch (error) {
+      console.error('Navigation error:', error);
+      return false; // Navigation error
+    } finally {
+      // Ensure that isNavigating is always set to false
+      this.isNavigating = false;
     }
-  }  
-
+  }
+  
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
