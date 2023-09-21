@@ -1266,41 +1266,24 @@ export class QuizService implements OnDestroy {
       console.log('New URL:', newUrl);
   
       try {
-        // Use Router events to track navigation success or failure
-        const navigationSubscription = this.router.events
-          .pipe(filter(event => event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel))
-          .subscribe(async (event) => {
-            if (event instanceof NavigationEnd) {
-              console.log('Navigation successful.');
-              navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
-              this.isNavigating = false; // Set isNavigating to false after successful navigation
-            } else if (event instanceof NavigationError) {
-              console.error('Navigation error:', event.error);
-              navigationSubscription.unsubscribe();
-              this.isNavigating = false; // Set isNavigating to false on error
-            } else if (event instanceof NavigationCancel) {
-              console.warn('Navigation canceled.');
-              navigationSubscription.unsubscribe();
-              this.isNavigating = false; // Set isNavigating to false on cancel
-            }
-          });
-  
         // Initiate the navigation
         await this.router.navigate([newUrl]);
         console.log('Navigation initiated successfully.');
         return true; // Navigation succeeded
       } catch (error) {
         console.error('Navigation initiation error:', error);
-        this.isNavigating = false; // Set isNavigating to false on error
         return false; // Navigation initiation error
-      }
+      } finally {
+        // Ensure that isNavigating is always set to false
+        this.isNavigating = false;
+      }      
     } else {
       // Handle the end of the quiz, e.g., navigate to the results page
       this.router.navigate([`/results/${this.quizId}`]);
-      this.isNavigating = false; // Set isNavigating to false when reaching the end
       return false; // End of quiz reached
     }
   }
+  
   
   
   navigateToPreviousQuestion() {
