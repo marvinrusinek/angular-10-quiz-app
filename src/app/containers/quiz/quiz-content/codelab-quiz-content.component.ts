@@ -481,45 +481,47 @@ export class CodelabQuizContentComponent {
       this.explanationTextService.explanationText$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
-      this.quizDataService.getQuestionsForQuiz(this.quizService.quizId)
     ]).pipe(
-      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation, selectedQuizQuestions]) => {
-        return of(nextQuestion).pipe(
-          switchMap(() => {
-            if (!nextQuestion || !nextQuestion.questionText) {
-              return of('');
-            }
-            
-            const currentQuestionIndex = selectedQuizQuestions.findIndex(q => q.questionText === nextQuestion.questionText);
-
-            let nextQuestionIndex = currentQuestionIndex + 1;
-
-            if (nextQuestionIndex >= selectedQuizQuestions.length) {
-              nextQuestionIndex = -1;
-            }
-
-            // Fetch the explanation text for the next question based on the index
-            const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(currentQuestionIndex);
-            const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
-
-            console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
-
-            // Decide which text to display based on shouldDisplayExplanation
-            const textToDisplay = shouldDisplayExplanation
-              ? nextExplanationText || nextExplanation || currentExplanation || nextQuestion.questionText
-              : nextQuestion.questionText;
-
-            console.log('Next Question:', nextQuestion);
-            console.log('Next Question Index:', nextQuestionIndex);
-            console.log('Explanation Text:', explanationText);
-            console.log('Next Explanation Text:', nextExplanationText);
-            console.log('Should Display Explanation:', shouldDisplayExplanation);
-            console.log('Text to Display:', textToDisplay);
-            console.log('Selected Quiz Questions:', selectedQuizQuestions);
-  
-            return of(textToDisplay);
-          })
+      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
+        if (!nextQuestion || !nextQuestion.questionText) {
+          return of('');
+        }
+    
+        // Fetch the current question index from your service or wherever it is stored
+        const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+    
+        // Calculate the next question index
+        let nextQuestionIndex = currentQuestionIndex + 1;
+    
+        // You may want to handle reaching the end of the questions differently
+        if (nextQuestionIndex >= this.quizService.getTotalQuestions()) {
+          // Handle end of quiz or looping back to the first question
+          nextQuestionIndex = -1;
+        }
+    
+        // Fetch the explanation text for the next question based on the index
+        const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(
+          currentQuestionIndex
         );
+        const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(
+          nextQuestionIndex
+        );
+    
+        console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
+    
+        // Decide which text to display based on shouldDisplayExplanation
+        const textToDisplay = shouldDisplayExplanation
+          ? nextExplanationText || nextExplanation || currentExplanation || nextQuestion.questionText
+          : nextQuestion.questionText;
+    
+        console.log('Next Question:', nextQuestion);
+        console.log('Next Question Index:', nextQuestionIndex);
+        console.log('Explanation Text:', explanationText);
+        console.log('Next Explanation Text:', nextExplanationText);
+        console.log('Should Display Explanation:', shouldDisplayExplanation);
+        console.log('Text to Display:', textToDisplay);
+    
+        return of(textToDisplay);
       }),
       startWith('')
     );
