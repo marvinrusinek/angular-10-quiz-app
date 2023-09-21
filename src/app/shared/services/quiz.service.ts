@@ -1266,6 +1266,15 @@ export class QuizService implements OnDestroy {
       console.log('New URL:', newUrl);
   
       try {
+        // Use Router events to track navigation success or failure
+        const navigationSubscription = this.router.events
+          .pipe(filter(event => event instanceof NavigationEnd))
+          .subscribe(() => {
+            console.log('Navigation successful.');
+            navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
+            this.isNavigating = false; // Set isNavigating to false after successful navigation
+          });
+  
         // Initiate the navigation
         await this.router.navigate([newUrl]);
         console.log('Navigation initiated successfully.');
@@ -1273,18 +1282,14 @@ export class QuizService implements OnDestroy {
       } catch (error) {
         console.error('Navigation initiation error:', error);
         return false; // Navigation initiation error
-      } finally {
-        // Ensure that isNavigating is always set to false
-        this.isNavigating = false;
-      }      
+      }
     } else {
       // Handle the end of the quiz, e.g., navigate to the results page
       this.router.navigate([`/results/${this.quizId}`]);
+      this.isNavigating = false; // Set isNavigating to false when reaching the end
       return false; // End of quiz reached
     }
   }
-  
-  
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
