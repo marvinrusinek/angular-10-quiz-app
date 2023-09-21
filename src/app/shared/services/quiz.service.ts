@@ -17,6 +17,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  take, 
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
@@ -1267,21 +1268,22 @@ export class QuizService implements OnDestroy {
   
       try {
         // Use Router events to track navigation success or failure
-        const navigationSubscription = this.router.events
-          .pipe(filter(event => event instanceof NavigationEnd))
-          .subscribe(() => {
-            console.log('Navigation successful.');
-            navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
-            this.isNavigating = false; // Set isNavigating to false after successful navigation
-          });
+        const navigationEnd = this.router.events.pipe(filter(event => event instanceof NavigationEnd)).pipe(take(1)).toPromise();
   
         // Initiate the navigation
         await this.router.navigate([newUrl]);
         console.log('Navigation initiated successfully.');
+  
+        // Wait for the NavigationEnd event to ensure navigation completion
+        await navigationEnd;
+  
         return true; // Navigation succeeded
       } catch (error) {
         console.error('Navigation initiation error:', error);
         return false; // Navigation initiation error
+      } finally {
+        // Ensure that isNavigating is always set to false
+        this.isNavigating = false;
       }
     } else {
       // Handle the end of the quiz, e.g., navigate to the results page
@@ -1290,7 +1292,7 @@ export class QuizService implements OnDestroy {
       return false; // End of quiz reached
     }
   }
-  
+
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
