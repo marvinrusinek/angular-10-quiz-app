@@ -62,6 +62,7 @@ export class CodelabQuizContentComponent {
     currentOptions: Option[];
   }> | null = null;
   combinedText$: Observable<string>;
+  currentQuestionText: string;
   currentDisplayText: string = '';
   displayedText: string = '';
   displayCorrectAnswers: boolean = false;
@@ -129,6 +130,11 @@ export class CodelabQuizContentComponent {
         this.explanationText = 'No explanation available.';
       }
     });
+
+    this.quizService.currentQuestionText$
+      .subscribe((questionText) => {
+        this.currentQuestionText = questionText;
+      });
   }
 
   ngOnDestroy(): void {

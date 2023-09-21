@@ -187,6 +187,9 @@ export class QuizService implements OnDestroy {
   public correctAnswersLoaded$: Observable<boolean> =
     this.correctAnswersLoadedSubject.asObservable();
 
+  private currentQuestionTextSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  public currentQuestionText$: Observable<string> = this.currentQuestionTextSubject.asObservable();
+
   private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
     false
   );
@@ -386,6 +389,11 @@ export class QuizService implements OnDestroy {
 
   isAnswered(): boolean {
     return !!this.answers[this.currentQuestionIndex];
+  }
+
+  // Update the current question text
+  public setCurrentQuestionText(questionText: string): void {
+    this.currentQuestionTextSubject.next(questionText);
   }
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
@@ -1240,7 +1248,7 @@ export class QuizService implements OnDestroy {
       const nextQuestionIndex = this.currentQuestionIndex;
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
       console.log('New URL:', newUrl);
-  
+
       try {
         // Use Router events to track navigation success or failure
         const navigationSubscription = this.router.events
