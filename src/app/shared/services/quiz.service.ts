@@ -1237,7 +1237,8 @@ export class QuizService implements OnDestroy {
   
     // Check if the next question index is within the valid range of questions
     if (this.currentQuestionIndex < this.selectedQuiz.questions.length) {
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      const nextQuestionIndex = this.currentQuestionIndex;
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
       console.log('New URL:', newUrl);
   
       try {
@@ -1271,7 +1272,6 @@ export class QuizService implements OnDestroy {
       return false; // End of quiz reached
     }
   }
-  
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
