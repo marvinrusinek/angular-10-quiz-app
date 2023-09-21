@@ -67,6 +67,7 @@ export class QuizService implements OnDestroy {
   questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
+  isNavigating: boolean = false;
 
   private currentQuestionObservable: Observable<QuizQuestion>;
   private currentQuestionSource: Subject<QuizQuestion | null> =
@@ -1239,6 +1240,16 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   async navigateToNextQuestion(): Promise<boolean> {
     console.log('navigateToNextQuestion() called');
+  
+    // Check if already navigating, and if so, return false to prevent multiple navigations
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return false;
+    }
+  
+    // Set isNavigating to true at the beginning to prevent multiple navigations
+    this.isNavigating = true;
+  
     this.currentQuestionIndex++;
     console.log('Current question index after navigation:', this.currentQuestionIndex);
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
@@ -1248,6 +1259,7 @@ export class QuizService implements OnDestroy {
   
     console.log('Total Questions:', totalQuestions);
   
+    // Check if the next question index is within the valid range of questions
     if (this.currentQuestionIndex < totalQuestions) {
       const nextQuestionIndex = this.currentQuestionIndex;
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
@@ -1257,16 +1269,19 @@ export class QuizService implements OnDestroy {
         // Use Router events to track navigation success or failure
         const navigationSubscription = this.router.events
           .pipe(filter(event => event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel))
-          .subscribe(async (event) => { // Mark the subscribe callback as async
+          .subscribe(async (event) => {
             if (event instanceof NavigationEnd) {
               console.log('Navigation successful.');
               navigationSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
+              this.isNavigating = false; // Set isNavigating to false after successful navigation
             } else if (event instanceof NavigationError) {
               console.error('Navigation error:', event.error);
-              navigationSubscription.unsubscribe(); // Unsubscribe on error
+              navigationSubscription.unsubscribe();
+              this.isNavigating = false; // Set isNavigating to false on error
             } else if (event instanceof NavigationCancel) {
               console.warn('Navigation canceled.');
-              navigationSubscription.unsubscribe(); // Unsubscribe on cancel
+              navigationSubscription.unsubscribe();
+              this.isNavigating = false; // Set isNavigating to false on cancel
             }
           });
   
@@ -1276,14 +1291,17 @@ export class QuizService implements OnDestroy {
         return true; // Navigation succeeded
       } catch (error) {
         console.error('Navigation initiation error:', error);
+        this.isNavigating = false; // Set isNavigating to false on error
         return false; // Navigation initiation error
       }
     } else {
       // Handle the end of the quiz, e.g., navigate to the results page
       this.router.navigate([`/results/${this.quizId}`]);
+      this.isNavigating = false; // Set isNavigating to false when reaching the end
       return false; // End of quiz reached
     }
   }
+  
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;

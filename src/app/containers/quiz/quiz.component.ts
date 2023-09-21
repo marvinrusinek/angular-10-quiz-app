@@ -1080,7 +1080,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Fetching next question with explanation...');
       const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation();
       console.log('Next question with explanation received:', nextQuestion);
-  
+
       console.log('Fetching options for the next question...');
       const options = await this.quizService.getNextOptions(); // Get options for the next question
       console.log('Options for the next question received:', options);
@@ -1093,7 +1093,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestion = nextQuestion;
   
         // Update the text for the next question
-        this.nextQuestionText = nextQuestion.questionText; // Update here
+        this.nextQuestionText = nextQuestion.questionText;
   
         // Notify any subscribers of the next question
         this.quizService.setNextQuestion(nextQuestion, explanationText);
