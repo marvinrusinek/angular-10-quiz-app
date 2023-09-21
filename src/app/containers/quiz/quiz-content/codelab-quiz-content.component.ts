@@ -481,8 +481,9 @@ export class CodelabQuizContentComponent {
       this.explanationTextService.explanationText$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
+      this.quizService.getTotalQuestions()
     ]).pipe(
-      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation]) => {
+      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation, totalQuestions]) => {
         if (!nextQuestion || !nextQuestion.questionText) {
           return of('');
         }
@@ -493,9 +494,10 @@ export class CodelabQuizContentComponent {
         // Calculate the next question index
         let nextQuestionIndex = currentQuestionIndex + 1;
     
-        // You may want to handle reaching the end of the questions differently
-        if (nextQuestionIndex >= this.quizService.getTotalQuestions()) {
-          // Handle end of quiz or looping back to the first question
+        // Calculate the total questions synchronously
+        const totalQuestionsValue = totalQuestions || 0;
+    
+        if (nextQuestionIndex >= totalQuestionsValue) {
           nextQuestionIndex = -1;
         }
     
@@ -524,7 +526,7 @@ export class CodelabQuizContentComponent {
         return of(textToDisplay);
       }),
       startWith('')
-    );
+    );    
   }
   
   getQuestionText(currentQuestion: QuizQuestion, questions: QuizQuestion[]): string {
