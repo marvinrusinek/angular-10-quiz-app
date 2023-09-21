@@ -1238,13 +1238,21 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   async navigateToNextQuestion(): Promise<boolean> {
-    console.log('navigateToNextQuestion called');
+    console.log('navigateToNextQuestion() called');
     this.currentQuestionIndex++;
     console.log('Current question index after navigation:', this.currentQuestionIndex);
     this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-  
+
+    if (!this.selectedQuiz) {
+      console.error('Selected quiz is undefined or not loaded.');
+      return false; // Handle the error condition
+    }
+
+    console.log('Current Question Index:', this.currentQuestionIndex);
+    console.log('Total Questions:::', this.questions.length);
+
     // Check if the next question index is within the valid range of questions
-    if (this.currentQuestionIndex < this.selectedQuiz.questions.length) {
+    if (this.currentQuestionIndex < this.questions.length) {
       const nextQuestionIndex = this.currentQuestionIndex;
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
       console.log('New URL:', newUrl);

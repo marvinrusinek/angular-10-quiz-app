@@ -484,12 +484,11 @@ export class CodelabQuizContentComponent {
 
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
-      this.explanationTextService.explanationText$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
       this.quizService.getTotalQuestions()
     ]).pipe(
-      switchMap(([nextQuestion, explanationText, nextExplanationText, shouldDisplayExplanation, totalQuestions]) => {
+      switchMap(([nextQuestion, nextExplanationText, shouldDisplayExplanation, totalQuestions]) => {
         if (!nextQuestion || !nextQuestion.questionText) {
           return of('');
         }
