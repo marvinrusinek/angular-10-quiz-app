@@ -1249,17 +1249,19 @@ export class QuizService implements OnDestroy {
     this.isNavigating = true;
   
     try {
-      this.currentQuestionIndex++;
-      this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-  
       console.log('Current Question Index:', this.currentQuestionIndex);
   
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
   
       if (this.currentQuestionIndex < totalQuestions) {
+        // Increment currentQuestionIndex
+        this.currentQuestionIndex++;
+        this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+
+        // Calculate nextQuestionIndex
         const nextQuestionIndex = this.currentQuestionIndex;
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex + 1}`;
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
         console.log('New URL:', newUrl);
   
         await this.router.navigate([newUrl]);
@@ -1289,8 +1291,7 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
-  
-  
+
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
