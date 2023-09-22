@@ -1258,7 +1258,7 @@ export class QuizService implements OnDestroy {
         // Increment currentQuestionIndex
         this.currentQuestionIndex++;
         this.currentQuestionIndexSource.next(this.currentQuestionIndex);
-
+  
         // Calculate nextQuestionIndex
         const nextQuestionIndex = this.currentQuestionIndex;
         const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
@@ -1268,14 +1268,15 @@ export class QuizService implements OnDestroy {
         console.log('Navigation initiated successfully.');
   
         // Use Router events to track navigation success or failure
-        await this.router.events
+        const navigationEndEvent = await this.router.events
           .pipe(
             filter(event => event instanceof NavigationEnd),
             take(1)
           )
           .toPromise();
   
-        console.log('Navigation completed successfully.');
+        console.log('Navigation completed successfully:', navigationEndEvent);
+  
         return true; // Navigation succeeded
       } else {
         // Handle the end of the quiz, e.g., navigate to the results page
