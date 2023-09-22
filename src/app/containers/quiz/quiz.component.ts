@@ -103,6 +103,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
+  currentQuestionText: string = '';
   // currentOptions: Subject<Option[]> = new BehaviorSubject<Option[]>([]);
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
@@ -350,7 +351,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadCurrentQuestion(): void {
-    this.currentQuestion$ = from(this.quizService.getCurrentQuestion());
+    this.currentQuestion$ = from(this.quizService.getCurrentQuestion())
+      .pipe(
+        tap(currentQuestion => {
+          if (currentQuestion) {
+            // Update the question text to display in the template
+            this.currentQuestionText = currentQuestion.questionText;
+          }
+        })
+      );
   }
 
   nextQuestion(): void {
