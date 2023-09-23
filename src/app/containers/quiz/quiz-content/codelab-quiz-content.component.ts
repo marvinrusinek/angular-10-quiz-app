@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -293,8 +293,7 @@ export class CodelabQuizContentComponent {
           // The async pipe in the template will handle this for you
         } else {
           // Handle the scenario when there are no more questions
-          // For example, you can navigate to a different page here
-          // this.router.navigate(['/quiz-completed']);
+          this.activatedRoute.navigate(['/results']); // Navigate to the results page
         }
       });
   }
