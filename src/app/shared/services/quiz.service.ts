@@ -1284,6 +1284,7 @@ export class QuizService implements OnDestroy {
 
         console.log('After Navigation. Current URL:', this.router.url);
   
+        /*
         // Use Router events to track navigation success or failure
         const navigationTimeoutMs = 5000; // Set an appropriate timeout
         const navigationEndEvent = this.router.events.pipe(
@@ -1309,7 +1310,7 @@ export class QuizService implements OnDestroy {
           // Handle the case where navigation succeeded
           console.log('Navigation completed successfully.');
           // Optionally, you can trigger further actions upon successful navigation.
-        }
+        } */
 
         console.log('Navigation completed successfully.');
         return true; // Navigation succeeded
