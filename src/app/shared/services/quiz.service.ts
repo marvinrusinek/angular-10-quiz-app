@@ -1249,23 +1249,26 @@ export class QuizService implements OnDestroy {
     this.isNavigating = true;
   
     try {
-      console.log('Current Question Index:', this.currentQuestionIndex);
-  
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
   
-      if (this.currentQuestionIndex < totalQuestions) {
-        // Increment currentQuestionIndex
-        this.currentQuestionIndex++;
+      // Increment currentQuestionIndex
+      this.currentQuestionIndex++;
+      console.log('Current Question Index:', this.currentQuestionIndex);
   
+      // Log route parameters for debugging
+      console.log('Quiz ID:', this.quizId);
+      console.log('Question Index:', this.currentQuestionIndex);
+  
+      if (this.currentQuestionIndex < totalQuestions) {
         // Calculate nextQuestionIndex
         const nextQuestionIndex = this.currentQuestionIndex + 1;
         const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
         console.log('New URL:', newUrl);
   
-        await this.router.navigate([newUrl]);
-        console.log('Navigation initiated successfully.');
-  
+        // Navigate using navigateByUrl
+        this.router.navigateByUrl(newUrl);
+        
         // Use Router events to track navigation success or failure
         await this.router.events
           .pipe(
@@ -1290,6 +1293,8 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
+  
+  
   
 
   navigateToPreviousQuestion() {

@@ -1069,6 +1069,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   async advanceToNextQuestion(): Promise<void> {
     console.log('Advance to Next Question Clicked');
 
+    console.log("SQ", this.selectedQuiz);
+
     if (!this.selectedQuiz || this.isNavigating) {
       console.log('Advance to Next Question Aborted: Selected Quiz:', this.selectedQuiz, 'Is Navigating:', this.isNavigating);
       return;
