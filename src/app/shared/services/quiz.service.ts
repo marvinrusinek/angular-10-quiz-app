@@ -1240,6 +1240,18 @@ export class QuizService implements OnDestroy {
 
   /********* navigation functions ***********/
   async navigateToNextQuestion(): Promise<boolean> {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        console.log('NavigationStart:', event.url);
+      }
+      if (event instanceof NavigationEnd) {
+        console.log('NavigationEnd:', event.url);
+      }
+      if (event instanceof NavigationError) {
+        console.error('NavigationError:', event.error);
+      }
+    });
+    
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return false;
@@ -1278,6 +1290,9 @@ export class QuizService implements OnDestroy {
             take(1)
           )
           .toPromise();
+
+        // Introduce a small delay to allow navigation to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         console.log('After Navigation. Current URL:', this.router.url);
   
