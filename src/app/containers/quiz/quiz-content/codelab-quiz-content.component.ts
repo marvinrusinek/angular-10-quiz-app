@@ -143,7 +143,7 @@ export class CodelabQuizContentComponent {
     this.currentQuestionSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
-    this.selectedOptionSubscription.unsubscribe();
+    this.selectedOptionSubscription?.unsubscribe();
   }
 
   private initializeQuestionData(): void {
@@ -501,7 +501,10 @@ export class CodelabQuizContentComponent {
     
         // Calculate the total questions synchronously
         const totalQuestionsValue = totalQuestions || 0;
-    
+
+        console.log("NQI", nextQuestionIndex);
+        console.log("TQV", totalQuestionsValue);
+        
         if (nextQuestionIndex >= totalQuestionsValue) {
           nextQuestionIndex = -1;
         }
