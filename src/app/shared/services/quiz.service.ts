@@ -1266,6 +1266,8 @@ export class QuizService implements OnDestroy {
         const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
         console.log('New URL:', newUrl);
   
+        console.log('Before Navigation. Current URL:', this.router.url);
+
         // Navigate using navigateByUrl
         this.router.navigateByUrl(newUrl);
   
@@ -1276,6 +1278,8 @@ export class QuizService implements OnDestroy {
             take(1)
           )
           .toPromise();
+
+        console.log('After Navigation. Current URL:', this.router.url);
   
         console.log('Navigation completed successfully.');
         return true; // Navigation succeeded
