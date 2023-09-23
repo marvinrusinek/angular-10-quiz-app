@@ -1251,6 +1251,7 @@ export class QuizService implements OnDestroy {
         console.error('NavigationError:', event.error);
       }
     });
+
     
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1275,10 +1276,8 @@ export class QuizService implements OnDestroy {
       if (this.currentQuestionIndex < totalQuestions) {
         // Calculate nextQuestionIndex
         const nextQuestionIndex = this.currentQuestionIndex + 1;
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
-        console.log('New URL:', newUrl);
-  
-        console.log('Before Navigation. Current URL:', this.router.url);
+        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;  
+        console.log('New URL (Before Navigation):', newUrl);
 
         // Navigate using navigateByUrl
         this.router.navigateByUrl(newUrl);
