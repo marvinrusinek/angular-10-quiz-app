@@ -1281,17 +1281,36 @@ export class QuizService implements OnDestroy {
   
         // Navigate using navigateByUrl
         this.router.navigateByUrl(newUrl);
-  
-        // Use Router events to track navigation success or failure
-        await this.router.events
-          .pipe(
-            filter(event => event instanceof NavigationEnd),
-            take(1)
-          )
-          .toPromise();
-  
+
         console.log('After Navigation. Current URL:', this.router.url);
   
+        // Use Router events to track navigation success or failure
+        const navigationTimeoutMs = 5000; // Set an appropriate timeout
+        const navigationEndEvent = this.router.events.pipe(
+          filter(event => event instanceof NavigationEnd),
+          take(1)
+        ).toPromise();
+
+        const timeoutPromise = new Promise<boolean>((resolve) => {
+          setTimeout(() => {
+            console.warn('Navigation timed out.');
+            resolve(false);
+          }, navigationTimeoutMs);
+        });
+
+        // Wait for either the NavigationEnd event or a timeout
+        const navigationResult = await Promise.race([navigationEndEvent, timeoutPromise]);
+
+        if (navigationResult === false) {
+          // Handle the case where navigation timed out or failed
+          console.error('Navigation failed or timed out.');
+          // Optionally, you can trigger further actions or error handling here.
+        } else {
+          // Handle the case where navigation succeeded
+          console.log('Navigation completed successfully.');
+          // Optionally, you can trigger further actions upon successful navigation.
+        }
+
         console.log('Navigation completed successfully.');
         return true; // Navigation succeeded
       } else {
