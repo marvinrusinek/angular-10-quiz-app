@@ -34,7 +34,7 @@ const routes: Routes = [
     path: 'results/:quizId',
     component: ResultsComponent,
     pathMatch: 'full'
-  },
+  }
 ];
 
 @NgModule({
