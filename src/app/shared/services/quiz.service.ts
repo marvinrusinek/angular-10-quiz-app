@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, NavigationEnd, NavigationError, NavigationCancel } from '@angular/router';
+import { ActivatedRoute, Router, NavigationStart, NavigationEnd, NavigationError } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
