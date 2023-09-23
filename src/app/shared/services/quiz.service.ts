@@ -1268,7 +1268,7 @@ export class QuizService implements OnDestroy {
   
         // Navigate using navigateByUrl
         this.router.navigateByUrl(newUrl);
-        
+  
         // Use Router events to track navigation success or failure
         await this.router.events
           .pipe(
@@ -1293,8 +1293,6 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
-  
-  
   
 
   navigateToPreviousQuestion() {

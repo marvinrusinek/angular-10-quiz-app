@@ -15,6 +15,18 @@ export class QuizGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        console.log('NavigationStart:', event.url);
+      }
+      if (event instanceof NavigationEnd) {
+        console.log('NavigationEnd:', event.url);
+      }
+      if (event instanceof NavigationError) {
+        console.error('NavigationError:', event.error);
+      }
+    });
+
     const quizId = route.params['quizId'];
     const questionIndex = +route.params['questionIndex'];
 
