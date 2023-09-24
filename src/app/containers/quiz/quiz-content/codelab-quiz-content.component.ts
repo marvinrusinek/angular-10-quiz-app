@@ -330,7 +330,6 @@ export class CodelabQuizContentComponent {
         // Determine which explanation text to display
         // const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
         const explanationText = isExplanationDisplayed ? this.nextExplanationText : '';
-        const explanationToDisplay = isExplanationDisplayed ? explanationText : '';
         
         // Other calculations, e.g., correct answers text
         const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer();
