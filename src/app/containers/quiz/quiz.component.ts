@@ -647,7 +647,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCurrentOptions(this.data.currentOptions);
 
         const currentQuestion: QuizQuestion = {
-          questionId: '',
           questionText: this.data.questionText,
           options: this.data.currentOptions,
           explanation: '',
@@ -655,7 +654,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         };
 
         // Pass the data to the QuizQuestionComponent
-        this.questionData = currentQuestion;
+        this.question = currentQuestion;
 
         const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
         this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
