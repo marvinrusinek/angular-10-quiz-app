@@ -1279,7 +1279,7 @@ export class QuizService implements OnDestroy {
         }
 
         // Navigate using navigateByUrl
-        this.router.navigateByUrl(newUrl);
+        await this.router.navigateByUrl(newUrl);
 
         console.log('After Navigation. Current URL:', this.router.url);
 
