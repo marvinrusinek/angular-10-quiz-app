@@ -321,9 +321,8 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       tap(data => console.log('Observable Data:', data)),
       map(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed]) => {
-        // const questionText = this.getQuestionText(currentQuestion, this.questions);
         // Calculate question text
-        const questionText = currentQuestion ? currentQuestion.questionText : '';
+        const questionText = currentQuestion ? this.getQuestionText(currentQuestion, this.questions) : '';
 
         // Get explanation text for the current question's index
         const questionIndex = this.questions.indexOf(currentQuestion);
