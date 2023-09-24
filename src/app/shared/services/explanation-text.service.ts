@@ -56,7 +56,6 @@ export class ExplanationTextService {
   setExplanationTextForIndex(index: number, explanation: string): void {
     console.log(`Setting explanation text for index ${index}: ${explanation}`);
     this.explanationTexts[index] = explanation;
-    console.log(`Set explanation text for index ${index}: ${explanation}`);
   }
 
   getExplanationTextForIndex(index: number): string | undefined {

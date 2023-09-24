@@ -899,9 +899,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
     console.log('MY CORR MSG', this.correctMessage);
 
-    this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(
+    /* this.correctAnswers = this.quizService.getCorrectAnswersForQuestion(
       data.questionText
-    );
+    ); // not a function */
     
     // Call the isMultipleAnswer function to determine if the question is a multiple-answer question
     data.isMultipleAnswer = await this.quizStateService
