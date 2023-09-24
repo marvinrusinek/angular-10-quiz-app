@@ -353,10 +353,6 @@ export class CodelabQuizContentComponent {
         };
       })
     );
-    
-    this.combinedQuestionData$.subscribe(data => {
-      console.log('Combined Question Data:::>>>>>))))', data);
-    });
   }
 
   private setupExplanationTextSubscription(): void {
