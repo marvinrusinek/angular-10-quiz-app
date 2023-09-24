@@ -92,7 +92,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
-  quizData: Quiz[];
+  quizData: QuizQuestion[] = [];
   quizId: string = '';
   quizName$: Observable<string>;
   quizResources: QuizResource[];
@@ -273,10 +273,10 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.log('questionIndex:', questionIndex);
             console.log('Current Question Index (calculated):', currentQuestionIndex);
 
-            const currentQuiz = this.quizData[currentQuestionIndex];
+            const currentQuiz: Quiz = this.quizData[currentQuestionIndex];
             if (
               currentQuestionIndex >= 0 &&
-              currentQuestionIndex < currentQuiz.questions.length
+              currentQuestionIndex < currentQuiz?.questions?.length
             ) {
               this.initializeQuizState();
               this.loadCurrentQuestion();
@@ -465,32 +465,35 @@ export class QuizComponent implements OnInit, OnDestroy {
       (quiz) => quiz.quizId === this.quizId
     );
     if (currentQuiz) {
-      const currentQuestion: QuizQuestion =
-        currentQuiz.questions[this.currentQuestionIndex];
+      const currentQuestionIndex = this.currentQuestionIndex;
 
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-        this.options = currentQuestion.options;
-        this.selectionMessageService.updateSelectionMessage('');
+      if (currentQuestionIndex >= 0 && currentQuestionIndex < currentQuiz?.questions.length) {
+        const currentQuestion: QuizQuestion = currentQuiz?.questions[currentQuestionIndex];
 
-        if (currentQuestion.options && currentQuestion.options.length > 0) {
-          this.quizService.correctOptions = currentQuestion.options
-            .filter((option) => option.correct && option.value !== undefined)
-            .map((option) => option.value?.toString());
+        if (currentQuestion) {
+          this.currentQuestion = currentQuestion;
+          this.options = currentQuestion.options;
+          this.selectionMessageService.updateSelectionMessage('');
+
+          if (currentQuestion.options && currentQuestion.options.length > 0) {
+            this.quizService.correctOptions = currentQuestion.options
+              .filter((option) => option.correct && option.value !== undefined)
+              .map((option) => option.value?.toString());
+          } else {
+            console.error('Invalid question options:', currentQuestion);
+          }
+
+          this.quizService.showQuestionText$ = of(true);
+          this.selectedOption$.next(null);
+          this.explanationTextService.explanationText$.next('');
+          console.log('ngOnInit is called.');
+          this.cdRef.detectChanges();
         } else {
-          console.error('Invalid question options:', currentQuestion);
+          console.error('Invalid question index:', this.currentQuestionIndex + 1);
         }
-
-        this.quizService.showQuestionText$ = of(true);
-        this.selectedOption$.next(null);
-        this.explanationTextService.explanationText$.next('');
-        console.log('ngOnInit is called.');
-        this.cdRef.detectChanges();
       } else {
-        console.error('Invalid question index:', this.currentQuestionIndex + 1);
+        console.error('Invalid quiz:', this.quizId);
       }
-    } else {
-      console.error('Invalid quiz:', this.quizId);
     }
   }
 
