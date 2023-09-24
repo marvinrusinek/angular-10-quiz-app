@@ -406,10 +406,6 @@ export class CodelabQuizContentComponent {
   private setupExplanationTextDisplay(): void {
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
-    console.log("NET Observable:", this.nextExplanationText$);
-
-    console.log('Explanation Text Observable:', this.explanationText$);
-    console.log('Next Explanation Text Observable:', this.nextExplanationText$);
 
     this.explanationTextService.explanationText$.subscribe(
       (currentExplanationText) => {
