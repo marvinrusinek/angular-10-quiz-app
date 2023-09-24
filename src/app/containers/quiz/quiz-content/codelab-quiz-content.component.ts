@@ -94,7 +94,8 @@ export class CodelabQuizContentComponent {
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) {
     this.explanationTextService.setShouldDisplayExplanation(false);
   }
@@ -293,7 +294,7 @@ export class CodelabQuizContentComponent {
           // The async pipe in the template will handle this for you
         } else {
           // Handle the scenario when there are no more questions
-          this.activatedRoute.navigate(['/results']); // Navigate to the results page
+          this.router.navigate(['/results']); // Navigate to the results page
         }
       });
   }
