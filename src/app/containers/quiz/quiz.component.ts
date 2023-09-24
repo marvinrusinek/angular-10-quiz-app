@@ -625,7 +625,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
     this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
+      const selectedQuiz: Quiz | undefined = quizData.find(quiz => quiz.quizId === quizId);
+
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found in quizData.');
+        return;
+      }
+
+      // Set the quiz data
       this.quizService.setQuizData(quizData);
+
+      // Set the selected quiz
+      this.quizService.setSelectedQuiz(selectedQuiz);
 
       const questionData = this.quizService.getQuestionData(quizId, questionIndex);
 

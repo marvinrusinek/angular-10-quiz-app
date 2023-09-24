@@ -94,7 +94,8 @@ export class QuizService implements OnDestroy {
   totalQuestions: number = 0;
 
   selectedQuiz: any;
-  selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
+  private selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   selectedQuizId: string | undefined;
   indexOfQuizId: number;
   startedQuizId: string;
@@ -276,6 +277,10 @@ export class QuizService implements OnDestroy {
 
   getQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>('/assets/data/quiz.json');
+  }
+
+  setSelectedQuiz(selectedQuiz: Quiz) {
+    this.selectedQuiz$.next(selectedQuiz);
   }
 
   setQuizData(quizData: Quiz[]): void {
@@ -1261,9 +1266,20 @@ export class QuizService implements OnDestroy {
       if (this.currentQuestionIndex < totalQuestions) {
         // Calculate nextQuestionIndex
         const nextQuestionIndex = this.currentQuestionIndex + 1;
-        const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
-        console.log('New URL (Before Navigation):', newUrl);
+        // const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+        // console.log('New URL (Before Navigation):', newUrl);
   
+        let newUrl: string;
+        let adjustedTotalQuestions = totalQuestions;
+
+        if (this.currentQuestionIndex === adjustedTotalQuestions - 1) {
+          // Adjust the URL for the last question
+          newUrl = `/question/${encodeURIComponent(this.quizId)}/${totalQuestions}`;
+          adjustedTotalQuestions--;
+        } else {
+          newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+        }
+
         // Navigate using navigateByUrl
         this.router.navigateByUrl(newUrl);
 
