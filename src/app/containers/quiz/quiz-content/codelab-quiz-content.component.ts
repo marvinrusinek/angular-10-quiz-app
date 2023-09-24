@@ -389,10 +389,9 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$ = combineLatest([
       this.nextQuestion$,
       this.quizService.nextOptions$,
-      this.numberOfCorrectAnswers$,
       this.explanationText$
     ]).pipe(
-      map(([nextQuestion, nextOptions, numberOfCorrectAnswers, explanationText]) => {
+      map(([nextQuestion, nextOptions, explanationText]) => {
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
@@ -438,15 +437,6 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    this.nextExplanationText$.subscribe(
-      (explanationText) => {
-        console.log("NET Emitted Value:", explanationText);
-      },
-      (error) => {
-        console.error("NET Error:", error);
-      }
-    );
-
     this.nextQuestionSubscription = this.nextQuestion$.subscribe((nextQuestion) => {
       if (nextQuestion) {
         // Handle the display of the next question and its explanation text
@@ -467,10 +457,10 @@ export class CodelabQuizContentComponent {
           }
         } else {
           // The current question is not in the questionsWithExplanations array,
-          // so fetch the explanation text from your service or source as needed.
+          // so fetch the explanation text from the service or source as needed
           nextExplanationText = this.explanationTextService.getExplanationForQuestionIndex(
             currentQuestionIndex + 1
-          ); // Fetch the explanation text for the next question
+          ); // fetch the explanation text for the next question
         }
     
         // Create a question-explanation pair and add it to the array
