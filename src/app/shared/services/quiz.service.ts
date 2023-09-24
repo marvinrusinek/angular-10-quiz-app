@@ -1253,11 +1253,10 @@ export class QuizService implements OnDestroy {
   
       // Increment currentQuestionIndex
       this.currentQuestionIndex++;
-      console.log('Current Question Index:', this.currentQuestionIndex);
   
       // Log route parameters for debugging
       console.log('Quiz ID:', this.quizId);
-      console.log('Question Index:', this.currentQuestionIndex);
+      console.log('Current Question Index:', this.currentQuestionIndex);
   
       if (this.currentQuestionIndex < totalQuestions) {
         // Calculate nextQuestionIndex
