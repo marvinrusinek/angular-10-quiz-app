@@ -396,11 +396,11 @@ export class CodelabQuizContentComponent {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
-          currentQuestion: nextQuestion,
+          currentQuestion: nextQuestion || null,
           currentOptions: nextOptions || []
         };
       })
-    );
+    );  
   }
 
   private setupOptions(): void {
