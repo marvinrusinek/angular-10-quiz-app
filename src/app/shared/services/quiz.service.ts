@@ -695,9 +695,7 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  getNextQuestionAndOptions():
-    | { question: QuizQuestion; options: Option[] }
-    | undefined {
+  getNextQuestionAndOptions(): { question: QuizQuestion; options: Option[] } | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
 

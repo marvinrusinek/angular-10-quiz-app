@@ -265,10 +265,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
             const currentQuestionIndex = questionIndex - 1;
 
+            console.log('Current Question Index (Before):', currentQuestionIndex);
+
             console.log('questionIndex:', questionIndex);
             console.log('Current Question Index (calculated):', currentQuestionIndex);
 
             const currentQuiz: Quiz = this.quizData[currentQuestionIndex];
+
             if (
               currentQuestionIndex >= 0 &&
               currentQuestionIndex < currentQuiz?.questions?.length
