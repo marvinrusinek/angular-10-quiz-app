@@ -1259,12 +1259,10 @@ export class QuizService implements OnDestroy {
         const nextQuestionIndex = this.currentQuestionIndex + 1;
   
         let newUrl: string;
-        let adjustedTotalQuestions = totalQuestions;
 
-        if (this.currentQuestionIndex === adjustedTotalQuestions - 1) {
+        if (this.currentQuestionIndex === totalQuestions - 1) {
           // Adjust the URL for the last question
           newUrl = `/question/${encodeURIComponent(this.quizId)}/${totalQuestions}`;
-          adjustedTotalQuestions--;
         } else {
           newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
         }
