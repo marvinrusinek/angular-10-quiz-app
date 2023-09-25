@@ -1276,6 +1276,9 @@ export class QuizService implements OnDestroy {
 
         console.log('After Navigation. Current URL:', this.router.url);
 
+        // Update the current question index in the service
+        this.updateCurrentQuestionIndex(this.currentQuestionIndex);
+
         console.log('Navigation completed successfully.');
         return true; // Navigation succeeded
       } else {
