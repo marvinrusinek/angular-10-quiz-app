@@ -190,7 +190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
-      this.currentQuestionIndex = +params['questionIndex'] - 1; // Convert to a number and subtract 1 to get the zero-based index
+      this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
        
       console.log('quizId:::>>>', this.quizId);
       console.log('questionIndex:::>>>', this.questionIndex);
