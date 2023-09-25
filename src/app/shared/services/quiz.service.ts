@@ -1247,25 +1247,16 @@ export class QuizService implements OnDestroy {
       return false;
     }
   
-    // Set isNavigating to true at the beginning to prevent multiple navigations
     this.isNavigating = true;
   
     try {
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
   
-      // Increment currentQuestionIndex
       this.currentQuestionIndex++;
   
-      // Log route parameters for debugging
-      console.log('Quiz ID:', this.quizId);
-      console.log('Current Question Index:', this.currentQuestionIndex);
-  
       if (this.currentQuestionIndex < totalQuestions) {
-        // Calculate nextQuestionIndex
         const nextQuestionIndex = this.currentQuestionIndex + 1;
-        // const newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
-        // console.log('New URL (Before Navigation):', newUrl);
   
         let newUrl: string;
         let adjustedTotalQuestions = totalQuestions;
