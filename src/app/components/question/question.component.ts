@@ -254,14 +254,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       if (currentQuestion !== null && currentQuestion !== undefined) {
         this.currentQuestion = currentQuestion;
-
+        this.currentQuestionLoaded = true;
+        console.log('Current Question in Child Component:', this.currentQuestion);
+  
         if (this.quizId !== null && this.quizId !== undefined) {
-          this.handleCurrentQuestion(currentQuestion);
+          this.loadQuestionsForQuiz(this.quizId);
         } else {
-          console.error('quizId is null or undefined.');
+          console.warn('quizId is not available.');
         }
-
-        console.log('Current Question in Subscription:::', currentQuestion);
+  
+        this.quizService.fetchCorrectAnswers();
       } else {
         console.error('No current question available.');
       }
@@ -324,24 +326,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.fetchQuizQuestions();
   }
   
-  private handleCurrentQuestion(currentQuestion: QuizQuestion | null): void {
-    if (currentQuestion) {
-      this.currentQuestion = currentQuestion;
-      this.currentQuestionLoaded = true;
-      console.log('Current Question in Child Component:', this.currentQuestion);
-      
-      if (this.quizId !== null && this.quizId !== undefined) {
-        this.loadQuestionsForQuiz(this.quizId);
-      } else {
-        console.warn('quizId is not available.');
-      }
-      
-      this.quizService.fetchCorrectAnswers();
-    } else {
-      console.error('No current question available.');
-    }
-  }  
-
   private subscribeToCurrentOptions(): void {
     this.quizService.currentOptions$.subscribe((currentOptions) => {
       console.log('Current Options:::', currentOptions);
