@@ -11,6 +11,7 @@ import {
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   ActivatedRoute,
+  NavigationStart,
   NavigationEnd,
   ParamMap,
   Router,
@@ -186,6 +187,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        console.log('Navigation Start:', event.url);
+      }
+      if (event instanceof NavigationEnd) {
+        console.log('Navigation End:', event.url);
+      }
+    });
 
     this.activatedRoute.params.subscribe(params => {
       this.quizId = params['quizId'];

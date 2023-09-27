@@ -1257,10 +1257,13 @@ export class QuizService implements OnDestroy {
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
   
+      console.log('Before increment. Current Question Index:', this.currentQuestionIndex);
       this.currentQuestionIndex++;
+      console.log('After increment. Current Question Index:', this.currentQuestionIndex);
+
+      const nextQuestionIndex = this.currentQuestionIndex + 1;
   
-      if (this.currentQuestionIndex < totalQuestions) {
-        const nextQuestionIndex = this.currentQuestionIndex + 1;
+      if (nextQuestionIndex < totalQuestions) {
   
         let newUrl: string;
 
