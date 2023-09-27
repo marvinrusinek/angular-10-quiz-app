@@ -379,8 +379,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private subscribeToSelectionMessage(): void {
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-    this.selectionMessage$.subscribe((message: string) => {
+    this.selectionMessageService.selectionMessage$.subscribe((message: string) => {
       this.selectionMessage = message;
     });
   }
