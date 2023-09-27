@@ -203,8 +203,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.activatedRoute.params.subscribe((params) => {
           this.quizId = params['quizId'];
         });
-        // this.subscribeToCurrentQuestion();
-        this.subscribeToCurrentOptions();
         this.subscribeToCorrectAnswersAndData();
         this.initializeMultipleAnswer();
         // this.initializeCorrectAnswerOptions();
@@ -249,26 +247,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   trackByFn(index: number, option: any) {
     return option.optionId;
   }
-  
-  /* private subscribeToCurrentQuestion(): void {
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      if (currentQuestion) {
-        this.currentQuestion = currentQuestion;
-        this.currentQuestionLoaded = true;
-        console.log('Current Question in Child Component:', this.currentQuestion);
-  
-        if (this.quizId) {
-          this.loadQuestionsForQuiz(this.quizId);
-        } else {
-          console.warn('quizId is not available.');
-        }
-  
-        this.quizService.fetchCorrectAnswers();
-      } else {
-        console.error('No current question available.');
-      }
-    });
-  } */  // potentially remove
   
   private logInitialData(): void {
     console.log('ngOnInit is called...');
@@ -324,13 +302,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private loadQuizQuestions(): void {
     this.quizService.fetchQuizQuestions();
-  }
-  
-  private subscribeToCurrentOptions(): void {
-    this.quizService.currentOptions$.subscribe((currentOptions) => {
-      console.log('Current Options:::', currentOptions);
-      // Update this.data or any other logic that depends on currentOptions
-    });
   }
   
   private initializeMultipleAnswer(): void {
