@@ -203,7 +203,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         this.activatedRoute.params.subscribe((params) => {
           this.quizId = params['quizId'];
         });
-        this.subscribeToCurrentQuestion();
+        // this.subscribeToCurrentQuestion();
         this.subscribeToCurrentOptions();
         this.subscribeToCorrectAnswersAndData();
         this.initializeMultipleAnswer();
@@ -250,7 +250,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return option.optionId;
   }
   
-  private subscribeToCurrentQuestion(): void {
+  /* private subscribeToCurrentQuestion(): void {
     this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
       if (currentQuestion) {
         this.currentQuestion = currentQuestion;
@@ -268,7 +268,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('No current question available.');
       }
     });
-  }
+  } */  // potentially remove
   
   private logInitialData(): void {
     console.log('ngOnInit is called...');
