@@ -38,18 +38,17 @@ export class QuizStateService {
       }),
       distinctUntilChanged()
     ).subscribe((question) => {
-      console.log('Current question:::', question);
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
       this.currentQuestionSource.next(question);
+
       if (question && question.options) {
-        console.log('Options:::', question.options);
         this.currentQuestion.next(question);
         this.currentOptionsSubject.next(question?.options || []);
       } else {
         console.log('No options found.');
       }
-    });   
+    });
   }
       
   getCurrentQuestion(): Observable<QuizQuestion> {
