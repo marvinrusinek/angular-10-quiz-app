@@ -48,6 +48,7 @@ export class MultipleAnswerComponent
     questionText: string; 
     correctAnswersText?: string;
     currentOptions: Option[];
+    options: Option[];
   };
   @Input() question!: QuizQuestion;
   // @Input() currentQuestion: QuizQuestion;
