@@ -783,15 +783,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         if (loaded) {
           if (
             this.data &&
-            this.data.currentOptions &&
-            this.data.currentOptions.length > 0
+            this.data.options &&
+            this.data.options.length > 0
           ) {
             if (correctAnswers && correctAnswers.length > 0) {
               if (!this.correctMessage) {
                 try {
                   this.correctMessage = this.quizService.setCorrectMessage(
                     this.quizService.correctAnswerOptions,
-                    this.data.currentOptions
+                    this.data.options
                   );
                 } catch (error) {
                   console.error(
@@ -839,10 +839,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Data:', data);
 
     // Map option IDs to Option objects
-    const mappedCorrectAnswerOptions: Option[] =
-      this.quizService.correctAnswerOptions.map((optionId) =>
-        currentOptions.find((option) => option.optionId === optionId)
-      );
+    const mappedCorrectAnswerOptions: Option[] = [];
+
+    for (const optionId of this.quizService.correctAnswerOptions) {
+      const foundOption = currentOptions.find((option) => {
+        // Use a type assertion to indicate that option.optionId is a number
+        return (option.optionId as number) === optionId;
+      });
+
+      if (foundOption !== undefined) {
+        mappedCorrectAnswerOptions.push(foundOption);
+      }
+    }
 
     console.log('Mapped correct answer options:', mappedCorrectAnswerOptions);
 

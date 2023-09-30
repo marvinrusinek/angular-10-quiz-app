@@ -45,7 +45,7 @@ export class MultipleAnswerComponent
 {
   @Output() answer = new EventEmitter<number>();
   @Input() data: {
-    questionText: string; 
+    questionText: string;
     correctAnswersText?: string;
     currentOptions: Option[];
     options: Option[];
@@ -82,18 +82,18 @@ export class MultipleAnswerComponent
     router: Router
   ) {
     super(
-        quizService,
-        quizDataService,
-        quizStateService,
-        quizQuestionManagerService,
-        explanationTextService,
-        selectedOptionService,
-        selectionMessageService,
-        timerService,
-        activatedRoute,
-        fb,
-        cdRef,
-        router
+      quizService,
+      quizDataService,
+      quizStateService,
+      quizQuestionManagerService,
+      explanationTextService,
+      selectedOptionService,
+      selectionMessageService,
+      timerService,
+      activatedRoute,
+      fb,
+      cdRef,
+      router
     );
     this.quizService = quizService;
     this.quizDataService = quizDataService;
@@ -104,13 +104,16 @@ export class MultipleAnswerComponent
     this.selectionMessageService = selectionMessageService;
     this.selectedOptions = [];
   }
-  
+
   async ngOnInit(): Promise<void> {
-    console.log('CodelabQuizMultipleAnswerComponent - Question:', this.question);
+    console.log(
+      'CodelabQuizMultipleAnswerComponent - Question:',
+      this.question
+    );
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
 
-    console.log('data.currentOptions length:', this.data?.currentOptions?.length);
-    console.log('data.currentOptions:', this.data?.currentOptions);
+    console.log('data.currentOptions length:', this.data?.options?.length);
+    console.log('data.currentOptions:', this.data?.options);
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -198,7 +201,10 @@ export class MultipleAnswerComponent
   }
 
   isSelectedOption(option: Option): boolean {
-    return this.selectedOptions.includes(option) && this.showFeedbackForOption[option.optionId];
+    return (
+      this.selectedOptions.includes(option) &&
+      this.showFeedbackForOption[option.optionId]
+    );
   }
 
   shouldDisplayFeedback(option: Option): boolean {
@@ -206,5 +212,5 @@ export class MultipleAnswerComponent
       this.isSelectedOption(option) &&
       this.showFeedbackForOption[option.optionId]
     );
-  }  
+  }
 }
