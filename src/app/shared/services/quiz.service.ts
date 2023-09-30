@@ -94,8 +94,7 @@ export class QuizService implements OnDestroy {
   totalQuestions: number = 0;
 
   selectedQuiz: any;
-  // selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  private selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
+  selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   selectedQuizId: string | undefined;
   indexOfQuizId: number;
   startedQuizId: string;
