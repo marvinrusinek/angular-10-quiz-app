@@ -501,8 +501,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               take(1),
               tap((data) => {
                 if (data) {
-                  this.data = data;
-                  this.currentOptions = data.currentOptions;
+                  // Update this.data.options with currentOptions if needed
+                  this.data = {
+                    ...data,
+                    options: this.currentOptions,
+                  };
 
                   // Fetch the correct answers if they are not already available
                   const currentCorrectAnswers =
