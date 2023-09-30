@@ -1255,29 +1255,19 @@ export class QuizService implements OnDestroy {
   
     try {
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
-      console.log('Total Questions:', totalQuestions);
-  
-      console.log('Before increment. Current Question Index:', this.currentQuestionIndex);
       this.currentQuestionIndex++;
-      console.log('After increment. Current Question Index:', this.currentQuestionIndex);
-
       const nextQuestionIndex = this.currentQuestionIndex + 1;
   
       if (nextQuestionIndex < totalQuestions) {
-  
         let newUrl: string;
 
         if (this.currentQuestionIndex === totalQuestions - 1) {
-          // Adjust the URL for the last question
           newUrl = `/question/${encodeURIComponent(this.quizId)}/${totalQuestions}`;
         } else {
           newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
         }
 
-        // Navigate using navigateByUrl
         await this.router.navigateByUrl(newUrl);
-
-        console.log('After Navigation. Current URL:', this.router.url);
 
         // Update the current question index in the service
         this.updateCurrentQuestionIndex(this.currentQuestionIndex);
