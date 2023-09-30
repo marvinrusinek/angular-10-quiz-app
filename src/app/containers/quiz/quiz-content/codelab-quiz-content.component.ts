@@ -138,10 +138,10 @@ export class CodelabQuizContentComponent {
       this.selectedOptionService.selectedOptionExplanation$,
     ]).pipe(
       map(
-        ([explanationText, selectedOptionExplanation]) =>
+        ([explanationText, selectedOptionExplanation]: [string, string]) =>
           selectedOptionExplanation || explanationText
       )
-    );
+    ) as Observable<string>;    
 
     // Subscribe to explanationText$ if needed
     this.explanationText$.subscribe((explanationText) => {
