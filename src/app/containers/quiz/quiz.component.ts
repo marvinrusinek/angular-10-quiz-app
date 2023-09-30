@@ -160,6 +160,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctCount: number;
   numberOfCorrectAnswers: number;
   score: number;
+  elapsedTimeDisplay: number;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -183,6 +184,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.selectedQuiz$ =
       this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
+
+    this.elapsedTimeDisplay = 0;
   }
 
   ngOnInit(): void {
@@ -942,18 +945,37 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shuffleQuestions(): void {
-    if (this.quizService.checkedShuffle) {
-      this.quizService.shuffle(this.quizData[this.indexOfQuizId].questions);
+    const quizQuestion = this.quizData[this.indexOfQuizId];
+
+    if (quizQuestion && Array.isArray(quizQuestion)) {
+      if (this.quizService.checkedShuffle) {
+        this.quizService.shuffle(quizQuestion);
+      }
+    } else {
+      console.error('Invalid data structure.');
     }
   }
 
   shuffleAnswers(): void {
-    if (this.quizService.checkedShuffle) {
-      this.quizService.shuffle(
-        this.quizData[this.indexOfQuizId].questions[
-          this.quizService.currentQuestionIndex
-        ].options
-      );
+    const quizQuestion = this.quizData[this.indexOfQuizId];
+
+    if (
+      quizQuestion &&
+      Array.isArray(quizQuestion) &&
+      this.quizService.currentQuestionIndex < quizQuestion.length
+    ) {
+      const currentQuestion =
+        quizQuestion[this.quizService.currentQuestionIndex];
+
+      if (currentQuestion && currentQuestion.questions) {
+        if (this.quizService.checkedShuffle) {
+          this.quizService.shuffle(currentQuestion.questions.options);
+        }
+      } else {
+        console.error('Questions property is missing or undefined.');
+      }
+    } else {
+      console.error('Invalid data structure or index out of bounds.');
     }
   }
 
