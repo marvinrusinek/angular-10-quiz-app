@@ -1026,21 +1026,19 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async displayQuestion(quizId: string): Promise<void> {
     try {
-      // Fetch the current question and its options based on the questionId
-      const currentQuestion: QuizQuestion =
-        await this.quizDataService.getQuestionsForQuiz(quizId);
+      const currentQuestionObservable: Observable<QuizQuestion> = this.quizDataService.getQuestionsForQuiz(quizId);
 
-      if (currentQuestion && currentQuestion.options) {
-        const correctAnswerOptions: Option[] = currentQuestion.options.filter(
-          (option) => option.correct
-        );
-      } else {
-        console.log('Current question or options are undefined.');
-      }
+      currentQuestionObservable.subscribe(currentQuestion => {
+        if (currentQuestion && currentQuestion.options) {
+          const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
+        } else {
+          console.log('Current question or options are undefined.');
+        }
 
-      // Display the question and options on the screen
-      this.currentQuestion = currentQuestion;
-      this.options = currentQuestion.options;
+        // Display the question and options on the screen
+        this.currentQuestion = currentQuestion;
+        this.options = currentQuestion.options;
+      });
     } catch (error) {
       console.error('Error fetching and displaying the question:', error);
     }
