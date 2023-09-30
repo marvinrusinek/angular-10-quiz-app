@@ -134,7 +134,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
-  explanationText: string | null = null;
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription;
   displayExplanation: boolean = false;
@@ -226,7 +225,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.getCorrectAnswers();
       this.correctMessage = this.quizService.setCorrectMessage(
         this.quizService.correctAnswerOptions,
-        this.data.currentOptions
+        this.data.options
       );
       this.cdRef.detectChanges();
     }
@@ -252,7 +251,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
     console.log('this.data:', this.data);
-    console.log('this.data.currentOptions:', this.data?.currentOptions);
+    console.log('this.data.currentOptions:', this.data?.options);
   }
   
   private initializeQuizQuestion(): void {
@@ -339,7 +338,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       console.log('Subscription triggered with data:', data);
   
       if (data) {
-        this.data = data;
+        this.data = {
+          questionText: data.questionText,
+          explanationText: data.explanationText || '',
+          correctAnswersText: data.correctAnswersText,
+          options: data.currentOptions
+        };
+
         this.correctAnswers = correctAnswers.get(data.questionText);
         this.currentOptions = data.currentOptions;
   
@@ -347,7 +352,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('correctAnswers:', this.correctAnswers);
 
         // Update combinedQuestionDataSubject with question data
-        if (this.data.questionText && this.data.correctAnswersText && this.data.currentOptions) {
+        if (this.data.questionText && this.data.correctAnswersText && this.data.options) {
           this.quizService.combinedQuestionDataSubject.next({
             questionText: this.data.questionText,
             correctAnswersText: '',
@@ -504,7 +509,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                   // Update this.data.options with currentOptions if needed
                   this.data = {
                     ...data,
-                    options: this.currentOptions,
+                    options: this.currentOptions
                   };
 
                   // Fetch the correct answers if they are not already available

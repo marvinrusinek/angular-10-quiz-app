@@ -31,7 +31,7 @@ export class AccordionComponent implements OnInit {
 
   ngOnInit(): void {
     this.questions = this.quizService.questions;
-    this.correctAnswers = this.quizService.correctAnswers;
+    this.correctAnswers = Array.from(this.quizService.correctAnswers.values()).flat();
   }
 
   checkIfAnswersAreCorrect(correctAnswers: any, userAnswers: any, index: number): boolean {
