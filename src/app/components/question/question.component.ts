@@ -767,9 +767,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateCorrectAnswers(): void {
-    console.log('Current Options:::>>>', this.data.currentOptions);
-    if (this.data && this.data.currentOptions) {
-      this.correctAnswers = this.data.currentOptions
+    console.log('Current Options:::>>>', this.data.options);
+    if (this.data && this.data.options) {
+      this.correctAnswers = this.data.options
         .filter((option) => option.correct)
         .map((option) => option.value);
       console.log('Correct Answers::>>', this.correctAnswers);
