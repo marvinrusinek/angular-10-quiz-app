@@ -855,7 +855,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Mapped correct answer options:', mappedCorrectAnswerOptions);
 
     this.correctMessage = this.quizService.setCorrectMessage(
-      data,
       mappedCorrectAnswerOptions,
       currentOptions
     );
