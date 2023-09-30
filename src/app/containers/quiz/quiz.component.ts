@@ -35,7 +35,7 @@ import {
   switchMap,
   take,
   tap,
-  withLatestFrom
+  withLatestFrom,
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -69,7 +69,7 @@ enum QuizStatus {
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
+  TrueFalse = 'true_false',
 }
 
 @Component({
@@ -141,11 +141,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   explanationText: string | null;
   explanationTextValue$: Observable<string | null>;
   private explanationTextSource = new BehaviorSubject<string>(null);
-  explanationText$: Observable<string | null> = this.explanationTextSource.asObservable();
+  explanationText$: Observable<string | null> =
+    this.explanationTextSource.asObservable();
 
-  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] }>(null);
-  
-  combinedQuestionData$: Observable<any> = this.combinedQuestionDataSubject.asObservable();
+  private combinedQuestionDataSubject = new BehaviorSubject<{
+    question: QuizQuestion;
+    options: Option[];
+  }>(null);
+
+  combinedQuestionData$: Observable<any> =
+    this.combinedQuestionDataSubject.asObservable();
 
   currentQuestionIndex: number = -1;
   lastQuestionIndex: number;
@@ -176,7 +181,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null],
     });
 
-    this.selectedQuiz$ = this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
+    this.selectedQuiz$ =
+      this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
   }
 
   ngOnInit(): void {
@@ -188,7 +194,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.getCurrentQuestion();
 
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         console.log('Navigation Start:', event.url);
       }
@@ -197,16 +203,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.activatedRoute.params.subscribe(params => {
+    this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
       this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
-       
+
       console.log('quizId:::>>>', this.quizId);
       console.log('questionIndex:::>>>', this.questionIndex);
       console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    
-      this.quizService.getSelectedQuiz().subscribe(selectedQuiz => {
+
+      this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
         if (selectedQuiz) {
           this.quiz = selectedQuiz;
           this.totalQuestions = selectedQuiz.questions.length;
@@ -227,30 +233,33 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
-      this.quizService.nextOptions$
+      this.quizService.nextOptions$,
     ]).pipe(
       map(([nextQuestion, nextOptions]) => {
         return {
           questionText: nextQuestion?.questionText,
           correctAnswersText: null,
-          options: nextOptions
+          options: nextOptions,
         };
       })
     );
 
-    combineLatest([this.quizService.nextQuestion$, this.quizService.nextOptions$])
-    .pipe(
-      map(([nextQuestion, nextOptions]) => {
-        return {
-          question: nextQuestion as QuizQuestion,
-          options: nextOptions as Option[]
-        };
-      })
-    )
-    .subscribe(({ question, options }) => {
-      this.question$ = of(question);
-      this.options$ = of(options);
-    });
+    combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$,
+    ])
+      .pipe(
+        map(([nextQuestion, nextOptions]) => {
+          return {
+            question: nextQuestion as QuizQuestion,
+            options: nextOptions as Option[],
+          };
+        })
+      )
+      .subscribe(({ question, options }) => {
+        this.question$ = of(question);
+        this.options$ = of(options);
+      });
   }
 
   ngOnDestroy(): void {
@@ -268,43 +277,51 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setCurrentQuizForQuizId();
 
     this.activatedRoute.paramMap
-        .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
-        .subscribe(({ quizId, questionIndex, quizData }) => {
-            this.quizData = quizData.questions;
-            this.quizId = quizId;
+      .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
+      .subscribe(({ quizId, questionIndex, quizData }) => {
+        this.quizData = quizData.questions;
+        this.quizId = quizId;
 
-            const currentQuestionIndex = questionIndex - 1;
+        const currentQuestionIndex = questionIndex - 1;
 
-            console.log('Current Question Index (Before):', currentQuestionIndex);
+        console.log('Current Question Index (Before):', currentQuestionIndex);
 
-            console.log('questionIndex:', questionIndex);
-            console.log('Current Question Index (calculated):', currentQuestionIndex);
+        console.log('questionIndex:', questionIndex);
+        console.log(
+          'Current Question Index (calculated):',
+          currentQuestionIndex
+        );
 
-            const currentQuiz: Quiz = this.quizData[currentQuestionIndex];
+        const currentQuiz: Quiz = this.quizData[currentQuestionIndex];
 
-            if (
-              currentQuestionIndex >= 0 &&
-              currentQuestionIndex < currentQuiz?.questions?.length
-            ) {
-              this.initializeQuizState();
-              this.loadCurrentQuestion();
-            
-              // Load the current question's explanation text
-              if (currentQuiz && currentQuiz.questions) {
-                const currentQuestion = currentQuiz.questions[currentQuestionIndex];
-                console.log('Current Question:::>>', currentQuestion);
-                if (this.isQuizQuestion(currentQuestion)) {
-                  this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
-                } else {
-                  console.error('Question not found:', currentQuestionIndex);
-                }
-              } else {
-                console.error('Questions not found for current quiz:', currentQuestionIndex);
-              }
+        if (
+          currentQuestionIndex >= 0 &&
+          currentQuestionIndex < currentQuiz?.questions?.length
+        ) {
+          this.initializeQuizState();
+          this.loadCurrentQuestion();
+
+          // Load the current question's explanation text
+          if (currentQuiz && currentQuiz.questions) {
+            const currentQuestion = currentQuiz.questions[currentQuestionIndex];
+            console.log('Current Question:::>>', currentQuestion);
+            if (this.isQuizQuestion(currentQuestion)) {
+              this.explanationTextService.setNextExplanationText(
+                currentQuestion.explanation
+              );
             } else {
-              console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+              console.error('Question not found:', currentQuestionIndex);
             }
-        });
+          } else {
+            console.error(
+              'Questions not found for current quiz:',
+              currentQuestionIndex
+            );
+          }
+        } else {
+          console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+        }
+      });
 
     this.getExplanationText();
     this.fetchAllQuestions();
@@ -362,15 +379,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadCurrentQuestion(): void {
-    this.currentQuestion$ = from(this.quizService.getCurrentQuestion())
-      .pipe(
-        tap(currentQuestion => {
-          if (currentQuestion) {
-            // Update the question text to display in the template
-            this.currentQuestionText = currentQuestion.questionText;
-          }
-        })
-      );
+    this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
+      tap((currentQuestion) => {
+        if (currentQuestion) {
+          // Update the question text to display in the template
+          this.currentQuestionText = currentQuestion.questionText;
+        }
+      })
+    );
   }
 
   nextQuestion(): void {
@@ -386,7 +402,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion = this.quizService.getNextQuestion();
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
-      this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
+      this.explanationTextService.setNextExplanationText(
+        nextQuestion.explanation
+      );
     } else {
       this.currentQuestion = null;
     }
@@ -475,8 +493,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (currentQuiz) {
       const currentQuestionIndex = this.currentQuestionIndex;
 
-      if (currentQuestionIndex >= 0 && currentQuestionIndex < currentQuiz?.questions.length) {
-        const currentQuestion: QuizQuestion = currentQuiz?.questions[currentQuestionIndex];
+      if (
+        currentQuestionIndex >= 0 &&
+        currentQuestionIndex < currentQuiz?.questions.length
+      ) {
+        const currentQuestion: QuizQuestion =
+          currentQuiz?.questions[currentQuestionIndex];
 
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
@@ -497,7 +519,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('ngOnInit is called.');
           this.cdRef.detectChanges();
         } else {
-          console.error('Invalid question index:', this.currentQuestionIndex + 1);
+          console.error(
+            'Invalid question index:',
+            this.currentQuestionIndex + 1
+          );
         }
       } else {
         console.error('Invalid quiz:', this.quizId);
@@ -536,7 +561,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   setObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
-  
+
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
       this.quizStateService.currentOptions$,
@@ -551,15 +576,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
 
     // Subscribe to the currentOptions$ observable with the latest value from currentQuestion$
-    this.quizStateService.currentQuestion$.pipe(
-      withLatestFrom(this.quizStateService.currentOptions$)
-    ).subscribe(([currentQuestion, correctAnswerOptions]) => {
-      if (currentQuestion && correctAnswerOptions) {
-        this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
-      }
-    });
+    this.quizStateService.currentQuestion$
+      .pipe(withLatestFrom(this.quizStateService.currentOptions$))
+      .subscribe(([currentQuestion, correctAnswerOptions]) => {
+        if (currentQuestion && correctAnswerOptions) {
+          this.quizService.setCorrectAnswers(
+            currentQuestion,
+            correctAnswerOptions
+          );
+        }
+      });
   }
-  
+
   async getQuestion(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
@@ -615,13 +643,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       map((question) => this.currentQuestion)
     );
   }
-  
+
   fetchQuizData(): void {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
     this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
-      const selectedQuiz: Quiz | undefined = quizData.find(quiz => quiz.quizId === quizId);
+      const selectedQuiz: Quiz | undefined = quizData.find(
+        (quiz) => quiz.quizId === quizId
+      );
 
       if (!selectedQuiz) {
         console.error('Selected quiz not found in quizData.');
@@ -634,7 +664,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set the selected quiz
       this.quizService.setSelectedQuiz(selectedQuiz);
 
-      const questionData = this.quizService.getQuestionData(quizId, questionIndex);
+      const questionData = this.quizService.getQuestionData(
+        quizId,
+        questionIndex
+      );
 
       if (questionData) {
         this.data = questionData;
@@ -646,14 +679,19 @@ export class QuizComponent implements OnInit, OnDestroy {
           questionText: this.data.questionText,
           options: this.data.currentOptions,
           explanation: '',
-          type: QuestionType.MultipleAnswer
+          type: QuestionType.MultipleAnswer,
         };
 
         // Pass the data to the QuizQuestionComponent
         this.question = currentQuestion;
 
-        const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
-        this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+        const correctAnswerOptions = this.data.currentOptions.filter(
+          (option) => option.correct
+        );
+        this.quizService.setCorrectAnswers(
+          currentQuestion,
+          correctAnswerOptions
+        );
         this.quizService.setCorrectAnswersLoaded(true);
         this.quizService.correctAnswersLoadedSubject.next(true);
 
@@ -819,27 +857,29 @@ export class QuizComponent implements OnInit, OnDestroy {
   loadExplanationTextForCurrentQuestion(): void {
     this.explanationText = '';
     const currentQuestion = this.quizData[this.currentQuestionIndex];
-    
+
     if (this.isQuizQuestion(currentQuestion)) {
       // Assuming each question has an 'explanation' property
-      this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
+      this.explanationTextService.setNextExplanationText(
+        currentQuestion.explanation
+      );
     } else {
       // Handle the case when the current question doesn't exist
       this.explanationTextService.setNextExplanationText('');
     }
-  }  
-  
+  }
+
   clearExplanationText(): void {
     this.explanationText = '';
   }
-  
+
   loadExplanationTextForNextQuestion(): void {
     // Load the explanation text for the next question
     const nextQuestionIndex = this.currentQuestionIndex + 1;
-  
+
     if (nextQuestionIndex < this.quizData.length) {
       const nextQuestion = this.quizData[nextQuestionIndex];
-        
+
       if (this.isQuizQuestion(nextQuestion)) {
         this.explanationText = nextQuestion.explanation;
       } else {
@@ -847,22 +887,21 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationText = '';
       }
     } else {
-       // Handle the case when there are no more questions
+      // Handle the case when there are no more questions
       this.explanationText = '';
     }
   }
-  
+
   onAnswerSelectedOrNextQuestionClicked(): void {
     // Clear or hide the explanation text
     this.clearExplanationText();
-  
+
     // Load explanation text for the next question
     this.loadExplanationTextForNextQuestion();
-  
+
     // Move to the next question
     // this.currentQuestionIndex++;
   }
-
 
   animationDoneHandler(): void {
     this.animationState$.next('none');
@@ -966,10 +1005,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   async displayQuestion(quizId: string): Promise<void> {
     try {
       // Fetch the current question and its options based on the questionId
-      const currentQuestion: QuizQuestion = await this.quizDataService.getQuestionsForQuiz(quizId);
+      const currentQuestion: QuizQuestion =
+        await this.quizDataService.getQuestionsForQuiz(quizId);
 
       if (currentQuestion && currentQuestion.options) {
-        const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
+        const correctAnswerOptions: Option[] = currentQuestion.options.filter(
+          (option) => option.correct
+        );
       } else {
         console.log('Current question or options are undefined.');
       }
@@ -1010,7 +1052,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************** template logic functions ******************/
   isMultipleCorrectAnswers(): boolean {
     return this.numberOfCorrectAnswers > 1;
-  } 
+  }
 
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return (
@@ -1046,14 +1088,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldHideShowScoreNav(): boolean {
     const selectedQuiz = this.selectedQuiz$.value;
-  
+
     if (!selectedQuiz || !selectedQuiz.questions) {
       return false;
     }
-  
+
     return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
   }
-  
+
   shouldDisplayShowScoreButton(): boolean {
     return this.questionIndex === this.lastQuestionIndex;
   }
@@ -1061,7 +1103,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isLastQuestion(): boolean {
     return this.questionIndex === this.totalQuestions - 1;
   }
-  
+
   shouldHideProgressBar(): boolean {
     return this.totalQuestions < 1;
   }
@@ -1088,22 +1130,28 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Advance to Next Question Clicked');
 
       if (!this.selectedQuiz) {
-          console.log('Advance to Next Question Aborted: Selected Quiz is not available.');
-          return;
+        console.log(
+          'Advance to Next Question Aborted: Selected Quiz is not available.'
+        );
+        return;
       }
 
       // Start animation or any other operations
       console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
 
-      console.log('Current Question Index (Before Advancing):', this.currentQuestionIndex);
+      console.log(
+        'Current Question Index (Before Advancing):',
+        this.currentQuestionIndex
+      );
       console.log('Selected Quiz:', this.selectedQuiz);
 
       this.onAnswerSelectedOrNextQuestionClicked();
 
       // Get the next question with explanation
       console.log('Fetching next question with explanation...');
-      const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation();
+      const { nextQuestion, explanationText } =
+        await this.quizService.getNextQuestionWithExplanation();
       console.log('Next question with explanation received:', nextQuestion);
 
       console.log('Fetching options for the next question...');
@@ -1128,13 +1176,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Before Navigation. Current URL:', this.router.url);
 
         // Navigate to the next question (if applicable)
-        const navigationSuccess = await this.quizService.navigateToNextQuestion();
+        const navigationSuccess =
+          await this.quizService.navigateToNextQuestion();
 
         console.log('After Navigation. Current URL:', this.router.url);
 
         if (!navigationSuccess) {
           console.error('Navigation to the next question failed.');
-          throw new Error("Navigation to the next question failed.");
+          throw new Error('Navigation to the next question failed.');
         }
 
         // Set options and questionText for the next question
@@ -1159,7 +1208,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.nextQuestionText = null;
       }
     } catch (error) {
-      console.error("Error occurred while advancing to the next question:", error);
+      console.error(
+        'Error occurred while advancing to the next question:',
+        error
+      );
     } finally {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
@@ -1175,7 +1227,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   advanceToResults() {
     this.quizService.resetAll();
-    this.timerService.stopTimer();
+    this.timerService.stopTimer((elapsedTime: number) => {
+      this.elapsedTimeDisplay = elapsedTime;
+    });
     this.timerService.resetTimer();
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
@@ -1184,10 +1238,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   private getNextOptionsForQuestion(nextQuestion: QuizQuestion): Option[] {
     // implement the logic to retrieve options based on the next question.
     // This could involve querying data source or using some other mechanism.
-  
+
     // For example, if options are stored within the question object:
     return nextQuestion.options;
-  
+
     // Or if I have a separate options array:
     // const nextQuestionId = nextQuestion.id; // Assuming there's an identifier for questions
     // const nextQuestionOptions = this.optionsArray.find((options) => options.questionId === nextQuestionId);
@@ -1205,7 +1259,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   restartQuiz() {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
-    this.timerService.stopTimer();
+    this.timerService.stopTimer((elapsedTime: number) => {
+      this.elapsedTimeDisplay = elapsedTime;
+    });
     this.timerService.resetTimer();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
@@ -1224,7 +1280,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   private sendQuizQuestionToQuizService(): void {
     const quizQuestion = this.quizData[this.indexOfQuizId];
 
-    if (quizQuestion && Array.isArray(quizQuestion) && quizQuestion.length > this.questionIndex) {
+    if (
+      quizQuestion &&
+      Array.isArray(quizQuestion) &&
+      quizQuestion.length > this.questionIndex
+    ) {
       const question = quizQuestion[this.questionIndex - 1];
 
       if (question) {
@@ -1241,7 +1301,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizQuestion = this.quizData[this.indexOfQuizId];
 
     if (quizQuestion && Array.isArray(quizQuestion)) {
-      this.quizService.setQuestions(quizQuestion.map(question => question.questions));
+      this.quizService.setQuestions(
+        quizQuestion.map((question) => question.questions)
+      );
     } else {
       console.error('Invalid data structure.');
     }
