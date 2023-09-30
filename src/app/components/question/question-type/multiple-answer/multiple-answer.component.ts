@@ -104,7 +104,7 @@ export class MultipleAnswerComponent
     this.selectedOptions = [];
   }
   
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     console.log('CodelabQuizMultipleAnswerComponent - Question:', this.question);
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
 

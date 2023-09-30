@@ -83,7 +83,7 @@ export class SingleAnswerComponent
     this.selectionMessageService = selectionMessageService;
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     console.log('options in codelab-question-single-answer', this.options); // not working
 
     this.router.events.subscribe((event) => {
