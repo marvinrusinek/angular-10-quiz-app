@@ -1222,14 +1222,29 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private sendQuizQuestionToQuizService(): void {
-    this.question =
-      this.quizData[this.indexOfQuizId].questions[this.questionIndex - 1];
-    this.quizService.setQuestion(this.question);
+    const quizQuestion = this.quizData[this.indexOfQuizId];
+
+    if (quizQuestion && Array.isArray(quizQuestion) && quizQuestion.length > this.questionIndex) {
+      const question = quizQuestion[this.questionIndex - 1];
+
+      if (question) {
+        this.quizService.setQuestion(question);
+      } else {
+        console.error('Question object is missing or undefined.');
+      }
+    } else {
+      console.error('Invalid data structure or index out of bounds.');
+    }
   }
 
   private sendQuizQuestionsToQuizService(): void {
-    this.quizQuestions = this.quizData[this.indexOfQuizId].questions;
-    this.quizService.setQuestions(this.quizQuestions);
+    const quizQuestion = this.quizData[this.indexOfQuizId];
+
+    if (quizQuestion && Array.isArray(quizQuestion)) {
+      this.quizService.setQuestions(quizQuestion.map(question => question.questions));
+    } else {
+      console.error('Invalid data structure.');
+    }
   }
 
   private sendQuizResourcesToQuizService(): void {
