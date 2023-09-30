@@ -1026,15 +1026,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async displayQuestion(quizId: string): Promise<void> {
     try {
-      // Fetch the current questions based on the quizId
       const currentQuestionObservable: Observable<QuizQuestion[]> = this.quizDataService.getQuestionsForQuiz(quizId);
   
       currentQuestionObservable.subscribe(currentQuestions => {
         if (currentQuestions && currentQuestions.length > 0) {
-          // Iterate through each question in the array
           currentQuestions.forEach(currentQuestion => {
             if (currentQuestion && currentQuestion.options) {
               const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
+              
               // Display the question and options on the screen for each question
               this.currentQuestion = currentQuestion;
               this.options = currentQuestion.options;
