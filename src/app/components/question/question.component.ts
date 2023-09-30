@@ -401,12 +401,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
-      currentOptions: this.data.currentOptions,
+      currentOptions: this.data.options,
     };
     console.log('Data to be passed to fetchCorrectAnswersText:', data);
     console.log('questionData:::', this.questionData);
     console.log('data:::', this.data);
-    console.log('data.currentOptions:::', this.data.currentOptions);
+    console.log('data.currentOptions:::', this.data.options);
     console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
   }
