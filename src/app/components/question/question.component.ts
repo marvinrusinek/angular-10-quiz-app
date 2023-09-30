@@ -351,7 +351,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.quizService.combinedQuestionDataSubject.next({
             questionText: this.data.questionText,
             correctAnswersText: '',
-            currentOptions: this.data.currentOptions
+            currentOptions: this.data.options
           });
         }
         console.log("CA:", this.correctAnswers);
@@ -365,7 +365,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.updateCorrectMessageText(this.correctMessage); // Update with the error message
         }
 
-        this.fetchCorrectAnswersAndText(this.data, this.data.currentOptions);
+        this.fetchCorrectAnswersAndText(this.data, this.data.options);
         this.quizService.setCorrectAnswerOptions(this.correctAnswers);
   
         console.log('Updating correct message and question form.');
