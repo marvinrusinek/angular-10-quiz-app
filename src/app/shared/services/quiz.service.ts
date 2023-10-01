@@ -20,7 +20,7 @@ import {
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Option } from '../../shared/models/Option.model';
