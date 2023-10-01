@@ -340,7 +340,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       if (data) {
         this.data = {
           questionText: data.questionText,
-          explanationText: data.explanationText || '',
+          explanationText: (data as any && (data as any).explanationText) || '',
           correctAnswersText: data.correctAnswersText,
           options: data.currentOptions
         };
