@@ -851,8 +851,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     for (const optionId of this.quizService.correctAnswerOptions) {
       const foundOption = currentOptions.find((option) => {
-        // Use a type assertion to indicate that option.optionId is a number
-        return (option.optionId as number) === optionId;
+        return option.optionId === Number(optionId);
       });
 
       if (foundOption !== undefined) {
