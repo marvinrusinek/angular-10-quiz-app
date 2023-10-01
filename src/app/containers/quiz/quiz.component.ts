@@ -295,7 +295,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           currentQuestionIndex
         );
 
-        const currentQuiz: Quiz = this.quizData[currentQuestionIndex];
+        const currentQuiz: Quiz = this.quizData[this.quizId];
 
         if (
           currentQuestionIndex >= 0 &&
@@ -533,14 +533,19 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  // helper function to find a quiz by quizId
+  // Helper function to find a quiz by quizId
   private findQuizByQuizId(quizId: string): Quiz | undefined {
-    for (const quiz of this.quizData) {
-      if (quiz.quizId === quizId) {
-        return quiz;
+    for (const item of this.quizData) {
+      if (this.isQuiz(item) && item.quizId === quizId) {
+        return item as Quiz;
       }
     }
     return undefined;
+  }
+
+  // Type guard function to check if an object is of type Quiz
+  private isQuiz(item: any): item is Quiz {
+    return typeof item === 'object' && 'quizId' in item;
   }
 
   subscribeRouterAndInit(): void {
