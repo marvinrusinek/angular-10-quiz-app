@@ -490,18 +490,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuizState(): void {
-    const currentQuiz = this.quizData.find(
-      (quiz) => quiz.quizId === this.quizId
-    );
+    const currentQuiz: Quiz | undefined = this.findQuizByQuizId(this.quizId);
+
     if (currentQuiz) {
       const currentQuestionIndex = this.currentQuestionIndex;
 
       if (
         currentQuestionIndex >= 0 &&
-        currentQuestionIndex < currentQuiz?.questions.length
+        currentQuiz.questions &&
+        currentQuestionIndex < currentQuiz.questions.length
       ) {
         const currentQuestion: QuizQuestion =
-          currentQuiz?.questions[currentQuestionIndex];
+          currentQuiz.questions[currentQuestionIndex];
 
         if (currentQuestion) {
           this.currentQuestion = currentQuestion;
@@ -531,6 +531,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Invalid quiz:', this.quizId);
       }
     }
+  }
+
+  // helper function to find a quiz by quizId
+  private findQuizByQuizId(quizId: string): Quiz | undefined {
+    for (const quiz of this.quizData) {
+      if (quiz.quizId === quizId) {
+        return quiz;
+      }
+    }
+    return undefined;
   }
 
   subscribeRouterAndInit(): void {
@@ -1026,14 +1036,16 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async displayQuestion(quizId: string): Promise<void> {
     try {
-      const currentQuestionObservable: Observable<QuizQuestion[]> = this.quizDataService.getQuestionsForQuiz(quizId);
-  
-      currentQuestionObservable.subscribe(currentQuestions => {
+      const currentQuestionObservable: Observable<QuizQuestion[]> =
+        this.quizDataService.getQuestionsForQuiz(quizId);
+
+      currentQuestionObservable.subscribe((currentQuestions) => {
         if (currentQuestions && currentQuestions.length > 0) {
-          currentQuestions.forEach(currentQuestion => {
+          currentQuestions.forEach((currentQuestion) => {
             if (currentQuestion && currentQuestion.options) {
-              const correctAnswerOptions: Option[] = currentQuestion.options.filter(option => option.correct);
-              
+              const correctAnswerOptions: Option[] =
+                currentQuestion.options.filter((option) => option.correct);
+
               // Display the question and options on the screen for each question
               this.currentQuestion = currentQuestion;
               this.options = currentQuestion.options;
@@ -1049,7 +1061,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching and displaying the questions:', error);
     }
   }
-  
+
   /* async onSubmit(): Promise<void> {
     if (this.form.invalid) {
       return;
