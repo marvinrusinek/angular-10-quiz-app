@@ -1249,33 +1249,28 @@ export class QuizService implements OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return false;
     }
-  
+
     this.isNavigating = true;
-  
+
     try {
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       this.currentQuestionIndex++;
       const nextQuestionIndex = this.currentQuestionIndex + 1;
-  
-      if (nextQuestionIndex < totalQuestions) {
-        let newUrl: string;
 
-        if (this.currentQuestionIndex === totalQuestions - 1) {
-          newUrl = `/question/${encodeURIComponent(this.quizId)}/${totalQuestions}`;
-        } else {
-          newUrl = `/question/${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
-        }
-
-        await this.router.navigateByUrl(newUrl);
+      if (nextQuestionIndex <= totalQuestions) {
+        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
 
         // Update the current question index in the service
         this.updateCurrentQuestionIndex(this.currentQuestionIndex);
+
+        // Navigate to the new URL
+        await this.router.navigateByUrl(newUrl);
 
         console.log('Navigation completed successfully.');
         return true; // Navigation succeeded
       } else {
         // Handle the end of the quiz, e.g., navigate to the results page
-        this.router.navigate([`/results/${this.quizId}`]);
+        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
         return false; // End of quiz reached
       }
