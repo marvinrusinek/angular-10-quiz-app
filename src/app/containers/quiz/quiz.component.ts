@@ -311,17 +311,17 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.log('Current Quiz:', currentQuiz);
             if (
               currentQuestionIndex >= 0 &&
-              currentQuestionIndex < currentQuiz.questions?.length
+              currentQuestionIndex < (currentQuiz as any).questions?.length
             ) {
               this.initializeQuizState();
               this.loadCurrentQuestion();
 
               // Load the current question's explanation text
               if (
-                this.isQuizQuestion(currentQuiz.questions[currentQuestionIndex])
+                this.isQuizQuestion((currentQuiz as any).questions[currentQuestionIndex])
               ) {
                 this.explanationTextService.setNextExplanationText(
-                  currentQuiz.questions[currentQuestionIndex].explanation
+                  (currentQuiz as any).questions[currentQuestionIndex].explanation
                 );
               } else {
                 console.error('Question not found:', currentQuestionIndex);
