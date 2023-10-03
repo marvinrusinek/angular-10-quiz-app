@@ -295,35 +295,57 @@ export class QuizComponent implements OnInit, OnDestroy {
           currentQuestionIndex
         );
 
-        const currentQuiz: Quiz = this.quizData[this.quizId];
+        console.log('quizId:', quizId);
+        console.log('quizData:', quizData);
 
-        if (
-          currentQuestionIndex >= 0 &&
-          currentQuestionIndex < currentQuiz?.questions?.length
-        ) {
-          this.initializeQuizState();
-          this.loadCurrentQuestion();
+        // Check if quizData and this.quizId are defined
+        if (quizData && quizId) {
+          console.log('Both quizData and quizId are defined.');
 
-          // Load the current question's explanation text
-          if (currentQuiz && currentQuiz.questions) {
-            const currentQuestion = currentQuiz.questions[currentQuestionIndex];
-            console.log('Current Question:::>>', currentQuestion);
-            if (this.isQuizQuestion(currentQuestion)) {
-              this.explanationTextService.setNextExplanationText(
-                currentQuestion.explanation
-              );
+          // Confirm values for debugging
+          console.log('quizData[quizId]:', quizData[quizId]);
+
+          // Access the questions property directly
+          const questions = quizData[quizId].questions;
+
+          // Find the currentQuiz based on quizId
+          const currentQuiz = questions.find(quiz => {
+            return quiz.questions.some(question => question.quizId === quizId);
+          });
+
+          // Check if currentQuiz is defined
+          if (currentQuiz) {
+            console.log('CURRQUIZ', currentQuiz);
+            if (
+              currentQuestionIndex >= 0 &&
+              currentQuestionIndex < currentQuiz.questions.length
+            ) {
+              this.initializeQuizState();
+              this.loadCurrentQuestion();
+
+              // Load the current question's explanation text
+              if (
+                this.isQuizQuestion(currentQuiz.questions[currentQuestionIndex])
+              ) {
+                this.explanationTextService.setNextExplanationText(
+                  currentQuiz.questions[currentQuestionIndex].explanation
+                );
+              } else {
+                console.error('Question not found:', currentQuestionIndex);
+              }
             } else {
-              console.error('Question not found:', currentQuestionIndex);
+              console.error(
+                'Invalid currentQuestionIndex:',
+                currentQuestionIndex
+              );
             }
           } else {
-            console.error(
-              'Questions not found for current quiz:',
-              currentQuestionIndex
-            );
+            console.error('Questions not found for current quiz:', quizId);
           }
         } else {
-          console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+          console.error('quizData or this.quizId is undefined.');
         }
+
       });
 
     this.getExplanationText();
