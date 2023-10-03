@@ -304,8 +304,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           const questions = quizData.questions || [];
 
           // Find the currentQuiz based on quizId
-          const currentQuiz = questions.find((quiz) => {
-            return quiz?.quizId === quizId;
+          const currentQuiz = questions.find((quiz: QuizQuestion) => {
+            return quiz.quizId === quizId;
           });
 
           // Check if currentQuiz is defined
