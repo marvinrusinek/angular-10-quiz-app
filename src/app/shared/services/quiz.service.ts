@@ -1246,40 +1246,45 @@ export class QuizService implements OnDestroy {
   /********* navigation functions ***********/
   async navigateToNextQuestion(): Promise<boolean> {
     if (this.isNavigating) {
-      console.warn('Navigation already in progress. Aborting.');
-      return false;
+        console.warn('Navigation already in progress. Aborting.');
+        return false;
     }
 
     this.isNavigating = true;
 
     try {
-      const totalQuestions: number = await this.getTotalQuestions().toPromise();
-      this.currentQuestionIndex++;
-      const nextQuestionIndex = this.currentQuestionIndex + 1;
+        const totalQuestions: number = await this.getTotalQuestions().toPromise();
+        console.log('Total Questions:', totalQuestions);
 
-      if (nextQuestionIndex <= totalQuestions) {
-        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+        this.currentQuestionIndex++;
+        console.log('Current Question Index (Before Navigation):', this.currentQuestionIndex);
 
-        // Update the current question index in the service
-        this.updateCurrentQuestionIndex(this.currentQuestionIndex);
+        const nextQuestionIndex = this.currentQuestionIndex + 1;
+        console.log('Next Question Index:', nextQuestionIndex);
 
-        // Navigate to the new URL
-        await this.router.navigateByUrl(newUrl);
+        if (nextQuestionIndex <= totalQuestions) {
+            const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
 
-        console.log('Navigation completed successfully.');
-        return true; // Navigation succeeded
-      } else {
-        // Handle the end of the quiz, e.g., navigate to the results page
-        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-        console.log('End of quiz reached.');
-        return false; // End of quiz reached
-      }
+            // Update the current question index in the service
+            this.updateCurrentQuestionIndex(this.currentQuestionIndex);
+
+            // Navigate to the new URL
+            await this.router.navigateByUrl(newUrl);
+
+            console.log('Navigation completed successfully.');
+            return true; // Navigation succeeded
+        } else {
+            // Handle the end of the quiz, e.g., navigate to the results page
+            this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+            console.log('End of quiz reached.');
+            return false; // End of quiz reached
+        }
     } catch (error) {
-      console.error('Navigation error:', error);
-      return false; // Navigation error
+        console.error('Navigation error:', error);
+        return false; // Navigation error
     } finally {
-      // Ensure that isNavigating is always set to false
-      this.isNavigating = false;
+        // Ensure that isNavigating is always set to false
+        this.isNavigating = false;
     }
   }
   
