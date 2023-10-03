@@ -299,29 +299,27 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('quizData[quizId]:', quizData[quizId]);
 
           // Access the questions property directly
-          const questions = quizData.questions || [];
+          const questions: QuizQuestion[] = quizData.questions || [];
 
           // Find the currentQuiz based on quizId
-          const currentQuiz = questions.find((quiz: any) => {
-            return quiz.quizId === quizId;
-          });
+          const currentQuiz: Quiz | undefined = questions.find((quiz) => quiz.quizId === quizId);
 
           // Check if currentQuiz is defined
           if (currentQuiz) {
             console.log('Current Quiz:', currentQuiz);
             if (
               currentQuestionIndex >= 0 &&
-              currentQuestionIndex < (currentQuiz as any).questions?.length
+              currentQuestionIndex < currentQuiz.questions?.length
             ) {
               this.initializeQuizState();
               this.loadCurrentQuestion();
 
               // Load the current question's explanation text
               if (
-                this.isQuizQuestion((currentQuiz as any).questions[currentQuestionIndex])
+                this.isQuizQuestion(currentQuiz.questions[currentQuestionIndex])
               ) {
                 this.explanationTextService.setNextExplanationText(
-                  (currentQuiz as any).questions[currentQuestionIndex].explanation
+                  currentQuiz.questions[currentQuestionIndex].explanation
                 );
               } else {
                 console.error('Question not found:', currentQuestionIndex);
