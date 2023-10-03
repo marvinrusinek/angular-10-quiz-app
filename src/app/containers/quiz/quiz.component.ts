@@ -305,7 +305,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Find the currentQuiz based on quizId
           const currentQuiz = questions.find((quiz) => {
-            return quiz.quizId === quizId;
+            return quiz?.quizId === quizId;
           });
 
           // Check if currentQuiz is defined
@@ -313,7 +313,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.log('Current Quiz:', currentQuiz);
             if (
               currentQuestionIndex >= 0 &&
-              currentQuestionIndex < currentQuiz.questions.length
+              currentQuestionIndex < currentQuiz?.questions?.length
             ) {
               this.initializeQuizState();
               this.loadCurrentQuestion();
@@ -321,11 +321,11 @@ export class QuizComponent implements OnInit, OnDestroy {
               // Load the current question's explanation text
               if (
                 this.isQuizQuestion(
-                  currentQuiz.questions[currentQuestionIndex]
+                  currentQuiz?.questions[currentQuestionIndex]
                 )
               ) {
                 this.explanationTextService.setNextExplanationText(
-                  currentQuiz.questions[currentQuestionIndex].explanation
+                  currentQuiz?.questions[currentQuestionIndex].explanation
                 );
               } else {
                 console.error('Question not found:', currentQuestionIndex);
