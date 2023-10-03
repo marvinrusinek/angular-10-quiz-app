@@ -280,9 +280,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setCurrentQuizForQuizId();
 
     this.activatedRoute.paramMap
-      .pipe(
-        switchMap((params: ParamMap) => this.handleRouteParams(params))
-      )
+      .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
       .subscribe(({ quizId, questionIndex, quizData }) => {
         this.quizData = quizData.questions;
         this.quizId = quizId;
@@ -304,7 +302,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           const questions = quizData.questions || [];
 
           // Find the currentQuiz based on quizId
-          const currentQuiz = questions.find((quiz: QuizQuestion) => {
+          const currentQuiz = questions.find((quiz: any) => {
             return quiz.quizId === quizId;
           });
 
@@ -313,25 +311,26 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.log('Current Quiz:', currentQuiz);
             if (
               currentQuestionIndex >= 0 &&
-              currentQuestionIndex < currentQuiz?.questions?.length
+              currentQuestionIndex < currentQuiz.questions?.length
             ) {
               this.initializeQuizState();
               this.loadCurrentQuestion();
 
               // Load the current question's explanation text
               if (
-                this.isQuizQuestion(
-                  currentQuiz?.questions[currentQuestionIndex]
-                )
+                this.isQuizQuestion(currentQuiz.questions[currentQuestionIndex])
               ) {
                 this.explanationTextService.setNextExplanationText(
-                  currentQuiz?.questions[currentQuestionIndex].explanation
+                  currentQuiz.questions[currentQuestionIndex].explanation
                 );
               } else {
                 console.error('Question not found:', currentQuestionIndex);
               }
             } else {
-              console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+              console.error(
+                'Invalid currentQuestionIndex:',
+                currentQuestionIndex
+              );
             }
           } else {
             console.error('No quiz found with quizId:', quizId);
