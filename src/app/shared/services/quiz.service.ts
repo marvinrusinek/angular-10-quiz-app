@@ -1276,6 +1276,12 @@ export class QuizService implements OnDestroy {
         // Construct the URL for the next question
         const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
 
+        // Check if the new URL is different from the current URL
+        if (this.router.url === newUrl) {
+          console.warn('Navigation to the same question. Aborting.');
+          return false;
+        }
+
         // Update the current question index in the service
         this.updateCurrentQuestionIndex(this.currentQuestionIndex);
 
