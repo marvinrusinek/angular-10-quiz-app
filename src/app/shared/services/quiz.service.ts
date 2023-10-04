@@ -1254,32 +1254,36 @@ export class QuizService implements OnDestroy {
     this.isNavigating = true;
 
     try {
+        // Get the total number of questions
         const totalQuestions: number = await this.getTotalQuestions().toPromise();
         console.log('Total Questions:', totalQuestions);
 
+        // Check if you've reached the end of the quiz
+        if (this.currentQuestionIndex >= totalQuestions - 1) {
+            // Handle the end of the quiz, e.g., navigate to the results page
+            this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+            console.log('End of quiz reached.');
+            return false; // End of quiz reached
+        }
+
+        // Increment the current question index
         this.currentQuestionIndex++;
         console.log('Current Question Index (Before Navigation):', this.currentQuestionIndex);
 
         const nextQuestionIndex = this.currentQuestionIndex + 1;
         console.log('Next Question Index:', nextQuestionIndex);
 
-        if (nextQuestionIndex <= totalQuestions) {
-            const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+        // Construct the URL for the next question
+        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
 
-            // Update the current question index in the service
-            this.updateCurrentQuestionIndex(this.currentQuestionIndex);
+        // Update the current question index in the service
+        this.updateCurrentQuestionIndex(this.currentQuestionIndex);
 
-            // Navigate to the new URL
-            await this.router.navigateByUrl(newUrl);
+        // Navigate to the new URL
+        await this.router.navigateByUrl(newUrl);
 
-            console.log('Navigation completed successfully.');
-            return true; // Navigation succeeded
-        } else {
-            // Handle the end of the quiz, e.g., navigate to the results page
-            this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-            console.log('End of quiz reached.');
-            return false; // End of quiz reached
-        }
+        console.log('Navigation completed successfully.');
+        return true; // Navigation succeeded
     } catch (error) {
         console.error('Navigation error:', error);
         return false; // Navigation error
@@ -1288,6 +1292,7 @@ export class QuizService implements OnDestroy {
         this.isNavigating = false;
     }
   }
+
   
   navigateToPreviousQuestion() {
     this.quizCompleted = false;
