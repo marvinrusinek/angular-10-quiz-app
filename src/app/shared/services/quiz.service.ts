@@ -664,6 +664,7 @@ export class QuizService implements OnDestroy {
     if (
       currentQuiz &&
       currentQuiz.questions &&
+      nextIndex >= 0 &&
       nextIndex < currentQuiz.questions.length
     ) {
       const nextQuestion = currentQuiz.questions[nextIndex];
