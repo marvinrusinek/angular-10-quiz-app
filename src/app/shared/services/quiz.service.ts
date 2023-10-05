@@ -1269,49 +1269,44 @@ export class QuizService implements OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return false;
     }
-
+  
     this.isNavigating = true;
-
+  
     try {
       // Get the total number of questions
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
-
-      // Check if you've reached the end of the quiz
+  
+      // Check if the end of the quiz is reached
       if (this.currentQuestionIndex >= totalQuestions - 1) {
         // Handle the end of the quiz, e.g., navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
-        return false; // End of quiz reached
+        return false;
       }
-
+  
       // Increment the current question index
       this.currentQuestionIndex++;
-      console.log(
-        'Current Question Index (Before Navigation):',
-        this.currentQuestionIndex
-      );
-
+      console.log('Current Question Index (Before Navigation):', this.currentQuestionIndex);
+  
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       console.log('Next Question Index:', nextQuestionIndex);
-
+  
       // Construct the URL for the next question
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-        this.quizId
-      )}/${nextQuestionIndex}`;
-
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+  
       // Check if the new URL is different from the current URL
       if (this.router.url === newUrl) {
         console.warn('Navigation to the same question. Aborting.');
         return false;
       }
-
+  
       // Update the current question index in the service
       this.updateCurrentQuestionIndex(this.currentQuestionIndex);
-
+  
       // Navigate to the new URL
       await this.router.navigateByUrl(newUrl);
-
+  
       console.log('Navigation completed successfully.');
       return true; // Navigation succeeded
     } catch (error) {
