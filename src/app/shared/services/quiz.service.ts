@@ -1277,6 +1277,7 @@ export class QuizService implements OnDestroy {
       this.currentQuestionIndex++;
   
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
+      console.log('Total Questions:', totalQuestions);
       
       // Check if it's the last question
       if (this.currentQuestionIndex >= totalQuestions) {
@@ -1291,6 +1292,7 @@ export class QuizService implements OnDestroy {
   
       // Construct the URL for the next question
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+      console.log('New URL:', newUrl);
   
       // Update the current question index in the service
       this.updateCurrentQuestionIndex(this.currentQuestionIndex);
