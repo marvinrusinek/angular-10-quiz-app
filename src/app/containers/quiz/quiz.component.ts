@@ -152,7 +152,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   combinedQuestionData$: Observable<any> =
     this.combinedQuestionDataSubject.asObservable();
 
-  currentQuestionIndex: number = -1;
+  currentQuestionIndex: number = 0;
   lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
@@ -185,7 +185,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ =
       this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
 
-    this.currentQuestionIndex = 0;
     this.elapsedTimeDisplay = 0;
   }
 
