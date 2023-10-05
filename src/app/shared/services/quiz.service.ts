@@ -1299,8 +1299,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  
-  navigateToPreviousQuestion() {
+  /* navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
       QuizRoutes.QUESTION,
@@ -1308,6 +1307,42 @@ export class QuizService implements OnDestroy {
       this.currentQuestionIndex,
     ]);
     this.resetAll();
+  } */
+
+  async navigateToPreviousQuestion(): Promise<boolean> {
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return false;
+    }
+  
+    this.isNavigating = true;
+  
+    try {
+      // Ensure the current question index is valid
+      if (this.currentQuestionIndex > 0) {
+        // Decrement the current question index
+        this.currentQuestionIndex--;
+  
+        // Construct the URL for the previous question
+        const previousQuestionIndex = this.currentQuestionIndex + 1;
+        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
+  
+        // Navigate to the new URL
+        await this.router.navigateByUrl(newUrl);
+  
+        console.log('Navigation to previous question completed successfully.');
+        return true; // Navigation succeeded
+      } else {
+        console.log('Already at the first question. Cannot go back.');
+        return false; // Cannot go back further
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      return false; // Navigation error
+    } finally {
+      // Ensure that isNavigating is always set to false
+      this.isNavigating = false;
+    }
   }
 
   navigateToResults() {
