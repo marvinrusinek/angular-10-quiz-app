@@ -1273,12 +1273,16 @@ export class QuizService implements OnDestroy {
     this.isNavigating = true;
   
     try {
+      // Get the total number of questions
+      const totalQuestions: number = await this.getTotalQuestions().toPromise();
+      console.log('Total Questions:', totalQuestions);
+  
       // Check if the end of the quiz is reached
-      if (this.currentQuestionIndex >= this.selectedQuiz.questions.length - 1) {
-        // navigate to the results page
+      if (this.currentQuestionIndex >= totalQuestions - 1) {
+        // Handle the end of the quiz, e.g., navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
-        return false; // End of quiz reached
+        return false;
       }
   
       // Increment the current question index
@@ -1290,6 +1294,12 @@ export class QuizService implements OnDestroy {
   
       // Construct the URL for the next question
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+  
+      // Check if the new URL is different from the current URL
+      if (this.router.url === newUrl) {
+        console.warn('Navigation to the same question. Aborting.');
+        return false;
+      }
   
       // Update the current question index in the service
       this.updateCurrentQuestionIndex(this.currentQuestionIndex);
@@ -1307,7 +1317,6 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
-  
 
   /* navigateToPreviousQuestion() {
     this.quizCompleted = false;
