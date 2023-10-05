@@ -185,6 +185,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ =
       this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
 
+    this.currentQuestionIndex = 0;
     this.elapsedTimeDisplay = 0;
   }
 
