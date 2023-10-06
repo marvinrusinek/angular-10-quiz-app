@@ -404,7 +404,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  async getNextQuestion(): Promise<void> {
+  getNextQuestion(): void {
     const nextQuestion = this.quizService.getNextQuestion();
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;

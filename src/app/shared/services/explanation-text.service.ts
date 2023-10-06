@@ -155,7 +155,7 @@ export class ExplanationTextService {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
 
-  setNextExplanationText(explanationText: string) {
+  setNextExplanationText(explanationText: string): void {
     try {
       console.log('Setting next explanation text:', explanationText);
       this.nextExplanationTextSource.next(explanationText);
