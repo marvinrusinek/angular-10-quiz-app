@@ -408,8 +408,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     const nextQuestion = this.quizService.getNextQuestion();
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
-      this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
       this.currentQuestion$ = of(nextQuestion);
+      this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
     } else {
       this.currentQuestion = null;
     }
