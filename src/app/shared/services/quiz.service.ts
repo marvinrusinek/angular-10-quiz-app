@@ -1295,7 +1295,9 @@ export class QuizService implements OnDestroy {
       console.log('New URL:', newUrl);
 
       // Update the current question index in the service
+      console.log('Before updating current question index:', this.currentQuestionIndex);
       this.updateCurrentQuestionIndex(this.currentQuestionIndex);
+      console.log('After updating current question index:', this.currentQuestionIndex);
   
       // Navigate to the new URL
       console.log('Before navigation:', this.router.url);
