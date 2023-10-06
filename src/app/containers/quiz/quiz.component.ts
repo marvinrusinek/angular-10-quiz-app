@@ -415,10 +415,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-  correctOptions(): string[] {
-    return this.quizService.correctOptions;
-  }
-
   onSelectionChange(questionIndex: number, answerIndex: number): void {
     this.selectedAnswerIndex = answerIndex;
     this.answers[questionIndex] =
