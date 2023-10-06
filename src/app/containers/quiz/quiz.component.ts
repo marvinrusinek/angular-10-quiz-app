@@ -404,27 +404,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  nextQuestion(): void {
-    const nextQuestion = this.quizService.getNextQuestion();
-    if (nextQuestion) {
-      this.currentQuestion$ = of(nextQuestion);
-    } else {
-      // Handle end of quiz logic
-    }
-  }
-
-  getNextQuestion(): void {
+  async getNextQuestion(): Promise<void> {
     const nextQuestion = this.quizService.getNextQuestion();
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
-      this.explanationTextService.setNextExplanationText(
-        nextQuestion.explanation
-      );
+      this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
+      this.currentQuestion$ = of(nextQuestion);
     } else {
       this.currentQuestion = null;
     }
   }
-
+  
   correctOptions(): string[] {
     return this.quizService.correctOptions;
   }
