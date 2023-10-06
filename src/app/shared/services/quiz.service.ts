@@ -1294,11 +1294,11 @@ export class QuizService implements OnDestroy {
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
       console.log('New URL:', newUrl);
   
-      // Update the current question index in the service
-      this.updateCurrentQuestionIndex(this.currentQuestionIndex);
-  
       // Navigate to the new URL
       await this.router.navigateByUrl(newUrl);
+      
+      // Update the current question index in the service
+      // this.updateCurrentQuestionIndex(this.currentQuestionIndex);
   
       console.log('Navigation completed successfully.');
       return true; // Navigation succeeded
