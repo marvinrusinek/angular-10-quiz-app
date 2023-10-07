@@ -39,10 +39,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
 })
-export class MultipleAnswerComponent
-  extends QuizQuestionComponent
-  implements AfterViewInit, OnInit, OnChanges, OnDestroy
-{
+export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
   @Input() data: {
     questionText: string;
