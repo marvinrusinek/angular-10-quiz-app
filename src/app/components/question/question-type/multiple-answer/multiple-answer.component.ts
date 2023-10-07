@@ -62,9 +62,9 @@ export class MultipleAnswerComponent
   selectedOptions: Option[] = [];
   optionChecked: { [optionId: number]: boolean } = {};
   options$: Observable<Option[]>;
-  isMultiple: boolean = true;
-  showExplanation: boolean = false;
-  showFeedback: boolean = false;
+  isMultiple = true;
+  showExplanation = false;
+  showFeedback = false;
   private destroyed$ = new Subject<void>();
 
   constructor(
