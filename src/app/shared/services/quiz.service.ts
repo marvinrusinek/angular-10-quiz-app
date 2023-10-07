@@ -408,19 +408,21 @@ export class QuizService implements OnDestroy {
     try {
       console.log('Setting current question index in QuizService:', index);
       const quizId = this.quizId;
-  
+
       if (!quizId) {
         console.error('Quiz ID is not available.');
         return;
       }
-  
+
       const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
-  
+
       if (!Array.isArray(questions)) {
-        console.error('Questions are not available or not in the expected format.');
+        console.error(
+          'Questions are not available or not in the expected format.'
+        );
         return;
       }
-  
+
       // Validate the index
       if (index >= 0 && index < questions.length) {
         this.currentQuestionIndex = index;
@@ -433,13 +435,14 @@ export class QuizService implements OnDestroy {
       console.error('Error setting current question index:', error);
     }
   }
-  
+
   getCurrentQuestionIndex(): number {
-    const questionIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    
+    const questionIndexParam =
+      this.activatedRoute.snapshot.paramMap.get('questionIndex');
+
     if (questionIndexParam) {
       const questionIndex = parseInt(questionIndexParam, 10);
-  
+
       if (!isNaN(questionIndex)) {
         return questionIndex - 1;
       } else {
@@ -448,10 +451,10 @@ export class QuizService implements OnDestroy {
     } else {
       console.error('Question index parameter is not available.');
     }
-    
+
     return -1;
   }
-  
+
   public updateCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndexSubject.next(index);
   }
@@ -487,7 +490,7 @@ export class QuizService implements OnDestroy {
     }
     return this.questions$;
   }
-  
+
   getQuestionsForQuiz(
     quizId: string
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
@@ -519,24 +522,24 @@ export class QuizService implements OnDestroy {
     if (quizId === this.quizId) {
       return;
     }
-  
+
     try {
       if (this.currentQuestionPromise) {
         await this.currentQuestionPromise;
       }
-  
+
       if (!this.questions) {
         this.questions = await this.loadQuestions().toPromise();
       }
-  
+
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-  
+
       if (!quiz) {
         throw new Error(`No questions found for quiz ID ${quizId}`);
       }
-  
+
       await this.getCurrentQuestion().toPromise();
-  
+
       this.questions = quiz.questions;
       this.setTotalQuestions(this.questions?.length);
       this.quizId = quizId;
@@ -545,29 +548,29 @@ export class QuizService implements OnDestroy {
       throw error;
     }
   }
-  
+
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
-  
+
     const quizId = this.getCurrentQuizId();
-  
+
     if (this.currentQuestionPromise) {
       return from(this.currentQuestionPromise).pipe(
         switchMap(() => this.loadQuestionsInternal(quizId))
       );
     }
-  
+
     return this.loadQuestionsInternal(quizId);
   }
-  
+
   private loadQuestionsInternal(quizId: string): Observable<QuizQuestion[]> {
     if (this.loadingQuestions) {
       return of([]);
     }
-  
+
     this.loadingQuestions = true;
     this.questionLoadingSubject.next(true);
-  
+
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       tap((questions) => {
         this.questions = questions;
@@ -587,7 +590,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
+
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
@@ -683,6 +686,7 @@ export class QuizService implements OnDestroy {
     if (
       currentQuiz &&
       currentQuiz.questions &&
+      nextIndex >= 0 &&
       nextIndex < currentQuiz.questions.length
     ) {
       const nextOptions = currentQuiz.questions[nextIndex].options;
@@ -705,6 +709,7 @@ export class QuizService implements OnDestroy {
     if (
       currentQuiz &&
       currentQuiz.questions &&
+      nextIndex >= 0 &&
       nextIndex < currentQuiz.questions.length
     ) {
       const nextQuestion = currentQuiz.questions[nextIndex];
@@ -749,17 +754,28 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionObservable;
   }
 
+  // function not called anywhere, potentially remove
   async getQuestionAndOptionsFromCacheOrFetch(
-    questionIndex: number
+    questionIndex: number,
+    quizId: string
   ): Promise<[QuizQuestion, Option[]]> {
-    if (this.questionsAndOptions[questionIndex]) {
-      return this.questionsAndOptions[questionIndex];
+    const cachedData = this.questionsAndOptions[quizId]?.[questionIndex];
+
+    if (cachedData) {
+      return cachedData;
     }
 
     try {
       const response = await this.http.get<any>(this.quizUrl).toPromise();
       const question: QuizQuestion = response.question;
       const options: Option[] = response.options;
+
+      // Cache the fetched data
+      if (!this.questionsAndOptions[quizId]) {
+        this.questionsAndOptions[quizId] = {};
+      }
+      this.questionsAndOptions[quizId][questionIndex] = [question, options];
+
       return [question, options];
     } catch (error) {
       console.error('Error fetching question and options:', error);
@@ -1264,17 +1280,17 @@ export class QuizService implements OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return false;
     }
-  
+
     this.isNavigating = true;
-  
+
     try {
       const currentQuestionIndex = this.currentQuestionIndex;
       // Increment the current question index
       this.currentQuestionIndex++;
-  
+
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
-  
+
       // Check if it's the last question
       if (this.currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
@@ -1282,19 +1298,27 @@ export class QuizService implements OnDestroy {
         console.log('End of quiz reached.');
         return false;
       }
-  
+
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       console.log('Next Question Index:', nextQuestionIndex);
-  
+
       // Construct the URL for the next question
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+        this.quizId
+      )}/${nextQuestionIndex}`;
       console.log('New URL:', newUrl);
-  
+
       // Update the current question index in the service
-      console.log('Before updating current question index:', currentQuestionIndex);
+      console.log(
+        'Before updating current question index:',
+        currentQuestionIndex
+      );
       this.updateCurrentQuestionIndex(currentQuestionIndex);
-      console.log('After updating current question index:', this.currentQuestionIndex);
-  
+      console.log(
+        'After updating current question index:',
+        this.currentQuestionIndex
+      );
+
       // Check if the next question is the same as the current one
       if (nextQuestionIndex !== currentQuestionIndex) {
         // Navigate to the new URL
@@ -1302,9 +1326,11 @@ export class QuizService implements OnDestroy {
         await this.router.navigateByUrl(newUrl);
         console.log('After navigation:', this.router.url);
       } else {
-        console.log('Next question is the same as the current one. No navigation performed.');
+        console.log(
+          'Next question is the same as the current one. No navigation performed.'
+        );
       }
-  
+
       console.log('Navigation completed successfully.');
       return true; // Navigation succeeded
     } catch (error) {
@@ -1315,7 +1341,7 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
-  
+
   /* navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
