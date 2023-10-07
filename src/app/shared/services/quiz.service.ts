@@ -14,6 +14,7 @@ import {
   catchError,
   distinctUntilChanged,
   filter,
+  finalize,
   map,
   shareReplay,
   switchMap,
@@ -547,43 +548,46 @@ export class QuizService implements OnDestroy {
   
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
-
-    if (!this.currentQuestionPromise) {
-      return this.currentQuestionSubject.pipe(
-        switchMap(() => {
-          return this.loadQuestions();
-        })
+  
+    const quizId = this.getCurrentQuizId();
+  
+    if (this.currentQuestionPromise) {
+      return from(this.currentQuestionPromise).pipe(
+        switchMap(() => this.loadQuestionsInternal(quizId))
       );
     }
-
-    this.currentQuestionPromise = this.currentQuestionSubject
-      .pipe(filter((question) => !!question))
-      .toPromise();
-
-    return from(this.currentQuestionPromise).pipe(
-      switchMap((currentQuestion) => {
-        const quizId = this.getCurrentQuizId();
-        return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-          tap((questions) => {
-            this.questions = questions;
-            this.updateQuestions(quizId);
-            this.questionLoadingSubject.next(true);
-            this.loadingQuestions = false;
-            this.currentQuestionPromise = null;
-          }),
-          catchError((error) => {
-            console.error('Error getting quiz questions:', error);
-            this.questionLoadingSubject.next(false);
-            this.loadingQuestions = false;
-            this.currentQuestionPromise = null;
-            return throwError(error);
-          })
-        );
+  
+    return this.loadQuestionsInternal(quizId);
+  }
+  
+  private loadQuestionsInternal(quizId: string): Observable<QuizQuestion[]> {
+    if (this.loadingQuestions) {
+      return of([]);
+    }
+  
+    this.loadingQuestions = true;
+    this.questionLoadingSubject.next(true);
+  
+    return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
+      tap((questions) => {
+        this.questions = questions;
+        this.updateQuestions(quizId);
       }),
-      distinctUntilChanged()
+      catchError((error) => {
+        console.error('Error getting quiz questions:', error);
+        this.questionLoadingSubject.next(false);
+        this.loadingQuestions = false;
+        this.currentQuestionPromise = null;
+        return throwError(error);
+      }),
+      finalize(() => {
+        this.questionLoadingSubject.next(false);
+        this.loadingQuestions = false;
+        this.currentQuestionPromise = null;
+      })
     );
   }
-
+  
   setTotalQuestions(totalQuestions: number): void {
     if (this.questions) {
       this.totalQuestionsSubject.next(totalQuestions);
