@@ -31,7 +31,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuizSubscription: Subscription;
 
   imagePath = '../../../assets/images/milestones/';
-  introImg: string = '';
+  introImg = '';
 
   constructor(
     private quizService: QuizService,
