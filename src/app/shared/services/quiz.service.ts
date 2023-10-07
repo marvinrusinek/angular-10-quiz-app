@@ -434,12 +434,25 @@ export class QuizService implements OnDestroy {
   }
   
   getCurrentQuestionIndex(): number {
-    const questionIndexParam =
-      this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const questionIndex = parseInt(questionIndexParam, 10);
-    return questionIndex - 1; // subtract 1 to convert to zero-based index
+    const questionIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    
+    if (questionIndexParam) {
+      const questionIndex = parseInt(questionIndexParam, 10);
+  
+      if (!isNaN(questionIndex)) {
+        // Subtract 1 to convert to zero-based index
+        return questionIndex - 1;
+      } else {
+        console.error('Invalid question index:', questionIndexParam);
+      }
+    } else {
+      console.error('Question index parameter is not available.');
+    }
+    
+    // Return a default value (e.g., -1) or handle the error case as needed
+    return -1;
   }
-
+  
   public updateCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndexSubject.next(index);
   }
