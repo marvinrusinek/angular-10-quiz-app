@@ -594,6 +594,10 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  updateTotalQuestions(totalQuestions: number): void {
+    this.totalQuestionsSubject.next(totalQuestions);
+  }
+
   getTotalQuestions(): Observable<number> {
     return this.getQuizData().pipe(
       map((data) => {
@@ -601,12 +605,11 @@ export class QuizService implements OnDestroy {
         return quiz?.questions?.length || 0;
       }),
       distinctUntilChanged(),
-      catchError(() => of(0))
+      catchError((error) => {
+        console.error('Error fetching total questions:', error);
+        return of(0);
+      })
     );
-  }
-
-  updateTotalQuestions(totalQuestions: number): void {
-    this.totalQuestionsSubject.next(totalQuestions);
   }
 
   displayExplanationText(show: boolean): void {
