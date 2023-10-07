@@ -440,7 +440,6 @@ export class QuizService implements OnDestroy {
       const questionIndex = parseInt(questionIndexParam, 10);
   
       if (!isNaN(questionIndex)) {
-        // Subtract 1 to convert to zero-based index
         return questionIndex - 1;
       } else {
         console.error('Invalid question index:', questionIndexParam);
@@ -449,7 +448,6 @@ export class QuizService implements OnDestroy {
       console.error('Question index parameter is not available.');
     }
     
-    // Return a default value (e.g., -1) or handle the error case as needed
     return -1;
   }
   
