@@ -23,7 +23,8 @@ const routes: Routes = [
   },
   {
     path: 'question/:quizId/:questionIndex',
-    component: QuizComponent
+    component: QuizComponent,
+    canActivate: [QuizGuard]
   },
   {
     path: 'results/:quizId',

@@ -1269,16 +1269,17 @@ export class QuizService implements OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return false;
     }
-
+  
     this.isNavigating = true;
-
+  
     try {
+      const currentQuestionIndex = this.currentQuestionIndex;
       // Increment the current question index
       this.currentQuestionIndex++;
-
+  
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
-
+  
       // Check if it's the last question
       if (this.currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
@@ -1286,32 +1287,29 @@ export class QuizService implements OnDestroy {
         console.log('End of quiz reached.');
         return false;
       }
-
+  
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       console.log('Next Question Index:', nextQuestionIndex);
-
+  
       // Construct the URL for the next question
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
-        this.quizId
-      )}/${nextQuestionIndex}`;
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
       console.log('New URL:', newUrl);
-
+  
       // Update the current question index in the service
-      console.log(
-        'Before updating current question index:',
-        this.currentQuestionIndex
-      );
-      this.updateCurrentQuestionIndex(this.currentQuestionIndex);
-      console.log(
-        'After updating current question index:',
-        this.currentQuestionIndex
-      );
-
-      // Navigate to the new URL
-      console.log('Before navigation:', this.router.url);
-      await this.router.navigateByUrl(newUrl);
-      console.log('After navigation:', this.router.url);
-
+      console.log('Before updating current question index:', currentQuestionIndex);
+      this.updateCurrentQuestionIndex(currentQuestionIndex);
+      console.log('After updating current question index:', this.currentQuestionIndex);
+  
+      // Check if the next question is the same as the current one
+      if (nextQuestionIndex !== currentQuestionIndex) {
+        // Navigate to the new URL
+        console.log('Before navigation:', this.router.url);
+        await this.router.navigateByUrl(newUrl);
+        console.log('After navigation:', this.router.url);
+      } else {
+        console.log('Next question is the same as the current one. No navigation performed.');
+      }
+  
       console.log('Navigation completed successfully.');
       return true; // Navigation succeeded
     } catch (error) {
@@ -1322,7 +1320,7 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
-
+  
   /* navigateToPreviousQuestion() {
     this.quizCompleted = false;
     this.router.navigate([
