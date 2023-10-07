@@ -329,7 +329,7 @@ export class QuizService implements OnDestroy {
     questionText: string;
     correctAnswersText: string;
     currentOptions: Option[];
-  } {
+  } | null {
     const currentQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
 
     if (currentQuiz && currentQuiz.questions.length > questionIndex) {
@@ -340,7 +340,7 @@ export class QuizService implements OnDestroy {
       );
       const correctAnswersText = this.setCorrectMessage(
         correctAnswerOptions,
-        this.data.currentOptions
+        currentQuestion.options
       );
 
       return {
