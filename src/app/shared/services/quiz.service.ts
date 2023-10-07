@@ -41,7 +41,7 @@ enum QuizRoutes {
   providedIn: 'root',
 })
 export class QuizService implements OnDestroy {
-  currentQuestionIndex: number = -1;
+  currentQuestionIndex = -1;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
@@ -67,7 +67,7 @@ export class QuizService implements OnDestroy {
   questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
-  isNavigating: boolean = false;
+  isNavigating = false;
 
   private currentQuestionObservable: Observable<QuizQuestion>;
   private currentQuestionSource: Subject<QuizQuestion | null> =
@@ -87,11 +87,11 @@ export class QuizService implements OnDestroy {
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   selectedOptions: Option[] = [];
   resources: Resource[];
-  quizId: string = '';
+  quizId = '';
   answers: number[];
   private answerStatus = new BehaviorSubject<boolean>(false);
   answerStatus$ = this.answerStatus.asObservable();
-  totalQuestions: number = 0;
+  totalQuestions = 0;
 
   selectedQuiz: any;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
@@ -117,7 +117,7 @@ export class QuizService implements OnDestroy {
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswerSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
-  multipleAnswer: boolean = false;
+  multipleAnswer = false;
 
   currentOptionsSubject = new BehaviorSubject<Array<Option>>([]);
   private currentOptionsSource = new BehaviorSubject<Option[]>([]);
@@ -134,8 +134,8 @@ export class QuizService implements OnDestroy {
   explanationText: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   explanationTextSubscription: Subscription = null;
-  displayExplanation: boolean = false;
-  shouldDisplayExplanation: boolean = false;
+  displayExplanation = false;
+  shouldDisplayExplanation = false;
   selectionMessage: string;
 
   currentAnswer = '';
@@ -202,13 +202,13 @@ export class QuizService implements OnDestroy {
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
-  loadingQuestions: boolean = false;
-  questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
-  loadQuestionsLock: boolean = false;
-  lock: boolean = false;
+  loadingQuestions = false;
+  loadQuestionsLock = false;
+  lock = false;
   questionsLoaded = false;
+  questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
 
-  score: number = 0;
+  score = 0;
   currentScore$: Observable<number>;
   quizScore: QuizScore;
   highScores: QuizScore[];
@@ -1269,16 +1269,16 @@ export class QuizService implements OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return false;
     }
-  
+
     this.isNavigating = true;
-  
+
     try {
       // Increment the current question index
       this.currentQuestionIndex++;
-  
+
       const totalQuestions: number = await this.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
-      
+
       // Check if it's the last question
       if (this.currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
@@ -1286,24 +1286,32 @@ export class QuizService implements OnDestroy {
         console.log('End of quiz reached.');
         return false;
       }
-  
+
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       console.log('Next Question Index:', nextQuestionIndex);
-  
+
       // Construct the URL for the next question
-      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${nextQuestionIndex}`;
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+        this.quizId
+      )}/${nextQuestionIndex}`;
       console.log('New URL:', newUrl);
 
       // Update the current question index in the service
-      console.log('Before updating current question index:', this.currentQuestionIndex);
+      console.log(
+        'Before updating current question index:',
+        this.currentQuestionIndex
+      );
       this.updateCurrentQuestionIndex(this.currentQuestionIndex);
-      console.log('After updating current question index:', this.currentQuestionIndex);
-  
+      console.log(
+        'After updating current question index:',
+        this.currentQuestionIndex
+      );
+
       // Navigate to the new URL
       console.log('Before navigation:', this.router.url);
       await this.router.navigateByUrl(newUrl);
       console.log('After navigation:', this.router.url);
-      
+
       console.log('Navigation completed successfully.');
       return true; // Navigation succeeded
     } catch (error) {
@@ -1314,7 +1322,6 @@ export class QuizService implements OnDestroy {
       this.isNavigating = false;
     }
   }
-  
 
   /* navigateToPreviousQuestion() {
     this.quizCompleted = false;
@@ -1328,37 +1335,39 @@ export class QuizService implements OnDestroy {
 
   async navigateToPreviousQuestion(): Promise<boolean> {
     if (this.isNavigating) {
-        console.warn('Navigation already in progress. Aborting.');
-        return false;
+      console.warn('Navigation already in progress. Aborting.');
+      return false;
     }
 
     this.isNavigating = true;
 
     try {
-        // Ensure the current question index is valid
-        if (this.currentQuestionIndex > 0) {
-            // Decrement the current question index
-            this.currentQuestionIndex--;
+      // Ensure the current question index is valid
+      if (this.currentQuestionIndex > 0) {
+        // Decrement the current question index
+        this.currentQuestionIndex--;
 
-            // Construct the URL for the previous question
-            const previousQuestionIndex = this.currentQuestionIndex;
-            const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
+        // Construct the URL for the previous question
+        const previousQuestionIndex = this.currentQuestionIndex;
+        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+          this.quizId
+        )}/${previousQuestionIndex}`;
 
-            // Navigate to the new URL
-            await this.router.navigateByUrl(newUrl);
+        // Navigate to the new URL
+        await this.router.navigateByUrl(newUrl);
 
-            console.log('Navigation to previous question completed successfully.');
-            return true; // Navigation succeeded
-        } else {
-            console.log('Already at the first question. Cannot go back.');
-            return false; // Cannot go back further
-        }
+        console.log('Navigation to previous question completed successfully.');
+        return true; // Navigation succeeded
+      } else {
+        console.log('Already at the first question. Cannot go back.');
+        return false; // Cannot go back further
+      }
     } catch (error) {
-        console.error('Navigation error:', error);
-        return false; // Navigation error
+      console.error('Navigation error:', error);
+      return false; // Navigation error
     } finally {
-        // Ensure that isNavigating is always set to false
-        this.isNavigating = false;
+      // Ensure that isNavigating is always set to false
+      this.isNavigating = false;
     }
   }
 

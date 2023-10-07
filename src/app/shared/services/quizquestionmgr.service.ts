@@ -1,27 +1,31 @@
-import { Injectable } from '@angular/core'; 
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import { Option } from '../../shared/models/Option.model';
-import { QuizQuestion } from '../../shared/models/QuizQuestion.model'; 
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuizQuestionManagerService {
-  currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
   explanationText: string;
   numberOfCorrectAnswers: number;
-  shouldDisplayNumberOfCorrectAnswers: boolean = false;
-  isOptionSelected: boolean = false;
-  shouldDisplayExplanation: boolean = false;
-  correctAnswersCount: number = 0;
+  shouldDisplayNumberOfCorrectAnswers = false;
+  isOptionSelected = false;
+  shouldDisplayExplanation = false;
+  correctAnswersCount = 0;
 
   selectedOption: Option | null = null;
 
-  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
-  private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
+  private explanationTextSubject: BehaviorSubject<string | null> =
+    new BehaviorSubject<string | null>(null);
 
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
 
   setSelectedOption(option: Option): void {
     this.selectedOption = option;
@@ -34,10 +38,15 @@ export class QuizQuestionManagerService {
   setCurrentQuestion(question: QuizQuestion): void {
     console.log('Setting Current Question:', question);
     this.currentQuestion.next(question);
-    console.log('Current Question Value After Set:', this.currentQuestion.getValue());
+    console.log(
+      'Current Question Value After Set:',
+      this.currentQuestion.getValue()
+    );
     this.currentQuestionSubject.next(question);
     const currentQuestionValue = this.currentQuestion.getValue();
-    this.numberOfCorrectAnswers = currentQuestionValue.options.filter(option => option.correct).length;
+    this.numberOfCorrectAnswers = currentQuestionValue.options.filter(
+      (option) => option.correct
+    ).length;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
 
@@ -48,7 +57,7 @@ export class QuizQuestionManagerService {
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
     this.shouldDisplayExplanation = !!explanation;
-   }
+  }
 
   getExplanationText(): string | null {
     return this.explanationText;
@@ -83,24 +92,26 @@ export class QuizQuestionManagerService {
     if (!this.currentQuestion) {
       return false;
     }
-  
+
     const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
-  
+
     const displayNumberOfCorrectAnswers =
       this.shouldDisplayNumberOfCorrectAnswers &&
       hasMultipleCorrectAnswers &&
       !this.isOptionSelected &&
       !this.shouldDisplayExplanationText();
-  
+
     return displayNumberOfCorrectAnswers && !this.shouldDisplayExplanation;
   }
-  
+
   isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion.getValue();
     if (!currentQuestionValue) {
       return false;
     }
-    const numberOfCorrectAnswers = currentQuestionValue.options.filter((option) => option.correct).length;
+    const numberOfCorrectAnswers = currentQuestionValue.options.filter(
+      (option) => option.correct
+    ).length;
     return numberOfCorrectAnswers > 1;
   }
 }

@@ -15,7 +15,12 @@ import {
   Subscription,
   timer,
 } from 'rxjs';
-import { catchError, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
+import {
+  catchError,
+  distinctUntilChanged,
+  switchMap,
+  takeUntil,
+} from 'rxjs/operators';
 
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -27,20 +32,20 @@ import { QuizService } from '../../../shared/services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScoreComponent implements OnInit, OnDestroy {
-  @Input() correctAnswersCount: number = 0;
-  @Input() totalQuestions: number = 0;
+  @Input() correctAnswersCount = 0;
+  @Input() totalQuestions = 0;
   questions$: Observable<QuizQuestion[]>;
   totalQuestions$: Observable<number>;
   correctAnswersCount$: BehaviorSubject<number> = new BehaviorSubject<number>(
     0
   );
-  score: string = '';
-  numericalScore: string = '0/0';
-  percentageScore: string = '';
-  isPercentage: boolean = false;
-  percentage: number = 0;
+  score = '';
+  numericalScore = '0/0';
+  percentageScore = '';
+  isPercentage = false;
+  percentage = 0;
 
-  currentScore: string = '';
+  currentScore = '';
   currentScore$: BehaviorSubject<string> = new BehaviorSubject<string>(
     this.numericalScore
   );
@@ -63,17 +68,15 @@ export class ScoreComponent implements OnInit, OnDestroy {
         takeUntil(this.unsubscribeTrigger$),
         distinctUntilChanged()
       ),
-      this.quizService
-        .getAllQuestions()
-        .pipe(
-          switchMap((questions) =>
-            combineLatest([of(questions), this.quizService.getTotalQuestions()])
-          ),
-          catchError((error) => {
-            console.error('Error in getQuestions():', error);
-            return of([]);
-          })
+      this.quizService.getAllQuestions().pipe(
+        switchMap((questions) =>
+          combineLatest([of(questions), this.quizService.getTotalQuestions()])
         ),
+        catchError((error) => {
+          console.error('Error in getQuestions():', error);
+          return of([]);
+        })
+      ),
     ]).subscribe(
       ([correctAnswersCount, [questions, totalQuestions]]) => {
         this.correctAnswersCount = correctAnswersCount;

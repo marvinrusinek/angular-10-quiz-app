@@ -41,17 +41,18 @@ export class QuizDataService {
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
-  quizId: string = '';
-  currentQuizId: string = '';
+  quizId = '';
+  currentQuizId = '';
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
   currentQuestionAndOptions: [QuizQuestion, Option[]];
 
-  currentQuestionIndex: number = 1;
+  currentQuestionIndex = 1;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
   selectedQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
-  selectedQuizSubject: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+  selectedQuizSubject: BehaviorSubject<Quiz | null> =
+    new BehaviorSubject<Quiz | null>(null);
 
   currentQuestion$: QuizQuestion;
   options$: Option[];
@@ -227,12 +228,14 @@ export class QuizDataService {
   getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
     return this.getQuiz(quizId).pipe(
       map((quiz: Quiz) => {
-        const explanationTexts = quiz.questions.map((question) => question.explanation || '');
+        const explanationTexts = quiz.questions.map(
+          (question) => question.explanation || ''
+        );
         return explanationTexts;
       })
     );
   }
-  
+
   getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       map(([question, options]) => question),
