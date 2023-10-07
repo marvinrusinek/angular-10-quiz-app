@@ -373,7 +373,7 @@ export class QuizService implements OnDestroy {
     return this.quizData.find((quiz) => quiz.quizId === this.quizId);
   }
 
-  setCurrentQuiz(quiz: Quiz): void {
+  setCurrentQuiz(quizToSet: Quiz): void {
     this.currentQuestionIndex = 0;
 
     this.quizData.forEach((quiz, index) => {
@@ -383,7 +383,7 @@ export class QuizService implements OnDestroy {
       }
     });
 
-    this.currentQuizSubject.next(quiz);
+    this.currentQuizSubject.next(quizToSet);
   }
 
   addSelectedOption(option: Option) {
@@ -404,21 +404,35 @@ export class QuizService implements OnDestroy {
   }
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
-    console.log('Setting current question index in QuizService:', index);
-    const quizId = this.quizId;
-    if (quizId) {
+    try {
+      console.log('Setting current question index in QuizService:', index);
+      const quizId = this.quizId;
+  
+      if (!quizId) {
+        console.error('Quiz ID is not available.');
+        return;
+      }
+  
       const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
-      const filteredQuestions = questions.filter(
-        (question: any) => question.quizId === quizId
-      );
-      if (index >= 0 && index < filteredQuestions.length) {
+  
+      if (!Array.isArray(questions)) {
+        console.error('Questions are not available or not in the expected format.');
+        return;
+      }
+  
+      // Validate the index
+      if (index >= 0 && index < questions.length) {
         this.currentQuestionIndex = index;
         this.currentQuestionIndexSource.next(index);
-        this.setCurrentQuestion(filteredQuestions[index]);
+        this.setCurrentQuestion(questions[index]);
+      } else {
+        console.error('Invalid question index:', index);
       }
+    } catch (error) {
+      console.error('Error setting current question index:', error);
     }
   }
-
+  
   getCurrentQuestionIndex(): number {
     const questionIndexParam =
       this.activatedRoute.snapshot.paramMap.get('questionIndex');
