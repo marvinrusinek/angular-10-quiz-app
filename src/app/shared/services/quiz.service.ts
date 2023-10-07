@@ -477,16 +477,16 @@ export class QuizService implements OnDestroy {
         tap((questions) => {
           this.questions = questions;
         }),
-        catchError(() => of([])),
-        distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-        ),
+        catchError((error) => {
+          console.error('Error fetching questions:', error);
+          return of([]); // Handle the error gracefully
+        }),
         shareReplay({ bufferSize: 1, refCount: true })
       );
     }
     return this.questions$;
   }
-
+  
   getQuestionsForQuiz(
     quizId: string
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
@@ -514,74 +514,37 @@ export class QuizService implements OnDestroy {
     this.correctMessage$.next(message);
   }
 
-  updateQuestions(quizId: string): Promise<void> {
-    this.questionsLoaded = true;
-    return new Promise((resolve, reject) => {
-      if (quizId === this.quizId) {
-        resolve();
-        return;
-      }
-
+  async updateQuestions(quizId: string): Promise<void> {
+    if (quizId === this.quizId) {
+      return;
+    }
+  
+    try {
       if (this.currentQuestionPromise) {
-        console.log(
-          'Already getting current question, waiting for promise to resolve'
-        );
-        this.currentQuestionPromise.then(() => {
-          console.log('currentQuestionPromise resolved, updating questions');
-          this.updateQuestions(quizId).then(resolve).catch(reject);
-        });
-        return;
+        await this.currentQuestionPromise;
       }
-
-      console.log('this.questions:', this.questions);
-      if (this.questions === null || this.questions === undefined) {
-        console.log(
-          'Questions array is null or undefined, loading questions for quiz'
-        );
-        console.log('Before loadQuestions');
-        this.loadQuestions()
-          .pipe(
-            distinctUntilChanged(
-              (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-            )
-          )
-          .subscribe(
-            (questions) => {
-              this.questions = questions;
-              console.log('Loaded questions array:', this.questions);
-              this.updateQuestions(quizId).then(resolve).catch(reject);
-            },
-            (error) => {
-              console.error('Error loading quiz questions:', error);
-              reject(error);
-            }
-          );
-        return;
+  
+      if (!this.questions) {
+        this.questions = await this.loadQuestions().toPromise();
       }
-      console.log('After loadQuestions');
-
+  
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-
-      if (quiz) {
-        console.log('Updating questions array with quiz:', quiz);
-        this.currentQuestionPromise = this.getCurrentQuestion().toPromise();
-        this.currentQuestionPromise
-          .then(() => {
-            this.questions = quiz.questions;
-            console.log('Updated questions array:', this.questions);
-            this.setTotalQuestions(this.questions?.length);
-            this.quizId = quizId;
-            this.currentQuestionPromise = null;
-            resolve();
-          })
-          .catch(reject);
-      } else {
-        console.error(`No questions found for quiz ID ${quizId}`);
-        reject(new Error(`No questions found for quiz ID ${quizId}`));
+  
+      if (!quiz) {
+        throw new Error(`No questions found for quiz ID ${quizId}`);
       }
-    });
+  
+      await this.getCurrentQuestion().toPromise();
+  
+      this.questions = quiz.questions;
+      this.setTotalQuestions(this.questions?.length);
+      this.quizId = quizId;
+    } catch (error) {
+      console.error('Error updating questions:', error);
+      throw error;
+    }
   }
-
+  
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
 
