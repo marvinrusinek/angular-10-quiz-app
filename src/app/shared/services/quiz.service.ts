@@ -669,7 +669,7 @@ export class QuizService implements OnDestroy {
       const nextQuestion = currentQuiz.questions[nextIndex];
       this.nextQuestionSource.next(nextQuestion);
       this.nextQuestionSubject.next(nextQuestion);
-      this.setNextQuestion(nextQuestion, '');
+      this.setCurrentQuestionAndNext(nextQuestion, '');
       return nextQuestion;
     }
 
@@ -988,66 +988,54 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
-    console.log('setCurrentQuestion called with:', question);
-    this.getQuestionsForQuiz(this.quizId)
-      .pipe(
-        tap({
-          error: (error) =>
-            console.error(
-              'An error occurred while setting the current question:',
-              error
-            ),
-        })
-      )
-      .subscribe((result) => {
-        const filteredQuestions = result.questions;
-        const questionIndex = filteredQuestions.findIndex(
-          (q) => q === question
-        );
-        const nextQuestionIndex = questionIndex + 1;
-
-        if (nextQuestionIndex < filteredQuestions.length) {
-          const nextQuestion = filteredQuestions[nextQuestionIndex];
-
-          if (nextQuestion && nextQuestion.options) {
-            console.log(
-              'emitting currentQuestionSubject with question:',
-              nextQuestion
-            );
-            this.currentQuestion.next(nextQuestion);
-            this.currentQuestionSubject.next(nextQuestion);
-
-            // Map the Option[] to an array of strings representing the option text
-            const optionValues = nextQuestion.options.map((option) =>
-              option.value.toString()
-            );
-
-            // Create new Option objects with the value property as a number
-            const options: Option[] = optionValues.map((value) => ({
-              value: Number(value),
-              text: value,
-            }));
-
-            // Emit the next question's options
-            this.optionsSource.next(options);
-
-            this.questionSubjectEmitted = true;
-          } else {
-            console.error('Invalid next question:', nextQuestion);
-          }
-        } else {
-          console.error('Invalid next question index:', nextQuestionIndex);
-        }
-      });
+    // Find the index of the current question
+    const currentIndex = this.selectedQuiz.questions.findIndex(
+      (q) => q === question
+    );
+  
+    if (currentIndex === -1) {
+      console.error('Invalid current question:', question);
+      return;
+    }
+  
+    // Calculate the index of the next question
+    const nextIndex = currentIndex + 1;
+  
+    if (nextIndex < this.selectedQuiz.questions.length) {
+      const nextQuestion = this.selectedQuiz.questions[nextIndex];
+  
+      if (nextQuestion && nextQuestion.options) {
+        // Emit the next question and its options
+        this.currentQuestion.next(nextQuestion);
+  
+        const options: Option[] = nextQuestion.options.map((option) => ({
+          value: option.value,
+          text: option.text,
+        }));
+  
+        this.optionsSource.next(options);
+      } else {
+        console.error('Invalid next question:', nextQuestion);
+      }
+    } else {
+      console.error('Invalid next question index:', nextIndex);
+    }
   }
-
-  setNextQuestion(
+  
+  // Sets the current question and the next question along with an explanation text.
+  setCurrentQuestionAndNext(
     nextQuestion: QuizQuestion | null,
     explanationText: string
   ): void {
-    console.log('Setting next question in QuizService:', nextQuestion);
+    console.log('Setting current and next question in QuizService:', nextQuestion);
+
+    // Set the next question
     this.nextQuestionSource.next(nextQuestion);
+  
+    // Set the current question (effectively the next question)
     this.currentQuestionSource.next(nextQuestion);
+  
+    // Set the explanation text for the next question
     this.nextExplanationTextSource.next(explanationText);
   }
 

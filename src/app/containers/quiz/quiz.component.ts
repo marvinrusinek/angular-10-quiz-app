@@ -1208,7 +1208,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setIsExplanationTextDisplayed(false);
 
         // Notify any subscribers of the next question
-        this.quizService.setNextQuestion(nextQuestion, explanationText);
+        this.quizService.setCurrentQuestionAndNext(nextQuestion, explanationText);
         this.quizService.nextQuestionSource.next(nextQuestion);
 
         console.log('Before Navigation. Current URL:', this.router.url);
