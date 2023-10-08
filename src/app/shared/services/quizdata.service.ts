@@ -398,7 +398,10 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getQuestionFromQuiz(quiz: Quiz, questionIndex: number): QuizQuestion {
+  getQuestionFromQuiz(
+    quiz: Quiz,
+    questionIndex: number
+  ): Observable<QuizQuestion> {
     if (!quiz) {
       throw new Error('Selected quiz not found');
     }
@@ -424,7 +427,7 @@ export class QuizDataService implements OnDestroy {
       throw new Error('Question has no options');
     }
 
-    return question;
+    return of(question);
   }
 
   getQuestionOptions(
@@ -515,7 +518,7 @@ export class QuizDataService implements OnDestroy {
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {
-    const submitUrl = `${this.quizUrl}/quizzes/${quiz.quizId}/submit`;
+    const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
     return this.http.post(submitUrl, quiz).pipe(
       catchError((error) => {
         console.error(`Error submitting quiz ${quiz.quizId}`, error);
