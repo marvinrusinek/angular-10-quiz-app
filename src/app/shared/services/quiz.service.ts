@@ -807,6 +807,7 @@ export class QuizService implements OnDestroy {
     return { question, options };
   }
 
+  // function not called anywhere, potentially remove
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
