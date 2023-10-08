@@ -64,23 +64,29 @@ export class QuizStateService {
       map((question) => {
         if (!question) {
           console.error('Question is not defined');
+          this.setMultipleAnswer(false);
           return false;
         }
   
-        if (question && question.options) {
-          const correctOptions = question.options?.filter((option) => option.correct);
-          const isMultipleAnswer = correctOptions.length > 1;
-          this.setMultipleAnswer(isMultipleAnswer);
-          return isMultipleAnswer;
-        } else {
+        if (!question.options) {
           console.error('Question options not found.', question);
           this.setMultipleAnswer(false);
           return false;
         }
+  
+        const correctOptions = question.options?.filter((option) => option.correct);
+        const isMultipleAnswer = correctOptions.length > 1;
+        this.setMultipleAnswer(isMultipleAnswer);
+        return isMultipleAnswer;
+      }),
+      catchError((error) => {
+        console.error('Error determining if it is a multiple answer question:', error);
+        this.setMultipleAnswer(false);
+        return of(false);
       })
     );
   }
-    
+      
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
