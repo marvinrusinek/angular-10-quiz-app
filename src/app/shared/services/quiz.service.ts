@@ -940,7 +940,7 @@ export class QuizService implements OnDestroy {
 
   setQuiz(quiz: Quiz): Observable<Quiz | null> {
     const quizId = quiz.quizId;
-    
+
     // Make the HTTP request to fetch the specific quiz data
     return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
       tap((loadedQuiz: Quiz) => {
@@ -957,7 +957,7 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
+
   setQuizStatus(value: string): void {
     this.status = value;
   }
@@ -992,27 +992,27 @@ export class QuizService implements OnDestroy {
     const currentIndex = this.selectedQuiz.questions.findIndex(
       (q) => q === question
     );
-  
+
     if (currentIndex === -1) {
       console.error('Invalid current question:', question);
       return;
     }
-  
+
     // Calculate the index of the next question
     const nextIndex = currentIndex + 1;
-  
+
     if (nextIndex < this.selectedQuiz.questions.length) {
       const nextQuestion = this.selectedQuiz.questions[nextIndex];
-  
+
       if (nextQuestion && nextQuestion.options) {
         // Emit the next question and its options
         this.currentQuestion.next(nextQuestion);
-  
+
         const options: Option[] = nextQuestion.options.map((option) => ({
           value: option.value,
           text: option.text,
         }));
-  
+
         this.optionsSource.next(options);
       } else {
         console.error('Invalid next question:', nextQuestion);
@@ -1021,20 +1021,23 @@ export class QuizService implements OnDestroy {
       console.error('Invalid next question index:', nextIndex);
     }
   }
-  
+
   // Sets the current question and the next question along with an explanation text.
   setCurrentQuestionAndNext(
     nextQuestion: QuizQuestion | null,
     explanationText: string
   ): void {
-    console.log('Setting current and next question in QuizService:', nextQuestion);
+    console.log(
+      'Setting current and next question in QuizService:',
+      nextQuestion
+    );
 
     // Set the next question
     this.nextQuestionSource.next(nextQuestion);
-  
+
     // Set the current question (effectively the next question)
     this.currentQuestionSource.next(nextQuestion);
-  
+
     // Set the explanation text for the next question
     this.nextExplanationTextSource.next(explanationText);
   }
@@ -1160,24 +1163,21 @@ export class QuizService implements OnDestroy {
     ) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       this.currentQuestion.next(currentQuestion);
-      this.updateOptions(currentQuestion.options);
+      this.updateCurrentOptions(currentQuestion.options);
     } else {
       this.currentQuestion.next(null);
     }
   }
 
   updateCurrentOptions(options: Option[]): void {
-    this.optionsSubject.next(options);
-    this.currentOptionsSource.next(options);
-  }
-
-  updateOptions(options: Option[]): void {
     if (options) {
       this.options = options;
-      this.optionsSubject.next(this.options);
+      this.optionsSubject.next(options);
+      this.currentOptionsSource.next(options);
     } else {
       this.options = null;
       this.optionsSubject.next(null);
+      this.currentOptionsSource.next(null);
     }
   }
 
