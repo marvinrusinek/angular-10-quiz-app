@@ -783,6 +783,7 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  // function not called anywhere, potentially remove
   async fetchQuestionAndOptions(
     questionIndex: number
   ): Promise<{ question: QuizQuestion; options: Option[] }> {
