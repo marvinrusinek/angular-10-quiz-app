@@ -254,7 +254,10 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
+  getQuestion(
+    quizId: string,
+    questionIndex: number
+  ): Observable<QuizQuestion | null> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       switchMap(([question, options]) => {
         if (!question) {
@@ -399,30 +402,30 @@ export class QuizDataService implements OnDestroy {
     if (!quiz) {
       throw new Error('Selected quiz not found');
     }
-  
+
     if (!quiz.questions || quiz.questions.length === 0) {
       throw new Error('Selected quiz has no questions');
     }
-  
+
     const questions = quiz.questions;
-  
+
     if (questionIndex >= questions?.length) {
       throw new Error('Question index out of bounds');
     }
-  
+
     const question = questions[questionIndex];
     const options = question?.options;
-  
+
     if (!question || question?.options === undefined) {
       throw new Error('Question not found');
     }
-  
+
     if (!options || options?.length === 0) {
       throw new Error('Question has no options');
     }
-  
+
     return question;
-  }  
+  }
 
   getQuestionOptions(
     currentQuestion$: Observable<QuizQuestion>
@@ -496,7 +499,7 @@ export class QuizDataService implements OnDestroy {
       .pipe(distinctUntilChanged());
   }
 
-  private setQuestionType(question: QuizQuestion): void {
+  setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter(
       (option) => option.correct
     ).length;
