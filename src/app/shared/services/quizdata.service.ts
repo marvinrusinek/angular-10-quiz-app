@@ -274,14 +274,12 @@ export class QuizDataService implements OnDestroy {
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map((quiz: Quiz) => {
-        // Clone the questions array to avoid unintended mutations
+        // clone the questions array to avoid unintended mutations
         const questions = quiz.questions.map((question) => ({ ...question }));
-        // Set question types here if necessary
 
         return questions;
       }),
       distinctUntilChanged((prevQuestions, currQuestions) => {
-        // Use a custom comparison function for arrays
         return isEqual(prevQuestions, currQuestions);
       })
     );
