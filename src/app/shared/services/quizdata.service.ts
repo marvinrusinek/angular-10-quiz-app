@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -7,6 +7,7 @@ import {
   Observable,
   of,
   ReplaySubject,
+  Subject,
   throwError,
 } from 'rxjs';
 import {
@@ -20,6 +21,7 @@ import {
   shareReplay,
   switchMap,
   take,
+  takeUntil,
   tap,
 } from 'rxjs/operators';
 
@@ -36,7 +38,7 @@ enum QuestionType {
 @Injectable({
   providedIn: 'root',
 })
-export class QuizDataService {
+export class QuizDataService implements OnDestroy {
   quiz: Quiz;
   quizzes$: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
   quizzes: Quiz[] = [];
@@ -77,6 +79,7 @@ export class QuizDataService {
   );
 
   private quizUrl = 'assets/data/quiz.json';
+  private destroy$ = new Subject<void>();
 
   constructor(
     private http: HttpClient,
@@ -89,28 +92,40 @@ export class QuizDataService {
     this.loadQuizzesData();
   }
 
-  loadQuizzesData(): void {
-    this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap((quizzes) => {
-        this.quizzes$.next(quizzes);
-        this.quizzes = quizzes;
-        if (quizzes.length > 0) {
-          this.selectedQuiz = quizzes[0];
-          this.selectedQuiz$.next(this.selectedQuiz);
-        }
-      }),
-      catchError((error) => {
-        console.error('Error loading quizzes:', error);
-        return [];
-      })
-    ).subscribe();
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
-  
+
+  loadQuizzesData(): void {
+    this.http
+      .get<Quiz[]>(this.quizUrl)
+      .pipe(
+        tap((quizzes) => {
+          this.quizzes$.next(quizzes);
+          this.quizzes = quizzes;
+          if (quizzes.length > 0) {
+            this.selectedQuiz = quizzes[0];
+            this.selectedQuiz$.next(this.selectedQuiz);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error loading quizzes:', error);
+          return [];
+        })
+      )
+      .subscribe();
+  }
+
   getQuizData(quizId: string): Observable<QuizQuestion[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
-        return selectedQuiz.questions;
+        return selectedQuiz ? selectedQuiz.questions : [];
+      }),
+      catchError((error) => {
+        console.error('Error fetching quiz data:', error);
+        return of([]);
       })
     );
   }
@@ -138,26 +153,24 @@ export class QuizDataService {
       });
   }
 
-  setSelectedQuizById(quizId: string): void {
-    this.getQuizzes().subscribe((quizzes) => {
-      this.quizzes = quizzes;
-
-      // Find the quiz with the given quizId
-      const quiz = this.quizzes.find((q) => q.quizId === quizId);
-      if (!quiz) {
-        console.error('Selected quiz not found');
-        return;
-      }
-
-      // Emit the selected quiz
-      this.selectedQuiz$
-        .pipe(distinctUntilChanged(), take(1))
-        .subscribe((selectedQuiz) => {
-          this.selectedQuizSubject.next(selectedQuiz);
-        });
-
-      this.setSelectedQuiz(quiz);
-    });
+  setSelectedQuizById(quizId: string): Observable<void> {
+    return this.getQuizzes().pipe(
+      switchMap((quizzes) => {
+        this.quizzes = quizzes;
+        const quiz = this.quizzes.find((q) => q.quizId === quizId);
+        if (!quiz) {
+          console.error('Selected quiz not found');
+          return throwError('Selected quiz not found');
+        }
+        this.setSelectedQuiz(quiz);
+        return of(undefined);
+      }),
+      catchError((error) => {
+        console.error('Error retrieving quizzes:', error);
+        return throwError('Error retrieving quizzes');
+      }),
+      takeUntil(this.destroy$)
+    );
   }
 
   getSelectedQuiz(): Observable<Quiz | null> {
@@ -165,20 +178,7 @@ export class QuizDataService {
       distinctUntilChanged(),
       filter((selectedQuiz) => !!selectedQuiz),
       take(1),
-      switchMap((selectedQuiz) => {
-        if (selectedQuiz) {
-          return of(selectedQuiz);
-        } else {
-          return this.selectedQuizSubject.asObservable().pipe(
-            tap((selectedQuiz) =>
-              console.log('selectedQuizSubject emitted:', selectedQuiz)
-            ),
-            filter((selectedQuiz) => !!selectedQuiz),
-            take(1),
-            catchError(() => of(null))
-          );
-        }
-      })
+      catchError(() => of(null))
     );
   }
 
@@ -189,7 +189,7 @@ export class QuizDataService {
 
     return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
       distinctUntilChanged(),
-      mergeMap((response: Quiz[]) => {
+      map((response: Quiz[]) => {
         const quiz = response.find((q: Quiz) => q.quizId === quizId);
 
         if (!quiz) {
@@ -200,7 +200,7 @@ export class QuizDataService {
           throw new Error('Quiz has no questions');
         }
 
-        return of(quiz);
+        return quiz;
       }),
       catchError((error: HttpErrorResponse) => {
         return throwError('Error getting quiz\n' + error.message);
@@ -210,15 +210,16 @@ export class QuizDataService {
 
   getQuizById(quizId: string): Observable<Quiz> {
     if (!quizId) {
-      throw new Error(`Quiz ID is undefined`);
+      return throwError(new Error(`Quiz ID is undefined`));
     }
 
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
-      tap((quiz) => {
+      switchMap((quiz) => {
         if (!quiz) {
-          throw new Error(`Quiz with ID ${quizId} not found`);
+          return throwError(new Error(`Quiz with ID ${quizId} not found`));
         }
+        return of(quiz);
       }),
       distinctUntilChanged(
         (prevQuiz, currQuiz) =>
@@ -230,11 +231,25 @@ export class QuizDataService {
 
   getAllExplanationTextsForQuiz(quizId: string): Observable<string[]> {
     return this.getQuiz(quizId).pipe(
-      map((quiz: Quiz) => {
-        const explanationTexts = quiz.questions.map(
-          (question) => question.explanation || ''
-        );
-        return explanationTexts;
+      switchMap((quiz: Quiz) => {
+        if (!quiz) {
+          return throwError(new Error(`Quiz with ID ${quizId} not found`));
+        }
+
+        const explanationTexts = quiz.questions.map((question) => {
+          // Check if explanation is defined and not null
+          if (typeof question.explanation === 'string') {
+            return question.explanation;
+          } else {
+            return '';
+          }
+        });
+
+        return of(explanationTexts);
+      }),
+      catchError((error) => {
+        console.error('Error getting explanation texts:', error);
+        return of([]);
       })
     );
   }
