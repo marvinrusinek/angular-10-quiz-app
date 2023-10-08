@@ -90,19 +90,22 @@ export class QuizDataService {
   }
 
   loadQuizzesData(): void {
-    this.http.get<Quiz[]>(this.quizUrl).subscribe(
-      (quizzes) => {
+    this.http.get<Quiz[]>(this.quizUrl).pipe(
+      tap((quizzes) => {
         this.quizzes$.next(quizzes);
         this.quizzes = quizzes;
-        if (this.quizzes.length > 0) {
-          this.selectedQuiz = this.quizzes[0];
+        if (quizzes.length > 0) {
+          this.selectedQuiz = quizzes[0];
           this.selectedQuiz$.next(this.selectedQuiz);
         }
-      },
-      (error) => console.error(error)
-    );
+      }),
+      catchError((error) => {
+        console.error('Error loading quizzes:', error);
+        return [];
+      })
+    ).subscribe();
   }
-
+  
   getQuizData(quizId: string): Observable<QuizQuestion[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes) => {
