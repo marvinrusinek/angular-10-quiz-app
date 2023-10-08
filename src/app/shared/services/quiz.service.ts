@@ -755,59 +755,6 @@ export class QuizService implements OnDestroy {
   }
 
   // function not called anywhere, potentially remove
-  async getQuestionAndOptionsFromCacheOrFetch(
-    questionIndex: number,
-    quizId: string
-  ): Promise<[QuizQuestion, Option[]]> {
-    const cachedData = this.questionsAndOptions[quizId]?.[questionIndex];
-
-    if (cachedData) {
-      return cachedData;
-    }
-
-    try {
-      const response = await this.http.get<any>(this.quizUrl).toPromise();
-      const question: QuizQuestion = response.question;
-      const options: Option[] = response.options;
-
-      // Cache the fetched data
-      if (!this.questionsAndOptions[quizId]) {
-        this.questionsAndOptions[quizId] = {};
-      }
-      this.questionsAndOptions[quizId][questionIndex] = [question, options];
-
-      return [question, options];
-    } catch (error) {
-      console.error('Error fetching question and options:', error);
-      throw error;
-    }
-  }
-
-  // function not called anywhere, potentially remove
-  async fetchQuestionAndOptions(
-    questionIndex: number
-  ): Promise<{ question: QuizQuestion; options: Option[] }> {
-    if (
-      !this.quizId ||
-      !this.quizQuestions ||
-      this.quizQuestions.length === 0
-    ) {
-      console.error('Quiz or questions array is null or undefined');
-      throw new Error('Quiz or questions array is null or undefined');
-    }
-
-    const question = this.quizQuestions[questionIndex];
-    const options = question.options;
-
-    if (!question || !options || options.length === 0) {
-      console.error('Question or options array is null or undefined');
-      throw new Error('Question or options array is null or undefined');
-    }
-
-    return { question, options };
-  }
-
-  // function not called anywhere, potentially remove
   getPreviousQuestion(): QuizQuestion {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = this.currentQuestionIndex - 2;
@@ -900,10 +847,6 @@ export class QuizService implements OnDestroy {
     }
 
     return null;
-  }
-
-  getQuestionId(quizId: string, questionIndex: number): string {
-    return `${quizId}-Q${questionIndex + 1}`;
   }
 
   /********* setter functions ***********/
