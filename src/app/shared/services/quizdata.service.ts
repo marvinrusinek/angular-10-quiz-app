@@ -289,8 +289,8 @@ export class QuizDataService implements OnDestroy {
     return this.getQuestion(quizId, questionIndex).pipe(
       map((question) => {
         if (!question) {
-          console.error('Question is null or undefined');
-          throw new Error('Question is null or undefined');
+          console.error('Question is null or undefined in getOptions');
+          throw new Error('Question is null or undefined in getOptions');
         }
         const options = question?.options;
         if (!options || options?.length === 0) {
@@ -395,37 +395,34 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getQuestionFromQuiz(
-    quiz: Quiz,
-    questionIndex: number
-  ): Observable<QuizQuestion> {
+  getQuestionFromQuiz(quiz: Quiz, questionIndex: number): QuizQuestion {
     if (!quiz) {
       throw new Error('Selected quiz not found');
     }
-
+  
     if (!quiz.questions || quiz.questions.length === 0) {
       throw new Error('Selected quiz has no questions');
     }
-
+  
     const questions = quiz.questions;
-
+  
     if (questionIndex >= questions?.length) {
       throw new Error('Question index out of bounds');
     }
-
+  
     const question = questions[questionIndex];
     const options = question?.options;
-
+  
     if (!question || question?.options === undefined) {
       throw new Error('Question not found');
     }
-
+  
     if (!options || options?.length === 0) {
       throw new Error('Question has no options');
     }
-
-    return of(question);
-  }
+  
+    return question;
+  }  
 
   getQuestionOptions(
     currentQuestion$: Observable<QuizQuestion>
