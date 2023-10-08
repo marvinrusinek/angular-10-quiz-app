@@ -13,7 +13,6 @@ import {
 import {
   catchError,
   distinctUntilChanged,
-  filter,
   finalize,
   map,
   shareReplay,
@@ -854,14 +853,6 @@ export class QuizService implements OnDestroy {
     this.questionDataSubject.next(data);
   }
 
-  setCombinedQuestionData(data: {
-    questionText: string;
-    correctAnswersText: string;
-    currentOptions: Option[];
-  }): void {
-    this.combinedQuestionDataSubject.next(data);
-  }
-
   setCorrectAnswers(
     question: QuizQuestion,
     options: Option[]
@@ -947,22 +938,26 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  setQuiz(quiz: Quiz): Observable<Quiz> {
-    this.selectedQuizId = quiz.quizId;
-    this.quizId$.next(quiz.quizId);
-    this.selectedQuiz = quiz;
-
-    return this.http.get<Quiz>(`${this.quizUrl}`).pipe(
-      tap((quiz: Quiz) => {
-        console.log('Quiz loaded successfully', quiz);
+  setQuiz(quiz: Quiz): Observable<Quiz | null> {
+    const quizId = quiz.quizId;
+    
+    // Make the HTTP request to fetch the specific quiz data
+    return this.http.get<Quiz>(`${this.quizUrl}/${quizId}`).pipe(
+      tap((loadedQuiz: Quiz) => {
+        // Update the selected quiz data after successful loading
+        this.selectedQuizId = quizId;
+        this.quizId$.next(quizId);
+        this.selectedQuiz = loadedQuiz;
+        console.log('Quiz loaded successfully', loadedQuiz);
       }),
       catchError((err) => {
         console.error('Error loading quiz', err);
+        // Handle the error gracefully and return null or an appropriate value
         return of(null);
       })
     );
   }
-
+  
   setQuizStatus(value: string): void {
     this.status = value;
   }
