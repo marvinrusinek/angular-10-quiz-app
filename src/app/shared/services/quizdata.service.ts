@@ -16,7 +16,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  mergeMap,
   retryWhen,
   shareReplay,
   switchMap,
@@ -24,6 +23,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
+import { isEqual } from 'lodash';
 
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -254,9 +254,15 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion> {
+  getQuestion(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      map(([question, options]) => question),
+      switchMap(([question, options]) => {
+        if (!question) {
+          return of(null); // Question not found
+        }
+
+        return of(question);
+      }),
       catchError((error) => {
         console.error('Error getting quiz question:', error);
         return throwError(error);
@@ -268,15 +274,15 @@ export class QuizDataService implements OnDestroy {
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map((quiz: Quiz) => {
-        const questions = quiz.questions;
-        questions.forEach((question) => {
-          this.setQuestionType(question);
-        });
+        // Clone the questions array to avoid unintended mutations
+        const questions = quiz.questions.map((question) => ({ ...question }));
+        // Set question types here if necessary
+
         return questions;
       }),
       distinctUntilChanged((prevQuestions, currQuestions) => {
-        // compare arrays by their length and elements
-        return JSON.stringify(prevQuestions) === JSON.stringify(currQuestions);
+        // Use a custom comparison function for arrays
+        return isEqual(prevQuestions, currQuestions);
       })
     );
   }
