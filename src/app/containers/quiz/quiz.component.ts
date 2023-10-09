@@ -1203,7 +1203,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.clearExplanationText();
   
         // Update the text for the next question
-        this.nextQuestionText = nextQuestion.questionText;
+        this.nextQuestionText = nextQuestion.questionText; // Set the next question text
   
         // Set the explanation text for the next question
         this.explanationTextService.setNextExplanationText(explanationText);
@@ -1213,17 +1213,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCurrentQuestionAndNext(nextQuestion, explanationText);
         this.quizService.nextQuestionSource.next(nextQuestion);
   
-        // Set options and questionText for the next question
-        const nextQuestionIndex = this.currentQuestionIndex + 1;
-        if (nextQuestionIndex < this.selectedQuiz.questions.length) {
-          const nextQuestion = this.selectedQuiz.questions[nextQuestionIndex];
-          this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
-        } else {
-          this.currentOptions = [];
-        }
-  
-        // Clear any previous selected option explanation
-        this.selectedOptionService.setSelectedOptionExplanation('');
+        // Set options for the next question
+        this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
       } else {
         // Handle the end of the quiz or any cleanup
         console.log('Before clearing explanation text');
@@ -1232,7 +1223,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('After clearing explanation text');
         this.selectedOptions = [];
         this.currentOptions = null;
-        this.nextQuestionText = null;
+        this.nextQuestionText = null; // Clear the next question text
       }
   
       // Now, increment the currentQuestionIndex manually
@@ -1276,7 +1267,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-  
 
   advanceToPreviousQuestion() {
     this.answers = [];
