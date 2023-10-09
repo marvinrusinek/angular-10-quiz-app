@@ -277,7 +277,7 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizData(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>('/assets/data/quiz.json');
+    return this.http.get<Quiz[]>(this.quizUrl);
   }
 
   setSelectedQuiz(selectedQuiz: Quiz) {
