@@ -1188,22 +1188,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.onAnswerSelectedOrNextQuestionClicked();
   
-      // Get the next question with explanation
-      console.log('Fetching next question with explanation...');
-      const { nextQuestion, explanationText } =
-        await this.quizService.getNextQuestionWithExplanation();
-      console.log('Next question with explanation received:', nextQuestion);
+      // Now, increment the currentQuestionIndex manually
+      this.currentQuestionIndex++;
   
-      console.log('Fetching options for the next question...');
-      const options = await this.quizService.getNextOptions(); // Get options for the next question
-      console.log('Options for the next question received:', options);
+      // Fetch options and question text for the next question
+      const nextOptions = await this.quizService.getNextOptions();
+      const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation();
   
       if (nextQuestion) {
         // Clear explanation text for the current question
         this.clearExplanationText();
   
         // Update the text for the next question
-        this.nextQuestionText = nextQuestion.questionText; // Set the next question text
+        this.nextQuestionText = nextQuestion.questionText;
   
         // Set the explanation text for the next question
         this.explanationTextService.setNextExplanationText(explanationText);
@@ -1214,7 +1211,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.nextQuestionSource.next(nextQuestion);
   
         // Set options for the next question
-        this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
+        this.currentOptions = nextOptions;
       } else {
         // Handle the end of the quiz or any cleanup
         console.log('Before clearing explanation text');
@@ -1225,9 +1222,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentOptions = null;
         this.nextQuestionText = null; // Clear the next question text
       }
-  
-      // Now, increment the currentQuestionIndex manually
-      this.currentQuestionIndex++;
   
       // Check if it's the last question
       const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
@@ -1267,6 +1261,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
+  
 
   advanceToPreviousQuestion() {
     this.answers = [];
