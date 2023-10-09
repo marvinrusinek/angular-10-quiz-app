@@ -1259,15 +1259,30 @@ export class QuizService implements OnDestroy {
         );
       }
 
+      await this.simulateNavigation();
+
+      this.isNavigating = false;
+
       console.log('Navigation completed successfully.');
       return true; // Navigation succeeded
     } catch (error) {
       console.error('Navigation error:', error);
+      this.isNavigating = false;
       return false; // Navigation error
     } finally {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
+  }
+
+  private async simulateNavigation() {
+    // Simulate a delay (replace this with your actual navigation logic)
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        // Resolve the promise to simulate navigation completion
+        resolve();
+      }, 1000); // Replace 1000 with your desired delay time
+    });
   }
 
   /* navigateToPreviousQuestion() {
