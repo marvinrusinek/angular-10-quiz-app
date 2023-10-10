@@ -13,7 +13,7 @@
       <codelab-quiz-content-component 
         [questions]="questions"
         [question]="data?.questionText" 
-        [options]="data?.currentOptions"
+        [options]="currentOptions"
         [explanationText]="explanationText$ | async"  
       >
       </codelab-quiz-content-component>
@@ -24,7 +24,7 @@
           *ngIf="data?.questionText || data?.correctAnswersText"
           [data]="data"
           [question]="currentQuestion$ | async"
-          [options]="data?.currentOptions"
+          [options]="currentOptions"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
