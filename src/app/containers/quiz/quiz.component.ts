@@ -1188,10 +1188,49 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       this.onAnswerSelectedOrNextQuestionClicked();
   
+      // Get the next question with explanation
+      console.log('Fetching next question with explanation...');
+      const { nextQuestion, explanationText } =
+        await this.quizService.getNextQuestionWithExplanation();
+      console.log('Next question with explanation received:', nextQuestion);
+  
+      console.log('Fetching options for the next question...');
+      const options = await this.quizService.getNextOptions(); // Get options for the next question
+      console.log('Options for the next question received:', options);
+  
+      if (nextQuestion) {
+        // Clear explanation text for the current question
+        this.clearExplanationText();
+  
+        // Update the text for the next question
+        this.nextQuestionText = nextQuestion.questionText; // Set the next question text
+  
+        // Set the explanation text for the next question
+        this.explanationTextService.setNextExplanationText(explanationText);
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
+  
+        // Notify any subscribers of the next question
+        this.quizService.setCurrentQuestionAndNext(nextQuestion, explanationText);
+        this.quizService.nextQuestionSource.next(nextQuestion);
+  
+        // Set options for the next question
+        this.currentOptions = options; // Update currentOptions with the new options
+      } else {
+        // Handle the end of the quiz or any cleanup
+        console.log('Before clearing explanation text');
+        this.explanationTextService.clearExplanationText();
+        this.explanationTextService.resetExplanationState();
+        console.log('After clearing explanation text');
+        this.selectedOptions = [];
+        this.currentOptions = null;
+        this.nextQuestionText = null; // Clear the next question text
+      }
+  
+      // Now, increment the currentQuestionIndex manually
+      this.currentQuestionIndex++;
+  
       // Check if it's the last question
-      const totalQuestions: number = await this.quizService
-        .getTotalQuestions()
-        .toPromise();
+      const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
       console.log('Total Questions:', totalQuestions);
   
       if (this.currentQuestionIndex >= totalQuestions) {
@@ -1200,36 +1239,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('End of quiz reached.');
         return;
       }
-  
-      // Increment the currentQuestionIndex manually
-      this.currentQuestionIndex++;
-  
-      // Fetch the current question with explanation
-      const { nextQuestion, explanationText } = await this.quizService
-        .getNextQuestionWithExplanation();
-  
-      // Clear explanation text for the current question
-      this.clearExplanationText();
-  
-      // Update the text for the next question
-      this.nextQuestionText = nextQuestion.questionText;
-  
-      // Log to verify if the question text is set correctly
-      console.log('Next Question Text:', this.nextQuestionText);
-  
-      // Set the explanation text for the next question
-      this.explanationTextService.setNextExplanationText(explanationText);
-      this.explanationTextService.setIsExplanationTextDisplayed(false);
-  
-      // Notify any subscribers of the next question
-      this.quizService.setCurrentQuestionAndNext(nextQuestion, explanationText);
-      this.quizService.nextQuestionSource.next(nextQuestion);
-  
-      // Set options for the next question
-      this.currentOptions = await this.quizService.getNextOptions();
-  
-      // Log to verify if options are set correctly
-      console.log('Current Options:', this.currentOptions);
   
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
@@ -1257,8 +1266,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
-  }
-  
+  }  
 
   advanceToPreviousQuestion() {
     this.answers = [];
