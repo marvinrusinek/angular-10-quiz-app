@@ -1211,7 +1211,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.nextQuestionSource.next(nextQuestion);
   
       // Fetch options for the next question
-      this.currentOptions = await this.quizService.getNextOptions();
+      this.currentOptions = await this.quizService.getNextOptions(this.currentQuestionIndex);
   
       // Log to verify if options are set correctly
       console.log('Current Options:', this.currentOptions);
