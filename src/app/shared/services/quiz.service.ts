@@ -361,7 +361,9 @@ export class QuizService implements OnDestroy {
       index >= 0 &&
       index < currentQuiz.questions.length
     ) {
-      return currentQuiz.questions[index].questionText;
+      const questionText = currentQuiz.questions[index].questionText;
+      console.log(`Question text for index ${index}:`, questionText);
+      return questionText;
     }
     return undefined;
   }
