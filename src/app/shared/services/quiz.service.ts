@@ -678,22 +678,21 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  getNextOptions(): Option[] | undefined {
+  getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = this.currentQuestionIndex + 1;
-
+  
     if (
       currentQuiz &&
       currentQuiz.questions &&
-      nextIndex >= 0 &&
-      nextIndex < currentQuiz.questions.length
+      currentQuestionIndex >= 0 &&
+      currentQuestionIndex < currentQuiz.questions.length
     ) {
-      const nextOptions = currentQuiz.questions[nextIndex].options;
-      this.nextOptionsSource.next(nextOptions);
-      this.nextOptionsSubject.next(nextOptions);
-      return nextOptions;
+      const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+      this.nextOptionsSource.next(currentOptions);
+      this.nextOptionsSubject.next(currentOptions);
+      return currentOptions;
     }
-
+  
     this.nextOptionsSource.next(null);
     this.nextOptionsSubject.next(null);
     return undefined;
