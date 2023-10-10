@@ -1383,4 +1383,4 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
   }
-}
+} 
