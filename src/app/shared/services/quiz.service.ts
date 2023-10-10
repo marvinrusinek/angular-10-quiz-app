@@ -346,11 +346,24 @@ export class QuizService implements OnDestroy {
       return {
         questionText: currentQuestion.questionText,
         correctAnswersText: correctAnswersText,
-        currentOptions: currentQuestion.options,
+        currentOptions: currentQuestion.options
       };
     }
 
     return null;
+  }
+
+  getQuestionTextForIndex(index: number): string | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      index >= 0 &&
+      index < currentQuiz.questions.length
+    ) {
+      return currentQuiz.questions[index].questionText;
+    }
+    return undefined;
   }
 
   getQuizName(segments: any[]): string {
