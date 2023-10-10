@@ -1195,8 +1195,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Next question with explanation received:', nextQuestion);
   
       console.log('Fetching options for the next question...');
-      const options = await this.quizService.getNextOptions(); // Get options for the next question
-      console.log('Options for the next question received:', options);
+      const nextOptions = await this.quizService.getNextOptions(); // Get options for the next question
+      console.log('Options for the next question received:', nextOptions);
   
       if (nextQuestion) {
         // Clear explanation text for the current question
@@ -1214,7 +1214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.nextQuestionSource.next(nextQuestion);
   
         // Set options for the next question
-        this.currentOptions = options; // Update currentOptions with the new options
+        this.currentOptions = this.getNextOptionsForQuestion(nextQuestion);
       } else {
         // Handle the end of the quiz or any cleanup
         console.log('Before clearing explanation text');
@@ -1267,7 +1267,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-
+      
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
