@@ -1208,7 +1208,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.clearExplanationText();
 
       // Use the getQuestionTextForIndex method to fetch the question text
-      const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex + 1);
+      const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+      console.log('Next Question Text:>', nextQuestionText);
 
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText || nextQuestion.questionText;
