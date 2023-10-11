@@ -560,68 +560,60 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
-      this.quizService.getTotalQuestions()
+      this.quizService.getTotalQuestions(),
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           nextExplanationText,
           shouldDisplayExplanation,
-          totalQuestions
+          totalQuestions,
         ]) => {
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
           }
-
+    
           // Fetch the current question index from your service or wherever it is stored
-          const currentQuestionIndex =
-            this.quizService.getCurrentQuestionIndex();
-
+          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+    
           // Calculate the next question index
           let nextQuestionIndex = currentQuestionIndex + 1;
-
+    
           // Calculate the total questions synchronously
           const totalQuestionsValue = totalQuestions || 0;
-
+    
           console.log('NQI', nextQuestionIndex);
           console.log('TQV', totalQuestionsValue);
-
+    
           if (nextQuestionIndex >= totalQuestionsValue) {
             nextQuestionIndex = -1;
           }
-
+    
           // Fetch the explanation text for the next question based on the index
-          const currentExplanation =
-            this.explanationTextService.getExplanationForQuestionIndex(
-              currentQuestionIndex
-            );
-          const nextExplanation =
-            this.explanationTextService.getExplanationForQuestionIndex(
-              nextQuestionIndex
-            );
-
+          const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(currentQuestionIndex);
+          const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
+    
           console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
-
-          // Decide which text to display based on shouldDisplayExplanation
-          const textToDisplay = shouldDisplayExplanation
-            ? nextExplanationText ||
-              nextExplanation ||
-              currentExplanation ||
-              nextQuestion.questionText
-            : nextQuestion.questionText;
-
+    
+          let textToDisplay = '';
+          if (shouldDisplayExplanation) {
+            textToDisplay = nextExplanationText || nextExplanation || currentExplanation || '';
+          } else {
+            textToDisplay = nextQuestion.questionText || '';
+          }
+    
           console.log('Next Question:', nextQuestion);
           console.log('Next Question Index:', nextQuestionIndex);
           console.log('Explanation Text:::::>>>>>', nextQuestion.explanation);
           console.log('Next Explanation Text:', nextExplanationText);
           console.log('Should Display Explanation:', shouldDisplayExplanation);
           console.log('Text to Display:', textToDisplay);
-
+    
           return of(textToDisplay);
         }
       ),
       startWith('')
-    );
+    );    
   }
 
   getQuestionText(
