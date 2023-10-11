@@ -1232,7 +1232,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         error
       );
     } finally {
-      // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
   }
