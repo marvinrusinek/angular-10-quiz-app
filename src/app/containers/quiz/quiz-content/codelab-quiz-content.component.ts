@@ -561,6 +561,7 @@ export class CodelabQuizContentComponent {
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
       this.quizService.getTotalQuestions(),
+      this.quizService.getQuestionTextForIndex(this.quizService.currentQuestionIndex + 1)
     ]).pipe(
       switchMap(
         ([
@@ -568,6 +569,7 @@ export class CodelabQuizContentComponent {
           nextExplanationText,
           shouldDisplayExplanation,
           totalQuestions,
+          nextQuestionText
         ]) => {
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
@@ -604,11 +606,8 @@ export class CodelabQuizContentComponent {
 
           // Decide which text to display based on shouldDisplayExplanation
           const textToDisplay = shouldDisplayExplanation
-            ? nextExplanationText ||
-              nextExplanation ||
-              currentExplanation ||
-              nextQuestion.questionText
-            : nextQuestion.questionText;
+            ? nextExplanationText || nextExplanation || currentExplanation || nextQuestionText || nextQuestion.questionText
+            : nextQuestionText || nextQuestion.questionText;
 
           console.log('Next Question:', nextQuestion);
           console.log('Next Question Index:', nextQuestionIndex);
