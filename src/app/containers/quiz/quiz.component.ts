@@ -1159,16 +1159,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Prevent multiple navigations
-    this.isNavigating = true;
+    this.isNavigating = true;   // prevent multiple navigations
 
     try {
-      console.log('Advance to Next Question Clicked');
-
       if (!this.selectedQuiz) {
-        console.log(
-          'Advance to Next Question Aborted: Selected Quiz is not available.'
-        );
         return;
       }
 
