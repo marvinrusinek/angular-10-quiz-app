@@ -1172,32 +1172,18 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Start animation or any other operations
-      console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
-
-      console.log(
-        'Current Question Index (Before Advancing):',
-        this.currentQuestionIndex
-      );
-      console.log('Selected Quiz:', this.selectedQuiz);
-
       this.onAnswerSelectedOrNextQuestionClicked();
 
+      const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
+      
       // Check if it's the last question
-      const totalQuestions: number = await this.quizService
-        .getTotalQuestions()
-        .toPromise();
-      console.log('Total Questions:', totalQuestions);
-
       if (this.currentQuestionIndex >= totalQuestions) {
-        // navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
         return;
       }
 
-      // Increment the currentQuestionIndex manually
       this.currentQuestionIndex++;
 
       // Fetch the current question with explanation
@@ -1235,25 +1221,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
         this.quizId
       )}/${nextQuestionIndex}`;
-      console.log('New URL:', newUrl);
-
-      // Update the current question index in the service
-      console.log(
-        'Before updating current question index:',
-        this.currentQuestionIndex
-      );
+      
       this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
-      console.log(
-        'After updating current question index:',
-        this.currentQuestionIndex
-      );
-
+      
       // Navigate to the new URL
-      console.log('Before navigation:', this.router.url);
       await this.router.navigateByUrl(newUrl);
-      console.log('After navigation:', this.router.url);
-
-      console.log('Navigation completed successfully.');
     } catch (error) {
       console.error(
         'Error occurred while advancing to the next question:',
