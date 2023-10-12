@@ -7,7 +7,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   map,
@@ -15,7 +15,7 @@ import {
   switchMap,
   takeUntil,
   tap,
-  withLatestFrom,
+  withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
@@ -32,7 +32,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
   styleUrls: ['./codelab-quiz-content.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent {
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
@@ -42,7 +42,7 @@ export class CodelabQuizContentComponent {
   @Input() questions: QuizQuestion[];
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
-  quizId: string = '';
+  quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;
   currentQuestion$: Observable<QuizQuestion | null> = of(null);
@@ -53,12 +53,12 @@ export class CodelabQuizContentComponent {
   nextQuestion$: Observable<QuizQuestion | null>;
   questionsWithExplanations: { question: QuizQuestion; explanation: string }[] =
     [];
-  numberOfCorrectAnswers: number = 0;
+  numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
-  shouldDisplayCorrectAnswers: boolean = false;
-  correctAnswersText: string = '';
+  shouldDisplayCorrectAnswers = false;
+  correctAnswersText = '';
 
   currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
@@ -81,31 +81,30 @@ export class CodelabQuizContentComponent {
   }> | null = null;
   combinedText$: Observable<string>;
   currentQuestionText: string;
-  currentDisplayText: string = '';
-  displayedText: string = '';
-  displayCorrectAnswers: boolean = false;
-  showExplanation: boolean = false;
-  isExplanationTextDisplayed: boolean = false;
-  nextQuestionText: string = '';
-  nextExplanationText: string = '';
+  currentDisplayText = '';
+  displayedText = '';
+  displayCorrectAnswers = false;
+  showExplanation = false;
+  isExplanationTextDisplayed = false;
+  nextQuestionText = '';
+  nextExplanationText = '';
   nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   shouldDisplayExplanation$: Observable<boolean>;
-  isExplanationDisplayed: boolean = false;
-  showNumberOfCorrectAnswersText: boolean = false;
+  isExplanationDisplayed = false;
+  showNumberOfCorrectAnswersText = false;
   shouldDisplayCorrectAnswersText$: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
-  displayCorrectAnswersText: boolean = false;
-  explanationDisplayed: boolean = false;
+  displayCorrectAnswersText = false;
+  explanationDisplayed = false;
 
   private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(
     false
   );
   shouldDisplayCorrectAnswers$: Observable<boolean> =
     this.shouldDisplayCorrectAnswersSource.asObservable();
-
-  shouldDisplayCorrectAnswersAfterQuestion: boolean = false;
+  shouldDisplayCorrectAnswersAfterQuestion = false;
 
   private destroy$ = new Subject<void>();
 
