@@ -600,7 +600,10 @@ export class CodelabQuizContentComponent {
           } else {
             textToDisplay = nextQuestion.questionText || '';
           }
-    
+
+          // Inside the switchMap function:
+          console.log('Next Question Text (After Fetching):', nextQuestion.questionText);
+
           console.log('Next Question:', nextQuestion);
           console.log('Next Question Index:', nextQuestionIndex);
           console.log('Explanation Text:', nextQuestion.explanation);
@@ -612,7 +615,7 @@ export class CodelabQuizContentComponent {
         }
       ),
       startWith('')
-    );    
+    );
   }
 
   getQuestionText(
