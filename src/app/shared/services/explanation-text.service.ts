@@ -59,7 +59,7 @@ export class ExplanationTextService {
       return this.explanations[index] || '';
     }
     return '';
-  }  
+  }
 
   formatExplanationText(
     selectedOptions: Option[],
