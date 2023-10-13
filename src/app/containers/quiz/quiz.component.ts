@@ -913,9 +913,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Load explanation text for the next question
     this.loadExplanationTextForNextQuestion();
-
-    // Move to the next question
-    // this.currentQuestionIndex++;
   }
 
   animationDoneHandler(): void {
@@ -1217,6 +1214,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       const nextQuestionText = this.quizService.getQuestionTextForIndex(
         this.currentQuestionIndex
       );
+
+      console.log('Updated nextQuestionText:', nextQuestionText);
 
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
