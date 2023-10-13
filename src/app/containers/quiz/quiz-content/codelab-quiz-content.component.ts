@@ -400,7 +400,7 @@ export class CodelabQuizContentComponent {
           const questionIndex = this.questions.indexOf(currentQuestion);
 
           // Determine which explanation text to display
-          // const explanationText = this.explanationTextService.getExplanationTextForIndex(questionIndex);
+          // const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
           const explanationText = isExplanationDisplayed
             ? this.nextExplanationText
             : '';
