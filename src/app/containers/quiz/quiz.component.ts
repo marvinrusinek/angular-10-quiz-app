@@ -131,7 +131,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   correctAnswers: any[] = [];
   isOptionSelected = false;
   isDisabled: boolean; // may use later
-  nextQuestionText: string | null = null;
+  nextQuestionText = '';
   nextExplanationText: string | null = null;
   selectOptionText: string = 'Please select an option to continue...';
   cardFooterClass = '';
@@ -231,7 +231,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     const nextQuestion$ = this.quizService.getNextQuestion();
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+    const nextOptions$ = this.quizService.getNextOptions(
+      this.currentQuestionIndex
+    );
 
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
@@ -263,6 +265,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.question$ = of(question);
         this.options$ = of(options);
       });
+
+    this.quizService.nextQuestionText$.subscribe((text) => {
+      this.nextQuestionText = text;
+    });
   }
 
   ngOnDestroy(): void {
@@ -1158,88 +1164,88 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-  
+
     // Prevent multiple navigations
     this.isNavigating = true;
-  
+
     try {
       console.log('Advance to Next Question Clicked');
-  
+
       if (!this.selectedQuiz) {
         console.log(
           'Advance to Next Question Aborted: Selected Quiz is not available.'
         );
         return;
       }
-  
+
       // Start animation or any other operations
       console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
-  
+
       console.log(
         'Current Question Index (Before Advancing):',
         this.currentQuestionIndex
       );
       console.log('Selected Quiz:', this.selectedQuiz);
-  
+
       this.onAnswerSelectedOrNextQuestionClicked();
-  
+
       // Check if it's the last question
       const totalQuestions: number = await this.quizService
         .getTotalQuestions()
         .toPromise();
       console.log('Total Questions:', totalQuestions);
-  
+
       if (this.currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
         return;
       }
-  
+
       // Increment the currentQuestionIndex manually
       this.currentQuestionIndex++;
-  
+
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
         await this.quizService.getNextQuestionWithExplanation();
-  
+
       // Clear explanation text for the current question
       this.clearExplanationText();
-  
+
       // Use the getQuestionTextForIndex method to fetch the question text
       const nextQuestionText = this.quizService.getQuestionTextForIndex(
         this.currentQuestionIndex
       );
-  
+
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
-  
+
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
-  
+
       // Notify any subscribers of the next question
       this.quizService.setCurrentQuestionAndNext(nextQuestion, explanationText);
       this.quizService.nextQuestionSource.next(nextQuestion);
-  
+
       // Fetch options for the next question
       this.currentOptions = await this.quizService.getNextOptions(
         this.currentQuestionIndex
       );
-  
+
       // Log to verify if options are set correctly
       console.log('Current Options:', this.currentOptions);
-  
+
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       console.log('Next Question Index:', nextQuestionIndex);
-  
+
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
         this.quizId
       )}/${nextQuestionIndex}`;
       console.log('New URL:', newUrl);
-  
+
       // Update the current question index in the service
       console.log(
         'Before updating current question index:',
@@ -1250,12 +1256,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         'After updating current question index:',
         this.currentQuestionIndex
       );
-  
+
       // Navigate to the new URL
       console.log('Before navigation:', this.router.url);
       await this.router.navigateByUrl(newUrl);
       console.log('After navigation:', this.router.url);
-  
+
       console.log('Navigation completed successfully.');
     } catch (error) {
       console.error(
@@ -1267,7 +1273,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-  
+
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
@@ -1390,4 +1396,4 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.correctCount = value;
     this.quizService.sendCorrectCountToResults(this.correctCount);
   }
-} 
+}

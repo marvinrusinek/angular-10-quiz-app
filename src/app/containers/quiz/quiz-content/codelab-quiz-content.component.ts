@@ -162,6 +162,10 @@ export class CodelabQuizContentComponent {
     this.quizService.currentQuestionText$.subscribe((questionText) => {
       this.currentQuestionText = questionText;
     });
+
+    this.quizService.nextQuestionText$.subscribe((text) => {
+      this.nextQuestionText = text;
+    });
   }
 
   ngOnDestroy(): void {
