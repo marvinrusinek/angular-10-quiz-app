@@ -283,7 +283,7 @@ export class CodelabQuizContentComponent {
             if (questionIndex !== -1 && questionIndex < questions.length - 1) {
               const nextQuestion = questions[questionIndex + 1];
               const nextExplanationText = nextQuestion.explanation; // Use the explanation from the next question
-              this.explanationTextService.setExplanationTextForIndex(
+              this.explanationTextService.setExplanationTextForQuestionIndex(
                 questionIndex + 1,
                 nextExplanationText
               );
@@ -542,7 +542,7 @@ export class CodelabQuizContentComponent {
             // The current question is not in the questionsWithExplanations array,
             // so fetch the explanation text from the service or source as needed
             nextExplanationText =
-              this.explanationTextService.getExplanationForQuestionIndex(
+              this.explanationTextService.getExplanationTextForQuestionIndex(
                 currentQuestionIndex + 1
               ); // fetch the explanation text for the next question
           }
@@ -593,8 +593,8 @@ export class CodelabQuizContentComponent {
           }
     
           // Fetch the explanation text for the next question based on the index
-          const currentExplanation = this.explanationTextService.getExplanationForQuestionIndex(currentQuestionIndex);
-          const nextExplanation = this.explanationTextService.getExplanationForQuestionIndex(nextQuestionIndex);
+          const currentExplanation = this.explanationTextService.getExplanationTextForQuestionIndex(currentQuestionIndex);
+          const nextExplanation = this.explanationTextService.getExplanationTextForQuestionIndex(nextQuestionIndex);
     
           console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
     

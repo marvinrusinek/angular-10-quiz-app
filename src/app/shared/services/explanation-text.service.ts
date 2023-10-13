@@ -49,21 +49,17 @@ export class ExplanationTextService {
     return this.explanationText$.asObservable();
   }
 
-  getExplanationForQuestionIndex(index: number): string {
-    if (index >= 0 && index < this.explanations.length) {
-      return this.explanations[index] || '';
-    }
-    return '';
-  }
-
-  setExplanationTextForIndex(index: number, explanation: string): void {
+  setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation text for index ${index}: ${explanation}`);
     this.explanationTexts[index] = explanation;
   }
 
-  getExplanationTextForIndex(index: number): string | undefined {
-    return this.explanationTexts[index] || '';
-  }
+  getExplanationTextForQuestionIndex(index: number): string | undefined {
+    if (index >= 0 && index < this.explanations.length) {
+      return this.explanations[index] || '';
+    }
+    return '';
+  }  
 
   formatExplanationText(
     selectedOptions: Option[],
