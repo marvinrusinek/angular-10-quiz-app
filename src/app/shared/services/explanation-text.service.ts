@@ -56,7 +56,7 @@ export class ExplanationTextService {
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
     if (index >= 0 && index < this.explanations.length) {
-      return this.explanations[index] || '';
+      return this.explanationTexts[index] || '';
     }
     return '';
   }
