@@ -140,8 +140,10 @@ export class QuizService implements OnDestroy {
 
   currentAnswer = '';
   nextQuestionText = '';
-  nextQuestionText$: Observable<string>;
+  private nextQuestionTextSubject = new BehaviorSubject<string>('');
+  nextQuestionText$ = this.nextQuestionTextSubject.asObservable();
   showQuestionText$: Observable<boolean>;
+  
   correctOptions: string[] = [];
   selectedOption$ = new BehaviorSubject<string>(null);
 
