@@ -572,6 +572,7 @@ export class CodelabQuizContentComponent {
           shouldDisplayExplanation,
           totalQuestions,
         ]) => {
+          console.log("NQ", nextQuestion);
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
           }
