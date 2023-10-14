@@ -609,9 +609,14 @@ export class CodelabQuizContentComponent {
             );
 
           console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
+          console.log('Current Question Index:', currentQuestionIndex);
+          console.log('Next Question Index:', nextQuestionIndex);
+          console.log('Total Questions:', totalQuestionsValue);
+          console.log('Current Explanation:', currentExplanation);
+          console.log('Next Explanation:', nextExplanation);
 
           let textToDisplay = '';
-          if (shouldDisplayExplanation) {
+          if (shouldDisplayExplanation === true) {
             textToDisplay =
               nextExplanationText ||
               nextExplanation ||
@@ -627,11 +632,6 @@ export class CodelabQuizContentComponent {
             nextQuestion.questionText
           );
 
-          console.log('Next Question:', nextQuestion);
-          console.log('Next Question Index:', nextQuestionIndex);
-          console.log('Explanation Text:', nextQuestion.explanation);
-          console.log('Next Explanation Text:', nextExplanationText);
-          console.log('Should Display Explanation:', shouldDisplayExplanation);
           console.log('Text to Display:', textToDisplay);
 
           return of(textToDisplay);
