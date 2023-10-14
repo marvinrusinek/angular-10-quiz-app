@@ -193,6 +193,7 @@ export class ExplanationTextService {
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
+    console.log('Setting isExplanationTextDisplayed to', isDisplayed);
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 

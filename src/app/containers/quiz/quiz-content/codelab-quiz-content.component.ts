@@ -562,16 +562,19 @@ export class CodelabQuizContentComponent {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.quizService.getTotalQuestions(),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        map((value) => value || false)
+      ),
+      this.quizService.getTotalQuestions()
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           nextExplanationText,
           shouldDisplayExplanation,
-          totalQuestions,
+          totalQuestions
         ]) => {
+          console.log("SDE", shouldDisplayExplanation);
           console.log("NQ", nextQuestion);
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
