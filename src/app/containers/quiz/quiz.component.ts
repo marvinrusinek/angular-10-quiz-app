@@ -1204,6 +1204,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Increment the currentQuestionIndex manually
       this.currentQuestionIndex++;
 
+      console.log('Current Question Index (After Increment):', this.currentQuestionIndex);
+
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
         await this.quizService.getNextQuestionWithExplanation();
