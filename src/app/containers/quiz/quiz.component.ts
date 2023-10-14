@@ -1193,7 +1193,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         .toPromise();
       console.log('Total Questions:', totalQuestions);
 
-      if (this.currentQuestionIndex >= totalQuestions) {
+      const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+      if (currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
@@ -1211,9 +1212,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.clearExplanationText();
 
       // Use the getQuestionTextForIndex method to fetch the question text
-      const nextQuestionText = this.quizService.getQuestionTextForIndex(
-        this.currentQuestionIndex
-      );
+      const nextQuestionText = this.quizService.getQuestionTextForIndex(currentQuestionIndex);
 
       console.log('Updated nextQuestionText:', nextQuestionText);
 
@@ -1250,7 +1249,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         'Before updating current question index:',
         this.currentQuestionIndex
       );
-      this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
+      this.quizService.updateCurrentQuestionIndex(currentQuestionIndex + 1);
       console.log(
         'After updating current question index:',
         this.currentQuestionIndex
