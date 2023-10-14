@@ -143,7 +143,7 @@ export class QuizService implements OnDestroy {
   private nextQuestionTextSubject = new BehaviorSubject<string>('');
   nextQuestionText$ = this.nextQuestionTextSubject.asObservable();
   showQuestionText$: Observable<boolean>;
-  
+
   correctOptions: string[] = [];
   selectedOption$ = new BehaviorSubject<string>(null);
 
@@ -348,7 +348,7 @@ export class QuizService implements OnDestroy {
       return {
         questionText: currentQuestion.questionText,
         correctAnswersText: correctAnswersText,
-        currentOptions: currentQuestion.options
+        currentOptions: currentQuestion.options,
       };
     }
 
@@ -697,24 +697,24 @@ export class QuizService implements OnDestroy {
 
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
-  
+
     if (
       currentQuiz &&
       currentQuiz.questions &&
       currentQuestionIndex >= 0 &&
       currentQuestionIndex < currentQuiz.questions.length
     ) {
-      const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+      const currentOptions =
+        currentQuiz.questions[currentQuestionIndex].options;
       this.nextOptionsSource.next(currentOptions);
       this.nextOptionsSubject.next(currentOptions);
       return currentOptions;
     }
-  
+
     this.nextOptionsSource.next(null);
     this.nextOptionsSubject.next(null);
     return undefined;
   }
-  
 
   getNextQuestionAndOptions():
     | { question: QuizQuestion; options: Option[] }

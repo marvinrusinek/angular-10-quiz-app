@@ -590,10 +590,6 @@ export class CodelabQuizContentComponent {
           console.log('NQI', nextQuestionIndex);
           console.log('TQV', totalQuestionsValue);
 
-          if (nextQuestionIndex >= totalQuestionsValue) {
-            nextQuestionIndex = -1;
-          }
-
           // Fetch the explanation text for the next question based on the index
           const currentExplanation =
             this.explanationTextService.getExplanationTextForQuestionIndex(
