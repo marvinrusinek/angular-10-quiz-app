@@ -673,7 +673,7 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  getNextQuestion(): QuizQuestion | undefined {
+  getNextQuestion(index: number): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
     const nextIndex = this.currentQuestionIndex + 1;
 
@@ -1204,7 +1204,7 @@ export class QuizService implements OnDestroy {
   }> {
     try {
       // Fetch the next question
-      const nextQuestion = await this.getNextQuestion();
+      const nextQuestion = await this.getNextQuestion(this.currentQuestionIndex);
 
       // Obtain the explanation text
       const explanationText = nextQuestion.explanation;
