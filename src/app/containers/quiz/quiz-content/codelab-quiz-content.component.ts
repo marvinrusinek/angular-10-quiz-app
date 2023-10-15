@@ -567,9 +567,7 @@ export class CodelabQuizContentComponent {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        map((value) => value || false)
-      ),
+      this.explanationTextService.shouldDisplayExplanation$,
       this.quizService.getTotalQuestions()
     ]).pipe(
       switchMap(
