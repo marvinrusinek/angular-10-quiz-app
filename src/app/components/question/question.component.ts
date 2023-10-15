@@ -972,15 +972,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Check if the clicked option is selected
       const isOptionSelected = this.isSelectedOption(option);
   
-      // Set shouldDisplayExplanation based on whether an option is selected
-      this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
-      this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
+      if (isOptionSelected) {
+        // If the option is selected, set shouldDisplayExplanation to true
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.explanationTextService.toggleExplanationDisplay(true);
+      } else {
+        // If the option is not selected, set shouldDisplayExplanation to false
+        this.explanationTextService.setShouldDisplayExplanation(false);
+        this.explanationTextService.toggleExplanationDisplay(false);
+      }
   
       // Fetch explanation text based on the current question index
       this.fetchExplanationText(this.currentQuestionIndex);
     });
   }
-  
+    
   fetchExplanationText(questionIndex: number): string {
     const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
     console.log('Fetching explanation for index:', questionIndex, 'Explanation:', explanation);
