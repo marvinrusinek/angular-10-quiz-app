@@ -1204,9 +1204,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
 
-      // Increment the currentQuestionIndex manually
-      this.currentQuestionIndex++;
-
+      console.log('Current Question Index (Before Increment):', this.currentQuestionIndex);
+      this.currentQuestionIndex++; // Increment the index
       console.log('Current Question Index (After Increment):', this.currentQuestionIndex);
 
       // Fetch the current question with explanation
@@ -1224,7 +1223,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
-      console.log("NQT", nextQuestionText);
+      console.log('Next Question Text (After Setting):', this.nextQuestionText);
+      console.log('Fetched nextQuestion:', nextQuestion);
+      console.log('Next Question Text (After Fetching):', nextQuestion.questionText);
+
 
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
