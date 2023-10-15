@@ -165,6 +165,7 @@ export class CodelabQuizContentComponent {
 
     this.quizService.nextQuestionText$.subscribe((text) => {
       this.nextQuestionText = text;
+      console.log('nextQuestionText in ngOnInit:', this.nextQuestionText);
     });
   }
 
