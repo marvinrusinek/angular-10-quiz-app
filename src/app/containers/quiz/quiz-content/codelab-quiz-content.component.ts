@@ -164,8 +164,8 @@ export class CodelabQuizContentComponent {
     });
 
     this.quizService.nextQuestionText$.subscribe((text) => {
-      this.nextQuestionText = text;
       console.log('nextQuestionText in ngOnInit:', this.nextQuestionText);
+      this.nextQuestionText = text;
     });
   }
 
@@ -466,10 +466,10 @@ export class CodelabQuizContentComponent {
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ =
       this.explanationTextService.shouldDisplayExplanation$;
-    this.shouldDisplayExplanation$.subscribe(value => {
+    this.shouldDisplayExplanation$.subscribe((value) => {
       console.log('shouldDisplayExplanation$ changed to', value);
     });
-      
+
     this.combinedQuestionData$ = combineLatest([
       this.nextQuestion$,
       this.quizService.nextOptions$,
@@ -527,7 +527,7 @@ export class CodelabQuizContentComponent {
           // Handle the display of the next question and its explanation text
 
           // Log when a new question is encountered
-          console.log("New question emitted:", nextQuestion);
+          console.log('New question emitted:', nextQuestion);
 
           // Use ExplanationTextService to fetch the explanation text for the next question
           const currentQuestionIndex =
@@ -535,7 +535,10 @@ export class CodelabQuizContentComponent {
               (item) => item.question === nextQuestion
             );
 
-          console.log("Content of questionsWithExplanations array:", this.questionsWithExplanations);
+          console.log(
+            'Content of questionsWithExplanations array:',
+            this.questionsWithExplanations
+          );
 
           let nextExplanationText: string;
 
@@ -572,17 +575,17 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
-      this.quizService.getTotalQuestions()
+      this.quizService.getTotalQuestions(),
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           nextExplanationText,
           shouldDisplayExplanation,
-          totalQuestions
+          totalQuestions,
         ]) => {
-          console.log("SDE", shouldDisplayExplanation);
-          console.log("NQ", nextQuestion);
+          console.log('SDE', shouldDisplayExplanation);
+          console.log('NQ', nextQuestion);
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
           }
