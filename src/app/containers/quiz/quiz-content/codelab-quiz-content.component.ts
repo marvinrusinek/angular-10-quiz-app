@@ -79,6 +79,7 @@ export class CodelabQuizContentComponent {
     currentQuestion: QuizQuestion;
     currentOptions: Option[];
   }> | null = null;
+  @Input() nextQuestionText = '';
   combinedText$: Observable<string>;
   currentQuestionText: string;
   currentDisplayText = '';
@@ -86,7 +87,6 @@ export class CodelabQuizContentComponent {
   displayCorrectAnswers = false;
   showExplanation = false;
   isExplanationTextDisplayed = false;
-  nextQuestionText = '';
   nextExplanationText = '';
   nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
