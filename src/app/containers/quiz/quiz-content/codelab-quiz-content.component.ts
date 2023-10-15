@@ -536,6 +536,8 @@ export class CodelabQuizContentComponent {
               (item) => item.question === nextQuestion
             );
 
+          console.log("Content of questionsWithExplanations array:", this.questionsWithExplanations);
+
           let nextExplanationText: string;
 
           if (currentQuestionIndex !== -1) {
