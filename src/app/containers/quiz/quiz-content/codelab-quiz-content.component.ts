@@ -529,6 +529,12 @@ export class CodelabQuizContentComponent {
           // Log when a new question is encountered
           console.log('New question emitted:', nextQuestion);
 
+          // Log the current state of questionsWithExplanations array
+          console.log(
+            'Current questionsWithExplanations array:',
+            this.questionsWithExplanations
+          );
+
           // Use ExplanationTextService to fetch the explanation text for the next question
           const currentQuestionIndex =
             this.questionsWithExplanations?.findIndex(
@@ -536,7 +542,7 @@ export class CodelabQuizContentComponent {
             );
 
           console.log(
-            'Content of questionsWithExplanations array:',
+            'Content of questionsWithExplanations array after logging:',
             this.questionsWithExplanations
           );
 
