@@ -539,7 +539,7 @@ export class CodelabQuizContentComponent {
 
           if (this.questionsWithExplanations) {
             // Check if the current question is in the questionsWithExplanations array
-            const currentQuestionIndex =
+            currentQuestionIndex =
               this.questionsWithExplanations.findIndex(
                 (item) => item.question === nextQuestion
               );
