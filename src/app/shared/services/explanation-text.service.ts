@@ -48,12 +48,13 @@ export class ExplanationTextService {
   }
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
-    if (index >= 0 && index < this.explanations.length) {
+    const keys = Object.keys(this.explanationTexts);
+    if (index >= 0 && index < keys.length) {
       return this.explanationTexts[index] || '';
     }
     return '';
   }
-
+  
   formatExplanationText(
     selectedOptions: Option[],
     question: QuizQuestion,
