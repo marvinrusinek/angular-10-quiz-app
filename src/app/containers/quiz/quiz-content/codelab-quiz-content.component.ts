@@ -535,11 +535,15 @@ export class CodelabQuizContentComponent {
             this.questionsWithExplanations
           );
 
-          // Use ExplanationTextService to fetch the explanation text for the next question
-          const currentQuestionIndex =
-            this.questionsWithExplanations?.findIndex(
-              (item) => item.question === nextQuestion
-            );
+          let currentQuestionIndex = -1;
+
+          if (this.questionsWithExplanations) {
+            // Check if the current question is in the questionsWithExplanations array
+            const currentQuestionIndex =
+              this.questionsWithExplanations.findIndex(
+                (item) => item.question === nextQuestion
+              );
+          }
 
           console.log(
             'Content of questionsWithExplanations array after logging:',
