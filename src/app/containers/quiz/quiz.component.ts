@@ -1277,7 +1277,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
-  }
+  } 
 
   advanceToPreviousQuestion() {
     this.answers = [];
