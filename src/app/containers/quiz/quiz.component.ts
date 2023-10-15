@@ -222,14 +222,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    const nextOptions$ = this.quizService.getNextOptions(
-      this.currentQuestionIndex
-    );
+    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
 
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
+      this.quizService.nextOptions$
     ]).pipe(
       map(([nextQuestion, nextOptions]) => {
         return {
