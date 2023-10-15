@@ -961,28 +961,26 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   onOptionClicked(option: Option): void {
     this.quizService.addSelectedOption(option);
-
+  
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
       this.handleOptionClicked(this.currentQuestion, option);
   
       const selectedOptionExplanation = this.currentQuestion.explanation;
       this.selectedOptionService.setSelectedOptionExplanation(selectedOptionExplanation);
-    }); 
-    
-    if (this.isSelectedOption(option)) {
-      // Set shouldDisplayExplanation to true for all option clicks
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationTextService.toggleExplanationDisplay(true);
-    } else {
-      // Set shouldDisplayExplanation to false for deselected options
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.explanationTextService.toggleExplanationDisplay(false);
-    }
-
-    this.fetchExplanationText(this.currentQuestionIndex);
+  
+      // Check if the clicked option is selected
+      const isOptionSelected = this.isSelectedOption(option);
+  
+      // Set shouldDisplayExplanation based on whether an option is selected
+      this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
+      this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
+  
+      // Fetch explanation text based on the current question index
+      this.fetchExplanationText(this.currentQuestionIndex);
+    });
   }
-
+  
   fetchExplanationText(questionIndex: number): string {
     const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
     console.log('Fetching explanation for index:', questionIndex, 'Explanation:', explanation);
