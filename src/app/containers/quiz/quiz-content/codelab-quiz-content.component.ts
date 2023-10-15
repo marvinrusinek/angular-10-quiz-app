@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -116,8 +116,7 @@ export class CodelabQuizContentComponent {
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private cdRef: ChangeDetectorRef
+    private router: Router
   ) {
     this.explanationTextService.setShouldDisplayExplanation(false);
   }
@@ -469,7 +468,6 @@ export class CodelabQuizContentComponent {
     this.shouldDisplayExplanation$.subscribe(value => {
       console.log('shouldDisplayExplanation$ changed to', value);
     });
-    this.cdRef.detectChanges();
       
     this.combinedQuestionData$ = combineLatest([
       this.nextQuestion$,
