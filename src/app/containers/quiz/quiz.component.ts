@@ -1201,6 +1201,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
 
+      // Set shouldDisplayExplanation to false when navigating to the next question
+      this.explanationTextService.setShouldDisplayExplanation(false);
+
       // Increment the currentQuestionIndex manually
       this.currentQuestionIndex++;
 
