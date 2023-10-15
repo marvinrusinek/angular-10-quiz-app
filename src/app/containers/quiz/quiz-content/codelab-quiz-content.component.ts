@@ -527,6 +527,9 @@ export class CodelabQuizContentComponent {
         if (nextQuestion) {
           // Handle the display of the next question and its explanation text
 
+          // Log when a new question is encountered
+          console.log("New question emitted:", nextQuestion);
+
           // Use ExplanationTextService to fetch the explanation text for the next question
           const currentQuestionIndex =
             this.questionsWithExplanations?.findIndex(
