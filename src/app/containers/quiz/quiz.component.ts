@@ -1201,6 +1201,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { nextQuestion, explanationText } =
         await this.quizService.getNextQuestionWithExplanation();
 
+      // Log when the new question is encountered
+      console.log('New question emitted:', nextQuestion);
+
       // Clear explanation text for the current question
       this.clearExplanationText();
 
@@ -1214,8 +1217,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = nextQuestionText;
       console.log('Next Question Text (After Setting):', this.nextQuestionText);
       console.log('Fetched nextQuestion:', nextQuestion);
-      console.log('Next Question Text (After Fetching):', nextQuestion.questionText);
-
 
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
