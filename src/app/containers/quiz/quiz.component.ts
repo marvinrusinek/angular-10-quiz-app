@@ -1217,6 +1217,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = nextQuestionText;
       console.log('Next Question Text (After Setting):', this.nextQuestionText);
       console.log('Fetched nextQuestion:', nextQuestion);
+      console.log('Next question emitted:', nextQuestion);
 
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
