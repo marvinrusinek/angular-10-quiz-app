@@ -1270,7 +1270,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-
   
   advanceToPreviousQuestion() {
     this.answers = [];
