@@ -1150,38 +1150,38 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-
+  
     // Prevent multiple navigations
     this.isNavigating = true;
-
+  
     try {
       console.log('Advance to Next Question Clicked');
-
+  
       if (!this.selectedQuiz) {
         console.log(
           'Advance to Next Question Aborted: Selected Quiz is not available.'
         );
         return;
       }
-
+  
       // Start animation or any other operations
       console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
-
+  
       console.log(
         'Current Question Index (Before Advancing):',
         this.currentQuestionIndex
       );
       console.log('Selected Quiz:', this.selectedQuiz);
-
+  
       this.onAnswerSelectedOrNextQuestionClicked();
-
+  
       // Check if it's the last question
       const totalQuestions: number = await this.quizService
         .getTotalQuestions()
         .toPromise();
       console.log('Total Questions:', totalQuestions);
-
+  
       const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
       if (currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
@@ -1189,61 +1189,57 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('End of quiz reached.');
         return;
       }
-
+  
       // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
-
+  
       console.log('Current Question Index (Before Increment):', this.currentQuestionIndex);
       this.currentQuestionIndex++; // Increment the index
       console.log('Current Question Index (After Increment):', this.currentQuestionIndex);
-
+  
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
         await this.quizService.getNextQuestionWithExplanation();
-
+  
       // Log when the new question is encountered
       console.log('New question emitted:', nextQuestion);
-
+  
       // Clear explanation text for the current question
       this.clearExplanationText();
-
+  
       console.log('Current Question Index:::>>>', this.currentQuestionIndex);
-
+  
       // Use the getQuestionTextForIndex method to fetch the question text
       const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       console.log('Next Question Text:::>>>', nextQuestionText);
-
+  
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
       console.log('Next Question Text (After Setting):', this.nextQuestionText);
       console.log('Fetched nextQuestion:', nextQuestion);
       console.log('Next question emitted:', nextQuestion);
-
+  
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-      // Notify any subscribers of the next question
-      this.quizService.setCurrentQuestionAndNext(nextQuestion, explanationText);
-      this.quizService.nextQuestionSource.next(nextQuestion);
-
+  
       // Fetch options for the next question
       this.currentOptions = await this.quizService.getNextOptions(
         this.currentQuestionIndex
       );
-
+  
       // Log to verify if options are set correctly
       console.log('Current Options:', this.currentOptions);
-
+  
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
       console.log('Next Question Index:', nextQuestionIndex);
-
+  
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
         this.quizId
       )}/${nextQuestionIndex}`;
       console.log('New URL:', newUrl);
-
+  
       // Update the current question index in the service
       console.log(
         'Before updating current question index:',
@@ -1254,12 +1250,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         'After updating current question index:',
         this.currentQuestionIndex
       );
-
+  
       // Navigate to the new URL
       console.log('Before navigation:', this.router.url);
       await this.router.navigateByUrl(newUrl);
       console.log('After navigation:', this.router.url);
-
+  
       console.log('Navigation completed successfully.');
     } catch (error) {
       console.error(
@@ -1271,7 +1267,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-    
+      
   advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
