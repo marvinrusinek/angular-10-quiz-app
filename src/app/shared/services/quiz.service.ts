@@ -1211,6 +1211,8 @@ export class QuizService implements OnDestroy {
     explanationText: string;
   }> {
     try {
+      console.log('Received currentQuestionIndex:', currentQuestionIndex);
+
       // Fetch the next question
       const nextQuestion = await this.getNextQuestion(currentQuestionIndex);
       // Obtain the explanation text
