@@ -684,12 +684,18 @@ export class QuizService implements OnDestroy {
       nextIndex < currentQuiz.questions.length
     ) {
       const nextQuestion = currentQuiz.questions[nextIndex];
+
+      console.log('Current Quiz:', currentQuiz);
+      console.log('Next Index:', nextIndex);
+      console.log('Next Question:', nextQuestion);
+
       this.nextQuestionSource.next(nextQuestion);
       this.nextQuestionSubject.next(nextQuestion);
       this.setCurrentQuestionAndNext(nextQuestion, '');
       return nextQuestion;
     }
 
+    console.log('No valid next question available.');
     this.nextQuestionSource.next(null);
     this.nextQuestionSubject.next(null);
     return undefined;
@@ -1207,6 +1213,9 @@ export class QuizService implements OnDestroy {
       const nextQuestion = await this.getNextQuestion();
       // Obtain the explanation text
       const explanationText = nextQuestion.explanation;
+
+      console.log('Next Question fetched::>', nextQuestion);
+      console.log('Explanation Text::>', explanationText);
 
       return { nextQuestion, explanationText };
     } catch (error) {
