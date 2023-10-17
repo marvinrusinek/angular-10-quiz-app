@@ -673,9 +673,9 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  getNextQuestion(): QuizQuestion | undefined {
+  getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = this.currentQuestionIndex + 1;
+    const nextIndex = currentQuestionIndex + 1;
 
     if (
       currentQuiz &&
@@ -689,9 +689,6 @@ export class QuizService implements OnDestroy {
       console.log('Next Index:', nextIndex);
       console.log('Next Question:', nextQuestion);
 
-      // Update the current question index in the service
-      this.currentQuestionIndex = nextIndex;
-
       this.nextQuestionSource.next(nextQuestion);
       this.nextQuestionSubject.next(nextQuestion);
       this.setCurrentQuestionAndNext(nextQuestion, '');
@@ -701,6 +698,7 @@ export class QuizService implements OnDestroy {
     console.log('No valid next question available.');
     this.nextQuestionSource.next(null);
     this.nextQuestionSubject.next(null);
+
     return undefined;
   }
 
@@ -1207,13 +1205,13 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  async getNextQuestionWithExplanation(): Promise<{
+  async getNextQuestionWithExplanation(currentQuestionIndex: number): Promise<{
     nextQuestion: QuizQuestion;
     explanationText: string;
   }> {
     try {
       // Fetch the next question
-      const nextQuestion = await this.getNextQuestion();
+      const nextQuestion = await this.getNextQuestion(currentQuestionIndex);
       // Obtain the explanation text
       const explanationText = nextQuestion.explanation;
 
