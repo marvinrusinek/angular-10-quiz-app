@@ -24,7 +24,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -1157,21 +1157,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Advance to Next Question Clicked');
   
       if (!this.selectedQuiz) {
-        console.log(
-          'Advance to Next Question Aborted: Selected Quiz is not available.'
-        );
+        console.log('Advance to Next Question Aborted: Selected Quiz is not available.');
         return;
       }
   
       // Start animation or any other operations
       console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
-  
-      console.log(
-        'Current Question Index (Before Advancing):',
-        this.currentQuestionIndex
-      );
-      console.log('Selected Quiz:', this.selectedQuiz);
   
       this.onAnswerSelectedOrNextQuestionClicked();
   
@@ -1192,35 +1184,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      console.log('Current Question Index (Before Increment):', this.currentQuestionIndex);
-      console.log(`Current Question Index (Before Increment - Question ${this.currentQuestionIndex + 1}): ${this.currentQuestionIndex}`);
       this.currentQuestionIndex++; // Increment the index
-      console.log(`Current Question Index (After Increment - Question ${this.currentQuestionIndex}): ${this.currentQuestionIndex}`);
-      console.log('Current Question Index (After Increment):', this.currentQuestionIndex);
-
-      console.log('Current Question Index (Before getNextQuestionWithExplanation):', this.currentQuestionIndex);
-  
+   
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
         await this.quizService.getNextQuestionWithExplanation(this.currentQuestionIndex);
   
-      // Log when the new question is encountered
-      console.log('New question emitted:', nextQuestion);
-  
       // Clear explanation text for the current question
       this.clearExplanationText();
   
-      console.log('Current Question Index:::>>>', this.currentQuestionIndex);
-  
       // Use the getQuestionTextForIndex method to fetch the question text
       const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-      console.log('Next Question Text:::>>>', nextQuestionText);
   
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
-      console.log('Next Question Text (After Setting):', this.nextQuestionText);
-      console.log('Fetched nextQuestion:', nextQuestion);
-      console.log('Next question emitted:', nextQuestion);
   
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
@@ -1231,40 +1208,20 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex
       );
   
-      // Log to verify if options are set correctly
-      console.log('Current Options:', this.currentOptions);
-  
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
-      console.log('Next Question Index:', nextQuestionIndex);
   
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
         this.quizId
       )}/${nextQuestionIndex}`;
-      console.log('New URL:', newUrl);
   
       // Update the current question index in the service
-      console.log(
-        'Before updating current question index:',
-        this.currentQuestionIndex
-      );
       this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex + 1);
-      console.log(
-        'After updating current question index:',
-        this.currentQuestionIndex
-      );
-  
+        
       // Navigate to the new URL
-      console.log('Before navigation:', this.router.url);
       await this.router.navigateByUrl(newUrl);
-      console.log('After navigation:', this.router.url);
-  
-      console.log('Navigation completed successfully.');
     } catch (error) {
-      console.error(
-        'Error occurred while advancing to the next question:',
-        error
-      );
+      console.error('Error occurred while advancing to the next question:', error);
     } finally {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
