@@ -1227,13 +1227,99 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-      
-  advanceToPreviousQuestion() {
+
+  async goToPreviousQuestion(): Promise<void> {
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return;
+    }
+  
+    // Prevent multiple navigations
+    this.isNavigating = true;
+  
+    try {
+      console.log('Go to Previous Question Clicked');
+  
+      if (!this.selectedQuiz) {
+        console.log('Go to Previous Question Aborted: Selected Quiz is not available.');
+        return;
+      }
+  
+      // Start animation or any other operations
+      console.log('Go to Previous Question Clicked');
+      this.animationState$.next('animationStarted');
+  
+      console.log('Current Question Index (Before Going Back):', this.currentQuestionIndex);
+  
+      // Decrement the index to go to the previous question
+      this.currentQuestionIndex--;
+  
+      console.log('Current Question Index (After Going Back):', this.currentQuestionIndex);
+  
+      // Fetch the current question with explanation
+      const { previousQuestion, explanationText } =
+        await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
+  
+      // Log when the previous question is encountered
+      console.log('Previous question emitted:', previousQuestion);
+  
+      // Clear explanation text for the current question
+      this.clearExplanationText();
+  
+      console.log('Current Question Index:::>>>', this.currentQuestionIndex);
+  
+      // Use the getQuestionTextForIndex method to fetch the question text
+      const previousQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+      console.log('Previous Question Text:::>>>', previousQuestionText);
+  
+      // Update the text for the previous question
+      this.nextQuestionText = previousQuestionText;
+      console.log('Previous Question Text (After Setting):', this.nextQuestionText);
+      console.log('Fetched previousQuestion:', previousQuestion);
+      console.log('Previous question emitted:', previousQuestion);
+  
+      // Set the explanation text for the previous question
+      this.explanationTextService.setNextExplanationText(explanationText);
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+  
+      // Fetch options for the previous question
+      this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
+  
+      // Log to verify if options are set correctly
+      console.log('Current Options:', this.currentOptions);
+  
+      // Construct the URL for the previous question
+      const previousQuestionIndex = this.currentQuestionIndex + 1;
+      console.log('Previous Question Index:', previousQuestionIndex);
+  
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
+      console.log('New URL:', newUrl);
+  
+      // Update the current question index in the service
+      console.log('Before updating current question index:', this.currentQuestionIndex);
+      this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
+      console.log('After updating current question index:', this.currentQuestionIndex);
+  
+      // Navigate to the new URL
+      console.log('Before navigation:', this.router.url);
+      await this.router.navigateByUrl(newUrl);
+      console.log('After navigation:', this.router.url);
+  
+      console.log('Navigation completed successfully.');
+    } catch (error) {
+      console.error('Error occurred while going to the previous question:', error);
+    } finally {
+      // Ensure that isNavigating is always set to false
+      this.isNavigating = false;
+    }
+  }
+  
+  /* advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
     this.animationState$.next('animationStarted');
     this.quizService.navigateToPreviousQuestion();
-  }
+  } */
 
   advanceToResults() {
     this.quizService.resetAll();
