@@ -1244,7 +1244,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         'Before updating current question index:',
         this.currentQuestionIndex
       );
-      this.quizService.updateCurrentQuestionIndex(currentQuestionIndex + 1);
+      this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex + 1);
       console.log(
         'After updating current question index:',
         this.currentQuestionIndex
