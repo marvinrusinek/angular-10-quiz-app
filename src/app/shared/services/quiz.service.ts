@@ -830,6 +830,14 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionObservable;
   }
 
+  private setCurrentQuestionAndPrevious(
+    currentQuestion: QuizQuestion | null,
+    previousQuestion: QuizQuestion | null
+  ): void {
+    this.quizService.setCurrentQuestion(currentQuestion);
+    this.quizService.setPreviousQuestion(previousQuestion);
+  }
+
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
       return question.options
