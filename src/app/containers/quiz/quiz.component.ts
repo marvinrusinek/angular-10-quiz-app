@@ -1198,7 +1198,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
-        await this.quizService.getNextQuestionWithExplanation();
+        await this.quizService.getNextQuestionWithExplanation(currentQuestionIndex);
   
       // Log when the new question is encountered
       console.log('New question emitted:', nextQuestion);
