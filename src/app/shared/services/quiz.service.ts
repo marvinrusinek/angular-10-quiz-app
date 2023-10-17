@@ -390,7 +390,8 @@ export class QuizService implements OnDestroy {
     return this.quizData.find((quiz) => quiz.quizId === this.quizId);
   }
 
-  setCurrentQuiz(quizToSet: Quiz): void {
+  // not being used, potentially remove
+  /* setCurrentQuiz(quizToSet: Quiz): void {
     this.currentQuestionIndex = 0;
 
     this.quizData.forEach((quiz, index) => {
@@ -401,7 +402,7 @@ export class QuizService implements OnDestroy {
     });
 
     this.currentQuizSubject.next(quizToSet);
-  }
+  } */
 
   addSelectedOption(option: Option) {
     this.selectedOptions.push(option);
@@ -1285,8 +1286,6 @@ export class QuizService implements OnDestroy {
         );
       }
 
-      await this.simulateNavigation();
-
       this.isNavigating = false;
 
       console.log('Navigation completed successfully.');
@@ -1299,16 +1298,6 @@ export class QuizService implements OnDestroy {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
-  }
-
-  private async simulateNavigation() {
-    // Simulate a delay (replace this with your actual navigation logic)
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        // Resolve the promise to simulate navigation completion
-        resolve();
-      }, 1000); // Replace 1000 with your desired delay time
-    });
   }
 
   /* navigateToPreviousQuestion() {
