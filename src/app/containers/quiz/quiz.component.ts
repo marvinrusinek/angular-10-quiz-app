@@ -1193,7 +1193,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
   
       console.log('Current Question Index (Before Increment):', this.currentQuestionIndex);
+      console.log(`Current Question Index (Before Increment - Question ${this.currentQuestionIndex + 1}): ${this.currentQuestionIndex}`);
       this.currentQuestionIndex++; // Increment the index
+      console.log(`Current Question Index (After Increment - Question ${this.currentQuestionIndex}): ${this.currentQuestionIndex}`);
       console.log('Current Question Index (After Increment):', this.currentQuestionIndex);
 
       console.log('Current Question Index (Before getNextQuestionWithExplanation):', this.currentQuestionIndex);
