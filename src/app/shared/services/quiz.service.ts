@@ -697,6 +697,36 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
+  getPreviousQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+    const previousIndex = currentQuestionIndex - 1;
+  
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      previousIndex >= 0 &&
+      previousIndex < currentQuiz.questions.length
+    ) {
+      const previousQuestion = currentQuiz.questions[previousIndex];
+  
+      console.log('Current Quiz:', currentQuiz);
+      console.log('Previous Index:', previousIndex);
+      console.log('Previous Question:', previousQuestion);
+  
+      this.previousQuestionSource.next(previousQuestion);
+      this.previousQuestionSubject.next(previousQuestion);
+      this.setCurrentQuestionAndPrevious(previousQuestion, '');
+  
+      return previousQuestion;
+    }
+  
+    console.log('No valid previous question available.');
+    this.previousQuestionSource.next(null);
+    this.previousQuestionSubject.next(null);
+  
+    return undefined;
+  }
+  
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
 
