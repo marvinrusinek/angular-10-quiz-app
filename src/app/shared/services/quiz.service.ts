@@ -676,7 +676,7 @@ export class QuizService implements OnDestroy {
 
   getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = this.currentQuestionIndex + 1;
+    const nextIndex = currentQuestionIndex + 1;
 
     if (
       currentQuiz &&
