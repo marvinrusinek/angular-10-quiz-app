@@ -572,7 +572,7 @@ export class CodelabQuizContentComponent {
           // Create a question-explanation pair and add it to the array
           const questionWithExplanation = {
             question: nextQuestion,
-            explanation: nextExplanationText,
+            explanation: nextExplanationText
           };
           this.questionsWithExplanations.push(questionWithExplanation);
         } else {
@@ -585,17 +585,15 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$,
-      this.quizService.getTotalQuestions(),
+      this.quizService.getTotalQuestions()
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           nextExplanationText,
           shouldDisplayExplanation,
-          totalQuestions,
+          totalQuestions
         ]) => {
-          console.log('SDE', shouldDisplayExplanation);
-          console.log('NQ', nextQuestion);
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
           }
@@ -641,7 +639,6 @@ export class CodelabQuizContentComponent {
             textToDisplay = nextQuestion.questionText || '';
           }
 
-          // Inside the switchMap function:
           console.log(
             'Next Question Text (After Fetching):',
             nextQuestion.questionText
