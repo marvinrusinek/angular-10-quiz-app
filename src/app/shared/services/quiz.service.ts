@@ -175,6 +175,11 @@ export class QuizService implements OnDestroy {
   private nextOptionsSubject = new BehaviorSubject<Option[]>(null);
   nextOptions$ = this.nextOptionsSubject.asObservable();
 
+  private previousQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
+  previousQuestion$ = this.previousQuestionSource.asObservable();
+
+  private previousQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
+
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
@@ -823,16 +828,6 @@ export class QuizService implements OnDestroy {
     );
 
     return this.currentQuestionObservable;
-  }
-
-  // function not called anywhere, potentially remove
-  getPreviousQuestion(): QuizQuestion {
-    const currentQuiz = this.getCurrentQuiz();
-    const previousIndex = this.currentQuestionIndex - 2;
-    if (currentQuiz && currentQuiz.questions && previousIndex >= 0) {
-      this.currentQuestionIndex--;
-      return currentQuiz.questions[previousIndex];
-    }
   }
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
