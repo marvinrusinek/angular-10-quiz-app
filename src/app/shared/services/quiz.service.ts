@@ -676,19 +676,14 @@ export class QuizService implements OnDestroy {
 
   getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = currentQuestionIndex;
 
     if (
       currentQuiz &&
       currentQuiz.questions &&
-      nextIndex >= 0 &&
-      nextIndex < currentQuiz.questions.length
+      currentQuestionIndex >= 0 &&
+      currentQuestionIndex <= currentQuiz.questions.length - 1
     ) {
-      const nextQuestion = currentQuiz.questions[nextIndex];
-
-      console.log('Current Quiz:', currentQuiz);
-      console.log('Next Index:', nextIndex);
-      console.log('Next Question:', nextQuestion);
+      const nextQuestion = currentQuiz.questions[currentQuestionIndex];
 
       this.nextQuestionSource.next(nextQuestion);
       this.nextQuestionSubject.next(nextQuestion);
@@ -696,7 +691,6 @@ export class QuizService implements OnDestroy {
       return nextQuestion;
     }
 
-    console.log('No valid next question available.');
     this.nextQuestionSource.next(null);
     this.nextQuestionSubject.next(null);
 
