@@ -689,6 +689,9 @@ export class QuizService implements OnDestroy {
       console.log('Next Index:', nextIndex);
       console.log('Next Question:', nextQuestion);
 
+      // Update the current question index in the service
+      this.currentQuestionIndex = nextIndex;
+
       this.nextQuestionSource.next(nextQuestion);
       this.nextQuestionSubject.next(nextQuestion);
       this.setCurrentQuestionAndNext(nextQuestion, '');
