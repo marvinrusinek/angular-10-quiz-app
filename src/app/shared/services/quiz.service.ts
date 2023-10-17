@@ -718,6 +718,29 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
+  getPreviousOptions(currentQuestionIndex: number): Option[] | undefined{
+    try {
+      // Fetch the options for the previous question based on the index
+      const currentQuiz = this.getCurrentQuiz();
+      const previousIndex = currentQuestionIndex;
+  
+      if (
+        currentQuiz &&
+        currentQuiz.questions &&
+        previousIndex >= 0 &&
+        previousIndex < currentQuiz.questions.length
+      ) {
+        const previousQuestion = currentQuiz.questions[previousIndex];
+        return previousQuestion.options;
+      }
+  
+      return [];
+    } catch (error) {
+      console.error('Error occurred while fetching options for the previous question:', error);
+      throw error;
+    }
+  }
+  
   getNextQuestionAndOptions():
     | { question: QuizQuestion; options: Option[] }
     | undefined {
@@ -1221,6 +1244,26 @@ export class QuizService implements OnDestroy {
         'Error occurred while fetching next question with explanation:',
         error
       );
+      throw error;
+    }
+  }
+
+  async getPreviousQuestionWithExplanation(currentQuestionIndex: number): Promise<{
+    previousQuestion: QuizQuestion;
+    explanationText: string;
+  }> {
+    try {
+      // Fetch the previous question
+      const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
+      // Obtain the explanation text for the previous question
+      const explanationText = previousQuestion.explanation;
+  
+      console.log('Previous Question fetched:', previousQuestion);
+      console.log('Explanation Text:', explanationText);
+  
+      return { previousQuestion, explanationText };
+    } catch (error) {
+      console.error('Error occurred while fetching the previous question with explanation:', error);
       throw error;
     }
   }
