@@ -704,7 +704,7 @@ export class QuizService implements OnDestroy {
       currentQuiz &&
       currentQuiz.questions &&
       currentQuestionIndex >= 0 &&
-      currentQuestionIndex < currentQuiz.questions.length
+      currentQuestionIndex <= currentQuiz.questions.length - 1
     ) {
       const currentOptions =
         currentQuiz.questions[currentQuestionIndex].options;
