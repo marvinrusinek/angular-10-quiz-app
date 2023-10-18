@@ -763,7 +763,7 @@ export class QuizService implements OnDestroy {
         currentQuiz &&
         currentQuiz.questions &&
         previousIndex >= 0 &&
-        previousIndex < currentQuiz.questions.length
+        previousIndex <= currentQuiz.questions.length - 1
       ) {
         const previousQuestion = currentQuiz.questions[previousIndex];
         return previousQuestion.options;
