@@ -753,7 +753,7 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  getPreviousOptions(currentQuestionIndex: number): Option[] | undefined{
+  getPreviousOptions(currentQuestionIndex: number): Option[] | undefined {
     try {
       // Fetch the options for the previous question based on the index
       const currentQuiz = this.getCurrentQuiz();
