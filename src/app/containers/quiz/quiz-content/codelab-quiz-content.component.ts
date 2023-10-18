@@ -570,15 +570,13 @@ export class CodelabQuizContentComponent {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.quizService.getTotalQuestions()
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           nextExplanationText,
-          shouldDisplayExplanation,
-          totalQuestions
+          shouldDisplayExplanation
         ]) => {
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
@@ -590,9 +588,6 @@ export class CodelabQuizContentComponent {
 
           // Calculate the next question index
           let nextQuestionIndex = currentQuestionIndex + 1;
-
-          // Calculate the total questions synchronously
-          const totalQuestionsValue = totalQuestions || 0;
 
           // Fetch the explanation text for the next question based on the index
           const currentExplanation =
