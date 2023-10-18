@@ -526,15 +526,6 @@ export class CodelabQuizContentComponent {
         if (nextQuestion) {
           // Handle the display of the next question and its explanation text
 
-          // Log when a new question is encountered
-          console.log('New question emitted:', nextQuestion);
-
-          // Log the current state of questionsWithExplanations array
-          console.log(
-            'Current questionsWithExplanations array:',
-            this.questionsWithExplanations
-          );
-
           let currentQuestionIndex = -1;
 
           if (this.questionsWithExplanations) {
@@ -544,11 +535,6 @@ export class CodelabQuizContentComponent {
                 (item) => item.question === nextQuestion
               );
           }
-
-          console.log(
-            'Content of questionsWithExplanations array after logging:',
-            this.questionsWithExplanations
-          );
 
           let nextExplanationText: string;
 
