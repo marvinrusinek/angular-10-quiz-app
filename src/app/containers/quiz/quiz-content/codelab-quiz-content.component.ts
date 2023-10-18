@@ -608,9 +608,6 @@ export class CodelabQuizContentComponent {
           // Calculate the total questions synchronously
           const totalQuestionsValue = totalQuestions || 0;
 
-          console.log('NQI', nextQuestionIndex);
-          console.log('TQV', totalQuestionsValue);
-
           // Fetch the explanation text for the next question based on the index
           const currentExplanation =
             this.explanationTextService.getExplanationTextForQuestionIndex(
@@ -620,13 +617,6 @@ export class CodelabQuizContentComponent {
             this.explanationTextService.getExplanationTextForQuestionIndex(
               nextQuestionIndex
             );
-
-          console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
-          console.log('Current Question Index:', currentQuestionIndex);
-          console.log('Next Question Index:', nextQuestionIndex);
-          console.log('Total Questions:', totalQuestionsValue);
-          console.log('Current Explanation:', currentExplanation);
-          console.log('Next Explanation:', nextExplanation);
 
           let textToDisplay = '';
           if (shouldDisplayExplanation === true) {
