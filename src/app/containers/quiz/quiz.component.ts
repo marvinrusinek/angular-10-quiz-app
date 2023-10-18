@@ -1272,7 +1272,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.previousQuestionText = previousQuestionText;
   
       // Check if previousQuestion is defined before accessing its properties
-      if (previousQuestion) {
+      if (previousQuestion && this.currentQuestionIndex >= 0) {
         // Set the explanation text for the previous question
         this.explanationTextService.setPreviousExplanationText(explanationText);
         this.explanationTextService.setIsExplanationTextDisplayed(false);
@@ -1280,8 +1280,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Fetch options for the previous question
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
       } else {
-        // Handle the case where previousQuestion is undefined
+        // Handle the case where previousQuestion is undefined or the index is not valid
         console.log('No valid previous question available.');
+        return;
       }
   
       // Log information for debugging
