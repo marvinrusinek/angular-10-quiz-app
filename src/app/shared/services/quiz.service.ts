@@ -834,8 +834,8 @@ export class QuizService implements OnDestroy {
     currentQuestion: QuizQuestion | null,
     previousQuestion: QuizQuestion | null
   ): void {
-    this.quizService.setCurrentQuestion(currentQuestion);
-    this.quizService.setPreviousQuestion(previousQuestion);
+    this.setCurrentQuestion(currentQuestion);
+    this.setPreviousQuestion(previousQuestion);
   }
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
