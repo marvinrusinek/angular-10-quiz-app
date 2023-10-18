@@ -1275,7 +1275,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         // Fetch options for the previous question
-        this.currentOptions = await this quizService.getPreviousOptions(this.currentQuestionIndex);
+        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
       } else {
         // Handle the case where previousQuestion is undefined
         console.log('No valid previous question available.');
