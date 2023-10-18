@@ -584,7 +584,7 @@ export class CodelabQuizContentComponent {
             return of('');
           }
 
-          // Fetch the current question index from your service or wherever it is stored
+          // Fetch the current question index from QuizService
           const currentQuestionIndex =
             this.quizService.getCurrentQuestionIndex();
 
