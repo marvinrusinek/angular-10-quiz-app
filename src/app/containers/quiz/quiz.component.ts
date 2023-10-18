@@ -1240,46 +1240,36 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     try {
       if (!this.selectedQuiz) {
-        console.log('Go to Previous Question Aborted: Selected Quiz is not available.');
+        console.log('Navigation to Previous Question Aborted: Selected Quiz is not available.');
         return;
       }
   
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
-      console.log('Current Question Index (Before Going to Previous):', this.currentQuestionIndex);
-      this.currentQuestionIndex--; // Decrement the index to go to the previous question
-      console.log('Current Question Index (After Going to Previous):', this.currentQuestionIndex);
-  
       // Check if it's the first question
-      if (this.currentQuestionIndex < 0) {
-        // Handle the case when there are no previous questions
-        console.log('Start of quiz reached.');
-        this.currentQuestionIndex = 0; // Ensure the index doesn't go below 0
+      if (this.currentQuestionIndex <= 0) {
+        console.log('Beginning of quiz reached.');
         return;
       }
   
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      console.log('Current Question Index (Before Getting Previous Question):', this.currentQuestionIndex);
+      // Decrement the current question index
+      this.currentQuestionIndex--;
   
-      // Fetch the previous question with explanation
+      // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
-  
-      // Log when the previous question is encountered
-      console.log('Previous question emitted:', previousQuestion);
   
       // Clear explanation text for the current question
       this.clearExplanationText();
   
       // Use the getQuestionTextForIndex method to fetch the question text
       const previousQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-      console.log('Previous Question Text:', previousQuestionText);
   
       // Update the text for the previous question
       this.previousQuestionText = previousQuestionText;
-      console.log('Previous Question Text (After Setting):', this.previousQuestionText);
   
       // Set the explanation text for the previous question
       this.explanationTextService.setPreviousExplanationText(explanationText);
@@ -1288,30 +1278,25 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Fetch options for the previous question
       this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
   
-      // Log to verify if options are set correctly
-      console.log('Current Options:', this.currentOptions);
-  
       // Construct the URL for the previous question
-      const previousQuestionIndex = this.currentQuestionIndex + 1; // Index + 1 because it's the previous question
+      const previousQuestionIndex = this.currentQuestionIndex + 1;
+  
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
   
       // Update the current question index in the service
       this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
   
       // Navigate to the new URL
-      console.log('Before navigation:', this.router.url);
       await this.router.navigateByUrl(newUrl);
-      console.log('After navigation:', this.router.url);
   
-      console.log('Navigation to Previous Question completed successfully.');
     } catch (error) {
-      console.error('Error occurred while going to the previous question:', error);
+      console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
-  }  
-  
+  }
+ 
   /* advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
