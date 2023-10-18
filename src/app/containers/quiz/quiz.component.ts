@@ -1256,9 +1256,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      // Decrement the current question index
-      this.currentQuestionIndex--;
-  
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
   
@@ -1272,36 +1269,33 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.previousQuestionText = previousQuestionText;
   
       // Check if previousQuestion is defined before accessing its properties
-      if (previousQuestion && this.currentQuestionIndex >= 0) {
+      if (previousQuestion) {
         // Set the explanation text for the previous question
         this.explanationTextService.setPreviousExplanationText(explanationText);
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         // Fetch options for the previous question
-        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
+        this.currentOptions = await this quizService.getPreviousOptions(this.currentQuestionIndex);
       } else {
-        // Handle the case where previousQuestion is undefined or the index is not valid
+        // Handle the case where previousQuestion is undefined
         console.log('No valid previous question available.');
         return;
       }
   
       // Log information for debugging
-      console.log('Current Question Index (After Decrement):', this.currentQuestionIndex);
+      console.log('Current Question Index:', this.currentQuestionIndex);
       console.log('Previous Question:', previousQuestion);
   
-      // Construct the URL for the previous question
-      const previousQuestionIndex = this.currentQuestionIndex - 1;
-      console.log('Previous Question Index:', previousQuestionIndex);
-      if (previousQuestionIndex >= 0) {
-        const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
-        console.log('New URL:', newUrl);
+      // Construct the URL for the previous question (keep the same index)
+      const previousQuestionIndex = this.currentQuestionIndex;
   
-        // Update the current question index in the service
-        this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
+      const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
   
-        // Navigate to the new URL
-        await this.router.navigateByUrl(newUrl);
-      }
+      // Update the current question index in the service
+      this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
+  
+      // Navigate to the new URL
+      await this.router.navigateByUrl(newUrl);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
