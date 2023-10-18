@@ -19,6 +19,9 @@ export class ExplanationTextService {
   private nextExplanationTextSource = new BehaviorSubject<string>(null);
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
+  private previousExplanationTextSource = new BehaviorSubject<string>('');
+  previousExplanationText$: Observable<string> = this.previousExplanationTextSource.asObservable();
+
   private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(
     false
   );
@@ -187,6 +190,10 @@ export class ExplanationTextService {
     } catch (error) {
       console.error('Error updating explanation text:', error);
     }
+  }
+
+  setPreviousExplanationText(explanationText: string): void {
+    this.previousExplanationTextSource.next(explanationText);
   }
 
   getNextExplanationText(): Observable<string> {
