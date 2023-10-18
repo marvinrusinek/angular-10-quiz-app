@@ -1278,8 +1278,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Fetch options for the previous question
       this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
   
+      // Log the current question index
+      console.log('Current Question Index (After Decrement):', this.currentQuestionIndex);
+
       // Construct the URL for the previous question
       const previousQuestionIndex = this.currentQuestionIndex - 1;
+      console.log('Previous Question Index:', previousQuestionIndex);
       if (previousQuestionIndex >= 0) {
         const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
   
