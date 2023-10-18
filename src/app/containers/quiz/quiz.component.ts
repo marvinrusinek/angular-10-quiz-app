@@ -1284,14 +1284,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('No valid previous question available.');
       }
   
-      // Log the current question index
+      // Log information for debugging
       console.log('Current Question Index (After Decrement):', this.currentQuestionIndex);
+      console.log('Previous Question:', previousQuestion);
   
       // Construct the URL for the previous question
       const previousQuestionIndex = this.currentQuestionIndex - 1;
       console.log('Previous Question Index:', previousQuestionIndex);
       if (previousQuestionIndex >= 0) {
         const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
+        console.log('New URL:', newUrl);
   
         // Update the current question index in the service
         this.quizService.updateCurrentQuestionIndex(this.currentQuestionIndex);
