@@ -710,7 +710,7 @@ export class QuizService implements OnDestroy {
       currentQuiz &&
       currentQuiz.questions &&
       previousIndex >= 0 &&
-      previousIndex < currentQuiz.questions.length
+      previousIndex <= currentQuiz.questions.length - 1
     ) {
       const previousQuestion = currentQuiz.questions[previousIndex];
   
@@ -720,7 +720,7 @@ export class QuizService implements OnDestroy {
   
       this.previousQuestionSource.next(previousQuestion);
       this.previousQuestionSubject.next(previousQuestion);
-      this.setCurrentQuestionAndPrevious(previousQuestion, '');
+      // this.setCurrentQuestionAndPrevious(previousQuestion, '');
   
       return previousQuestion;
     }
