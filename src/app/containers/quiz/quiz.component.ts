@@ -1279,8 +1279,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
   
       // Construct the URL for the previous question
-      const previousQuestionIndex = this.currentQuestionIndex + 1;
-  
+      const previousQuestionIndex = this.currentQuestionIndex;
       const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${previousQuestionIndex}`;
   
       // Update the current question index in the service
@@ -1288,7 +1287,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Navigate to the new URL
       await this.router.navigateByUrl(newUrl);
-  
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
