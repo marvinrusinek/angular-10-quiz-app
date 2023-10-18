@@ -615,13 +615,6 @@ export class CodelabQuizContentComponent {
             textToDisplay = nextQuestion.questionText || '';
           }
 
-          console.log(
-            'Next Question Text (After Fetching):',
-            nextQuestion.questionText
-          );
-
-          console.log('Text to Display:', textToDisplay);
-
           return of(textToDisplay);
         }
       ),
