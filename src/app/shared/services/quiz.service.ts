@@ -1286,18 +1286,25 @@ export class QuizService implements OnDestroy {
     explanationText: string;
   }> {
     try {
-      // Fetch the previous question
-      const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
-      // Obtain the explanation text for the previous question
-      const explanationText = previousQuestion.explanation;
-  
-      console.log('Previous Question fetched:', previousQuestion);
-      console.log('Explanation Text:', explanationText);
-  
-      return { previousQuestion, explanationText };
+        // Fetch the previous question
+        const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
+
+        if (previousQuestion) {
+            // Obtain the explanation text for the previous question
+            const explanationText = previousQuestion.explanation;
+    
+            console.log('Previous Question fetched:', previousQuestion);
+            console.log('Explanation Text:', explanationText);
+    
+            return { previousQuestion, explanationText };
+        } else {
+            // Handle the case where previousQuestion is undefined
+            console.log('No valid previous question available.');
+            return { previousQuestion: null, explanationText: '' };
+        }
     } catch (error) {
-      console.error('Error occurred while fetching the previous question with explanation:', error);
-      throw error;
+        console.error('Error occurred while fetching the previous question with explanation:', error);
+        throw error;
     }
   }
 
