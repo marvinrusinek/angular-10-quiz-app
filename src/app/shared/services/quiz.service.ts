@@ -1259,12 +1259,19 @@ export class QuizService implements OnDestroy {
   }
 
   async getPreviousQuestionWithExplanation(currentQuestionIndex: number): Promise<{
-    previousQuestion: QuizQuestion;
-    explanationText: string;
+    previousQuestion: QuizQuestion | undefined;
+    explanationText: string | undefined;
   }> {
     try {
       // Fetch the previous question
       const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
+  
+      if (!previousQuestion) {
+        // Handle the case where previousQuestion is undefined
+        console.log('No valid previous question available.');
+        return { previousQuestion: undefined, explanationText: undefined };
+      }
+  
       // Obtain the explanation text for the previous question
       const explanationText = previousQuestion.explanation;
   
