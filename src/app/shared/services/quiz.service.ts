@@ -702,35 +702,22 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  getPreviousQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
+  async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     const currentQuiz = this.getCurrentQuiz();
-    const previousIndex = currentQuestionIndex - 1;
+    const previousIndex = questionIndex - 1;
   
     if (
       currentQuiz &&
       currentQuiz.questions &&
       previousIndex >= 0 &&
-      previousIndex <= currentQuiz.questions.length - 1
+      previousIndex < currentQuiz.questions.length
     ) {
-      const previousQuestion = currentQuiz.questions[previousIndex];
-  
-      console.log('Current Quiz:', currentQuiz);
-      console.log('Previous Index:', previousIndex);
-      console.log('Previous Question:', previousQuestion);
-  
-      this.previousQuestionSource.next(previousQuestion);
-      this.previousQuestionSubject.next(previousQuestion);
-      // this.setCurrentQuestionAndPrevious(previousQuestion, '');
-  
-      return previousQuestion;
+      return currentQuiz.questions[previousIndex];
     }
-  
-    console.log('No valid previous question available.');
-    this.previousQuestionSource.next(null);
-    this.previousQuestionSubject.next(null);
   
     return undefined;
   }
+  
   
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
@@ -753,22 +740,12 @@ export class QuizService implements OnDestroy {
     return undefined;
   }
 
-  getPreviousOptions(currentQuestionIndex: number): Option[] | undefined {
+  async getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
     try {
-      // Fetch the options for the previous question based on the index
-      const currentQuiz = this.getCurrentQuiz();
-      const previousIndex = currentQuestionIndex - 1;
-  
-      if (
-        currentQuiz &&
-        currentQuiz.questions &&
-        previousIndex >= 0 &&
-        previousIndex <= currentQuiz.questions.length - 1
-      ) {
-        const previousQuestion = currentQuiz.questions[previousIndex];
+      const previousQuestion = await this.getPreviousQuestion(questionIndex);
+      if (previousQuestion) {
         return previousQuestion.options;
       }
-  
       return [];
     } catch (error) {
       console.error('Error occurred while fetching options for the previous question:', error);
@@ -1286,25 +1263,18 @@ export class QuizService implements OnDestroy {
     explanationText: string;
   }> {
     try {
-        // Fetch the previous question
-        const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
-
-        if (previousQuestion) {
-            // Obtain the explanation text for the previous question
-            const explanationText = previousQuestion.explanation;
-    
-            console.log('Previous Question fetched:', previousQuestion);
-            console.log('Explanation Text:', explanationText);
-    
-            return { previousQuestion, explanationText };
-        } else {
-            // Handle the case where previousQuestion is undefined
-            console.log('No valid previous question available.');
-            return { previousQuestion: null, explanationText: '' };
-        }
+      // Fetch the previous question
+      const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
+      // Obtain the explanation text for the previous question
+      const explanationText = previousQuestion.explanation;
+  
+      console.log('Previous Question fetched:', previousQuestion);
+      console.log('Explanation Text:', explanationText);
+  
+      return { previousQuestion, explanationText };
     } catch (error) {
-        console.error('Error occurred while fetching the previous question with explanation:', error);
-        throw error;
+      console.error('Error occurred while fetching the previous question with explanation:', error);
+      throw error;
     }
   }
 
