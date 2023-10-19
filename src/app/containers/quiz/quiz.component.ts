@@ -1267,7 +1267,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Update the text for the previous question
       this.previousQuestionText = previousQuestionText;
-  
+      console.log("PQT", this.previousQuestionText);
+
       // Check if previousQuestion is defined before accessing its properties
       if (previousQuestion) {
         // Set the explanation text for the previous question
@@ -1276,6 +1277,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Fetch options for the previous question
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
+        console.log("CURROPTS", this.currentOptions);
       } else {
         // Handle the case where previousQuestion is undefined
         console.log('No valid previous question available.');
