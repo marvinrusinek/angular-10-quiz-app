@@ -757,7 +757,7 @@ export class QuizService implements OnDestroy {
     try {
       // Fetch the options for the previous question based on the index
       const currentQuiz = this.getCurrentQuiz();
-      const previousIndex = currentQuestionIndex;
+      const previousIndex = currentQuestionIndex - 1;
   
       if (
         currentQuiz &&
