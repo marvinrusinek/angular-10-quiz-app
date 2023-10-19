@@ -1257,7 +1257,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
   
       // Fetch the current question with explanation
-      const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
+      const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex - 1);
   
       // Clear explanation text for the current question
       this.clearExplanationText();
