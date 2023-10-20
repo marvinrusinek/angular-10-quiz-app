@@ -1262,7 +1262,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Check if previousQuestion is defined before accessing its properties
       if (previousQuestion) {
         // Use the getQuestionTextForIndex method to fetch the question text
-        const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+        const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
   
         // Update the text for the previous question
         this.previousQuestionText = previousQuestionText;
