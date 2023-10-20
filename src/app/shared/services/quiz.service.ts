@@ -756,7 +756,8 @@ export class QuizService implements OnDestroy {
     }
   }
   
-  getNextQuestionAndOptions():
+  /* not called, potentially remove 
+    getNextQuestionAndOptions():
     | { question: QuizQuestion; options: Option[] }
     | undefined {
     const currentQuiz = this.getCurrentQuiz();
@@ -774,7 +775,7 @@ export class QuizService implements OnDestroy {
     }
 
     return undefined;
-  }
+  } */
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     if (this.currentQuestionObservable) {
