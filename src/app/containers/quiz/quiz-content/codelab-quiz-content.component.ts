@@ -604,6 +604,10 @@ export class CodelabQuizContentComponent {
     );
   }
 
+  setPreviousQuestionText(text: string) {
+    this.previousQuestion$.next(text);
+  }
+  
   getQuestionText(
     currentQuestion: QuizQuestion,
     questions: QuizQuestion[]

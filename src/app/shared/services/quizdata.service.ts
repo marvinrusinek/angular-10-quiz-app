@@ -59,6 +59,8 @@ export class QuizDataService implements OnDestroy {
   currentQuestion$: QuizQuestion;
   options$: Option[];
 
+  previousQuestionTextSubject = new BehaviorSubject<string>('');
+
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
 
@@ -515,6 +517,14 @@ export class QuizDataService implements OnDestroy {
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
     this.currentQuestionIndex$.next(this.currentQuestionIndex);
+  }
+
+  setPreviousQuestionText(text: string): void {
+    this.previousQuestionTextSubject.next(text);
+  }
+
+  getPreviousQuestionText(): Observable<string> {
+    return this.previousQuestionTextSubject.asObservable();
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {
