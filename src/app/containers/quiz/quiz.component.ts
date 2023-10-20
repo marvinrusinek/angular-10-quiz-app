@@ -1144,10 +1144,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.explanationText;
   }
 
-  getQuestionText(isNavigatingToNext: boolean): string {
-    return isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
+  getQuestionToDisplay(): string | undefined {
+    return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
   }
-
+  
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     this.isNavigatingToNext = true;

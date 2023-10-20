@@ -12,7 +12,7 @@
       <!-- the question and options -->
       <codelab-quiz-content-component 
         [questions]="questions"
-        [question]="getQuestionText(isNavigatingToNext)" 
+        [question]="getQuestionToDisplay()" 
         [options]="data?.currentOptions"
         [explanationText]="explanationText$ | async"  
       >
