@@ -60,6 +60,8 @@ export class CodelabQuizContentComponent {
   );
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
+  previousQuestion$: BehaviorSubject<string | undefined> = new BehaviorSubject<string | undefined>(undefined);
+
   questionsWithExplanations: { 
     question: QuizQuestion; 
     explanation: string 
@@ -572,16 +574,16 @@ export class CodelabQuizContentComponent {
 
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
+      this.previousQuestion$,
       this.explanationTextService.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$,
-      of(this.previousQuestionText)
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
+          previousQuestionText,
           nextExplanationText,
-          shouldDisplayExplanation,
-          previousQuestionText
+          shouldDisplayExplanation
         ]) => {
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
