@@ -172,6 +172,10 @@ export class CodelabQuizContentComponent {
       console.log('nextQuestionText in ngOnInit:', this.nextQuestionText);
       this.nextQuestionText = text;
     });
+
+    this.quizDataService.getPreviousQuestionText().subscribe((text) => {
+      this.previousQuestionText = text;
+    });
   }
 
   ngOnDestroy(): void {
@@ -604,8 +608,8 @@ export class CodelabQuizContentComponent {
     );
   }
 
-  setPreviousQuestionText(text: string) {
-    this.previousQuestion$.next(text);
+  setPreviousQuestionText(text: string): void {
+    this.quizDataService.setPreviousQuestionText(text);
   }
   
   getQuestionText(
