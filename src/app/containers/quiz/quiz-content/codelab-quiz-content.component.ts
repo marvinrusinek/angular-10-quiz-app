@@ -588,11 +588,11 @@ export class CodelabQuizContentComponent {
           }
 
           // Fetch the current question index from QuizService
-          const currentQuestionIndex =
-            this.quizService.getCurrentQuestionIndex();
+          // const currentQuestionIndex =
+          //  this.quizService.getCurrentQuestionIndex();
 
           // Calculate the next question index
-          let nextQuestionIndex = currentQuestionIndex + 1;
+          // let nextQuestionIndex = currentQuestionIndex + 1;
 
           // Fetch the explanation text for the next question based on the index
           /* const currentExplanation =
