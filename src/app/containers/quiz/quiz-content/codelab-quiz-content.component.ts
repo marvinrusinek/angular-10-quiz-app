@@ -592,9 +592,7 @@ export class CodelabQuizContentComponent {
           let textToDisplay = '';
           if (shouldDisplayExplanation === true) {
             textToDisplay =
-              nextExplanationText ||
-              // nextExplanation || currentExplanation
-              '';
+              nextExplanationText || '';
           } else {
             textToDisplay = nextQuestion.questionText || previousQuestionText || '';
           }
