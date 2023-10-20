@@ -1146,6 +1146,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    this.isNavigatingToNext = true;
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1230,6 +1232,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
+    this.isNavigatingToNext = false;
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
