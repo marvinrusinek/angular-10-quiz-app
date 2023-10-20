@@ -756,27 +756,6 @@ export class QuizService implements OnDestroy {
     }
   }
   
-  /* not called, potentially remove 
-    getNextQuestionAndOptions():
-    | { question: QuizQuestion; options: Option[] }
-    | undefined {
-    const currentQuiz = this.getCurrentQuiz();
-    const nextIndex = this.currentQuestionIndex + 1;
-
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      nextIndex >= 0 &&
-      nextIndex < currentQuiz.questions.length
-    ) {
-      const nextQuestion = currentQuiz.questions[nextIndex];
-      const nextOptions = nextQuestion.options;
-      return { question: nextQuestion, options: nextOptions };
-    }
-
-    return undefined;
-  } */
-
   getCurrentQuestion(): Observable<QuizQuestion> {
     if (this.currentQuestionObservable) {
       return this.currentQuestionObservable;
