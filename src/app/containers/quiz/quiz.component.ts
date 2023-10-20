@@ -1257,12 +1257,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
   
       // Fetch the current question with explanation
-      const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex - 1);
+      const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
   
       // Check if previousQuestion is defined before accessing its properties
       if (previousQuestion) {
         // Use the getQuestionTextForIndex method to fetch the question text
-        const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
+        const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
   
         // Update the text for the previous question
         this.previousQuestionText = previousQuestionText;
@@ -1273,7 +1273,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         // Fetch options for the previous question
-        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex - 1);
+        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
         console.log("CURROPTS", this.currentOptions);
   
         // Log information for debugging
