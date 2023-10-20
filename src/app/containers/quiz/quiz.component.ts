@@ -1274,6 +1274,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Fetch options for the previous question
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
         console.log("CURROPTS", this.currentOptions);
+
+        this.cdRef.detectChanges();
   
         // Log information for debugging
         console.log('Current Question Index:', this.currentQuestionIndex);
