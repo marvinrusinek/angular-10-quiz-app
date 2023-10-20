@@ -106,19 +106,20 @@ export class QuizComponent implements OnInit, OnDestroy {
   currentQuestionText: string = '';
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
-  optionsSet: boolean = false;
+  optionsSet = false;
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   selectedQuizSubscription: Subscription;
   routerSubscription: Subscription;
   resources: Resource[];
   answers = [];
-  answered: boolean = false;
+  answered = false;
   options: Option[] = [];
-  multipleAnswer: boolean = false;
+  multipleAnswer = false;
   indexOfQuizId: number;
   status: QuizStatus;
-  isNavigating: boolean = false;
+  isNavigating = false;
+  isNavigatingToNext = true;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -133,11 +134,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextQuestionText = '';
   previousQuestionText = '';
   nextExplanationText: string | null = null;
-  selectOptionText: string = 'Please select an option to continue...';
+  selectOptionText = 'Please select an option to continue...';
   cardFooterClass = '';
 
-  showExplanation: boolean = false;
-  displayExplanation: boolean = false;
+  showExplanation = false;
+  displayExplanation = false;
   explanationText: string | null;
   explanationTextValue$: Observable<string | null>;
   private explanationTextSource = new BehaviorSubject<string>(null);
@@ -152,7 +153,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   combinedQuestionData$: Observable<any> =
     this.combinedQuestionDataSubject.asObservable();
 
-  currentQuestionIndex: number = 0;
+  currentQuestionIndex = 0;
   lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
