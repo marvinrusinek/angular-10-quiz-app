@@ -1274,7 +1274,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         // Fetch options for the previous question
+        console.log('Current Options Before Assignment:', this.currentOptions);
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
+        console.log('Current Options After Assignment:', this.currentOptions);
         console.log("CURROPTS", this.currentOptions);
 
         // Log information for debugging
