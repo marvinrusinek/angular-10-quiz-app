@@ -395,20 +395,6 @@ export class QuizService implements OnDestroy {
     return this.quizData.find((quiz) => quiz.quizId === this.quizId);
   }
 
-  // not being used, potentially remove
-  /* setCurrentQuiz(quizToSet: Quiz): void {
-    this.currentQuestionIndex = 0;
-
-    this.quizData.forEach((quiz, index) => {
-      if (quiz.quizId === this.quizId) {
-        this.indexOfQuizId = index;
-        this.questions = quiz.questions;
-      }
-    });
-
-    this.currentQuizSubject.next(quizToSet);
-  } */
-
   addSelectedOption(option: Option) {
     this.selectedOptions.push(option);
   }
