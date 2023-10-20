@@ -705,6 +705,9 @@ export class QuizService implements OnDestroy {
   async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = questionIndex - 1;
+
+    console.log('Current Quiz:', currentQuiz);
+    console.log('Previous Index:', previousIndex);
   
     if (
       currentQuiz &&
