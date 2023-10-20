@@ -587,32 +587,14 @@ export class CodelabQuizContentComponent {
             return of('');
           }
 
-          // Fetch the current question index from QuizService
-          // const currentQuestionIndex =
-          //  this.quizService.getCurrentQuestionIndex();
-
-          // Calculate the next question index
-          // let nextQuestionIndex = currentQuestionIndex + 1;
-
-          // Fetch the explanation text for the next question based on the index
-          /* const currentExplanation =
-            this.explanationTextService.getExplanationTextForQuestionIndex(
-              currentQuestionIndex
-            ); */
-          /* const nextExplanation =
-            this.explanationTextService.getExplanationTextForQuestionIndex(
-              nextQuestionIndex
-            ); */
-
           let textToDisplay = '';
           if (shouldDisplayExplanation === true) {
             textToDisplay =
               nextExplanationText ||
               // nextExplanation || currentExplanation
-              previousQuestionText ||
               '';
           } else {
-            textToDisplay = nextQuestion.questionText || '';
+            textToDisplay = nextQuestion.questionText || previousQuestionText || '';
           }
 
           return of(textToDisplay);
