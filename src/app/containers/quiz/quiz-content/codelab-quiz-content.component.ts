@@ -7,7 +7,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   map,
@@ -15,7 +15,7 @@ import {
   switchMap,
   takeUntil,
   tap,
-  withLatestFrom,
+  withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
@@ -32,9 +32,16 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
   styleUrls: ['./codelab-quiz-content.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent {
+  @Input() combinedQuestionData$: Observable<{
+    questionText: string;
+    explanationText?: string;
+    correctAnswersText?: string;
+    currentQuestion: QuizQuestion;
+    currentOptions: Option[];
+  }> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
   @Input() question!: QuizQuestion;
@@ -42,6 +49,8 @@ export class CodelabQuizContentComponent {
   @Input() questions: QuizQuestion[];
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
+  @Input() nextQuestionText: string;
+  @Input() previousQuestionText: string;
   quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;
@@ -51,8 +60,10 @@ export class CodelabQuizContentComponent {
   );
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
-  questionsWithExplanations: { question: QuizQuestion; explanation: string }[] =
-    [];
+  questionsWithExplanations: { 
+    question: QuizQuestion; 
+    explanation: string 
+  }[] = [];
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
@@ -72,14 +83,6 @@ export class CodelabQuizContentComponent {
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
 
-  @Input() combinedQuestionData$: Observable<{
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    currentQuestion: QuizQuestion;
-    currentOptions: Option[];
-  }> | null = null;
-  @Input() nextQuestionText = '';
   combinedText$: Observable<string>;
   currentQuestionText: string;
   currentDisplayText = '';
@@ -570,13 +573,15 @@ export class CodelabQuizContentComponent {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.explanationTextService.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$,
+      of(this.previousQuestionText)
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           nextExplanationText,
-          shouldDisplayExplanation
+          shouldDisplayExplanation,
+          previousQuestionText
         ]) => {
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
@@ -590,21 +595,21 @@ export class CodelabQuizContentComponent {
           let nextQuestionIndex = currentQuestionIndex + 1;
 
           // Fetch the explanation text for the next question based on the index
-          const currentExplanation =
+          /* const currentExplanation =
             this.explanationTextService.getExplanationTextForQuestionIndex(
               currentQuestionIndex
-            );
-          const nextExplanation =
+            ); */
+          /* const nextExplanation =
             this.explanationTextService.getExplanationTextForQuestionIndex(
               nextQuestionIndex
-            );
+            ); */
 
           let textToDisplay = '';
           if (shouldDisplayExplanation === true) {
             textToDisplay =
               nextExplanationText ||
-              nextExplanation ||
-              currentExplanation ||
+              // nextExplanation || currentExplanation
+              previousQuestionText ||
               '';
           } else {
             textToDisplay = nextQuestion.questionText || '';
