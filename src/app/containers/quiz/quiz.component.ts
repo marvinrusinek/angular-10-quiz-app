@@ -1274,6 +1274,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Update the text for the previous question
         this.previousQuestionText = previousQuestionText;
+        console.log('previousQuestionText:', this.previousQuestionText);
   
         // Set the explanation text for the previous question
         this.explanationTextService.setPreviousExplanationText(explanationText);
@@ -1281,6 +1282,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
         // Fetch options for the previous question
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
+        console.log('currentOptions:', this.currentOptions);
 
         // Log information for debugging
         console.log('Current Question Index:', this.currentQuestionIndex);
