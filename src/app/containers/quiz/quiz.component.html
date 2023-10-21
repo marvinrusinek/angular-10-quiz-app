@@ -18,6 +18,9 @@
       >
       </codelab-quiz-content-component>
       <ng-content select="[question-content]"></ng-content>
+
+      <p>{{ previousQuestionText | json }}</p>
+      <p>{{ currentOptions | json }}</p>
     
       <ng-container *ngIf="data?.options">
         <codelab-quiz-question
