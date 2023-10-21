@@ -1240,6 +1240,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentOptions = await this.quizService.getNextOptions(
         this.currentQuestionIndex
       ) || [];
+
+      // Call the setNextOptions function to update the options
+      this.quizService.setNextOptions(this.currentOptions);
   
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
