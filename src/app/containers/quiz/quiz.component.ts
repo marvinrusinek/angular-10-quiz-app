@@ -230,30 +230,56 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$
     ]).pipe(
-      map(([nextQuestion, nextOptions]) => {
-        return {
-          questionText: nextQuestion?.questionText,
-          correctAnswersText: null,
-          options: nextOptions,
-        };
+      switchMap(([nextQuestion, nextOptions]) => {
+        if (nextQuestion) {
+          // If nextQuestion is available, display it
+          return of({
+            questionText: nextQuestion.questionText,
+            correctAnswersText: null,
+            options: nextOptions,
+          });
+        } else {
+          // If nextQuestion is not available, switch to the previousQuestion
+          return combineLatest([
+            this.quizService.previousQuestion$,
+            this.quizService.previousOptions$
+          ]).pipe(
+            map(([previousQuestion, previousOptions]) => {
+              return {
+                questionText: previousQuestion?.questionText,
+                correctAnswersText: null,
+                options: previousOptions,
+              };
+            })
+          );
+        }
       })
     );
 
     combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
+      this.quizService.previousQuestion$,
+      this.quizService.previousOptions$
     ])
       .pipe(
-        map(([nextQuestion, nextOptions]) => {
+        map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => {
           return {
-            question: nextQuestion as QuizQuestion,
-            options: nextOptions as Option[],
+            nextQuestion: nextQuestion as QuizQuestion,
+            nextOptions: nextOptions as Option[],
+            previousQuestion: previousQuestion as QuizQuestion,
+            previousOptions: previousOptions as Option[],
           };
         })
       )
-      .subscribe(({ question, options }) => {
-        this.question$ = of(question);
-        this.options$ = of(options);
+      .subscribe(({ nextQuestion, nextOptions, previousQuestion, previousOptions }) => {
+        if (nextQuestion) {
+          this.question$ = of(nextQuestion);
+          this.options$ = of(nextOptions);
+        } else {
+          this.question$ = of(previousQuestion);
+          this.options$ = of(previousOptions);
+        }
       });
 
     this.quizService.nextQuestionText$.subscribe((text) => {
