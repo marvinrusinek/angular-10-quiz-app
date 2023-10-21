@@ -575,7 +575,7 @@ export class CodelabQuizContentComponent {
         }
       }
     ); */
-
+    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
