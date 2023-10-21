@@ -1213,7 +1213,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Fetch options for the next question
       this.currentOptions = await this.quizService.getNextOptions(
         this.currentQuestionIndex
-      );
+      ) || [];
   
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
@@ -1280,7 +1280,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         // Fetch options for the previous question
-        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
+        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
 
         // Log information for debugging
         console.log('Current Question Index:', this.currentQuestionIndex);
