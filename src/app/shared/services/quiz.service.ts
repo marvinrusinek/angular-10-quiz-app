@@ -8,7 +8,7 @@ import {
   of,
   Subject,
   Subscription,
-  throwError,
+  throwError
 } from 'rxjs';
 import {
   catchError,
@@ -17,7 +17,7 @@ import {
   map,
   shareReplay,
   switchMap,
-  tap,
+  tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import * as _ from 'lodash';
@@ -38,7 +38,7 @@ enum QuizRoutes {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = -1;
@@ -54,7 +54,7 @@ export class QuizService implements OnDestroy {
   } = {
     questionText: '',
     correctAnswersText: '',
-    currentOptions: [],
+    currentOptions: []
   };
   quizzes: Quiz[] = [];
   quizzes$: Observable<Quiz[]> | undefined;
@@ -175,10 +175,12 @@ export class QuizService implements OnDestroy {
   private nextOptionsSubject = new BehaviorSubject<Option[]>(null);
   nextOptions$ = this.nextOptionsSubject.asObservable();
 
+  private previousQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private previousQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
   previousQuestion$ = this.previousQuestionSource.asObservable();
 
-  private previousQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
+  private previousOptionsSubject = new BehaviorSubject<Option[]>([]);
+  previousOptions$ = this.previousOptionsSubject.asObservable();
 
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
@@ -869,10 +871,15 @@ export class QuizService implements OnDestroy {
   }
 
   /********* setter functions ***********/
-  setQuestionData(data: any) {
+  public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
   }
 
+  public setNextOptions(options: Option[]): void {
+    this.previousOptionsSubject.next(this.nextOptionsSubject.getValue());
+    this.nextOptionsSubject.next(options);
+  }
+  
   setCorrectAnswers(
     question: QuizQuestion,
     options: Option[]
