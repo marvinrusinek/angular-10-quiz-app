@@ -1273,20 +1273,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
   
         // Update the text for the previous question
-        console.log('Previous Question Text Before Assignment:', this.previousQuestionText);
         this.previousQuestionText = previousQuestionText;
-        console.log('Previous Question Text After Assignment:', this.previousQuestionText);
-        console.log("PQT", this.previousQuestionText);
   
         // Set the explanation text for the previous question
         this.explanationTextService.setPreviousExplanationText(explanationText);
         this.explanationTextService.setIsExplanationTextDisplayed(false);
   
         // Fetch options for the previous question
-        console.log('Current Options Before Assignment:', this.currentOptions);
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex);
-        console.log('Current Options After Assignment:', this.currentOptions);
-        console.log("CURROPTS", this.currentOptions);
 
         // Log information for debugging
         console.log('Current Question Index:', this.currentQuestionIndex);
