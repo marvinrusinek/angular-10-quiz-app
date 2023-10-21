@@ -530,7 +530,7 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    this.nextQuestionSubscription = this.nextQuestion$.subscribe(
+    /* this.nextQuestionSubscription = this.nextQuestion$.subscribe(
       (nextQuestion) => {
         if (nextQuestion) {
           // Handle the display of the next question and its explanation text
@@ -574,7 +574,7 @@ export class CodelabQuizContentComponent {
           // Handle the end of the quiz or any cleanup
         }
       }
-    );
+    ); */
 
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
