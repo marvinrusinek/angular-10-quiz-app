@@ -182,6 +182,9 @@ export class QuizService implements OnDestroy {
   previousOptionsSubject = new BehaviorSubject<Option[]>([]);
   previousOptions$ = this.previousOptionsSubject.asObservable();
 
+  private previousQuestionTextSubject = new BehaviorSubject<string>('');
+  previousQuestionText$ = this.previousQuestionTextSubject.asObservable();
+
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
 

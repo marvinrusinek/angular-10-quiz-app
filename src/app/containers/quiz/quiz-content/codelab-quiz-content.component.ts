@@ -487,6 +487,22 @@ export class CodelabQuizContentComponent {
       console.log('shouldDisplayExplanation$ changed to', value);
     });
 
+    this.isNavigatingToPreviousQuestion = combineLatest([
+      this.nextQuestion$,
+      this.quizService.nextOptions$
+    ]).pipe(
+      map(([nextQuestion, nextOptions]) => {
+        // Determine if navigating to a previous question
+        const targetQuestionIndex = this.quizService.currentQuestionIndex - 1;
+        return targetQuestionIndex >= 0; // Set to true if navigating to a previous question
+      })
+    );
+    
+    // Get the previous question text
+    this.quizService.previousQuestionText$.subscribe((text) => {
+      this.previousQuestionText = text;
+    });
+
     const questionToDisplay$ = this.isNavigatingToPreviousQuestion.pipe(
       switchMap(isNavigating => {
         if (isNavigating) {
@@ -504,15 +520,15 @@ export class CodelabQuizContentComponent {
     ]).pipe(
       map(([nextQuestion, nextOptions, explanationText]) => {
         return {
-          questionText: nextQuestion?.questionText || '',
+          questionText: this.isNavigatingToPreviousQuestion ? this.previousQuestionText : nextQuestion?.questionText || '',
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion || null,
           currentOptions: nextOptions || [],
-          isNavigatingToPrevious: this.isNavigatingToPreviousQuestion
+          isNavigatingToPrevious: this.isNavigatingToPreviousQuestion,
         };
       })
-    );
+    );    
   }
 
   private setupOptions(): void {
