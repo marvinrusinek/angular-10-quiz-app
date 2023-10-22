@@ -1322,7 +1322,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-  
+    
   async navigateToQuestion(questionIndex: number) {
     // Construct the URL for the question
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
