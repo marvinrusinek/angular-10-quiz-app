@@ -60,7 +60,8 @@ export class CodelabQuizContentComponent {
   );
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
-  previousQuestion$: BehaviorSubject<string | undefined> = new BehaviorSubject<string | undefined>(undefined);
+  // previousQuestion$: BehaviorSubject<string | undefined> = new BehaviorSubject<string | undefined>(undefined);
+  previousQuestion$: BehaviorSubject<QuizQuestion | undefined> = new BehaviorSubject<QuizQuestion | undefined>(undefined);
 
   questionsWithExplanations: { 
     question: QuizQuestion; 
@@ -103,6 +104,8 @@ export class CodelabQuizContentComponent {
     new BehaviorSubject<boolean>(false);
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
+
+  private isNavigatingToPreviousQuestion: Observable<boolean>;
 
   private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(
     false
@@ -471,7 +474,19 @@ export class CodelabQuizContentComponent {
       +this.numberOfCorrectAnswers$.value
     );
 
+    this.isNavigatingToPreviousQuestion = combineLatest([
+      this.nextQuestion$,
+      this.quizService.nextOptions$
+    ]).pipe(
+      map(([nextQuestion, nextOptions]) => {
+        // Determine if you're navigating to a previous question
+        const targetQuestionIndex = this.quizService.currentQuestionIndex - 1;
+        return targetQuestionIndex >= 0; // Set to true if navigating to a previous question
+      })
+    );    
+
     this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ =
       this.explanationTextService.shouldDisplayExplanation$;
@@ -479,18 +494,21 @@ export class CodelabQuizContentComponent {
       console.log('shouldDisplayExplanation$ changed to', value);
     });
 
+    // Combine data and isNavigatingToPreviousQuestion
     this.combinedQuestionData$ = combineLatest([
       this.nextQuestion$,
       this.quizService.nextOptions$,
       this.explanationText$,
+      this.isNavigatingToPreviousQuestion
     ]).pipe(
-      map(([nextQuestion, nextOptions, explanationText]) => {
+      map(([nextQuestion, nextOptions, explanationText, isNavigatingToPrevious]) => {
         return {
           questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion || null,
           currentOptions: nextOptions || [],
+          isNavigatingToPrevious: isNavigatingToPrevious // Add isNavigatingToPrevious to your data
         };
       })
     );
