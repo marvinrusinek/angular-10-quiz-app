@@ -478,13 +478,9 @@ export class CodelabQuizContentComponent {
       +this.numberOfCorrectAnswers$.value
     );
 
-    this.nextQuestion$.subscribe((nextQuestion) => {
-      console.log('Next Question::>>', nextQuestion);
-    });
-    
-    this.previousQuestion$.subscribe((previousQuestion) => {
-      console.log('Previous Question::>>', previousQuestion);
-    });
+    const questionToDisplay$ = this.isNavigatingToPreviousQuestion
+    ? this.previousQuestion$
+    : this.nextQuestion$;
     
     this.isNavigatingToPreviousQuestion = combineLatest([
       this.nextQuestion$,
@@ -507,7 +503,7 @@ export class CodelabQuizContentComponent {
     });
 
     // Combine data and isNavigatingToPreviousQuestion
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       this.nextQuestion$,
       this.quizService.nextOptions$,
       this.explanationText$,
@@ -521,6 +517,23 @@ export class CodelabQuizContentComponent {
           currentQuestion: nextQuestion || null,
           currentOptions: nextOptions || [],
           isNavigatingToPrevious: isNavigatingToPrevious
+        };
+      })
+    ); */
+
+    this.combinedQuestionData$ = combineLatest([
+      questionToDisplay$,
+      this.quizService.nextOptions$,
+      this.explanationText$,
+    ]).pipe(
+      map(([nextQuestion, nextOptions, explanationText]) => {
+        return {
+          questionText: nextQuestion?.questionText || '', // Use questionToDisplay$ here
+          explanationText: explanationText,
+          correctAnswersText: correctAnswersTextOnInit,
+          currentQuestion: nextQuestion || null,
+          currentOptions: nextOptions || [],
+          isNavigatingToPrevious: this.isNavigatingToPreviousQuestion,
         };
       })
     );
