@@ -128,6 +128,7 @@ export class CodelabQuizContentComponent {
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    this.nextQuestion$ = this.quizService.nextQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
   }
 
@@ -476,6 +477,14 @@ export class CodelabQuizContentComponent {
       +this.numberOfCorrectAnswers$.value
     );
 
+    this.nextQuestion$.subscribe((nextQuestion) => {
+      console.log('Next Question::>>', nextQuestion);
+    });
+    
+    this.previousQuestion$.subscribe((previousQuestion) => {
+      console.log('Previous Question::>>', previousQuestion);
+    });
+    
     this.isNavigatingToPreviousQuestion = combineLatest([
       this.nextQuestion$,
       this.quizService.nextOptions$
