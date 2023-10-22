@@ -62,7 +62,8 @@ export class CodelabQuizContentComponent {
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   // previousQuestion$: BehaviorSubject<string | undefined> = new BehaviorSubject<string | undefined>(undefined);
-  previousQuestion$: BehaviorSubject<QuizQuestion | undefined> = new BehaviorSubject<QuizQuestion | undefined>(undefined);
+  // previousQuestion$: BehaviorSubject<QuizQuestion | undefined> = new BehaviorSubject<QuizQuestion | undefined>(undefined);
+  previousQuestion$: Observable<QuizQuestion | undefined>;
 
   questionsWithExplanations: { 
     question: QuizQuestion; 
@@ -617,7 +618,7 @@ export class CodelabQuizContentComponent {
             textToDisplay =
               nextExplanationText || '';
           } else {
-            textToDisplay = nextQuestion.questionText || previousQuestionText || '';
+            textToDisplay = (nextQuestion.questionText || previousQuestionText || '').toString();
           }
 
           return of(textToDisplay);
