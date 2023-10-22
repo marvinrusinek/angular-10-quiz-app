@@ -502,25 +502,6 @@ export class CodelabQuizContentComponent {
       console.log('shouldDisplayExplanation$ changed to', value);
     });
 
-    // Combine data and isNavigatingToPreviousQuestion
-    /* this.combinedQuestionData$ = combineLatest([
-      this.nextQuestion$,
-      this.quizService.nextOptions$,
-      this.explanationText$,
-      this.isNavigatingToPreviousQuestion
-    ]).pipe(
-      map(([nextQuestion, nextOptions, explanationText, isNavigatingToPrevious]) => {
-        return {
-          questionText: nextQuestion?.questionText || '',
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersTextOnInit,
-          currentQuestion: nextQuestion || null,
-          currentOptions: nextOptions || [],
-          isNavigatingToPrevious: isNavigatingToPrevious
-        };
-      })
-    ); */
-
     this.combinedQuestionData$ = combineLatest([
       questionToDisplay$,
       this.quizService.nextOptions$,
