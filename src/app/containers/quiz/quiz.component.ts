@@ -1303,10 +1303,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Fetch options for the previous question
         this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
   
-        // Log information for debugging
-        console.log('Current Question Index:', this.currentQuestionIndex);
-        console.log('Previous Question:', previousQuestion);
-  
         // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;
   
