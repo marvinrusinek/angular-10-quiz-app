@@ -1287,30 +1287,33 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
-  
+
       // Check if previousQuestion is defined before accessing its properties
       if (previousQuestion) {
-        // Use the getQuestionTextForIndex method to fetch the question text
-        const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
-  
-        // Update the text for the previous question
-        this.previousQuestionText = previousQuestionText;
-  
-        // Set the explanation text for the previous question
-        this.explanationTextService.setPreviousExplanationText(explanationText);
-        this.explanationTextService.setIsExplanationTextDisplayed(false);
-  
-        // Fetch options for the previous question
-        this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
-  
         // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;
-  
-        // Navigate to the new URL
-        await this.navigateToQuestion(this.currentQuestionIndex);
+
+        if (previousQuestionIndex >= 0) {   
+          // Set the explanation text for the previous question
+          this.explanationTextService.setPreviousExplanationText(explanationText);
+          this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+          // Use the getQuestionTextForIndex method to fetch the question text
+          const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
+
+          // Update the text for the previous question
+          this.previousQuestionText = previousQuestionText;
+    
+          // Fetch options for the previous question
+          this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
+    
+          // Navigate to the new URL
+          await this.navigateToQuestion(this.currentQuestionIndex);
+        } else {
+          console.log('No valid previous question available.');
+        }
       } else {
-        // Handle the case where previousQuestion is undefined
-        console.log('No valid previous question available.');
+          console.log('No valid previous question available.');
       }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
