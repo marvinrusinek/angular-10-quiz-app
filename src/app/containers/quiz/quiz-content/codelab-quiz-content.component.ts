@@ -487,21 +487,16 @@ export class CodelabQuizContentComponent {
       console.log('shouldDisplayExplanation$ changed to', value);
     });
 
-    const questionToDisplay$ = this.isNavigatingToPreviousQuestion
-    ? this.previousQuestion$
-    : this.nextQuestion$;
-    
-    this.isNavigatingToPreviousQuestion = combineLatest([
-      this.nextQuestion$,
-      this.quizService.nextOptions$
-    ]).pipe(
-      map(([nextQuestion, nextOptions]) => {
-        // Determine if navigating to a previous question
-        const targetQuestionIndex = this.quizService.currentQuestionIndex - 1;
-        return targetQuestionIndex >= 0; // Set to true if navigating to a previous question
+    const questionToDisplay$ = this.isNavigatingToPreviousQuestion.pipe(
+      switchMap(isNavigating => {
+        if (isNavigating) {
+          return this.previousQuestion$;
+        } else {
+          return this.nextQuestion$;
+        }
       })
     );
-
+    
     this.combinedQuestionData$ = combineLatest([
       questionToDisplay$,
       this.quizService.nextOptions$,
