@@ -41,6 +41,7 @@ export class CodelabQuizContentComponent {
     correctAnswersText?: string;
     currentQuestion: QuizQuestion;
     currentOptions: Option[];
+    isNavigatingToPrevious: boolean;
   }> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
@@ -508,7 +509,7 @@ export class CodelabQuizContentComponent {
           correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion || null,
           currentOptions: nextOptions || [],
-          isNavigatingToPrevious: isNavigatingToPrevious // Add isNavigatingToPrevious to your data
+          isNavigatingToPrevious: isNavigatingToPrevious
         };
       })
     );
