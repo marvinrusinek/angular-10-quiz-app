@@ -476,7 +476,16 @@ export class CodelabQuizContentComponent {
   private setupCombinedQuestionData(): void {
     const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(
       +this.numberOfCorrectAnswers$.value
-    );
+    );    
+
+    this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.previousQuestion$ = this.quizService.previousQuestion$;
+    this.explanationText$ = this.explanationTextService.explanationText$;
+    this.shouldDisplayExplanation$ =
+      this.explanationTextService.shouldDisplayExplanation$;
+    this.shouldDisplayExplanation$.subscribe((value) => {
+      console.log('shouldDisplayExplanation$ changed to', value);
+    });
 
     const questionToDisplay$ = this.isNavigatingToPreviousQuestion
     ? this.previousQuestion$
@@ -491,16 +500,7 @@ export class CodelabQuizContentComponent {
         const targetQuestionIndex = this.quizService.currentQuestionIndex - 1;
         return targetQuestionIndex >= 0; // Set to true if navigating to a previous question
       })
-    );    
-
-    this.nextQuestion$ = this.quizService.nextQuestion$;
-    this.previousQuestion$ = this.quizService.previousQuestion$;
-    this.explanationText$ = this.explanationTextService.explanationText$;
-    this.shouldDisplayExplanation$ =
-      this.explanationTextService.shouldDisplayExplanation$;
-    this.shouldDisplayExplanation$.subscribe((value) => {
-      console.log('shouldDisplayExplanation$ changed to', value);
-    });
+    );
 
     this.combinedQuestionData$ = combineLatest([
       questionToDisplay$,
