@@ -129,6 +129,7 @@ export class CodelabQuizContentComponent {
     private router: Router
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
+    this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
   }
 
