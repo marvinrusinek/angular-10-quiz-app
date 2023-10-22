@@ -496,7 +496,7 @@ export class CodelabQuizContentComponent {
       this.quizService.nextOptions$
     ]).pipe(
       map(([nextQuestion, nextOptions]) => {
-        // Determine if you're navigating to a previous question
+        // Determine if navigating to a previous question
         const targetQuestionIndex = this.quizService.currentQuestionIndex - 1;
         return targetQuestionIndex >= 0; // Set to true if navigating to a previous question
       })
