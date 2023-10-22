@@ -505,16 +505,16 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$ = combineLatest([
       questionToDisplay$,
       this.quizService.nextOptions$,
-      this.explanationText$,
+      this.explanationText$
     ]).pipe(
       map(([nextQuestion, nextOptions, explanationText]) => {
         return {
-          questionText: nextQuestion?.questionText || '', // Use questionToDisplay$ here
+          questionText: nextQuestion?.questionText || '',
           explanationText: explanationText,
           correctAnswersText: correctAnswersTextOnInit,
           currentQuestion: nextQuestion || null,
           currentOptions: nextOptions || [],
-          isNavigatingToPrevious: this.isNavigatingToPreviousQuestion,
+          isNavigatingToPrevious: this.isNavigatingToPreviousQuestion
         };
       })
     );
