@@ -513,22 +513,26 @@ export class CodelabQuizContentComponent {
       })
     );
     
-    this.combinedQuestionData$ = combineLatest([
-      questionToDisplay$,
-      this.quizService.nextOptions$,
-      this.explanationText$
-    ]).pipe(
-      map(([nextQuestion, nextOptions, explanationText]) => {
-        return {
-          questionText: this.isNavigatingToPreviousQuestion ? this.previousQuestionText : nextQuestion?.questionText || '',
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersTextOnInit,
-          currentQuestion: nextQuestion || null,
-          currentOptions: nextOptions || [],
-          isNavigatingToPrevious: this.isNavigatingToPreviousQuestion,
-        };
-      })
-    );    
+    this.isNavigatingToPreviousQuestion.subscribe((isNavigatingToPrevious) => {
+      this.combinedQuestionData$ = combineLatest([
+        questionToDisplay$,
+        this.quizService.nextOptions$,
+        this.explanationText$
+      ]).pipe(
+        map(([questionToDisplay, nextOptions, explanationText]) => {
+          const questionText = isNavigatingToPrevious ? this.previousQuestionText : questionToDisplay?.questionText || '';
+    
+          return {
+            questionText: questionText,
+            explanationText: explanationText,
+            correctAnswersText: correctAnswersTextOnInit,
+            currentQuestion: questionToDisplay || null,
+            currentOptions: nextOptions || [],
+            isNavigatingToPrevious: isNavigatingToPrevious,
+          };
+        })
+      );
+    });    
   }
 
   private setupOptions(): void {
