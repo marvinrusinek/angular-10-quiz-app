@@ -1171,6 +1171,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestionToDisplay(): string | undefined {
+    console.log('Navigating to next?', this.isNavigatingToNext);
     return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
   }
   
