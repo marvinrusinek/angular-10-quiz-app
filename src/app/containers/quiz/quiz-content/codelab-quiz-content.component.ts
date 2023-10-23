@@ -483,9 +483,6 @@ export class CodelabQuizContentComponent {
     this.explanationText$ = this.explanationTextService.explanationText$;
     this.shouldDisplayExplanation$ =
       this.explanationTextService.shouldDisplayExplanation$;
-    this.shouldDisplayExplanation$.subscribe((value) => {
-      console.log('shouldDisplayExplanation$ changed to', value);
-    });
 
     this.isNavigatingToPreviousQuestion = combineLatest([
       this.nextQuestion$,
