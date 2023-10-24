@@ -1308,6 +1308,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.previousQuestionText = previousQuestionText;
           console.log('Previous Question Text:', this.previousQuestionText);
 
+          // Update the BehaviorSubject with the new text
+          this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
+
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
           console.log('Current Options:', this.currentOptions);
