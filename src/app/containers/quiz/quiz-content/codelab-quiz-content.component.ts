@@ -628,14 +628,14 @@ export class CodelabQuizContentComponent {
     
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
-      this.quizService.previousQuestionText$,
+      this.quizService.previousQuestion$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
-          previousQuestionText,
+          previousQuestion,
           nextExplanationText,
           shouldDisplayExplanation
         ]) => {
@@ -648,7 +648,7 @@ export class CodelabQuizContentComponent {
             textToDisplay =
               nextExplanationText || '';
           } else {
-            textToDisplay = (nextQuestion.questionText || previousQuestionText || '').toString();
+            textToDisplay = (nextQuestion.questionText || previousQuestion.questionText || '').toString();
           }
 
           return of(textToDisplay);
