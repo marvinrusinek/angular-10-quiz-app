@@ -183,6 +183,16 @@ export class CodelabQuizContentComponent {
     this.quizDataService.getPreviousQuestionText().subscribe((text) => {
       this.previousQuestionText = text;
     });
+
+    this.quizService.previousQuestionText$.subscribe((text) => {
+      console.log('Previous Question Text::>>', text);
+      this.previousQuestionText = text;
+    });
+    
+    this.quizService.previousQuestion$.subscribe((question) => {
+      console.log('Previous Question Data:', question);
+      this.previousQuestion = question;
+    });    
   }
 
   ngOnDestroy(): void {

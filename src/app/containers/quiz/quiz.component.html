@@ -12,7 +12,8 @@
       <!-- the question and options -->
       <codelab-quiz-content-component 
         [questions]="questions"
-        [question]="getQuestionToDisplay()" 
+        [question]="getQuestionToDisplay()"
+        [previousQuestion]="previousQuestion" 
         [options]="data?.currentOptions"
         [explanationText]="explanationText$ | async"  
       >
