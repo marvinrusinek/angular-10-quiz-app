@@ -621,6 +621,10 @@ export class CodelabQuizContentComponent {
         }
       }
     ); */
+
+    this.previousQuestion$.subscribe((question) => {
+      console.log('Previous Question Data::::>>>>', question);
+    });
     
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
