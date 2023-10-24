@@ -1321,6 +1321,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
           this.quizService.previousOptionsSubject.next(this.currentOptions);
+
+          this.quizService.previousQuestionText$.subscribe((text) => {
+            console.log('Previous Question Text:::>>>>>>', text);
+          });
     
           // Navigate to the new URL
           await this.navigateToQuestion(this.currentQuestionIndex);

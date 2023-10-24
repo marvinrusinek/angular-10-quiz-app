@@ -622,7 +622,7 @@ export class CodelabQuizContentComponent {
       }
     ); */
 
-    this.previousQuestion$.subscribe((question) => {
+    this.quizService.previousQuestion$.subscribe((question) => {
       console.log('Previous Question Data::::>>>>', question);
     });
     
