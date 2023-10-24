@@ -119,7 +119,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
-  isNavigatingToNext = true;
+  isNavigatingToNext: boolean;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -162,6 +162,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   numberOfCorrectAnswers: number;
   score: number;
   elapsedTimeDisplay: number;
+
+  questionToDisplay: string | undefined;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -285,6 +287,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.nextQuestionText$.subscribe((text) => {
       this.nextQuestionText = text;
     });
+
+    this.questionToDisplay = this.getQuestionToDisplay();
   }
 
   ngOnDestroy(): void {
@@ -1171,7 +1175,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestionToDisplay(): string | undefined {
-    // console.log('Navigating to next?', this.isNavigatingToNext);
     return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
   }
   
