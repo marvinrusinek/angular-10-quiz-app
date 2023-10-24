@@ -1171,7 +1171,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestionToDisplay(): string | undefined {
-    console.log('Navigating to next?', this.isNavigatingToNext);
+    // console.log('Navigating to next?', this.isNavigatingToNext);
     return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
   }
   
@@ -1258,7 +1258,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
+    console.log('Before setting isNavigatingToNext to false:', this.isNavigatingToNext);
     this.isNavigatingToNext = false;
+    console.log('After setting isNavigatingToNext to false:', this.isNavigatingToNext);
   
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');

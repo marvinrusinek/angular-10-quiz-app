@@ -16,7 +16,6 @@
         [options]="data?.currentOptions"
         [explanationText]="explanationText$ | async"  
       >
-      <div>{{ getQuestionToDisplay() }}</div>
       </codelab-quiz-content-component>
       <ng-content select="[question-content]"></ng-content>
 
