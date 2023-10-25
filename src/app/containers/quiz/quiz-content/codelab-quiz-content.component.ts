@@ -61,9 +61,7 @@ export class CodelabQuizContentComponent {
   );
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
-  // previousQuestion$: BehaviorSubject<string | undefined> = new BehaviorSubject<string | undefined>(undefined);
-  // previousQuestion$: BehaviorSubject<QuizQuestion | undefined> = new BehaviorSubject<QuizQuestion | undefined>(undefined);
-  previousQuestion$: Observable<QuizQuestion | undefined>;
+  previousQuestion$: Observable<QuizQuestion | null>;
 
   questionsWithExplanations: { 
     question: QuizQuestion; 
@@ -231,7 +229,7 @@ export class CodelabQuizContentComponent {
         // Collect explanations for all questions
         this.questionsWithExplanations = questions.map((question) => ({
           question,
-          explanation: question.explanation || '',
+          explanation: question.explanation || ''
         }));
 
         // Initialize the current question index
@@ -409,7 +407,7 @@ export class CodelabQuizContentComponent {
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
+      this.isExplanationTextDisplayed$
     ]).pipe(
       tap((data) => console.log('Observable Data:', data)),
       map(
@@ -535,7 +533,7 @@ export class CodelabQuizContentComponent {
             correctAnswersText: correctAnswersTextOnInit,
             currentQuestion: questionToDisplay || null,
             currentOptions: nextOptions || [],
-            isNavigatingToPrevious: isNavigatingToPrevious,
+            isNavigatingToPrevious: isNavigatingToPrevious
           };
         })
       );
