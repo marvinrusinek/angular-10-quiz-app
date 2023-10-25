@@ -602,7 +602,7 @@ export class CodelabQuizContentComponent {
             if (shouldDisplayExplanation) {
               textToDisplay = nextExplanationText || '';
             } else {
-              textToDisplay = nextQuestion.questionText || previousQuestion.questionText || '';
+              textToDisplay = nextQuestion.questionText || this.questionToDisplay || '';
             }
           
             return of(textToDisplay);
