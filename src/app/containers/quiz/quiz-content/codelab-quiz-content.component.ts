@@ -577,10 +577,6 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    this.previousQuestion$.subscribe((question) => {
-      console.log('Previous Question Data::::::::::::::::::::>>>>', question);
-    });
-    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
@@ -594,19 +590,12 @@ export class CodelabQuizContentComponent {
           nextExplanationText,
           shouldDisplayExplanation
         ]) => {
-          // Debug the data
-          console.log('nextQuestion', nextQuestion);
-          console.log('previousQuestion', previousQuestion);
-          console.log('nextExplanationText', nextExplanationText);
-          console.log('shouldDisplayExplanation', shouldDisplayExplanation);
-          
           if (
             (!nextQuestion || !nextQuestion.questionText) &&
             (!previousQuestion || !previousQuestion.questionText)
           ) {
             return of('');
           } else {
-            // Handle the case when either nextQuestion or previousQuestion has questionText
             let textToDisplay = '';
           
             if (shouldDisplayExplanation) {
