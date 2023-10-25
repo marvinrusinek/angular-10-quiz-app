@@ -288,8 +288,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.nextQuestionText$.subscribe((text) => {
       this.nextQuestionText = text;
     });
-
-    this.questionToDisplay = this.getQuestionToDisplay();
   }
 
   ngOnDestroy(): void {
@@ -1175,11 +1173,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.explanationText;
   }
 
-  getQuestionToDisplay(): string | undefined {
+  /* getQuestionToDisplay(): string | undefined {
     console.log("MY NQT", this.nextQuestionText);
     console.log("MY PQT", this.previousQuestionText);
     return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
-  }
+  } */
   
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
