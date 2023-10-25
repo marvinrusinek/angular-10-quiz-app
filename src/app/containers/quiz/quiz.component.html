@@ -13,6 +13,7 @@
       <codelab-quiz-content-component 
         [questions]="questions"
         [question]="questionToDisplay"
+        [questionToDisplay]="questionToDisplay"
         [options]="data?.currentOptions"
         [explanationText]="explanationText$ | async"  
       >
@@ -23,6 +24,7 @@
         <codelab-quiz-question
           *ngIf="data?.questionText || data?.correctAnswersText"
           [data]="data"
+          [questionToDisplay]="questionToDisplay"
           [question]="questionToDisplay"
           [options]="data?.currentOptions"
           (answer)="selectedAnswer($event)"
