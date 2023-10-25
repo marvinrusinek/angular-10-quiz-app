@@ -600,19 +600,23 @@ export class CodelabQuizContentComponent {
           console.log('nextExplanationText', nextExplanationText);
           console.log('shouldDisplayExplanation', shouldDisplayExplanation);
 
-          if (!nextQuestion || !nextQuestion.questionText) {
+          if (
+            (!nextQuestion || !nextQuestion.questionText) &&
+            (!previousQuestion || !previousQuestion.questionText)
+          ) {
             return of('');
-          }
-
-          let textToDisplay = '';
-          if (shouldDisplayExplanation) {
-            textToDisplay =
-              nextExplanationText || '';
           } else {
-            textToDisplay = nextQuestion.questionText || previousQuestion.questionText || '';
-          }
-
-          return of(textToDisplay);
+            // Handle the case when either nextQuestion or previousQuestion has questionText
+            let textToDisplay = '';
+          
+            if (shouldDisplayExplanation) {
+              textToDisplay = nextExplanationText || '';
+            } else {
+              textToDisplay = nextQuestion.questionText || previousQuestion.questionText || '';
+            }
+          
+            return of(textToDisplay);
+          }          
         }
       ),
       startWith('')
