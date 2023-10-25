@@ -604,7 +604,7 @@ export class CodelabQuizContentComponent {
             if (shouldDisplayExplanation) {
               textToDisplay = nextExplanationText || '';
             } else {
-              textToDisplay = nextQuestion.questionText || this.questionToDisplay || '';
+              textToDisplay = this.questionToDisplay || '';
             }
           
             return of(textToDisplay);
