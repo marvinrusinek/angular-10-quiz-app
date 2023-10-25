@@ -1247,6 +1247,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
+
+      // Set questionToDisplay to the text for the next question
+      this.questionToDisplay = this.nextQuestionText;
   
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
@@ -1273,11 +1276,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
-    console.log("ADV TO PREV TEST");
     console.log('Before setting isNavigatingToNext to false:', this.isNavigatingToNext);
     this.isNavigatingToNext = false;
     console.log('After setting isNavigatingToNext to false:', this.isNavigatingToNext);
-  
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1325,6 +1327,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
           console.log('Previous Question Text:>>', this.previousQuestionText);
+
+          // Set questionToDisplay to the text for the previous question
+          this.questionToDisplay = this.previousQuestionText;
 
           // Update the BehaviorSubject with the new text
           this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
