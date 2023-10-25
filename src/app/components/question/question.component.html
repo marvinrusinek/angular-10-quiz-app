@@ -5,7 +5,7 @@
         <codelab-question-multiple-answer
           [form]="questionForm"
           [data]="data"
-          [question]="data?.questionText"
+          [question]="questionToDisplay"
           [questions]="questions"
           [questionData]="questionData"
           [currentQuestion$]="currentQuestion$"
@@ -26,7 +26,7 @@
       <ng-container *ngIf="shouldDisplayOptions()">
         <codelab-question-single-answer
           [data]="data"
-          [question]="data?.questionText"
+          [question]="questionToDisplay"
           [questions]="questions"
           [questionData]="questionData"
           [options]="data?.options"
