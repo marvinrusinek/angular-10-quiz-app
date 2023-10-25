@@ -624,7 +624,7 @@ export class CodelabQuizContentComponent {
     ); */
 
     this.quizService.previousQuestion$.subscribe((question) => {
-      console.log('Previous Question Data::::>>>>', question);
+      console.log('Previous Question Data::::::::::::::::::::>>>>', question);
     });
     
     this.combinedText$ = combineLatest([
@@ -640,6 +640,12 @@ export class CodelabQuizContentComponent {
           nextExplanationText,
           shouldDisplayExplanation
         ]) => {
+          // Debug the data
+          console.log('nextQuestion', nextQuestion);
+          console.log('previousQuestion', previousQuestion);
+          console.log('nextExplanationText', nextExplanationText);
+          console.log('shouldDisplayExplanation', shouldDisplayExplanation);
+
           if (!nextQuestion || !nextQuestion.questionText) {
             return of('');
           }
