@@ -577,14 +577,14 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    this.quizService.previousQuestion$.subscribe((question) => {
+    this.previousQuestion$.subscribe((question) => {
       console.log('Previous Question Data::::::::::::::::::::>>>>', question);
     });
     
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
-      this.explanationTextService.nextExplanationText$,
+      this.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
