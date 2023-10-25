@@ -188,6 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$ =
       this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
 
+    this.isNavigatingToNext = false;
     this.elapsedTimeDisplay = 0;
   }
 
@@ -1175,12 +1176,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getQuestionToDisplay(): string | undefined {
+    console.log("MY NQT", this.nextQuestionText);
+    console.log("MY PQT", this.previousQuestionText);
     return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
   }
   
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    console.log("Before setting isNavigatingToNext to true:", this.isNavigatingToNext);
+
+    // Set isNavigatingToNext to true
     this.isNavigatingToNext = true;
+
+    console.log("After setting isNavigatingToNext to true:", this.isNavigatingToNext);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1230,8 +1238,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Clear explanation text for the current question
       this.clearExplanationText();
   
+      console.log("Before calling quizService.getQuestionTextForIndex");
+
       // Use the getQuestionTextForIndex method to fetch the question text
       const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+
+      console.log("After calling quizService.getQuestionTextForIndex");
   
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
@@ -1261,6 +1273,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
+    console.log("ADV TO PREV TEST");
     console.log('Before setting isNavigatingToNext to false:', this.isNavigatingToNext);
     this.isNavigatingToNext = false;
     console.log('After setting isNavigatingToNext to false:', this.isNavigatingToNext);
@@ -1311,7 +1324,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
-          console.log('Previous Question Text:', this.previousQuestionText);
+          console.log('Previous Question Text:>>', this.previousQuestionText);
 
           // Update the BehaviorSubject with the new text
           this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
