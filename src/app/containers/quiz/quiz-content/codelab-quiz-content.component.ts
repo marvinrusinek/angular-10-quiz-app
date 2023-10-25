@@ -609,7 +609,7 @@ export class CodelabQuizContentComponent {
             textToDisplay =
               nextExplanationText || '';
           } else {
-            textToDisplay = (nextQuestion.questionText || previousQuestion.questionText || '').toString();
+            textToDisplay = nextQuestion.questionText || previousQuestion.questionText || '';
           }
 
           return of(textToDisplay);
