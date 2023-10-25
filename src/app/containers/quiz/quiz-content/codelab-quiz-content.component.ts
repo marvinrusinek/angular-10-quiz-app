@@ -583,7 +583,7 @@ export class CodelabQuizContentComponent {
     
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
-      this.quizService.previousQuestion$,
+      this.previousQuestion$,
       this.explanationTextService.nextExplanationText$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
@@ -599,7 +599,7 @@ export class CodelabQuizContentComponent {
           console.log('previousQuestion', previousQuestion);
           console.log('nextExplanationText', nextExplanationText);
           console.log('shouldDisplayExplanation', shouldDisplayExplanation);
-
+          
           if (
             (!nextQuestion || !nextQuestion.questionText) &&
             (!previousQuestion || !previousQuestion.questionText)
