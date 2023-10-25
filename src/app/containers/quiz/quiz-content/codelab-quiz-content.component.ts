@@ -577,52 +577,6 @@ export class CodelabQuizContentComponent {
       }
     );
 
-    /* this.nextQuestionSubscription = this.nextQuestion$.subscribe(
-      (nextQuestion) => {
-        if (nextQuestion) {
-          // Handle the display of the next question and its explanation text
-
-          let currentQuestionIndex = -1;
-
-          if (this.questionsWithExplanations) {
-            // Check if the current question is in the questionsWithExplanations array
-            currentQuestionIndex =
-              this.questionsWithExplanations.findIndex(
-                (item) => item.question === nextQuestion
-              );
-          }
-
-          let nextExplanationText: string;
-
-          if (currentQuestionIndex !== -1) {
-            // Check if the current question is in the questionsWithExplanations array
-            const nextQuestionItem =
-              this.questionsWithExplanations[currentQuestionIndex + 1];
-
-            if (nextQuestionItem) {
-              nextExplanationText = nextQuestionItem.explanation;
-            }
-          } else {
-            // The current question is not in the questionsWithExplanations array,
-            // so fetch the explanation text from the service or source as needed
-            nextExplanationText =
-              this.explanationTextService.getExplanationTextForQuestionIndex(
-                currentQuestionIndex + 1
-              ); // fetch the explanation text for the next question
-          }
-
-          // Create a question-explanation pair and add it to the array
-          const questionWithExplanation = {
-            question: nextQuestion,
-            explanation: nextExplanationText
-          };
-          this.questionsWithExplanations.push(questionWithExplanation);
-        } else {
-          // Handle the end of the quiz or any cleanup
-        }
-      }
-    ); */
-
     this.quizService.previousQuestion$.subscribe((question) => {
       console.log('Previous Question Data::::::::::::::::::::>>>>', question);
     });
