@@ -525,6 +525,7 @@ export class CodelabQuizContentComponent {
         this.explanationText$
       ]).pipe(
         map(([questionToDisplay, nextOptions, explanationText]) => {
+          console.log('Combined Question Data Updated:', questionToDisplay);
           const questionText = isNavigatingToPrevious ? this.previousQuestionText : questionToDisplay?.questionText || '';
     
           return {
