@@ -310,7 +310,7 @@ export class CodelabQuizContentComponent {
     // Combine explanationTextService's observable with selectedOptionExplanation$
     const explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$,
+      this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
       map(
         ([explanationText, selectedOptionExplanation]) =>
@@ -352,7 +352,7 @@ export class CodelabQuizContentComponent {
 
     this.explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
-      selectedOptionExplanation$,
+      selectedOptionExplanation$
     ]).pipe(
       map(
         ([explanationText, selectedOptionExplanation]) =>
@@ -373,7 +373,7 @@ export class CodelabQuizContentComponent {
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
         currentQuestion,
-        currentOptions,
+        currentOptions
       }))
     );
 
@@ -387,7 +387,7 @@ export class CodelabQuizContentComponent {
         ([
           { currentQuestion, currentOptions },
           numberOfCorrectAnswers,
-          isExplanationDisplayed,
+          isExplanationDisplayed
         ]) => {
           // Calculate question text
           const questionText = currentQuestion
