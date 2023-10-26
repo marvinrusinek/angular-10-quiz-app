@@ -669,13 +669,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     ]); */
   }
 
-  getFirstQuestionText(): string {
-    this.questions = this.quizDataService.getQuestionsForQuiz(this.quizId);
-    console.log("QUESTIONS", this.questions);
-    if (this.questions && this.questions.length > 0) {
-      return this.questions[0].questionText;
-    }
-    return '';
+  getFirstQuestionText(): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+      console.log("QUESTIONS", questions);
+      if (questions && questions.length > 0) {
+        this.questionToDisplay = questions[0].questionText;
+      }
+    });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
