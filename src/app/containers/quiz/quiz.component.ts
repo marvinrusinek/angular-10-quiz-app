@@ -660,9 +660,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       map(questions => {
         if (questions && questions.length > 0) {
-          const firstQuestionText = questions[0].questionText;
-          console.log("First Question Text:", firstQuestionText);
-          return firstQuestionText;
+          return questions[0].questionText;
         }
         return '';
       })
