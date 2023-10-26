@@ -576,8 +576,6 @@ export class CodelabQuizContentComponent {
             } else {
               textToDisplay = this.questionToDisplay || '';
             }
-
-            console.log('this.questionToDisplay:', this.questionToDisplay);
           
             return of(textToDisplay);
           }          
