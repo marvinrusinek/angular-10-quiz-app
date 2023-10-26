@@ -670,8 +670,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getFirstQuestionText(): string {
-    console.log("QUESTIONS", this.questions);
     this.questions = this.quizDataService.getQuestionsForQuiz(this.quizId);
+    console.log("QUESTIONS", this.questions);
     if (this.questions && this.questions.length > 0) {
       return this.questions[0].questionText;
     }
