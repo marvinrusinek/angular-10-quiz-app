@@ -153,11 +153,6 @@ export class CodelabQuizContentComponent {
       )
     ) as Observable<string>;
 
-    // Subscribe to explanationText$ if needed
-    this.explanationText$.subscribe((explanationText) => {
-      this.explanationText = explanationText;
-    });
-
     // Subscribe to the selectedOptionExplanation$ observable and store the subscription
     this.selectedOptionSubscription =
       this.selectedOptionService.selectedOptionExplanation$.subscribe(
