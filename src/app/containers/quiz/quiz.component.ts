@@ -281,12 +281,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = text;
     });
 
-    /* this.initializeFirstQuestionText().subscribe(firstQuestionText => {
-      this.nextQuestionText = firstQuestionText;
-      this.previousQuestionText = firstQuestionText;
-      this.questionToDisplay = firstQuestionText;
-    }); */
-
     this.initializeFirstQuestionText().subscribe((firstQuestionText) => {
       this.questionToDisplay = firstQuestionText;
     });
@@ -368,7 +362,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     this.getExplanationText();
-    // this.fetchAllQuestions();
     this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
@@ -377,20 +370,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return 'questionText' in obj && 'options' in obj && 'explanation' in obj;
   }
-
-  /* private fetchAllQuestions(): void {
-    this.quizService.getAllQuestions().subscribe((questions) => {
-      this.questions = questions;
-      this.currentQuestionIndex = 0;
-      this.currentQuestion = this.questions[this.currentQuestionIndex];
-
-      // Add console logs here
-      console.log('Questions:', this.questions);
-      console.log('First Question Text:', this.getFirstQuestionText());
-      console.log('Question To Display:', this.questionToDisplay);
-      // this.questionToDisplay = this.getFirstQuestionText();
-    });
-  } */
 
   private fetchQuestionAndOptions(): void {
     this.quizDataService
