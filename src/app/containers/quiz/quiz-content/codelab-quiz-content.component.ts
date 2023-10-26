@@ -536,20 +536,6 @@ export class CodelabQuizContentComponent {
     this.nextExplanationText$ =
       this.explanationTextService.nextExplanationText$;
 
-    this.explanationTextService.explanationText$.subscribe(
-      (currentExplanationText) => {
-        console.log('Current Explanation Text::>>', currentExplanationText);
-        this.explanationText = currentExplanationText;
-      }
-    );
-
-    this.explanationTextService.nextExplanationText$.subscribe(
-      (nextExplanationText) => {
-        console.log('Next Explanation Text::>>', nextExplanationText);
-        this.nextExplanationText = nextExplanationText;
-      }
-    );
-
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
