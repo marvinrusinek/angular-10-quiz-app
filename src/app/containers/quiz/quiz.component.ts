@@ -288,6 +288,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.nextQuestionText$.subscribe((text) => {
       this.nextQuestionText = text;
     });
+
+    this.questionToDisplay = this.getFirstQuestionText();
   }
 
   ngOnDestroy(): void {
@@ -676,6 +678,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getFirstQuestionText(): string {
+    console.log("QUESTIONS", this.questions);
     if (this.questions && this.questions.length > 0) {
       return this.questions[0].questionText;
     }
