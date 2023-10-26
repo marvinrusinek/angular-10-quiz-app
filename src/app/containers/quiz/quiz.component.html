@@ -15,7 +15,7 @@
         [questions]="questions"
         [question]="questionToDisplay"
         [questionToDisplay]="questionToDisplay"
-        [options]="data?.currentOptions"
+        [options]="optionsToDisplay"
         [explanationText]="explanationText$ | async"  
       >
       </codelab-quiz-content-component>
@@ -27,7 +27,7 @@
           [data]="data"
           [questionToDisplay]="questionToDisplay"
           [question]="questionToDisplay"
-          [options]="data?.currentOptions"
+          [options]="optionsToDisplay"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"

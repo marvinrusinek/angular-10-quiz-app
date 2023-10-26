@@ -164,6 +164,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   elapsedTimeDisplay: number;
 
   questionToDisplay = '';
+  optionsToDisplay: Option[] = [];
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -1304,6 +1305,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
+
+          this.optionsToDisplay = this.currentOptions;
           
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
