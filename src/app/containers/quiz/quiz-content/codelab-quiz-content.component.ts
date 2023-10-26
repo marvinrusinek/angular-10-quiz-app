@@ -234,10 +234,6 @@ export class CodelabQuizContentComponent {
       }
     });
 
-    this.quizStateService.currentOptions$.subscribe((options) => {
-      this.options = options;
-    });
-
     this.currentQuestionSubscription =
       this.quizStateService.currentQuestion$.subscribe(
         async (question: QuizQuestion) => {
@@ -292,10 +288,6 @@ export class CodelabQuizContentComponent {
           }
         }
       );
-
-    this.explanationText$.subscribe((explanationText) => {
-      this.explanationText = explanationText;
-    });
   }
 
   updateExplanationForQuestion(question: QuizQuestion): void {
