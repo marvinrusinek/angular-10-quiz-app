@@ -281,11 +281,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = text;
     });
 
-    this.getFirstQuestionText().subscribe(firstQuestionText => {
+    /* this.initializeFirstQuestionText().subscribe(firstQuestionText => {
       this.nextQuestionText = firstQuestionText;
       this.previousQuestionText = firstQuestionText;
       this.questionToDisplay = firstQuestionText;
-    });
+    }); */
+
+    this.initializeFirstQuestionText();
   }
 
   ngOnDestroy(): void {
@@ -673,7 +675,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ]); */
   }
 
-  getFirstQuestionText(): Observable<string> {
+  initializeFirstQuestionText(): Observable<string> {
     return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       map(questions => {
         if (questions && questions.length > 0) {
@@ -1190,12 +1192,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.explanationText;
   }
 
-  /* getQuestionToDisplay(): string | undefined {
-    console.log("MY NQT", this.nextQuestionText);
-    console.log("MY PQT", this.previousQuestionText);
-    return this.isNavigatingToNext ? this.nextQuestionText : this.previousQuestionText;
-  } */
-  
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     console.log("Before setting isNavigatingToNext to true:", this.isNavigatingToNext);
