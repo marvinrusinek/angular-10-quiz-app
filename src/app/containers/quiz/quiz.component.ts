@@ -86,14 +86,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     correctAnswersText?: string;
     currentOptions: Option[];
   };
-  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
+  @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
   formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
   quizData: QuizQuestion[] = [];
-  quizId: string = '';
+  quizId = '';
   quizName$: Observable<string>;
   quizResources: QuizResource[];
   quizQuestions: QuizQuestion[];
@@ -133,7 +133,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   isDisabled: boolean; // may use later
   nextQuestionText = '';
   previousQuestionText = '';
-  nextExplanationText: string | null = null;
+  nextExplanationText = '';
   selectOptionText = 'Please select an option to continue...';
   cardFooterClass = '';
 
