@@ -1175,12 +1175,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    console.log("Before setting isNavigatingToNext to true:", this.isNavigatingToNext);
-
     // Set isNavigatingToNext to true
     this.isNavigatingToNext = true;
-
-    console.log("After setting isNavigatingToNext to true:", this.isNavigatingToNext);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1191,8 +1187,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isNavigating = true;
   
     try {
-      console.log('Advance to Next Question Clicked');
-  
       if (!this.selectedQuiz) {
         console.log('Advance to Next Question Aborted: Selected Quiz is not available.');
         return;
@@ -1230,13 +1224,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Clear explanation text for the current question
       this.clearExplanationText();
   
-      console.log("Before calling quizService.getQuestionTextForIndex");
-
       // Use the getQuestionTextForIndex method to fetch the question text
       const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
 
-      console.log("After calling quizService.getQuestionTextForIndex");
-  
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
 
@@ -1268,9 +1258,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
-    console.log('Before setting isNavigatingToNext to false:', this.isNavigatingToNext);
     this.isNavigatingToNext = false;
-    console.log('After setting isNavigatingToNext to false:', this.isNavigatingToNext);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1301,8 +1289,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
 
-      console.log("PQ", previousQuestion);
-
       // Check if previousQuestion is defined before accessing its properties
       if (previousQuestion) {
         // Construct the URL for the previous question (decrement the index)
@@ -1318,8 +1304,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
-          console.log('Previous Question Text:>>', this.previousQuestionText);
-
+          
           // Set questionToDisplay to the text for the previous question
           this.questionToDisplay = this.previousQuestionText;
 
@@ -1328,20 +1313,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
-          console.log('Current Options:', this.currentOptions);
-
+          
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
           this.quizService.previousOptionsSubject.next(this.currentOptions);
 
-          this.quizService.previousQuestionText$.subscribe((text) => {
-            console.log('Previous Question Text:::>>>>>>', text);
-          });
-
-          this.quizService.previousQuestion$.subscribe(previousQuestion => {
-            console.log('Previous Question Data:::>>>>>>>>>>>>>', previousQuestion);
-          });
-    
           // Navigate to the new URL
           await this.navigateToQuestion(this.currentQuestionIndex);
         } else {
