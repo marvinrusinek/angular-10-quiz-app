@@ -281,7 +281,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = text;
     });
 
-    this.questionToDisplay = this.getFirstQuestionText();
+    this.getFirstQuestionText().subscribe(firstQuestionText => {
+      this.nextQuestionText = firstQuestionText;
+      this.previousQuestionText = firstQuestionText;
+      this.questionToDisplay = firstQuestionText;
+    });
   }
 
   ngOnDestroy(): void {
@@ -669,13 +673,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     ]); */
   }
 
-  getFirstQuestionText(): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
-      console.log("QUESTIONS", questions);
-      if (questions && questions.length > 0) {
-        this.questionToDisplay = questions[0].questionText;
-      }
-    });
+  getFirstQuestionText(): Observable<string> {
+    return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
+      map(questions => {
+        if (questions && questions.length > 0) {
+          const firstQuestionText = questions[0].questionText;
+          console.log("First Question Text:", firstQuestionText);
+          return firstQuestionText;
+        }
+        return '';
+      })
+    );
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
