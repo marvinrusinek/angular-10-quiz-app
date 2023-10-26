@@ -381,7 +381,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questions = questions;
       this.currentQuestionIndex = 0;
       this.currentQuestion = this.questions[this.currentQuestionIndex];
-      this.questionToDisplay = this.getFirstQuestionText();
+
+      // Add console logs here
+      console.log('Questions:', this.questions);
+      console.log('First Question Text:', this.getFirstQuestionText());
+      console.log('Question To Display:', this.questionToDisplay);
+      // this.questionToDisplay = this.getFirstQuestionText();
     });
   }
 
