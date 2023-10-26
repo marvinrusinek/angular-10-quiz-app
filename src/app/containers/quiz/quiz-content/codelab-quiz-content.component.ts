@@ -169,29 +169,6 @@ export class CodelabQuizContentComponent {
           }
         }
       );
-
-    this.quizService.currentQuestionText$.subscribe((questionText) => {
-      this.currentQuestionText = questionText;
-    });
-
-    this.quizService.nextQuestionText$.subscribe((text) => {
-      console.log('nextQuestionText in ngOnInit:', this.nextQuestionText);
-      this.nextQuestionText = text;
-    });
-
-    this.quizDataService.getPreviousQuestionText().subscribe((text) => {
-      this.previousQuestionText = text;
-    });
-
-    this.quizService.previousQuestionText$.subscribe((text) => {
-      console.log('Previous Question Text::>>', text);
-      this.previousQuestionText = text;
-    });
-    
-    this.quizService.previousQuestion$.subscribe((question) => {
-      console.log('Previous Question Data:', question);
-      this.previousQuestion = question;
-    });
   }
 
   ngOnDestroy(): void {
