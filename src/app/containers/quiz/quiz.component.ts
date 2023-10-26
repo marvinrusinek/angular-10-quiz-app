@@ -281,14 +281,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = text;
     });
 
-    // Initialize the questionToDisplay property with the first question's text
-    /* this.initializeFirstQuestionText().subscribe((firstQuestionText) => {
-      this.questionToDisplay = firstQuestionText;
-    }); */
-
-    // this.questionToDisplay = this.initializeFirstQuestionText();
-
-    this.initializeFirstQuestionText()
+    this.initializeFirstQuestionText();
   }
 
   ngOnDestroy(): void {
@@ -660,17 +653,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       currentQuestionIndex + 1,
     ]); */
   }
-
-  /* initializeFirstQuestionText(): Observable<string> {
-    return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
-      map(questions => {
-        if (questions && questions.length > 0) {
-          return questions[0].questionText;
-        }
-        return '';
-      })
-    );
-  } */
 
   initializeFirstQuestionText(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
