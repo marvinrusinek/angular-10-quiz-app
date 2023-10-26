@@ -214,18 +214,10 @@ export class CodelabQuizContentComponent {
           this.quizService.getCurrentQuestionIndexObservable();
       });
 
-    this.quizStateService.currentOptions$.subscribe((options) => {
-      this.currentOptions$.next(options);
-    });
-
     this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
         this.options = question.options;
       }
-    });
-
-    this.currentOptions$.subscribe((options) => {
-      this.options = options;
     });
 
     this.currentQuestionIndex$ =
