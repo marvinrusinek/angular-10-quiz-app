@@ -476,11 +476,6 @@ export class CodelabQuizContentComponent {
       })
     );
     
-    // Get the previous question text
-    this.quizService.previousQuestionText$.subscribe((text) => {
-      this.previousQuestionText = text;
-    });
-
     const questionToDisplay$ = this.isNavigatingToPreviousQuestion.pipe(
       switchMap(isNavigating => {
         if (isNavigating) {
