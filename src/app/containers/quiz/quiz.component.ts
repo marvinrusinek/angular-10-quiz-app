@@ -163,7 +163,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   score: number;
   elapsedTimeDisplay: number;
 
-  questionToDisplay: string | undefined;
+  questionToDisplay = '';
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -281,9 +281,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = text;
     });
 
-    this.initializeFirstQuestionText().subscribe((firstQuestionText) => {
+    // Initialize the questionToDisplay property with the first question's text
+    /* this.initializeFirstQuestionText().subscribe((firstQuestionText) => {
       this.questionToDisplay = firstQuestionText;
-    });
+    }); */
+
+    // this.questionToDisplay = this.initializeFirstQuestionText();
+
+    this.initializeFirstQuestionText()
   }
 
   ngOnDestroy(): void {
@@ -656,7 +661,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     ]); */
   }
 
-  initializeFirstQuestionText(): Observable<string> {
+  /* initializeFirstQuestionText(): Observable<string> {
     return this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(
       map(questions => {
         if (questions && questions.length > 0) {
@@ -665,6 +670,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         return '';
       })
     );
+  } */
+
+  initializeFirstQuestionText(): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+      if (questions && questions.length > 0) {
+        this.questions = questions;
+        this.questionToDisplay = questions[0].questionText;
+      }
+    });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
