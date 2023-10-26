@@ -182,7 +182,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
-      selectedOption: [null],
+      selectedOption: [null]
     });
 
     this.selectedQuiz$ =
@@ -206,19 +206,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex = +params['questionIndex'];
       this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
 
-      console.log('quizId:::>>>', this.quizId);
-      console.log('questionIndex:::>>>', this.questionIndex);
-      console.log('currentQuestionIndex:', this.currentQuestionIndex);
-
       this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
         if (selectedQuiz) {
           this.quiz = selectedQuiz;
           this.totalQuestions = selectedQuiz.questions.length;
           this.lastQuestionIndex = this.totalQuestions - 1;
-          console.log('totalQuestions:', this.totalQuestions);
-          console.log('lastQuestionIndex:', this.lastQuestionIndex);
-          console.log('Question Index:::', this.questionIndex);
-          console.log('shouldHideShowScoreNav:', this.shouldHideShowScoreNav());
         } else {
           console.error('Selected quiz is null.');
         }
@@ -251,7 +243,7 @@ export class QuizComponent implements OnInit, OnDestroy {
               return {
                 questionText: previousQuestion?.questionText,
                 correctAnswersText: null,
-                options: previousOptions,
+                options: previousOptions
               };
             })
           );
@@ -271,7 +263,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             nextQuestion: nextQuestion as QuizQuestion,
             nextOptions: nextOptions as Option[],
             previousQuestion: previousQuestion as QuizQuestion,
-            previousOptions: previousOptions as Option[],
+            previousOptions: previousOptions as Option[]
           };
         })
       )
