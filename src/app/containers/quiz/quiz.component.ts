@@ -194,14 +194,15 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.initializeQuiz();
     this.subscribeRouterAndInit();
-    this.fetchQuizData();
     this.setObservables();
+    this.initializeQuiz();
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
-
+    this.initializeFirstQuestionText();
+    this.fetchQuizData();
+    
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
@@ -277,12 +278,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options$ = of(previousOptions);
         }
       });
-
-    this.quizService.nextQuestionText$.subscribe((text) => {
-      this.nextQuestionText = text;
-    });
-
-    this.initializeFirstQuestionText();
   }
 
   ngOnDestroy(): void {
