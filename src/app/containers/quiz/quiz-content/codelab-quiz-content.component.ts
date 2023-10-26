@@ -402,13 +402,6 @@ export class CodelabQuizContentComponent {
             );
           }
 
-          console.log('Question Index:::>>>', questionIndex);
-          console.log(
-            'Setting explanation text for question:',
-            currentQuestion.questionText
-          );
-          console.log('Explanation Text:::>>>', explanationText);
-
           return {
             questionText: questionText,
             currentQuestion: currentQuestion,
