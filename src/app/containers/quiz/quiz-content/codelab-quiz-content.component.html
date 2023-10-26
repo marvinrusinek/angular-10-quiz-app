@@ -1,12 +1,9 @@
 <ng-container *ngIf="combinedQuestionData$ | async as data">
   <section id="question">
     <h3 question-content>
-      <span *ngIf="questionToDisplay">
-        {{ questionToDisplay }}
-      </span>
-      <!--<span *ngIf="combinedText$ | async as combinedText">
+      <span *ngIf="combinedText$ | async as combinedText">
         {{ combinedText }}
-      </span>-->
+      </span>
       <span
         class="number-correct"
         *ngIf="shouldDisplayCorrectAnswersText(data)"
