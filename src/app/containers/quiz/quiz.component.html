@@ -10,7 +10,8 @@
       <codelab-scoreboard></codelab-scoreboard>
     
       <!-- the question and options -->
-      <codelab-quiz-content-component 
+      <codelab-quiz-content-component
+        *ngIf="questionToDisplay" 
         [questions]="questions"
         [question]="questionToDisplay"
         [questionToDisplay]="questionToDisplay"
