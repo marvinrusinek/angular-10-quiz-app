@@ -192,8 +192,6 @@ export class CodelabQuizContentComponent {
       console.log('Previous Question Data:', question);
       this.previousQuestion = question;
     });
-    
-    this.questionToDisplay = this.getFirstQuestionText();
   }
 
   ngOnDestroy(): void {
@@ -670,13 +668,6 @@ export class CodelabQuizContentComponent {
       isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
 
     return this.displayCorrectAnswersText;
-  }
-
-  getFirstQuestionText(): string {
-    if (this.questions && this.questions.length > 0) {
-      return this.questions[0].questionText;
-    }
-    return '';
   }
   
   getNumberOfCorrectAnswers(data: any): number {
