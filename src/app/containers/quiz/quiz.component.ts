@@ -1175,7 +1175,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    // Set isNavigatingToNext to true
     this.isNavigatingToNext = true;
 
     if (this.isNavigating) {
@@ -1193,7 +1192,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Start animation or any other operations
-      console.log('Advance to Next Question Clicked');
       this.animationState$.next('animationStarted');
   
       this.onAnswerSelectedOrNextQuestionClicked();
@@ -1202,7 +1200,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       const totalQuestions: number = await this.quizService
         .getTotalQuestions()
         .toPromise();
-      console.log('Total Questions:', totalQuestions);
   
       const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
       if (currentQuestionIndex >= totalQuestions) {
