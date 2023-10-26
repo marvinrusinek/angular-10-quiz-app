@@ -287,7 +287,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionToDisplay = firstQuestionText;
     }); */
 
-    this.initializeFirstQuestionText();
+    this.initializeFirstQuestionText().subscribe((firstQuestionText) => {
+      this.questionToDisplay = firstQuestionText;
+    });
   }
 
   ngOnDestroy(): void {
