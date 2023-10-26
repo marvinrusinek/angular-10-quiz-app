@@ -381,6 +381,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questions = questions;
       this.currentQuestionIndex = 0;
       this.currentQuestion = this.questions[this.currentQuestionIndex];
+      this.questionToDisplay = this.getFirstQuestionText();
     });
   }
 
@@ -667,6 +668,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       quizId,
       currentQuestionIndex + 1,
     ]); */
+  }
+
+  getFirstQuestionText(): string {
+    if (this.questions && this.questions.length > 0) {
+      return this.questions[0].questionText;
+    }
+    return '';
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
