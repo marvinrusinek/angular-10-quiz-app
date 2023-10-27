@@ -484,6 +484,15 @@ export class QuizService implements OnDestroy {
     return this.optionsSubject.asObservable();
   }
 
+  getOptionsForFirstQuestion(): Promise<Option[]> {
+    const firstQuestionId = 1;
+
+    const optionsUrl = `${this.quizUrl}/questions/${firstQuestionId}/options`; // Replace this with your API endpoint to fetch options based on the question ID
+
+    // Fetch options for the first question from your API or service
+    return this.http.get<Option[]>(optionsUrl).toPromise();
+  }
+
   getCurrentQuizId(): string {
     return this.quizId;
   }
@@ -525,7 +534,7 @@ export class QuizService implements OnDestroy {
         (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
       )
     );
-  }
+  } 
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
