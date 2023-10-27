@@ -85,6 +85,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() question$: Observable<QuizQuestion>;
   @Input() questions: Observable<QuizQuestion[]> = of([]);
   @Input() options: Option[];
+  @Input() optionsToDisplay: Option[];
   @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
   @Input() currentQuestionIndex: number = 0;
