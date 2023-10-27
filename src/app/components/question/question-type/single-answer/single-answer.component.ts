@@ -36,6 +36,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
 export class SingleAnswerComponent extends QuizQuestionComponent implements OnInit, OnDestroy {
   @Input() question!: QuizQuestion;
   @Input() options: Option[];
+  @Input() optionsToDisplay: Option[];
   @Input() currentQuestionIndex!: number;
   @Input() correctMessage: string;
   @Input() selected: string;

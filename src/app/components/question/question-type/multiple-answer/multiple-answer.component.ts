@@ -51,6 +51,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
   // @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestionIndex!: number;
   @Input() options: Option[];
+  @Input() optionsToDisplay: Option[];
   @Input() correctMessage: string;
   @Input() correctAnswers: number[];
   form: FormGroup;
