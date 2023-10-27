@@ -28,6 +28,7 @@
           [questionToDisplay]="questionToDisplay"
           [question]="questionToDisplay"
           [options]="optionsToDisplay"
+          [optionsToDisplay]="optionsToDisplay"
           (answer)="selectedAnswer($event)"
           [selectedOption]="selectedOption$ | async"
           (formReady)="form = $event"
