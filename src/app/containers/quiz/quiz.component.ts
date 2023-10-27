@@ -1230,6 +1230,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex
       ) || [];
 
+      // Assign the fetched options to the display variable
+      this.optionsToDisplay = this.currentOptions;
+
       // Call the setNextOptions function to update the options
       this.quizService.setNextOptions(this.currentOptions);
   
