@@ -35,6 +35,7 @@
           [currentQuestion]="currentQuestion"
           [currentQuestion$]="currentQuestion$ | async"
           [currentQuestionIndex]="currentQuestionIndex"
+          [previousQuestionIndex]="previousQuestionIndex"
           [multipleAnswer]="multipleAnswer"
           (answersChange)="checkIfAnsweredCorrectly()"
           [explanationTextValue$]="explanationTextValue$ | async"

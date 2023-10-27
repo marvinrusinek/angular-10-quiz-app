@@ -157,6 +157,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
+  previousQuestionIndex: number;
   progressValue: number;
   correctCount: number;
   numberOfCorrectAnswers: number;
@@ -1280,6 +1281,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (previousQuestion) {
         // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;
+        this.previousQuestionIndex = previousQuestionIndex;
 
         if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
