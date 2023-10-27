@@ -451,7 +451,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   shouldDisplayTextContent(): boolean {
     return !!this.data?.questionText || !!this.data?.correctAnswersText;
-  }  
+  }
+
+  shouldDisplayPreviousQuestionOptions(): boolean {
+    // Check if the current question is not the first question
+    return this.previousQuestionIndex !== 0;
+  }
 
   updateQuestionForm(): void {
     // Fetch the correct answers and update the correct message
