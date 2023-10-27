@@ -484,13 +484,15 @@ export class QuizService implements OnDestroy {
     return this.optionsSubject.asObservable();
   }
 
-  getOptionsForFirstQuestion(): Promise<Option[]> {
-    const firstQuestionId = 1;
+  async getOptionsForFirstQuestion(quizId: string): Promise<Option[]> {
+    const questionsData = await this.getQuestionsForQuiz(quizId).toPromise();
+    const questions = questionsData.questions;
 
-    const optionsUrl = `${this.quizUrl}/questions/${firstQuestionId}/options`; // Replace this with your API endpoint to fetch options based on the question ID
-
-    // Fetch options for the first question from your API or service
-    return this.http.get<Option[]>(optionsUrl).toPromise();
+    if (questions.length > 0) {
+      return questions[0].options;
+    } else {
+      return Promise.reject('No questions found for the provided quiz ID');
+    }
   }
 
   getCurrentQuizId(): string {
