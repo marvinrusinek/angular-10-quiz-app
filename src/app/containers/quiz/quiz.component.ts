@@ -1251,6 +1251,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
+    console.log('Current Question Index::>>', this.currentQuestionIndex);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1272,9 +1273,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Check if it's the first question
       if (this.currentQuestionIndex <= 0) {
         console.log('Beginning of quiz reached.');
+        console.log("QID", this.quizId);
 
         // If at the beginning of the quiz, retrieve options for the first question
         this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId);
+        console.log("OTD1", this.optionsToDisplay);
         return;
       }
   
