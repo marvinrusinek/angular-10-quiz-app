@@ -207,7 +207,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
+      console.log('Received question index:', this.questionIndex);
       this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
+      console.log('Derived current question index:', this.currentQuestionIndex);
 
       this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
         if (selectedQuiz) {
@@ -1276,7 +1278,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex = 0;
 
         // If at the beginning of the quiz, retrieve options for the first question
-        this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId);
+        this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
         console.log("OTD1", this.optionsToDisplay);
         return;
       }
@@ -1314,7 +1316,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
 
           // Fetch options for the previous question
-          this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
+          this.currentOptions = await this.quizService.getPreviousOptions(previousQuestionIndex) || [];
           console.log('Current Options:', this.currentOptions);
 
           if (this.currentQuestionIndex > 0) {
