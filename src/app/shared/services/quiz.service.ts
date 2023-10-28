@@ -490,19 +490,19 @@ export class QuizService implements OnDestroy {
       const questionsData = await this.getQuestionsForQuiz(quizId).toPromise();
       const questions = questionsData.questions;
   
-      if (questions.length > 0) {
+      if (Array.isArray(questions) && questions.length > 0 && questions[0].options) {
         console.log('First question found. Retrieving options...');
+        console.log("QUESTOPS", questions[0].options);
         return questions[0].options;
       } else {
-        console.log('No questions found for the provided quiz ID');
-        return Promise.reject('No questions found for the provided quiz ID');
+        return Promise.reject('No questions found or no options available for the provided quiz ID');
       }
     } catch (error) {
       console.error('Error occurred while fetching options for the first question:', error);
       throw error;
     }
   }
-  
+    
   getCurrentQuizId(): string {
     return this.quizId;
   }

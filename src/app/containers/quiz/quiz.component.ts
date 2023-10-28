@@ -1254,6 +1254,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
     console.log("QID OUTER", this.quizId);
+    this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
+        console.log("OTD1", this.optionsToDisplay);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1262,9 +1264,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Prevent multiple navigations
     this.isNavigating = true;
-
-    this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
-        console.log("OTD1", this.optionsToDisplay);
   
     try {
       if (!this.selectedQuiz) {
