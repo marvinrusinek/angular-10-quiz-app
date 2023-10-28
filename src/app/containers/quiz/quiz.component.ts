@@ -1262,6 +1262,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Prevent multiple navigations
     this.isNavigating = true;
+
+    this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
+        console.log("OTD1", this.optionsToDisplay);
   
     try {
       if (!this.selectedQuiz) {
