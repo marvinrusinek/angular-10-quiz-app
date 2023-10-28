@@ -1254,8 +1254,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
     console.log("QID OUTER", this.quizId);
-    this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
-        console.log("OTD1", this.optionsToDisplay);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');

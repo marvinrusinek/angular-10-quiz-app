@@ -486,7 +486,6 @@ export class QuizService implements OnDestroy {
 
   async getOptionsForFirstQuestion(quizId: string): Promise<Option[]> {
     try {
-      console.log('Attempting to fetch options for the first question...');
       const questionsData = await this.getQuestionsForQuiz(quizId).toPromise();
       const questions = questionsData.questions;
   
@@ -497,8 +496,6 @@ export class QuizService implements OnDestroy {
         questions[0].questions.length > 0 &&
         Array.isArray(questions[0].questions[0].options)
       ) {
-        console.log('First question found. Retrieving options...');
-        console.log("QUESTOPS", questions[0].questions[0].options);
         return questions[0].questions[0].options;
       } else {
         return Promise.reject('No questions found or no options available for the provided quiz ID');
