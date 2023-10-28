@@ -1311,8 +1311,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
           console.log('Current Options:', this.currentOptions);
 
-          this.optionsToDisplay = this.currentOptions;
-          console.log('OTD:', this.optionsToDisplay);
+          if (this.currentQuestionIndex > 0) {
+            this.optionsToDisplay = this.currentOptions;
+            console.log('OTD:', this.optionsToDisplay);
+          }
           
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
