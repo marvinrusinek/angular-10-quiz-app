@@ -1252,6 +1252,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
+    console.log("QID OUTER", this.quizId);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1267,9 +1268,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      // Start animation or any other operations
-      this.animationState$.next('animationStarted');
-  
       // Check if it's the first question
       if (this.currentQuestionIndex <= 0) {
         console.log('Beginning of quiz reached.');
@@ -1282,6 +1280,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log("OTD1", this.optionsToDisplay);
         return;
       }
+
+      // Start animation or any other operations
+      this.animationState$.next('animationStarted');
   
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);

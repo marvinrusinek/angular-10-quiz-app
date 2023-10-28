@@ -749,15 +749,17 @@ export class QuizService implements OnDestroy {
     try {
       const previousQuestion = await this.getPreviousQuestion(questionIndex);
       if (previousQuestion) {
+        console.log('Previous question retrieved:', previousQuestion);
         return previousQuestion.options;
       }
+      console.log('No previous question found.');
       return [];
     } catch (error) {
       console.error('Error occurred while fetching options for the previous question:', error);
       throw error;
     }
   }
-  
+    
   getCurrentQuestion(): Observable<QuizQuestion> {
     if (this.currentQuestionObservable) {
       return this.currentQuestionObservable;
