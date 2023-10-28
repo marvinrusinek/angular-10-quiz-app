@@ -1275,6 +1275,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Beginning of quiz reached.');
         console.log("QID", this.quizId);
 
+        this.currentQuestionIndex = 0;
+
         // If at the beginning of the quiz, retrieve options for the first question
         this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId);
         console.log("OTD1", this.optionsToDisplay);
