@@ -656,6 +656,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questions && questions.length > 0) {
         this.questions = questions;
         this.questionToDisplay = questions[0].questionText;
+        this.optionsToDisplay = questions[0].options;
       }
     });
   }
