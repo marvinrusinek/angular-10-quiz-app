@@ -1281,6 +1281,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Navigation to Previous Question Aborted: Selected Quiz is not available.');
         return;
       }
+
+      // Check if it's the first question
+      if (this.currentQuestionIndex === 0) {
+        console.log('First question reached.');
+        await this.advanceToFirstQuestion();
+        return;
+      }
   
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
