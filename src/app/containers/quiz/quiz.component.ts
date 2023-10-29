@@ -1283,7 +1283,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Check if it's the first question
-      if (this.currentQuestionIndex === 0) {
+      if (this.questionIndex === 1) {
         console.log('First question reached.');
         await this.advanceToFirstQuestion();
         return;
