@@ -1283,33 +1283,39 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Check if it's the first question
-      if (this.currentQuestionIndex <= 0) {
-        console.log('Beginning of quiz reached.');
+      if (this.currentQuestionIndex === 1) {
+        console.log('First question reached.');
         console.log("QID", this.quizId);
-
-        this.currentQuestionIndex = 0;
-
-        // If at the beginning of the quiz, retrieve options for the first question
+    
+        this.currentQuestionIndex = 1;
+    
+        // Retrieve options for the first question
         this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
-        console.log("OTD1", this.optionsToDisplay);
-
+        console.log("Options for the first question:", this.optionsToDisplay);
+    
         if (this.optionsToDisplay.length === 0) {
-          console.error('Failed to retrieve options for the first question.');
+            console.error('Failed to retrieve options for the first question.');
         } else {
-          // Display the data for the first question
-          const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
-          this.questionToDisplay = firstQuestionText;
-          this.quizService.previousQuestionTextSubject.next(firstQuestionText);
-          this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
-          // Set navigation variables to prevent further navigation
-          this.isNavigating = false;
-          this.isNavigatingToNext = true;
-          return;
+            // Display the data for the first question
+            const firstQuestionText = await this.quizService.getQuestionTextForIndex(1);
+            this.questionToDisplay = firstQuestionText;
+            this.quizService.previousQuestionTextSubject.next(firstQuestionText);
+            this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
+    
+            // Additional logging for debugging
+            console.log('First Question Text:', firstQuestionText);
+            console.log('Options for First Question:', this.optionsToDisplay);
+    
+            // Navigate to the new URL (/1 for the first question)
+            await this.navigateToQuestion(1);
+    
+            // Set navigation variables to prevent further navigation
+            this.isNavigating = false;
+            this.isNavigatingToNext = true;
+            return;
         }
-
-        return;
       }
-
+    
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
