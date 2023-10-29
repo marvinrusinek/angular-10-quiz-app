@@ -1294,42 +1294,36 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       if (previousQuestion) {
         const previousQuestionIndex = this.currentQuestionIndex - 1;
-        this.previousQuestionIndex = previousQuestionIndex;
   
-        if (previousQuestionIndex >= 0) {
-          this.explanationTextService.setPreviousExplanationText(explanationText);
-          this.explanationTextService.setIsExplanationTextDisplayed(false);
+        this.explanationTextService.setPreviousExplanationText(explanationText);
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
   
-          const previousQuestionText = await this.quizService.getQuestionTextForIndex(previousQuestionIndex);
-          this.previousQuestionText = previousQuestionText;
-          this.questionToDisplay = this.previousQuestionText;
-          this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
+        const previousQuestionText = await this.quizService.getQuestionTextForIndex(previousQuestionIndex);
+        this.previousQuestionText = previousQuestionText;
+        this.questionToDisplay = this.previousQuestionText;
+        this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
   
-          if (previousQuestionIndex === 0) {
-            const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
-            if (firstQuestionOptions.length > 0) {
-              this.optionsToDisplay = firstQuestionOptions;
-              this.questionToDisplay = previousQuestionText;
+        if (previousQuestionIndex === 0) {
+          const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
+          if (firstQuestionOptions.length > 0) {
+            this.optionsToDisplay = firstQuestionOptions;
+            this.questionToDisplay = previousQuestionText;
   
-              this.quizService.previousQuestionTextSubject.next(this.questionToDisplay);
-              this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
-            } else {
-              console.error('Failed to retrieve options for the first question.');
-            }
-          } else {
-            this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
-            this.optionsToDisplay = this.currentOptions;
+            this.quizService.previousQuestionTextSubject.next(this.questionToDisplay);
             this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
+          } else {
+            console.error('Failed to retrieve options for the first question.');
           }
-  
-          this.quizService.previousQuestionSubject.next(previousQuestion);
-          this.currentQuestionIndex = previousQuestionIndex;
-  
-          const navigateToIndex = previousQuestionIndex === 0 ? 1 : previousQuestionIndex;
-          await this.navigateToQuestion(navigateToIndex);
         } else {
-          console.log('No valid previous question available.');
+          const previousOptions = await this.quizService.getPreviousOptions(previousQuestionIndex) || [];
+          this.optionsToDisplay = previousOptions;
+          this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
         }
+  
+        this.quizService.previousQuestionSubject.next(previousQuestion);
+        // this.currentQuestionIndex = previousQuestionIndex;
+  
+        await this.navigateToQuestion(this.currentQuestionIndex);
       } else {
         console.log('No valid previous question available.');
       }
@@ -1339,7 +1333,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-      
+            
   async advanceToFirstQuestion(): Promise<void> {
     try {
       if (this.currentQuestionIndex === 0) {
