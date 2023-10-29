@@ -1283,7 +1283,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Check if it's the first question
-      if (this.questionIndex === 1) {
+      if (this.currentQuestionIndex === 0) {
         console.log('First question reached.');
         await this.advanceToFirstQuestion();
         return;
@@ -1295,6 +1295,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
+      // Decrement the currentQuestionIndex
+      this.currentQuestionIndex -= 1;
+      
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
 
