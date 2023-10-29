@@ -208,8 +208,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
       console.log('Received question index:', this.questionIndex);
+      this.currentQuestionIndex = this.questionIndex - 1;
 
-      if (this.questionIndex === 1) {
+      /* if (this.questionIndex === 1) {
         // For the first question, set the currentQuestionIndex to 0
         this.currentQuestionIndex = 0;
       } else {
@@ -219,7 +220,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (this.currentQuestionIndex <= 0) {
         this.currentQuestionIndex = 0;
-      }
+      } */
 
       // this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
       // console.log('Derived current question index:', this.currentQuestionIndex);
@@ -1283,7 +1284,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Check if it's the first question
       if (this.currentQuestionIndex === 0) {
-        console.log("MY TEST LOG");
+        console.log('First question reached.');
         await this.advanceToFirstQuestion();
         return;
       }

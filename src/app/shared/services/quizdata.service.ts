@@ -48,7 +48,7 @@ export class QuizDataService implements OnDestroy {
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
   currentQuestionAndOptions: [QuizQuestion, Option[]];
 
-  currentQuestionIndex = 1;
+  currentQuestionIndex = 0;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
 
   selectedQuiz: Quiz;
