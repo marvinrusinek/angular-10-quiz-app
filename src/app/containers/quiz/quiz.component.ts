@@ -1315,6 +1315,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
 
+        if (previousQuestionIndex === 0) {
+          // If the previous question is the first question, set currentQuestionIndex to 0
+          this.currentQuestionIndex = 0;
+          // Update the URL to navigate to the first question without accessing /0
+          await this.navigateToQuestion(1); // Navigate to the first question
+          return; // Ensure the function stops here after navigating
+        }
+
         if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
           this.explanationTextService.setPreviousExplanationText(explanationText);
