@@ -1289,7 +1289,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      // Start animation or any other operations
+      // Start animation
       this.animationState$.next('animationStarted');
   
       // Set shouldDisplayExplanation to false when navigating to the previous question
