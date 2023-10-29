@@ -1341,13 +1341,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
       
   async advanceToFirstQuestion(): Promise<void> {
-    if (this.currentQuestionIndex === 0) {
-      try {
-        const options = await this.quizService.getOptionsForFirstQuestion(this.quizId);
-        if (options.length > 0) {
-          this.optionsToDisplay = options;
-  
-          // Retrieve and set the question text for the first question
+    try {
+      if (this.currentQuestionIndex === 0) {
+        const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
+        if (firstQuestionOptions.length > 0) {
+          this.optionsToDisplay = firstQuestionOptions;
           const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
           this.questionToDisplay = firstQuestionText;
           this.quizService.previousQuestionTextSubject.next(firstQuestionText);
@@ -1355,12 +1353,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         } else {
           console.error('Failed to retrieve options for the first question.');
         }
-      } catch (error) {
-        console.error('Error while fetching options for the first question:', error);
       }
+    } catch (error) {
+      console.error('Error while fetching options for the first question:', error);
     }
   }
-    
+      
   async navigateToQuestion(questionIndex: number): Promise<void> {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
