@@ -1267,7 +1267,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
-
+  
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1282,77 +1282,72 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      // Check if it's the first question
-      if (this.currentQuestionIndex === 0) {
-        console.log('First question reached.');
-        await this.advanceToFirstQuestion();
-        return;
-      }
-
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      // Decrement the currentQuestionIndex
-      this.currentQuestionIndex -= 1;
-      
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
-
-      // Check if previousQuestion is defined before accessing its properties
+  
       if (previousQuestion) {
-        // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
-
-        if (previousQuestionIndex >= 0) {   
-          // Set the explanation text for the previous question
+  
+        if (previousQuestionIndex >= 0) {
           this.explanationTextService.setPreviousExplanationText(explanationText);
           this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-          // Use the getQuestionTextForIndex method to fetch the question text
-          const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
-
-          // Update the text for the previous question
+  
+          const previousQuestionText = await this.quizService.getQuestionTextForIndex(previousQuestionIndex);
           this.previousQuestionText = previousQuestionText;
-          
-          // Set questionToDisplay to the text for the previous question
           this.questionToDisplay = this.previousQuestionText;
-
-          // Update the BehaviorSubject with the new text
           this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
-
-          // Fetch options for the previous question
-          this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
-          console.log('Current Options:', this.currentOptions);
-
-          if (this.currentQuestionIndex > 0) {
+  
+          if (previousQuestionIndex === 0) {
+            // Handle the options for the first question separately
+            const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
+            if (firstQuestionOptions.length > 0) {
+              this.optionsToDisplay = firstQuestionOptions;
+              this.questionToDisplay = previousQuestionText; // Update the question text
+  
+              // Update the observables for the first question data
+              this.quizService.previousQuestionTextSubject.next(this.questionToDisplay);
+              this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
+            } else {
+              console.error('Failed to retrieve options for the first question.');
+            }
+          } else {
+            // For other questions, fetch and display the options accordingly
+            this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
             this.optionsToDisplay = this.currentOptions;
+            console.log('Current Options:', this.currentOptions);
             console.log('OTD:', this.optionsToDisplay);
+            this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
           }
-          
+  
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
-          this.quizService.previousOptionsSubject.next(this.currentOptions);
-
+  
+          // Decrement the currentQuestionIndex
+          this.currentQuestionIndex = previousQuestionIndex;
+  
           // Navigate to the new URL
-          await this.navigateToQuestion(this.currentQuestionIndex);
+          const navigateToIndex = previousQuestionIndex === 0 ? 1 : previousQuestionIndex;
+          await this.navigateToQuestion(navigateToIndex);
         } else {
           console.log('No valid previous question available.');
         }
       } else {
-          console.log('No valid previous question available.');
+        console.log('No valid previous question available.');
       }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
-      // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
   }
-
+    
   async advanceToFirstQuestion(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
       try {
@@ -1377,14 +1372,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   async navigateToQuestion(questionIndex: number): Promise<void> {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
-    if (questionIndex === 1) {
+    if (this.currentQuestionIndex === 0) {
       this.quizService.updateCurrentQuestionIndex(0);
     } else {
       this.quizService.updateCurrentQuestionIndex(questionIndex);
     }
   
     await this.router.navigateByUrl(newUrl);
-  }  
+  }
    
   /* advanceToPreviousQuestion() {
     this.answers = [];
