@@ -1325,23 +1325,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
 
-        if (previousQuestionIndex === 0) {
-          this.currentQuestionIndex = 0;
-          this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
-          const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
-    
-          if (firstQuestionText && this.optionsToDisplay.length > 0) {
-            this.questionToDisplay = firstQuestionText;
-            this.quizService.previousQuestionTextSubject.next(firstQuestionText);
-            this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
-            this.isNavigating = false; // Stop the navigation here
-            return; // Stop the function here after setting the first question data
-          } else {
-            console.error('Failed to retrieve data for the first question.');
-          }
-        }
-
-        if (previousQuestionIndex > 0) {   
+        if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
           this.explanationTextService.setPreviousExplanationText(explanationText);
           this.explanationTextService.setIsExplanationTextDisplayed(false);
