@@ -217,6 +217,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex = this.questionIndex - 1;
       }
 
+      if (this.currentQuestionIndex <= 0) {
+        this.currentQuestionIndex = 0;
+      }
 
       // this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
       // console.log('Derived current question index:', this.currentQuestionIndex);
