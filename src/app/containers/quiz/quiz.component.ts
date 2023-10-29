@@ -1287,8 +1287,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('First question reached.');
         console.log("QID", this.quizId);
     
-        this.currentQuestionIndex = 1;
-    
         // Retrieve options for the first question
         this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
         console.log("Options for the first question:", this.optionsToDisplay);
@@ -1305,6 +1303,9 @@ export class QuizComponent implements OnInit, OnDestroy {
             // Additional logging for debugging
             console.log('First Question Text:', firstQuestionText);
             console.log('Options for First Question:', this.optionsToDisplay);
+    
+            // Set the current question index to 1 for navigation
+            this.currentQuestionIndex = 1;
     
             // Navigate to the new URL (/1 for the first question)
             await this.navigateToQuestion(1);
