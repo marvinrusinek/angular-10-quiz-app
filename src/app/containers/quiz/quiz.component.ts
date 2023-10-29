@@ -1295,6 +1295,16 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         if (this.optionsToDisplay.length === 0) {
           console.error('Failed to retrieve options for the first question.');
+        } else {
+          // Display the data for the first question
+          const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
+          this.questionToDisplay = firstQuestionText;
+          this.quizService.previousQuestionTextSubject.next(firstQuestionText);
+          this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
+          // Set navigation variables to prevent further navigation
+          this.isNavigating = false;
+          this.isNavigatingToNext = true;
+          return;
         }
 
         return;
@@ -1316,14 +1326,22 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.previousQuestionIndex = previousQuestionIndex;
 
         if (previousQuestionIndex === 0) {
-          // If the previous question is the first question, set currentQuestionIndex to 0
           this.currentQuestionIndex = 0;
-          // Update the URL to navigate to the first question without accessing /0
-          await this.navigateToQuestion(1); // Navigate to the first question
-          return; // Ensure the function stops here after navigating
+          this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
+          const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
+    
+          if (firstQuestionText && this.optionsToDisplay.length > 0) {
+            this.questionToDisplay = firstQuestionText;
+            this.quizService.previousQuestionTextSubject.next(firstQuestionText);
+            this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
+            this.isNavigating = false; // Stop the navigation here
+            return; // Stop the function here after setting the first question data
+          } else {
+            console.error('Failed to retrieve data for the first question.');
+          }
         }
 
-        if (previousQuestionIndex >= 0) {   
+        if (previousQuestionIndex > 0) {   
           // Set the explanation text for the previous question
           this.explanationTextService.setPreviousExplanationText(explanationText);
           this.explanationTextService.setIsExplanationTextDisplayed(false);
