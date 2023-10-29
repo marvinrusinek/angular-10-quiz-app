@@ -1371,7 +1371,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
     
-  async navigateToQuestion(questionIndex: number) {
+  async navigateToQuestion(questionIndex: number): Promise<void> {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
     if (questionIndex === 1) {
