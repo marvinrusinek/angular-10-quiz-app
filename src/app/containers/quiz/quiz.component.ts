@@ -1266,7 +1266,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
-    console.log("QID OUTER", this.quizId);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1283,12 +1282,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       // Check if it's the first question
-      // Check if it's the first question
       if (this.currentQuestionIndex === 0) {
         await this.advanceToFirstQuestion();
         return;
       }
-      
+
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
