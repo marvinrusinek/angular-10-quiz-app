@@ -1273,7 +1273,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
   
-    // Prevent multiple navigations
     this.isNavigating = true;
   
     try {
@@ -1281,21 +1280,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Navigation to Previous Question Aborted: Selected Quiz is not available.');
         return;
       }
-
-      // Check if it's the first question
+  
       if (this.currentQuestionIndex === 0) {
         console.log('First question reached.');
         await this.advanceToFirstQuestion();
         return;
       }
   
-      // Start animation
       this.animationState$.next('animationStarted');
-  
-      // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
   
       if (previousQuestion) {
@@ -1312,34 +1306,25 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
   
           if (previousQuestionIndex === 0) {
-            // Handle the options for the first question separately
             const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
             if (firstQuestionOptions.length > 0) {
               this.optionsToDisplay = firstQuestionOptions;
-              this.questionToDisplay = previousQuestionText; // Update the question text
+              this.questionToDisplay = previousQuestionText;
   
-              // Update the observables for the first question data
               this.quizService.previousQuestionTextSubject.next(this.questionToDisplay);
               this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
             } else {
               console.error('Failed to retrieve options for the first question.');
             }
           } else {
-            // For other questions, fetch and display the options accordingly
             this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
             this.optionsToDisplay = this.currentOptions;
-            console.log('Current Options:', this.currentOptions);
-            console.log('OTD:', this.optionsToDisplay);
             this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
           }
   
-          // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
-  
-          // Decrement the currentQuestionIndex
           this.currentQuestionIndex = previousQuestionIndex;
   
-          // Navigate to the new URL
           const navigateToIndex = previousQuestionIndex === 0 ? 1 : previousQuestionIndex;
           await this.navigateToQuestion(navigateToIndex);
         } else {
@@ -1354,7 +1339,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-    
+      
   async advanceToFirstQuestion(): Promise<void> {
     if (this.currentQuestionIndex === 0) {
       try {
