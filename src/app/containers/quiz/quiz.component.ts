@@ -1283,6 +1283,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Check if it's the first question
       if (this.currentQuestionIndex === 0) {
+        console.log("MY TEST LOG");
         await this.advanceToFirstQuestion();
         return;
       }
@@ -1370,15 +1371,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
     
   async navigateToQuestion(questionIndex: number) {
-    // Construct the URL for the question
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
+    
+    if (questionIndex === 0) {
+      this.quizService.updateCurrentQuestionIndex(0);
+    } else {
+      this.quizService.updateCurrentQuestionIndex(questionIndex);
+    }
   
-    // Update the current question index in the service
-    this.quizService.updateCurrentQuestionIndex(questionIndex);
-  
-    // Navigate to the new URL
     await this.router.navigateByUrl(newUrl);
-  }
+  }  
    
   /* advanceToPreviousQuestion() {
     this.answers = [];
