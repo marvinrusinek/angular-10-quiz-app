@@ -1284,38 +1284,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Check if it's the first question
       // Check if it's the first question
-      if (this.currentQuestionIndex <= 0) {
-        console.log('First question reached.');
-        console.log("QID", this.quizId);
-
-        // Call method to get options for the first question
+      if (this.currentQuestionIndex === 0) {
         await this.advanceToFirstQuestion();
-
-        // Retrieve options for the first question
-        this.optionsToDisplay = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
-        console.log("Options for the first question:", this.optionsToDisplay);
-
-        if (this.optionsToDisplay.length === 0) {
-          console.error('Failed to retrieve options for the first question.');
-        } else {
-          // Display the data for the first question
-          const firstQuestionText = await this.quizService.getQuestionTextForIndex(0); // Assuming the index is 0-based
-          this.questionToDisplay = firstQuestionText;
-          this.quizService.previousQuestionTextSubject.next(firstQuestionText);
-          this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
-
-          // Additional logging for debugging
-          console.log('First Question Text:', firstQuestionText);
-          console.log('Options for First Question:', this.optionsToDisplay);
-
-          // To avoid further execution after setting data for the first question,
-          // stop the navigation here, and prevent multiple navigations
-          this.isNavigating = false;
-          this.isNavigatingToNext = true;
-          return;
-        }
+        return;
       }
-    
+      
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
