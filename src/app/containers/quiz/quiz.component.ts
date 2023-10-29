@@ -1286,23 +1286,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Check if it's the first question
       if (this.currentQuestionIndex <= 0) {
         console.log('Beginning of quiz reached.');
-        console.log("QID", this.quizId);
-
-        this.currentQuestionIndex = 0;
-
-        // If at the beginning of the quiz, retrieve options for the first question
-        const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId) || [];
-        console.log("OTD1", firstQuestionOptions);
-
-        if (firstQuestionOptions.length > 0) {
-            this.optionsToDisplay = firstQuestionOptions;
-            console.log("OTD:", this.optionsToDisplay);
-            // Also update the text for the first question, if needed
-            // this.questionToDisplay = 'Your first question text'; // Update your first question text here
-        } else {
-            console.error('Failed to retrieve options for the first question.');
-        }
-
+        await this.advanceToFirstQuestion();
         return;
       }
 
