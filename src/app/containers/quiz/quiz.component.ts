@@ -1297,7 +1297,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             console.error('Failed to retrieve options for the first question.');
         } else {
             // Display the data for the first question
-            const firstQuestionText = await this.quizService.getQuestionTextForIndex(1);
+            const firstQuestionText = await this.quizService.getQuestionTextForIndex(0); // Assuming the index is 0-based
             this.questionToDisplay = firstQuestionText;
             this.quizService.previousQuestionTextSubject.next(firstQuestionText);
             this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
