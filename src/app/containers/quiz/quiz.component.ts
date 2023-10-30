@@ -1267,7 +1267,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
-    console.log("QID OUTER", this.quizId);
 
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
@@ -1328,7 +1327,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           if (this.currentQuestionIndex > 0) {
             this.optionsToDisplay = this.currentOptions;
-            console.log('OTD:', this.optionsToDisplay);
           }
           
           // Update the observables for the previous question data
