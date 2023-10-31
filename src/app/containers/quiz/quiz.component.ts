@@ -1134,7 +1134,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHidePrevQuestionNav(): boolean {
-    this.currentQuestionIndex = 0;
     return this.currentQuestionIndex === 0;
   }
 
