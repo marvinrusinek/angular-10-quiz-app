@@ -209,6 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.questionIndex = +params['questionIndex'];
       console.log('Received question index:', this.questionIndex);
       this.currentQuestionIndex = Math.max(this.questionIndex - 1, 0);
+      console.log("CQI::", this.currentQuestionIndex);
 
       /* if (this.questionIndex === 1) {
         // For the first question, set the currentQuestionIndex to 0
