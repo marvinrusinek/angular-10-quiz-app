@@ -528,13 +528,10 @@ export class CodelabQuizContentComponent {
             return of('');
           } else {
             let textToDisplay = '';
-          
-            if (shouldDisplayExplanation) {
-              textToDisplay = nextExplanationText || '';
-            } else {
-              textToDisplay = this.questionToDisplay || '';
-            }
-          
+            textToDisplay = shouldDisplayExplanation ? 
+              (nextExplanationText || '') : 
+              (this.questionToDisplay || '');
+
             return of(textToDisplay);
           }          
         }
