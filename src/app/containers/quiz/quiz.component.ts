@@ -1323,7 +1323,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
 
           // Fetch options for the previous question
-          this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
+          this.currentOptions = await this.quizService.getPreviousOptions(this.previousQuestionIndex) || [];
           console.log('Current Options:', this.currentOptions);
 
           if (this.currentQuestionIndex > 0) {
