@@ -1350,6 +1350,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
             
   async advanceToFirstQuestion(): Promise<void> {
+    this.currentQuestionIndex = 0; 
+    
     try {
       const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
       
