@@ -1268,13 +1268,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
     console.log('Current Question Index::>>', this.currentQuestionIndex);
-
+  
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
   
-    // Prevent multiple navigations
     this.isNavigating = true;
   
     try {
@@ -1286,11 +1285,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Check if it's the first question
       if (this.currentQuestionIndex === 1) {
         console.log('Beginning of quiz reached.');
-        await this.advanceToFirstQuestion();
         this.currentQuestionIndex = 0;
+
+        await this.advanceToFirstQuestion();
+
+        // Navigate to the first question specifically
+        await this.navigateToQuestion(1);
+  
         return;
       }
-
+  
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
@@ -1342,7 +1346,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       } else {
           console.log('No valid previous question available.');
-      }
+      }      
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -1350,6 +1354,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
+  
                   
   async advanceToFirstQuestion(): Promise<void> {
     this.currentQuestionIndex = 0; 
