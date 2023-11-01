@@ -1282,27 +1282,18 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      const previousQuestionIndex = this.currentQuestionIndex - 1;
-  
-      if (previousQuestionIndex < 0) {
-        console.log('Beginning of quiz reached.');
+      // Reset to first question if navigating from the second to the first question
+      if (this.currentQuestionIndex === 1) {
+        console.log('Resetting to the first question.');
         await this.advanceToFirstQuestion();
-        this.currentQuestionIndex = 0; // Reset to 0 when reaching the first question
+        this.currentQuestionIndex = 0;
         return;
       }
-  
-      // Start animation or any other operations
-      this.animationState$.next('animationStarted');
-  
-      // Set shouldDisplayExplanation to false when navigating to the previous question
-      this.explanationTextService.setShouldDisplayExplanation(false);
-  
-      // Fetch the current question with explanation
+
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
 
-      // Check if previousQuestion is defined before accessing its properties
       if (previousQuestion) {
-        // Construct the URL for the previous question (decrement the index)
+        // Handle navigating from one question to the previous question
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
 
@@ -1340,16 +1331,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         } else {
           console.log('No valid previous question available.');
         }
-      } else {
-          console.log('No valid previous question available.');
-      }  
+      }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigating = false;
     }
   }
-              
+                
   async advanceToFirstQuestion(): Promise<void> {
     this.currentQuestionIndex = 0; 
     
