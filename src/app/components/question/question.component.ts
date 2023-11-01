@@ -455,7 +455,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   shouldDisplayPreviousQuestionOptions(): boolean {
     // Check if the current question is not the first question
-    return this.currentQuestionIndex > 0;
+    return this.currentQuestionIndex !== 0;
   }
 
   getOptionsForQuestion(): Option[] {
