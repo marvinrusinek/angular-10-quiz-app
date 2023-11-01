@@ -1365,6 +1365,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       
       if (firstQuestionOptions.length > 0) {
         this.optionsToDisplay = firstQuestionOptions;
+        this.cdRef.markForCheck();
         console.log("OTD::", this.optionsToDisplay);
         const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
         this.questionToDisplay = firstQuestionText;
