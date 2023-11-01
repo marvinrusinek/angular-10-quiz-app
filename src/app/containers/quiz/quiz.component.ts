@@ -1361,9 +1361,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     
     try {
       const firstQuestionOptions = await this.quizService.getOptionsForFirstQuestion(this.quizId);
+      console.log("FQO", firstQuestionOptions);
       
       if (firstQuestionOptions.length > 0) {
         this.optionsToDisplay = firstQuestionOptions;
+        console.log("OTD::", this.optionsToDisplay);
         const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
         this.questionToDisplay = firstQuestionText;
         this.quizService.previousQuestionTextSubject.next(firstQuestionText);
