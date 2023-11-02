@@ -1303,6 +1303,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
 
+        console.log("PQI", this.previousQuestionIndex);
+
         if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
           this.explanationTextService.setPreviousExplanationText(explanationText);
