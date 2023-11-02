@@ -1,5 +1,5 @@
 <ng-container *ngIf="data?.options"> 
-  <div *ngFor="let option of (optionsToDisplay.length > 0) ? optionsToDisplay : data?.options; let i = index; trackBy: trackByFn">
+  <div *ngFor="let option of getDisplayOptions(); let i = index; trackBy: trackByFn">
       <label class="options">
         <mat-radio-button
           [class]="option.styleClass"

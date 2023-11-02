@@ -248,6 +248,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   trackByFn(index: number, option: any) {
     return option.optionId;
   }
+
+  getDisplayOptions(): Option[] {
+    return this.optionsToDisplay.length > 0 ? this.optionsToDisplay : this.data?.options;
+  }
   
   private logInitialData(): void {
     console.log('ngOnInit is called...');
