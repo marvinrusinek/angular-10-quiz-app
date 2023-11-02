@@ -1190,9 +1190,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-  
-    // Prevent multiple navigations
-    this.isNavigating = true;
+    this.isNavigating = true;  // Prevent multiple navigations
   
     try {
       if (!this.selectedQuiz) {
@@ -1221,7 +1219,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      this.currentQuestionIndex++; // Increment the index
+      this.currentQuestionIndex++;  // Increment the index
    
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
@@ -1268,13 +1266,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
-    console.log('Current Question Index::>>', this.currentQuestionIndex);
   
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-  
     this.isNavigating = true;
   
     try {
@@ -1365,7 +1361,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         const firstQuestionText = await this.quizService.getQuestionTextForIndex(0);
         this.questionToDisplay = firstQuestionText;
-        
+
         this.quizService.previousQuestionTextSubject.next(firstQuestionText);
         this.quizService.previousOptionsSubject.next(this.optionsToDisplay);
       } else {
