@@ -1317,7 +1317,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.explanationTextService.setIsExplanationTextDisplayed(false);
 
           // Use the getQuestionTextForIndex method to fetch the question text
+          console.log('Fetching previous question text...');
           const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
+          console.log('Previous Question Text:', previousQuestionText);
 
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
