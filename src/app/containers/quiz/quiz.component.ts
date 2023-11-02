@@ -1298,6 +1298,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
 
       // Check if previousQuestion is defined before accessing its properties
+      console.log("PQ", previousQuestion);
       if (previousQuestion) {
         // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;

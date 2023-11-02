@@ -1269,6 +1269,7 @@ export class QuizService implements OnDestroy {
     try {
       // Fetch the previous question
       const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
+      console.log("PQ INNER", previousQuestion);
   
       if (!previousQuestion) {
         // Handle the case where previousQuestion is undefined
