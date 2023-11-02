@@ -245,12 +245,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
-  trackByFn(option: any) {
+  trackByFn(option: Option) {
     return option.optionId;
   }
 
   getDisplayOptions(): Option[] {
-    return this.optionsToDisplay && this.optionsToDisplay.length > 0 ? this.optionsToDisplay : this.data?.options;
+    return this.optionsToDisplay && this.optionsToDisplay.length > 0 ? 
+           this.optionsToDisplay : this.data?.options;
   }
   
   private logInitialData(): void {
