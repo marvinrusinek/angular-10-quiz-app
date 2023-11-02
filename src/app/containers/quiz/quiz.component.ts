@@ -202,7 +202,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getSelectedQuiz();
     this.getQuestion();
     this.getCurrentQuestion();
-    // this.initializeFirstQuestionText();
+    this.initializeFirstQuestionText();
     this.fetchQuizData();
     
     this.activatedRoute.params.subscribe((params) => {
