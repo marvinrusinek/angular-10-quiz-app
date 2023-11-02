@@ -245,7 +245,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
-  trackByFn(index: number, option: any) {
+  trackByFn(option: any) {
     return option.optionId;
   }
 
