@@ -53,6 +53,7 @@ export class CodelabQuizContentComponent {
   @Input() options$: Observable<Option[]>;
   @Input() nextQuestionText: string;
   @Input() previousQuestionText: string;
+  @Input() correctAnswersText = '';
   quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;
@@ -73,7 +74,6 @@ export class CodelabQuizContentComponent {
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
   shouldDisplayCorrectAnswers = false;
-  correctAnswersText = '';
 
   currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
@@ -164,6 +164,8 @@ export class CodelabQuizContentComponent {
           }
         }
       );
+
+    this.setCorrectAnswersText(this.correctAnswersText);
   }
 
   ngOnDestroy(): void {
@@ -538,6 +540,10 @@ export class CodelabQuizContentComponent {
       ),
       startWith('')
     );
+  }
+
+  setCorrectAnswersText(correctAnswersText: string) {
+    this.correctAnswersTextSource.next(correctAnswersText);
   }
 
   setPreviousQuestionText(text: string): void {
