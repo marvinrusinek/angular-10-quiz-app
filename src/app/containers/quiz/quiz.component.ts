@@ -1306,18 +1306,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
 
-          // Check if the previous question has multiple correct answers
-          const multipleAnswers = this.quizStateService.isMultipleAnswer();
-          if (multipleAnswers) {
-            // Calculate the number of correct answers
-            const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(previousQuestion);
-            const correctAnswerText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-
-            // Now, 'correctAnswerText' contains the formatted message about the number of correct answers
-            // You can use this text to display appropriately in your UI or console.log() for testing purposes.
-            console.log(correctAnswerText);
-          }
-          
           // Set questionToDisplay to the text for the previous question
           this.questionToDisplay = this.previousQuestionText;
 
@@ -1327,6 +1315,18 @@ export class QuizComponent implements OnInit, OnDestroy {
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
           this.optionsToDisplay = this.currentOptions;
+
+          // Check if the previous question has multiple correct answers
+          const multipleAnswers = this.quizStateService.isMultipleAnswer();
+          if (multipleAnswers) {
+            // Calculate the number of correct answers
+            const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
+            const correctAnswerText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+
+            // Now, 'correctAnswerText' contains the formatted message about the number of correct answers
+            // You can use this text to display appropriately in your UI or console.log() for testing purposes.
+            console.log(correctAnswerText);
+          }
           
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
