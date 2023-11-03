@@ -1140,7 +1140,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldHideRestartNav(): boolean {
     return (
-      this.currentQuestionIndex <= 1 ||
+      this.currentQuestionIndex < 1 ||
       this.questionIndex >= this.totalQuestions
     );
   }
