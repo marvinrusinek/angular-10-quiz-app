@@ -1279,9 +1279,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      // Check if it's the first question
       if (this.currentQuestionIndex === 1) {
-        this.currentQuestionIndex = 0;
         await this.advanceToFirstQuestion();
         await this.navigateToQuestion(1);
   
