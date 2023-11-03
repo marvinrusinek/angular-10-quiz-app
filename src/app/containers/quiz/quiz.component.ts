@@ -1312,15 +1312,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
-          console.log('Current Options:', this.currentOptions);
-
-          if (this.currentQuestionIndex > 0) {
-            this.optionsToDisplay = this.currentOptions;
-          }
+          this.optionsToDisplay = this.currentOptions;
           
           // Update the observables for the previous question data
-          this.quizService.previousQuestionSubject.next(previousQuestion);
-          this.quizService.previousOptionsSubject.next(this.currentOptions);
+          // this.quizService.previousQuestionSubject.next(previousQuestion);
+          // this.quizService.previousOptionsSubject.next(this.currentOptions);
 
           // Navigate to the new URL
           await this.navigateToQuestion(this.currentQuestionIndex);
