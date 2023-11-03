@@ -1279,33 +1279,19 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      /* if (this.currentQuestionIndex === 0) {
-        this.currentQuestionIndex = 0;
-        await this.advanceToFirstQuestion();
-        await this.navigateToQuestion(1);
-        this.isNavigating = false;
-        return;
-      } */
-  
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
 
-      console.log("CQI BEFORE", this.currentQuestionIndex);
-  
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
 
-      // Check if previousQuestion is defined before accessing its properties
-      console.log("PQ", previousQuestion);
       if (previousQuestion) {
         // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
-
-        console.log("PQI", this.previousQuestionIndex);
 
         if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
@@ -1313,9 +1299,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.explanationTextService.setIsExplanationTextDisplayed(false);
 
           // Use the getQuestionTextForIndex method to fetch the question text
-          console.log('Fetching previous question text...');
           const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
-          console.log('Previous Question Text:', previousQuestionText);
 
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
