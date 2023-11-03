@@ -135,6 +135,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextQuestionText = '';
   previousQuestionText = '';
   nextExplanationText = '';
+  correctAnswerText = '';
   selectOptionText = 'Please select an option to continue...';
   cardFooterClass = '';
 
@@ -1297,8 +1298,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
-          // this.explanationTextService.setPreviousExplanationText(explanationText);
-          // this.explanationTextService.setIsExplanationTextDisplayed(false);
+          this.explanationTextService.setPreviousExplanationText(explanationText);
+          this.explanationTextService.setIsExplanationTextDisplayed(false);
 
           // Use the getQuestionTextForIndex method to fetch the question text
           const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
@@ -1323,9 +1324,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
             const correctAnswerText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
 
-            // Now, 'correctAnswerText' contains the formatted message about the number of correct answers
-            // You can use this text to display appropriately in your UI or console.log() for testing purposes.
-            console.log(correctAnswerText);
+            this.correctAnswerText = correctAnswerText;
           }
           
           // Update the observables for the previous question data
