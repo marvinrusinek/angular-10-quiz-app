@@ -1299,13 +1299,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           // this.explanationTextService.setIsExplanationTextDisplayed(false);
 
           // Use the getQuestionTextForIndex method to fetch the question text
-          // const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
+          const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
 
           // Update the text for the previous question
-          // this.previousQuestionText = previousQuestionText;
+          this.previousQuestionText = previousQuestionText;
           
           // Set questionToDisplay to the text for the previous question
-          // this.questionToDisplay = this.previousQuestionText;
+          this.questionToDisplay = this.previousQuestionText;
 
           // Update the BehaviorSubject with the new text
           // this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
