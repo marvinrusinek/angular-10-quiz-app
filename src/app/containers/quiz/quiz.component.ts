@@ -1308,15 +1308,15 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = this.previousQuestionText;
 
           // Update the BehaviorSubject with the new text
-          // this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
+          this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
 
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
           this.optionsToDisplay = this.currentOptions;
           
           // Update the observables for the previous question data
-          // this.quizService.previousQuestionSubject.next(previousQuestion);
-          // this.quizService.previousOptionsSubject.next(this.currentOptions);
+          this.quizService.previousQuestionSubject.next(previousQuestion);
+          this.quizService.previousOptionsSubject.next(this.currentOptions);
 
           // Navigate to the new URL
           await this.navigateToQuestion(this.currentQuestionIndex);
