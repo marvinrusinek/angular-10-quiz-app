@@ -164,8 +164,6 @@ export class CodelabQuizContentComponent {
           }
         }
       );
-
-    this.setCorrectAnswersText(this.correctAnswersText);
   }
 
   ngOnDestroy(): void {
