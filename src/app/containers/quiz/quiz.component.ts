@@ -1349,20 +1349,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     await this.router.navigateByUrl(newUrl);
   }
       
-  /* async navigateToQuestion(questionIndex: number): Promise<void> {
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
-    
-    if (questionIndex === 1) {
-      this.quizService.updateCurrentQuestionIndex(0);
-      this.currentQuestionIndex = 0;
-    } else {
-      this.quizService.updateCurrentQuestionIndex(questionIndex);
-      this.currentQuestionIndex = questionIndex;
-    }
-  
-    await this.router.navigateByUrl(newUrl);
-  } */
-     
   /* advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
