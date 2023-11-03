@@ -1279,13 +1279,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      if (this.currentQuestionIndex === 1) {
+      /* if (this.currentQuestionIndex === 0) {
         this.currentQuestionIndex = 0;
         await this.advanceToFirstQuestion();
         await this.navigateToQuestion(1);
         this.isNavigating = false;
         return;
-      }
+      } */
   
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
