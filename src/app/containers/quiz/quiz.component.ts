@@ -1295,20 +1295,20 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         if (previousQuestionIndex >= 0) {   
           // Set the explanation text for the previous question
-          this.explanationTextService.setPreviousExplanationText(explanationText);
-          this.explanationTextService.setIsExplanationTextDisplayed(false);
+          // this.explanationTextService.setPreviousExplanationText(explanationText);
+          // this.explanationTextService.setIsExplanationTextDisplayed(false);
 
           // Use the getQuestionTextForIndex method to fetch the question text
-          const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
+          // const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
 
           // Update the text for the previous question
-          this.previousQuestionText = previousQuestionText;
+          // this.previousQuestionText = previousQuestionText;
           
           // Set questionToDisplay to the text for the previous question
-          this.questionToDisplay = this.previousQuestionText;
+          // this.questionToDisplay = this.previousQuestionText;
 
           // Update the BehaviorSubject with the new text
-          this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
+          // this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
 
           // Fetch options for the previous question
           this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
