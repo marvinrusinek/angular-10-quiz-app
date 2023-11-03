@@ -84,6 +84,30 @@ export class QuizQuestionManagerService {
     return this.numberOfCorrectAnswers;
   }
 
+  getNumberOfCorrectAnswersText(
+    numberOfCorrectAnswers: number | undefined
+  ): string {
+    if (numberOfCorrectAnswers === undefined) {
+      return '';
+    }
+
+    const correctAnswersText =
+      numberOfCorrectAnswers === 1
+        ? `(${numberOfCorrectAnswers} answer is correct)`
+        : `(${numberOfCorrectAnswers} answers are correct)`;
+
+    return correctAnswersText;
+  }
+
+  calculateNumberOfCorrectAnswers(options: Option[]): number {
+    const safeOptions = options ?? [];
+    const numberOfCorrectAnswers = safeOptions.reduce(
+      (count, option) => count + (option.correct ? 1 : 0),
+      0
+    );
+    return numberOfCorrectAnswers;
+  }
+
   shouldDisplayExplanationText(): boolean {
     return !!this.explanationText;
   }

@@ -239,10 +239,10 @@ export class CodelabQuizContentComponent {
         async (question: QuizQuestion) => {
           if (question) {
             this.quizQuestionManagerService.setCurrentQuestion(question);
-            this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(
+            this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
               question.options
             );
-            const correctAnswersText = this.getNumberOfCorrectAnswersText(
+            const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
               this.numberOfCorrectAnswers
             );
             this.correctAnswersTextSource.next(correctAnswersText);
@@ -397,7 +397,7 @@ export class CodelabQuizContentComponent {
             numberOfCorrectAnswers !== undefined &&
             +numberOfCorrectAnswers > 1
           ) {
-            correctAnswersText = this.getNumberOfCorrectAnswersText(
+            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
               +numberOfCorrectAnswers
             );
           }
@@ -432,7 +432,7 @@ export class CodelabQuizContentComponent {
   }
 
   private setupCombinedQuestionData(): void {
-    const correctAnswersTextOnInit = this.getNumberOfCorrectAnswersText(
+    const correctAnswersTextOnInit = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
       +this.numberOfCorrectAnswers$.value
     );    
 
@@ -558,32 +558,8 @@ export class CodelabQuizContentComponent {
     return '';
   }
 
-  getNumberOfCorrectAnswersText(
-    numberOfCorrectAnswers: number | undefined
-  ): string {
-    if (numberOfCorrectAnswers === undefined) {
-      return '';
-    }
-
-    const correctAnswersText =
-      numberOfCorrectAnswers === 1
-        ? `(${numberOfCorrectAnswers} answer is correct)`
-        : `(${numberOfCorrectAnswers} answers are correct)`;
-
-    return correctAnswersText;
-  }
-
-  calculateNumberOfCorrectAnswers(options: Option[]): number {
-    const safeOptions = options ?? [];
-    const numberOfCorrectAnswers = safeOptions.reduce(
-      (count, option) => count + (option.correct ? 1 : 0),
-      0
-    );
-    return numberOfCorrectAnswers;
-  }
-
   shouldDisplayCorrectAnswersText(data: any): boolean {
-    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(
+    const numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
       data.currentOptions
     );
     const isMultipleAnswer = numberOfCorrectAnswers > 1;
