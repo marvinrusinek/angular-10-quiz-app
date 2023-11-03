@@ -53,7 +53,7 @@ export class CodelabQuizContentComponent {
   @Input() options$: Observable<Option[]>;
   @Input() nextQuestionText: string;
   @Input() previousQuestionText: string;
-  @Input() correctAnswersText = '';
+  @Input() correctAnswersText: string;
   quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;

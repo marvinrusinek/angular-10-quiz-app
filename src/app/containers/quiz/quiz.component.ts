@@ -135,7 +135,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextQuestionText = '';
   previousQuestionText = '';
   nextExplanationText = '';
-  correctAnswersText = '';
+  correctAnswersText: string;
   selectOptionText = 'Please select an option to continue...';
   cardFooterClass = '';
 
