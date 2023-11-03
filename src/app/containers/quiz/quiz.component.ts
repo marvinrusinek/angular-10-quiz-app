@@ -1280,9 +1280,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       if (this.currentQuestionIndex === 1) {
+        this.currentQuestionIndex = 0;
         await this.advanceToFirstQuestion();
         await this.navigateToQuestion(1);
-  
+        this.isNavigating = false;
         return;
       }
   
@@ -1374,8 +1375,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error while fetching options for the first question:', error);
     }
   }
-      
+
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
+    
+    if (questionIndex !== 1) {
+      this.quizService.updateCurrentQuestionIndex(questionIndex);
+      this.currentQuestionIndex = questionIndex;
+    }
+    
+    await this.router.navigateByUrl(newUrl);
+  }
+      
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
     if (questionIndex === 1) {
@@ -1387,7 +1399,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   
     await this.router.navigateByUrl(newUrl);
-  }
+  } */
      
   /* advanceToPreviousQuestion() {
     this.answers = [];
