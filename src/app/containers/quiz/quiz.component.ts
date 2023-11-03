@@ -135,7 +135,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   nextQuestionText = '';
   previousQuestionText = '';
   nextExplanationText = '';
-  correctAnswerText = '';
+  correctAnswersText = '';
   selectOptionText = 'Please select an option to continue...';
   cardFooterClass = '';
 
@@ -1322,9 +1322,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           if (multipleAnswers) {
             // Calculate the number of correct answers
             const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
-            const correctAnswerText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+            const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
 
-            this.correctAnswerText = correctAnswerText;
+            this.correctAnswersText = correctAnswersText;
           }
           
           // Update the observables for the previous question data
