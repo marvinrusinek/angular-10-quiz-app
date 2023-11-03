@@ -1293,6 +1293,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
+
+      console.log("CQI BEFORE", this.currentQuestionIndex);
   
       // Fetch the current question with explanation
       const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);

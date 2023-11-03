@@ -1266,6 +1266,7 @@ export class QuizService implements OnDestroy {
     previousQuestion: QuizQuestion | undefined;
     explanationText: string | undefined;
   }> {
+    console.log("GPQWE");
     try {
       // Fetch the previous question
       const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
