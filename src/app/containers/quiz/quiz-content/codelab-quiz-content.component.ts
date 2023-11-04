@@ -173,9 +173,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }
     }); */
 
-    this.quizService.correctAnswersText$.subscribe((text: string) => {
+    this.correctAnswersText$.subscribe((text: string) => {
       this.correctAnswersText = text;
     });
+    this.correctAnswersTextSource.next(this.correctAnswersText);
   }
 
   ngOnChanges(): void {
@@ -553,11 +554,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             return of('');
           } else {
             let textToDisplay = '';
+
             textToDisplay = shouldDisplayExplanation ? 
               (nextExplanationText || '') : 
               (this.questionToDisplay || '');
+              
             // Adding the correct answers text if navigating back
-            textToDisplay = !nextQuestion && previousQuestion ? `${textToDisplay} ${correctAnswersText}` : textToDisplay;
+            textToDisplay = !nextQuestion && previousQuestion ? `${textToDisplay} ${this.correctAnswersText}` : textToDisplay;
 
             return of(textToDisplay);
           }          
