@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, OnChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -34,7 +34,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent {
+export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
   @Input() combinedQuestionData$: Observable<{
     questionText: string;
     explanationText?: string;
@@ -164,6 +164,12 @@ export class CodelabQuizContentComponent {
           }
         }
       );
+  }
+
+  ngOnChanges(): void {
+    if (this.correctAnswersText !== undefined) {
+      this.correctAnswersTextSource.next(this.correctAnswersText);
+    }
   }
 
   ngOnDestroy(): void {
@@ -473,8 +479,8 @@ export class CodelabQuizContentComponent {
         map(([questionToDisplay, nextOptions, explanationText, correctAnswersText]) => {
           console.log('Combined Question Data Updated:', questionToDisplay);
           const questionText = isNavigatingToPrevious
-            ? this.previousQuestionText // Display previous question text
-            : questionToDisplay?.questionText || ''; // Display current question text
+            ? `${this.previousQuestionText} ${correctAnswersText}` // When navigating back, display the correct answers text
+            : questionToDisplay?.questionText || '';
 
           console.log('Question Text:', questionText);
     
