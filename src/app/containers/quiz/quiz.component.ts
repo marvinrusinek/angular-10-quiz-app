@@ -1346,18 +1346,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-  
-  async navigateToQuestion(questionIndex: number): Promise<void> {
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
-    
-    if (questionIndex !== 1) {
-      this.quizService.updateCurrentQuestionIndex(questionIndex);
-      this.currentQuestionIndex = questionIndex;
-    }
-    
-    await this.router.navigateByUrl(newUrl);
-  }
-      
+
   /* advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
@@ -1371,6 +1360,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.resetTimer();
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
+  }
+  
+  async navigateToQuestion(questionIndex: number): Promise<void> {
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
+    
+    if (questionIndex !== 1) {
+      this.quizService.updateCurrentQuestionIndex(questionIndex);
+      this.currentQuestionIndex = questionIndex;
+    }
+    
+    await this.router.navigateByUrl(newUrl);
   }
 
   private getNextOptionsForQuestion(nextQuestion: QuizQuestion): Option[] {
