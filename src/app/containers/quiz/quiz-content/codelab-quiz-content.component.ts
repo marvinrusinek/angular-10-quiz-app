@@ -587,13 +587,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   shouldDisplayCorrectAnswersText(data: any): boolean {
-    const isMultipleAnswer = this.quizStateService.isMultipleAnswer(data.currentQuestion);
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
     const isQuestionDisplayed = !!data.questionText;
     const isExplanationDisplayed = !!data.explanationText;
-    
-    // Display the number of correct answers only on multiple-answer questions and when navigating back
-    return (isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed && !isNavigatingToPrevious);
+  
+    // Identify the type of the current question to check if it has multiple correct answers
+    const currentQuestion = data.currentQuestion;
+    const currentQuestionHasMultipleAnswers = currentQuestion && currentQuestion.multipleAnswers;
+  
+    // When not navigating back, display the correct answer text on initial display for multiple-answer questions
+    if (!isNavigatingToPrevious) {
+      return currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed;
+    }
+  
+    // When navigating back, display the correct answer text for multiple-answer questions and when the question is displayed
+    return currentQuestionHasMultipleAnswers && isQuestionDisplayed;
   }  
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
