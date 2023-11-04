@@ -59,34 +59,31 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(): Observable<boolean> {
-    return this.currentQuestion.pipe(
-      map((question) => {
-        if (!question) {
-          console.error('Question is not defined');
-          this.setMultipleAnswer(false);
-          return false;
-        }
-  
-        if (!question.options) {
-          console.error('Question options not found.', question);
-          this.setMultipleAnswer(false);
-          return false;
-        }
-  
-        const correctOptions = question.options?.filter((option) => option.correct);
-        const isMultipleAnswer = correctOptions.length > 1;
-        this.setMultipleAnswer(isMultipleAnswer);
-        return isMultipleAnswer;
-      }),
+  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    if (!question) {
+      console.error('Question is not defined');
+      this.setMultipleAnswer(false);
+      return of(false);
+    }
+
+    if (!question.options) {
+      console.error('Question options not found.', question);
+      this.setMultipleAnswer(false);
+      return of(false);
+    }
+
+    const correctOptions = question.options?.filter((option) => option.correct);
+    const isMultipleAnswer = correctOptions.length > 1;
+    this.setMultipleAnswer(isMultipleAnswer);
+    return of(isMultipleAnswer).pipe(
       catchError((error) => {
         console.error('Error determining if it is a multiple answer question:', error);
         this.setMultipleAnswer(false);
-        return of(false);
+        return throwError(false);
       })
     );
   }
-      
+
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
