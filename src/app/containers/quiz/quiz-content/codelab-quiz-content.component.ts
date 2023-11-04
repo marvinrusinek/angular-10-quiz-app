@@ -515,14 +515,16 @@ export class CodelabQuizContentComponent {
       this.nextQuestion$,
       this.previousQuestion$,
       this.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.correctAnswersText$
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           previousQuestion,
           nextExplanationText,
-          shouldDisplayExplanation
+          shouldDisplayExplanation,
+          correctAnswersText
         ]) => {
           if (
             (!nextQuestion || !nextQuestion.questionText) &&
@@ -534,6 +536,8 @@ export class CodelabQuizContentComponent {
             textToDisplay = shouldDisplayExplanation ? 
               (nextExplanationText || '') : 
               (this.questionToDisplay || '');
+            // Adding the correct answers text if navigating back
+            textToDisplay = !nextQuestion && previousQuestion ? `${textToDisplay} ${correctAnswersText}` : textToDisplay;
 
             return of(textToDisplay);
           }          
