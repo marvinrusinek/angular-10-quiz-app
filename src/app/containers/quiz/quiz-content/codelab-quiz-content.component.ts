@@ -467,11 +467,14 @@ export class CodelabQuizContentComponent {
       this.combinedQuestionData$ = combineLatest([
         questionToDisplay$,
         this.quizService.nextOptions$,
-        this.explanationText$
+        this.explanationText$,
+        correctAnswersTextOnInit
       ]).pipe(
-        map(([questionToDisplay, nextOptions, explanationText]) => {
+        map(([questionToDisplay, nextOptions, explanationText, correctAnswersText]) => {
           console.log('Combined Question Data Updated:', questionToDisplay);
-          const questionText = isNavigatingToPrevious ? this.previousQuestionText : questionToDisplay?.questionText || '';
+          const questionText = isNavigatingToPrevious
+            ? `${this.previousQuestionText} ${correctAnswersText}`
+            : questionToDisplay?.questionText || '';
 
           console.log('Question Text:', questionText);
     
