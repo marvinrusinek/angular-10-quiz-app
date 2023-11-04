@@ -468,20 +468,20 @@ export class CodelabQuizContentComponent {
         questionToDisplay$,
         this.quizService.nextOptions$,
         this.explanationText$,
-        correctAnswersTextOnInit
+        this.correctAnswersText$
       ]).pipe(
         map(([questionToDisplay, nextOptions, explanationText, correctAnswersText]) => {
           console.log('Combined Question Data Updated:', questionToDisplay);
           const questionText = isNavigatingToPrevious
-            ? `${this.previousQuestionText} ${correctAnswersText}`
-            : questionToDisplay?.questionText || '';
+            ? this.previousQuestionText // Display previous question text
+            : questionToDisplay?.questionText || ''; // Display current question text
 
           console.log('Question Text:', questionText);
     
           return {
             questionText: questionText,
             explanationText: explanationText,
-            correctAnswersText: correctAnswersTextOnInit,
+            correctAnswersText: correctAnswersText,
             currentQuestion: questionToDisplay || null,
             currentOptions: nextOptions || [],
             isNavigatingToPrevious: isNavigatingToPrevious
