@@ -165,14 +165,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
       );
 
-    /* this.correctAnswersText$.subscribe((text: string) => {
-      if (text !== undefined && text !== '' && this.shouldDisplayCorrectAnswersText(this.combinedQuestionData$)) {
-        this.correctAnswersText = text;
-      } else {
-        this.correctAnswersText = '';
-      }
-    }); */
-
     this.correctAnswersText$.subscribe((text: string) => {
       this.correctAnswersText = text;
     });
