@@ -80,7 +80,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   nextQuestionSubscription: Subscription;
   selectedOptionSubscription: Subscription;
 
-  private correctAnswersTextSource = new BehaviorSubject<string>(null);
+  private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   private explanationTextSource = new BehaviorSubject<string>(null);
@@ -558,7 +558,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             textToDisplay = shouldDisplayExplanation ? 
               (nextExplanationText || '') : 
               (this.questionToDisplay || '');
-              
+
+            console.log("MYCAT2", this.correctAnswersText);
+
             // Adding the correct answers text if navigating back
             textToDisplay = !nextQuestion && previousQuestion ? `${textToDisplay} ${this.correctAnswersText}` : textToDisplay;
 
