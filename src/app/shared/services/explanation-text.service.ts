@@ -55,19 +55,8 @@ export class ExplanationTextService {
     }
     return '';
   }
-  
-  formatExplanationText(
-    selectedOptions: Option[],
-    question: QuizQuestion,
-    nextQuestion: QuizQuestion | null
-  ): Observable<string> {
-    console.log('FET TEST');
-    console.log(
-      'formatExplanationText called with:',
-      selectedOptions,
-      question,
-      nextQuestion
-    );
+
+  formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
         throw new Error('selectedOptions is not an array');
@@ -77,66 +66,33 @@ export class ExplanationTextService {
       const nextExplanationParts = [];
 
       // Check if there are selected correct options for the current question
-      const correctOptions = question.options.filter(
-        (option) => option.correct
-      );
-      const selectedCorrectOptions = selectedOptions.filter(
-        (option) => option.correct
-      );
+      const correctOptions = question.options.filter(option => option.correct);
+      const selectedCorrectOptions = selectedOptions.filter(option => option.correct);
 
-      if (selectedCorrectOptions.length > 0) {
-        const correctOptionIndices = correctOptions.map(
-          (option) => question.options.indexOf(option) + 1
-        );
-
-        if (correctOptionIndices.length === 1) {
-          currentExplanationParts.push(`Option ${correctOptionIndices[0]}`);
-        } else {
-          const correctOptionsString = correctOptionIndices.join(' and ');
-          currentExplanationParts.push(`Options ${correctOptionsString}`);
-        }
-
-        currentExplanationParts.push(
-          correctOptionIndices.length === 1
-            ? 'is correct because'
-            : 'are correct because'
-        );
+      if (selectedCorrectOptions.length > 1) {
+        const correctOptionIndices = selectedCorrectOptions.map(option => question.options.indexOf(option) + 1);
+        const correctOptionsString = correctOptionIndices.join(' and ');
+        currentExplanationParts.push(`Options ${correctOptionsString} are correct because`);
+      } else if (selectedCorrectOptions.length === 1) {
+        const correctOptionIndex = question.options.indexOf(selectedCorrectOptions[0]) + 1;
+        currentExplanationParts.push(`Option ${correctOptionIndex} is correct because`);
       }
 
       // Check if there is a next question
       if (nextQuestion) {
-        const nextCorrectOptions = nextQuestion.options.filter(
-          (option) => option.correct
-        );
-
-        if (nextCorrectOptions.length > 0) {
-          const nextCorrectOptionIndices = nextCorrectOptions.map(
-            (option) => nextQuestion.options.indexOf(option) + 1
-          );
-
-          if (nextCorrectOptionIndices.length === 1) {
-            nextExplanationParts.push(`Option ${nextCorrectOptionIndices[0]}`);
-          } else {
-            const nextCorrectOptionsString =
-              nextCorrectOptionIndices.join(' and ');
-            nextExplanationParts.push(`Options ${nextCorrectOptionsString}`);
-          }
-
-          nextExplanationParts.push(
-            nextCorrectOptionIndices.length === 1
-              ? 'is correct because'
-              : 'are correct because'
-          );
+        const nextCorrectOptions = nextQuestion.options.filter(option => option.correct);
+        if (nextCorrectOptions.length > 1) {
+          const nextCorrectOptionIndices = nextCorrectOptions.map(option => nextQuestion.options.indexOf(option) + 1);
+          const nextCorrectOptionsString = nextCorrectOptionIndices.join(' and ');
+          nextExplanationParts.push(`Options ${nextCorrectOptionsString} are correct because`);
+        } else if (nextCorrectOptions.length === 1) {
+          const nextCorrectOptionIndex = nextQuestion.options.indexOf(nextCorrectOptions[0]) + 1;
+          nextExplanationParts.push(`Option ${nextCorrectOptionIndex} is correct because`);
         }
       }
 
       // Combine the current and next explanation parts
-      const combinedExplanationParts = [
-        ...currentExplanationParts,
-        ...nextExplanationParts
-      ];
-
-      // Join the parts into a single explanation text
+      const combinedExplanationParts = [...currentExplanationParts, ...nextExplanationParts];
       const combinedExplanationText = combinedExplanationParts.join(' ');
 
       // Call the method to update explanation texts for the current and next questions
@@ -144,10 +100,8 @@ export class ExplanationTextService {
 
       console.log('Return value before piping:', combinedExplanationText);
 
-      // Return the formatted explanation
-      // return of(combinedExplanationText);
       return of(combinedExplanationText).pipe(
-        tap((text) => {
+        tap(text => {
           console.log('Generated Explanation Text:', text);
         })
       );
@@ -156,6 +110,7 @@ export class ExplanationTextService {
       return of('');
     }
   }
+
 
   updateExplanationTextForCurrentAndNext(
     currentExplanationText: string,
