@@ -415,7 +415,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             currentQuestion: currentQuestion,
             explanationText: explanationText,
             correctAnswersText: correctAnswersText,
-            currentOptions: currentOptions,
+            currentOptions: currentOptions
           };
         }
       )
@@ -423,21 +423,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private setupExplanationTextSubscription(): void {
-    this.quizQuestionManagerService.explanationText$.subscribe(
-      (explanationText) => {
-        this.explanationText = explanationText;
-
-        // Update the currentDisplayText only if the explanation text is not empty
-        if (this.explanationText) {
-          this.currentDisplayText = this.explanationText;
-        } else {
-          // If explanation text is empty, show the question text
-          this.currentDisplayText =
-            this.currentQuestion?.getValue()?.questionText || '';
-        }
-      }
-    );
-  }
+    this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
+      this.currentDisplayText = explanationText ? explanationText : (this.currentQuestion?.getValue()?.questionText || '');
+    });
+  }  
 
   private setupCombinedQuestionData(): void {
     this.nextQuestion$ = this.quizService.nextQuestion$;
