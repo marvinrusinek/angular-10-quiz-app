@@ -115,29 +115,32 @@ export class ExplanationTextService {
     options: Option[],
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
-  ): Observable<string> {
-    return new Observable<string>((observer) => {
+  ): Observable<{ explanation: string, prefix: string }> {
+    return new Observable<{ explanation: string, prefix: string }>((observer) => {
       const correctOptions = options.filter((option) => option.correct);
       const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
   
       let formattedExplanation = '';
+      let prefix = '';
   
-      if (correctOptionIndices.length === 1) {
-        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because...`;
-      } else if (correctOptionIndices.length > 1) {
+      const isMultipleAnswer = correctOptionIndices.length > 1;
+  
+      if (isMultipleAnswer) {
         const correctOptionsString = correctOptionIndices.join(' and ');
-        formattedExplanation = `Options ${correctOptionsString} are correct because...`;
+        prefix = `Options ${correctOptionsString} are correct because...`;
+      } else if (correctOptionIndices.length === 1) {
+        prefix = `Option ${correctOptionIndices[0]} is correct because...`;
       } else {
         // Handle other cases where no correct option is selected
-        formattedExplanation = 'No correct option selected...'; // Or another default message
+        prefix = 'No correct option selected...'; // Or another default message
       }
   
-      // Emit the explanation text using the observer.
-      observer.next(formattedExplanation);
+      // Emit the explanation text and prefix using the observer.
+      observer.next({ explanation: formattedExplanation, prefix: prefix });
       observer.complete();
     });
   }
-  
+    
   updateExplanationTextForCurrentAndNext(
     currentExplanationText: string,
     nextExplanationText: string
