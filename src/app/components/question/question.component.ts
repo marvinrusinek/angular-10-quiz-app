@@ -1081,8 +1081,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    console.log('Subscribing to questions$ observable...');
-
     // Subscribe to the observable to get the questions array
     this.questions$
       .pipe(
