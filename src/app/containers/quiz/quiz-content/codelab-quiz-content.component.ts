@@ -164,11 +164,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
         }
       );
-
-    this.correctAnswersText$.subscribe((text: string) => {
-      this.correctAnswersText = text;
-    });
-    this.correctAnswersTextSource.next(this.correctAnswersText);
   }
 
   ngOnChanges(): void {
