@@ -523,16 +523,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.nextQuestion$,
       this.previousQuestion$,
       this.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.correctAnswersText$
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
         ([
           nextQuestion,
           previousQuestion,
           nextExplanationText,
-          shouldDisplayExplanation,
-          correctAnswersText
+          shouldDisplayExplanation
         ]) => {
           if (
             (!nextQuestion || !nextQuestion.questionText) &&
