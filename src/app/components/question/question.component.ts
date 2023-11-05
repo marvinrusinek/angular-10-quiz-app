@@ -312,7 +312,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private initializeMultipleAnswer(): void {
     this.multipleAnswer = new BehaviorSubject<boolean>(false);
-    this.quizStateService.isMultipleAnswer();
+    this.quizStateService.isMultipleAnswer(this.question);
   
     if (!this.multipleAnswerSubscription) {
       this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$
