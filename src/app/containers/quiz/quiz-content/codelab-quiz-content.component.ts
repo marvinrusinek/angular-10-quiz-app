@@ -586,30 +586,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return '';
   }
 
-  shouldDisplayCorrectAnswersText(data: any): boolean {
+  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
     if (!data) {
-        return false;
+      return false;
     }
-
-    let currentQuestionHasMultipleAnswers: boolean;
-
-    this.quizStateService.isMultipleAnswer(data.currentQuestion).subscribe((result: boolean) => {
-        currentQuestionHasMultipleAnswers = result;
-
-        const isQuestionDisplayed = !!data.questionText;
-        const isExplanationDisplayed = !!data.explanationText;
-        const isNavigatingToPrevious = data.isNavigatingToPrevious;
-
-        console.log('currentQuestionHasMultipleAnswers:', currentQuestionHasMultipleAnswers);
-        console.log('isQuestionDisplayed:', isQuestionDisplayed);
-        console.log('isExplanationDisplayed:', isExplanationDisplayed);
-        console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
-
-        return currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
-    });
-
-    return false; // To ensure a return value is always provided
+  
+    const currentQuestionHasMultipleAnswers = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
+  
+    const isQuestionDisplayed = !!data.questionText;
+    const isExplanationDisplayed = !!data.explanationText;
+    const isNavigatingToPrevious = data.isNavigatingToPrevious;
+  
+    console.log('currentQuestionHasMultipleAnswers:', currentQuestionHasMultipleAnswers);
+    console.log('isQuestionDisplayed:', isQuestionDisplayed);
+    console.log('isExplanationDisplayed:', isExplanationDisplayed);
+    console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+  
+    return currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
   }
+  
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(data.currentOptions);
