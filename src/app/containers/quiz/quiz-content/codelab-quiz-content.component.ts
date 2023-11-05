@@ -586,7 +586,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return '';
   }
 
-  async checkDisplayCorrectAnswers(data: any): Promise<void> {
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     if (!data) {
       this.shouldDisplayCorrectAnswers = false;
       return;
@@ -604,8 +604,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.shouldDisplayCorrectAnswers = false;
     }
   }
-
-  
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(data.currentOptions);
