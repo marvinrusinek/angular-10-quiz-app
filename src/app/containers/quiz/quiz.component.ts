@@ -1369,7 +1369,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     await this.router.navigateByUrl(newUrl);
   }
 
-  async calculateAndSetCorrectAnswersText(question: any, options: Option[]): Promise<void> {
+  async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = this.quizStateService.isMultipleAnswer(question);
     if (multipleAnswers) {
       const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
