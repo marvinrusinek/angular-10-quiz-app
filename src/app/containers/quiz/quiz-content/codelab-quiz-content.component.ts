@@ -436,39 +436,42 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionText = currentQuestion
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
-    
+
         // Get the question index
         const questionIndex = this.questions.indexOf(currentQuestion);
-    
-        // Fetch explanation text from the service
-        return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).pipe(
-          map(explanationText => {
-            // Other calculations, e.g., correct answers text
-            const questionHasMultipleAnswers =
-              this.quizStateService.isMultipleAnswer(currentQuestion);
-            let correctAnswersText = '';
-            if (
-              questionHasMultipleAnswers &&
-              !isExplanationDisplayed &&
-              numberOfCorrectAnswers !== undefined &&
-              +numberOfCorrectAnswers > 1
-            ) {
-              correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-                +numberOfCorrectAnswers
-              );
-            }
-    
-            return {
-              questionText: questionText,
-              currentQuestion: currentQuestion,
-              explanationText: explanationText,
-              correctAnswersText: correctAnswersText,
-              currentOptions: currentOptions
-            };
-          })
-        );
+
+        // Fetch the prefix for the explanation
+        const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
+
+        // Fetch the explanation text
+        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+
+        // Other calculations, e.g., correct answers text
+        const questionHasMultipleAnswers =
+          this.quizStateService.isMultipleAnswer(currentQuestion);
+        let correctAnswersText = '';
+        if (
+          questionHasMultipleAnswers &&
+          !isExplanationDisplayed &&
+          numberOfCorrectAnswers !== undefined &&
+          +numberOfCorrectAnswers > 1
+        ) {
+          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+            +numberOfCorrectAnswers
+          );
+        }
+
+        return of({
+          questionText: questionText,
+          currentQuestion: currentQuestion,
+          explanationText: explanationText,
+          correctAnswersText: correctAnswersText,
+          currentOptions: currentOptions,
+          prefix: prefix // Include the prefix in the returned object
+        });
       })
-    );    
+    );
+
   }
 
   private setupExplanationTextSubscription(): void {
