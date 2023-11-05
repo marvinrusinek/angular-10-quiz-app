@@ -172,7 +172,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnChanges(): void {
-    if (this.correctAnswersText !== undefined && this.quizStateService.isMultipleAnswer()) {
+    if (this.correctAnswersText !== undefined && this.quizStateService.isMultipleAnswer(this.question)) {
       this.correctAnswersTextSource.next(this.correctAnswersText);
     } else {
       this.correctAnswersTextSource.next('');
@@ -402,7 +402,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
           // Other calculations, e.g., correct answers text
           const questionHasMultipleAnswers =
-            this.quizStateService.isMultipleAnswer();
+            this.quizStateService.isMultipleAnswer(currentQuestion);
           let correctAnswersText = '';
           if (
             questionHasMultipleAnswers &&

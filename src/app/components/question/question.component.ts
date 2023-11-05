@@ -891,7 +891,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     
     // Call the isMultipleAnswer function to determine if the question is a multiple-answer question
     data.isMultipleAnswer = await this.quizStateService
-      .isMultipleAnswer()
+      .isMultipleAnswer(this.question)
       .toPromise();
   }
 
@@ -1019,7 +1019,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Fetch whether the current question is a multiple-answer question
-    this.quizStateService.isMultipleAnswer().subscribe(isMultipleAnswer => {
+    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(isMultipleAnswer => {
       if (this.quizService.selectedOptions.length > 0) {
         this.setExplanationText(currentQuestion, this.quizService.selectedOptions);
       } else {
