@@ -133,7 +133,7 @@ export class ExplanationTextService {
       // Combine the current and next explanation parts
       const combinedExplanationParts = [
         ...currentExplanationParts,
-        ...nextExplanationParts,
+        ...nextExplanationParts
       ];
 
       // Join the parts into a single explanation text
