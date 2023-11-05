@@ -551,9 +551,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               (nextExplanationText || '') : 
               (this.questionToDisplay || '');
 
-            // Adding the correct answers text if navigating back
-            textToDisplay = !nextQuestion && previousQuestion ? `${textToDisplay} ${this.correctAnswersText}` : textToDisplay;
-
             return of(textToDisplay);
           }          
         }
