@@ -1264,6 +1264,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Assign the correct answers text to display for the next question
         this.correctAnswersText = correctAnswersText;
+      } else {
+        this.correctAnswersText = '';
       }
   
       // Construct the URL for the next question
@@ -1336,6 +1338,8 @@ export class QuizComponent implements OnInit, OnDestroy {
             const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
 
             this.correctAnswersText = correctAnswersText;
+          } else {
+            this.correctAnswersText = '';
           }
           
           // Update the observables for the previous question data
