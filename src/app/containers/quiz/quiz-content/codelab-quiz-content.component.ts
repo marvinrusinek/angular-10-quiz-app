@@ -440,31 +440,33 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Get the question index
         const questionIndex = this.questions.indexOf(currentQuestion);
     
-        // Fetch explanation text from the service directly
-        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+        // Fetch explanation text from the service
+        return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).pipe(
+          map(explanationText => {
+            // Other calculations, e.g., correct answers text
+            const questionHasMultipleAnswers =
+              this.quizStateService.isMultipleAnswer(currentQuestion);
+            let correctAnswersText = '';
+            if (
+              questionHasMultipleAnswers &&
+              !isExplanationDisplayed &&
+              numberOfCorrectAnswers !== undefined &&
+              +numberOfCorrectAnswers > 1
+            ) {
+              correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+                +numberOfCorrectAnswers
+              );
+            }
     
-        // Other calculations, e.g., correct answers text
-        const questionHasMultipleAnswers =
-          this.quizStateService.isMultipleAnswer(currentQuestion);
-        let correctAnswersText = '';
-        if (
-          questionHasMultipleAnswers &&
-          !isExplanationDisplayed &&
-          numberOfCorrectAnswers !== undefined &&
-          +numberOfCorrectAnswers > 1
-        ) {
-          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-            +numberOfCorrectAnswers
-          );
-        }
-    
-        return of({
-          questionText: questionText,
-          currentQuestion: currentQuestion,
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersText,
-          currentOptions: currentOptions
-        });
+            return {
+              questionText: questionText,
+              currentQuestion: currentQuestion,
+              explanationText: explanationText,
+              correctAnswersText: correctAnswersText,
+              currentOptions: currentOptions
+            };
+          })
+        );
       })
     );    
   }
