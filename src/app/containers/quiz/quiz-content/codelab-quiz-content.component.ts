@@ -588,18 +588,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   shouldDisplayCorrectAnswersText(data: any): boolean {
     if (!data) {
-      return false;
+        return false;
     }
-  
-    const isQuestionDisplayed = !!data.questionText;
-    const isExplanationDisplayed = !!data.explanationText;
-  
-    const currentQuestionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(data.currentQuestion);
-    const isNavigatingToPrevious = data.isNavigatingToPrevious;
-  
-    return currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
+
+    let currentQuestionHasMultipleAnswers: boolean;
+
+    this.quizStateService.isMultipleAnswer(data.currentQuestion).subscribe((result: boolean) => {
+        currentQuestionHasMultipleAnswers = result;
+
+        const isQuestionDisplayed = !!data.questionText;
+        const isExplanationDisplayed = !!data.explanationText;
+        const isNavigatingToPrevious = data.isNavigatingToPrevious;
+
+        console.log('currentQuestionHasMultipleAnswers:', currentQuestionHasMultipleAnswers);
+        console.log('isQuestionDisplayed:', isQuestionDisplayed);
+        console.log('isExplanationDisplayed:', isExplanationDisplayed);
+        console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+
+        return currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
+    });
+
+    return false; // To ensure a return value is always provided
   }
-    
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(data.currentOptions);
