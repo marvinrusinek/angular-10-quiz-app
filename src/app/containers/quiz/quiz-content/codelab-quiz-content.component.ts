@@ -370,7 +370,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }))
     );
 
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$
@@ -420,7 +420,53 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           };
         }
       )
-    );
+    ); */
+
+    this.combinedQuestionData$ = combineLatest([
+      currentQuestionAndOptions$,
+      this.numberOfCorrectAnswers$,
+      this.isExplanationTextDisplayed$
+    ]).pipe(
+      switchMap(([
+        { currentQuestion, currentOptions },
+        numberOfCorrectAnswers,
+        isExplanationDisplayed
+      ]) => {
+        // Calculate question text
+        const questionText = currentQuestion
+          ? this.getQuestionText(currentQuestion, this.questions)
+          : '';
+    
+        // Get the question index
+        const questionIndex = this.questions.indexOf(currentQuestion);
+    
+        // Fetch explanation text from the service directly
+        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+    
+        // Other calculations, e.g., correct answers text
+        const questionHasMultipleAnswers =
+          this.quizStateService.isMultipleAnswer(currentQuestion);
+        let correctAnswersText = '';
+        if (
+          questionHasMultipleAnswers &&
+          !isExplanationDisplayed &&
+          numberOfCorrectAnswers !== undefined &&
+          +numberOfCorrectAnswers > 1
+        ) {
+          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+            +numberOfCorrectAnswers
+          );
+        }
+    
+        return of({
+          questionText: questionText,
+          currentQuestion: currentQuestion,
+          explanationText: explanationText,
+          correctAnswersText: correctAnswersText,
+          currentOptions: currentOptions
+        });
+      })
+    );    
   }
 
   private setupExplanationTextSubscription(): void {
