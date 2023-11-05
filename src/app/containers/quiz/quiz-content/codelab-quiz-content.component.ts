@@ -527,14 +527,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith('')
     );
   }
-
-  setCorrectAnswersText(correctAnswersText: string) {
-    this.correctAnswersTextSource.next(correctAnswersText);
-  }
-
-  setPreviousQuestionText(text: string): void {
-    this.quizDataService.setPreviousQuestionText(text);
-  }
   
   getQuestionText(
     currentQuestion: QuizQuestion,
