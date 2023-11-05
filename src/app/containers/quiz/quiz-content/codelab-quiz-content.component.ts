@@ -582,7 +582,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    if (!data || !data.currentQuestion || typeof data.currentQuestion !== 'object') {
+    if (!data || !data.currentQuestion) {
       this.shouldDisplayCorrectAnswers = false;
       console.error('Current question is not defined');
       return;
