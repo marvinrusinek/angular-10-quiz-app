@@ -1256,17 +1256,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.setNextOptions(this.currentOptions);
 
       // Check if the next question has multiple correct answers
-      const multipleAnswers = this.quizStateService.isMultipleAnswer(nextQuestion);
-      if (multipleAnswers) {
-        // Calculate the number of correct answers for the next question's options
-        const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
-        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-
-        // Assign the correct answers text to display for the next question
-        this.correctAnswersText = correctAnswersText;
-      } else {
-        this.correctAnswersText = '';
-      }
+      await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
   
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
@@ -1331,16 +1321,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = this.currentOptions;
 
           // Check if the previous question has multiple correct answers
-          const multipleAnswers = this.quizStateService.isMultipleAnswer(previousQuestion);
-          if (multipleAnswers) {
-            // Calculate the number of correct answers
-            const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
-            const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-
-            this.correctAnswersText = correctAnswersText;
-          } else {
-            this.correctAnswersText = '';
-          }
+          await this.calculateAndSetCorrectAnswersText(previousQuestion, this.currentOptions);
           
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
@@ -1388,6 +1369,17 @@ export class QuizComponent implements OnInit, OnDestroy {
     await this.router.navigateByUrl(newUrl);
   }
 
+  async calculateAndSetCorrectAnswersText(question: any, options: any[]): Promise<void> {
+    const multipleAnswers = this.quizStateService.isMultipleAnswer(question);
+    if (multipleAnswers) {
+      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+      this.correctAnswersText = correctAnswersText;
+    } else {
+      this.correctAnswersText = '';
+    }
+  }
+  
   private getNextOptionsForQuestion(nextQuestion: QuizQuestion): Option[] {
     // implement the logic to retrieve options based on the next question.
     // This could involve querying data source or using some other mechanism.
