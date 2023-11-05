@@ -127,12 +127,11 @@ export class ExplanationTextService {
   
       if (isMultipleAnswer) {
         const correctOptionsString = correctOptionIndices.join(' and ');
-        prefix = `Options ${correctOptionsString} are correct because...`;
+        prefix = `Options ${correctOptionsString} are correct because `;
       } else if (correctOptionIndices.length === 1) {
-        prefix = `Option ${correctOptionIndices[0]} is correct because...`;
+        prefix = `Option ${correctOptionIndices[0]} is correct because `;
       } else {
-        // Handle other cases where no correct option is selected
-        prefix = 'No correct option selected...'; // Or another default message
+        prefix = 'No correct option selected...';
       }
   
       // Emit the explanation text and prefix using the observer.
