@@ -1135,15 +1135,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
   }
     
-  updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
+  updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string, prefix: string): void {
     this.combinedQuestionData$.next({
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-      currentOptions: this.currentOptions
+      currentOptions: this.currentOptions,
+      prefix: prefix
     });
   }
-
+  
   updateFeedbackVisibility(): void {
     const isOptionSelected = this.selectedOptions.length > 0;
     const isFeedbackVisible =
