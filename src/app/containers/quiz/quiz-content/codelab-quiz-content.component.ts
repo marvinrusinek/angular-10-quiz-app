@@ -440,10 +440,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private setupCombinedQuestionData(): void {
-    const correctAnswersTextOnInit = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-      +this.numberOfCorrectAnswers$.value
-    );    
-
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationText$ = this.explanationTextService.explanationText$;
@@ -496,7 +492,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           };
         })
       );
-    });    
+    });
   }
 
   private setupOptions(): void {
