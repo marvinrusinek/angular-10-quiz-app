@@ -138,7 +138,7 @@ export class ExplanationTextService {
       console.log('Question Explanation:', question.explanation); // Ensure question.explanation exists and contains the necessary context.
   
       // Construct the formatted explanation by combining the prefix and the question's explanation.
-      formattedExplanation = `${prefix}${question.explanation}`;
+      formattedExplanation = `${prefix} ${question.explanation}`;
   
       console.log('Generated Explanation:', formattedExplanation);
   
