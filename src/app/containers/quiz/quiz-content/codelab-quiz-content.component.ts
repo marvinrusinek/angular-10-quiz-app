@@ -458,12 +458,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.correctAnswersText$
       ]).pipe(
         map(([questionToDisplay, nextOptions, explanationText, correctAnswersText]) => {
-          console.log('Combined Question Data Updated:', questionToDisplay);
           const questionText = isNavigatingToPrevious
             ? `${this.previousQuestionText} ${correctAnswersText}` // When navigating back, display the correct answers text
             : questionToDisplay?.questionText || '';
-
-          console.log('Question Text:', questionText);
     
           return {
             questionText: questionText,
