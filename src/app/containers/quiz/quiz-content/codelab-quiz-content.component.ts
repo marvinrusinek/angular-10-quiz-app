@@ -598,12 +598,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const isExplanationDisplayed = !!data.explanationText;
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
 
-    if (currentQuestionHasMultipleAnswers) {
-      this.shouldDisplayCorrectAnswers = isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
-    } else {
-      this.shouldDisplayCorrectAnswers = false;
-    }
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
   }
+
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(data.currentOptions);
