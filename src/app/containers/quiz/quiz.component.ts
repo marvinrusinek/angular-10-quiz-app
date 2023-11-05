@@ -1254,6 +1254,17 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Call the setNextOptions function to update the options
       this.quizService.setNextOptions(this.currentOptions);
+
+      // Check if the next question has multiple correct answers
+      const multipleAnswers = this.quizStateService.isMultipleAnswer(nextQuestion);
+      if (multipleAnswers) {
+        // Calculate the number of correct answers for the next question's options
+        const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
+        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+
+        // Assign the correct answers text to display for the next question
+        this.correctAnswersText = correctAnswersText;
+      }
   
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
