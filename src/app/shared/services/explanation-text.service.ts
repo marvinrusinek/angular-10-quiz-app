@@ -134,12 +134,20 @@ export class ExplanationTextService {
         prefix = 'No correct option selected...';
       }
   
-      // Emit the explanation text and prefix using the observer.
+      console.log('Generated Prefix:', prefix);
+      console.log('Question Explanation:', question.explanation); // Ensure question.explanation exists and contains the necessary context.
+  
+      // Construct the formatted explanation by combining the prefix and the question's explanation.
+      formattedExplanation = `${prefix}${question.explanation}`;
+  
+      console.log('Generated Explanation:', formattedExplanation);
+  
+      // Emit the formatted explanation and prefix using the observer.
       observer.next({ explanation: formattedExplanation, prefix: prefix });
       observer.complete();
     });
   }
-    
+      
   updateExplanationTextForCurrentAndNext(
     currentExplanationText: string,
     nextExplanationText: string
