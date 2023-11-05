@@ -60,13 +60,13 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    if (!question) {
+    if (!question || typeof question !== 'object' || !('options' in question)) {
       console.error('Question is not defined');
       this.setMultipleAnswer(false);
       return of(false);
     }
 
-    if (!('options' in question) || !Array.isArray(question.options)) {
+    if (!Array.isArray(question.options)) {
       console.error('Question options not found.', question);
       this.setMultipleAnswer(false);
       return of(false);
