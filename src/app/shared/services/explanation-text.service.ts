@@ -56,7 +56,7 @@ export class ExplanationTextService {
     return '';
   }
 
-  formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
+  /* formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
         throw new Error('selectedOptions is not an array');
@@ -109,9 +109,35 @@ export class ExplanationTextService {
       console.error('Error occurred while formatting explanation text:', error);
       return of('');
     }
+  } */
+
+  formatExplanationText(
+    options: Option[],
+    question: QuizQuestion,
+    nextQuestion: QuizQuestion | null
+  ): Observable<string> {
+    return new Observable<string>((observer) => {
+      const correctOptions = options.filter((option) => option.correct);
+      const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
+  
+      let formattedExplanation = '';
+  
+      if (correctOptionIndices.length === 1) {
+        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because...`;
+      } else if (correctOptionIndices.length > 1) {
+        const correctOptionsString = correctOptionIndices.join(' and ');
+        formattedExplanation = `Options ${correctOptionsString} are correct because...`;
+      } else {
+        // Handle other cases where no correct option is selected
+        formattedExplanation = 'No correct option selected...'; // Or another default message
+      }
+  
+      // Emit the explanation text using the observer.
+      observer.next(formattedExplanation);
+      observer.complete();
+    });
   }
-
-
+  
   updateExplanationTextForCurrentAndNext(
     currentExplanationText: string,
     nextExplanationText: string
