@@ -1111,12 +1111,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.explanationTextService
               .formatExplanationText(options, currentQuestion, nextQuestion)
               .subscribe(
-                (explanationText: string) => {
-                  this.explanationText$.next(explanationText);
+                ({ explanation, prefix }: { explanation: string, prefix: string }) => {
+                  this.explanationText$.next(explanation);
                   this.isAnswerSelectedChange.emit(true);
                   this.toggleVisibility.emit();
                   this.updateFeedbackVisibility();
-                  this.updateCombinedQuestionData(currentQuestion, explanationText);
+                  this.updateCombinedQuestionData(currentQuestion, explanation, prefix); // Pass the prefix here
                 },
                 (error) => {
                   console.error('Error in setExplanationText:', error);
