@@ -587,7 +587,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    if (!data || !data.currentQuestion) {
+    if (!data || !data.currentQuestion || typeof data.currentQuestion !== 'object') {
       this.shouldDisplayCorrectAnswers = false;
       console.error('Current question is not defined');
       return;
@@ -599,12 +599,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const isExplanationDisplayed = !!data.explanationText;
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
 
-    if (currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious) {
-      this.shouldDisplayCorrectAnswers = true;
-    } else {
-      this.shouldDisplayCorrectAnswers = false;
-    }
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
   }
+
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
     const numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(data.currentOptions);

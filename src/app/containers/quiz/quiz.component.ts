@@ -1318,7 +1318,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.optionsToDisplay = this.currentOptions;
 
           // Check if the previous question has multiple correct answers
-          const multipleAnswers = this.quizStateService.isMultipleAnswer();
+          const multipleAnswers = this.quizStateService.isMultipleAnswer(previousQuestion);
           if (multipleAnswers) {
             // Calculate the number of correct answers
             const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(this.currentOptions);
