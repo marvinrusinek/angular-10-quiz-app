@@ -586,24 +586,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return '';
   }
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
+  async checkDisplayCorrectAnswers(data: any): Promise<void> {
     if (!data) {
-      return false;
+      this.shouldDisplayCorrectAnswers = false;
+      return;
     }
-  
+
     const currentQuestionHasMultipleAnswers = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-  
+
     const isQuestionDisplayed = !!data.questionText;
     const isExplanationDisplayed = !!data.explanationText;
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
-  
-    console.log('currentQuestionHasMultipleAnswers:', currentQuestionHasMultipleAnswers);
-    console.log('isQuestionDisplayed:', isQuestionDisplayed);
-    console.log('isExplanationDisplayed:', isExplanationDisplayed);
-    console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
-  
-    return currentQuestionHasMultipleAnswers && isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
+
+    if (currentQuestionHasMultipleAnswers) {
+      this.shouldDisplayCorrectAnswers = isQuestionDisplayed && !isExplanationDisplayed && isNavigatingToPrevious;
+    } else {
+      this.shouldDisplayCorrectAnswers = false;
+    }
   }
+
   
   
   /* shouldDisplayCorrectAnswersText(data: any): boolean {
