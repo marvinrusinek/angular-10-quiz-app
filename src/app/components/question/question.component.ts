@@ -107,6 +107,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     explanationText?: string;
     correctAnswersText?: string;
     currentOptions: Option[];
+    prefix: string;
   }> = new Subject();
 
   isMultipleAnswer$: Observable<boolean>;
