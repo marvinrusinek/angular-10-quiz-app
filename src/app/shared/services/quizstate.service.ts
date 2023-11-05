@@ -66,7 +66,7 @@ export class QuizStateService {
       return of(false);
     }
 
-    if (!question.options) {
+    if (!question.options || !Array.isArray(question.options)) {
       console.error('Question options not found.', question);
       this.setMultipleAnswer(false);
       return of(false);
