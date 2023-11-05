@@ -1379,19 +1379,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.correctAnswersText = '';
     }
   }
-  
-  private getNextOptionsForQuestion(nextQuestion: QuizQuestion): Option[] {
-    // implement the logic to retrieve options based on the next question.
-    // This could involve querying data source or using some other mechanism.
-
-    // For example, if options are stored within the question object:
-    return nextQuestion.options;
-
-    // Or if I have a separate options array:
-    // const nextQuestionId = nextQuestion.id; // Assuming there's an identifier for questions
-    // const nextQuestionOptions = this.optionsArray.find((options) => options.questionId === nextQuestionId);
-    // return nextQuestionOptions ? nextQuestionOptions.options : [];
-  }
 
   submitQuiz() {
     this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
