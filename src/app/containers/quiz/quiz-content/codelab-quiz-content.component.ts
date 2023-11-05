@@ -167,7 +167,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnChanges(): void {
-    if (this.correctAnswersText !== undefined && this.quizStateService.isMultipleAnswer(this.question)) {
+    if (this.correctAnswersText !== undefined && 
+      this.quizStateService.isMultipleAnswer(this.question)) {
       this.correctAnswersTextSource.next(this.correctAnswersText);
     } else {
       this.correctAnswersTextSource.next('');
