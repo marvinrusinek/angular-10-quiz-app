@@ -447,13 +447,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
     
     const questionToDisplay$ = this.isNavigatingToPreviousQuestion.pipe(
-      switchMap(isNavigating => {
-        if (isNavigating) {
-          return this.previousQuestion$;
-        } else {
-          return this.nextQuestion$;
-        }
-      })
+      switchMap(isNavigating => (isNavigating ? this.previousQuestion$ : this.nextQuestion$))
     );
     
     this.isNavigatingToPreviousQuestion.subscribe((isNavigatingToPrevious) => {
