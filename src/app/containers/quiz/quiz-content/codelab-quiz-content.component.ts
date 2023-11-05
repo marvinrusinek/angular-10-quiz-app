@@ -88,6 +88,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationText: string | null = null;
 
   combinedText$: Observable<string>;
+  combinedExplanation$ = new BehaviorSubject<{ explanation: string; prefix: string }>({ explanation: '', prefix: '' });
+
   currentQuestionText: string;
   currentDisplayText = '';
   displayedText = '';
@@ -163,7 +165,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             this.explanationText = 'No explanation available.';
           }
         }
-      );
+      );  
   }
 
   ngOnChanges(): void {
@@ -339,7 +341,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       });
   }
 
-  private initializeExplanationTextSubscription(): void {
+  /* private initializeExplanationTextSubscription(): void {
     const selectedOptionExplanation$ =
       this.selectedOptionService.selectedOptionExplanation$;
 
@@ -359,8 +361,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
       }
     );
-  }
+  } */
 
+  private initializeExplanationTextSubscription(): void {
+    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
+  
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      selectedOptionExplanation$
+    ]).pipe(
+      switchMap(([explanationText, selectedOptionExplanation]) => {
+        return this.explanationTextService.getPrefix$().pipe(
+          map((prefix: string) => ({ explanationText, selectedOptionExplanation, prefix }))
+        );
+      }),
+      map(({ explanationText, selectedOptionExplanation, prefix }) => {
+        const explanation = selectedOptionExplanation || explanationText;
+        return `${prefix} ${explanation}`.trim(); // Concatenate prefix and explanation
+      })
+    ) as Observable<string>;
+  
+    this.explanationTextSubscription = this.explanationText$.subscribe((displayText) => {
+      this.quizQuestionManagerService.setExplanationText(displayText);
+      this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
+    });
+  }
+  
   private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
