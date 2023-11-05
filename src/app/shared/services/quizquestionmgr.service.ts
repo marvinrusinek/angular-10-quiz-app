@@ -87,14 +87,14 @@ export class QuizQuestionManagerService {
   getNumberOfCorrectAnswersText(
     numberOfCorrectAnswers: number | undefined
   ): string {
-    if (numberOfCorrectAnswers === undefined) {
-      return '';
+    if (numberOfCorrectAnswers === undefined || numberOfCorrectAnswers === 0) {
+      return 'No correct answers';
     }
 
     const correctAnswersText =
-      numberOfCorrectAnswers === 1
-        ? `(${numberOfCorrectAnswers} answer is correct)`
-        : `(${numberOfCorrectAnswers} answers are correct)`;
+      numberOfCorrectAnswers > 1
+        ? `(${numberOfCorrectAnswers} answers are correct)`
+        : '';
 
     return correctAnswersText;
   }
