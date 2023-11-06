@@ -166,6 +166,8 @@ export class ExplanationTextService {
         prefix = 'No correct option selected...';
       }
 
+      this.prefix$ = of(prefix);
+
       console.log('Generated Prefix:', prefix);
       console.log('Question Explanation:', question.explanation); // Ensure question.explanation exists and contains the necessary context.
 
