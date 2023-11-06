@@ -166,7 +166,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             this.explanationText = 'No explanation available.';
           }
         }
-      );  
+      );
+
+    // Subscribe to the observable
+    this.combinedQuestionData$.subscribe((data) => {
+      console.log('Emitted data:', data);
+      if (data && data.prefix) {
+        console.log('Prefix exists:', data.prefix);
+      } else {
+        console.log('No prefix found.');
+      }
+    });
   }
 
   ngOnChanges(): void {

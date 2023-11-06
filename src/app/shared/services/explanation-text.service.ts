@@ -70,13 +70,12 @@ export class ExplanationTextService {
   }
 
   getExplanationPrefixForQuestionIndex(index: number): string | undefined {
-    const keys = Object.keys(this.prefixes);
-    if (index >= 0 && index < keys.length) {
-      return this.prefixes[index] || '';
+    if (this.prefixes[index]) {
+      return this.prefixes[index];
     }
     return '';
   }
-
+  
   getPrefix$(): Observable<string> {
     return this.prefix$;
   }
