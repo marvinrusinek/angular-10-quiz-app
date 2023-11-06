@@ -476,9 +476,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         // Get the question index
         const questionIndex = this.questions.indexOf(currentQuestion);
+        console.log('Question Index::>>', questionIndex);
 
         // Fetch the prefix for the explanation
         const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
+        console.log('Prefix::>>', prefix);
 
         // Fetch the explanation text
         const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
