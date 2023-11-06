@@ -70,9 +70,17 @@ export class ExplanationTextService {
   }
 
   getExplanationPrefixForQuestionIndex(index: number): string | undefined {
-    if (this.prefixes[index]) {
-      return this.prefixes[index];
+    console.log('Received index:', index);
+  
+    const keys = Object.keys(this.prefixes);
+    console.log('Available keys:', keys);
+  
+    if (index >= 0 && index < keys.length) {
+      console.log('Retrieved prefix:', this.prefixes[index]);
+      return this.prefixes[index] || '';
     }
+  
+    console.log('No prefix found for index:', index);
     return '';
   }
   
