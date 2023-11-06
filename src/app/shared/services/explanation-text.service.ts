@@ -136,7 +136,7 @@ export class ExplanationTextService {
     question: QuizQuestion,
     nextQuestion: QuizQuestion | null
   ): Observable<{ explanation: string, prefix: string }> {
-    return new Observable<{ explanation: string, prefix: string }>((observer) => {
+    return new Observable((observer) => {
       const correctOptions = options.filter((option) => option.correct);
       const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
 
@@ -167,7 +167,8 @@ export class ExplanationTextService {
 
       this.questionIndexCounter++;
 
-      return of({ explanation: formattedExplanation, prefix });
+      observer.next({ explanation: formattedExplanation, prefix: prefix });
+      observer.complete();
     });
   }
 
