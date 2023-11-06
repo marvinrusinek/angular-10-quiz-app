@@ -363,21 +363,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   } */
 
-  initializeExplanationTextSubscription(): void {
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-
-    this.explanationTextService.getPrefix$().subscribe((prefix: string) => {
-      this.explanationText$.subscribe((explanation: string) => {
-        const displayText = `${prefix} ${explanation}`.trim(); // Combine prefix and explanation
-        this.updateExplanationText(displayText);
-      });
+  private initializeExplanationTextSubscription(): void {
+    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
+  
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      selectedOptionExplanation$
+    ]).pipe(
+      switchMap(([explanationText, selectedOptionExplanation]) => {
+        return this.explanationTextService.getPrefix$().pipe(
+          map((prefix: string) => ({ explanationText, selectedOptionExplanation, prefix }))
+        );
+      }),
+      map(({ explanationText, selectedOptionExplanation, prefix }) => {
+        const explanation = selectedOptionExplanation || explanationText;
+        return `${prefix} ${explanation}`.trim(); // Concatenate prefix and explanation
+      })
+    ) as Observable<string>;
+  
+    this.explanationTextSubscription = this.explanationText$.subscribe((displayText) => {
+      this.quizQuestionManagerService.setExplanationText(displayText);
+      this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
     });
-  }
-
-  updateExplanationText(text: string): void {
-    // Do what's needed to update your display or service
-    this.quizQuestionManagerService.setExplanationText(text);
-    this.quizQuestionManagerService.setExplanationDisplayed(!!text);
   }
   
   private initializeCombinedQuestionData(): void {

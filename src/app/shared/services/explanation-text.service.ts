@@ -14,6 +14,7 @@ export class ExplanationTextService {
   explanationTexts: { [questionIndex: number]: string } = {};
   prefixes: { [key: number]: string } = {};
   questionIndexCounter = 0;
+  prefix$: Observable<string>;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
