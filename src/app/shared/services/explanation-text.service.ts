@@ -12,7 +12,8 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
-  private prefixes: string[] = [];
+  prefixes: { [key: number]: string } = {};
+  questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
@@ -161,18 +162,12 @@ export class ExplanationTextService {
 
       console.log('Generated Explanation:', formattedExplanation);
 
-      const questionIndex = this.questions.indexOf(question);
-      if (questionIndex >= 0) {
-        if (questionIndex >= this.prefixes.length) {
-          this.prefixes[questionIndex] = prefix;
-        } else {
-          this.prefixes[questionIndex] = prefix;
-        }
-      }
+      this.prefixes[this.questionIndexCounter] = prefix;
+      this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
 
-      // Emit the formatted explanation and prefix using the observer.
-      observer.next({ explanation: formattedExplanation, prefix: prefix });
-      observer.complete();
+      this.questionIndexCounter++;
+
+      return of({ explanation: formattedExplanation, prefix });
     });
   }
 
