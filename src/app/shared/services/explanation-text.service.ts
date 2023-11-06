@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -12,6 +12,7 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
+  private prefixes: string[] = [];
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
@@ -56,6 +57,24 @@ export class ExplanationTextService {
     return '';
   }
 
+  // Method to return combined observable for explanation and prefix
+  getExplanationWithPrefixForQuestionIndex(index: number): Observable<{ explanation: string, prefix: string | undefined }> {
+    const explanation$ = this.getExplanationText$();
+    const prefix$ = this.getExplanationPrefixForQuestionIndex(index);
+
+    return combineLatest([explanation$, prefix$]).pipe(
+      map(([explanation, prefix]) => ({ explanation, prefix }))
+    );
+  }
+
+  getExplanationPrefixForQuestionIndex(index: number): string | undefined {
+    // Retrieve the prefix for a given index from the prefixes array
+    if (index >= 0 && index < this.prefixes.length) {
+      return this.prefixes[index];
+    }
+    return undefined; // Return undefined for invalid indices
+  }
+  
   /* formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
@@ -119,35 +138,44 @@ export class ExplanationTextService {
     return new Observable<{ explanation: string, prefix: string }>((observer) => {
       const correctOptions = options.filter((option) => option.correct);
       const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-  
+
       let formattedExplanation = '';
       let prefix = '';
-  
+
       const isMultipleAnswer = correctOptionIndices.length > 1;
-  
+
       if (isMultipleAnswer) {
         const correctOptionsString = correctOptionIndices.join(' and ');
-        prefix = `Options ${correctOptionsString} are correct because `;
+        prefix = `Options ${correctOptionsString} are correct because`;
       } else if (correctOptionIndices.length === 1) {
-        prefix = `Option ${correctOptionIndices[0]} is correct because `;
+        prefix = `Option ${correctOptionIndices[0]} is correct because`;
       } else {
         prefix = 'No correct option selected...';
       }
-  
+
       console.log('Generated Prefix:', prefix);
       console.log('Question Explanation:', question.explanation); // Ensure question.explanation exists and contains the necessary context.
-  
+
       // Construct the formatted explanation by combining the prefix and the question's explanation.
       formattedExplanation = `${prefix} ${question.explanation}`;
-  
+
       console.log('Generated Explanation:', formattedExplanation);
-  
+
+      const questionIndex = this.questions.indexOf(question);
+      if (questionIndex >= 0) {
+        if (questionIndex >= this.prefixes.length) {
+          this.prefixes[questionIndex] = prefix;
+        } else {
+          this.prefixes[questionIndex] = prefix;
+        }
+      }
+
       // Emit the formatted explanation and prefix using the observer.
       observer.next({ explanation: formattedExplanation, prefix: prefix });
       observer.complete();
     });
   }
-      
+
   updateExplanationTextForCurrentAndNext(
     currentExplanationText: string,
     nextExplanationText: string
