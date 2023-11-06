@@ -75,6 +75,10 @@ export class ExplanationTextService {
     }
     return '';
   }
+
+  getPrefix$(): Observable<string> {
+    return this.prefix$;
+  }
     
   /* formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
     try {
