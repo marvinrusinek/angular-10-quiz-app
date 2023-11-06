@@ -511,6 +511,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       })
     );
 
+    this.combinedQuestionData$.subscribe((data) => {
+      // Use the emitted data here
+      console.log("MY CQD DATA", data);
+    });
   }
 
   private setupExplanationTextSubscription(): void {
