@@ -69,13 +69,13 @@ export class ExplanationTextService {
   }
 
   getExplanationPrefixForQuestionIndex(index: number): string | undefined {
-    // Retrieve the prefix for a given index from the prefixes array
-    if (index >= 0 && index < this.prefixes.length) {
-      return this.prefixes[index];
+    const keys = Object.keys(this.prefixes);
+    if (index >= 0 && index < keys.length) {
+      return this.prefixes[index] || '';
     }
-    return undefined; // Return undefined for invalid indices
+    return '';
   }
-  
+    
   /* formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
