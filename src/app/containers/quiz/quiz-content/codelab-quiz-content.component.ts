@@ -177,6 +177,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         console.log('No prefix found.');
       }
     });
+
+    this.combinedQuestionData$.subscribe((data) => {
+      // Use the emitted data here
+      console.log("MY CQD DATA", data);
+    });
+
+    this.combinedQuestionData$.pipe(
+      tap(data => {
+        console.log('Emitted data:', data);
+        if (data && data.prefix) {
+          console.log('Prefix exists:', data.prefix);
+        } else {
+          console.log('No prefix found.');
+        }
+        if (data && data.explanationText) {
+          console.log('Explanation exists:', data.explanationText);
+        } else {
+          console.log('No explanation found.');
+        }
+      })
+    ).subscribe();
   }
 
   ngOnChanges(): void {
@@ -510,11 +531,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         });
       })
     );
-
-    this.combinedQuestionData$.subscribe((data) => {
-      // Use the emitted data here
-      console.log("MY CQD DATA", data);
-    });
   }
 
   private setupExplanationTextSubscription(): void {

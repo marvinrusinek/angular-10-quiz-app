@@ -1135,6 +1135,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
     
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string, prefix: string): void {
+    console.log('Received Explanation Text:', explanationText);
+    console.log('Received Prefix:', prefix);
     this.combinedQuestionData$.next({
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
