@@ -663,4 +663,4 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
-}
+} 
