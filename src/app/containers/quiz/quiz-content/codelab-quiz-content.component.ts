@@ -482,10 +482,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       )
     ); */
 
+    currentQuestionAndOptions$.subscribe(value => console.log('currentQuestionAndOptions$:', value));
+    this.numberOfCorrectAnswers$.subscribe(value => console.log('numberOfCorrectAnswers$:', value));
+    
+
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
+      this.explanationTextService.isExplanationTextDisplayed$
     ]).pipe(
       switchMap(([
         { currentQuestion, currentOptions },
@@ -529,7 +533,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanationText: explanationText,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions,
-          prefix: prefix // Include the prefix in the returned object
+          isNavigatingToPrevious: false,
+          prefix: prefix
         });
       })
     );
