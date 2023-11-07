@@ -430,13 +430,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }))
     );
 
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+
     currentQuestionAndOptions$.subscribe(value => console.log('currentQuestionAndOptions$:', value));
     this.numberOfCorrectAnswers$.subscribe(value => console.log('numberOfCorrectAnswers$:', value));
+    this.isExplanationTextDisplayed$.subscribe(value => console.log('isExplanationTextDisplayed$:', value));
     
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.explanationTextService.isExplanationTextDisplayed$
+      this.isExplanationTextDisplayed$
     ]).pipe(
       switchMap(([
         { currentQuestion, currentOptions },
