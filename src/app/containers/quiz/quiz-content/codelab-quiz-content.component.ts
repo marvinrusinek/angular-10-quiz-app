@@ -573,23 +573,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         questionToDisplay$,
         this.quizService.nextOptions$,
         this.explanationText$,
-        this.correctAnswersText$,
-        this.explanationTextService.prefix$
+        this.correctAnswersText$
       ]).pipe(
-        map(([questionToDisplay, nextOptions, explanationText, correctAnswersText, prefix]) => ({
-          questionText: isNavigatingToPrevious
+        map(([questionToDisplay, nextOptions, explanationText, correctAnswersText]) => {
+          const questionText = isNavigatingToPrevious
             ? `${this.previousQuestionText} ${correctAnswersText}` // When navigating back, display the correct answers text
-            : questionToDisplay?.questionText || '',
+            : questionToDisplay?.questionText || '';
     
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersText,
-          currentQuestion: questionToDisplay || null,
-          currentOptions: nextOptions || [],
-          isNavigatingToPrevious: isNavigatingToPrevious,
-          prefix: prefix
-        }))
+          return {
+            questionText: questionText,
+            explanationText: explanationText,
+            correctAnswersText: correctAnswersText,
+            currentQuestion: questionToDisplay || null,
+            currentOptions: nextOptions || [],
+            isNavigatingToPrevious: isNavigatingToPrevious,
+            prefix: this.explanationTextService.prefix$
+          };
+        })
       );
-    });    
+    });  
   }
 
   private setupOptions(): void {
