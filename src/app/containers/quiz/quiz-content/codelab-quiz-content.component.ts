@@ -453,7 +453,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
 
-        if (currentQuestion && this.questions) {
+          if (currentQuestion && this.questions.length > 0) {
           const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
           
           if (foundQuestion) {
