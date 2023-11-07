@@ -453,18 +453,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
 
-        const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
+        if (currentQuestion && this.questions) {
+          const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
+          console.log('Found Question:', foundQuestion);
+          const questionIndex = foundQuestion ? this.questions.indexOf(foundQuestion) : -1;
+          console.log('Question Index::::>>', questionIndex);
 
-        // Get the question index
-        const questionIndex = foundQuestion ? this.questions.indexOf(foundQuestion) : -1;
-        console.log('Question Index::::>>', questionIndex);
+          // Fetch the prefix for the explanation
+          const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
+          console.log('Prefix::::>>', prefix);
 
-        // Fetch the prefix for the explanation
-        const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
-        console.log('Prefix::::>>', prefix);
-
-        // Fetch the explanation text
-        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+          // Fetch the explanation text
+          const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+        } else {
+          console.log("currentQuestion or this.questions is null");
+        }
 
         // Other calculations, e.g., correct answers text
         const questionHasMultipleAnswers =
