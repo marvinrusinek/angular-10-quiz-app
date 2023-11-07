@@ -455,7 +455,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : '';
         console.log("QT", questionText);
         
-        console.log("Q::", currentQuestion$);
+        this.currentQuestion$.subscribe(value => {
+          console.log("Q::", value); // Log the emitted value of currentQuestion$
+        });
 
         if (currentQuestion && this.questions.length > 0) {
           const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
