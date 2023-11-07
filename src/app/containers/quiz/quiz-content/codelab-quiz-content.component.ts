@@ -196,6 +196,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         console.log('No explanation found.');
       }
     });    
+
+    this.explanationTextService.prefix$.subscribe(value => console.log('Prefix$ value:', value));
   }
 
   ngOnChanges(): void {
