@@ -430,62 +430,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }))
     );
 
-    /* this.combinedQuestionData$ = combineLatest([
-      currentQuestionAndOptions$,
-      this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
-    ]).pipe(
-      tap((data) => console.log('Observable Data:', data)),
-      map(
-        ([
-          { currentQuestion, currentOptions },
-          numberOfCorrectAnswers,
-          isExplanationDisplayed
-        ]) => {
-          // Calculate question text
-          const questionText = currentQuestion
-            ? this.getQuestionText(currentQuestion, this.questions)
-            : '';
-
-          // Get explanation text for the current question's index
-          const questionIndex = this.questions.indexOf(currentQuestion);
-
-          // Determine which explanation text to display
-          // const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
-          const explanationText = isExplanationDisplayed
-            ? this.nextExplanationText
-            : '';
-
-          // Other calculations, e.g., correct answers text
-          const questionHasMultipleAnswers =
-            this.quizStateService.isMultipleAnswer(currentQuestion);
-          let correctAnswersText = '';
-          if (
-            questionHasMultipleAnswers &&
-            !isExplanationDisplayed &&
-            numberOfCorrectAnswers !== undefined &&
-            +numberOfCorrectAnswers > 1
-          ) {
-            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-              +numberOfCorrectAnswers
-            );
-          }
-
-          return {
-            questionText: questionText,
-            currentQuestion: currentQuestion,
-            explanationText: explanationText,
-            correctAnswersText: correctAnswersText,
-            currentOptions: currentOptions
-          };
-        }
-      )
-    ); */
-
     currentQuestionAndOptions$.subscribe(value => console.log('currentQuestionAndOptions$:', value));
     this.numberOfCorrectAnswers$.subscribe(value => console.log('numberOfCorrectAnswers$:', value));
     
-
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
