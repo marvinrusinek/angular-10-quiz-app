@@ -195,7 +195,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       } else {
         console.log('No explanation found.');
       }
-    });    
+    });
 
     this.explanationTextService.prefix$.subscribe(value => console.log('Prefix$ value:', value));
   }
@@ -453,8 +453,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
 
+        const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
+
         // Get the question index
-        const questionIndex = this.questions.indexOf(currentQuestion);
+        const questionIndex = foundQuestion ? this.questions.indexOf(foundQuestion) : -1;
         console.log('Question Index::::>>', questionIndex);
 
         // Fetch the prefix for the explanation
