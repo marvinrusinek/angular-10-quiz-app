@@ -58,7 +58,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;
-  currentQuestion$: Observable<QuizQuestion | null> = new Observable<QuizQuestion | null>();
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>(
     []
   );
@@ -454,7 +454,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : '';
         console.log("QT", questionText);
         
-        console.log("Q::", currentQuestion);
+        this.currentQuestion$.next(currentQuestion);
+        console.log("Q::", currentQuestion$);
 
         if (currentQuestion && this.questions.length > 0) {
           const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
