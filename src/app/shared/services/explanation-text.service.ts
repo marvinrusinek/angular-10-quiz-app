@@ -12,9 +12,9 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
+  formattedExplanation$: Observable<string>;
   prefixes: { [key: number]: string } = {};
   questionIndexCounter = 0;
-  prefix$: Observable<string>;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
@@ -145,9 +145,8 @@ export class ExplanationTextService {
 
   formatExplanationText(
     options: Option[],
-    question: QuizQuestion,
-    nextQuestion: QuizQuestion | null
-  ): Observable<{ explanation: string, prefix: string }> {
+    question: QuizQuestion
+  ): Observable<{ explanation: string }> {
     return new Observable((observer) => {
       const correctOptions = options.filter((option) => option.correct);
       const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
@@ -165,23 +164,14 @@ export class ExplanationTextService {
       } else {
         prefix = 'No correct option selected...';
       }
-
-      this.prefix$ = of(prefix);
-
-      console.log('Generated Prefix:', prefix);
-      console.log('Question Explanation:', question.explanation); // Ensure question.explanation exists and contains the necessary context.
-
       // Construct the formatted explanation by combining the prefix and the question's explanation.
       formattedExplanation = `${prefix} ${question.explanation}`;
+      this.formattedExplanation$ = of(formattedExplanation);
 
-      console.log('Generated Explanation:', formattedExplanation);
-
-      this.prefixes[this.questionIndexCounter] = prefix;
       this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
-
       this.questionIndexCounter++;
 
-      observer.next({ explanation: formattedExplanation, prefix: prefix });
+      observer.next({ explanation: formattedExplanation });
       observer.complete();
     });
   }
