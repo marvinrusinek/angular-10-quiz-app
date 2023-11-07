@@ -197,6 +197,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }
     });
 
+    this.currentQuestion$.next(this.question);
     this.explanationTextService.prefix$.subscribe(value => console.log('Prefix$ value:', value));
   }
 
@@ -454,7 +455,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : '';
         console.log("QT", questionText);
         
-        this.currentQuestion$.next(currentQuestion);
         console.log("Q::", currentQuestion$);
 
         if (currentQuestion && this.questions.length > 0) {
