@@ -8,11 +8,8 @@
         class="number-correct"
         *ngIf="shouldDisplayCorrectAnswersText(data)"
       >
-      <ng-container *ngIf="data.prefix">{{ data.prefix }}</ng-container>
-        <ng-container *ngIf="data.explanationText">{{ data.explanationText }}</ng-container>
         {{ correctAnswersText$ | async }}
       </span>
-      {{ data.prefix }} {{ data.explanationText }}
     </h3>
   </section>
 </ng-container>
