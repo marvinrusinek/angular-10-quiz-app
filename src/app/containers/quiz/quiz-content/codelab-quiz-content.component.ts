@@ -58,7 +58,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;
-  currentQuestion$: Observable<QuizQuestion | null> = of(undefined);
+  currentQuestion$: Observable<QuizQuestion | null> = new Observable<QuizQuestion | null>();
   currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>(
     []
   );
