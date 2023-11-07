@@ -1119,16 +1119,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         (nextQuestion: QuizQuestion | null) => {
           if (nextQuestion) {
             this.explanationTextService
-              .formatExplanationText(options, currentQuestion, nextQuestion)
+              .formatExplanationText(options, currentQuestion)
               .subscribe(
-                ({ explanation, prefix }: { explanation: string, prefix: string }) => {
+                ({ explanation }: { explanation: string }) => {
                   console.log('Received Explanation Text:', explanation);
                   console.log('Received Prefix:', prefix);
                   this.explanationText$.next(explanation);
                   this.isAnswerSelectedChange.emit(true);
                   this.toggleVisibility.emit();
                   this.updateFeedbackVisibility();
-                  this.updateCombinedQuestionData(currentQuestion, explanation, prefix); // Pass the prefix here
+                  this.updateCombinedQuestionData(currentQuestion, explanation);
                 },
                 (error) => {
                   console.error('Error in setExplanationText:', error);
@@ -1147,15 +1147,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       );
   }
     
-  updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string, prefix: string): void {
+  updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     console.log('Received Explanation Text:', explanationText);
-    console.log('Received Prefix:', prefix);
     this.combinedQuestionData$.next({
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
       correctAnswersText: this.quizService.getCorrectAnswersAsString(),
-      currentOptions: this.currentOptions,
-      prefix: prefix
+      currentOptions: this.currentOptions
     });
   }
   
