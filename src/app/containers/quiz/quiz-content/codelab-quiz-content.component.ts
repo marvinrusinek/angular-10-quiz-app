@@ -569,35 +569,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
     
     this.isNavigatingToPreviousQuestion.subscribe((isNavigatingToPrevious) => {
-      this.combinedQuestionData$ = combineLatest([
-        questionToDisplay$,
-        this.quizService.nextOptions$,
-        this.explanationText$,
-        this.correctAnswersText$
-      ]).pipe(
-        map(([questionToDisplay, nextOptions, explanationText, correctAnswersText]) => {
-          console.log('questionToDisplay:', questionToDisplay);
-          console.log('nextOptions:', nextOptions);
-          console.log('explanationText:', explanationText);
-          console.log('correctAnswersText:', correctAnswersText);
-          console.log('prefix:', prefix);
+      forkJoin({
+        questionToDisplay: questionToDisplay$,
+        nextOptions: this.quizService.nextOptions$,
+        explanationText: this.explanationText$,
+        correctAnswersText: this.correctAnswersText$,
+        prefix: this.explanationTextService.prefix$
+      }).subscribe(({ questionToDisplay, nextOptions, explanationText, correctAnswersText, prefix }) => {
+        console.log('questionToDisplay:', questionToDisplay);
+        console.log('nextOptions:', nextOptions);
+        console.log('explanationText:', explanationText);
+        console.log('correctAnswersText:', correctAnswersText);
+        console.log('prefix:', prefix);
 
-          const questionText = isNavigatingToPrevious
-            ? `${this.previousQuestionText} ${correctAnswersText}` // When navigating back, display the correct answers text
-            : questionToDisplay?.questionText || '';
-    
-          return {
-            questionText: questionText,
-            explanationText: explanationText,
-            correctAnswersText: correctAnswersText,
-            currentQuestion: questionToDisplay || null,
-            currentOptions: nextOptions || [],
-            isNavigatingToPrevious: isNavigatingToPrevious,
-            prefix: this.explanationTextService.prefix$
-          };
-        })
-      );
-    });  
+        const questionText = isNavigatingToPrevious
+          ? `${this.previousQuestionText} ${correctAnswersText}`
+          : questionToDisplay?.questionText || '';
+
+        this.combinedQuestionData$ = of({
+          questionText: questionText,
+          explanationText: explanationText,
+          correctAnswersText: correctAnswersText,
+          currentQuestion: questionToDisplay || null,
+          currentOptions: nextOptions || [],
+          isNavigatingToPrevious: isNavigatingToPrevious,
+          prefix: prefix
+        });
+      });
+    });
   }
 
   private setupOptions(): void {
