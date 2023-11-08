@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
+import { isObject } from 'lodash';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -60,8 +61,8 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    if (!question || typeof question !== 'object' || !('options' in question)) {
-      console.error('Question is not defined');
+    if (!question || !isObject(question) || !('options' in question)) {
+      console.error('Question is not defined or is in an invalid format');
       this.setMultipleAnswer(false);
       return of(false);
     }
