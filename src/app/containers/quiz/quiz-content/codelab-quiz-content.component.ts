@@ -401,48 +401,60 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
+      this.isExplanationTextDisplayed$,
+      this.formattedExplanation$
     ]).pipe(
       switchMap(([
         { currentQuestion, currentOptions },
         numberOfCorrectAnswers,
-        isExplanationDisplayed
+        isExplanationDisplayed,
+        formattedExplanation
       ]) => {
         // Calculate question text
         const questionText = currentQuestion
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
-
-        // Get the question index
-        const questionIndex = this.questions.indexOf(currentQuestion);
-        console.log('Question Index::>>', questionIndex);
-
-        // Fetch the explanation text
-        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
-
-        // Other calculations, e.g., correct answers text
-        const questionHasMultipleAnswers =
-          this.quizStateService.isMultipleAnswer(currentQuestion);
-        let correctAnswersText = '';
-        if (
-          questionHasMultipleAnswers &&
-          !isExplanationDisplayed &&
-          numberOfCorrectAnswers !== undefined &&
-          +numberOfCorrectAnswers > 1
-        ) {
-          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-            +numberOfCorrectAnswers
-          );
+  
+        if (currentQuestion && this.questions.length > 0) {
+          // Get the question index
+          const questionIndex = this.questions.indexOf(currentQuestion);
+          console.log('Question Index::>>', questionIndex);
+  
+          // Fetch the explanation text
+          const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+  
+          // Other calculations, e.g., correct answers text
+          const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+          let correctAnswersText = '';
+  
+          if (
+            questionHasMultipleAnswers &&
+            !isExplanationDisplayed &&
+            numberOfCorrectAnswers !== undefined &&
+            +numberOfCorrectAnswers > 1
+          ) {
+            correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+          }
+  
+          return of({
+            questionText: questionText,
+            currentQuestion: currentQuestion,
+            explanationText: formattedExplanation,
+            correctAnswersText: correctAnswersText,
+            currentOptions: currentOptions,
+            isNavigatingToPrevious: false
+          });
+        } else {
+          console.log('currentQuestion or this.questions is null');
+          return of({
+            questionText: '',
+            currentQuestion: null,
+            explanationText: '',
+            correctAnswersText: '',
+            currentOptions: [],
+            isNavigatingToPrevious: false
+          });
         }
-
-        return of({
-          questionText: questionText,
-          currentQuestion: currentQuestion,
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersText,
-          currentOptions: currentOptions,
-          isNavigatingToPrevious: false
-        });
       })
     );
   }
