@@ -141,8 +141,8 @@ export class ExplanationTextService {
     options: Option[],
     question: QuizQuestion
   ): { explanation: string } {
-    const correctOptions = options.filter((option) => option.correct);
-    const correctOptionIndices = correctOptions.map(
+    let correctOptions = options.filter((option) => option.correct);
+    let correctOptionIndices = correctOptions.map(
       (option) => question.options.indexOf(option) + 1
     );
 
@@ -166,6 +166,10 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(formattedExplanation);
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     this.questionIndexCounter++;
+
+    // Reset the local variables to empty arrays
+    correctOptions = [];
+    correctOptionIndices = [];
 
     return { explanation: formattedExplanation };
   }
@@ -268,6 +272,7 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
+    this.formattedExplanation$ = new BehaviorSubject<string>('');  // Reset formatted explanation
     this.explanationTexts = [];
     this.explanationText$ = new BehaviorSubject<string | null>(null);
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
