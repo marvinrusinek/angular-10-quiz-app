@@ -496,32 +496,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         nextOptions: this.quizService.nextOptions$,
         explanationText: this.explanationTextService.formattedExplanation$,
         correctAnswersText: this.correctAnswersText$
-      }).subscribe(({ questionToDisplay, nextOptions, explanationText, correctAnswersText }) => {
-        console.log('questionToDisplay:', questionToDisplay);
-        console.log('nextOptions:', nextOptions);
-        console.log('explanationText:', explanationText);
-        console.log('correctAnswersText:', correctAnswersText);
+      }).pipe(
+        switchMap(({ questionToDisplay, nextOptions, explanationText, correctAnswersText }) => {
+          console.log('questionToDisplay:', questionToDisplay);
+          console.log('nextOptions:', nextOptions);
+          console.log('explanationText:', explanationText);
+          console.log('correctAnswersText:', correctAnswersText);
 
-        const questionText = isNavigatingToPrevious
-          ? `${this.previousQuestionText} ${correctAnswersText}`
-          : questionToDisplay?.questionText || '';
+          const questionText = isNavigatingToPrevious
+            ? `${this.previousQuestionText} ${correctAnswersText}`
+            : questionToDisplay?.questionText || '';
 
-        // Process the formatted explanation text
-        this.explanationTextService.formattedExplanation$.pipe(
-          switchMap((formattedExplanation) => {
-            const combinedData = {
+          return this.explanationTextService.formattedExplanation$.pipe(
+            map(formattedExplanation => ({
               questionText: questionText,
               explanationText: formattedExplanation,
               correctAnswersText: correctAnswersText,
               currentQuestion: questionToDisplay || null,
               currentOptions: nextOptions || [],
               isNavigatingToPrevious: isNavigatingToPrevious
-            };
-            return of(combinedData); // Return the observable with the combined data
-          })
-        ).subscribe((combinedData) => {
-          this.combinedQuestionData$ = of(combinedData); // Assign the combined data observable
-        });
+            }))
+          );
+        })
+      ).subscribe((combinedData) => {
+        this.combinedQuestionData$ = of(combinedData);
       });
     });
   }
