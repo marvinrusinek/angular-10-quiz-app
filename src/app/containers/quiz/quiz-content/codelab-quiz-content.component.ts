@@ -423,6 +423,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionIndex = this.questions.indexOf(currentQuestion);
         console.log('Question Index::>>', questionIndex);
 
+        // Fetch the explanation text
+        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+
         // Other calculations, e.g., correct answers text
         const questionHasMultipleAnswers =
           this.quizStateService.isMultipleAnswer(currentQuestion);
@@ -441,7 +444,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of({
           questionText: questionText,
           currentQuestion: currentQuestion,
-          explanationText: formattedExplanation,
+          explanationText: explanationText,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions,
           isNavigatingToPrevious: false
