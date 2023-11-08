@@ -17,7 +17,6 @@ import {
   Subscription,
 } from 'rxjs';
 import {
-  filter,
   map,
   startWith,
   switchMap,
@@ -40,7 +39,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
   styleUrls: ['./codelab-quiz-content.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent
   implements OnInit, OnChanges, OnDestroy
@@ -123,9 +122,7 @@ export class CodelabQuizContentComponent
 
   private isNavigatingToPreviousQuestion: Observable<boolean>;
 
-  private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(
-    false
-  );
+  private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$: Observable<boolean> =
     this.shouldDisplayCorrectAnswersSource.asObservable();
   shouldDisplayCorrectAnswersAfterQuestion = false;
