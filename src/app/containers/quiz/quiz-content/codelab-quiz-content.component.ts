@@ -166,38 +166,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
         }
       );
-
-    // Subscribe to the observable
-    this.combinedQuestionData$.subscribe((data) => {
-      console.log('Emitted data:', data);
-      if (data && data.prefix) {
-        console.log('Prefix exists:', data.prefix);
-      } else {
-        console.log('No prefix found.');
-      }
-    });
-
-    this.combinedQuestionData$.subscribe((data) => {
-      // Use the emitted data here
-      console.log("MY CQD DATA", data);
-    });
-
-    this.combinedQuestionData$.subscribe((data) => {
-      console.log('Emitted data:', data);
-      if (data && data.prefix) {
-        console.log('Prefix exists:', data.prefix);
-      } else {
-        console.log('No prefix found.');
-      }
-      if (data && data.explanationText) {
-        console.log('Explanation exists:', data.explanationText);
-      } else {
-        console.log('No explanation found.');
-      }
-    });
-
     this.currentQuestion$.next(this.question);
-    this.explanationTextService.prefix$.subscribe(value => console.log('Prefix$ value:', value));
   }
 
   ngOnChanges(): void {
@@ -490,7 +459,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             return of({
               questionText: questionText,
               currentQuestion: currentQuestion,
-              explanationText: formattedExplanation.explanation,
+              explanationText: formattedExplanation,
               correctAnswersText: correctAnswersText,
               currentOptions: currentOptions,
               isNavigatingToPrevious: false
@@ -538,14 +507,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         questionToDisplay: questionToDisplay$,
         nextOptions: this.quizService.nextOptions$,
         explanationText: this.explanationText$,
-        correctAnswersText: this.correctAnswersText$,
-        prefix: this.explanationTextService.prefix$
-      }).subscribe(({ questionToDisplay, nextOptions, explanationText, correctAnswersText, prefix }) => {
+        correctAnswersText: this.correctAnswersText$
+      }).subscribe(({ questionToDisplay, nextOptions, explanationText, correctAnswersText }) => {
         console.log('questionToDisplay:', questionToDisplay);
         console.log('nextOptions:', nextOptions);
         console.log('explanationText:', explanationText);
         console.log('correctAnswersText:', correctAnswersText);
-        console.log('prefix:', prefix);
 
         const questionText = isNavigatingToPrevious
           ? `${this.previousQuestionText} ${correctAnswersText}`
@@ -557,8 +524,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           correctAnswersText: correctAnswersText,
           currentQuestion: questionToDisplay || null,
           currentOptions: nextOptions || [],
-          isNavigatingToPrevious: isNavigatingToPrevious,
-          prefix: prefix
+          isNavigatingToPrevious: isNavigatingToPrevious
         });
       });
     });
