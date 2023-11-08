@@ -43,6 +43,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     currentQuestion: QuizQuestion;
     currentOptions: Option[];
     isNavigatingToPrevious: boolean;
+    formattedExplanation?: string;
   }> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
@@ -165,7 +166,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
         }
       );
+
+    console.log("QUESTION", this.question);
     this.currentQuestion$.next(this.question);
+
+    this.explanationTextService.formattedExplanation$.subscribe({
+      next: explanation => {
+        console.log('Formatted Explanation:', explanation);
+      },
+      error: error => {
+        console.error('An error occurred:', error);
+      },
+      complete: () => {
+        console.log('Subscription completed');
+      }
+    });
   }
 
   ngOnChanges(): void {
@@ -414,6 +429,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionText = currentQuestion
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
+        console.log("CQ", currentQuestion);
   
         if (currentQuestion && this.questions.length > 0) {
           // Get the question index
@@ -442,7 +458,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             explanationText: formattedExplanation,
             correctAnswersText: correctAnswersText,
             currentOptions: currentOptions,
-            isNavigatingToPrevious: false
+            isNavigatingToPrevious: false,
+            formattedExplanation: formattedExplanation
           });
         } else {
           console.log('currentQuestion or this.questions is null');
@@ -452,7 +469,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             explanationText: '',
             correctAnswersText: '',
             currentOptions: [],
-            isNavigatingToPrevious: false
+            isNavigatingToPrevious: false,
+            formattedExplanation: ''
           });
         }
       })
