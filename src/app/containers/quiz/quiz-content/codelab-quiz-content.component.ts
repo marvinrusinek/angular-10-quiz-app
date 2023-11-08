@@ -460,6 +460,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         if (currentQuestion && this.questions.length > 0) {
           const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
+          console.log("FQ", foundQuestion);
           
           if (foundQuestion) {
             const questionIndex = this.questions.indexOf(foundQuestion);
@@ -470,39 +471,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           
             const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
           
-            // Assuming the code you use to display the question is below:
-            // Display the question using explanationText and other related information
+            const questionHasMultipleAnswers =
+            this.quizStateService.isMultipleAnswer(currentQuestion);
+            let correctAnswersText = '';
+            if (
+              questionHasMultipleAnswers &&
+              !isExplanationDisplayed &&
+              numberOfCorrectAnswers !== undefined &&
+              +numberOfCorrectAnswers > 1
+            ) {
+              correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+                +numberOfCorrectAnswers
+              );
+            }
+
+            return of({
+              questionText: questionText,
+              currentQuestion: currentQuestion,
+              explanationText: explanationText,
+              correctAnswersText: correctAnswersText,
+              currentOptions: currentOptions,
+              isNavigatingToPrevious: false
+            });
           } else {
             console.log('Question not found');
           }
         } else {
           console.log('currentQuestion or this.questions is null');
         }
-          
-
-        // Other calculations, e.g., correct answers text
-        const questionHasMultipleAnswers =
-          this.quizStateService.isMultipleAnswer(currentQuestion);
-        let correctAnswersText = '';
-        if (
-          questionHasMultipleAnswers &&
-          !isExplanationDisplayed &&
-          numberOfCorrectAnswers !== undefined &&
-          +numberOfCorrectAnswers > 1
-        ) {
-          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-            +numberOfCorrectAnswers
-          );
-        }
-
-        return of({
-          questionText: questionText,
-          currentQuestion: currentQuestion,
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersText,
-          currentOptions: currentOptions,
-          isNavigatingToPrevious: false
-        });
       })
     );
   }
