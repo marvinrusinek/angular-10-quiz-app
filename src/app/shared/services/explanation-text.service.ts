@@ -204,7 +204,7 @@ export class ExplanationTextService {
       const explanation = this.getFormattedExplanationForQuestion(
         questions.indexOf(question)
       );
-      formattedExplanations.push(explanation || ''); // Add an empty string if explanation is not found
+      formattedExplanations.push(explanation || '');
     }
 
     return formattedExplanations;
@@ -272,7 +272,7 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
-    this.formattedExplanation$ = new BehaviorSubject<string>('');  // Reset formatted explanation
+    this.formattedExplanation$ = new BehaviorSubject<string>('');
     this.explanationTexts = [];
     this.explanationText$ = new BehaviorSubject<string | null>(null);
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
