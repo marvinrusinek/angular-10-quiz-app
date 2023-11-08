@@ -407,30 +407,51 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$,
-      this.explanationTextService.formattedExplanation$
+      this.isExplanationTextDisplayed$
     ]).pipe(
-      filter(
-        ([{ currentQuestion }, , , formattedExplanation]) =>
-          !!currentQuestion && this.questions.length > 0 && !!formattedExplanation
-      ),
-      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
-        const questionText = this.getQuestionText(currentQuestion, this.questions);
+      switchMap(([
+        { currentQuestion, currentOptions },
+        numberOfCorrectAnswers,
+        isExplanationDisplayed
+      ]) => {
+        // Calculate question text
+        const questionText = currentQuestion
+          ? this.getQuestionText(currentQuestion, this.questions)
+          : '';
 
-        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+        // Get the question index
+        const questionIndex = this.questions.indexOf(currentQuestion);
+        console.log('Question Index::>>', questionIndex);
+
+        // Fetch the prefix for the explanation
+        const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
+        console.log('Prefix::>>', prefix);
+
+        // Fetch the explanation text
+        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+
+        // Other calculations, e.g., correct answers text
+        const questionHasMultipleAnswers =
+          this.quizStateService.isMultipleAnswer(currentQuestion);
         let correctAnswersText = '';
-
-        if (questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
-          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
+        if (
+          questionHasMultipleAnswers &&
+          !isExplanationDisplayed &&
+          numberOfCorrectAnswers !== undefined &&
+          +numberOfCorrectAnswers > 1
+        ) {
+          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+            +numberOfCorrectAnswers
+          );
         }
 
         return of({
           questionText: questionText,
           currentQuestion: currentQuestion,
-          explanationText: formattedExplanation,
+          explanationText: explanationText,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions,
-          isNavigatingToPrevious: false
+          prefix: prefix // Include the prefix in the returned object
         });
       })
     );
