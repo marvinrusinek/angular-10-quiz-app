@@ -440,7 +440,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
             console.log('Prefix::::>>', prefix);
           
-            const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+            // const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
           
             const questionHasMultipleAnswers =
             this.quizStateService.isMultipleAnswer(currentQuestion);
@@ -506,7 +506,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       forkJoin({
         questionToDisplay: questionToDisplay$,
         nextOptions: this.quizService.nextOptions$,
-        explanationText: this.explanationText$,
+        explanationText: this.explanationTextService.formattedExplanation$,
         correctAnswersText: this.correctAnswersText$
       }).subscribe(({ questionToDisplay, nextOptions, explanationText, correctAnswersText }) => {
         console.log('questionToDisplay:', questionToDisplay);
@@ -518,13 +518,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? `${this.previousQuestionText} ${correctAnswersText}`
           : questionToDisplay?.questionText || '';
 
-        this.combinedQuestionData$ = of({
-          questionText: questionText,
-          explanationText: explanationText,
-          correctAnswersText: correctAnswersText,
-          currentQuestion: questionToDisplay || null,
-          currentOptions: nextOptions || [],
-          isNavigatingToPrevious: isNavigatingToPrevious
+        // Process the formatted explanation text
+        this.explanationTextService.formattedExplanation$.pipe(
+          switchMap((formattedExplanation) => {
+            const combinedData = {
+              questionText: questionText,
+              explanationText: formattedExplanation,
+              correctAnswersText: correctAnswersText,
+              currentQuestion: questionToDisplay || null,
+              currentOptions: nextOptions || [],
+              isNavigatingToPrevious: isNavigatingToPrevious
+            };
+            return of(combinedData); // Return the observable with the combined data
+          })
+        ).subscribe((combinedData) => {
+          this.combinedQuestionData$ = of(combinedData); // Assign the combined data observable
         });
       });
     });
