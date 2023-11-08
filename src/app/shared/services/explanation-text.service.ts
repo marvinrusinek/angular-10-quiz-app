@@ -6,7 +6,7 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
@@ -59,35 +59,6 @@ export class ExplanationTextService {
     return '';
   }
 
-  // Method to return combined observable for explanation and prefix
-  getExplanationWithPrefixForQuestionIndex(index: number): Observable<{ explanation: string, prefix: string | undefined }> {
-    const explanation$ = this.getExplanationText$();
-    const prefix$ = this.getExplanationPrefixForQuestionIndex(index);
-
-    return combineLatest([explanation$, prefix$]).pipe(
-      map(([explanation, prefix]) => ({ explanation, prefix }))
-    );
-  }
-
-  getExplanationPrefixForQuestionIndex(index: number): string | undefined {
-    console.log('Received index:', index);
-  
-    const keys = Object.keys(this.prefixes);
-    console.log('Available keys:', keys);
-  
-    if (index >= 0 && index < keys.length) {
-      console.log('Retrieved prefix:', this.prefixes[index]);
-      return this.prefixes[index] || '';
-    }
-  
-    console.log('No prefix found for index:', index);
-    return '';
-  }
-  
-  getPrefix$(): Observable<string> {
-    return this.prefix$;
-  }
-    
   /* formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
     try {
       if (!Array.isArray(selectedOptions)) {
