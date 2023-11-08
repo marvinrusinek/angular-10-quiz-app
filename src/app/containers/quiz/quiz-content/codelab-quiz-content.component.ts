@@ -185,7 +185,7 @@ export class CodelabQuizContentComponent
     this.currentQuestion$.next(this.question);
 
     this.explanationTextService.formattedExplanation$.subscribe(explanation => {
-      console.log('Formatted Explanation:', explanation);
+      // console.log('Formatted Explanation:', explanation);
       this.formattedExplanation = explanation;
     });
     this.currentQuestion$.subscribe(newQuestion => {

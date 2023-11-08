@@ -198,7 +198,7 @@ export class ExplanationTextService {
 
     for (const question of questions) {
       const explanation = this.getFormattedExplanationForQuestion(
-        this.questions.indexOf(question)
+        questions.indexOf(question)
       );
       formattedExplanations.push(explanation || ''); // Add an empty string if explanation is not found
     }
