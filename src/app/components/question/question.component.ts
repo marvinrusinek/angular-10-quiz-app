@@ -1096,6 +1096,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         switchMap((questionsArray: QuizQuestion[]) => {
           const length = questionsArray.length;
+          console.log('Questions Array Length:', length);
           return this.quizService.questions$.pipe(
             map(() => length)
           );
@@ -1105,7 +1106,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           if (this.currentQuestionIndex < length - 1) {
             return this.questions$.pipe(
               map((questionsArray: QuizQuestion[]) => {
-                return questionsArray[this.currentQuestionIndex + 1];
+                const nextQuestion = questionsArray[this.currentQuestionIndex + 1];
+                console.log('Next Question:', nextQuestion);
+                return nextQuestion;
               })
             );
           } else {
