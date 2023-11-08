@@ -5,6 +5,11 @@ import { map, tap } from 'rxjs/operators';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
+interface FormattedExplanation {
+  questionIndex: number;
+  explanation: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -17,7 +22,7 @@ export class ExplanationTextService {
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
-  prefixes: { [key: number]: string } = {};
+  formattedExplanations: FormattedExplanation[] = [];
   questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
@@ -57,6 +62,16 @@ export class ExplanationTextService {
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
     return this.explanationTexts[index];
+  }
+
+  // Function to update explanations based on question ID or index
+  updateExplanationForQuestion(questionId: string | number, explanation: string): void {
+    this.explanationTexts[questionId] = explanation;
+  }
+
+  // Retrieve explanation for a specific question
+  getExplanationForQuestion(questionId: string | number): string | undefined {
+    return this.explanationTexts[questionId];
   }
 
   getFormattedExplanation$() {
@@ -153,6 +168,42 @@ export class ExplanationTextService {
     this.questionIndexCounter++;
 
     return { explanation: formattedExplanation };
+  }
+
+  // Function to set or update the formatted explanation for a question
+  setFormattedExplanationForQuestion(questionIndex: number, explanation: string): void {
+    const existingIndex = this.formattedExplanations.findIndex(
+      (exp) => exp.questionIndex === questionIndex
+    );
+
+    if (existingIndex > -1) {
+      this.formattedExplanations[existingIndex].explanation = explanation;
+    } else {
+      this.formattedExplanations.push({ questionIndex, explanation });
+    }
+  }
+
+  // Function to retrieve the formatted explanation for a question
+  getFormattedExplanationForQuestion(questionIndex: number): string | undefined {
+    const explanationObj = this.formattedExplanations.find(
+      (exp) => exp.questionIndex === questionIndex
+    );
+
+    return explanationObj ? explanationObj.explanation : undefined;
+  }
+
+  // Function to aggregate the formatted explanations
+  aggregateFormattedExplanations(questions: QuizQuestion[]): string[] {
+    const formattedExplanations: string[] = [];
+
+    for (const question of questions) {
+      const explanation = this.getFormattedExplanationForQuestion(
+        this.questions.indexOf(question)
+      );
+      formattedExplanations.push(explanation || ''); // Add an empty string if explanation is not found
+    }
+
+    return formattedExplanations;
   }
 
   updateExplanationTextForCurrentAndNext(
