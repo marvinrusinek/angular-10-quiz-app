@@ -12,7 +12,7 @@ export class ExplanationTextService {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
-  formattedExplanation$: Observable<string>;
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   prefixes: { [key: number]: string } = {};
   questionIndexCounter = 0;
 
@@ -57,6 +57,14 @@ export class ExplanationTextService {
       return this.explanationTexts[index] || '';
     }
     return '';
+  }
+
+  getFormattedExplanation$() {
+    return this.formattedExplanation$.asObservable();
+  }
+
+  updateFormattedExplanation(newValue: string) {
+    this.formattedExplanation$.next(newValue);
   }
 
   /* formatExplanationText(selectedOptions: Option[], question: QuizQuestion, nextQuestion: QuizQuestion | null): Observable<string> {
