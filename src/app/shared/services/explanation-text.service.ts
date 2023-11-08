@@ -122,39 +122,32 @@ export class ExplanationTextService {
     }
   } */
 
-  formatExplanationText(
-    options: Option[],
-    question: QuizQuestion
-  ): Observable<{ explanation: string }> {
-    console.log("MY FET TEST!");
-    return new Observable((observer) => {
-      const correctOptions = options.filter((option) => option.correct);
-      const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-
-      let formattedExplanation = '';
-      let prefix = '';
-
-      const isMultipleAnswer = correctOptionIndices.length > 1;
-
-      if (isMultipleAnswer) {
-        const correctOptionsString = correctOptionIndices.join(' and ');
-        prefix = `Options ${correctOptionsString} are correct because`;
-      } else if (correctOptionIndices.length === 1) {
-        prefix = `Option ${correctOptionIndices[0]} is correct because`;
-      } else {
-        prefix = 'No correct option selected...';
-      }
-
-      // Construct the formatted explanation by combining the prefix and the question's explanation.
-      formattedExplanation = `${prefix} ${question.explanation}`;
-      this.formattedExplanation$.next(formattedExplanation);
-
-      this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
-      this.questionIndexCounter++;
-
-      observer.next({ explanation: formattedExplanation });
-      observer.complete();
-    });
+  formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
+    const correctOptions = options.filter((option) => option.correct);
+    const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
+  
+    let formattedExplanation = '';
+    let prefix = '';
+  
+    const isMultipleAnswer = correctOptionIndices.length > 1;
+  
+    if (isMultipleAnswer) {
+      const correctOptionsString = correctOptionIndices.join(' and ');
+      prefix = `Options ${correctOptionsString} are correct because`;
+    } else if (correctOptionIndices.length === 1) {
+      prefix = `Option ${correctOptionIndices[0]} is correct because`;
+    } else {
+      prefix = 'No correct option selected...';
+    }
+  
+    // Construct the formatted explanation by combining the prefix and the question's explanation.
+    formattedExplanation = `${prefix} ${question.explanation}`;
+  
+    this.formattedExplanation$.next(formattedExplanation);
+    this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
+    this.questionIndexCounter++;
+  
+    return { explanation: formattedExplanation };
   }
 
   updateExplanationTextForCurrentAndNext(
