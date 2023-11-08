@@ -373,14 +373,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         console.log('Explanation Text:', explanationText);
         console.log('Selected Option Explanation:', selectedOptionExplanation);
       }),
-      switchMap(([explanationText, selectedOptionExplanation]) => {
-        return this.explanationTextService.getPrefix$().pipe(
-          map((prefix: string) => ({ explanationText, selectedOptionExplanation, prefix }))
-        );
-      }),
-      map(({ explanationText, selectedOptionExplanation, prefix }) => {
-        const explanation = selectedOptionExplanation || explanationText;
-        return `${prefix} ${explanation}`.trim(); // Concatenate prefix and explanation
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText),
+      tap(explanation => {
+        console.log('Final Explanation:', explanation);
       })
     ) as Observable<string>;
   
