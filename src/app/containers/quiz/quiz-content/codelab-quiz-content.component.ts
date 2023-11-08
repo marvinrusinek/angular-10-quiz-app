@@ -98,6 +98,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
+  formattedExplanation$: Observable<string>;
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
   showNumberOfCorrectAnswersText = false;
@@ -395,6 +396,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
   
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
