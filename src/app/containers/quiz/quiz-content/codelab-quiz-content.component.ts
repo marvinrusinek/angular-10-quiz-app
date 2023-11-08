@@ -182,28 +182,12 @@ export class CodelabQuizContentComponent
         }
       );
 
-    console.log('QUESTION', this.question);
     this.currentQuestion$.next(this.question);
 
     this.explanationTextService.getFormattedExplanation$().subscribe(explanation => {
       this.formattedExplanation = explanation;
       console.log("FE", this.formattedExplanation);
     });
-
-    /* console.log('Formatted Explanation$: ', this.formattedExplanation$);
-    if (this.formattedExplanation$) {
-      this.formattedExplanation$.subscribe({
-        next: (explanation) => {
-          console.log('Formatted Explanation:', explanation);
-        },
-        error: (error) => {
-          console.error('An error occurred:', error);
-        },
-        complete: () => {
-          console.log('Subscription completed');
-        },
-      });
-    } */
   }
 
   ngOnChanges(): void {
