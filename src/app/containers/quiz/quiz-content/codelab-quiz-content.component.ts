@@ -42,7 +42,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     currentQuestion: QuizQuestion;
     currentOptions: Option[];
     isNavigatingToPrevious: boolean;
-    prefix: string;
   }> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
@@ -502,8 +501,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanationText: explanationText,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions,
-          isNavigatingToPrevious: false,
-          prefix: prefix
+          isNavigatingToPrevious: false
         });
       })
     );
