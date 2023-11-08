@@ -99,7 +99,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
-  formattedExplanation$: Observable<string>;
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
   showNumberOfCorrectAnswersText = false;
