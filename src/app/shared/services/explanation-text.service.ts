@@ -6,13 +6,17 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExplanationTextService {
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
+    string | null
+  >('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
   prefixes: { [key: number]: string } = {};
   questionIndexCounter = 0;
 
@@ -23,7 +27,8 @@ export class ExplanationTextService {
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   private previousExplanationTextSource = new BehaviorSubject<string>('');
-  previousExplanationText$: Observable<string> = this.previousExplanationTextSource.asObservable();
+  previousExplanationText$: Observable<string> =
+    this.previousExplanationTextSource.asObservable();
 
   private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(
     false
@@ -47,16 +52,11 @@ export class ExplanationTextService {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    console.log(`Setting explanation text for index ${index}: ${explanation}`);
     this.explanationTexts[index] = explanation;
   }
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
-    const keys = Object.keys(this.explanationTexts);
-    if (index >= 0 && index < keys.length) {
-      return this.explanationTexts[index] || '';
-    }
-    return '';
+    return this.explanationTexts[index];
   }
 
   getFormattedExplanation$() {
@@ -122,15 +122,20 @@ export class ExplanationTextService {
     }
   } */
 
-  formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
+  formatExplanationText(
+    options: Option[],
+    question: QuizQuestion
+  ): { explanation: string } {
     const correctOptions = options.filter((option) => option.correct);
-    const correctOptionIndices = correctOptions.map((option) => question.options.indexOf(option) + 1);
-  
+    const correctOptionIndices = correctOptions.map(
+      (option) => question.options.indexOf(option) + 1
+    );
+
     let formattedExplanation = '';
     let prefix = '';
-  
+
     const isMultipleAnswer = correctOptionIndices.length > 1;
-  
+
     if (isMultipleAnswer) {
       const correctOptionsString = correctOptionIndices.join(' and ');
       prefix = `Options ${correctOptionsString} are correct because`;
@@ -139,14 +144,14 @@ export class ExplanationTextService {
     } else {
       prefix = 'No correct option selected...';
     }
-  
+
     // Construct the formatted explanation by combining the prefix and the question's explanation.
     formattedExplanation = `${prefix} ${question.explanation}`;
-  
+
     this.formattedExplanation$.next(formattedExplanation);
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     this.questionIndexCounter++;
-  
+
     return { explanation: formattedExplanation };
   }
 
