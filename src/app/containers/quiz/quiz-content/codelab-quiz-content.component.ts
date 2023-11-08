@@ -500,7 +500,7 @@ export class CodelabQuizContentComponent
 
     this.isNavigatingToPreviousQuestion = combineLatest([
       this.nextQuestion$,
-      this.quizService.nextOptions$,
+      this.quizService.nextOptions$
     ]).pipe(
       map(([nextQuestion, nextOptions]) => {
         // Determine if navigating to a previous question
@@ -520,7 +520,7 @@ export class CodelabQuizContentComponent
         questionToDisplay: questionToDisplay$,
         nextOptions: this.quizService.nextOptions$,
         explanationText: this.explanationTextService.formattedExplanation$,
-        correctAnswersText: this.correctAnswersText$,
+        correctAnswersText: this.correctAnswersText$
       })
         .pipe(
           switchMap(
@@ -528,7 +528,7 @@ export class CodelabQuizContentComponent
               questionToDisplay,
               nextOptions,
               explanationText,
-              correctAnswersText,
+              correctAnswersText
             }) => {
               console.log('questionToDisplay:', questionToDisplay);
               console.log('nextOptions:', nextOptions);
@@ -562,7 +562,7 @@ export class CodelabQuizContentComponent
     // Update the options$ initialization using combineLatest
     this.options$ = combineLatest([
       this.currentQuestion$,
-      this.currentOptions$,
+      this.currentOptions$
     ]).pipe(
       map(([currentQuestion, currentOptions]) => {
         if (currentQuestion && currentQuestion.options) {
@@ -582,7 +582,7 @@ export class CodelabQuizContentComponent
       this.nextQuestion$,
       this.previousQuestion$,
       this.nextExplanationText$,
-      this.explanationTextService.shouldDisplayExplanation$,
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
         ([
