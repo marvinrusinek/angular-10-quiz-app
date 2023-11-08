@@ -188,6 +188,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('ngOnInit of QuizQuestionComponent is called.');
+
     this.selectedOption = null;
     
     this.logInitialData();
@@ -214,7 +215,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
-    this.questions$.subscribe(
+    this.quizService.questions$.subscribe(
       (questionsArray: QuizQuestion[]) => {
         console.log('Received questions:::', questionsArray);
         // Your remaining logic here
@@ -223,7 +224,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error in fetching questions:', error);
       }
     );
-    
+
+    this.quizService.questions$.subscribe((data) => {
+      console.log('MY QUESTIONS:', data);
+    });
   
     this.subscribeToSelectionMessage();
     this.subscriptionToOptions();
@@ -1091,12 +1095,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      this.quizService.questions$ = of(questions);
+    });
+    
     // Subscribe to the observable to get the questions array
-    this.questions$
+    this.quizService.questions$
       .pipe(
         switchMap((questionsArray: QuizQuestion[]) => {
           const length = questionsArray.length;
-          console.log('Questions Array Length:', length);
+          console.log('Questions Array Length:::', length);
           return this.quizService.questions$.pipe(
             map(() => length)
           );
@@ -1104,10 +1112,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         switchMap((length) => {
           // Check if there's a next question available
           if (this.currentQuestionIndex < length - 1) {
-            return this.questions$.pipe(
+            return this.quizService.questions$.pipe(
               map((questionsArray: QuizQuestion[]) => {
                 const nextQuestion = questionsArray[this.currentQuestionIndex + 1];
-                console.log('Next Question:', nextQuestion);
+                console.log('Next Question:::', nextQuestion);
                 return nextQuestion;
               })
             );
