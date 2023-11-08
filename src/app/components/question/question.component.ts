@@ -1091,71 +1091,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
-    console.log('Selected Options in setExplanationText:', options);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
-      this.quizService.questions$ = of(questions);
-    });
-    
-    // Subscribe to the observable to get the questions array
-    this.quizService.questions$
-      .pipe(
-        switchMap((questionsArray: QuizQuestion[]) => {
-          const length = questionsArray.length;
-          console.log('Questions Array Length:::', length);
-          return this.quizService.questions$.pipe(
-            map(() => length)
-          );
-        }),
-        switchMap((length) => {
-          // Check if there's a next question available
-          if (this.currentQuestionIndex < length - 1) {
-            return this.quizService.questions$.pipe(
-              map((questionsArray: QuizQuestion[]) => {
-                const nextQuestion = questionsArray[this.currentQuestionIndex + 1];
-                console.log('Next Question:::', nextQuestion);
-                return nextQuestion;
-              })
-            );
-          } else {
-            console.log('No next question available. Quiz has ended.');
-            return of(null); // No explanation text when the quiz ends
-          }
-        })
-      )
-      .subscribe(
-        (nextQuestion: QuizQuestion | null) => {
-          if (nextQuestion) {
-            this.explanationTextService
-              .formatExplanationText(options, currentQuestion)
-              .subscribe(
-                ({ explanation }: { explanation: string }) => {
-                  console.log('Received Explanation Text:', explanation);
-                  this.explanationText$.next(explanation);
-                  this.isAnswerSelectedChange.emit(true);
-                  this.toggleVisibility.emit();
-                  this.updateFeedbackVisibility();
-                  this.updateCombinedQuestionData(currentQuestion, explanation);
-                },
-                (error) => {
-                  console.error('Error in setExplanationText:', error);
-                }
-              );
-          } else {
-            console.log('No next question available. Quiz has ended.');
-            this.explanationText$.next('');
-
-            const quizCompleted = true;
-            if (quizCompleted) {
-              this.quizEnded.emit(true);
-            }
-          }
-        }
-      );
+  
+    const formattedExplanation = this.explanationTextService.formatExplanationText(options, currentQuestion);
+  
+    console.log('Received Explanation Text:', formattedExplanation.explanation);
+    this.explanationText$.next(formattedExplanation.explanation);
+    this.isAnswerSelectedChange.emit(true);
+    this.toggleVisibility.emit();
+    this.updateFeedbackVisibility();
+    this.updateCombinedQuestionData(currentQuestion, formattedExplanation.explanation);
   }
-    
+
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     console.log('Received Explanation Text:', explanationText);
     this.combinedQuestionData$.next({
