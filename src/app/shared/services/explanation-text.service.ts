@@ -2,13 +2,10 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
+import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-interface FormattedExplanation {
-  questionIndex: number;
-  explanation: string;
-}
 
 @Injectable({
   providedIn: 'root',
