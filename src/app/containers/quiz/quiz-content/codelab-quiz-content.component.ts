@@ -10,6 +10,7 @@ import {
   Subscription
 } from 'rxjs';
 import {
+  filter,
   map,
   startWith,
   switchMap,
@@ -409,58 +410,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.isExplanationTextDisplayed$,
       this.explanationTextService.formattedExplanation$
     ]).pipe(
-      switchMap(([
-        { currentQuestion, currentOptions },
-        numberOfCorrectAnswers,
-        isExplanationDisplayed,
-        formattedExplanation
-      ]) => {
-        // Calculate question text
-        const questionText = currentQuestion
-          ? this.getQuestionText(currentQuestion, this.questions)
-          : '';
-  
-        if (currentQuestion && this.questions.length > 0) {
-          const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
-          
-          if (foundQuestion) {
-            const questionIndex = this.questions.indexOf(foundQuestion);
-            const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
-            let correctAnswersText = '';
-  
-            if (
-              questionHasMultipleAnswers &&
-              !isExplanationDisplayed &&
-              numberOfCorrectAnswers !== undefined &&
-              +numberOfCorrectAnswers > 1
-            ) {
-              correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-                +numberOfCorrectAnswers
-              );
-            }
-  
-            return of({
-              questionText: questionText,
-              currentQuestion: currentQuestion,
-              explanationText: formattedExplanation,
-              correctAnswersText: correctAnswersText,
-              currentOptions: currentOptions,
-              isNavigatingToPrevious: false
-            });
-          } else {
-            console.log('Question not found');
-          }
-        } else {
-          console.log('currentQuestion or this.questions is null');
+      filter(
+        ([{ currentQuestion }, , , formattedExplanation]) =>
+          !!currentQuestion && this.questions.length > 0 && !!formattedExplanation
+      ),
+      switchMap(([{ currentQuestion, currentOptions }, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
+        const questionText = this.getQuestionText(currentQuestion, this.questions);
+
+        const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+        let correctAnswersText = '';
+
+        if (questionHasMultipleAnswers && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && +numberOfCorrectAnswers > 1) {
+          correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(+numberOfCorrectAnswers);
         }
-  
-        // Return a default value in case the above conditions fail
+
         return of({
-          questionText: '',
-          currentQuestion: null,
-          explanationText: '',
-          correctAnswersText: '',
-          currentOptions: [],
+          questionText: questionText,
+          currentQuestion: currentQuestion,
+          explanationText: formattedExplanation,
+          correctAnswersText: correctAnswersText,
+          currentOptions: currentOptions,
           isNavigatingToPrevious: false
         });
       })
