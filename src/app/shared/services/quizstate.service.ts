@@ -65,33 +65,6 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  /* isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    console.log('Received question:::>>', question);
-
-    if (!question || !isObject(question) || !('options' in question)) {
-      console.error('Question is not defined or is in an invalid format');
-      this.setMultipleAnswer(false);
-      return of(false);
-    }
-
-    if (!Array.isArray(question.options)) {
-      console.error('Question options not found.', question);
-      this.setMultipleAnswer(false);
-      return of(false);
-    }
-
-    const correctOptions = question.options?.filter((option) => option.correct);
-    const isMultipleAnswer = correctOptions.length > 1;
-    this.setMultipleAnswer(isMultipleAnswer);
-    return of(isMultipleAnswer).pipe(
-      catchError((error) => {
-        console.error('Error determining if it is a multiple answer question:', error);
-        this.setMultipleAnswer(false);
-        return throwError(false);
-      })
-    );
-  } */
-
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     if (!question) {
       console.error('Question is not defined or is in an invalid format');
@@ -99,7 +72,7 @@ export class QuizStateService {
       return of(false);
     }
   
-    // Now perform the logic to determine if it's a multiple-answer question
+    // Perform the logic to determine if it's a multiple-answer question
     const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
   
     this.setMultipleAnswer(isMultipleAnswer);
