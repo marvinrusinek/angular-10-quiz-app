@@ -1261,6 +1261,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
+      this.explanationTextService.resetExplanationState();
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
@@ -1327,7 +1328,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.previousQuestionSubject.next(previousQuestion);
           this.quizService.previousOptionsSubject.next(this.currentOptions);
 
-          // Navigate to the new URL
+          this.explanationTextService.resetExplanationState();
           await this.navigateToQuestion(this.currentQuestionIndex);
         } else {
           console.log('No valid previous question available.');
