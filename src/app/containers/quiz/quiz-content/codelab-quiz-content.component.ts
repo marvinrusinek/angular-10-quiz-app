@@ -425,12 +425,10 @@ export class CodelabQuizContentComponent
           const questionText = currentQuestion
             ? this.getQuestionText(currentQuestion, this.questions)
             : '';
-          console.log('CQ', currentQuestion);
 
           if (currentQuestion && this.questions.length > 0) {
             // Get the question index
             const questionIndex = this.questions.indexOf(currentQuestion);
-            console.log('Question Index::>>', questionIndex);
 
             // Fetch the explanation text
             const explanationText =
@@ -438,11 +436,10 @@ export class CodelabQuizContentComponent
                 questionIndex
               );
 
-            // Other calculations, e.g., correct answers text
             const questionHasMultipleAnswers =
               this.quizStateService.isMultipleAnswer(currentQuestion);
+            
             let correctAnswersText = '';
-
             if (
               questionHasMultipleAnswers &&
               !isExplanationDisplayed &&
