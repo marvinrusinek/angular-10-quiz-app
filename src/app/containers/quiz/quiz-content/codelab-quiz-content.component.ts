@@ -400,13 +400,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         currentOptions
       }))
     );
-
+  
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
-
-    currentQuestionAndOptions$.subscribe(value => console.log('currentQuestionAndOptions$:', value));
-    this.numberOfCorrectAnswers$.subscribe(value => console.log('numberOfCorrectAnswers$:', value));
-    this.isExplanationTextDisplayed$.subscribe(value => console.log('isExplanationTextDisplayed$:', value));
-    
+  
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
@@ -423,16 +419,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionText = currentQuestion
           ? this.getQuestionText(currentQuestion, this.questions)
           : '';
-
+  
         if (currentQuestion && this.questions.length > 0) {
           const foundQuestion = this.questions.find(question => question.explanation === currentQuestion.explanation);
           
           if (foundQuestion) {
             const questionIndex = this.questions.indexOf(foundQuestion);
-          
-            const questionHasMultipleAnswers =
-            this.quizStateService.isMultipleAnswer(currentQuestion);
+            const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
             let correctAnswersText = '';
+  
             if (
               questionHasMultipleAnswers &&
               !isExplanationDisplayed &&
@@ -443,7 +438,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 +numberOfCorrectAnswers
               );
             }
-
+  
             return of({
               questionText: questionText,
               currentQuestion: currentQuestion,
@@ -458,10 +453,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         } else {
           console.log('currentQuestion or this.questions is null');
         }
+  
+        // Return a default value in case the above conditions fail
+        return of({
+          questionText: '',
+          currentQuestion: null,
+          explanationText: '',
+          correctAnswersText: '',
+          currentOptions: [],
+          isNavigatingToPrevious: false
+        });
       })
     );
   }
-
+  
   private setupExplanationTextSubscription(): void {
     this.quizQuestionManagerService.explanationText$.subscribe((explanationText) => {
       this.currentDisplayText = explanationText ? explanationText : (this.currentQuestion?.getValue()?.questionText || '');
