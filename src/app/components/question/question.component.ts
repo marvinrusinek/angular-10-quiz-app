@@ -1013,7 +1013,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   fetchExplanationText(questionIndex: number): string {
     const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
-    console.log('Fetching explanation for index:', questionIndex, 'Explanation:', explanation);
     return explanation || '';
   }  
   
@@ -1044,7 +1043,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } 
   
   checkOptionSelected(option: Option): boolean {
-    console.log('Checking if option is selected:', option);
     return this.selectedOptions.includes(option as Option);
   }
 
@@ -1062,8 +1060,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     );
     this.quizQuestionManagerService.setSelectedOption(option);
   
-    // this.setExplanationText(currentQuestion, [option]);
-
     // Emit events and update states after the option is selected
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
@@ -1104,7 +1100,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
-    console.log('Received Explanation Text:', explanationText);
     this.combinedQuestionData$.next({
       questionText: currentQuestion?.questionText || '',
       explanationText: explanationText,
