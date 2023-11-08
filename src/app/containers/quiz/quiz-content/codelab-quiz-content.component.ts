@@ -423,13 +423,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionIndex = this.questions.indexOf(currentQuestion);
         console.log('Question Index::>>', questionIndex);
 
-        // Fetch the prefix for the explanation
-        const prefix = this.explanationTextService.getExplanationPrefixForQuestionIndex(questionIndex);
-        console.log('Prefix::>>', prefix);
-
-        // Fetch the explanation text
-        const explanationText = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
-
         // Other calculations, e.g., correct answers text
         const questionHasMultipleAnswers =
           this.quizStateService.isMultipleAnswer(currentQuestion);
@@ -448,10 +441,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of({
           questionText: questionText,
           currentQuestion: currentQuestion,
-          explanationText: explanationText,
+          explanationText: formattedExplanation,
           correctAnswersText: correctAnswersText,
           currentOptions: currentOptions,
-          prefix: prefix // Include the prefix in the returned object
+          isNavigatingToPrevious: false
         });
       })
     );
