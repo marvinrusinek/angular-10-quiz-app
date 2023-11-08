@@ -111,7 +111,7 @@ export class CodelabQuizContentComponent
   nextExplanationText$: Observable<string>;
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
-  formattedExplanation: string;
+  formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
@@ -184,9 +184,9 @@ export class CodelabQuizContentComponent
 
     this.currentQuestion$.next(this.question);
 
-    this.explanationTextService.getFormattedExplanation$().subscribe(explanation => {
+    this.explanationTextService.formattedExplanation$.subscribe(explanation => {
+      console.log('Formatted Explanation:', explanation);
       this.formattedExplanation = explanation;
-      console.log("FE", this.formattedExplanation);
     });
   }
 
