@@ -441,12 +441,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
-      this.isExplanationTextDisplayed$
+      this.isExplanationTextDisplayed$,
+      this.explanationTextService.formattedExplanation$
     ]).pipe(
       switchMap(([
         { currentQuestion, currentOptions },
         numberOfCorrectAnswers,
-        isExplanationDisplayed
+        isExplanationDisplayed,
+        formattedExplanation
       ]) => {
         // Calculate question text
         const questionText = currentQuestion
@@ -488,7 +490,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             return of({
               questionText: questionText,
               currentQuestion: currentQuestion,
-              explanationText: explanationText,
+              explanationText: formattedExplanation.explanation,
               correctAnswersText: correctAnswersText,
               currentOptions: currentOptions,
               isNavigatingToPrevious: false
@@ -657,4 +659,4 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
-} 
+}
