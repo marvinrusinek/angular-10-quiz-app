@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
-import { isObject } from 'lodash';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+
+enum QuestionType {
+  SingleAnswer = 'single_answer',
+  MultipleAnswer = 'multiple_answer',
+  TrueFalse = 'true_false'
+}
 
 @Injectable({
   providedIn: 'root',
@@ -60,7 +65,9 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+  /* isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    console.log('Received question:::>>', question);
+
     if (!question || !isObject(question) || !('options' in question)) {
       console.error('Question is not defined or is in an invalid format');
       this.setMultipleAnswer(false);
@@ -83,6 +90,23 @@ export class QuizStateService {
         return throwError(false);
       })
     );
+  } */
+
+  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    console.log('Received question:', question);
+    
+    if (question && question.options) {
+      // Perform the logic to determine if it's a multiple-answer question
+      // Assuming 'question.type' determines if it's a multiple-answer question
+      const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
+  
+      this.setMultipleAnswer(isMultipleAnswer);
+      return of(isMultipleAnswer);
+    } else {
+      console.error('Question is not defined or is in an invalid format');
+      this.setMultipleAnswer(false);
+      return of(false);
+    }
   }
 
   setMultipleAnswer(value: boolean): void {
