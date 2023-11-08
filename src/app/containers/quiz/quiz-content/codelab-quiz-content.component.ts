@@ -367,28 +367,6 @@ export class CodelabQuizContentComponent
       });
   }
 
-  /* private initializeExplanationTextSubscription(): void {
-    const selectedOptionExplanation$ =
-      this.selectedOptionService.selectedOptionExplanation$;
-
-    this.explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      selectedOptionExplanation$
-    ]).pipe(
-      map(
-        ([explanationText, selectedOptionExplanation]) =>
-          selectedOptionExplanation || explanationText
-      )
-    ) as Observable<string>;
-
-    this.explanationTextSubscription = this.explanationText$.subscribe(
-      (displayText) => {
-        this.quizQuestionManagerService.setExplanationText(displayText);
-        this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
-      }
-    );
-  } */
-
   private initializeExplanationTextSubscription(): void {
     const selectedOptionExplanation$ =
       this.selectedOptionService.selectedOptionExplanation$;
@@ -484,7 +462,7 @@ export class CodelabQuizContentComponent
               correctAnswersText: correctAnswersText,
               currentOptions: currentOptions,
               isNavigatingToPrevious: false,
-              formattedExplanation: formattedExplanation,
+              formattedExplanation: formattedExplanation
             });
           } else {
             console.log('currentQuestion or this.questions is null');
@@ -495,7 +473,7 @@ export class CodelabQuizContentComponent
               correctAnswersText: '',
               currentOptions: [],
               isNavigatingToPrevious: false,
-              formattedExplanation: '',
+              formattedExplanation: ''
             });
           }
         }
@@ -568,7 +546,7 @@ export class CodelabQuizContentComponent
                   correctAnswersText: correctAnswersText,
                   currentQuestion: questionToDisplay || null,
                   currentOptions: nextOptions || [],
-                  isNavigatingToPrevious: isNavigatingToPrevious,
+                  isNavigatingToPrevious: isNavigatingToPrevious
                 }))
               );
             }
