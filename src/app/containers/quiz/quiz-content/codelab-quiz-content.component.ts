@@ -48,7 +48,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     new BehaviorSubject<QuizQuestion>(null);
   @Input() questionToDisplay: string;
   @Input() question!: QuizQuestion;
-  @Input() question$: Observable<QuizQuestion>;
+  @Input() question$: Observable<QuizQuestion | null>;
   @Input() questions: QuizQuestion[];
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
@@ -59,9 +59,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   questionIndex: number;
   currentQuestionIndexValue: number;
   currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
-  currentOptions$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>(
-    []
-  );
+  currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   previousQuestion$: Observable<QuizQuestion | null>;
