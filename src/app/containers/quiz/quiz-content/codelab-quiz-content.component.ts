@@ -87,7 +87,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationText: string | null = null;
 
   combinedText$: Observable<string>;
-  combinedExplanation$ = new BehaviorSubject<{ explanation: string; prefix: string }>({ explanation: '', prefix: '' });
 
   currentQuestionText: string;
   currentDisplayText = '';
@@ -146,7 +145,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Combine explanationTextService's observable with selectedOptionExplanation$
     this.explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$,
+      this.selectedOptionService.selectedOptionExplanation$
     ]).pipe(
       map(
         ([explanationText, selectedOptionExplanation]: [string, string]) =>
@@ -194,7 +193,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           if (this.quizId) {
             return forkJoin([
               this.quizDataService.getQuestionsForQuiz(this.quizId),
-              this.quizDataService.getAllExplanationTextsForQuiz(this.quizId),
+              this.quizDataService.getAllExplanationTextsForQuiz(this.quizId)
             ]);
           } else {
             return of([null, []]);
