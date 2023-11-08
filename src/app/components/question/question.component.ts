@@ -107,7 +107,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     explanationText?: string;
     correctAnswersText?: string;
     currentOptions: Option[];
-    prefix: string;
   }> = new Subject();
 
   isMultipleAnswer$: Observable<boolean>;
@@ -1123,7 +1122,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               .subscribe(
                 ({ explanation }: { explanation: string }) => {
                   console.log('Received Explanation Text:', explanation);
-                  console.log('Received Prefix:', prefix);
                   this.explanationText$.next(explanation);
                   this.isAnswerSelectedChange.emit(true);
                   this.toggleVisibility.emit();
