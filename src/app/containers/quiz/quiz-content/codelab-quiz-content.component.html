@@ -4,7 +4,6 @@
       <span *ngIf="combinedText$ | async as combinedText">
         {{ combinedText }}
       </span>
-      {{ formattedExplanation }}
       <span
         class="number-correct"
         *ngIf="shouldDisplayCorrectAnswersText(data)"

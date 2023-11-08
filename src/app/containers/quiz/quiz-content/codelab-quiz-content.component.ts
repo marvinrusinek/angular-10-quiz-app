@@ -603,7 +603,7 @@ export class CodelabQuizContentComponent
             let textToDisplay = '';
 
             textToDisplay = shouldDisplayExplanation
-              ? nextExplanationText || ''
+              ? this.formattedExplanation || ''
               : this.questionToDisplay || '';
 
             return of(textToDisplay);
