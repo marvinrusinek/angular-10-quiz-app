@@ -201,6 +201,11 @@ export class ExplanationTextService {
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     this.questionIndexCounter++;
 
+    // Reset the local variables to empty arrays
+    correctOptions = [];
+    correctOptionIndices = [];
+    prefix = '';
+
     return { explanation: formattedExplanation };
   }
 
