@@ -174,38 +174,35 @@ export class ExplanationTextService {
 
   formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
     const correctOptionIndices: number[] = [];
-    const selectedOptions: string[] = [];
-
+  
     for (let i = 0; i < options.length; i++) {
       if (options[i].correct) {
-          correctOptionIndices.push(i + 1);
+        correctOptionIndices.push(i + 1);
       }
     }
-
+  
+    let formattedExplanation = '';
+    let optionQualifier = '';
+  
     const isMultipleAnswer = correctOptionIndices.length > 1;
     const multipleAnswerText = 'are correct because';
     const singleAnswerText = 'is correct because';
-    const optionQualifier = isMultipleAnswer ? multipleAnswerText : singleAnswerText;
-
+  
     if (isMultipleAnswer) {
-      const correctOptionsString = correctOptionIndices.join(' and ');
-      selectedOptions.push(`Options ${correctOptionsString}`);
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} ${multipleAnswerText} ${question.explanation}`;
+      optionQualifier = multipleAnswerText;
     } else if (correctOptionIndices.length === 1) {
-      selectedOptions.push(`Option ${correctOptionIndices[0]}`);
+      formattedExplanation = `Option ${correctOptionIndices[0]} ${singleAnswerText} ${question.explanation}`;
+      optionQualifier = singleAnswerText;
     } else {
-      selectedOptions.push('No correct option selected...');
+      formattedExplanation = 'No correct option selected...';
     }
-
-    const formattedExplanation = `${selectedOptions.join(' ')} ${optionQualifier} ${question.explanation}`;
+  
+    // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     this.questionIndexCounter++;
-
-    // Reset the local variables to empty arrays
-    correctOptions = [];
-    correctOptionIndices = [];
-    prefix = '';
-
+  
     return { explanation: formattedExplanation };
   }
 
