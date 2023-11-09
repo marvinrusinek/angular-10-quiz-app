@@ -134,7 +134,7 @@ export class ExplanationTextService {
     }
   } */
 
-  formatExplanationText(
+  /* formatExplanationText(
     options: Option[],
     question: QuizQuestion
   ): { explanation: string } {
@@ -168,6 +168,38 @@ export class ExplanationTextService {
     correctOptions = [];
     correctOptionIndices = [];
     prefix = '';
+
+    return { explanation: formattedExplanation };
+  } */
+
+  formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
+    const correctOptionIndices: number[] = [];
+    const selectedOptions: string[] = [];
+
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].correct) {
+          correctOptionIndices.push(i + 1);
+      }
+    }
+
+    const isMultipleAnswer = correctOptionIndices.length > 1;
+    const multipleAnswerText = 'are correct because';
+    const singleAnswerText = 'is correct because';
+    const optionQualifier = isMultipleAnswer ? multipleAnswerText : singleAnswerText;
+
+    if (isMultipleAnswer) {
+      const correctOptionsString = correctOptionIndices.join(' and ');
+      selectedOptions.push(`Options ${correctOptionsString}`);
+    } else if (correctOptionIndices.length === 1) {
+      selectedOptions.push(`Option ${correctOptionIndices[0]}`);
+    } else {
+      selectedOptions.push('No correct option selected...');
+    }
+
+    const formattedExplanation = `${selectedOptions.join(' ')} ${optionQualifier} ${question.explanation}`;
+    this.formattedExplanation$.next(formattedExplanation);
+    this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
+    this.questionIndexCounter++;
 
     return { explanation: formattedExplanation };
   }
