@@ -167,6 +167,7 @@ export class ExplanationTextService {
     // Reset the local variables to empty arrays
     correctOptions = [];
     correctOptionIndices = [];
+    prefix = '';
 
     return { explanation: formattedExplanation };
   }
