@@ -1035,7 +1035,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(isMultipleAnswer => {
       if (this.quizService.selectedOptions.length > 0) {
-        this.setExplanationText(currentQuestion, this.quizService.selectedOptions);
+        this.setExplanationText(currentQuestion);
       } else {
         this.explanationText$.next('');
       }
@@ -1086,7 +1086,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  setExplanationText(currentQuestion: QuizQuestion, options: Option[]): void {
+  setExplanationText(currentQuestion: QuizQuestion): void {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
