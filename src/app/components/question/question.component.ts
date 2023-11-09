@@ -1090,7 +1090,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
-    const formattedExplanation = this.explanationTextService.formatExplanationText(options, currentQuestion);
+    const formattedExplanation = this.explanationTextService.formatExplanationText(currentQuestion);
     this.explanationText$.next(formattedExplanation.explanation);
     this.updateCombinedQuestionData(currentQuestion, formattedExplanation.explanation);
 

@@ -79,7 +79,7 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(newValue);
   }
 
-  formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
+  formatExplanationText(question: QuizQuestion): { explanation: string } {
     let correctOptionIndices: number[] = [];
   
     for (let i = 0; i < question.options.length; i++) {
