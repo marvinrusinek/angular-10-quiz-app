@@ -175,8 +175,8 @@ export class ExplanationTextService {
   formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
     let correctOptionIndices: number[] = [];
   
-    for (let i = 0; i < 4; i++) {
-      if (options[i].correct) {
+    for (let i = 0; i < question.options.length; i++) {
+      if (question.options[i].correct) {
         correctOptionIndices.push(i + 1);
       }
     }
