@@ -173,7 +173,7 @@ export class ExplanationTextService {
   } */
 
   formatExplanationText(options: Option[], question: QuizQuestion): { explanation: string } {
-    const correctOptionIndices: number[] = [];
+    let correctOptionIndices: number[] = [];
   
     for (let i = 0; i < options.length; i++) {
       if (options[i].correct) {
@@ -202,6 +202,8 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(formattedExplanation);
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     this.questionIndexCounter++;
+
+    correctOptionIndices = [];
   
     return { explanation: formattedExplanation };
   }
