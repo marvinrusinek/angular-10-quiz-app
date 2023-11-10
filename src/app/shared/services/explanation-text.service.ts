@@ -195,19 +195,10 @@ export class ExplanationTextService {
     this.formattedExplanation$.next('');
     this.explanationTexts = [];
     this.explanationText$.next(null);
-    
-    /* timer(100)
-    .pipe(take(1))
-    .subscribe(() => {
-      this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
-    }); */
-
-    timer(100)
-    .pipe(take(1))
-    .subscribe(() => {
-      this.nextExplanationText$.next(null);
-    });
-
+  
+    this.nextExplanationTextSource = new BehaviorSubject<string | null>(null);
+    this.nextExplanationText$ = this.nextExplanationTextSource.asObservable();
+  
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
