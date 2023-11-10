@@ -192,12 +192,15 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
+    
     this.formattedExplanation$.next('');
-    this.explanationTexts = [];
-    this.explanationText$.next(null);
+    this.nextExplanationText$.next(null);
   
-    // Emit null to the existing nextExplanationTextSource
-    this.nextExplanationTextSource.next(null);
+    timer(100)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
+      });
   
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
