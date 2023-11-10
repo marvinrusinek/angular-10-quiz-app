@@ -1261,6 +1261,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
+      this.explanationTextService.nextExplanationTextSource.next(null);
       this.explanationTextService.resetExplanationState();
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
