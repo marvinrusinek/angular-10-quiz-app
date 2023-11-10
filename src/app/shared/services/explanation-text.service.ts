@@ -213,9 +213,9 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
-    this.formattedExplanation$ = new BehaviorSubject<string>('');
+    this.formattedExplanation$.next('');
     this.explanationTexts = [];
-    this.explanationText$ = new BehaviorSubject<string | null>(null);
+    this.explanationText$.next(null);
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
