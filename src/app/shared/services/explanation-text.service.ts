@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
@@ -195,7 +195,13 @@ export class ExplanationTextService {
     this.formattedExplanation$.next('');
     this.explanationTexts = [];
     this.explanationText$.next(null);
-    this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
+    
+    timer(100)
+    .pipe(take(1))
+    .subscribe(() => {
+      this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
+    });
+
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
