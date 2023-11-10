@@ -196,10 +196,16 @@ export class ExplanationTextService {
     this.explanationTexts = [];
     this.explanationText$.next(null);
     
-    timer(100)
+    /* timer(100)
     .pipe(take(1))
     .subscribe(() => {
       this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
+    }); */
+
+    timer(100)
+    .pipe(take(1))
+    .subscribe(() => {
+      this.nextExplanationText$.next(null);
     });
 
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
