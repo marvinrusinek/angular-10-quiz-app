@@ -188,6 +188,11 @@ export class CodelabQuizContentComponent
     this.currentQuestion$.subscribe(newQuestion => {
       this.formattedExplanation = '';
     });
+
+    this.explanationTextService.formattedExplanation$.subscribe((formattedExplanation) => {
+      console.log('Received new formatted explanation:', formattedExplanation);
+      this.formattedExplanation = formattedExplanation;
+    });
   }
 
   ngOnChanges(): void {
