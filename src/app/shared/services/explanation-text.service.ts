@@ -151,26 +151,6 @@ export class ExplanationTextService {
     return formattedExplanations;
   }
 
-  updateExplanationTextForCurrentAndNext(
-    currentExplanationText: string,
-    nextExplanationText: string
-  ) {
-    try {
-      this.currentExplanationTextSource.next(currentExplanationText);
-      this.nextExplanationTextSource.next(nextExplanationText);
-      console.log(
-        'Updated explanation text for current question:',
-        currentExplanationText
-      );
-      console.log(
-        'Updated explanation text for next question:',
-        nextExplanationText
-      );
-    } catch (error) {
-      console.error('Error updating explanation text:', error);
-    }
-  }
-
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
