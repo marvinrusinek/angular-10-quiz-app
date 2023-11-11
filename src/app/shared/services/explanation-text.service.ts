@@ -113,27 +113,24 @@ export class ExplanationTextService {
   
     let optionQualifier = isMultipleAnswer ? multipleAnswerText : singleAnswerText;
   
-    console.log('Before setting explanation, questionIndexCounter:', this.questionIndexCounter);
+    console.log('Before setting explanation, currentQuestionIndex:', this.currentQuestionIndex);
   
     const formattedExplanation = {
-      questionIndex: this.questionIndexCounter,
+      questionIndex: this.currentQuestionIndex,
       explanation: `${this.formatOptions(correctOptionIndices)} ${optionQualifier} ${question.explanation}`,
     };
   
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation.explanation);
-    this.explanationTexts[this.questionIndexCounter] = formattedExplanation.explanation;
+    this.explanationTexts[this.currentQuestionIndex] = formattedExplanation.explanation;
   
-    console.log('After setting explanation, questionIndexCounter:', this.questionIndexCounter);
+    console.log('After setting explanation, currentQuestionIndex:', this.currentQuestionIndex);
   
     correctOptionIndices = [];
   
-    // Increment the counter for the next question
-    this.questionIndexCounter++;
-  
     return { explanation: formattedExplanation.explanation };
   }
-      
+        
   private formatOptions(optionIndices: number[]): string {
     if (optionIndices.length > 1) {
       return `Options ${optionIndices.join(' and ')}`;
