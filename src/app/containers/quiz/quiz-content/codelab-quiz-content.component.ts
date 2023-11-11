@@ -187,7 +187,7 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    /* this.explanationTextService.formattedExplanation$
+    this.formattedExplanation$
       .pipe(
         distinctUntilChanged(),
         takeUntil(this.destroy$)
@@ -197,14 +197,7 @@ export class CodelabQuizContentComponent
           console.log('Received new formatted explanation:', formattedExplanation);
           this.formattedExplanation = formattedExplanation;
         }
-      }); */
-
-    this.explanationTextService.formattedExplanation$
-      .pipe(distinctUntilChanged())
-      .subscribe((formattedExplanations) => {
-        console.log('Received new formatted explanations:', formattedExplanations);
-        // Update component with the new explanation text
-    });    
+      }); 
   }
 
   ngOnChanges(): void {
