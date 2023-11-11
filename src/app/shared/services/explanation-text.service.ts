@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
-import { interval, map, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, interval, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
@@ -10,7 +10,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 @Injectable({
   providedIn: 'root',
 })
-export class ExplanationTextService {
+export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
@@ -44,9 +44,16 @@ export class ExplanationTextService {
 
   lastDisplayedExplanationText = '';
 
+  private destroy$ = new Subject<void>();
+
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getExplanationText$(): Observable<string | null> {
@@ -112,17 +119,22 @@ export class ExplanationTextService {
 
     correctOptionIndices = [];
 
-    // Create a subject to signal when to reset the state
-    const resetSignal$ = new Subject<void>();
-
-    // Emit a signal to reset the state after a delay (adjust the interval as needed)
-    interval(100).pipe(takeUntil(resetSignal$)).subscribe(() => {
-      this.resetExplanationState();
-      resetSignal$.complete(); // Complete the subject to clean up resources
-    });
-  
     return { explanation: formattedExplanation };
   }
+
+  private resetExplanationStateDelayed() {
+    return new Observable<void>((observer) => {
+      const delayTime = 100; // Adjust the delay as needed
+      const timer = setTimeout(() => {
+        this.resetExplanationState();
+        observer.next();
+        observer.complete();
+      }, delayTime);
+  
+      // Cleanup function to clear the timer in case of early unsubscription
+      return () => clearTimeout(timer);
+    });
+  }  
 
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(questionIndex: number, explanation: string): void {
