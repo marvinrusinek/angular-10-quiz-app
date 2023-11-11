@@ -45,16 +45,9 @@ export class ExplanationTextService implements OnDestroy {
 
   lastDisplayedExplanationText = '';
 
-  private destroy$ = new Subject<void>();
-
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   getExplanationText$(): Observable<string | null> {
