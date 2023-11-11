@@ -1188,12 +1188,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     this.isNavigatingToNext = true;
-
+  
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-    this.isNavigating = true;  // Prevent multiple navigations
+  
+    this.isNavigating = true;
   
     try {
       if (!this.selectedQuiz) {
@@ -1201,77 +1202,52 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      // Start animation or any other operations
       this.animationState$.next('animationStarted');
   
       this.onAnswerSelectedOrNextQuestionClicked();
   
-      // Check if it's the last question
-      const totalQuestions: number = await this.quizService
-        .getTotalQuestions()
-        .toPromise();
-  
+      const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
       const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+  
       if (currentQuestionIndex >= totalQuestions) {
-        // navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
         return;
       }
   
-      // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
+      this.currentQuestionIndex++;
   
-      this.currentQuestionIndex++;  // Increment the index
-   
-      // Fetch the current question with explanation
-      const { nextQuestion, explanationText } =
-        await this.quizService.getNextQuestionWithExplanation(this.currentQuestionIndex);
-  
-      // Clear explanation text for the current question
+      const { nextQuestion, explanationText } = await this.quizService.getNextQuestionWithExplanation(this.currentQuestionIndex);
       this.clearExplanationText();
   
-      // Use the getQuestionTextForIndex method to fetch the question text
       const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-
-      // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
-
-      // Set questionToDisplay to the text for the next question
       this.questionToDisplay = this.nextQuestionText;
   
-      // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
   
-      // Fetch options for the next question
-      this.currentOptions = await this.quizService.getNextOptions(
-        this.currentQuestionIndex
-      ) || [];
-
-      // Assign the fetched options to the display variable
+      this.currentOptions = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
       this.optionsToDisplay = this.currentOptions;
-
-      // Call the setNextOptions function to update the options
       this.quizService.setNextOptions(this.currentOptions);
-
-      // Check if the next question has multiple correct answers
+  
       await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
   
-      // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
-
-      this.explanationTextService.nextExplanationTextSource.next(null);
+  
+      // Reset explanation state before navigating
       this.explanationTextService.resetExplanationState();
-      this.navigateToQuestion(nextQuestionIndex);
+  
+      // Navigating to the next question
+      await this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
-      // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
   }
-
+  
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
   
@@ -1359,8 +1335,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
   }
-  
+
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    try {
+      await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${questionIndex}`]);
+    } catch (error) {
+      console.error('Error occurred while navigating to the next question:', error);
+    }
+  }
+  
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
     if (questionIndex !== 1) {
@@ -1369,7 +1353,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
     
     await this.router.navigateByUrl(newUrl);
-  }
+  } */
 
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
     const multipleAnswers = this.quizStateService.isMultipleAnswer(question);
