@@ -88,7 +88,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
-    if (this.processedQuestions.has(question.questionText)) {
+    if (!question.questionText || this.processedQuestions.has(question.questionText)) {
       console.log('Skipping already processed question with text:', question.questionText);
       return { explanation: '' };
     }
