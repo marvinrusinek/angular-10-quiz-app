@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
@@ -8,20 +8,14 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExplanationTextService {
-  currentQuestionIndex: number = 0;
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
-  processedQuestions: Set<string> = new Set<string>();
-
-  /* private formattedExplanationSource = new BehaviorSubject<string>('');
-  formattedExplanation$ = this.formattedExplanationSource.asObservable(); */
-  
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
@@ -31,7 +25,7 @@ export class ExplanationTextService {
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
 
-  nextExplanationTextSource = new BehaviorSubject<string>(null);
+  private nextExplanationTextSource = new BehaviorSubject<string>(null);
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   private previousExplanationTextSource = new BehaviorSubject<string>('');
@@ -85,10 +79,6 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(newValue);
   }
 
-  resetProcessedQuestionsState(): void {
-    this.processedQuestions = new Set<string>();
-  }
-  
   formatExplanationText(question: QuizQuestion): { explanation: string } {
     let correctOptionIndices: number[] = [];
   
@@ -124,17 +114,7 @@ export class ExplanationTextService {
   
     return { explanation: formattedExplanation };
   }
-          
-  private formatOptions(optionIndices: number[]): string {
-    if (optionIndices.length > 1) {
-      return `Options ${optionIndices.join(' and ')}`;
-    } else if (optionIndices.length === 1) {
-      return `Option ${optionIndices[0]}`;
-    } else {
-      return 'No correct option selected...';
-    }
-  }
-  
+
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(questionIndex: number, explanation: string): void {
     const existingIndex = this.formattedExplanations.findIndex(
@@ -171,6 +151,26 @@ export class ExplanationTextService {
     return formattedExplanations;
   }
 
+  updateExplanationTextForCurrentAndNext(
+    currentExplanationText: string,
+    nextExplanationText: string
+  ) {
+    try {
+      this.currentExplanationTextSource.next(currentExplanationText);
+      this.nextExplanationTextSource.next(nextExplanationText);
+      console.log(
+        'Updated explanation text for current question:',
+        currentExplanationText
+      );
+      console.log(
+        'Updated explanation text for next question:',
+        nextExplanationText
+      );
+    } catch (error) {
+      console.error('Error updating explanation text:', error);
+    }
+  }
+
   toggleExplanationDisplay(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
@@ -193,6 +193,7 @@ export class ExplanationTextService {
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
+    console.log('Setting isExplanationTextDisplayed to', isDisplayed);
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
@@ -210,14 +211,14 @@ export class ExplanationTextService {
     this.nextExplanationTextSource.next('');
   }
 
-  resetExplanationState(): void {
+  resetExplanationState() {
     console.log('resetExplanationState() called');
     this.formattedExplanation$.next('');
     this.explanationTexts = [];
     this.explanationText$.next(null);
-    this.nextExplanationText$.next(null);
+    this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
-  }   
+  }
 }
