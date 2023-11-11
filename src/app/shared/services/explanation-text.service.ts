@@ -11,6 +11,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
   providedIn: 'root'
 })
 export class ExplanationTextService {
+  currentQuestionIndex: number = 0;
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
@@ -130,7 +131,7 @@ export class ExplanationTextService {
   
     return { explanation: formattedExplanation.explanation };
   }
-        
+          
   private formatOptions(optionIndices: number[]): string {
     if (optionIndices.length > 1) {
       return `Options ${optionIndices.join(' and ')}`;
