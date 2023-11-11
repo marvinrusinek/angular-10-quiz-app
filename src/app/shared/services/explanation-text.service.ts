@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import { interval, map, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
@@ -111,6 +111,17 @@ export class ExplanationTextService {
     this.questionIndexCounter++;
 
     correctOptionIndices = [];
+
+    // Create a subject to signal when to reset the state
+    const resetSignal$ = new Subject<void>();
+
+    // Emit a signal to reset the state after a delay (adjust the interval as needed)
+    interval(100).pipe(takeUntil(resetSignal$)).subscribe(() => {
+      this.resetExplanationState();
+      resetSignal$.complete(); // Complete the subject to clean up resources
+    });
+
+    this.resetExplanationState();
   
     return { explanation: formattedExplanation };
   }
