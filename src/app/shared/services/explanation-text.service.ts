@@ -107,14 +107,15 @@ export class ExplanationTextService {
       }
     }
   
-    let optionQualifier = '';
-  
     const isMultipleAnswer = correctOptionIndices.length > 1;
     const multipleAnswerText = 'are correct because';
     const singleAnswerText = 'is correct because';
   
+    let optionQualifier = isMultipleAnswer ? multipleAnswerText : singleAnswerText;
+  
+    console.log('Before setting explanation, questionIndexCounter:', this.questionIndexCounter);
+  
     const formattedExplanation = {
-      questionIndex: this.questionIndexCounter,
       explanation: `${this.formatOptions(correctOptionIndices)} ${optionQualifier} ${question.explanation}`,
     };
   
@@ -123,11 +124,13 @@ export class ExplanationTextService {
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation.explanation;
     this.questionIndexCounter++;
   
+    console.log('After setting explanation, questionIndexCounter:', this.questionIndexCounter);
+  
     correctOptionIndices = [];
   
     return { explanation: formattedExplanation.explanation };
   }
-  
+    
   private formatOptions(optionIndices: number[]): string {
     if (optionIndices.length > 1) {
       return `Options ${optionIndices.join(' and ')}`;
