@@ -20,6 +20,7 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
+  processedQuestions = new Set<string>();
   questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
@@ -87,6 +88,14 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
+    if (this.processedQuestions.has(question.questionText)) {
+      console.log('Skipping already processed question with text:', question.questionText);
+      return { explanation: '' };
+    }
+
+    this.processedQuestions.add(question.questionText);
+    console.log('Processing question with text:', question.questionText);
+
     let correctOptionIndices: number[] = [];
   
     for (let i = 0; i < question.options.length; i++) {
