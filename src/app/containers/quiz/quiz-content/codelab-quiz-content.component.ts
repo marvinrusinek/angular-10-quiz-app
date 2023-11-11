@@ -17,6 +17,7 @@ import {
   Subscription,
 } from 'rxjs';
 import {
+  distinctUntilChanged,
   map,
   startWith,
   switchMap,
@@ -90,6 +91,7 @@ export class CodelabQuizContentComponent
   explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   selectedOptionSubscription: Subscription;
+  formattedExplanationSubscription: Subscription;
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
@@ -185,12 +187,19 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    this.explanationTextService.formattedExplanation$.subscribe((formattedExplanation) => {
+    /* this.explanationTextService.formattedExplanation$.subscribe((formattedExplanation) => {
       if (formattedExplanation !== null) {
         console.log('Received new formatted explanation:', formattedExplanation);
         this.formattedExplanation = formattedExplanation;
       }
-    });    
+    }); */
+    
+    this.explanationTextService.formattedExplanation$
+      .pipe(distinctUntilChanged())
+      .subscribe((formattedExplanation) => {
+        console.log('Received new formatted explanation:', formattedExplanation);
+        this.formattedExplanation = formattedExplanation;
+      });
   }
 
   ngOnChanges(): void {
@@ -211,6 +220,7 @@ export class CodelabQuizContentComponent
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
     this.selectedOptionSubscription?.unsubscribe();
+    this.formattedExplanationSubscription.unsubscribe();
   }
 
   private initializeQuestionData(): void {

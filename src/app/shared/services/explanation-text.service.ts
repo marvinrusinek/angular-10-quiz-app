@@ -16,9 +16,9 @@ export class ExplanationTextService {
   >('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+
+  private formattedExplanationSource = new BehaviorSubject<string>('');
+  formattedExplanation$ = this.formattedExplanationSource.asObservable();
   formattedExplanations: FormattedExplanation[] = [];
   questionIndexCounter = 0;
 
@@ -192,8 +192,7 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
-    
-    this.formattedExplanation$.next('');
+    this.formattedExplanationSource.next('');
     this.nextExplanationText$.next(null);
   
     timer(100)
