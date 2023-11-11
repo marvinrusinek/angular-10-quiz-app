@@ -100,6 +100,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
+    console.log('Processed Questions Set:', this.processedQuestions);
     console.log('Formatting explanation for question:', question);
     if (!question.questionText || this.processedQuestions.has(question.questionText)) {
       console.log('Skipping already processed question with text:', question.questionText);
@@ -133,6 +134,7 @@ export class ExplanationTextService implements OnDestroy {
   
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
+    this.formattedExplanation$.complete();
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     this.questionIndexCounter++;
 
