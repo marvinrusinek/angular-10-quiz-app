@@ -225,7 +225,6 @@ export class CodelabQuizContentComponent
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
     this.selectedOptionSubscription?.unsubscribe();
-    this.formattedExplanationSubscription.unsubscribe();
   }
 
   private initializeQuestionData(): void {
