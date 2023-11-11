@@ -90,7 +90,7 @@ export class ExplanationTextService {
   
   formatExplanationText(question: QuizQuestion): { explanation: string } {
     this.resetProcessedQuestionsState();
-
+  
     if (this.processedQuestions.has(question.questionText)) {
       console.log('Skipping already processed question with text:', question.questionText);
       return { explanation: '' }; // or some default value
@@ -98,7 +98,7 @@ export class ExplanationTextService {
   
     this.processedQuestions.add(question.questionText);
     console.log('Processing question with text:', question.questionText);
-
+  
     let correctOptionIndices: number[] = [];
   
     for (let i = 0; i < question.options.length; i++) {
@@ -107,33 +107,37 @@ export class ExplanationTextService {
       }
     }
   
-    let formattedExplanation = '';
     let optionQualifier = '';
   
     const isMultipleAnswer = correctOptionIndices.length > 1;
     const multipleAnswerText = 'are correct because';
     const singleAnswerText = 'is correct because';
   
-    if (isMultipleAnswer) {
-      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} ${multipleAnswerText} ${question.explanation}`;
-      optionQualifier = multipleAnswerText;
-    } else if (correctOptionIndices.length === 1) {
-      formattedExplanation = `Option ${correctOptionIndices[0]} ${singleAnswerText} ${question.explanation}`;
-      optionQualifier = singleAnswerText;
-    } else {
-      formattedExplanation = 'No correct option selected...';
-    }
+    const formattedExplanation = {
+      questionIndex: this.questionIndexCounter,
+      explanation: `${this.formatOptions(correctOptionIndices)} ${optionQualifier} ${question.explanation}`,
+    };
   
     // Set the formatted explanation for the question
-    this.formattedExplanation$.next(formattedExplanation);
-    this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
+    this.formattedExplanation$.next(formattedExplanation.explanation);
+    this.explanationTexts[this.questionIndexCounter] = formattedExplanation.explanation;
     this.questionIndexCounter++;
-
+  
     correctOptionIndices = [];
   
-    return { explanation: formattedExplanation };
+    return { explanation: formattedExplanation.explanation };
   }
-
+  
+  private formatOptions(optionIndices: number[]): string {
+    if (optionIndices.length > 1) {
+      return `Options ${optionIndices.join(' and ')}`;
+    } else if (optionIndices.length === 1) {
+      return `Option ${optionIndices[0]}`;
+    } else {
+      return 'No correct option selected...';
+    }
+  }
+  
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(questionIndex: number, explanation: string): void {
     const existingIndex = this.formattedExplanations.findIndex(
