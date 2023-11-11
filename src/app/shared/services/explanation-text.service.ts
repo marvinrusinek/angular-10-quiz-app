@@ -213,6 +213,7 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
+    this.questionIndexCounter = 0;
     this.formattedExplanation$.next('');
     this.explanationTexts = [];
     this.explanationText$.next(null);
