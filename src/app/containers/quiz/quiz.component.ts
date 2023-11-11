@@ -315,6 +315,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
+    this.explanationTextService.resetProcessedQuestionsState();
 
     this.activatedRoute.paramMap
       .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))

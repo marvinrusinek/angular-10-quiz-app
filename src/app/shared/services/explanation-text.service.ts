@@ -87,7 +87,12 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanation$.next(newValue);
   }
 
+  resetProcessedQuestionsState() {
+    this.processedQuestions.clear();
+  }  
+
   formatExplanationText(question: QuizQuestion): { explanation: string } {
+    console.log('Formatting explanation for question:', question);
     if (!question.questionText || this.processedQuestions.has(question.questionText)) {
       console.log('Skipping already processed question with text:', question.questionText);
       return { explanation: '' };
