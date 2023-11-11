@@ -188,7 +188,10 @@ export class CodelabQuizContentComponent
     });
 
     this.explanationTextService.formattedExplanation$
-      .pipe(distinctUntilChanged())
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
       .subscribe((formattedExplanation) => {
         if (formattedExplanation !== null) {
           console.log('Received new formatted explanation:', formattedExplanation);
