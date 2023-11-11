@@ -146,20 +146,6 @@ export class ExplanationTextService implements OnDestroy {
     return { explanation: formattedExplanation };
   }
 
-  private resetExplanationStateDelayed() {
-    return new Observable<void>((observer) => {
-      const delayTime = 100; // Adjust the delay as needed
-      const timer = setTimeout(() => {
-        this.resetExplanationState();
-        observer.next();
-        observer.complete();
-      }, delayTime);
-  
-      // Cleanup function to clear the timer in case of early unsubscription
-      return () => clearTimeout(timer);
-    });
-  }  
-
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(questionIndex: number, explanation: string): void {
     const existingIndex = this.formattedExplanations.findIndex(
