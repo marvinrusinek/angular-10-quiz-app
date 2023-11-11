@@ -45,9 +45,24 @@ export class ExplanationTextService implements OnDestroy {
 
   lastDisplayedExplanationText = '';
 
+  private destroyed$ = new Subject<void>();
+
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
+
+    // Subscribe to the observable with takeUntil
+    this.formattedExplanation$
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((value) => {
+        // Handle the value
+        console.log('Received new formatted explanation:', value);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   getExplanationText$(): Observable<string | null> {
