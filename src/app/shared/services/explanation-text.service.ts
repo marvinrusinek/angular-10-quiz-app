@@ -88,8 +88,9 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   resetProcessedQuestionsState() {
+    this.processedQuestions = new Set<string>();
     this.processedQuestions.clear();
-  }  
+  }
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
     console.log('Formatting explanation for question:', question);
@@ -97,9 +98,6 @@ export class ExplanationTextService implements OnDestroy {
       console.log('Skipping already processed question with text:', question.questionText);
       return { explanation: '' };
     }
-
-    this.processedQuestions.add(question.questionText);
-    console.log('Processing question with text:', question.questionText);
 
     let correctOptionIndices: number[] = [];
   
@@ -132,6 +130,9 @@ export class ExplanationTextService implements OnDestroy {
     this.questionIndexCounter++;
 
     correctOptionIndices = [];
+
+    this.processedQuestions.add(question.questionText);
+    console.log('Processing question with text:', question.questionText);
 
     return { explanation: formattedExplanation };
   }
