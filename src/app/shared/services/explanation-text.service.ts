@@ -20,7 +20,7 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
-  processedQuestions = new Set<string>();
+  processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
