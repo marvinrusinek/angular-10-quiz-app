@@ -16,9 +16,14 @@ export class ExplanationTextService {
   >('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
+  processedQuestions: Set<string> = new Set<string>();
 
-  private formattedExplanationSource = new BehaviorSubject<string>('');
-  formattedExplanation$ = this.formattedExplanationSource.asObservable();
+  /* private formattedExplanationSource = new BehaviorSubject<string>('');
+  formattedExplanation$ = this.formattedExplanationSource.asObservable(); */
+  
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
+    ''
+  );
   formattedExplanations: FormattedExplanation[] = [];
   questionIndexCounter = 0;
 
@@ -79,7 +84,21 @@ export class ExplanationTextService {
     this.formattedExplanation$.next(newValue);
   }
 
+  resetProcessedQuestionsState(): void {
+    this.processedQuestions = new Set<string>();
+  }
+  
   formatExplanationText(question: QuizQuestion): { explanation: string } {
+    this.resetProcessedQuestionsState();
+
+    if (this.processedQuestions.has(question.questionText)) {
+      console.log('Skipping already processed question with text:', question.questionText);
+      return { explanation: '' }; // or some default value
+    }
+  
+    this.processedQuestions.add(question.questionText);
+    console.log('Processing question with text:', question.questionText);
+
     let correctOptionIndices: number[] = [];
   
     for (let i = 0; i < question.options.length; i++) {
@@ -192,7 +211,8 @@ export class ExplanationTextService {
 
   resetExplanationState() {
     console.log('resetExplanationState() called');
-    this.formattedExplanationSource.next('');
+    
+    this.formattedExplanation$.next('');
     this.nextExplanationText$.next(null);
   
     timer(100)
