@@ -120,8 +120,6 @@ export class ExplanationTextService {
       this.resetExplanationState();
       resetSignal$.complete(); // Complete the subject to clean up resources
     });
-
-    this.resetExplanationState();
   
     return { explanation: formattedExplanation };
   }
