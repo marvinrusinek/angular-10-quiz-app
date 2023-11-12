@@ -1,11 +1,18 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
-import { debounceTime, interval, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import {
+  debounceTime,
+  interval,
+  map,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-
 
 @Injectable({
   providedIn: 'root',
@@ -78,7 +85,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   // Function to update explanations based on question ID or index
-  updateExplanationForQuestion(questionId: string | number, explanation: string): void {
+  updateExplanationForQuestion(
+    questionId: string | number,
+    explanation: string
+  ): void {
     this.explanationTexts[questionId] = explanation;
   }
 
@@ -100,30 +110,39 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
+    console.log('Question Text:', question.questionText);
     console.log('Processed Questions Set:', this.processedQuestions);
     console.log('Formatting explanation for question:', question);
-    if (!question.questionText || this.processedQuestions.has(question.questionText)) {
-      console.log('Skipping already processed question with text:', question.questionText);
+    if (
+      !question.questionText ||
+      this.processedQuestions.has(question.questionText)
+    ) {
+      console.log(
+        'Skipping already processed question with text:',
+        question.questionText
+      );
       return { explanation: '' };
     }
 
     let correctOptionIndices: number[] = [];
-  
+
     for (let i = 0; i < question.options.length; i++) {
       if (question.options[i].correct) {
         correctOptionIndices.push(i + 1);
       }
     }
-  
+
     let formattedExplanation = '';
     let optionQualifier = '';
-  
+
     const isMultipleAnswer = correctOptionIndices.length > 1;
     const multipleAnswerText = 'are correct because';
     const singleAnswerText = 'is correct because';
-  
+
     if (isMultipleAnswer) {
-      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} ${multipleAnswerText} ${question.explanation}`;
+      formattedExplanation = `Options ${correctOptionIndices.join(
+        ' and '
+      )} ${multipleAnswerText} ${question.explanation}`;
       optionQualifier = multipleAnswerText;
     } else if (correctOptionIndices.length === 1) {
       formattedExplanation = `Option ${correctOptionIndices[0]} ${singleAnswerText} ${question.explanation}`;
@@ -131,11 +150,11 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       formattedExplanation = 'No correct option selected...';
     }
-  
+
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
-    this.formattedExplanation$.complete();
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
+    console.log('Question Index Counter:', this.questionIndexCounter);
     this.questionIndexCounter++;
 
     correctOptionIndices = [];
@@ -147,7 +166,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   // Function to set or update the formatted explanation for a question
-  setFormattedExplanationForQuestion(questionIndex: number, explanation: string): void {
+  setFormattedExplanationForQuestion(
+    questionIndex: number,
+    explanation: string
+  ): void {
     const existingIndex = this.formattedExplanations.findIndex(
       (exp) => exp.questionIndex === questionIndex
     );
@@ -160,7 +182,9 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   // Function to retrieve the formatted explanation for a question
-  getFormattedExplanationForQuestion(questionIndex: number): string | undefined {
+  getFormattedExplanationForQuestion(
+    questionIndex: number
+  ): string | undefined {
     const explanationObj = this.formattedExplanations.find(
       (exp) => exp.questionIndex === questionIndex
     );
