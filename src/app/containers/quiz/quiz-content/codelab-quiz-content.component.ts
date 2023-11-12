@@ -187,6 +187,7 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
+    // Your component
     this.formattedExplanation$
       .pipe(
         distinctUntilChanged(),
@@ -196,14 +197,15 @@ export class CodelabQuizContentComponent
         if (formattedExplanation !== null && formattedExplanation !== undefined) {
           this.formattedExplanation = formattedExplanation;
 
-          this.quizService.getCurrentQuestionIndex$().subscribe(indexValue => {
-            console.log('Received new formatted explanation:', formattedExplanation);
-            console.log('Current question index:', indexValue);
+          const currentQuestionIndex = this.quizService.currentQuestionIndexSubject.value;
 
-            this.explanationTextService.updateFormattedExplanation(indexValue, this.formattedExplanation);
+          console.log('Received new formatted explanation:', formattedExplanation);
+          console.log('Current question index:', currentQuestionIndex);
 
-            console.log('Formatted explanation updated for question index:', indexValue);
-          });
+          this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
+
+          // Optional: Log or check other parts of your logic
+          console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
   }
