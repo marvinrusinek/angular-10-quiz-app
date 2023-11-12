@@ -272,9 +272,9 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanation$.next('');
     this.explanationTexts = [];
     this.explanationText$.next(null);
-    this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
-    this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
+    this.nextExplanationText$.next(null);
+    this.shouldDisplayExplanation$.next(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
-  }
+  }  
 }
