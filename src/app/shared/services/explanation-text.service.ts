@@ -29,6 +29,7 @@ export class ExplanationTextService implements OnDestroy {
   formattedExplanations: FormattedExplanation[] = [];
   formattedExplanations$: Subject<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
+  questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
@@ -142,7 +143,6 @@ export class ExplanationTextService implements OnDestroy {
 
     let formattedExplanation = '';
     let answerQualifierText = '';
-    let questionIndexCounter = 0;
 
     if (correctOptionIndices.length > 1) {
         formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
@@ -157,9 +157,9 @@ export class ExplanationTextService implements OnDestroy {
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
-    this.explanationTexts[questionIndexCounter] = formattedExplanation;
-    console.log('Question Index Counter:', questionIndexCounter);
-    questionIndexCounter++;
+    this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
+    console.log('Question Index Counter:', this.questionIndexCounter);
+    this.questionIndexCounter++;
 
     this.processedQuestions.add(questionKey);
     console.log('Processing question with text:', question.questionText);
