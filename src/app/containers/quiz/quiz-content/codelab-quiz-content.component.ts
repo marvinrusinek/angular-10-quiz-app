@@ -187,6 +187,9 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    console.log('Current question index::::>>>', currentIndex);
+
     this.formattedExplanation$
       .pipe(
           distinctUntilChanged(),
