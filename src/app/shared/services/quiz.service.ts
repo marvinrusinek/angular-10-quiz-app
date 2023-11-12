@@ -449,25 +449,20 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestionIndex(): number {
-    const questionIndexParam =
-      this.activatedRoute.snapshot.paramMap.get('questionIndex');
-
-    if (questionIndexParam) {
-      const questionIndex = parseInt(questionIndexParam, 10);
-
-      if (!isNaN(questionIndex)) {
-        return questionIndex - 1;
-      } else {
-        console.error('Invalid question index:', questionIndexParam);
-      }
-    } else {
-      console.error('Question index parameter is not available.');
-    }
-
-    return -1;
+  getCurrentQuestionIndex$(): Observable<number> {
+    return this.activatedRoute.paramMap.pipe(
+      map(paramMap => paramMap.get('questionIndex')),
+      filter(questionIndexParam => !!questionIndexParam),
+      map(questionIndexParam => parseInt(questionIndexParam, 10)),
+      filter(questionIndex => !isNaN(questionIndex)),
+      map(questionIndex => questionIndex - 1),
+      catchError((error) => {
+        console.error('Error getting question index:', error);
+        return of(-1);
+      })
+    );
   }
-
+  
   public updateCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndexSubject.next(index);
   }
@@ -681,17 +676,6 @@ export class QuizService implements OnDestroy {
 
   getQuizLength(): number {
     return this.selectedQuiz.questions.length;
-  }
-
-  isLastQuestion(): boolean {
-    const currentQuiz = this.getCurrentQuiz();
-    const currentQuestionIndex = this.getCurrentQuestionIndex();
-
-    return (
-      currentQuiz &&
-      currentQuiz.questions &&
-      currentQuestionIndex === currentQuiz.questions.length - 1
-    );
   }
 
   getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
