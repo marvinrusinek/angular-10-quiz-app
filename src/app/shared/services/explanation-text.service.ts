@@ -27,6 +27,7 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
+  formattedExplanations$: Map<string, BehaviorSubject<string>> = new Map();
   processedQuestions: Set<string> = new Set<string>();
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
@@ -100,12 +101,19 @@ export class ExplanationTextService implements OnDestroy {
     return this.formattedExplanation$.asObservable();
   }
 
-  updateFormattedExplanation(newValue: string) {
-    this.formattedExplanation$.next(newValue);
-  }
-
   resetProcessedQuestionsState() {
     this.processedQuestions = new Set<string>();
+  }
+
+  getFormattedExplanationObservable(questionId: string): Observable<string> {
+    if (!this.formattedExplanations$.has(questionId)) {
+        this.formattedExplanations$.set(questionId, new BehaviorSubject<string>(''));
+    }
+    return this.formattedExplanations$.get(questionId).asObservable();
+  }
+
+  updateFormattedExplanation(questionId: string, formattedExplanation: string): void {
+      this.formattedExplanations$.get(questionId).next(formattedExplanation);
   }
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
@@ -140,8 +148,9 @@ export class ExplanationTextService implements OnDestroy {
 
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
+    this.formattedExplanations$[questionIndex].next(formattedExplanation);
     this.explanationTexts[questionIndexCounter] = formattedExplanation;
-    console.log('Question Index Counter:', this.questionIndexCounter);
+    console.log('Question Index Counter:', questionIndexCounter);
     questionIndexCounter++;
 
     this.processedQuestions.add(questionKey);
