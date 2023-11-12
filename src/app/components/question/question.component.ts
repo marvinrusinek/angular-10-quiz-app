@@ -1035,7 +1035,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(isMultipleAnswer => {
       if (this.quizService.selectedOptions.length > 0) {
-        this.setExplanationText(currentQuestion);
+        // Subscribe to the observable to get the array of QuizQuestion objects
+        this.questions.subscribe(questionsArray => {
+          const questionIndex = questionsArray.indexOf(currentQuestion);
+          this.setExplanationText(currentQuestion, questionIndex);
+        });
       } else {
         this.explanationText$.next('');
       }
@@ -1086,11 +1090,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  setExplanationText(currentQuestion: QuizQuestion): void {
+  setExplanationText(currentQuestion: QuizQuestion, questionIndex: number): void {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
-    const formattedExplanation = this.explanationTextService.formatExplanationText(currentQuestion);
+    const formattedExplanation = this.explanationTextService.formatExplanationText(currentQuestion, questionIndex);
     this.explanationText$.next(formattedExplanation.explanation);
     this.updateCombinedQuestionData(currentQuestion, formattedExplanation.explanation);
 

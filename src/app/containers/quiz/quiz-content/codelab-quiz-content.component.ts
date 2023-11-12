@@ -193,10 +193,20 @@ export class CodelabQuizContentComponent
         takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-        if (formattedExplanation !== null) {
-          console.log('Current question index:', this.questionIndex);
-          console.log('Received new formatted explanation:', formattedExplanation);
+        // Use a local variable to capture the current question index
+        const currentQuestionIndex = this.questionIndex;
+
+        console.log('Received new formatted explanation:', formattedExplanation);
+        console.log('Current question index:', currentQuestionIndex);
+
+        // Check if the explanation is not empty or null before updating
+        if (formattedExplanation !== null && formattedExplanation !== undefined) {
+          // Update the formatted explanation using the local question index
           this.formattedExplanation = formattedExplanation;
+          // Update your explanation text service or any other logic here
+
+          // Optional: Log or check other parts of your logic
+          console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       }); 
   }
