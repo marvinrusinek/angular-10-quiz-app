@@ -187,29 +187,18 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    // Assuming you have the currentQuestionIndex$ observable in your component
-    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-
-    // Subscribe to the currentQuestionIndex$ observable
-    this.currentQuestionIndex$.subscribe((index) => {
-      // Update the current question index value
-      this.currentQuestionIndexValue = index;
-
-      // Now you have the correct question index, you can use it in other subscriptions
-      this.formattedExplanation$
-        .pipe(
-          distinctUntilChanged(),
-          takeUntil(this.destroy$)
-        )
-        .subscribe((formattedExplanation) => {
-          if (this.currentQuestionIndexValue !== undefined) {
-            console.log('Received new formatted explanation:', formattedExplanation);
-            console.log('Current question index:', this.currentQuestionIndexValue);
-          } else {
-            console.error('Current question index is undefined. Ensure it is set correctly.');
-          }
-        });
-    });
+    this.formattedExplanation$
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((formattedExplanation) => {
+        if (formattedExplanation !== null) {
+          console.log('Current question index:', this.questionIndex);
+          console.log('Received new formatted explanation:', formattedExplanation);
+          this.formattedExplanation = formattedExplanation;
+        }
+      }); 
   }
 
   ngOnChanges(): void {
