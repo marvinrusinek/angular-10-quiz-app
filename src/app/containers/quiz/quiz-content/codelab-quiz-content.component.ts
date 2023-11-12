@@ -594,6 +594,7 @@ export class CodelabQuizContentComponent
       this.nextQuestion$,
       this.previousQuestion$,
       this.nextExplanationText$,
+      this.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       switchMap(
@@ -601,6 +602,7 @@ export class CodelabQuizContentComponent
           nextQuestion,
           previousQuestion,
           nextExplanationText,
+          formattedExplanation,
           shouldDisplayExplanation,
         ]) => {
           if (
@@ -612,7 +614,7 @@ export class CodelabQuizContentComponent
             let textToDisplay = '';
 
             textToDisplay = shouldDisplayExplanation
-              ? this.formattedExplanation || ''
+              ? formattedExplanation || ''
               : this.questionToDisplay || '';
 
             return of(textToDisplay);
