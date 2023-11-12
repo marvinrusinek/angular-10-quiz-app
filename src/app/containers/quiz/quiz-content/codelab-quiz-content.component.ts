@@ -202,7 +202,6 @@ export class CodelabQuizContentComponent
 
             this.explanationTextService.updateFormattedExplanation(indexValue, this.formattedExplanation);
 
-            // Optional: Log or check other parts of your logic
             console.log('Formatted explanation updated for question index:', indexValue);
           });
         }
