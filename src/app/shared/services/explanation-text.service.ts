@@ -27,7 +27,7 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
-  formattedExplanations$: Map<string, BehaviorSubject<string>> = new Map();
+  formattedExplanations$: Subject<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
@@ -105,19 +105,24 @@ export class ExplanationTextService implements OnDestroy {
     this.processedQuestions = new Set<string>();
   }
 
-  getFormattedExplanationObservable(questionId: string): Observable<string> {
-    if (!this.formattedExplanations$.has(questionId)) {
-        this.formattedExplanations$.set(questionId, new BehaviorSubject<string>(''));
+  getFormattedExplanationObservable(questionIndex: number): Observable<string> {
+    // Verify that the questionIndex is within the bounds of the array
+    if (questionIndex < 0 || questionIndex >= this.formattedExplanations$.length) {
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
     }
-    return this.formattedExplanations$.get(questionId).asObservable();
+    return this.formattedExplanations$[questionIndex].asObservable();
   }
 
   updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
     // Verify that the index is valid and the array is initialized properly
-    if (this.formattedExplanations$[questionIndex]) {
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    if (!this.formattedExplanations$[questionIndex]) {
+      // If the observable at the given index is not initialized, initialize it
+      this.formattedExplanations$[questionIndex] = new Subject<string>();
     }
-  }  
+  
+    // Update the explanation text based on the provided question index
+    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+  }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     console.log('Question Text:', question.questionText);
