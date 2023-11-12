@@ -113,40 +113,27 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Question Text:', question.questionText);
     console.log('Processed Questions Set:', this.processedQuestions);
     console.log('Formatting explanation for question:', question);
-    if (!question ||
-      !question.questionText ||
-      this.processedQuestions.has(question.questionText)
-    ) {
-      console.log(
-        'Skipping already processed question with text:',
-        question.questionText
-      );
-      return { explanation: '' };
+
+    if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
+        console.log('Skipping already processed or invalid question:', question.questionText);
+        return { explanation: '' };
     }
 
-    let correctOptionIndices: number[] = [];
+    const correctOptionIndices: number[] = question.options
+        .map((option, index) => (option.correct ? index + 1 : null))
+        .filter(index => index !== null);
 
-    question.options.forEach((option, index) => {
-      if (option.correct) {
-          correctOptionIndices.push(index + 1);
-      }
-    });
-  
     let formattedExplanation = '';
     let answerQualifierText = '';
 
-    const isMultipleAnswer = correctOptionIndices.length > 1;
-    const multipleAnswerText = 'are correct because';
-    const singleAnswerText = 'is correct because';
-
-    if (isMultipleAnswer) {
-      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} ${multipleAnswerText} ${question.explanation}`;
-      answerQualifierText = multipleAnswerText;
+    if (correctOptionIndices.length > 1) {
+        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+        answerQualifierText = 'are correct because';
     } else if (correctOptionIndices.length === 1) {
-      formattedExplanation = `Option ${correctOptionIndices[0]} ${singleAnswerText} ${question.explanation}`;
-      answerQualifierText = singleAnswerText;
+        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+        answerQualifierText = 'is correct because';
     } else {
-      formattedExplanation = 'No correct option selected...';
+        formattedExplanation = 'No correct option selected...';
     }
 
     // Set the formatted explanation for the question
@@ -154,8 +141,6 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     console.log('Question Index Counter:', this.questionIndexCounter);
     this.questionIndexCounter++;
-
-    correctOptionIndices = [];
 
     this.processedQuestions.add(question.questionText);
     console.log('Processing question with text:', question.questionText);
