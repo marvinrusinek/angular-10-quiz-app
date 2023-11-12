@@ -189,30 +189,27 @@ export class CodelabQuizContentComponent
 
     this.formattedExplanation$
       .pipe(
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
+          distinctUntilChanged(),
+          takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-        // Fetch the current question index directly from your service or wherever it's stored
-        const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+          // Use a local variable to capture the current question index
+          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
 
-        console.log('Received new formatted explanation:', formattedExplanation);
-        console.log('Current question index:', currentQuestionIndex);
+          console.log('Received new formatted explanation:', formattedExplanation);
+          console.log('Current question index:', currentQuestionIndex);
 
-        // Check if the explanation is not empty or null before updating
-        if (formattedExplanation !== null && formattedExplanation !== undefined) {
-          // Update the formatted explanation using the current question index
-          this.formattedExplanation = formattedExplanation;
+          // Check if the explanation is not empty or null before updating
+          if (formattedExplanation !== null && formattedExplanation !== undefined) {
+              // Update the formatted explanation using the current question index
+              this.formattedExplanation = formattedExplanation;
 
-          // Update your explanation text service or any other logic here
-          this.explanationTextService.updateFormattedExplanation(
-            currentQuestionIndex,
-            formattedExplanation
-          );
+              // Update your explanation text service or any other logic here
+              this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
 
-          // Optional: Log or check other parts of your logic
-          console.log('Formatted explanation updated for question index:', currentQuestionIndex);
-        }
+              // Optional: Log or check other parts of your logic
+              console.log('Formatted explanation updated for question index:', currentQuestionIndex);
+          }
       });
   }
 
