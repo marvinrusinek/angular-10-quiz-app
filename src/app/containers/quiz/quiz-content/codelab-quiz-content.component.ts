@@ -187,7 +187,7 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    this.formattedExplanation$
+    /* this.formattedExplanation$
       .pipe(
         distinctUntilChanged(),
         takeUntil(this.destroy$)
@@ -209,7 +209,28 @@ export class CodelabQuizContentComponent
           // Optional: Log or check other parts of your logic
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
-      });
+      }); */
+
+      const questionIndex$ = of(this.quizService.getCurrentQuestionIndex());
+
+      this.formattedExplanation$
+        .pipe(
+          withLatestFrom(questionIndex$),
+          distinctUntilChanged(),
+          map(([formattedExplanation, questionIndex]) => ({ questionIndex, formattedExplanation })),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(({ questionIndex, formattedExplanation }) => {
+          // Update your explanation text service or any other logic here
+          console.log('Received new formatted explanation:', formattedExplanation);
+          console.log('Current question index:', questionIndex);
+
+          // Call a method or update a property in your service to store the explanation
+          this.explanationTextService.updateFormattedExplanation(questionIndex, formattedExplanation);
+
+          // Optional: Log or check other parts of your logic
+          console.log('Formatted explanation updated for question index:', questionIndex);
+        });
   }
 
   ngOnChanges(): void {
