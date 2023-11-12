@@ -187,8 +187,9 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    console.log('Current question index::::>>>', currentIndex);
+    this.quizService.getCurrentQuestionIndex$().subscribe(index => {
+      console.log('Current question index::::>>>>', index);
+    });    
 
     this.formattedExplanation$
       .pipe(
@@ -196,7 +197,7 @@ export class CodelabQuizContentComponent
           takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex$();
 
           if (formattedExplanation !== null && formattedExplanation !== undefined) {
               this.formattedExplanation = formattedExplanation;
