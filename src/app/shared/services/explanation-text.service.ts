@@ -113,7 +113,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Question Text:', question.questionText);
     console.log('Processed Questions Set:', this.processedQuestions);
     console.log('Formatting explanation for question:', question);
-    if (
+    if (!question ||
       !question.questionText ||
       this.processedQuestions.has(question.questionText)
     ) {
@@ -126,27 +126,25 @@ export class ExplanationTextService implements OnDestroy {
 
     let correctOptionIndices: number[] = [];
 
-    for (let i = 0; i < question.options.length; i++) {
-      if (question.options[i].correct) {
-        correctOptionIndices.push(i + 1);
+    question.options.forEach((option, index) => {
+      if (option.correct) {
+          correctOptionIndices.push(index + 1);
       }
-    }
-
+    });
+  
     let formattedExplanation = '';
-    let optionQualifier = '';
+    let answerQualifierText = '';
 
     const isMultipleAnswer = correctOptionIndices.length > 1;
     const multipleAnswerText = 'are correct because';
     const singleAnswerText = 'is correct because';
 
     if (isMultipleAnswer) {
-      formattedExplanation = `Options ${correctOptionIndices.join(
-        ' and '
-      )} ${multipleAnswerText} ${question.explanation}`;
-      optionQualifier = multipleAnswerText;
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} ${multipleAnswerText} ${question.explanation}`;
+      answerQualifierText = multipleAnswerText;
     } else if (correctOptionIndices.length === 1) {
       formattedExplanation = `Option ${correctOptionIndices[0]} ${singleAnswerText} ${question.explanation}`;
-      optionQualifier = singleAnswerText;
+      answerQualifierText = singleAnswerText;
     } else {
       formattedExplanation = 'No correct option selected...';
     }
@@ -272,9 +270,9 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanation$.next('');
     this.explanationTexts = [];
     this.explanationText$.next(null);
-    this.nextExplanationText$.next(null);
-    this.shouldDisplayExplanation$.next(false);
+    this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
+    this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
-  }  
+  }
 }
