@@ -1212,7 +1212,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         .getTotalQuestions()
         .toPromise();
   
-      this.quizService.getCurrentQuestionIndex$().subscribe(currentQuestionIndex => {
+      this.quizService.getCurrentQuestionIndex$().pipe(
+        take(1)
+      ).subscribe(currentQuestionIndex => {
         if (currentQuestionIndex >= totalQuestions) {
           // navigate to the results page
           this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);

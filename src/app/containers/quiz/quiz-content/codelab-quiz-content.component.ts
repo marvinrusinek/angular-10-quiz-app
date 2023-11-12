@@ -187,6 +187,13 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
+    this.quizService.currentQuestionIndex$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index) => {
+        console.log('Current question index::>>', index);
+        // Update your logic here based on the current question index
+      });
+  
     this.formattedExplanation$
       .pipe(
         withLatestFrom(this.quizService.currentQuestionIndex$),
