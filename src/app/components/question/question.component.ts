@@ -1098,7 +1098,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const explanationText = formattedExplanation ? formattedExplanation.explanation : 'No explanation available';
   
     this.explanationText$.next(explanationText);
-    this.updateCombinedQuestionData(currentQuestion, explanationText);
+    this.updateCombinedQuestionData(this.questions[questionIndex], explanationText);
   
     this.isAnswerSelectedChange.emit(true);
     this.toggleVisibility.emit();

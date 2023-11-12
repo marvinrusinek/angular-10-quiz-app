@@ -193,22 +193,23 @@ export class CodelabQuizContentComponent
         takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-        // Use a local variable to capture the current question index
-        const currentQuestionIndex = this.questionIndex;
+        // Get the current question index directly from your service or wherever it's stored
+        const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
 
         console.log('Received new formatted explanation:', formattedExplanation);
         console.log('Current question index:', currentQuestionIndex);
 
         // Check if the explanation is not empty or null before updating
         if (formattedExplanation !== null && formattedExplanation !== undefined) {
-          // Update the formatted explanation using the local question index
+          // Update the formatted explanation using the current question index
           this.formattedExplanation = formattedExplanation;
+
           // Update your explanation text service or any other logic here
 
           // Optional: Log or check other parts of your logic
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
-      }); 
+      });
   }
 
   ngOnChanges(): void {
