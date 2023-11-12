@@ -112,9 +112,10 @@ export class ExplanationTextService implements OnDestroy {
     return this.formattedExplanations$.get(questionId).asObservable();
   }
 
-  updateFormattedExplanation(questionId: string, formattedExplanation: string): void {
-      this.formattedExplanations$.get(questionId).next(formattedExplanation);
-  }
+  updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
+    // Update the explanation for the specific question index
+    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+  }  
 
   formatExplanationText(question: QuizQuestion): { explanation: string } {
     console.log('Question Text:', question.questionText);
