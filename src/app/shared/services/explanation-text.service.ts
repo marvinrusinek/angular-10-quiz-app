@@ -113,6 +113,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Question Text:', question.questionText);
     console.log('Processed Questions Set:', this.processedQuestions);
     console.log('Formatting explanation for question:', question);
+    console.log('Entering formatExplanationText for question:', question.questionText);
 
     if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
         console.log('Skipping already processed or invalid question:', question.questionText);
@@ -144,6 +145,7 @@ export class ExplanationTextService implements OnDestroy {
 
     this.processedQuestions.add(question.questionText);
     console.log('Processing question with text:', question.questionText);
+    console.log('Updated Processed Questions Set:', this.processedQuestions);
 
     return { explanation: formattedExplanation };
   }
