@@ -14,7 +14,6 @@ import {
   catchError,
   distinctUntilChanged,
   finalize,
-  filter,
   map,
   shareReplay,
   switchMap,
@@ -450,20 +449,25 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestionIndex$(): Observable<number> {
-    return this.activatedRoute.paramMap.pipe(
-      map(paramMap => paramMap.get('questionIndex')),
-      filter(questionIndexParam => !!questionIndexParam),
-      map(questionIndexParam => parseInt(questionIndexParam, 10)),
-      filter(questionIndex => !isNaN(questionIndex)),
-      map(questionIndex => questionIndex - 1),
-      catchError((error) => {
-        console.error('Error getting question index:', error);
-        return of(-1);
-      })
-    );
+  getCurrentQuestionIndex(): number {
+    const questionIndexParam =
+      this.activatedRoute.snapshot.paramMap.get('questionIndex');
+
+    if (questionIndexParam) {
+      const questionIndex = parseInt(questionIndexParam, 10);
+
+      if (!isNaN(questionIndex)) {
+        return questionIndex - 1;
+      } else {
+        console.error('Invalid question index:', questionIndexParam);
+      }
+    } else {
+      console.error('Question index parameter is not available.');
+    }
+
+    return -1;
   }
-  
+
   public updateCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndexSubject.next(index);
   }

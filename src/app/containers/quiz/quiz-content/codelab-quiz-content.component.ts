@@ -187,17 +187,13 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    this.quizService.getCurrentQuestionIndex$().subscribe(index => {
-      console.log('Current question index::::>>>>', index);
-    });    
-
     this.formattedExplanation$
       .pipe(
           distinctUntilChanged(),
           takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex$();
+          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
 
           if (formattedExplanation !== null && formattedExplanation !== undefined) {
               this.formattedExplanation = formattedExplanation;
