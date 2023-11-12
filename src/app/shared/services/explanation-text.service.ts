@@ -119,7 +119,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }  
 
-  formatExplanationText(question: QuizQuestion): { explanation: string } {
+  formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     console.log('Question Text:', question.questionText);
     console.log('Processed Questions Set:', this.processedQuestions);
     console.log('Formatting explanation for question:', question);
