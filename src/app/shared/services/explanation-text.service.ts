@@ -126,13 +126,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
-    console.log('Question Text:', question.questionText);
-    console.log('Processed Questions Set:', this.processedQuestions);
-    console.log('Formatting explanation for question:', question);
-    console.log('Entering formatExplanationText for question:', question.questionText);
-
     const questionKey = JSON.stringify(question);
-    if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
+
+    // Check if the question is valid and not processed
+    if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
         console.log('Skipping already processed or invalid question:', question.questionText);
         return { explanation: '' };
     }
@@ -154,17 +151,12 @@ export class ExplanationTextService implements OnDestroy {
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
 
-    // Check array bounds before accessing
-    if (questionIndex >= 0 && questionIndex < this.formattedExplanations$.length) {
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
-      this.explanationTexts[questionIndex] = formattedExplanation;
-      console.log('Question Index Counter:', questionIndex);
-      this.questionIndexCounter++;
-    }
-    
+    // Mark the question as processed
     this.processedQuestions.add(questionKey);
-    console.log('Processing question with text:', question.questionText);
-    console.log('Updated Processed Questions Set:', this.processedQuestions);
+
+    console.log('Question Index Counter:', questionIndex);
+    console.log('Formatted explanation:', formattedExplanation);
+    console.log('Processed Questions Set:', this.processedQuestions);
 
     return { explanation: formattedExplanation };
   }
