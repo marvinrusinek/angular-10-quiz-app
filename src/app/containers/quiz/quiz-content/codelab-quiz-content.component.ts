@@ -196,7 +196,7 @@ export class CodelabQuizContentComponent
         if (formattedExplanation !== null) {
           console.log('Received new formatted explanation:', formattedExplanation);
           this.formattedExplanation = formattedExplanation;
-          this.explanationTextService.updateFormattedExplanation(this.questionIndex, this.formattedExplanation);
+          // this.explanationTextService.updateFormattedExplanation(this.questionIndex, this.formattedExplanation);
         }
       }); 
   }
