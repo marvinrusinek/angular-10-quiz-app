@@ -153,12 +153,15 @@ export class ExplanationTextService implements OnDestroy {
 
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
-    this.formattedExplanations$[questionIndex].next(formattedExplanation);
 
-    this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
-    console.log('Question Index Counter:', this.questionIndexCounter);
-    this.questionIndexCounter++;
-
+    // Check array bounds before accessing
+    if (questionIndex >= 0 && questionIndex < this.formattedExplanations$.length) {
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+      this.explanationTexts[questionIndex] = formattedExplanation;
+      console.log('Question Index Counter:', questionIndex);
+      this.questionIndexCounter++;
+    }
+    
     this.processedQuestions.add(questionKey);
     console.log('Processing question with text:', question.questionText);
     console.log('Updated Processed Questions Set:', this.processedQuestions);
