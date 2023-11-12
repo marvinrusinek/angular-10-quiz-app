@@ -28,7 +28,6 @@ export class ExplanationTextService implements OnDestroy {
   );
   formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
-  questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
@@ -115,6 +114,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Formatting explanation for question:', question);
     console.log('Entering formatExplanationText for question:', question.questionText);
 
+    const questionKey = JSON.stringify(question);
     if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
         console.log('Skipping already processed or invalid question:', question.questionText);
         return { explanation: '' };
@@ -126,6 +126,7 @@ export class ExplanationTextService implements OnDestroy {
 
     let formattedExplanation = '';
     let answerQualifierText = '';
+    let questionIndexCounter = 0;
 
     if (correctOptionIndices.length > 1) {
         formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
@@ -139,11 +140,11 @@ export class ExplanationTextService implements OnDestroy {
 
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
-    this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
+    this.explanationTexts[questionIndexCounter] = formattedExplanation;
     console.log('Question Index Counter:', this.questionIndexCounter);
-    this.questionIndexCounter++;
+    questionIndexCounter++;
 
-    this.processedQuestions.add(question.questionText);
+    this.processedQuestions.add(questionKey);
     console.log('Processing question with text:', question.questionText);
     console.log('Updated Processed Questions Set:', this.processedQuestions);
 
