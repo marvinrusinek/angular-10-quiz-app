@@ -193,19 +193,17 @@ export class CodelabQuizContentComponent
         takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-        this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndex$();
-
-        console.log('Received new formatted explanation:::>>>', formattedExplanation);
-
         if (formattedExplanation !== null && formattedExplanation !== undefined) {
           this.formattedExplanation = formattedExplanation;
 
-          this.currentQuestionIndex$.subscribe(indexValue => {
-            console.log('Current question index:::>>>', indexValue);
+          this.quizService.getCurrentQuestionIndex$().subscribe(indexValue => {
+            console.log('Received new formatted explanation:', formattedExplanation);
+            console.log('Current question index:', indexValue);
 
             this.explanationTextService.updateFormattedExplanation(indexValue, this.formattedExplanation);
-            
-            console.log('Formatted explanation updated for question index:::>>>', indexValue);
+
+            // Optional: Log or check other parts of your logic
+            console.log('Formatted explanation updated for question index:', indexValue);
           });
         }
       });
