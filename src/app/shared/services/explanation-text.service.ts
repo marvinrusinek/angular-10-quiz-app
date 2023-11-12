@@ -142,14 +142,11 @@ export class ExplanationTextService implements OnDestroy {
         .filter(index => index !== null);
 
     let formattedExplanation = '';
-    let answerQualifierText = '';
 
     if (correctOptionIndices.length > 1) {
         formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
-        answerQualifierText = 'are correct because';
     } else if (correctOptionIndices.length === 1) {
         formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-        answerQualifierText = 'is correct because';
     } else {
         formattedExplanation = 'No correct option selected...';
     }
@@ -157,6 +154,7 @@ export class ExplanationTextService implements OnDestroy {
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
+
     this.explanationTexts[this.questionIndexCounter] = formattedExplanation;
     console.log('Question Index Counter:', this.questionIndexCounter);
     this.questionIndexCounter++;
