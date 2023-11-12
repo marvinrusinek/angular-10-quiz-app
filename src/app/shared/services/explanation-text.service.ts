@@ -139,15 +139,15 @@ export class ExplanationTextService implements OnDestroy {
     let formattedExplanation = '';
 
     if (correctOptionIndices.length > 1) {
-        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
-        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
     } else {
-        formattedExplanation = 'No correct option selected...';
+      formattedExplanation = 'No correct option selected...';
     }
 
-    // Set the formatted explanation for the question
-    this.formattedExplanation$.next(formattedExplanation);
+    // Set the formatted explanation for the specific question index
+    this.formattedExplanation$[questionIndex].next(formattedExplanation);
     this.processedQuestions.add(questionKey);
 
     return { explanation: formattedExplanation };
