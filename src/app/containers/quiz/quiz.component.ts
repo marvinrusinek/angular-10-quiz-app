@@ -1212,13 +1212,14 @@ export class QuizComponent implements OnInit, OnDestroy {
         .getTotalQuestions()
         .toPromise();
   
-      const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
-      if (currentQuestionIndex >= totalQuestions) {
-        // navigate to the results page
-        this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-        console.log('End of quiz reached.');
-        return;
-      }
+      this.quizService.getCurrentQuestionIndex$().subscribe(currentQuestionIndex => {
+        if (currentQuestionIndex >= totalQuestions) {
+          // navigate to the results page
+          this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+          console.log('End of quiz reached.');
+          return;
+        }
+      });
   
       // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);

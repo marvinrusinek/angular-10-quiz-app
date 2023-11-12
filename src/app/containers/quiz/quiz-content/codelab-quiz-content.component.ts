@@ -189,17 +189,19 @@ export class CodelabQuizContentComponent
 
     this.formattedExplanation$
       .pipe(
-          distinctUntilChanged(),
-          takeUntil(this.destroy$)
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
       )
       .subscribe((formattedExplanation) => {
-          const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+        this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndex$();
+        
+        if (formattedExplanation !== null && formattedExplanation !== undefined) {
+          this.formattedExplanation = formattedExplanation;
 
-          if (formattedExplanation !== null && formattedExplanation !== undefined) {
-              this.formattedExplanation = formattedExplanation;
-
-              this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
-          }
+          this.currentQuestionIndex$.subscribe(indexValue => {
+            this.explanationTextService.updateFormattedExplanation(indexValue, this.formattedExplanation);
+          });
+        }
       });
   }
 
