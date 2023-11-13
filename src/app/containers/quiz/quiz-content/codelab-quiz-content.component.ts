@@ -210,7 +210,9 @@ export class CodelabQuizContentComponent
             console.log('Current question index:', currentQuestionIndex);
 
             // Log before and after the updateFormattedExplanation method call
-            console.log('Before updateFormattedExplanation call:', this.explanationTextService.getFormattedExplanation$());
+            this.explanationTextService.getFormattedExplanation$().pipe(take(1)).subscribe(beforeExplanation => {
+              console.log('Before updateFormattedExplanation call:', beforeExplanation);
+            });
             
             this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
 
