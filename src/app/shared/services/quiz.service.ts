@@ -419,6 +419,7 @@ export class QuizService implements OnDestroy {
   }
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
+    debugger;
     console.log('Entering setCurrentQuestionIndex with index:', index);
     if (!this.quizId) {
       console.error('Quiz ID is not available.');
