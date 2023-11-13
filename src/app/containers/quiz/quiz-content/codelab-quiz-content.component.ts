@@ -227,6 +227,11 @@ export class CodelabQuizContentComponent
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
+
+    this.explanationTextService.getFormattedExplanation$().subscribe((explanation) => {
+      console.log('Received explanation from service:::', explanation);
+      this.formattedExplanation = explanation;
+    });
   }
 
   ngOnChanges(): void {

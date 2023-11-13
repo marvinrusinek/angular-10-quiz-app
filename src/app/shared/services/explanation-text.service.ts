@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
 import {
   debounceTime,
   interval,
@@ -68,6 +68,8 @@ export class ExplanationTextService implements OnDestroy {
         // Handle the value
         console.log('Received new formatted explanation:', value);
       });
+
+    this.formattedExplanations$ = [];
   }
 
   ngOnDestroy(): void {
