@@ -115,6 +115,9 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
+    console.log('Updating explanation for index:', questionIndex);
+    console.log('New explanation:', formattedExplanation);
+
     // Verify that the index is valid and the array is initialized properly
     if (!this.formattedExplanations$[questionIndex]) {
       // If the observable at the given index is not initialized, initialize it
