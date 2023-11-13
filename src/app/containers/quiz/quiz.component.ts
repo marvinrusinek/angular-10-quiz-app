@@ -1188,6 +1188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
+    console.log('Advancing to next question...');
     this.isNavigatingToNext = true;
 
     if (this.isNavigating) {
