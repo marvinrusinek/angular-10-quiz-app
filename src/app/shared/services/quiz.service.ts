@@ -440,6 +440,7 @@ export class QuizService implements OnDestroy {
       // Validate the index
       if (index >= 0 && index < questions.length) {
         this.currentQuestionIndex = index;
+        console.log('Emitting new index:::', index);
         this.currentQuestionIndexSource.next(index);
         this.setCurrentQuestion(questions[index]);
       } else {

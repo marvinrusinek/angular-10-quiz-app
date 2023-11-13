@@ -146,8 +146,8 @@ export class ExplanationTextService implements OnDestroy {
       formattedExplanation = 'No correct option selected...';
     }
 
-    // Set the formatted explanation for the specific question index
-    this.formattedExplanation$[questionIndex].next(formattedExplanation);
+    // Set the formatted explanation for the question
+    this.formattedExplanation$.next(formattedExplanation);
     this.processedQuestions.add(questionKey);
 
     return { explanation: formattedExplanation };

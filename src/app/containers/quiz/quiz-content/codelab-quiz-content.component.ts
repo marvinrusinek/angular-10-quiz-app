@@ -190,8 +190,10 @@ export class CodelabQuizContentComponent
     this.quizService.currentQuestionIndex$
       .pipe(takeUntil(this.destroy$))
       .subscribe((index) => {
-        console.log('Current question index::>>', index);
-        // Update your logic here based on the current question index
+        console.log('Current question index::::>>', index);
+      },
+      (error) => {
+        console.error('Error in getCurrentQuestionIndex$ subscription:', error);
       });
   
     this.formattedExplanation$
