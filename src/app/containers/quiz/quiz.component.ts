@@ -753,16 +753,23 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      this.quizService.setCurrentQuestionIndex(+questionIndex);
+      const numericIndex = +questionIndex;
+      if (!isNaN(numericIndex)) {
+        this.quizService.setCurrentQuestionIndex(numericIndex);
+      } else {
+        console.error('Invalid questionIndex:', questionIndex);
+        return;
+      }
+    
       this.quizService.setQuestions(questions);
       this.quizService.setTotalQuestions(questions.length);
-
+    
       if (!this.quizService.questionsLoaded) {
         this.quizService.updateQuestions(quizId);
       }
-
+    
       this.getCurrentQuestion();
-    });
+    });    
   }
 
   handleOptions(options: Option[]): void {
