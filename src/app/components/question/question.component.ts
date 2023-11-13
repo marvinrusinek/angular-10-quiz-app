@@ -1091,6 +1091,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setExplanationText(currentQuestion: QuizQuestion, questionIndex: number): void {
+    console.log('Entering setExplanationText for question:', currentQuestion.questionText);
+  
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
@@ -1103,7 +1105,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isAnswerSelectedChange.emit(true);
     this.toggleVisibility.emit();
     this.updateFeedbackVisibility();
-  }  
+  
+    console.log('Exiting setExplanationText for question:', currentQuestion.questionText);
+  }
 
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
