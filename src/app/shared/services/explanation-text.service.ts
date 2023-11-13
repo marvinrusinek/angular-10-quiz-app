@@ -138,6 +138,12 @@ export class ExplanationTextService implements OnDestroy {
     observable.pipe(
       tap(value => console.log(`Formatted explanation for index ${questionIndex}:`, value))
     ).subscribe();
+  
+    // Ensure that the observable is not completed
+    // This assumes that the observable is a Subject; if it's a different type, adjust accordingly
+    if (observable instanceof Subject) {
+      observable.complete();
+    }
   }
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
