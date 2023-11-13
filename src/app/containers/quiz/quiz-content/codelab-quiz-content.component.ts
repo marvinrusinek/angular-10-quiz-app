@@ -196,37 +196,37 @@ export class CodelabQuizContentComponent
       (error) => {
         console.error('Error in getCurrentQuestionIndex$ subscription:', error);
       });
-  
-      this.formattedExplanation$
-        .pipe(
-          withLatestFrom(this.quizService.currentQuestionIndex$),
-          distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
-          takeUntil(this.destroy$)
-        )
-        .subscribe(([formattedExplanation, currentQuestionIndex]) => {
-          console.log('Received new formatted explanation:::>>', formattedExplanation);
-          console.log('Current question index:::>>', currentQuestionIndex);
-          if (formattedExplanation !== null && formattedExplanation !== undefined) {
-            this.formattedExplanation = formattedExplanation;
 
-            console.log('Received new formatted explanation:', formattedExplanation);
-            console.log('Current question index:', currentQuestionIndex);
+    this.formattedExplanation$
+      .pipe(
+        withLatestFrom(this.quizService.currentQuestionIndex$),
+        distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([formattedExplanation, currentQuestionIndex]) => {
+        console.log('Received new formatted explanation:::>>', formattedExplanation);
+        console.log('Current question index:::>>', currentQuestionIndex);
+        if (formattedExplanation !== null && formattedExplanation !== undefined) {
+          this.formattedExplanation = formattedExplanation;
+           
+          console.log('Received new formatted explanation:', formattedExplanation);
+          console.log('Current question index:', currentQuestionIndex);
 
-            // Log before and after the updateFormattedExplanation method call
-            this.explanationTextService.getFormattedExplanation$().pipe(take(1)).subscribe(beforeExplanation => {
-              console.log('Before updateFormattedExplanation call:', beforeExplanation);
-            });
+          // Log before and after the updateFormattedExplanation method call
+          this.explanationTextService.getFormattedExplanation$().pipe(take(1)).subscribe(beforeExplanation => {
+            console.log('Before updateFormattedExplanation call:', beforeExplanation);
+          });
             
-            this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
+          this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
 
-            // Log the value after the updateFormattedExplanation call
-            this.explanationTextService.getFormattedExplanation$().subscribe(updatedExplanation => {
-              console.log('After updateFormattedExplanation call:', updatedExplanation);
-            });
+          // Log the value after the updateFormattedExplanation call
+          this.explanationTextService.getFormattedExplanation$().subscribe(updatedExplanation => {
+            console.log('After updateFormattedExplanation call:', updatedExplanation);
+          });
 
-            console.log('Formatted explanation updated for question index:', currentQuestionIndex);
-          }
-        });
+          console.log('Formatted explanation updated for question index:', currentQuestionIndex);
+        }
+      });
   }
 
   ngOnChanges(): void {
