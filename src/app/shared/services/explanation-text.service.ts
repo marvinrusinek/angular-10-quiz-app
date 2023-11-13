@@ -27,7 +27,8 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
-  formattedExplanations$: Subject<string>[] = [];
+  // formattedExplanations$: Subject<string>[] = [];
+  formattedExplanations$: Record<number, Subject<string>> = {};
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
