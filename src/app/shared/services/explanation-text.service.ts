@@ -53,6 +53,8 @@ export class ExplanationTextService implements OnDestroy {
 
   lastDisplayedExplanationText = '';
 
+  subscriptions: Subscription[] = [];
+
   private destroyed$ = new Subject<void>();
 
   constructor() {
@@ -129,21 +131,17 @@ export class ExplanationTextService implements OnDestroy {
   
     // Update the explanation text based on the provided question index
     const observable = this.formattedExplanations$[questionIndex];
-    observable.next(formattedExplanation);
-  
-    // Log the number of subscribers for debugging
-    console.log(`Number of subscribers for index ${questionIndex}:`, observable.observers.length);
-  
+    
     // Add the tap operator directly to the existing observable
-    observable.pipe(
+    const subscription = observable.pipe(
       tap(value => console.log(`Formatted explanation for index ${questionIndex}:`, value))
     ).subscribe();
   
-    // Ensure that the observable is not completed
-    // This assumes that the observable is a Subject; if it's a different type, adjust accordingly
-    if (observable instanceof Subject) {
-      observable.complete();
-    }
+    // Ensure that the subscription is kept alive
+    this.subscriptions.push(subscription);
+  
+    // Update the explanation text
+    observable.next(formattedExplanation);
   }
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
