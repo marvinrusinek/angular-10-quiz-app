@@ -154,7 +154,7 @@ export class ExplanationTextService implements OnDestroy {
   initializeFormattedExplanations(maxQuestions: number): void {
     // Initialize observables for each potential question index
     for (let i = 0; i < maxQuestions; i++) {
-      this.formattedExplanations$[i] = new Subject<string>();
+      this.formattedExplanations$[i] = new BehaviorSubject<string>('');
     }
   }
   
