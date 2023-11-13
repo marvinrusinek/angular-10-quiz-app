@@ -124,30 +124,27 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Updating explanation for index:', questionIndex);
     console.log('New explanation:', formattedExplanation);
   
-    // Verify that the index is valid and the array is initialized properly
-    if (!this.formattedExplanations$[questionIndex]) {
-      // Update the explanation text based on the provided question index
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
-
+    // Verify that the index is valid
+    if (this.formattedExplanations$[questionIndex]) {
       // Log the formatted explanation just before the pipe operation
       console.log('Formatted explanation just before pipe:', formattedExplanation);
+  
+      // Update the explanation text based on the provided question index
+      const observable = this.formattedExplanations$[questionIndex];
+  
+      // Add the tap operator directly to the existing observable
+      const subscription = observable.pipe(
+        tap(value => console.log(`Formatted explanation for index ${questionIndex}:`, value))
+      ).subscribe();
+  
+      // Ensure that the subscription is kept alive
+      this.subscriptions.push(subscription);
+  
+      // Update the explanation text
+      observable.next(formattedExplanation);
     } else {
       console.error(`Observable not initialized for index ${questionIndex}`);
     }
-
-    // Update the explanation text based on the provided question index
-    const observable = this.formattedExplanations$[questionIndex];
-    
-    // Add the tap operator directly to the existing observable
-    const subscription = observable.pipe(
-      tap(value => console.log(`Formatted explanation for index ${questionIndex}:`, value))
-    ).subscribe();
-  
-    // Ensure that the subscription is kept alive
-    this.subscriptions.push(subscription);
-  
-    // Update the explanation text
-    observable.next(formattedExplanation);
   }
 
   initializeFormattedExplanations(maxQuestions: number): void {
