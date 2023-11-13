@@ -70,6 +70,8 @@ export class ExplanationTextService implements OnDestroy {
       });
 
     this.formattedExplanations$ = [];
+
+    console.log('Formatted explanations array:', this.formattedExplanations$);
   }
 
   ngOnDestroy(): void {
