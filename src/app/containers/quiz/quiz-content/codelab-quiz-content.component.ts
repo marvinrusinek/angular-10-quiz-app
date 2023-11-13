@@ -213,14 +213,14 @@ export class CodelabQuizContentComponent
           console.log('Current question index:', currentQuestionIndex);
 
           // Log before and after the updateFormattedExplanation method call
-          this.explanationTextService.getFormattedExplanation$().pipe(take(1)).subscribe(beforeExplanation => {
+          this.explanationTextService.getFormattedExplanation$(currentQuestionIndex).pipe(take(1)).subscribe(beforeExplanation => {
             console.log('Before updateFormattedExplanation call:', beforeExplanation);
           });
             
           this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
 
           // Log the value after the updateFormattedExplanation call
-          this.explanationTextService.getFormattedExplanation$().subscribe(updatedExplanation => {
+          this.explanationTextService.getFormattedExplanation$(currentQuestionIndex).subscribe(updatedExplanation => {
             console.log('After updateFormattedExplanation call:', updatedExplanation);
           });
 
@@ -233,6 +233,12 @@ export class CodelabQuizContentComponent
     });  
 
     this.formattedExplanation$[this.currentQuestionIndexValue].pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((formattedExplanation) => {
+      console.log('Formatted explanation for current question:', formattedExplanation);
+    });
+
+    this.formattedExplanations$[this.currentQuestionIndexValue].pipe(
       takeUntil(this.destroy$)
     ).subscribe((formattedExplanation) => {
       console.log('Formatted explanation for current question:', formattedExplanation);
