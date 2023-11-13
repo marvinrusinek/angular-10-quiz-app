@@ -420,19 +420,21 @@ export class QuizService implements OnDestroy {
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
-      console.trace('Entering setCurrentQuestionIndex with index:', index);
+      console.log('Entering setCurrentQuestionIndex with index:', index);
     
       if (!this.quizId) {
         console.error('Quiz ID is not available.');
         return;
       }
     
-      const questions = await this.getQuestionsForQuiz(this.quizId).toPromise();
-    
-      if (!Array.isArray(questions)) {
-        console.error('Questions are not available or not in the expected format:', questions);
+      const response = await this.getQuestionsForQuiz(this.quizId).toPromise();
+
+      if (!response || !response.questions || !Array.isArray(response.questions)) {
+        console.error('Invalid format of questions response:', response);
         return;
       }
+
+      const questions = response.questions;
   
       // Validate the index
       if (index >= 0 && index < questions.length) {
