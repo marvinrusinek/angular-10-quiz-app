@@ -145,6 +145,13 @@ export class ExplanationTextService implements OnDestroy {
     // Update the explanation text
     observable.next(formattedExplanation);
   }
+
+  initializeFormattedExplanations(maxQuestions: number): void {
+    // Initialize observables for each potential question index
+    for (let i = 0; i < maxQuestions; i++) {
+      this.formattedExplanations$[i] = new Subject<string>();
+    }
+  }
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
