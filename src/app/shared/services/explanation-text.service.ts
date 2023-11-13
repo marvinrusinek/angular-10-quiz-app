@@ -125,6 +125,8 @@ export class ExplanationTextService implements OnDestroy {
   
     // Verify that the index is valid
     if (this.formattedExplanations$[questionIndex]) {
+      console.log('Observable is initialized for index', questionIndex);
+  
       // Log the formatted explanation just before the pipe operation
       console.log('Formatted explanation just before pipe:', formattedExplanation);
   
@@ -147,14 +149,18 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeFormattedExplanations(maxQuestions: number): void {
+    console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
+  
     // Clear the array before initializing new observables
     this.formattedExplanations$ = [];
-
+  
     // Initialize observables for each potential question index
     for (let i = 0; i < maxQuestions; i++) {
-      this.formattedExplanations$[i] = new BehaviorSubject<string>('');
+      this.formattedExplanations$[i] = new Subject<string>();
+      console.log('Initialized observable for index', i);
     }
   }
+  
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
