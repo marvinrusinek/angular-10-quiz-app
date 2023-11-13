@@ -137,23 +137,27 @@ export class ExplanationTextService implements OnDestroy {
         return { explanation: '' };
     }
 
+    console.log('Processing question:', question.questionText);
+
     const correctOptionIndices: number[] = question.options
-      .map((option, index) => (option.correct ? index + 1 : null))
-      .filter(index => index !== null);
+        .map((option, index) => (option.correct ? index + 1 : null))
+        .filter(index => index !== null);
 
     let formattedExplanation = '';
 
     if (correctOptionIndices.length > 1) {
-      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
-      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
     } else {
-      formattedExplanation = 'No correct option selected...';
+        formattedExplanation = 'No correct option selected...';
     }
 
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
     this.processedQuestions.add(questionKey);
+
+    console.log('Formatted explanation for question:', formattedExplanation);
 
     return { explanation: formattedExplanation };
   }
