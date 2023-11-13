@@ -27,8 +27,7 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
-  // formattedExplanations$: Subject<string>[] = [];
-  formattedExplanations$: Record<number, Subject<string>> = {};
+  formattedExplanations$: Subject<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
@@ -148,6 +147,9 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeFormattedExplanations(maxQuestions: number): void {
+    // Clear the array before initializing new observables
+    this.formattedExplanations$ = [];
+
     // Initialize observables for each potential question index
     for (let i = 0; i < maxQuestions; i++) {
       this.formattedExplanations$[i] = new BehaviorSubject<string>('');
