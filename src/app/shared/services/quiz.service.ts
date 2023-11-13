@@ -421,20 +421,29 @@ export class QuizService implements OnDestroy {
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
       console.log('Entering setCurrentQuestionIndex with index:', index);
-    
+  
       if (!this.quizId) {
         console.error('Quiz ID is not available.');
         return;
       }
-    
-      const response = await this.getQuestionsForQuiz(this.quizId).toPromise();
-
+  
+      const response: any = await this.getQuestionsForQuiz(this.quizId).toPromise();
+      console.log("MY RESPONSE", response);
+  
+      // Check if response has 'questions' property and is an array
       if (!response || !response.questions || !Array.isArray(response.questions)) {
         console.error('Invalid format of questions response:', response);
         return;
       }
-
-      const questions = response.questions;
+  
+      // Check if 'questions' property is defined and is an array
+      const questions = response.questions[0]?.questions;
+      if (!questions || !Array.isArray(questions)) {
+        console.error('Invalid format of questions array:', questions);
+        return;
+      }
+  
+      console.log("QUESTIONS", questions);
   
       // Validate the index
       if (index >= 0 && index < questions.length) {
@@ -445,12 +454,12 @@ export class QuizService implements OnDestroy {
       } else {
         console.error('Invalid question index:', index);
       }
-
+  
       console.log('After validating index:', index);
     } catch (error) {
       console.error('Error setting current question index:', error);
     }
-  }  
+  }
 
   getCurrentQuestionIndex$(): Observable<number> {
     return this.activatedRoute.paramMap.pipe(
