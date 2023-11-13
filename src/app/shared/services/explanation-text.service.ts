@@ -281,10 +281,6 @@ export class ExplanationTextService implements OnDestroy {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
 
-  getLastDisplayedExplanationText(): string {
-    return this.lastDisplayedExplanationText;
-  }
-
   clearExplanationText(): void {
     console.log('clearExplanationText() called');
     this.explanationText$.next('');
