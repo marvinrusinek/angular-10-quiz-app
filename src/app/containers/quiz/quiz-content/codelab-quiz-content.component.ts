@@ -228,8 +228,9 @@ export class CodelabQuizContentComponent
         }
       });
     
-    const maxQuestions = this.quizService.getTotalQuestions();
-    this.explanationTextService.initializeFormattedExplanations(maxQuestions);
+    this.quizService.getTotalQuestions().subscribe(maxQuestions => {
+      this.explanationTextService.initializeFormattedExplanations(maxQuestions);
+    });  
 
     this.formattedExplanation$[this.currentQuestionIndexValue].pipe(
       takeUntil(this.destroy$)
