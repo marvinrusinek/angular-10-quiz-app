@@ -117,17 +117,29 @@ export class ExplanationTextService implements OnDestroy {
   updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
     console.log('Updating explanation for index:', questionIndex);
     console.log('New explanation:', formattedExplanation);
-
+  
     // Verify that the index is valid and the array is initialized properly
     if (!this.formattedExplanations$[questionIndex]) {
       // If the observable at the given index is not initialized, initialize it
       this.formattedExplanations$[questionIndex] = new Subject<string>();
     }
   
+    // Log the formatted explanation just before the pipe operation
+    console.log('Formatted explanation just before pipe:', formattedExplanation);
+  
     // Update the explanation text based on the provided question index
-    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    const observable = this.formattedExplanations$[questionIndex];
+    observable.next(formattedExplanation);
+  
+    // Log the number of subscribers for debugging
+    console.log(`Number of subscribers for index ${questionIndex}:`, observable.observers.length);
+  
+    // Add the tap operator directly to the existing observable
+    observable.pipe(
+      tap(value => console.log(`Formatted explanation for index ${questionIndex}:`, value))
+    ).subscribe();
   }
-
+  
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
     this.processedQuestions.clear();
