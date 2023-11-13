@@ -445,6 +445,8 @@ export class QuizService implements OnDestroy {
       } else {
         console.error('Invalid question index:', index);
       }
+
+      console.log('After validating index:', index);
     } catch (error) {
       console.error('Error setting current question index:', error);
     }
