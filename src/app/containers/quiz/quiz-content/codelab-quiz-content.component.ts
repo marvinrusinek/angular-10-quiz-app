@@ -228,17 +228,12 @@ export class CodelabQuizContentComponent
         }
       });
     
-    // Assuming you have a method to get the maxQuestions based on quiz ID
     const maxQuestions = this.quizService.getTotalQuestions();
-
-    // Initialize formatted explanations based on the maxQuestions
     this.explanationTextService.initializeFormattedExplanations(maxQuestions);
 
-    // Now subscribe to the correct observable
-    this.formattedExplanation$[currentQuestionIndex].pipe(
+    this.formattedExplanation$[this.currentQuestionIndexValue].pipe(
       takeUntil(this.destroy$)
     ).subscribe((formattedExplanation) => {
-      // Handle the formatted explanation for the current question
       console.log('Formatted explanation for current question:', formattedExplanation);
     });
 
