@@ -419,37 +419,30 @@ export class QuizService implements OnDestroy {
   }
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
-    try {
-      console.log('Setting current question index in QuizService:', index);
-  
-      const quizId = this.quizId;
-  
-      if (!quizId) {
-        console.error('Quiz ID is not available.');
-        return;
-      }
-  
-      const { questions } = await this.getQuestionsForQuiz(quizId).toPromise();
-  
-      if (!Array.isArray(questions)) {
-        console.error('Questions are not available or not in the expected format.');
-        return;
-      }
-  
-      // Validate the index
-      if (index >= 0 && index < questions.length) {
-        console.log('Index is valid. Emitting new index:', index);
-        this.currentQuestionIndex = index;
-        this.currentQuestionIndexSource.next(index);
-        this.setCurrentQuestion(questions[index]);
-      } else {
-        console.error('Invalid question index:', index);
-      }
-    } catch (error) {
-      console.error('Error setting current question index:', error);
+    if (!this.quizId) {
+      console.error('Quiz ID is not available.');
+      return;
     }
-  }
   
+    const questions = await this.getQuestionsForQuiz(this.quizId).toPromise();
+  
+    if (!Array.isArray(questions)) {
+      console.error('Questions are not available or not in the expected format.');
+      return;
+    }
+  
+    if (index < 0 || index >= questions.length) {
+      console.error('Invalid question index:', index);
+      return;
+    }
+  
+    console.log('Setting current question index in QuizService:', index);
+    console.log('Index is valid. Emitting new index:', index);
+  
+    this.currentQuestionIndex = index;
+    this.currentQuestionIndexSource.next(index);
+    this.setCurrentQuestion(questions[index]);
+  }  
 
   getCurrentQuestionIndex$(): Observable<number> {
     return this.activatedRoute.paramMap.pipe(
