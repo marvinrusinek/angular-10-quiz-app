@@ -126,16 +126,15 @@ export class ExplanationTextService implements OnDestroy {
   
     // Verify that the index is valid and the array is initialized properly
     if (!this.formattedExplanations$[questionIndex]) {
-      // If the observable at the given index is not initialized, initialize it
-      this.formattedExplanations$[questionIndex] = new Subject<string>();
+      // Update the explanation text based on the provided question index
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+
+      // Log the formatted explanation just before the pipe operation
+      console.log('Formatted explanation just before pipe:', formattedExplanation);
+    } else {
+      console.error(`Observable not initialized for index ${questionIndex}`);
     }
 
-    // Update the explanation text based on the provided question index
-    this.formattedExplanations$[questionIndex].next(formattedExplanation);
-  
-    // Log the formatted explanation just before the pipe operation
-    console.log('Formatted explanation just before pipe:', formattedExplanation);
-  
     // Update the explanation text based on the provided question index
     const observable = this.formattedExplanations$[questionIndex];
     
