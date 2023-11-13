@@ -103,8 +103,8 @@ export class ExplanationTextService implements OnDestroy {
     return this.explanationTexts[questionId];
   }
 
-  getFormattedExplanation$() {
-    return this.formattedExplanation$.asObservable();
+  getFormattedExplanation$(questionIndex: number): Observable<string> {
+    return this.formattedExplanations$[questionIndex].asObservable();
   }
 
   resetProcessedQuestionsState() {
@@ -128,6 +128,9 @@ export class ExplanationTextService implements OnDestroy {
       // If the observable at the given index is not initialized, initialize it
       this.formattedExplanations$[questionIndex] = new Subject<string>();
     }
+
+    // Update the explanation text based on the provided question index
+    this.formattedExplanations$[questionIndex].next(formattedExplanation);
   
     // Log the formatted explanation just before the pipe operation
     console.log('Formatted explanation just before pipe:', formattedExplanation);
