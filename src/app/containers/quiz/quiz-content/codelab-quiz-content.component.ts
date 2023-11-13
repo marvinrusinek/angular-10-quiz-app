@@ -204,6 +204,8 @@ export class CodelabQuizContentComponent
           takeUntil(this.destroy$)
         )
         .subscribe(([formattedExplanation, currentQuestionIndex]) => {
+          console.log('Received new formatted explanation:::>>', formattedExplanation);
+          console.log('Current question index:::>>', currentQuestionIndex);
           if (formattedExplanation !== null && formattedExplanation !== undefined) {
             this.formattedExplanation = formattedExplanation;
 
