@@ -1448,7 +1448,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     if (!currentQuestion || typeof currentQuestion !== 'object' || !currentQuestion.type) {
       console.error(
-        'Question is not defined or is in an invalid format...',
+        'Current Question is not defined or is in an invalid format...',
         currentQuestion
       );
 
