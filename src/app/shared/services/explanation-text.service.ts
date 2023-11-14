@@ -104,8 +104,17 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getFormattedExplanation$(questionIndex: number): Observable<string> {
-    return this.formattedExplanations$[questionIndex].asObservable();
+    if (
+      this.formattedExplanations$[questionIndex] &&
+      typeof this.formattedExplanations$[questionIndex].asObservable === 'function'
+    ) {
+      return this.formattedExplanations$[questionIndex].asObservable();
+    } else {
+      console.error(`Observable not initialized for index ${questionIndex}`);
+      return new Observable<string>();
+    }
   }
+  
 
   resetProcessedQuestionsState() {
     this.processedQuestions = new Set<string>();
