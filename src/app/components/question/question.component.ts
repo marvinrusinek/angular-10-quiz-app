@@ -202,12 +202,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.loadQuizQuestions();
   
       try {
-        this.activatedRoute.params.subscribe(async (params) => {
+        this.activatedRoute.params.subscribe((params) => {
           this.quizId = params['quizId'];
-          await this.initializeMultipleAnswer();
         });
-        
+
+        await this.loadQuizQuestions();
+
         this.subscribeToCorrectAnswersAndData();
+        this.initializeMultipleAnswer();
         // this.initializeCorrectAnswerOptions();
         // this.subscribeToCorrectAnswers();
         
