@@ -209,7 +209,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         await this.loadQuizQuestions();
 
         this.subscribeToCorrectAnswersAndData();
-        await this.asyncOperationToSetQuestion();
+        await this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
         this.initializeMultipleAnswer();
         // this.initializeCorrectAnswerOptions();
         // this.subscribeToCorrectAnswers();
