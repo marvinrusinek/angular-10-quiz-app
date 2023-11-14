@@ -326,12 +326,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private initializeMultipleAnswer(): void {
+    console.log('Initializing multipleAnswer...');
+    
+    // Ensure this.question is defined
+    if (!this.question) {
+      console.error('Question is not defined when initializing multipleAnswer.');
+      return;
+    }
+  
     this.multipleAnswer = new BehaviorSubject<boolean>(false);
-
+  
     this.quizStateService.isMultipleAnswer(this.question).subscribe((value) => {
-      console.log('Multiple answer value:', value);
+      console.log('Multiple answer value:::', value);
       this.multipleAnswer.next(value);
-
+  
       if (!this.multipleAnswerSubscription) {
         this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$
           .subscribe((value) => {
