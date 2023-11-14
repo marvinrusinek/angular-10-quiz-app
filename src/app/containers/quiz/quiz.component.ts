@@ -211,24 +211,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
-      console.log('Received question index:', this.questionIndex);
-      this.currentQuestionIndex = Math.max(this.questionIndex - 1, 0);
+      this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
       console.log('CQI::', this.currentQuestionIndex);
-
-      /* if (this.questionIndex === 1) {
-        // For the first question, set the currentQuestionIndex to 0
-        this.currentQuestionIndex = 0;
-      } else {
-        // For other questions, calculate index accordingly
-        this.currentQuestionIndex = this.questionIndex - 1;
-      }
-
-      if (this.currentQuestionIndex <= 0) {
-        this.currentQuestionIndex = 0;
-      } */
-
-      // this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
-      // console.log('Derived current question index:', this.currentQuestionIndex);
 
       this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
         if (selectedQuiz) {
@@ -240,6 +224,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
     });
+
+    this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
 
     const nextQuestion$ = this.quizService.getNextQuestion(
       this.currentQuestionIndex
