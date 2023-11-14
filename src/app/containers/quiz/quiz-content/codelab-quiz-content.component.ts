@@ -274,10 +274,12 @@ export class CodelabQuizContentComponent
         });
     });
 
+    console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
+
     if (
       this.formattedExplanation$ &&
       this.currentQuestionIndexValue >= 0 &&
-      this.currentQuestionIndexValue < this.formattedExplanation$.length
+      this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
     ) {
       // Now it's safe to use this.formattedExplanation$[this.currentQuestionIndexValue]
       this.formattedExplanation$[this.currentQuestionIndexValue]
