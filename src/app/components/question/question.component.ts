@@ -325,7 +325,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.fetchQuizQuestions();
   }
   
-  private initializeMultipleAnswer(): void {
+  /* private initializeMultipleAnswer(): void {
     this.multipleAnswer = new BehaviorSubject<boolean>(false);
     this.quizStateService.isMultipleAnswer(this.question);
   
@@ -336,6 +336,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.multipleAnswer.next(value);
         });
     }
+  } */
+
+  private initializeMultipleAnswer(): void {
+    this.multipleAnswer = new BehaviorSubject<boolean>(false);
+
+    this.quizStateService.isMultipleAnswer(this.question).subscribe((value) => {
+      console.log('Multiple answer value:', value);
+      this.multipleAnswer.next(value);
+
+      if (!this.multipleAnswerSubscription) {
+        this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$
+          .subscribe((value) => {
+            console.log('Multiple answer value:', value);
+            this.multipleAnswer.next(value);
+          });
+      }
+    });
   }
   
   /* private initializeCorrectAnswerOptions(): void {
