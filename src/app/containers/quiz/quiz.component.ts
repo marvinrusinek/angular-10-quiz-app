@@ -677,7 +677,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
       if (questions && questions.length > 0) {
         this.questions = questions;
+        this.currentQuestion = questions[0];
+        this.currentOptions = [];
         this.questionToDisplay = questions[0].questionText;
+        this.calculateAndSetCorrectAnswersText(this.currentQuestion, this.currentOptions);
       }
     });
   }
@@ -1385,7 +1388,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
-    console.log("Q1", question);
+    console.log("Before isMultipleAnswer. Question:", question);
   
     try {
       const isMultipleAnswerSubject = this.quizStateService.isMultipleAnswer(question);
