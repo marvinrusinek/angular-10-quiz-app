@@ -1435,14 +1435,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     options: Option[]
   ): Promise<void> {
     console.log('calculateAndSetCorrectAnswersText called');
-    console.log('Received question:', question);
-    console.log('Type of question:', typeof question);
+  
+    // Log the currentQuestion and its structure
+    console.log('Current Question:', this.currentQuestion);
+    console.log('Type of currentQuestion:', typeof this.currentQuestion);
 
-    // Log the full structure of the question object
-    console.log('Full question structure:', question);
+    // Log the full structure of the currentQuestion object
+    console.log('Full currentQuestion structure:', this.currentQuestion);
 
-    // Log all keys of the question object
-    console.log('Keys of question object:', Object.keys(question));
+    // Log all keys of the currentQuestion object
+    console.log('Keys of currentQuestion object:', Object.keys(this.currentQuestion));
 
     if (!question || typeof question !== 'object' || !question.type) {
       console.error(
