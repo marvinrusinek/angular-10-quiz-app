@@ -683,11 +683,11 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentOptions = [];
         this.questionToDisplay = this.currentQuestion.questionText;
   
-        console.log('Current Question Before:', this.quizService.currentQuestion);
-        
+        console.log('Current Question Before:', this.quizService.currentQuestion.getValue());
+
         // Calculate and set correct answers based on the current question
         this.calculateAndSetCorrectAnswersText(
-          this.quizService.currentQuestion,
+          this.quizService.currentQuestion.getValue(),
           this.currentOptions
         );
       }
