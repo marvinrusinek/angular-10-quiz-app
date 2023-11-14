@@ -710,43 +710,49 @@ export class CodelabQuizContentComponent
 
   private setupExplanationTextDisplay(): void {
     this.explanationText$ = this.explanationTextService.explanationText$;
-    this.nextExplanationText$ =
-      this.explanationTextService.nextExplanationText$;
+    this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
 
-      this.combinedText$ = combineLatest([
+    this.nextQuestion$.subscribe(value => console.log('nextQuestion$', value));
+    this.previousQuestion$.subscribe(value => console.log('previousQuestion$', value));
+    this.nextExplanationText$.subscribe(value => console.log('nextExplanationText$', value));
+    this.formattedExplanation$.subscribe(value => console.log('formattedExplanation$', value));
+    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => console.log('shouldDisplayExplanation$', value));
+
+    this.combinedText$ = combineLatest([
         this.nextQuestion$,
         this.previousQuestion$,
         this.nextExplanationText$,
         this.formattedExplanation$,
         this.explanationTextService.shouldDisplayExplanation$,
-      ]).pipe(
+    ]).pipe(
         tap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
-          console.log('nextQuestion:', nextQuestion);
-          console.log('previousQuestion:', previousQuestion);
-          console.log('nextExplanationText:', nextExplanationText);
-          console.log('formattedExplanation:', formattedExplanation);
-          console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
+            console.log('nextQuestion:', nextQuestion);
+            console.log('previousQuestion:', previousQuestion);
+            console.log('nextExplanationText:', nextExplanationText);
+            console.log('formattedExplanation:', formattedExplanation);
+            console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
         }),
         switchMap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
-          if (!nextQuestion || !previousQuestion) {
-            return of('');
-          } else {
-            let textToDisplay = '';
-      
-            textToDisplay = shouldDisplayExplanation
-              ? formattedExplanation instanceof BehaviorSubject
-                ? formattedExplanation.getValue()
-                : formattedExplanation || ''
-              : this.questionToDisplay || '';
-      
-            console.log('Text to Display:', textToDisplay);
-      
-            return of(textToDisplay);
-          }
+            if (!nextQuestion || !previousQuestion) {
+                return of('');
+            } else {
+                let textToDisplay = '';
+
+                textToDisplay = shouldDisplayExplanation
+                    ? formattedExplanation instanceof BehaviorSubject
+                        ? formattedExplanation.getValue()
+                        : formattedExplanation || ''
+                    : this.questionToDisplay || '';
+
+                console.log('Text to Display:', textToDisplay);
+
+                return of(textToDisplay);
+            }
         }),
         startWith('')
-      );
+    );
   }
+
 
   getQuestionText(
     currentQuestion: QuizQuestion,
