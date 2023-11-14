@@ -223,9 +223,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.error('Selected quiz is null.');
         }
       });
-    });
 
-    this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
+      this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
+    });
 
     const nextQuestion$ = this.quizService.getNextQuestion(
       this.currentQuestionIndex
