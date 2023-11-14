@@ -713,41 +713,39 @@ export class CodelabQuizContentComponent
     this.nextExplanationText$ =
       this.explanationTextService.nextExplanationText$;
 
-    this.combinedText$ = combineLatest([
-      this.nextQuestion$,
-      this.previousQuestion$,
-      this.nextExplanationText$,
-      this.formattedExplanation$,
-      this.explanationTextService.shouldDisplayExplanation$,
-    ]).pipe(
-      switchMap(
-        ([
-          nextQuestion,
-          previousQuestion,
-          nextExplanationText,
-          formattedExplanation,
-          shouldDisplayExplanation,
-        ]) => {
-          if (
-            (!nextQuestion || !nextQuestion.questionText) &&
-            (!previousQuestion || !previousQuestion.questionText)
-          ) {
+      this.combinedText$ = combineLatest([
+        this.nextQuestion$,
+        this.previousQuestion$,
+        this.nextExplanationText$,
+        this.formattedExplanation$,
+        this.explanationTextService.shouldDisplayExplanation$,
+      ]).pipe(
+        tap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
+          console.log('nextQuestion:', nextQuestion);
+          console.log('previousQuestion:', previousQuestion);
+          console.log('nextExplanationText:', nextExplanationText);
+          console.log('formattedExplanation:', formattedExplanation);
+          console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
+        }),
+        switchMap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
+          if (!nextQuestion || !previousQuestion) {
             return of('');
           } else {
             let textToDisplay = '';
-
+      
             textToDisplay = shouldDisplayExplanation
               ? formattedExplanation instanceof BehaviorSubject
-              ? formattedExplanation.getValue() 
-              : formattedExplanation || ''
+                ? formattedExplanation.getValue()
+                : formattedExplanation || ''
               : this.questionToDisplay || '';
-
+      
+            console.log('Text to Display:', textToDisplay);
+      
             return of(textToDisplay);
           }
-        }
-      ),
-      startWith('')
-    );
+        }),
+        startWith('')
+      );
   }
 
   getQuestionText(
