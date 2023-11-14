@@ -285,6 +285,9 @@ export class CodelabQuizContentComponent
         });
     });
 
+    console.log('Formatted Explanations Array:', Array.isArray(this.explanationTextService.formattedExplanations$));
+    console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
+
     if (
       this.formattedExplanation$ &&
       this.currentQuestionIndexValue >= 0 &&
