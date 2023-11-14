@@ -1388,7 +1388,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
-    console.log("Before isMultipleAnswer. Question:", question);
+    console.log('calculateAndSetCorrectAnswersText called');
+    console.log('Received question:', question);
+
+    if (!question || typeof question !== 'object' || !question.type) {
+      console.error('Question is not defined or is in an invalid format', question);
+      this.quizStateService.setMultipleAnswer(false);
+      return;
+    }
   
     try {
       const isMultipleAnswerSubject = this.quizStateService.isMultipleAnswer(question);
