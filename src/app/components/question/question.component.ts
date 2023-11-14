@@ -922,9 +922,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     ); // not a function */
     
     // Call the isMultipleAnswer function to determine if the question is a multiple-answer question
-    data.isMultipleAnswer = await this.quizStateService
-      .isMultipleAnswer(this.question)
-      .toPromise();
+    data.isMultipleAnswer = await this.quizStateService.isMultipleAnswer(this.question);
   }
 
   private updateMultipleAnswer(): void {
@@ -1050,17 +1048,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Fetch whether the current question is a multiple-answer question
-    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(isMultipleAnswer => {
-      if (this.quizService.selectedOptions.length > 0) {
-        // Subscribe to the observable to get the array of QuizQuestion objects
-        this.questions.subscribe(questionsArray => {
-          const questionIndex = questionsArray.indexOf(currentQuestion);
-          this.setExplanationText(currentQuestion, questionIndex);
-        });
-      } else {
-        this.explanationText$.next('');
+    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
+      isMultipleAnswer => {
+        if (this.quizService.selectedOptions.length > 0) {
+          this.questions.pipe(take(1)).subscribe(
+            questionsArray => {
+              console.log('Questions array:', questionsArray);
+              const questionIndex = questionsArray.indexOf(currentQuestion);
+              this.setExplanationText(currentQuestion, questionIndex);
+            },
+            error => {
+              console.error('Error fetching questions array:', error);
+            }
+          );
+        } else {
+          this.explanationText$.next('');
+        }
+      },
+      error => {
+        console.error('Error fetching multiple answer status:', error);
       }
-    });
+    );
   } 
   
   checkOptionSelected(option: Option): boolean {
