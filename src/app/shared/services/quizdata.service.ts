@@ -45,6 +45,7 @@ export class QuizDataService implements OnDestroy {
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId = '';
   currentQuizId = '';
+  question: QuizQuestion | null = null;
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
   currentQuestionAndOptions: [QuizQuestion, Option[]];
 
@@ -254,6 +255,20 @@ export class QuizDataService implements OnDestroy {
         return of([]);
       })
     );
+  }
+
+  async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
+    try {
+      // Simulate an asynchronous operation, e.g., fetching data from a service
+      const question = await this.getQuestion(quizId, currentQuestionIndex).toPromise();
+      this.setQuestion(question);
+    } catch (error) {
+      console.error('Error setting question:', error);
+    }
+  }
+
+  setQuestion(question: QuizQuestion | null): void {
+    this.question = question;
   }
 
   getQuestion(
