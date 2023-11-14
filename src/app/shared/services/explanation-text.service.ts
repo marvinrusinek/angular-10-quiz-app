@@ -176,8 +176,8 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$ = Array.from({ length: maxQuestions }, () => new BehaviorSubject<string>(''));
   
     // Log the initialization
-    console.log('Formatted Explanations Array:', Array.isArray(this.formattedExplanations$));
-    console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);
+    console.log('Formatted Explanations Array:::::', Array.isArray(this.formattedExplanations$));
+    console.log('Length of formattedExplanation$:::::', this.formattedExplanations$.length);
   }  
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
