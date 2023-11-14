@@ -290,23 +290,17 @@ export class CodelabQuizContentComponent
     console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
 
     if (
-      Array.isArray(this.formattedExplanation$) &&
+      Array.isArray(this.explanationTextService.formattedExplanations$) &&
       this.currentQuestionIndexValue >= 0 &&
-      this.currentQuestionIndexValue < this.formattedExplanation$.length
+      this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
     ) {
-      // Now it's safe to use this.formattedExplanation$[this.currentQuestionIndexValue]
-      this.formattedExplanation$[this.currentQuestionIndexValue]
+      this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue]
         .pipe(takeUntil(this.destroy$))
         .subscribe((formattedExplanation) => {
-          console.log(
-            'Formatted explanation for current question:',
-            formattedExplanation
-          );
+          console.log('Formatted explanation for current question:', formattedExplanation);
         });
     } else {
-      console.error(
-        'Invalid index or formattedExplanation$ is not properly initialized.'
-      );
+      console.error('Invalid index or formattedExplanation$ is not properly initialized.');
     }
 
     this.explanationTextService.formattedExplanations$[
