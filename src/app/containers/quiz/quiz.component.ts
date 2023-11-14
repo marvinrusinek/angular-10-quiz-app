@@ -6,14 +6,14 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   ActivatedRoute,
   NavigationEnd,
   ParamMap,
-  Router
+  Router,
 } from '@angular/router';
 
 import {
@@ -24,7 +24,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription
+  Subscription,
 } from 'rxjs';
 import {
   catchError,
@@ -34,7 +34,7 @@ import {
   switchMap,
   take,
   tap,
-  withLatestFrom
+  withLatestFrom,
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -57,19 +57,19 @@ type AnimationState = 'animationStarted' | 'none';
 enum QuizRoutes {
   INTRO = 'intro/',
   QUESTION = 'question/',
-  RESULTS = 'results/'
+  RESULTS = 'results/',
 }
 
 enum QuizStatus {
   STARTED = 'started',
   CONTINUE = 'continue',
-  COMPLETED = 'completed'
+  COMPLETED = 'completed',
 }
 
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
+  TrueFalse = 'true_false',
 }
 
 @Component({
@@ -78,7 +78,7 @@ enum QuestionType {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
+  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService],
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
@@ -188,7 +188,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
-      selectedOption: [null]
+      selectedOption: [null],
     });
 
     this.selectedQuiz$ =
@@ -207,13 +207,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getCurrentQuestion();
     this.initializeFirstQuestionText();
     this.fetchQuizData();
-    
+
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
       this.questionIndex = +params['questionIndex'];
       console.log('Received question index:', this.questionIndex);
       this.currentQuestionIndex = Math.max(this.questionIndex - 1, 0);
-      console.log("CQI::", this.currentQuestionIndex);
+      console.log('CQI::', this.currentQuestionIndex);
 
       /* if (this.questionIndex === 1) {
         // For the first question, set the currentQuestionIndex to 0
@@ -241,13 +241,17 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     });
 
-    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+    const nextQuestion$ = this.quizService.getNextQuestion(
+      this.currentQuestionIndex
+    );
+    const nextOptions$ = this.quizService.getNextOptions(
+      this.currentQuestionIndex
+    );
 
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
-      this.quizService.nextOptions$
+      this.quizService.nextOptions$,
     ]).pipe(
       switchMap(([nextQuestion, nextOptions]) => {
         if (nextQuestion) {
@@ -261,13 +265,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           // If nextQuestion is not available, switch to the previousQuestion
           return combineLatest([
             this.quizService.previousQuestion$,
-            this.quizService.previousOptions$
+            this.quizService.previousOptions$,
           ]).pipe(
             map(([previousQuestion, previousOptions]) => {
               return {
                 questionText: previousQuestion?.questionText,
                 correctAnswersText: null,
-                options: previousOptions
+                options: previousOptions,
               };
             })
           );
@@ -279,27 +283,31 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
       this.quizService.previousQuestion$,
-      this.quizService.previousOptions$
+      this.quizService.previousOptions$,
     ])
       .pipe(
-        map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => {
-          return {
-            nextQuestion: nextQuestion as QuizQuestion,
-            nextOptions: nextOptions as Option[],
-            previousQuestion: previousQuestion as QuizQuestion,
-            previousOptions: previousOptions as Option[]
-          };
-        })
+        map(
+          ([nextQuestion, nextOptions, previousQuestion, previousOptions]) => {
+            return {
+              nextQuestion: nextQuestion as QuizQuestion,
+              nextOptions: nextOptions as Option[],
+              previousQuestion: previousQuestion as QuizQuestion,
+              previousOptions: previousOptions as Option[],
+            };
+          }
+        )
       )
-      .subscribe(({ nextQuestion, nextOptions, previousQuestion, previousOptions }) => {
-        if (nextQuestion) {
-          this.question$ = of(nextQuestion);
-          this.options$ = of(nextOptions);
-        } else {
-          this.question$ = of(previousQuestion);
-          this.options$ = of(previousOptions);
+      .subscribe(
+        ({ nextQuestion, nextOptions, previousQuestion, previousOptions }) => {
+          if (nextQuestion) {
+            this.question$ = of(nextQuestion);
+            this.options$ = of(nextOptions);
+          } else {
+            this.question$ = of(previousQuestion);
+            this.options$ = of(previousOptions);
+          }
         }
-      });
+      );
   }
 
   ngOnDestroy(): void {
@@ -432,7 +440,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getNextQuestion(): void {
-    const nextQuestion = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    const nextQuestion = this.quizService.getNextQuestion(
+      this.currentQuestionIndex
+    );
     if (nextQuestion) {
       this.currentQuestion = nextQuestion;
       this.currentQuestion$ = of(nextQuestion);
@@ -674,15 +684,20 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   initializeFirstQuestionText(): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
-      if (questions && questions.length > 0) {
-        this.questions = questions;
-        this.currentQuestion = questions[0];
-        this.currentOptions = [];
-        this.questionToDisplay = questions[0].questionText;
-        this.calculateAndSetCorrectAnswersText(this.currentQuestion, this.currentOptions);
-      }
-    });
+    this.quizDataService
+      .getQuestionsForQuiz(this.quizId)
+      .subscribe((questions) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.currentQuestion = questions[0];
+          this.currentOptions = [];
+          this.questionToDisplay = questions[0].questionText;
+          this.calculateAndSetCorrectAnswersText(
+            this.currentQuestion,
+            this.currentOptions
+          );
+        }
+      });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
@@ -763,16 +778,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Invalid questionIndex:', questionIndex);
         return;
       }
-    
+
       this.quizService.setQuestions(questions);
       this.quizService.setTotalQuestions(questions.length);
-    
+
       if (!this.quizService.questionsLoaded) {
         this.quizService.updateQuestions(quizId);
       }
-    
+
       this.getCurrentQuestion();
-    });    
+    });
   }
 
   handleOptions(options: Option[]): void {
@@ -1154,8 +1169,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldHideRestartNav(): boolean {
     return (
-      this.currentQuestionIndex < 1 ||
-      this.questionIndex >= this.totalQuestions
+      this.currentQuestionIndex < 1 || this.questionIndex >= this.totalQuestions
     );
   }
 
@@ -1205,65 +1219,72 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-    this.isNavigating = true;  // Prevent multiple navigations
-  
+    this.isNavigating = true; // Prevent multiple navigations
+
     try {
       if (!this.selectedQuiz) {
-        console.log('Advance to Next Question Aborted: Selected Quiz is not available.');
+        console.log(
+          'Advance to Next Question Aborted: Selected Quiz is not available.'
+        );
         return;
       }
-  
+
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
-  
+
       this.onAnswerSelectedOrNextQuestionClicked();
-  
+
       // Check if it's the last question
       const totalQuestions: number = await this.quizService
         .getTotalQuestions()
         .toPromise();
-  
-      this.quizService.getCurrentQuestionIndex$().pipe(
-        take(1)
-      ).subscribe(currentQuestionIndex => {
-        if (currentQuestionIndex >= totalQuestions) {
-          // navigate to the results page
-          this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-          console.log('End of quiz reached.');
-          return;
-        }
-      });
-  
+
+      this.quizService
+        .getCurrentQuestionIndex$()
+        .pipe(take(1))
+        .subscribe((currentQuestionIndex) => {
+          if (currentQuestionIndex >= totalQuestions) {
+            // navigate to the results page
+            this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
+            console.log('End of quiz reached.');
+            return;
+          }
+        });
+
       // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
-  
-      this.currentQuestionIndex++;  // Increment the index
+
+      this.currentQuestionIndex++; // Increment the index
       this.quizService.setCurrentQuestionIndex(this.currentQuestionIndex); // set the index in the Service
-   
+
       // Fetch the current question with explanation
       const { nextQuestion, explanationText } =
-        await this.quizService.getNextQuestionWithExplanation(this.currentQuestionIndex);
-  
+        await this.quizService.getNextQuestionWithExplanation(
+          this.currentQuestionIndex
+        );
+
       // Clear explanation text for the current question
       this.clearExplanationText();
-  
+
       // Use the getQuestionTextForIndex method to fetch the question text
-      const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+      const nextQuestionText = this.quizService.getQuestionTextForIndex(
+        this.currentQuestionIndex
+      );
 
       // Update the text for the next question
       this.nextQuestionText = nextQuestionText;
 
       // Set questionToDisplay to the text for the next question
       this.questionToDisplay = this.nextQuestionText;
-  
+
       // Set the explanation text for the next question
       this.explanationTextService.setNextExplanationText(explanationText);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
-  
+
       // Fetch options for the next question
-      this.currentOptions = await this.quizService.getNextOptions(
-        this.currentQuestionIndex
-      ) || [];
+      this.currentOptions =
+        (await this.quizService.getNextOptions(this.currentQuestionIndex)) ||
+        [];
 
       // Assign the fetched options to the display variable
       this.optionsToDisplay = this.currentOptions;
@@ -1273,16 +1294,25 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Check if the next question has multiple correct answers
       // Log the details of nextQuestion before calling calculateAndSetCorrectAnswersText
-      console.log('Before calculateAndSetCorrectAnswersText. nextQuestion:', nextQuestion);
-      await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
-  
+      console.log(
+        'Before calculateAndSetCorrectAnswersText. nextQuestion:',
+        nextQuestion
+      );
+      await this.calculateAndSetCorrectAnswersText(
+        nextQuestion,
+        this.currentOptions
+      );
+
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
       this.explanationTextService.resetExplanationState();
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
-      console.error('Error occurred while advancing to the next question:', error);
+      console.error(
+        'Error occurred while advancing to the next question:',
+        error
+      );
     } finally {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
@@ -1291,40 +1321,50 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async advanceToPreviousQuestion(): Promise<void> {
     this.isNavigatingToNext = false;
-  
+
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
     this.isNavigating = true;
-  
+
     try {
       if (!this.selectedQuiz) {
-        console.log('Navigation to Previous Question Aborted: Selected Quiz is not available.');
+        console.log(
+          'Navigation to Previous Question Aborted: Selected Quiz is not available.'
+        );
         return;
       }
-  
+
       // Start animation or any other operations
       this.animationState$.next('animationStarted');
-  
+
       // Set shouldDisplayExplanation to false when navigating to the previous question
       this.explanationTextService.setShouldDisplayExplanation(false);
 
       // Fetch the current question with explanation
-      const { previousQuestion, explanationText } = await this.quizService.getPreviousQuestionWithExplanation(this.currentQuestionIndex);
+      const { previousQuestion, explanationText } =
+        await this.quizService.getPreviousQuestionWithExplanation(
+          this.currentQuestionIndex
+        );
 
       if (previousQuestion) {
         // Construct the URL for the previous question (decrement the index)
         const previousQuestionIndex = this.currentQuestionIndex - 1;
         this.previousQuestionIndex = previousQuestionIndex;
 
-        if (previousQuestionIndex >= 0) {   
+        if (previousQuestionIndex >= 0) {
           // Set the explanation text for the previous question
-          this.explanationTextService.setPreviousExplanationText(explanationText);
+          this.explanationTextService.setPreviousExplanationText(
+            explanationText
+          );
           this.explanationTextService.setIsExplanationTextDisplayed(false);
 
           // Use the getQuestionTextForIndex method to fetch the question text
-          const previousQuestionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex - 1);
+          const previousQuestionText =
+            await this.quizService.getQuestionTextForIndex(
+              this.currentQuestionIndex - 1
+            );
 
           // Update the text for the previous question
           this.previousQuestionText = previousQuestionText;
@@ -1333,15 +1373,23 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.questionToDisplay = this.previousQuestionText;
 
           // Update the BehaviorSubject with the new text
-          this.quizService.previousQuestionTextSubject.next(this.previousQuestionText);
+          this.quizService.previousQuestionTextSubject.next(
+            this.previousQuestionText
+          );
 
           // Fetch options for the previous question
-          this.currentOptions = await this.quizService.getPreviousOptions(this.currentQuestionIndex) || [];
+          this.currentOptions =
+            (await this.quizService.getPreviousOptions(
+              this.currentQuestionIndex
+            )) || [];
           this.optionsToDisplay = this.currentOptions;
 
           // Check if the previous question has multiple correct answers
-          await this.calculateAndSetCorrectAnswersText(previousQuestion, this.currentOptions);
-          
+          await this.calculateAndSetCorrectAnswersText(
+            previousQuestion,
+            this.currentOptions
+          );
+
           // Update the observables for the previous question data
           this.quizService.previousQuestionSubject.next(previousQuestion);
           this.quizService.previousOptionsSubject.next(this.currentOptions);
@@ -1352,10 +1400,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('No valid previous question available.');
         }
       } else {
-          console.log('No valid previous question available.');
-      }      
+        console.log('No valid previous question available.');
+      }
     } catch (error) {
-      console.error('Error occurred while navigating to the previous question:', error);
+      console.error(
+        'Error occurred while navigating to the previous question:',
+        error
+      );
     } finally {
       // Ensure that isNavigating is always set to false
       this.isNavigating = false;
@@ -1376,19 +1427,24 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
   }
-  
+
   async navigateToQuestion(questionIndex: number): Promise<void> {
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
-    
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
+      this.quizId
+    )}/${questionIndex}`;
+
     if (questionIndex !== 1) {
       this.quizService.updateCurrentQuestionIndex(questionIndex);
       this.currentQuestionIndex = questionIndex;
     }
-    
+
     await this.router.navigateByUrl(newUrl);
   }
 
-  async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
+  async calculateAndSetCorrectAnswersText(
+    question: QuizQuestion,
+    options: Option[]
+  ): Promise<void> {
     console.log('calculateAndSetCorrectAnswersText called');
     console.log('Received question:', question);
     console.log('Type of question:', typeof question);
@@ -1400,26 +1456,36 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Keys of question object:', Object.keys(question));
 
     if (!question || typeof question !== 'object' || !question.type) {
-        console.error('Question is not defined or is in an invalid format...', question);
-        this.quizStateService.setMultipleAnswer(false);
-        return;
+      console.error(
+        'Question is not defined or is in an invalid format...',
+        question
+      );
+      this.quizStateService.setMultipleAnswer(false);
+      return;
     }
 
     try {
-        const isMultipleAnswerSubject = this.quizStateService.isMultipleAnswer(question);
+      const isMultipleAnswerSubject =
+        this.quizStateService.isMultipleAnswer(question);
 
-        isMultipleAnswerSubject.subscribe((multipleAnswers) => {
-            if (multipleAnswers) {
-                const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-                const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-                this.correctAnswersText = correctAnswersText;
-            } else {
-                this.correctAnswersText = '';
-            }
-        });
+      isMultipleAnswerSubject.subscribe((multipleAnswers) => {
+        if (multipleAnswers) {
+          const numCorrectAnswers =
+            this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+              options
+            );
+          const correctAnswersText =
+            this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+              numCorrectAnswers
+            );
+          this.correctAnswersText = correctAnswersText;
+        } else {
+          this.correctAnswersText = '';
+        }
+      });
     } catch (error) {
-        console.error('Error in calculateAndSetCorrectAnswersText:', error);
-        console.error(error.stack);
+      console.error('Error in calculateAndSetCorrectAnswersText:', error);
+      console.error(error.stack);
     }
   }
 
