@@ -1272,6 +1272,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.setNextOptions(this.currentOptions);
 
       // Check if the next question has multiple correct answers
+      // Log the details of nextQuestion before calling calculateAndSetCorrectAnswersText
       console.log('Before calculateAndSetCorrectAnswersText. nextQuestion:', nextQuestion);
       await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
   
@@ -1390,9 +1391,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
     console.log('calculateAndSetCorrectAnswersText called');
     console.log('Received question:', question);
+    console.log('Type of question:', typeof question);
 
     if (!question || typeof question !== 'object' || !question.type) {
-      console.error('Question is not defined or is in an invalid format', question);
+      console.error('Question is not defined or is in an invalid format...', question);
       this.quizStateService.setMultipleAnswer(false);
       return;
     }
@@ -1411,6 +1413,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.error('Error in calculateAndSetCorrectAnswersText:', error);
+      console.error(error.stack);
     }
   }
   
