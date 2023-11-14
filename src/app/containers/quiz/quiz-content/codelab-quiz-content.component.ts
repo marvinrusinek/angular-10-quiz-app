@@ -188,6 +188,10 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
+    this.quizService.getTotalQuestions().subscribe(maxQuestions => {
+      this.explanationTextService.initializeFormattedExplanations(maxQuestions);
+    });
+
     this.quizService.currentQuestionIndex$
       .pipe(takeUntil(this.destroy$))
       .subscribe((index) => {
@@ -227,10 +231,6 @@ export class CodelabQuizContentComponent
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
-    
-    this.quizService.getTotalQuestions().subscribe(maxQuestions => {
-      this.explanationTextService.initializeFormattedExplanations(maxQuestions);
-    });  
 
     this.formattedExplanation$[this.currentQuestionIndexValue].pipe(
       takeUntil(this.destroy$)
@@ -238,13 +238,13 @@ export class CodelabQuizContentComponent
       console.log('Formatted explanation for current question:', formattedExplanation);
     });
 
-    this.formattedExplanations$[this.currentQuestionIndexValue].pipe(
+    this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue].pipe(
       takeUntil(this.destroy$)
     ).subscribe((formattedExplanation) => {
       console.log('Formatted explanation for current question:', formattedExplanation);
     });
 
-    this.explanationTextService.getFormattedExplanation$().subscribe((explanation) => {
+    this.explanationTextService.getFormattedExplanation$(this.currentQuestionIndexValue).subscribe((explanation) => {
       console.log('Received explanation from service:::', explanation);
       this.formattedExplanation = explanation;
     });
