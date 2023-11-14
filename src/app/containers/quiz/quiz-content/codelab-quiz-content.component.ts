@@ -274,12 +274,18 @@ export class CodelabQuizContentComponent
         });
     });
 
-    console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
+    // Initialize formattedExplanation$ before using it
+    this.explanationTextService.formattedExplanations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((formattedExplanations) => {
+        this.formattedExplanation$ = formattedExplanations;
+        console.log('Length of formattedExplanation$:', this.formattedExplanation$.length);
+      });
 
     if (
       this.formattedExplanation$ &&
       this.currentQuestionIndexValue >= 0 &&
-      this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
+      this.currentQuestionIndexValue < this.formattedExplanation$.length
     ) {
       // Now it's safe to use this.formattedExplanation$[this.currentQuestionIndexValue]
       this.formattedExplanation$[this.currentQuestionIndexValue]
