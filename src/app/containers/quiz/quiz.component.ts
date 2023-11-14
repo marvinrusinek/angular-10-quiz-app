@@ -297,6 +297,10 @@ export class QuizComponent implements OnInit, OnDestroy {
           }
         }
       );
+
+      console.log('Type of currentQuestion:', typeof this.currentQuestion);
+      console.log('Full currentQuestion structure:', this.currentQuestion);
+      console.log('Keys of currentQuestion object:', Object.keys(this.currentQuestion));
   }
 
   ngOnDestroy(): void {
