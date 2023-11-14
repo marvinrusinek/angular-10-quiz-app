@@ -52,7 +52,7 @@ enum QuestionType {
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
@@ -330,23 +330,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private initializeMultipleAnswer(): void {
     if (!this.question) {
-        console.error('Question is not defined when initializing multipleAnswer.');
-        return;
+      console.error('Question is not defined when initializing multipleAnswer.');
+      return;
     }
 
     this.multipleAnswer = new BehaviorSubject<boolean>(false);
 
     this.quizStateService.isMultipleAnswer(this.question).subscribe((value) => {
-        console.log('Multiple answer value:', value);
-        this.multipleAnswer.next(value);
+      console.log('Multiple answer value:', value);
+      this.multipleAnswer.next(value);
 
-        if (!this.multipleAnswerSubscription) {
-            this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$
-                .subscribe((value) => {
-                    console.log('Multiple answer value:', value);
-                    this.multipleAnswer.next(value);
-                });
-        }
+      if (!this.multipleAnswerSubscription) {
+        this.multipleAnswerSubscription = this.quizStateService.multipleAnswer$
+          .subscribe((value) => {
+            console.log('Multiple answer value:', value);
+            this.multipleAnswer.next(value);
+          });
+      }
     });
   }
 
