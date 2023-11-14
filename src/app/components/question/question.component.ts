@@ -328,20 +328,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private loadQuizQuestions(): void {
     this.quizService.fetchQuizQuestions();
   }
-
-  async asyncOperationToSetQuestion(): Promise<void> {
-    try {
-      // Simulate an asynchronous operation, e.g., fetching data from a service
-      this.quizDataService.getQuestion(this.quizId, this.currentQuestionIndex)
-        .subscribe((question: QuizQuestion) => {
-          this.question = question;
-          console.log("ASYNC Q", this.question);
-        });
-
-    } catch (error) {
-      console.error('Error setting question:', error);
-    }
-  }
   
   private initializeMultipleAnswer(): void {
     if (!this.question) {
