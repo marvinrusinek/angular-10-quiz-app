@@ -325,6 +325,7 @@ export class CodelabQuizContentComponent
   ngOnChanges(): void {
     if (
       this.correctAnswersText !== undefined &&
+      this.question !== undefined &&
       this.quizStateService.isMultipleAnswer(this.question)
     ) {
       this.correctAnswersTextSource.next(this.correctAnswersText);
