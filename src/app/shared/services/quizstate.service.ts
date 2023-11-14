@@ -65,20 +65,21 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+  isMultipleAnswer(question: QuizQuestion): BehaviorSubject<boolean> {
     console.log('Received question:', question);
+  
+    const resultSubject = new BehaviorSubject<boolean>(false);
   
     if (!question || typeof question !== 'object' || !question.type) {
       console.error('Question is not defined or is in an invalid format', question);
-      this.setMultipleAnswer(false);
-      return of(false);
+      resultSubject.next(false);
+    } else {
+      // Perform the logic to determine if it's a multiple-answer question
+      const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
+      resultSubject.next(isMultipleAnswer);
     }
   
-    // Perform the logic to determine if it's a multiple-answer question
-    const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
-  
-    this.setMultipleAnswer(isMultipleAnswer);
-    return of(isMultipleAnswer);
+    return resultSubject;
   }
 
   setMultipleAnswer(value: boolean): void {

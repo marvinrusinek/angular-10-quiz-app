@@ -1269,6 +1269,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.setNextOptions(this.currentOptions);
 
       // Check if the next question has multiple correct answers
+      console.log('Before calculateAndSetCorrectAnswersText. nextQuestion:', nextQuestion);
       await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
   
       // Construct the URL for the next question
@@ -1395,6 +1396,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   } */
 
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
+    console.log('calculateAndSetCorrectAnswersText called');
+    console.log("Q1", question);
     this.quizStateService.isMultipleAnswer(question).subscribe((multipleAnswers) => {
       if (multipleAnswers) {
         const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
