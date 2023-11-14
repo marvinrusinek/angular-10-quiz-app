@@ -190,9 +190,10 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    this.quizService.getTotalQuestions().subscribe((maxQuestions) => {
-      console.log('Max Questions:', maxQuestions);
+    this.quizService.getTotalQuestions().subscribe(maxQuestions => {
+      console.log('Subscription to getTotalQuestions triggered. Max Questions:', maxQuestions);
       this.explanationTextService.initializeFormattedExplanations(maxQuestions);
+      console.log('Length of formattedExplanation$ after initialization:', this.explanationTextService.formattedExplanations$.length);
     });
 
     this.quizService.currentQuestionIndex$
@@ -289,7 +290,7 @@ export class CodelabQuizContentComponent
     console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
 
     if (
-      this.formattedExplanation$ &&
+      Array.isArray(this.formattedExplanation$) &&
       this.currentQuestionIndexValue >= 0 &&
       this.currentQuestionIndexValue < this.formattedExplanation$.length
     ) {
