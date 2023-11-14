@@ -156,7 +156,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeFormattedExplanations(maxQuestions: number): void {
+  /* initializeFormattedExplanations(maxQuestions: number): void {
     console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
   
     // Clear the array before initializing new observables
@@ -167,8 +167,18 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$[i] = new Subject<string>();
       console.log('Initialized observable for index', i);
     }
-  }
+  } */
+
+  initializeFormattedExplanations(maxQuestions: number): void {
+    console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
   
+    // Clear the array before initializing new observables
+    this.formattedExplanations$ = Array.from({ length: maxQuestions }, () => new BehaviorSubject<string>(''));
+  
+    // Log the initialization
+    console.log('Formatted Explanations Array:', Array.isArray(this.formattedExplanations$));
+    console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);
+  }  
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
