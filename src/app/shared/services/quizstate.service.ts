@@ -66,8 +66,10 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    if (!question) {
-      console.error('Question is not defined or is in an invalid format');
+    console.log('Received question:', question);
+  
+    if (!question || typeof question !== 'object' || !question.type) {
+      console.error('Question is not defined or is in an invalid format', question);
       this.setMultipleAnswer(false);
       return of(false);
     }
