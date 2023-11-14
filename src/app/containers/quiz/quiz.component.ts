@@ -1384,31 +1384,26 @@ export class QuizComponent implements OnInit, OnDestroy {
     await this.router.navigateByUrl(newUrl);
   }
 
-  /* async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
-    const multipleAnswers = this.quizStateService.isMultipleAnswer(question);
-    if (multipleAnswers) {
-      const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-      const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-      this.correctAnswersText = correctAnswersText;
-    } else {
-      this.correctAnswersText = '';
-    }
-  } */
-
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
-    console.log('calculateAndSetCorrectAnswersText called');
     console.log("Q1", question);
-    this.quizStateService.isMultipleAnswer(question).subscribe((multipleAnswers) => {
-      if (multipleAnswers) {
-        const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-        this.correctAnswersText = correctAnswersText;
-      } else {
-        this.correctAnswersText = '';
-      }
-    });
+  
+    try {
+      const isMultipleAnswerSubject = this.quizStateService.isMultipleAnswer(question);
+  
+      isMultipleAnswerSubject.subscribe((multipleAnswers) => {
+        if (multipleAnswers) {
+          const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+          const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+          this.correctAnswersText = correctAnswersText;
+        } else {
+          this.correctAnswersText = '';
+        }
+      });
+    } catch (error) {
+      console.error('Error in calculateAndSetCorrectAnswersText:', error);
+    }
   }
-
+  
   submitQuiz() {
     this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
       this.status = QuizStatus.COMPLETED;
