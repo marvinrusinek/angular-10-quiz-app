@@ -191,6 +191,7 @@ export class CodelabQuizContentComponent
     });
 
     this.quizService.getTotalQuestions().subscribe((maxQuestions) => {
+      console.log('Max Questions:', maxQuestions);
       this.explanationTextService.initializeFormattedExplanations(maxQuestions);
     });
 
