@@ -224,7 +224,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-      this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
+      this.quizDataService.asyncOperationToSetQuestion(
+        this.quizId, 
+        this.currentQuestionIndex
+      );
     });
 
     const nextQuestion$ = this.quizService.getNextQuestion(
