@@ -1437,7 +1437,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('calculateAndSetCorrectAnswersText called');
   
     // Log the currentQuestion and its structure
-    console.log('Current Question:', this.quizServiceService.currentQuestion);
+    console.log('Current Question:', this.quizService.currentQuestion);
     console.log('Type of currentQuestion:', typeof this.quizService.currentQuestion);
 
     // Log the full structure of the currentQuestion object
