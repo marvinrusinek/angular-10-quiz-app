@@ -736,8 +736,10 @@ export class CodelabQuizContentComponent
             let textToDisplay = '';
 
             textToDisplay = shouldDisplayExplanation
-              ? formattedExplanation || ''
-              : this.questionToDisplay || '';
+          ? formattedExplanation instanceof BehaviorSubject
+            ? formattedExplanation.getValue() // Extract value from BehaviorSubject
+            : formattedExplanation || ''
+          : this.questionToDisplay || '';
 
             return of(textToDisplay);
           }
