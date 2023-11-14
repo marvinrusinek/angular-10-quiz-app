@@ -1449,6 +1449,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         'Question is not defined or is in an invalid format...',
         question
       );
+
+      // Log the structure of the question object before setting multipleAnswer
+      console.error('Invalid question structure:', question);
+
       this.quizStateService.setMultipleAnswer(false);
       return;
     }
