@@ -1393,30 +1393,36 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Received question:', question);
     console.log('Type of question:', typeof question);
 
+    // Log the full structure of the question object
+    console.log('Full question structure:', question);
+
+    // Log all keys of the question object
+    console.log('Keys of question object:', Object.keys(question));
+
     if (!question || typeof question !== 'object' || !question.type) {
-      console.error('Question is not defined or is in an invalid format...', question);
-      this.quizStateService.setMultipleAnswer(false);
-      return;
+        console.error('Question is not defined or is in an invalid format...', question);
+        this.quizStateService.setMultipleAnswer(false);
+        return;
     }
-  
+
     try {
-      const isMultipleAnswerSubject = this.quizStateService.isMultipleAnswer(question);
-  
-      isMultipleAnswerSubject.subscribe((multipleAnswers) => {
-        if (multipleAnswers) {
-          const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
-          const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
-          this.correctAnswersText = correctAnswersText;
-        } else {
-          this.correctAnswersText = '';
-        }
-      });
+        const isMultipleAnswerSubject = this.quizStateService.isMultipleAnswer(question);
+
+        isMultipleAnswerSubject.subscribe((multipleAnswers) => {
+            if (multipleAnswers) {
+                const numCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+                const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrectAnswers);
+                this.correctAnswersText = correctAnswersText;
+            } else {
+                this.correctAnswersText = '';
+            }
+        });
     } catch (error) {
-      console.error('Error in calculateAndSetCorrectAnswersText:', error);
-      console.error(error.stack);
+        console.error('Error in calculateAndSetCorrectAnswersText:', error);
+        console.error(error.stack);
     }
   }
-  
+
   submitQuiz() {
     this.quizDataService.submitQuiz(this.quiz).subscribe(() => {
       this.status = QuizStatus.COMPLETED;
