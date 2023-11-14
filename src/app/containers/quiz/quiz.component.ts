@@ -297,10 +297,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           }
         }
       );
-
-      console.log('Type of currentQuestion:', typeof this.currentQuestion);
-      console.log('Full currentQuestion structure:', this.currentQuestion);
-      console.log('Keys of currentQuestion object:', Object.keys(this.currentQuestion));
   }
 
   ngOnDestroy(): void {
@@ -1435,29 +1431,29 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async calculateAndSetCorrectAnswersText(
-    question: QuizQuestion,
+    currentQuestion: any,
     options: Option[]
   ): Promise<void> {
     console.log('calculateAndSetCorrectAnswersText called');
   
     // Log the currentQuestion and its structure
-    console.log('Current Question:', this.currentQuestion);
-    console.log('Type of currentQuestion:', typeof this.currentQuestion);
+    console.log('Current Question:', currentQuestion);
+    console.log('Type of currentQuestion:', typeof currentQuestion);
 
     // Log the full structure of the currentQuestion object
-    console.log('Full currentQuestion structure:', this.currentQuestion);
+    console.log('Full currentQuestion structure:', currentQuestion);
 
     // Log all keys of the currentQuestion object
-    console.log('Keys of currentQuestion object:', Object.keys(this.currentQuestion));
+    console.log('Keys of currentQuestion object:', Object.keys(currentQuestion));
 
-    if (!question || typeof question !== 'object' || !question.type) {
+    if (!currentQuestion || typeof currentQuestion !== 'object' || !currentQuestion.type) {
       console.error(
         'Question is not defined or is in an invalid format...',
-        question
+        currentQuestion
       );
 
       // Log the structure of the question object before setting multipleAnswer
-      console.error('Invalid question structure:', question);
+      console.error('Invalid question structure:', currentQuestion);
 
       this.quizStateService.setMultipleAnswer(false);
       return;
@@ -1465,7 +1461,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     try {
       const isMultipleAnswerSubject =
-        this.quizStateService.isMultipleAnswer(question);
+        this.quizStateService.isMultipleAnswer(currentQuestion);
 
       isMultipleAnswerSubject.subscribe((multipleAnswers) => {
         if (multipleAnswers) {
