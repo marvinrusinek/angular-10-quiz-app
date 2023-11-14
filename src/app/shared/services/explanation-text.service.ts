@@ -115,7 +115,6 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
   
-
   resetProcessedQuestionsState() {
     this.processedQuestions = new Set<string>();
   }

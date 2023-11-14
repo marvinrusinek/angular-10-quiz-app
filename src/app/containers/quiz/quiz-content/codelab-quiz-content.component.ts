@@ -114,7 +114,8 @@ export class CodelabQuizContentComponent
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanation$: BehaviorSubject<string>[] = [];
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
   showNumberOfCorrectAnswersText = false;
@@ -145,8 +146,7 @@ export class CodelabQuizContentComponent
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
-    this.formattedExplanation$ = this.explanationTextService
-      .formattedExplanation$ as BehaviorSubject<string>;
+    this.formattedExplanation$ = new Array<BehaviorSubject<string>>();
   }
 
   ngOnInit(): void {
@@ -232,12 +232,21 @@ export class CodelabQuizContentComponent
         }
       });
 
-    this.formattedExplanation$[this.currentQuestionIndexValue].pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((formattedExplanation) => {
-      console.log('Formatted explanation for current question:', formattedExplanation);
-    });
-
+    if (
+      this.formattedExplanation$ &&
+      this.currentQuestionIndexValue >= 0 &&
+      this.currentQuestionIndexValue < this.formattedExplanation$.length
+    ) {
+      // Now it's safe to use this.formattedExplanation$[this.currentQuestionIndexValue]
+      this.formattedExplanation$[this.currentQuestionIndexValue].pipe(
+        takeUntil(this.destroy$)
+      ).subscribe((formattedExplanation) => {
+        console.log('Formatted explanation for current question:', formattedExplanation);
+      });
+    } else {
+      console.error('Invalid index or formattedExplanation$ is not properly initialized.');
+    }
+      
     this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue].pipe(
       takeUntil(this.destroy$)
     ).subscribe((formattedExplanation) => {
