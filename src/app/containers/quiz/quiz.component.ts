@@ -1437,31 +1437,31 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('calculateAndSetCorrectAnswersText called');
   
     // Log the currentQuestion and its structure
-    console.log('Current Question:', currentQuestion);
-    console.log('Type of currentQuestion:', typeof currentQuestion);
+    console.log('Current Question:', this.quizStateService.currentQuestion);
+    console.log('Type of currentQuestion:', typeof this.quizService.currentQuestion);
 
     // Log the full structure of the currentQuestion object
-    console.log('Full currentQuestion structure:', currentQuestion);
+    console.log('Full currentQuestion structure:', this.quizService.currentQuestion);
 
     // Log all keys of the currentQuestion object
-    console.log('Keys of currentQuestion object:', Object.keys(currentQuestion));
+    console.log('Keys of currentQuestion object:', Object.keys(this.quizService.currentQuestion));
 
-    if (!currentQuestion || typeof currentQuestion !== 'object' || !currentQuestion.type) {
+    if (!this.quizService.currentQuestion || typeof this.quizService.currentQuestion !== 'object' || !this.quizService.currentQuestion.type) {
       console.error(
         'Current Question is not defined or is in an invalid format...',
-        currentQuestion
+        this.quizService.currentQuestion
       );
 
       // Log the structure of the question object before setting multipleAnswer
-      console.error('Invalid question structure:', currentQuestion);
+      console.error('Invalid question structure:', this.quizService.currentQuestion);
 
-      this.quizStateService.setMultipleAnswer(false);
+      this.quizDataService.setMultipleAnswer(false);
       return;
     }
 
     try {
       const isMultipleAnswerSubject =
-        this.quizStateService.isMultipleAnswer(currentQuestion);
+        this.quizStateService.isMultipleAnswer(this.quizService.currentQuestion);
 
       isMultipleAnswerSubject.subscribe((multipleAnswers) => {
         if (multipleAnswers) {
