@@ -675,7 +675,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   initializeFirstQuestionText(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
       if (questions && questions.length > 0) {
-        // Assuming you have a property to store the current question in the component
+
         this.currentQuestion = questions[0];
         console.log('Type of Current Question:', typeof this.currentQuestion);
         console.log('Keys of Current Question:', Object.keys(this.currentQuestion));
@@ -684,6 +684,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.questionToDisplay = this.currentQuestion.questionText;
   
         console.log('Current Question Before:', this.quizService.currentQuestion);
+        
         // Calculate and set correct answers based on the current question
         this.calculateAndSetCorrectAnswersText(
           this.quizService.currentQuestion,
