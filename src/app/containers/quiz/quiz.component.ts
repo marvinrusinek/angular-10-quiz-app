@@ -1437,7 +1437,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('calculateAndSetCorrectAnswersText called');
   
     // Log the currentQuestion and its structure
-    console.log('Current Question:', this.quizStateService.currentQuestion);
+    console.log('Current Question:', this.quizServiceService.currentQuestion);
     console.log('Type of currentQuestion:', typeof this.quizService.currentQuestion);
 
     // Log the full structure of the currentQuestion object
@@ -1455,7 +1455,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Log the structure of the question object before setting multipleAnswer
       console.error('Invalid question structure:', this.quizService.currentQuestion);
 
-      this.quizDataService.setMultipleAnswer(false);
+      this.quizStateService.setMultipleAnswer(false);
       return;
     }
 
