@@ -314,6 +314,8 @@ export class CodelabQuizContentComponent
       console.log('Formatted Explanations Array::>>', this.explanationTextService.formattedExplanations$);
       console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$.length);
       
+      console.log('Before subscribing, currentQuestionIndexValue:', this.currentQuestionIndexValue);
+
       if (
         this.currentQuestionIndexValue !== undefined &&
         this.currentQuestionIndexValue !== null &&
