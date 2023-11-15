@@ -158,7 +158,6 @@ export class CodelabQuizContentComponent
     this.setupExplanationTextSubscription();
     this.setupCombinedQuestionData();
     this.setupOptions();
-    this.setupExplanationTextDisplay();
 
     // Combine explanationTextService's observable with selectedOptionExplanation$
     this.explanationText$ = combineLatest([
@@ -201,8 +200,11 @@ export class CodelabQuizContentComponent
           console.log('formattedExplanation$', value);
         });
       }
-  
-      console.log('Length of formattedExplanation$ after initialization:', this.explanationTextService.formattedExplanations$.length);
+
+      console.log('Length of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$?.length);
+      console.log('Content of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$);
+
+      this.setupExplanationTextDisplay();
     });
 
     // Subscribe to the first element (or any specific index) in formattedExplanation$
@@ -724,10 +726,18 @@ export class CodelabQuizContentComponent
     this.nextQuestion$.subscribe(value => console.log('nextQuestion$', value));
     this.previousQuestion$.subscribe(value => console.log('previousQuestion$', value));
     this.nextExplanationText$.subscribe(value => console.log('nextExplanationText$', value));
-    this.explanationTextService.formattedExplanations$[0].subscribe(value => {
-      console.log('formattedExplanation$', value);
-    });
     this.explanationTextService.shouldDisplayExplanation$.subscribe(value => console.log('shouldDisplayExplanation$', value));
+    
+    if (
+      Array.isArray(this.explanationTextService.formattedExplanations$) &&
+      this.explanationTextService.formattedExplanations$.length > 0
+    ) {
+      this.explanationTextService.formattedExplanations$[0]?.subscribe((value) => {
+        console.log('formattedExplanation$', value);
+      });
+    } else {
+      console.error('formattedExplanations$ is not properly initialized or empty.');
+    }
 
     this.combinedText$ = combineLatest([
         this.nextQuestion$,
