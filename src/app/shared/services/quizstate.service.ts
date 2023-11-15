@@ -65,9 +65,7 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion): BehaviorSubject<boolean> {
-    console.log('Received question:::::', question);
-  
+  isMultipleAnswer(question: QuizQuestion): BehaviorSubject<boolean> {  
     const resultSubject = new BehaviorSubject<boolean>(false);
   
     try {
