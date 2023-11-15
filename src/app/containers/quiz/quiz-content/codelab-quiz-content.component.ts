@@ -215,10 +215,8 @@ export class CodelabQuizContentComponent
         this.explanationTextService.formattedExplanations$[0].subscribe(value => {
           console.log('formattedExplanation$', value);
   
-          // Additional logic or method calls related to explanations
           this.setupExplanationTextDisplay();
-  
-          // Continue with the rest of your code
+
           this.continueInitialization();
         });
       } else {
@@ -243,7 +241,7 @@ export class CodelabQuizContentComponent
       );
 
     // Now, let's handle the formattedExplanations$ subscription without conditional checks
-    this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
+    /* this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
       subject
         .pipe(
           withLatestFrom(this.quizService.currentQuestionIndex$),
@@ -306,7 +304,7 @@ export class CodelabQuizContentComponent
             );
           }
         });
-    });
+    }); */
 
     // Subscribe to each Subject in formattedExplanations$
     this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
