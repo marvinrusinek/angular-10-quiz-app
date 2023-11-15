@@ -201,16 +201,20 @@ export class CodelabQuizContentComponent
     
       // Example: Subscribe only if the array is defined and has elements
       if (this.explanationTextService.formattedExplanations$?.length > 0) {
-        // Subscribe to the first element (or any specific index) in formattedExplanations$
+        // Log the state of formattedExplanations$ array
+        console.log('Formatted Explanations Array:', this.explanationTextService.formattedExplanations$);
+        console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
+    
+        // Subscribe to the first element in formattedExplanations$
         this.explanationTextService.formattedExplanations$[0].subscribe(value => {
           console.log('formattedExplanation$', value);
         });
+    
+        // Additional logic or method calls related to explanations
+        this.setupExplanationTextDisplay();
+      } else {
+        console.error('Formatted explanations array is not properly initialized.');
       }
-    
-      console.log('Length of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$?.length);
-      console.log('Content of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$);
-    
-      this.setupExplanationTextDisplay();
     });
 
     this.quizService.currentQuestionIndex$
