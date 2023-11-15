@@ -206,24 +206,27 @@ export class CodelabQuizContentComponent
 
     this.quizService.getTotalQuestions().subscribe(numQuestions => {
       console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
-  
+    
       // Initialize formatted explanations and check for array and elements
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
-  
-      if (this.explanationTextService.formattedExplanations$) {
+    
+      if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
         // Access the first element in formattedExplanations$ and subscribe
         this.explanationTextService.formattedExplanations$[0].subscribe(value => {
           console.log('formattedExplanation$', value);
-  
+    
+          // Initialize formattedExplanation$ array with empty subjects
+          const formattedExplanations = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+          this.formattedExplanation$ = formattedExplanations;
+    
           this.setupExplanationTextDisplay();
-
           this.continueInitialization();
         });
       } else {
         console.error('Formatted explanations array is not properly initialized.');
       }
     });
-  }
+  }    
 
   continueInitialization(): void {
     this.quizService.currentQuestionIndex$
@@ -307,7 +310,7 @@ export class CodelabQuizContentComponent
     }); */
 
     // Subscribe to each Subject in formattedExplanations$
-    this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
+    /* this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
       subject
         .pipe(takeUntil(this.destroy$))
         .subscribe((formattedExplanation) => {
@@ -320,7 +323,27 @@ export class CodelabQuizContentComponent
             console.error(`formattedExplanation$[${index}] is undefined`);
           }
         });
-    });
+    }); */
+
+    // Initialize formattedExplanation$ array
+    // this.formattedExplanation$ = Array.from({ length: formattedExplanations.length }, () => new BehaviorSubject<string>(''));
+
+    // Single forEach loop
+    /* this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
+      subject
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((formattedExplanation) => {
+          console.log(`Formatted explanation for index ${index}:`, formattedExplanation);
+
+          // Check if the index is within the bounds of the array
+          if (this.formattedExplanation$.length > index) {
+            this.formattedExplanation$[index].next(formattedExplanation);
+          } else {
+            console.error(`Index ${index} is out of bounds for formattedExplanation$ array.`);
+          }
+        });
+    }); */
+    
 
     console.log('Formatted Explanations Array:', Array.isArray(this.explanationTextService.formattedExplanations$));
     console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
