@@ -145,6 +145,7 @@ export class CodelabQuizContentComponent
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
+    this.currentQuestionIndexValue = this.quizService.currentQuestionIndex;
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
