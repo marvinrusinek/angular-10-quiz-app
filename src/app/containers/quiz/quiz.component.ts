@@ -1469,7 +1469,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     try {
       const isMultipleAnswerSubject =
-        this.quizStateService.isMultipleAnswer(this.quizService.currentQuestion);
+        this.quizStateService.isMultipleAnswer(currentQuestionValue);
 
       isMultipleAnswerSubject.subscribe((multipleAnswers) => {
         if (multipleAnswers) {
