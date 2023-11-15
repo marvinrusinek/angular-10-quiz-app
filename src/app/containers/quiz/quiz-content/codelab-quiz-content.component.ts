@@ -314,8 +314,13 @@ export class CodelabQuizContentComponent
         .pipe(takeUntil(this.destroy$))
         .subscribe((formattedExplanation) => {
           console.log(`Formatted explanation for index ${index}:`, formattedExplanation);
-
-          this.formattedExplanation$[index].next(formattedExplanation);
+  
+          // Check if formattedExplanation$[index] is defined before calling .next()
+          if (this.formattedExplanation$[index]) {
+            this.formattedExplanation$[index].next(formattedExplanation);
+          } else {
+            console.error(`formattedExplanation$[${index}] is undefined`);
+          }
         });
     });
 
