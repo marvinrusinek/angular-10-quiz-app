@@ -162,6 +162,17 @@ export class CodelabQuizContentComponent
 
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
       this.questions = questions;
+  
+      if (this.questions && this.questions.length > 0) {
+        this.currentQuestion$.next(this.questions[0]);
+  
+        this.currentQuestion$.subscribe((newQuestion) => {
+          this.questionText = newQuestion.questionText;
+          this.formattedExplanation = '';
+        });
+      } else {
+        console.error('No questions loaded or questions array is empty.');
+      }
     });
 
     // Combine explanationTextService's observable with selectedOptionExplanation$
