@@ -161,9 +161,6 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeFormattedExplanations(numQuestions: number): void {
-    console.log('Initializing formatted explanations for', numQuestions, 'questions.');
-  
-    // Clear the array before initializing new observables
     this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, index) => {
       const subject = new BehaviorSubject<string>('');
       subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
@@ -172,7 +169,6 @@ export class ExplanationTextService implements OnDestroy {
       return subject;
     });
   
-    // Log the initialization
     console.log('Formatted Explanations Array:', Array.isArray(this.formattedExplanations$));
     console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);
   }
