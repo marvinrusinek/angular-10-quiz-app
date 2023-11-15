@@ -321,15 +321,20 @@ export class CodelabQuizContentComponent
         console.log('Current Question Index::>>', this.currentQuestionIndexValue);
         console.log('formattedExplanation$::>>', formattedExplanation$);
     
-        if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
-          console.log('About to subscribe to formattedExplanation$');
-          formattedExplanation$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((formattedExplanation) => {
-              console.log('Formatted explanation for current question:', formattedExplanation);
-            });
+        if (formattedExplanation$) {
+          console.log('formattedExplanation$ is not undefined');
+          if (typeof formattedExplanation$.pipe === 'function') {
+            console.log('About to subscribe to formattedExplanation$');
+            formattedExplanation$
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((formattedExplanation) => {
+                console.log('Formatted explanation for current question:', formattedExplanation);
+              });
+          } else {
+            console.error('formattedExplanation$ does not have a pipe method:', formattedExplanation$);
+          }
         } else {
-          console.error('formattedExplanation$ is not properly initialized or has no pipe method:', formattedExplanation$);
+          console.error('formattedExplanation$ is undefined');
         }
       } else {
         console.error('Invalid currentQuestionIndexValue:', this.currentQuestionIndexValue);
