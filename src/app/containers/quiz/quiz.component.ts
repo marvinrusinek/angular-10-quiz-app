@@ -1454,7 +1454,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Log all keys of the currentQuestion object
     console.log('Keys of currentQuestion object:', Object.keys(currentQuestionValue));
 
-    if (!this.quizService.currentQuestion || typeof this.quizService.currentQuestion !== 'object' || !this.quizService.currentQuestion.type) {
+    /* if (!this.quizService.currentQuestion || typeof this.quizService.currentQuestion !== 'object' || !this.quizService.currentQuestion.type) {
       console.error(
         'Current Question is not defined or is in an invalid format...',
         this.quizService.currentQuestion
@@ -1465,7 +1465,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       this.quizStateService.setMultipleAnswer(false);
       return;
-    }
+    } */
 
     try {
       const isMultipleAnswerSubject =
