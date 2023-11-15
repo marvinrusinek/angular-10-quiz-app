@@ -316,7 +316,8 @@ export class CodelabQuizContentComponent
       // Check if formattedExplanations$ is an array and the index is valid
       if (Array.isArray(this.explanationTextService.formattedExplanations$)) {
         console.log('formattedExplanations$ is an array');
-        
+
+        // Check if the index is within bounds
         if (
           this.currentQuestionIndexValue !== undefined &&
           this.currentQuestionIndexValue !== null &&
@@ -327,9 +328,11 @@ export class CodelabQuizContentComponent
           const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
           console.log('formattedExplanation$::>>', formattedExplanation$);
 
-          if (formattedExplanation$) {
+          // Check if the element at the index is defined
+          if (formattedExplanation$ !== undefined) {
             console.log('formattedExplanation$ is not undefined');
 
+            // Check if the element has a 'pipe' method
             if (typeof formattedExplanation$.pipe === 'function') {
               console.log('About to subscribe to formattedExplanation$');
 
