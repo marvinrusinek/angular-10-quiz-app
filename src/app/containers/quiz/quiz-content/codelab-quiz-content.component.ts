@@ -114,7 +114,7 @@ export class CodelabQuizContentComponent
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanation$: BehaviorSubject<string>[] = [];
   formattedExplanations$: BehaviorSubject<string>[] = [];
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
@@ -218,9 +218,8 @@ export class CodelabQuizContentComponent
         }
       );
 
-      this.formattedExplanation$.forEach((subject, index) => {
+      this.formattedExplanations$.forEach((subject: BehaviorSubject<string>, index: number) => {
         subject
-          .asObservable() // Convert the BehaviorSubject to an Observable
           .pipe(
             withLatestFrom(this.quizService.currentQuestionIndex$),
             distinctUntilChanged(
