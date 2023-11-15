@@ -41,7 +41,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
   styleUrls: ['./codelab-quiz-content.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuizContentComponent
   implements OnInit, OnChanges, OnDestroy
