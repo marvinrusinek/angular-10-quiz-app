@@ -159,6 +159,10 @@ export class CodelabQuizContentComponent
     this.setupCombinedQuestionData();
     this.setupOptions();
 
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+      this.questions = questions;
+    });
+
     // Combine explanationTextService's observable with selectedOptionExplanation$
     this.explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
