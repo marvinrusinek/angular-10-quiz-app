@@ -327,7 +327,7 @@ export class CodelabQuizContentComponent
 
         if (formattedExplanation$) {
           console.log('formattedExplanation$ is not undefined');
-          if (typeof formattedExplanation$.pipe === 'function') {
+          if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
             console.log('About to subscribe to formattedExplanation$');
             formattedExplanation$
               .pipe(takeUntil(this.destroy$))
