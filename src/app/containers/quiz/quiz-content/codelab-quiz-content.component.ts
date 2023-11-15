@@ -199,9 +199,7 @@ export class CodelabQuizContentComponent
       // Initialize formatted explanations and check for array and elements
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
   
-      if (this.explanationTextService.formattedExplanations$ instanceof Array &&
-          this.explanationTextService.formattedExplanations$.length > 0) {
-  
+      if (this.explanationTextService.formattedExplanations$) {
         // Access the first element in formattedExplanations$ and subscribe
         this.explanationTextService.formattedExplanations$[0].subscribe(value => {
           console.log('formattedExplanation$', value);
