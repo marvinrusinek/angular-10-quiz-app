@@ -309,12 +309,14 @@ export class CodelabQuizContentComponent
       console.log('Formatted Explanations Array::>>', this.explanationTextService.formattedExplanations$);
       console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$.length);
       
-      console.log('Before subscribing, currentQuestionIndexValue:', this.currentQuestionIndexValue);
+      // Assuming currentQuestionIndexValue is set correctly in your application logic
+      console.log('Before using currentQuestionIndexValue:', this.currentQuestionIndexValue);
 
       if (
         this.currentQuestionIndexValue !== undefined &&
         this.currentQuestionIndexValue !== null &&
-        this.currentQuestionIndexValue >= 0 &&
+        this.explanationTextService.formattedExplanations$ &&
+        this.explanationTextService.formattedExplanations$.length > 0 &&
         this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
       ) {
         const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
@@ -324,7 +326,7 @@ export class CodelabQuizContentComponent
 
         if (formattedExplanation$) {
           console.log('formattedExplanation$ is not undefined');
-          if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
+          if (typeof formattedExplanation$.pipe === 'function') {
             console.log('About to subscribe to formattedExplanation$');
             formattedExplanation$
               .pipe(takeUntil(this.destroy$))
