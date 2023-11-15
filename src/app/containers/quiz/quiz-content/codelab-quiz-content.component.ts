@@ -319,20 +319,30 @@ export class CodelabQuizContentComponent
         this.explanationTextService.formattedExplanations$.length > 0 &&
         this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
       ) {
-        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
-
         console.log('Current Question Index::>>', this.currentQuestionIndexValue);
+
+        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
         console.log('formattedExplanation$::>>', formattedExplanation$);
 
         if (formattedExplanation$) {
           console.log('formattedExplanation$ is not undefined');
+
           if (typeof formattedExplanation$.pipe === 'function') {
             console.log('About to subscribe to formattedExplanation$');
+
             formattedExplanation$
               .pipe(takeUntil(this.destroy$))
-              .subscribe((formattedExplanation) => {
-                console.log('Formatted explanation for current question:', formattedExplanation);
-              });
+              .subscribe(
+                (formattedExplanation) => {
+                  console.log('Formatted explanation for current question:', formattedExplanation);
+                },
+                (error) => {
+                  console.error('Error in formattedExplanation$ subscription:', error);
+                },
+                () => {
+                  console.log('Subscription to formattedExplanation$ completed.');
+                }
+              );
           } else {
             console.error('formattedExplanation$ does not have a pipe method:', formattedExplanation$);
           }
