@@ -321,10 +321,10 @@ export class CodelabQuizContentComponent
         this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
       ) {
         const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
-    
+
         console.log('Current Question Index::>>', this.currentQuestionIndexValue);
         console.log('formattedExplanation$::>>', formattedExplanation$);
-    
+
         if (formattedExplanation$) {
           console.log('formattedExplanation$ is not undefined');
           if (typeof formattedExplanation$.pipe === 'function') {
