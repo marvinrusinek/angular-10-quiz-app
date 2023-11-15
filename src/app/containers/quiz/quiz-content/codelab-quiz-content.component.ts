@@ -114,9 +114,8 @@ export class CodelabQuizContentComponent
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
-  // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  // formattedExplanation$: BehaviorSubject<string>[] = [];
-  formattedExplanation$: Observable<string>[] = [];
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanations$: BehaviorSubject<string>[] = [];
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
   showNumberOfCorrectAnswersText = false;
