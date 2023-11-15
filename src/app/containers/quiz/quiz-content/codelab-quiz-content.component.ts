@@ -306,17 +306,18 @@ export class CodelabQuizContentComponent
     console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
 
     if (Array.isArray(this.explanationTextService.formattedExplanations$)) {
+      // Log the array and length
       console.log('Formatted Explanations Array::>>', this.explanationTextService.formattedExplanations$);
       console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$.length);
-      
-      // Assuming currentQuestionIndexValue is set correctly in your application logic
+
+      // Log the currentQuestionIndexValue
       console.log('Before using currentQuestionIndexValue:', this.currentQuestionIndexValue);
 
+      // Check if formattedExplanations$ is an array and the index is valid
       if (
+        Array.isArray(this.explanationTextService.formattedExplanations$) &&
         this.currentQuestionIndexValue !== undefined &&
         this.currentQuestionIndexValue !== null &&
-        this.explanationTextService.formattedExplanations$ &&
-        this.explanationTextService.formattedExplanations$.length > 0 &&
         this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
       ) {
         console.log('Current Question Index::>>', this.currentQuestionIndexValue);
@@ -350,10 +351,8 @@ export class CodelabQuizContentComponent
           console.error('formattedExplanation$ is undefined');
         }
       } else {
-        console.error('Invalid currentQuestionIndexValue:', this.currentQuestionIndexValue);
+        console.error('Invalid currentQuestionIndexValue or formattedExplanations$ is not an array:', this.currentQuestionIndexValue, this.explanationTextService.formattedExplanations$);
       }
-    } else {
-      console.error('formattedExplanations$ is not an array:', this.explanationTextService.formattedExplanations$);
     }
 
     this.explanationTextService.formattedExplanations$[
