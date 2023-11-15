@@ -27,8 +27,7 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
-  // formattedExplanations$: Subject<string>[] = [];
-  formattedExplanations$: Observable<string>[] = [];
+  formattedExplanations$: BehaviorSubject<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
@@ -157,40 +156,17 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  /* initializeFormattedExplanations(maxQuestions: number): void {
+  initializeFormattedExplanations(maxQuestions: number): void {
     console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
   
     // Clear the array before initializing new observables
-    this.formattedExplanations$ = [];
-  
-    // Initialize observables for each potential question index
-    for (let i = 0; i < maxQuestions; i++) {
-      this.formattedExplanations$[i] = new Subject<string>();
-      console.log('Initialized observable for index', i);
-    }
-  } */
-
-  /* initializeFormattedExplanations(maxQuestions: number): void {
-    console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
-  
-    // Clear the array before initializing new observables
-    this.formattedExplanations$ = Array.from({ length: maxQuestions }, (_, index) => {
-      const subject = new BehaviorSubject<string>('');
-      subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-        console.log(`Formatted explanation for question ${index}:`, value);
-      });
-      return subject;
+    this.formattedExplanations$ = Array.from({ length: maxQuestions }, () => {
+      return new BehaviorSubject<string>('');
     });
   
     // Log the initialization
     console.log('Formatted Explanations Array:', Array.isArray(this.formattedExplanations$));
     console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);
-  } */
-
-  initializeFormattedExplanations(numQuestions: number): void {
-    for (let i = 0; i < numQuestions; i++) {
-      this.formattedExplanations$.push(new BehaviorSubject<string>(null).asObservable());
-    }
   }
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
