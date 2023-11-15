@@ -193,21 +193,14 @@ export class CodelabQuizContentComponent
     });
 
     this.quizService.getTotalQuestions().subscribe(numQuestions => {
-      console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
-  
-      // Initialize formatted explanations
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
-  
-      // Example: Subscribe only if the array is defined and has elements
-      if (this.explanationTextService.formattedExplanations$?.length > 0) {
-        this.explanationTextService.formattedExplanations$[0].subscribe(value => {
+    
+      this.explanationTextService.formattedExplanations$[0].pipe(
+        tap(value => {
           console.log('formattedExplanation$', value);
-        });
-      }
-
-      console.log('Length of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$?.length);
-      console.log('Content of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$);
-
+        })
+      ).subscribe();
+    
       this.setupExplanationTextDisplay();
     });
 
