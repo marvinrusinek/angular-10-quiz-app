@@ -195,10 +195,12 @@ export class CodelabQuizContentComponent
       // Initialize formatted explanations
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
   
-      // Example: Subscribe to the first element
-      this.explanationTextService.formattedExplanations$[0].subscribe(value => {
-        console.log('formattedExplanation$', value);
-      });
+      // Example: Subscribe only if the array is defined and has elements
+      if (this.explanationTextService.formattedExplanations$?.length > 0) {
+        this.explanationTextService.formattedExplanations$[0].subscribe(value => {
+          console.log('formattedExplanation$', value);
+        });
+      }
   
       console.log('Length of formattedExplanation$ after initialization:', this.explanationTextService.formattedExplanations$.length);
     });
