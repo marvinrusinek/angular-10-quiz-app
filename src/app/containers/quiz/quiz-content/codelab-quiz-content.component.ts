@@ -304,14 +304,20 @@ export class CodelabQuizContentComponent
     ) {
       const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
     
+      console.log('Formatted Explanations Array:', Array.isArray(this.explanationTextService.formattedExplanations$));
+      console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
+      console.log('Current Question Index:', this.currentQuestionIndexValue);
+      console.log('formattedExplanation$:', formattedExplanation$);
+    
       if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
+        console.log('About to subscribe to formattedExplanation$');
         formattedExplanation$
           .pipe(takeUntil(this.destroy$))
           .subscribe((formattedExplanation) => {
             console.log('Formatted explanation for current question:', formattedExplanation);
           });
       } else {
-        console.error('Invalid index or formattedExplanation$ is not properly initialized.');
+        console.error('formattedExplanation$ is not properly initialized or has no pipe method:', formattedExplanation$);
       }
     } else {
       console.error('Invalid index or formattedExplanation$ is not properly initialized.');
