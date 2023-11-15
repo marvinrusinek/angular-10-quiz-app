@@ -115,7 +115,8 @@ export class CodelabQuizContentComponent
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
   // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  formattedExplanation$: BehaviorSubject<string>[] = [];
+  // formattedExplanation$: BehaviorSubject<string>[] = [];
+  formattedExplanation$: Observable<string>[] = [];
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
   showNumberOfCorrectAnswersText = false;
@@ -148,7 +149,8 @@ export class CodelabQuizContentComponent
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
-    this.formattedExplanation$ = new Array<BehaviorSubject<string>>();
+    // this.formattedExplanation$ = new Array<BehaviorSubject<string>>();
+    this.formattedExplanation$.push(new BehaviorSubject<string>(null).asObservable());
   }
 
   ngOnInit(): void {
