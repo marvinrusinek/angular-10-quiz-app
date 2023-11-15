@@ -24,7 +24,7 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  formattedExplanations$: BehaviorSubject<string>[] = [];
+  formattedExplanations$: Observable<string>[] = [];
   formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
@@ -154,6 +154,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeFormattedExplanations(numQuestions: number): void {
+    // Initialize formattedExplanations$ as an array of Observables
     this.formattedExplanations$ = Array.from({ length: numQuestions }, () =>
       new BehaviorSubject<string>('')
     );

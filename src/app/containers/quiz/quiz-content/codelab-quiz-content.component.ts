@@ -712,7 +712,9 @@ export class CodelabQuizContentComponent
     this.nextQuestion$.subscribe(value => console.log('nextQuestion$', value));
     this.previousQuestion$.subscribe(value => console.log('previousQuestion$', value));
     this.nextExplanationText$.subscribe(value => console.log('nextExplanationText$', value));
-    this.formattedExplanation$.subscribe(value => console.log('formattedExplanation$', value));
+    this.explanationTextService.formattedExplanations$[0].subscribe(value => {
+      console.log('formattedExplanation$', value);
+    });
     this.explanationTextService.shouldDisplayExplanation$.subscribe(value => console.log('shouldDisplayExplanation$', value));
 
     this.combinedText$ = combineLatest([
