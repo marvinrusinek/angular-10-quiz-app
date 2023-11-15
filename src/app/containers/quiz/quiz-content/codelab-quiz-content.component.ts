@@ -314,52 +314,40 @@ export class CodelabQuizContentComponent
       console.log('Before using currentQuestionIndexValue:', this.currentQuestionIndexValue);
 
       // Check if formattedExplanations$ is an array and the index is valid
-      if (Array.isArray(this.explanationTextService.formattedExplanations$)) {
-        console.log('formattedExplanations$ is an array');
+      if (
+        Array.isArray(this.explanationTextService.formattedExplanations$) &&
+        this.explanationTextService.formattedExplanations$.length > 0 &&
+        this.currentQuestionIndexValue !== undefined &&
+        this.currentQuestionIndexValue !== null &&
+        this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
+      ) {
+        console.log('Current Question Index::>>', this.currentQuestionIndexValue);
 
-        // Check if the index is within bounds
-        if (
-          this.currentQuestionIndexValue !== undefined &&
-          this.currentQuestionIndexValue !== null &&
-          this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
-        ) {
-          console.log('Current Question Index::>>', this.currentQuestionIndexValue);
+        // Retrieve the formattedExplanation$ for the current index
+        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
+        
+        // Check if the formattedExplanation$ is valid
+        if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
+          console.log('About to subscribe to formattedExplanation$');
 
-          const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
-          console.log('formattedExplanation$::>>', formattedExplanation$);
-
-          // Check if the element at the index is defined
-          if (formattedExplanation$ !== undefined) {
-            console.log('formattedExplanation$ is not undefined');
-
-            // Check if the element has a 'pipe' method
-            if (typeof formattedExplanation$.pipe === 'function') {
-              console.log('About to subscribe to formattedExplanation$');
-
-              formattedExplanation$
-                .pipe(takeUntil(this.destroy$))
-                .subscribe(
-                  (formattedExplanation) => {
-                    console.log('Formatted explanation for current question:', formattedExplanation);
-                  },
-                  (error) => {
-                    console.error('Error in formattedExplanation$ subscription:', error);
-                  },
-                  () => {
-                    console.log('Subscription to formattedExplanation$ completed.');
-                  }
-                );
-            } else {
-              console.error('formattedExplanation$ does not have a pipe method:', formattedExplanation$);
-            }
-          } else {
-            console.error('formattedExplanation$ is undefined');
-          }
+          formattedExplanation$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(
+              (formattedExplanation) => {
+                console.log('Formatted explanation for current question:', formattedExplanation);
+              },
+              (error) => {
+                console.error('Error in formattedExplanation$ subscription:', error);
+              },
+              () => {
+                console.log('Subscription to formattedExplanation$ completed.');
+              }
+            );
         } else {
-          console.error('Invalid currentQuestionIndexValue:', this.currentQuestionIndexValue);
+          console.error('Invalid formattedExplanation$:', formattedExplanation$);
         }
       } else {
-        console.error('formattedExplanations$ is not an array or is undefined:', this.explanationTextService.formattedExplanations$);
+        console.error('Invalid currentQuestionIndexValue or formattedExplanations$ is not an array or is empty:', this.currentQuestionIndexValue, this.explanationTextService.formattedExplanations$);
       }
     }
 
