@@ -206,12 +206,17 @@ export class CodelabQuizContentComponent
   
           // Additional logic or method calls related to explanations
           this.setupExplanationTextDisplay();
+  
+          // Continue with the rest of your code
+          this.continueInitialization();
         });
       } else {
         console.error('Formatted explanations array is not properly initialized.');
       }
     });
+  }
 
+  continueInitialization(): void {
     this.quizService.currentQuestionIndex$
       .pipe(takeUntil(this.destroy$))
       .subscribe(
@@ -371,6 +376,7 @@ export class CodelabQuizContentComponent
         this.formattedExplanation = explanation;
       });
   }
+  
 
   ngOnChanges(): void {
     if (
