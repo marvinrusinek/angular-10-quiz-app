@@ -302,11 +302,17 @@ export class CodelabQuizContentComponent
       this.currentQuestionIndexValue >= 0 &&
       this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
     ) {
-      this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue]
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((formattedExplanation) => {
-          console.log('Formatted explanation for current question:', formattedExplanation);
-        });
+      const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
+    
+      if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
+        formattedExplanation$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((formattedExplanation) => {
+            console.log('Formatted explanation for current question:', formattedExplanation);
+          });
+      } else {
+        console.error('Invalid index or formattedExplanation$ is not properly initialized.');
+      }
     } else {
       console.error('Invalid index or formattedExplanation$ is not properly initialized.');
     }
