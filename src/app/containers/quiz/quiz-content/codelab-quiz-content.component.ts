@@ -311,6 +311,8 @@ export class CodelabQuizContentComponent
       console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$.length);
       
       if (
+        this.currentQuestionIndexValue !== undefined &&
+        this.currentQuestionIndexValue !== null &&
         this.currentQuestionIndexValue >= 0 &&
         this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
       ) {
@@ -335,7 +337,6 @@ export class CodelabQuizContentComponent
     } else {
       console.error('formattedExplanations$ is not an array:', this.explanationTextService.formattedExplanations$);
     }
-    
 
     this.explanationTextService.formattedExplanations$[
       this.currentQuestionIndexValue
