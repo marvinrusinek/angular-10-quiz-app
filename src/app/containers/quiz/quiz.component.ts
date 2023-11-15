@@ -1439,33 +1439,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     currentQuestion: any,
     options: Option[]
   ): Promise<void> {
-    console.log('calculateAndSetCorrectAnswersText called');
-
     // Somewhere in your component or service
     const currentQuestionValue = this.quizService.currentQuestion.value;
-  
-    // Log the currentQuestion and its structure
-    console.log('Current Question:', currentQuestionValue);
-    console.log('Type of currentQuestion:', typeof currentQuestionValue);
-
-    // Log the full structure of the currentQuestion object
-    console.log('Full currentQuestion structure:', currentQuestionValue);
-
-    // Log all keys of the currentQuestion object
-    console.log('Keys of currentQuestion object:', Object.keys(currentQuestionValue));
-
-    /* if (!this.quizService.currentQuestion || typeof this.quizService.currentQuestion !== 'object' || !this.quizService.currentQuestion.type) {
-      console.error(
-        'Current Question is not defined or is in an invalid format...',
-        this.quizService.currentQuestion
-      );
-
-      // Log the structure of the question object before setting multipleAnswer
-      console.error('Invalid question structure:', this.quizService.currentQuestion);
-
-      this.quizStateService.setMultipleAnswer(false);
-      return;
-    } */
 
     try {
       const isMultipleAnswerSubject =
@@ -1488,7 +1463,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.error('Error in calculateAndSetCorrectAnswersText:', error);
-      console.error(error.stack);
     }
   }
 
