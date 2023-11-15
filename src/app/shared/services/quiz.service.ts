@@ -1040,14 +1040,11 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestion(question: QuizQuestion): void {
-    console.log("SQ", this.selectedQuiz);
-    console.log("Q", question);
-
     this.selectedQuiz = this.quizData.find((quiz) => quiz.quizId === this.quizId);
-    
+
     // Find the index of the current question
     const currentIndex = this.selectedQuiz.questions.findIndex(
-      (q) => q === question
+      (q) => q.questionText === question.questionText
     );
 
     if (currentIndex === -1) {
