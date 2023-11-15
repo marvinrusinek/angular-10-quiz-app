@@ -308,7 +308,7 @@ export class CodelabQuizContentComponent
     if (Array.isArray(this.explanationTextService.formattedExplanations$)) {
       // Log the array and length
       console.log('Formatted Explanations Array::>>', this.explanationTextService.formattedExplanations$);
-      console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$.length);
+      console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$ ? this.explanationTextService.formattedExplanations$.length : 'undefined');
 
       // Log the currentQuestionIndexValue
       console.log('Before using currentQuestionIndexValue:', this.currentQuestionIndexValue);
@@ -317,38 +317,41 @@ export class CodelabQuizContentComponent
       if (
         Array.isArray(this.explanationTextService.formattedExplanations$) &&
         this.currentQuestionIndexValue !== undefined &&
-        this.currentQuestionIndexValue !== null &&
-        this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
+        this.currentQuestionIndexValue !== null
       ) {
         console.log('Current Question Index::>>', this.currentQuestionIndexValue);
 
-        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
-        console.log('formattedExplanation$::>>', formattedExplanation$);
+        if (this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length) {
+          const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
+          console.log('formattedExplanation$::>>', formattedExplanation$);
 
-        if (formattedExplanation$) {
-          console.log('formattedExplanation$ is not undefined');
+          if (formattedExplanation$) {
+            console.log('formattedExplanation$ is not undefined');
 
-          if (typeof formattedExplanation$.pipe === 'function') {
-            console.log('About to subscribe to formattedExplanation$');
+            if (typeof formattedExplanation$.pipe === 'function') {
+              console.log('About to subscribe to formattedExplanation$');
 
-            formattedExplanation$
-              .pipe(takeUntil(this.destroy$))
-              .subscribe(
-                (formattedExplanation) => {
-                  console.log('Formatted explanation for current question:', formattedExplanation);
-                },
-                (error) => {
-                  console.error('Error in formattedExplanation$ subscription:', error);
-                },
-                () => {
-                  console.log('Subscription to formattedExplanation$ completed.');
-                }
-              );
+              formattedExplanation$
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(
+                  (formattedExplanation) => {
+                    console.log('Formatted explanation for current question:', formattedExplanation);
+                  },
+                  (error) => {
+                    console.error('Error in formattedExplanation$ subscription:', error);
+                  },
+                  () => {
+                    console.log('Subscription to formattedExplanation$ completed.');
+                  }
+                );
+            } else {
+              console.error('formattedExplanation$ does not have a pipe method:', formattedExplanation$);
+            }
           } else {
-            console.error('formattedExplanation$ does not have a pipe method:', formattedExplanation$);
+            console.error('formattedExplanation$ is undefined');
           }
         } else {
-          console.error('formattedExplanation$ is undefined');
+          console.error('Invalid currentQuestionIndexValue:', this.currentQuestionIndexValue);
         }
       } else {
         console.error('Invalid currentQuestionIndexValue or formattedExplanations$ is not an array:', this.currentQuestionIndexValue, this.explanationTextService.formattedExplanations$);
