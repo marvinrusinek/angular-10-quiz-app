@@ -66,28 +66,23 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(question: QuizQuestion): BehaviorSubject<boolean> {
-    console.log('Received question::>>', question);
-    console.log('Type of question::>>', typeof question);
-    console.log('Keys of question object::>>', Object.keys(question));
-
+    console.log('Received question:::::', question);
+  
     const resultSubject = new BehaviorSubject<boolean>(false);
   
-    if (!question || typeof question !== 'object' || typeof question.type !== 'string' || !question.type.trim()) {
-      console.error('Invalid question:', question);
-      console.error('Type of question:', typeof question, 'Type of type property:', typeof question.type);
-
-      this.setMultipleAnswer(false);
-      resultSubject.next(false);
-      resultSubject.complete(); // Complete the subject
-    } else {
+    try {
       // Perform the logic to determine if it's a multiple-answer question
       const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
       resultSubject.next(isMultipleAnswer);
+    } catch (error) {
+      console.error('Error determining if it is a multiple-answer question:', error);
+      this.setMultipleAnswer(false);
+    } finally {
       resultSubject.complete(); // Complete the subject
     }
   
     return resultSubject;
-  }
+  }  
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
