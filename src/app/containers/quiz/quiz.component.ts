@@ -675,21 +675,20 @@ export class QuizComponent implements OnInit, OnDestroy {
   initializeFirstQuestionText(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
       if (questions && questions.length > 0) {
-
-        this.currentQuestion = questions[0];
+        this.quizService.currentQuestion.next(questions[0]);
         console.log('Type of Current Question:', typeof this.currentQuestion);
         console.log('Keys of Current Question:', Object.keys(this.currentQuestion));
   
         this.currentOptions = [];
-        this.questionToDisplay = this.currentQuestion.questionText;
+        this.questionToDisplay = questions[0].questionText;
   
         console.log('Current Question Before:', this.quizService.currentQuestion.getValue());
 
         // Calculate and set correct answers based on the current question
-        this.calculateAndSetCorrectAnswersText(
-          this.quizService.currentQuestion.getValue(),
-          this.currentOptions
-        );
+        const currentQuestion = this.quizService.currentQuestion.getValue();
+        if (currentQuestion) {
+          this.calculateAndSetCorrectAnswersText(currentQuestion, this.currentOptions);
+        }
       }
     });
   }
