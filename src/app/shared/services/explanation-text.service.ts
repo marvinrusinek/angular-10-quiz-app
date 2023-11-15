@@ -23,11 +23,9 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
-  formattedExplanations: FormattedExplanation[] = [];
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations$: BehaviorSubject<string>[] = [];
+  formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
