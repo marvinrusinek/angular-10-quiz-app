@@ -27,7 +27,8 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: FormattedExplanation[] = [];
-  formattedExplanations$: Subject<string>[] = [];
+  // formattedExplanations$: Subject<string>[] = [];
+  formattedExplanations$: Observable<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
@@ -169,7 +170,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   } */
 
-  initializeFormattedExplanations(maxQuestions: number): void {
+  /* initializeFormattedExplanations(maxQuestions: number): void {
     console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
   
     // Clear the array before initializing new observables
@@ -184,6 +185,12 @@ export class ExplanationTextService implements OnDestroy {
     // Log the initialization
     console.log('Formatted Explanations Array:', Array.isArray(this.formattedExplanations$));
     console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);
+  } */
+
+  initializeFormattedExplanations(numQuestions: number): void {
+    for (let i = 0; i < numQuestions; i++) {
+      this.formattedExplanations$.push(new BehaviorSubject<string>(null).asObservable());
+    }
   }
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {

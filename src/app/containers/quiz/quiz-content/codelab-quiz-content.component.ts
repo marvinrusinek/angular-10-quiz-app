@@ -192,9 +192,9 @@ export class CodelabQuizContentComponent
       this.formattedExplanation = '';
     });
 
-    this.quizService.getTotalQuestions().subscribe(maxQuestions => {
-      console.log('Subscription to getTotalQuestions triggered. Max Questions:', maxQuestions);
-      this.explanationTextService.initializeFormattedExplanations(maxQuestions);
+    this.quizService.getTotalQuestions().subscribe(numQuestions => {
+      console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
+      this.explanationTextService.initializeFormattedExplanations(numQuestions);
       console.log('Length of formattedExplanation$ after initialization:', this.explanationTextService.formattedExplanations$.length);
     });
 
