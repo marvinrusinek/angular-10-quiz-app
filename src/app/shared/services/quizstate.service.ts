@@ -72,7 +72,7 @@ export class QuizStateService {
 
     const resultSubject = new BehaviorSubject<boolean>(false);
   
-    if (!question || typeof question !== 'object' || typeof question.type !== 'string') {
+    if (!question || typeof question !== 'object' || typeof question.type !== 'string' || !question.type.trim()) {
       console.error('Invalid question:', question);
       console.error('Type of question:', typeof question, 'Type of type property:', typeof question.type);
 
