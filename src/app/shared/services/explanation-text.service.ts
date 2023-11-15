@@ -154,17 +154,10 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeFormattedExplanations(maxQuestions: number): void {
-    console.log('Initializing formatted explanations for', maxQuestions, 'questions.');
-  
-    // Clear the array before initializing new observables
-    this.formattedExplanations$ = Array.from({ length: maxQuestions }, () => {
-      return new BehaviorSubject<string>('');
-    });
-  
-    // Log the initialization
-    console.log('Formatted Explanations Array:', Array.isArray(this.formattedExplanations$));
-    console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);
+  initializeFormattedExplanations(numQuestions: number): void {
+    this.formattedExplanations$ = Array.from({ length: numQuestions }, () =>
+      new BehaviorSubject<string>('')
+    );
   }
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {

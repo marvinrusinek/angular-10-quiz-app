@@ -193,6 +193,11 @@ export class CodelabQuizContentComponent
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
     });
 
+    // Subscribe to the first element (or any specific index) in formattedExplanation$
+    this.explanationTextService.formattedExplanations$[0].subscribe(value => {
+      console.log('formattedExplanation$', value);
+    });
+
     this.quizService.currentQuestionIndex$
       .pipe(takeUntil(this.destroy$))
       .subscribe(
@@ -707,8 +712,7 @@ export class CodelabQuizContentComponent
     this.nextQuestion$.subscribe(value => console.log('nextQuestion$', value));
     this.previousQuestion$.subscribe(value => console.log('previousQuestion$', value));
     this.nextExplanationText$.subscribe(value => console.log('nextExplanationText$', value));
-    // this.formattedExplanation$.subscribe(value => console.log('formattedExplanation$', value));
-    this.formattedExplanation$[0].subscribe(value => console.log('formattedExplanation$', value));
+    this.formattedExplanation$.subscribe(value => console.log('formattedExplanation$', value));
     this.explanationTextService.shouldDisplayExplanation$.subscribe(value => console.log('shouldDisplayExplanation$', value));
 
     this.combinedText$ = combineLatest([
