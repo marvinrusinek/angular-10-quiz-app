@@ -193,13 +193,21 @@ export class CodelabQuizContentComponent
     });
 
     this.quizService.getTotalQuestions().subscribe(numQuestions => {
+      console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
+    
+      // Initialize formatted explanations
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
     
-      this.explanationTextService.formattedExplanations$[0].pipe(
-        tap(value => {
+      // Example: Subscribe only if the array is defined and has elements
+      if (this.explanationTextService.formattedExplanations$?.length > 0) {
+        // Subscribe to the first element (or any specific index) in formattedExplanations$
+        this.explanationTextService.formattedExplanations$[0].subscribe(value => {
           console.log('formattedExplanation$', value);
-        })
-      ).subscribe();
+        });
+      }
+    
+      console.log('Length of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$?.length);
+      console.log('Content of formattedExplanations$::>>', this.explanationTextService.formattedExplanations$);
     
       this.setupExplanationTextDisplay();
     });
@@ -297,31 +305,36 @@ export class CodelabQuizContentComponent
     console.log('Formatted Explanations Array:', Array.isArray(this.explanationTextService.formattedExplanations$));
     console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
 
-    if (
-      Array.isArray(this.explanationTextService.formattedExplanations$) &&
-      this.currentQuestionIndexValue >= 0 &&
-      this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
-    ) {
-      const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
+    if (Array.isArray(this.explanationTextService.formattedExplanations$)) {
+      console.log('Formatted Explanations Array::>>', this.explanationTextService.formattedExplanations$);
+      console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$.length);
+      
+      if (
+        this.currentQuestionIndexValue >= 0 &&
+        this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length
+      ) {
+        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
     
-      console.log('Formatted Explanations Array:', Array.isArray(this.explanationTextService.formattedExplanations$));
-      console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
-      console.log('Current Question Index:', this.currentQuestionIndexValue);
-      console.log('formattedExplanation$:', formattedExplanation$);
+        console.log('Current Question Index::>>', this.currentQuestionIndexValue);
+        console.log('formattedExplanation$::>>', formattedExplanation$);
     
-      if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
-        console.log('About to subscribe to formattedExplanation$');
-        formattedExplanation$
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((formattedExplanation) => {
-            console.log('Formatted explanation for current question:', formattedExplanation);
-          });
+        if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
+          console.log('About to subscribe to formattedExplanation$');
+          formattedExplanation$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((formattedExplanation) => {
+              console.log('Formatted explanation for current question:', formattedExplanation);
+            });
+        } else {
+          console.error('formattedExplanation$ is not properly initialized or has no pipe method:', formattedExplanation$);
+        }
       } else {
-        console.error('formattedExplanation$ is not properly initialized or has no pipe method:', formattedExplanation$);
+        console.error('Invalid currentQuestionIndexValue:', this.currentQuestionIndexValue);
       }
     } else {
-      console.error('Invalid index or formattedExplanation$ is not properly initialized.');
+      console.error('formattedExplanations$ is not an array:', this.explanationTextService.formattedExplanations$);
     }
+    
 
     this.explanationTextService.formattedExplanations$[
       this.currentQuestionIndexValue
