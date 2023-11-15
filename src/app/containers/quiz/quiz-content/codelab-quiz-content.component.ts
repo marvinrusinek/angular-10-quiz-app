@@ -148,8 +148,6 @@ export class CodelabQuizContentComponent
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
-    // this.formattedExplanation$ = new Array<BehaviorSubject<string>>();
-    this.formattedExplanation$.push(new BehaviorSubject<string>(null).asObservable());
   }
 
   ngOnInit(): void {
@@ -192,9 +190,7 @@ export class CodelabQuizContentComponent
     });
 
     this.quizService.getTotalQuestions().subscribe(numQuestions => {
-      console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
-      console.log('Length of formattedExplanation$ after initialization:', this.explanationTextService.formattedExplanations$.length);
     });
 
     this.quizService.currentQuestionIndex$
