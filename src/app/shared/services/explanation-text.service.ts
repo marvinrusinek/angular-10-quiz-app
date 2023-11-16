@@ -161,6 +161,11 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeFormattedExplanations(numQuestions: number): void {
+    if (numQuestions <= 0) {
+      console.error('Invalid number of questions:', numQuestions);
+      return;
+    }
+
     const formattedExplanationsDictionary: { [key: string]: Observable<string> } = {};
   
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
