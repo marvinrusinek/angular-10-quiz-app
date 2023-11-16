@@ -206,19 +206,20 @@ export class CodelabQuizContentComponent
 
     this.quizService.getTotalQuestions().subscribe(numQuestions => {
       console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
-    
+  
       // Initialize formatted explanations and check for array and elements
       this.explanationTextService.initializeFormattedExplanations(numQuestions);
-    
+  
+      // Ensure formattedExplanations$ is an array and has elements
       if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
         // Access the first element in formattedExplanations$ and subscribe
         this.explanationTextService.formattedExplanations$[0].subscribe(value => {
           console.log('formattedExplanation$', value);
-    
+  
           // Initialize formattedExplanation$ array with empty subjects
-          const formattedExplanations = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-          this.formattedExplanation$ = formattedExplanations;
-    
+          this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+  
+          this.explanationTextService.initializeFormattedExplanations(numQuestions);
           this.setupExplanationTextDisplay();
           this.continueInitialization();
         });
