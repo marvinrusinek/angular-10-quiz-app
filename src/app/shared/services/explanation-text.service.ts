@@ -162,21 +162,29 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeFormattedExplanations(numQuestions: number): void {
-    if (numQuestions <= 0) {
-      console.error('Invalid number of questions:', numQuestions);
-      return;
-    }
-
     const formattedExplanationsDictionary: { [key: string]: Observable<string> } = {};
   
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      formattedExplanationsDictionary[questionKey] = this.getFormattedExplanation$(questionIndex);
   
-      // Log the observable for each question
-      formattedExplanationsDictionary[questionKey].subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value);
-      });
+      if (
+        this.formattedExplanations$[questionIndex] &&
+        typeof this.formattedExplanations$[questionIndex].asObservable === 'function'
+      ) {
+        formattedExplanationsDictionary[questionKey] = this.getFormattedExplanation$(questionIndex);
+  
+        // Log the observable for each question
+        formattedExplanationsDictionary[questionKey].subscribe(
+          (value) => {
+            console.log(`Formatted explanation for ${questionKey}:`, value);
+          },
+          (error) => {
+            console.error(`Error for ${questionKey}:`, error);
+          }
+        );
+      } else {
+        console.error(`BehaviorSubject not initialized for index ${questionIndex}`);
+      }
     }
   
     console.log('Formatted Explanations Dictionary:', formattedExplanationsDictionary);
