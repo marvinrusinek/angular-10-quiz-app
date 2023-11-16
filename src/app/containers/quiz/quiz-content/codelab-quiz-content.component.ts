@@ -219,6 +219,7 @@ export class CodelabQuizContentComponent
           // Initialize formattedExplanation$ array with empty subjects
           this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
   
+          // Now call initializeFormattedExplanations after the array is initialized
           this.explanationTextService.initializeFormattedExplanations(numQuestions);
           this.setupExplanationTextDisplay();
           this.continueInitialization();
