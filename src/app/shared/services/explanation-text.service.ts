@@ -165,25 +165,11 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeFormattedExplanations(numQuestions: number): void {
-    // Initialize the formattedExplanations$ array first
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, index) => {
-      const subject = new BehaviorSubject<string>('');
-      subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-        console.log(`Formatted explanation for question ${index}:`, value);
-      });
-      return subject;
-    });
-  
-    // Now populate the dictionary
     this.formattedExplanationsDictionary = {};
+  
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = this.getFormattedExplanation$(questionIndex);
-  
-      // Log the observable for each question
-      this.formattedExplanationsDictionary[questionKey].subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value);
-      });
     }
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
