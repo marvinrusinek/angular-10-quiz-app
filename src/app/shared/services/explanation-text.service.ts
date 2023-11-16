@@ -103,11 +103,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getFormattedExplanation$(questionKey: string): Observable<string> {
-    if (
-      this.formattedExplanationsDictionary[questionKey] &&
-      typeof this.formattedExplanationsDictionary[questionKey].pipe === 'function'
-    ) {
-      return this.formattedExplanationsDictionary[questionKey];
+    const observable = this.formattedExplanationsDictionary[questionKey];
+  
+    if (observable && typeof observable.pipe === 'function') {
+      return observable;
     } else {
       console.error(`Observable not initialized for key ${questionKey}`);
       return new Observable<string>();
