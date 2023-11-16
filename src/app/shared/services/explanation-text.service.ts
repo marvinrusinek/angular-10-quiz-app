@@ -7,7 +7,8 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap, 
+  throwError
 } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -108,7 +109,7 @@ export class ExplanationTextService implements OnDestroy {
       return this.formattedExplanations$[questionIndex].asObservable();
     } else {
       console.error(`Observable not initialized for index ${questionIndex}`);
-      return new Observable<string>();
+      return throwError(`Observable not initialized for index ${questionIndex}`);
     }
   }
   
