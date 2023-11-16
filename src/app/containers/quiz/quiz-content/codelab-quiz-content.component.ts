@@ -704,6 +704,11 @@ export class CodelabQuizContentComponent
         }
       )
     );
+
+    this.explanationTextService.formattedExplanationsDictionary[this.currentQuestionIndexValue].subscribe((explanation) => {
+      console.log(`Unique Explanation for ${this.currentQuestionIndexValue}:`, explanation);
+      // Update your UI to display the unique explanation text
+    });
   }
 
   private setupExplanationTextSubscription(): void {
