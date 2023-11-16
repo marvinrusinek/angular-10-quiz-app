@@ -178,11 +178,11 @@ export class ExplanationTextService implements OnDestroy {
   
     this.formattedExplanationsDictionary = {};
   
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      console.log('Observable for', questionKey, ':', this.formattedExplanations$[questionIndex]?.asObservable());
+      console.log('Observable for', questionKey, ':', subject.asObservable());
   
-      const observable = this.formattedExplanations$[questionIndex]?.asObservable();
+      const observable = subject.asObservable();
   
       if (observable) {
         this.formattedExplanationsDictionary[questionKey] = observable;
@@ -194,11 +194,10 @@ export class ExplanationTextService implements OnDestroy {
       } else {
         console.error(`Observable not initialized for index ${questionIndex}`);
       }
-    }
+    });
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-  
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
