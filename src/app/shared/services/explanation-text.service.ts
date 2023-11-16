@@ -163,8 +163,8 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeFormattedExplanations(numQuestions: number): void {
-    if (!Array.isArray(this.formattedExplanations$)) {
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, index) => {
+    if (!Array.isArray(this.formattedExplanations$) || this.formattedExplanations$.length !== numQuestions) {
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
         const subject = new BehaviorSubject<string>('');
         subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
           console.log(`Formatted explanation for question ${index}:`, value);
@@ -180,12 +180,18 @@ export class ExplanationTextService implements OnDestroy {
   
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex].asObservable();
+      const observable = this.formattedExplanations$[questionIndex]?.asObservable();
   
-      // Log the observable for each question
-      formattedExplanationsDictionary[questionKey].subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value);
-      });
+      if (observable) {
+        formattedExplanationsDictionary[questionKey] = observable;
+  
+        // Log the observable for each question
+        formattedExplanationsDictionary[questionKey].subscribe(value => {
+          console.log(`Formatted explanation for ${questionKey}:`, value);
+        });
+      } else {
+        console.error(`Observable not initialized for index ${questionIndex}`);
+      }
     }
   
     console.log('Formatted Explanations Dictionary:', formattedExplanationsDictionary);
