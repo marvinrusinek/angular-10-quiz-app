@@ -167,7 +167,7 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
         const subject = new BehaviorSubject<string>('');
         subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-          console.log(`Formatted explanation for question ${subject}:`, value);
+          console.log(`Formatted explanation for question:`, value);
         });
         return subject;
       });
@@ -196,6 +196,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', formattedExplanationsDictionary);
   }
+  
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
