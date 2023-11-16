@@ -167,7 +167,7 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
         const subject = new BehaviorSubject<string>('');
         subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-          console.log(`Formatted explanation for question ${index}:`, value);
+          console.log(`Formatted explanation for question ${subject}:`, value);
         });
         return subject;
       });
