@@ -706,10 +706,14 @@ export class CodelabQuizContentComponent
     );
 
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
-    this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey].subscribe((explanation) => {
-      console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
-      // Update your UI to display the unique explanation text
-    });
+    if (this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey]) {
+      this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey].subscribe((explanation) => {
+        console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
+        // Update your UI to display the unique explanation text
+      });
+    } else {
+      console.error(`Observable not initialized for key ${currentQuestionKey}`);
+    }    
   }
 
   private setupExplanationTextSubscription(): void {
