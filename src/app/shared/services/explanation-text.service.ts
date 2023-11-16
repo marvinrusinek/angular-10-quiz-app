@@ -166,9 +166,11 @@ export class ExplanationTextService implements OnDestroy {
   
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex]?.asObservable();
+      const observable = this.formattedExplanations$[questionIndex]?.asObservable();
   
-      if (this.formattedExplanationsDictionary[questionKey]) {
+      if (observable) {
+        this.formattedExplanationsDictionary[questionKey] = observable;
+  
         // Log the observable for each question
         this.formattedExplanationsDictionary[questionKey].subscribe(value => {
           console.log(`Formatted explanation for ${questionKey}:`, value);
