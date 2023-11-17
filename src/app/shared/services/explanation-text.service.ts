@@ -164,14 +164,17 @@ export class ExplanationTextService implements OnDestroy {
   initializeFormattedExplanations(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
   
-    // Initialize formattedExplanations$
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, questionIndex) => {
-      const subject = new BehaviorSubject<string>('');
-      subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-        console.log(`Formatted explanation for question ${questionIndex + 1}:`, value);
+    // Ensure formattedExplanations$ is an array and has elements
+    if (!Array.isArray(this.formattedExplanations$) || this.formattedExplanations$.length !== numQuestions) {
+      // Initialize formattedExplanations$
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, questionIndex) => {
+        const subject = new BehaviorSubject<string>('');
+        subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
+          console.log(`Formatted explanation for question ${questionIndex + 1}:`, value);
+        });
+        return subject;
       });
-      return subject;
-    });
+    }
   
     this.formattedExplanationsDictionary = {};
   
