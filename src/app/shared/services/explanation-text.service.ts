@@ -71,7 +71,7 @@ export class ExplanationTextService implements OnDestroy {
         console.log('Received new formatted explanation:', value);
       });
 
-    this.formattedExplanations$ = [];
+    this.formattedExplanations$ = {};
   }
 
   ngOnDestroy(): void {
@@ -162,7 +162,6 @@ export class ExplanationTextService implements OnDestroy {
     // Ensure formattedExplanations$ is a dictionary
     if (Object.keys(this.formattedExplanations$).length !== numQuestions) {
       // Initialize formattedExplanations$ dictionary with empty subjects
-      this.formattedExplanations$ = {};
       for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
         const questionKey = `Q${questionIndex + 1}`;
         this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
@@ -174,29 +173,8 @@ export class ExplanationTextService implements OnDestroy {
       }
 
       console.log('Formatted Explanations Dictionary:', this.formattedExplanations$);
-
-      // Initialize formattedExplanationsDictionary
-      this.formattedExplanationsDictionary = {};
-      for (const key in this.formattedExplanations$) {
-        if (this.formattedExplanations$.hasOwnProperty(key)) {
-          this.formattedExplanationsDictionary[key] = this.formattedExplanations$[key].asObservable();
-        }
-      }
-
-      console.log('Formatted Explanations Dictionary:');
-      for (const key in this.formattedExplanationsDictionary) {
-        if (this.formattedExplanationsDictionary.hasOwnProperty(key)) {
-          const value = this.formattedExplanationsDictionary[key];
-          // Log the observable for each question
-          value.subscribe(v => {
-            console.log(`Key: ${key}, Value:`, v?._value);
-          });
-        }
-      }
     }
   }
-
-
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
