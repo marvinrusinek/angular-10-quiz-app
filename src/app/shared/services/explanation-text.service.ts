@@ -189,14 +189,14 @@ export class ExplanationTextService implements OnDestroy {
   
         // Log the observable for each question
         this.formattedExplanationsDictionary[questionKey].subscribe(value => {
-          console.log(`Formatted explanation for ${questionKey}:`, value);
-        });
+          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+        });        
       } else {
         console.error(`Observable not initialized for index ${questionIndex}`);
       }
     });
   
-    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+    console.log('Formatted Explanations Dictionary Keys:', Object.keys(this.formattedExplanationsDictionary));
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
