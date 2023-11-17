@@ -172,6 +172,7 @@ export class ExplanationTextService implements OnDestroy {
       });
       return subject;
     });
+    console.log("FEs$", this.formattedExplanations$);
   
     console.log('Formatted Explanations Array:', this.formattedExplanations$);
     console.log('Length of formattedExplanation$:', this.formattedExplanations$.length);

@@ -206,28 +206,29 @@ export class CodelabQuizContentComponent
 
     this.quizService.getTotalQuestions().subscribe(numQuestions => {
       console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
-  
-      // Initialize formatted explanations and check for array and elements
-      this.explanationTextService.initializeFormattedExplanations(numQuestions);
-  
-      // Ensure formattedExplanations$ is an array and has elements
-      if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
-        // Access the first element in formattedExplanations$ and subscribe
-        this.explanationTextService.formattedExplanations$[0].subscribe(value => {
-          console.log('formattedExplanation$', value);
-  
-          // Initialize formattedExplanation$ array with empty subjects
-          this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-  
-          // Now call initializeFormattedExplanations after the array is initialized
-          this.explanationTextService.initializeFormattedExplanations(numQuestions);
-          this.setupExplanationTextDisplay();
-          this.continueInitialization();
-        });
+    
+      // Ensure numQuestions is a valid number
+      if (numQuestions > 0) {
+        // Initialize formattedExplanation$ array with empty subjects
+        this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+    
+        // Initialize formatted explanations
+        this.explanationTextService.initializeFormattedExplanations(numQuestions);
+    
+        // Subscribe to the first element in formattedExplanations$ if available
+        if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
+          this.explanationTextService.formattedExplanations$[0].subscribe(value => {
+            console.log('formattedExplanation$', value);
+            this.setupExplanationTextDisplay();
+            this.continueInitialization();
+          });
+        } else {
+          console.error('Formatted explanations array is not properly initialized.');
+        }
       } else {
-        console.error('Formatted explanations array is not properly initialized.');
+        console.error('Invalid number of questions:', numQuestions);
       }
-    });
+    });    
   }    
 
   continueInitialization(): void {
