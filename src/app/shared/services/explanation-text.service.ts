@@ -161,20 +161,32 @@ export class ExplanationTextService implements OnDestroy {
 
     // Ensure formattedExplanations$ is a dictionary
     if (Object.keys(this.formattedExplanations$).length !== numQuestions) {
-      // Initialize formattedExplanations$ dictionary with empty subjects
-      for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-        const questionKey = `Q${questionIndex + 1}`;
-        this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
+        // Initialize formattedExplanations$ dictionary with empty subjects
+        for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+            const questionKey = `Q${questionIndex + 1}`;
+            this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
 
-        // Log the observable for each question
-        this.formattedExplanations$[questionKey].asObservable().subscribe(value => {
-          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-        });
-      }
+            // Log the observable for each question
+            this.formattedExplanations$[questionKey].asObservable().subscribe(value => {
+                console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+            });
+        }
 
-      console.log('Formatted Explanations Dictionary:', this.formattedExplanations$);
+        console.log('Formatted Explanations Dictionary:', this.formattedExplanations$);
+
+        // Initialize formattedExplanationsDictionary
+        this.formattedExplanationsDictionary = Object.fromEntries(
+            Object.entries(this.formattedExplanations$).map(([key, value]) => {
+                const observable = value.asObservable();
+                console.log(`Key: ${key}, Value:`, observable?._value); // Log the value here
+                return [key, observable];
+            })
+        );
+
+        console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
     }
   }
+
   
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
