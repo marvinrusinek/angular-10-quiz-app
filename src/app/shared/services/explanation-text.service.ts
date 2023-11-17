@@ -164,34 +164,21 @@ export class ExplanationTextService implements OnDestroy {
   initializeFormattedExplanations(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
   
-    // Ensure formattedExplanations$ is an array and has elements
-    if (!Array.isArray(this.formattedExplanations$) || this.formattedExplanations$.length !== numQuestions) {
-      // Initialize formattedExplanations$ only if it's not already initialized or has incorrect length
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
-        const subject = new BehaviorSubject<string>('');
-        subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-          console.log(`Formatted explanation for question:`, value);
-        });
-        return subject;
-      });
-    }
+    // Initialize formattedExplanations$
+    this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
+      return new BehaviorSubject<string>('');
+    });
   
     this.formattedExplanationsDictionary = {};
   
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      const observable = subject.asObservable();
+      this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
   
-      if (observable) {
-        this.formattedExplanationsDictionary[questionKey] = observable;
-  
-        // Log the observable for each question
-        this.formattedExplanationsDictionary[questionKey].subscribe(value => {
-          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-        });
-      } else {
-        console.error(`Observable not initialized for index ${questionIndex}`);
-      }
+      // Log the observable for each question
+      this.formattedExplanationsDictionary[questionKey].subscribe(value => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+      });
     });
   
     console.log('Formatted Explanations Dictionary Keys:', Object.keys(this.formattedExplanationsDictionary));
