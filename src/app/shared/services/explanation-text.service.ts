@@ -175,19 +175,19 @@ export class ExplanationTextService implements OnDestroy {
         console.log('Formatted Explanations Dictionary:', this.formattedExplanations$);
 
         // Initialize formattedExplanationsDictionary
-        this.formattedExplanationsDictionary = Object.fromEntries(
-            Object.entries(this.formattedExplanations$).map(([key, value]) => {
-                const observable = value.asObservable();
+        this.formattedExplanationsDictionary = {};
+        for (const key in this.formattedExplanations$) {
+            if (this.formattedExplanations$.hasOwnProperty(key)) {
+                const observable = this.formattedExplanations$[key].asObservable();
+                this.formattedExplanationsDictionary[key] = observable;
                 console.log(`Key: ${key}, Value:`, observable?._value); // Log the value here
-                return [key, observable];
-            })
-        );
+            }
+        }
 
         console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
     }
   }
 
-  
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
     this.processedQuestions.clear();
