@@ -196,7 +196,6 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary Keys:', Object.keys(this.formattedExplanationsDictionary));
   }
-  
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
