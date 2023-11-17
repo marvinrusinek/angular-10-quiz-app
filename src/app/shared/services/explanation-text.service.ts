@@ -25,7 +25,8 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  formattedExplanations$: BehaviorSubject<string>[] = [];
+  // formattedExplanations$: BehaviorSubject<string>[] = [];
+  formattedExplanations$: { [key: string]: BehaviorSubject<string> } = {};
   formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
@@ -163,25 +164,22 @@ export class ExplanationTextService implements OnDestroy {
 
   initializeFormattedExplanations(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
-  
-    // Initialize formattedExplanations$
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
-      return new BehaviorSubject<string>('');
-    });
-  
-    this.formattedExplanationsDictionary = {};
-  
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
-  
-      // Log the observable for each question
-      this.formattedExplanationsDictionary[questionKey].subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-      });
-    });
-  
-    console.log('Formatted Explanations Dictionary Keys:', Object.keys(this.formattedExplanationsDictionary));
+
+    // Ensure formattedExplanations$ is a dictionary
+    if (Object.keys(this.formattedExplanations$).length !== numQuestions) {
+      // Initialize formattedExplanations$ dictionary with empty subjects
+      for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+        const questionKey = `Q${questionIndex + 1}`;
+        this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
+
+        // Log the observable for each question
+        this.formattedExplanations$[questionKey].asObservable().subscribe(value => {
+          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+        });
+      }
+
+      console.log('Formatted Explanations Dictionary:', this.formattedExplanations$);
+    }
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
