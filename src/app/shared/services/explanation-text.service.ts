@@ -166,11 +166,11 @@ export class ExplanationTextService implements OnDestroy {
   
     // Ensure formattedExplanations$ is an array and has elements
     if (!Array.isArray(this.formattedExplanations$) || this.formattedExplanations$.length !== numQuestions) {
-      // Initialize formattedExplanations$
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, questionIndex) => {
+      // Initialize formattedExplanations$ only if it's not already initialized or has incorrect length
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => {
         const subject = new BehaviorSubject<string>('');
         subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
-          console.log(`Formatted explanation for question ${questionIndex + 1}:`, value);
+          console.log(`Formatted explanation for question:`, value);
         });
         return subject;
       });
@@ -196,6 +196,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary Keys:', Object.keys(this.formattedExplanationsDictionary));
   }
+  
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
