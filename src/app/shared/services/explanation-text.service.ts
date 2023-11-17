@@ -155,13 +155,6 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  /* initializeFormattedExplanations(numQuestions: number): void {
-    // Initialize formattedExplanations$ as an array of Observables
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, () =>
-      new BehaviorSubject<string>('')
-    );
-  } */
-
   initializeFormattedExplanations(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
 
@@ -179,6 +172,13 @@ export class ExplanationTextService implements OnDestroy {
       }
 
       console.log('Formatted Explanations Dictionary:', this.formattedExplanations$);
+
+      // Initialize formattedExplanationsDictionary
+      this.formattedExplanationsDictionary = Object.fromEntries(
+        Object.entries(this.formattedExplanations$).map(([key, value]) => [key, value.asObservable()])
+      );
+
+      console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
     }
   }
 
