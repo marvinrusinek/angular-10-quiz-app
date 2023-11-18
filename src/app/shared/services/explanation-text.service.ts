@@ -164,11 +164,11 @@ export class ExplanationTextService implements OnDestroy {
         // Initialize formattedExplanationsDictionary
         this.formattedExplanationsDictionary = {};
 
-        // Log the observable for each question
         for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
             const questionKey = `Q${questionIndex + 1}`;
             const subject = new BehaviorSubject<string>('');
-            
+
+            // Log the observable for each question
             subject.pipe(takeUntil(this.destroyed$)).subscribe(value => {
                 console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
             });
