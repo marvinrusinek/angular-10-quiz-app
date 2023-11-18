@@ -208,6 +208,9 @@ export class ExplanationTextService implements OnDestroy {
   
     // Log the final state after initialization
     console.log('Formatted Explanations Dictionary (After Initialization):', this.formattedExplanationsDictionary);
+  
+    // Log the state outside the loop to check if there's any change
+    console.log('Formatted Explanations Dictionary (Outside Loop):', this.formattedExplanationsDictionary);
   }
     
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
