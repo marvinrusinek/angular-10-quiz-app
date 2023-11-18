@@ -156,9 +156,11 @@ export class ExplanationTextService implements OnDestroy {
   initializeFormattedExplanations(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
 
-    // Ensure formattedExplanations$ is a dictionary
-    if (Object.keys(this.formattedExplanations$).length !== numQuestions) {
+    // Initialize formattedExplanations$ if it's not already initialized
+    if (!this.formattedExplanations$ || Object.keys(this.formattedExplanations$).length !== numQuestions) {
         // Initialize formattedExplanations$ dictionary with empty subjects
+        this.formattedExplanations$ = {};
+
         for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
             const questionKey = `Q${questionIndex + 1}`;
             this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
@@ -193,11 +195,11 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
-    // Verify that the questionKey is within the bounds of the array
-    if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
-        this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
-    }
-    return this.formattedExplanations$[questionKey].asObservable();
+      // Verify that the questionKey is within the bounds of the array
+      if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
+          this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
+      }
+      return this.formattedExplanations$[questionKey].asObservable();
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): void {
