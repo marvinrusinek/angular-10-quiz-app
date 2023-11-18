@@ -213,7 +213,8 @@ export class CodelabQuizContentComponent
         this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
     
         // Initialize formatted explanations
-        this.explanationTextService.initializeFormattedExplanations(numQuestions);
+        this.explanationTextService.initializeFormattedExplanationsArray(numQuestions);
+        this.explanationTextService.initializeFormattedExplanationsDictionary();
     
         // Subscribe to the first element in formattedExplanations$ if available
         if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
@@ -230,193 +231,6 @@ export class CodelabQuizContentComponent
       }
     });    
   }    
-
-  continueInitialization(): void {
-    this.quizService.currentQuestionIndex$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (index) => {
-          console.log('Current question index::::>>', index);
-        },
-        (error) => {
-          console.error(
-            'Error in getCurrentQuestionIndex$ subscription:',
-            error
-          );
-        }
-      );
-
-    // Now, let's handle the formattedExplanations$ subscription without conditional checks
-    /* this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
-      subject
-        .pipe(
-          withLatestFrom(this.quizService.currentQuestionIndex$),
-          distinctUntilChanged(
-            (prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]
-          ),
-          takeUntil(this.destroy$)
-        )
-        .subscribe(([formattedExplanation, currentQuestionIndex]) => {
-          console.log(
-            `Received new formatted explanation for index ${index}:`,
-            formattedExplanation
-          );
-          console.log(
-            `Current question index for index ${index}:`,
-            currentQuestionIndex
-          );
-  
-          if (
-            formattedExplanation !== null &&
-            formattedExplanation !== undefined
-          ) {
-            this.formattedExplanation = formattedExplanation;
-  
-            console.log(
-              'Received new formatted explanation:',
-              formattedExplanation
-            );
-            console.log('Current question index:', currentQuestionIndex);
-  
-            // Log before and after the updateFormattedExplanation method call
-            this.explanationTextService
-              .getFormattedExplanation$(currentQuestionIndex)
-              .pipe(take(1))
-              .subscribe((beforeExplanation) => {
-                console.log(
-                  'Before updateFormattedExplanation call:',
-                  beforeExplanation
-                );
-              });
-  
-            this.explanationTextService.updateFormattedExplanation(
-              currentQuestionIndex,
-              this.formattedExplanation
-            );
-  
-            // Log the value after the updateFormattedExplanation call
-            this.explanationTextService
-              .getFormattedExplanation$(currentQuestionIndex)
-              .subscribe((updatedExplanation) => {
-                console.log(
-                  'After updateFormattedExplanation call:',
-                  updatedExplanation
-                );
-              });
-  
-            console.log(
-              'Formatted explanation updated for question index:',
-              currentQuestionIndex
-            );
-          }
-        });
-    }); */
-
-    // Subscribe to each Subject in formattedExplanations$
-    /* this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
-      subject
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((formattedExplanation) => {
-          console.log(`Formatted explanation for index ${index}:`, formattedExplanation);
-  
-          // Check if formattedExplanation$[index] is defined before calling .next()
-          if (this.formattedExplanation$[index]) {
-            this.formattedExplanation$[index].next(formattedExplanation);
-          } else {
-            console.error(`formattedExplanation$[${index}] is undefined`);
-          }
-        });
-    }); */
-
-    // Initialize formattedExplanation$ array
-    // this.formattedExplanation$ = Array.from({ length: formattedExplanations.length }, () => new BehaviorSubject<string>(''));
-
-    // Single forEach loop
-    /* this.explanationTextService.formattedExplanations$.forEach((subject, index) => {
-      subject
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((formattedExplanation) => {
-          console.log(`Formatted explanation for index ${index}:`, formattedExplanation);
-
-          // Check if the index is within the bounds of the array
-          if (this.formattedExplanation$.length > index) {
-            this.formattedExplanation$[index].next(formattedExplanation);
-          } else {
-            console.error(`Index ${index} is out of bounds for formattedExplanation$ array.`);
-          }
-        });
-    }); */
-    
-
-    console.log('Formatted Explanations Array:', Array.isArray(this.explanationTextService.formattedExplanations$));
-    console.log('Length of formattedExplanation$:', this.explanationTextService.formattedExplanations$.length);
-
-    if (Array.isArray(this.explanationTextService.formattedExplanations$)) {
-      // Log the array and length
-      console.log('Formatted Explanations Array::>>', this.explanationTextService.formattedExplanations$);
-      console.log('Length of formattedExplanation$::>>', this.explanationTextService.formattedExplanations$ ? this.explanationTextService.formattedExplanations$.length : 'undefined');
-
-      // Log the currentQuestionIndexValue
-      console.log('Before using currentQuestionIndexValue:', this.currentQuestionIndexValue);
-
-      // Ensure formattedExplanations$ is an array with elements
-      if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
-        console.log('formattedExplanations$ is an array with elements');
-
-        // Ensure currentQuestionIndexValue is within bounds
-        if (this.currentQuestionIndexValue !== undefined && this.currentQuestionIndexValue !== null && this.currentQuestionIndexValue < this.explanationTextService.formattedExplanations$.length) {
-          console.log('Current Question Index::>>', this.currentQuestionIndexValue);
-
-          // Retrieve the formattedExplanation$ for the current index
-          const formattedExplanation$ = this.explanationTextService.formattedExplanations$[this.currentQuestionIndexValue];
-          
-          // Check if formattedExplanation$ is defined and has a 'pipe' method
-          if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
-            console.log('About to subscribe to formattedExplanation$');
-
-            formattedExplanation$
-              .pipe(takeUntil(this.destroy$))
-              .subscribe(
-                (formattedExplanation) => {
-                  console.log('Formatted explanation for current question:', formattedExplanation);
-                },
-                (error) => {
-                  console.error('Error in formattedExplanation$ subscription:', error);
-                },
-                () => {
-                  console.log('Subscription to formattedExplanation$ completed.');
-                }
-              );
-          } else {
-            console.error('Invalid formattedExplanation$:', formattedExplanation$);
-          }
-        } else {
-          console.error('Invalid currentQuestionIndexValue:', this.currentQuestionIndexValue);
-        }
-      } else {
-        console.error('Invalid formattedExplanations$:', this.explanationTextService.formattedExplanations$);
-      }
-    }
-
-    this.explanationTextService.formattedExplanations$[
-      this.currentQuestionIndexValue
-    ]
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((formattedExplanation) => {
-        console.log(
-          'Formatted explanation for current question:',
-          formattedExplanation
-        );
-      });
-
-    this.explanationTextService
-      .getFormattedExplanation$(this.currentQuestionIndexValue)
-      .subscribe((explanation) => {
-        console.log('Received explanation from service:::', explanation);
-        this.formattedExplanation = explanation;
-      });
-  }
-  
 
   ngOnChanges(): void {
     if (
@@ -439,6 +253,58 @@ export class CodelabQuizContentComponent
     this.selectedOptionSubscription?.unsubscribe();
   }
 
+  continueInitialization(): void {
+    this.quizService.currentQuestionIndex$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (index) => {
+          console.log('Current question index::::>>', index);
+        },
+        (error) => {
+          console.error('Error in getCurrentQuestionIndex$ subscription:', error);
+        }
+      );
+  
+    // Check if formattedExplanations$ is an array with elements
+    if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
+      const currentQuestionIndex = this.currentQuestionIndexValue;
+  
+      // Ensure currentQuestionIndex is within bounds
+      if (currentQuestionIndex !== undefined && currentQuestionIndex !== null && currentQuestionIndex < this.explanationTextService.formattedExplanations$.length) {
+        console.log('Current Question Index::>>', currentQuestionIndex);
+  
+        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[currentQuestionIndex];
+  
+        // Check if formattedExplanation$ is defined and has a 'pipe' method
+        if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
+          console.log('About to subscribe to formattedExplanation$');
+  
+          formattedExplanation$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(
+              (formattedExplanation) => {
+                console.log('Formatted explanation for current question:', formattedExplanation);
+                // Update the UI or perform other actions as needed
+                this.formattedExplanation = formattedExplanation;
+              },
+              (error) => {
+                console.error('Error in formattedExplanation$ subscription:', error);
+              },
+              () => {
+                console.log('Subscription to formattedExplanation$ completed.');
+              }
+            );
+        } else {
+          console.error('Invalid formattedExplanation$:', formattedExplanation$);
+        }
+      } else {
+        console.error('Invalid currentQuestionIndexValue:', currentQuestionIndex);
+      }
+    } else {
+      console.error('Invalid formattedExplanations$:', this.explanationTextService.formattedExplanations$);
+    }
+  }
+  
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(

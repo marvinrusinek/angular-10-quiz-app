@@ -153,7 +153,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeFormattedExplanations(numQuestions: number): void {
+  initializeFormattedExplanationsArray(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
   
     // Initialize formattedExplanations$ if it's not already initialized
@@ -174,8 +174,9 @@ export class ExplanationTextService implements OnDestroy {
   
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
+  }
   
-    // Initialize formattedExplanationsDictionary
+  initializeFormattedExplanationsDictionary(): void {
     this.formattedExplanationsDictionary = {};
   
     this.formattedExplanations$.forEach((subject, questionIndex) => {
@@ -184,8 +185,8 @@ export class ExplanationTextService implements OnDestroy {
     });
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  }  
-
+  }
+  
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
