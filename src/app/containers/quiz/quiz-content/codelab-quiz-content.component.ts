@@ -572,39 +572,37 @@ export class CodelabQuizContentComponent
       )
     );
 
-    // Ensure that the formattedExplanationsDictionary is initialized
     if (!this.explanationTextService.formattedExplanationsDictionary) {
       console.error('Formatted Explanations Dictionary is not properly initialized.');
       return;
     }
-    
+  
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
-    
+  
     // Log the dictionary and check if the observable is present
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
-    
-    // Check if the dictionary entry is present
-    const dictionaryEntry = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
-    
-    if (dictionaryEntry) {
-      // Use from to create an observable
-      const observable = from(dictionaryEntry);
-    
-      // Log the observable and check if it's defined
-      console.log(`Observable for ${currentQuestionKey}:`, observable);
-    
-      observable.subscribe(
-        (explanation) => {
-          console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
-          // Update your UI to display the unique explanation text
-        },
-        (error) => {
-          console.error(`Error in observable for key ${currentQuestionKey}:`, error);
-        }
-      );
-    } else {
-      console.error(`Observable not initialized for key ${currentQuestionKey}`);
-    }
+  
+    // Delay execution to give time for the dictionary entry to be properly initialized
+    setTimeout(() => {
+      if (this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey]) {
+        const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
+  
+        // Log the observable and check if it's defined
+        console.log(`Observable for ${currentQuestionKey}:`, observable);
+  
+        observable.subscribe(
+          (explanation) => {
+            console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
+            // Update your UI to display the unique explanation text
+          },
+          (error) => {
+            console.error(`Error in observable for key ${currentQuestionKey}:`, error);
+          }
+        );
+      } else {
+        console.error(`Observable not initialized for key ${currentQuestionKey}`);
+      }
+    }, 0);
   }
 
   private setupExplanationTextSubscription(): void {
