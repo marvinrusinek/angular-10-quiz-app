@@ -583,7 +583,8 @@ export class CodelabQuizContentComponent
     // Log the dictionary and check if the observable is present
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
 
-    if (this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey]) {
+    // Check if the key exists in the dictionary
+    if (this.explanationTextService.formattedExplanationsDictionary.hasOwnProperty(currentQuestionKey)) {
       const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
 
       // Log the observable and check if it's defined
