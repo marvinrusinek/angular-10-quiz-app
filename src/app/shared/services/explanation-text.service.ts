@@ -176,7 +176,8 @@ export class ExplanationTextService implements OnDestroy {
       });
   
       if (observable && typeof observable.pipe === 'function') {
-        this.formattedExplanationsDictionary[questionKey] = observable;
+        // Cast the observable to BehaviorSubject<string>
+        this.formattedExplanationsDictionary[questionKey] = observable as BehaviorSubject<string>;
         console.log(`Observable added for ${questionKey}`);
       } else {
         console.error(`Observable not initialized or invalid for key ${questionKey}`);
@@ -194,7 +195,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-                         
+
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
     // Verify that the questionKey is within the bounds of the array
     if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
