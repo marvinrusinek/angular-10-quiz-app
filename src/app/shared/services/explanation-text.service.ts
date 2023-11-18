@@ -163,15 +163,27 @@ export class ExplanationTextService implements OnDestroy {
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
+    // Log the observable for each question after creating it
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
+      const observable = subject.asObservable();
   
-      // Log the observable for each question
-      subject.subscribe((value) => {
+      // Log the observable and check if it's defined
+      console.log(`Observable for ${questionKey}:`, observable);
+  
+      observable.subscribe(value => {
         console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
       });
+  
+      if (observable && typeof observable.pipe === 'function') {
+        this.formattedExplanationsDictionary[questionKey] = observable;
+        console.log(`Observable added for ${questionKey}`);
+      } else {
+        console.error(`Observable not initialized or invalid for key ${questionKey}`);
+      }
     });
   
+    // Wait for all Observables to emit at least once
     await forkJoin(this.formattedExplanations$.map(subject => subject.pipe(first()))).toPromise();
   
     // All Observables have emitted at least once, now populate the dictionary
@@ -182,8 +194,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-  
-                          
+                         
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
     // Verify that the questionKey is within the bounds of the array
     if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
