@@ -156,35 +156,36 @@ export class ExplanationTextService implements OnDestroy {
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
     // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-        this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-        console.log('Formatted Explanations Array:', this.formattedExplanations$);
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-
+  
     const observables: Observable<string>[] = [];
-
+  
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
-
+  
     this.formattedExplanations$.forEach((subject, questionIndex) => {
-        const questionKey = `Q${questionIndex + 1}`;
-        observables.push(subject.asObservable());
-
-        // Log the observable for each question
-        observables[questionIndex].subscribe((value) => {
-            console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-        });
+      const questionKey = `Q${questionIndex + 1}`;
+      observables.push(subject.asObservable());
+  
+      // Log the observable for each question
+      observables[questionIndex].subscribe((value) => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+      });
     });
-
-    forkJoin(observables).subscribe(() => {
-        // All Observables have emitted at least once, now populate the dictionary
-        this.formattedExplanations$.forEach((subject, questionIndex) => {
-            const questionKey = `Q${questionIndex + 1}`;
-            this.formattedExplanationsDictionary[questionKey] = subject.asObservable() as any;
-        });
-
-        console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+  
+    await forkJoin(observables).toPromise();
+  
+    // All Observables have emitted at least once, now populate the dictionary
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = subject;
     });
+  
+    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
+  
 
   /* initializeFormattedExplanationsArray(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
