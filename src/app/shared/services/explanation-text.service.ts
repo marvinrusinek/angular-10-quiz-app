@@ -189,15 +189,20 @@ export class ExplanationTextService implements OnDestroy {
         // Log the observable and check if it's defined
         console.log(`Observable for ${questionKey}:`, observable);
   
-        this.formattedExplanationsDictionary[questionKey] = observable;
+        if (observable && typeof observable.pipe === 'function') {
+          this.formattedExplanationsDictionary[questionKey] = observable;
+          console.log(`Observable added for ${questionKey}`);
+        } else {
+          console.error(`Observable not initialized for key ${questionKey}`);
+        }
       });
   
       console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
     } else {
       console.error('Formatted explanations array is not properly initialized.');
     }
-  }  
-  
+  }
+    
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
