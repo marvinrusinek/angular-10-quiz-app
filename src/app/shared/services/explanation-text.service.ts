@@ -182,11 +182,16 @@ export class ExplanationTextService implements OnDestroy {
   
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
+      const observable = subject.asObservable();
+      
+      // Log the observable and check if it's defined
+      console.log(`Observable for ${questionKey}:`, observable);
+  
+      this.formattedExplanationsDictionary[questionKey] = observable;
     });
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  }
+  }  
   
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
