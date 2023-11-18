@@ -596,10 +596,12 @@ export class CodelabQuizContentComponent
     // Check if the key exists in the dictionary
     if (this.explanationTextService.formattedExplanationsDictionary.hasOwnProperty(currentQuestionKey)) {
       const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
-  
+
+      console.log(`Observable for ${currentQuestionKey}:`, observable);
+
       if (observable && typeof observable.pipe === 'function') {
         // Use zip to wait for the observable to emit
-        zip(observable).pipe(take(1)) // take(1) to complete after the first emission
+        zip(observable).pipe(take(1))
           .subscribe(
             ([explanation]) => {
               console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
@@ -610,7 +612,7 @@ export class CodelabQuizContentComponent
             }
           );
       } else {
-          console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
+        console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
       }
     } else {
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
