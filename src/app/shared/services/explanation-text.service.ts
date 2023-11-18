@@ -179,7 +179,7 @@ export class ExplanationTextService implements OnDestroy {
         const questionKey = `Q${questionIndex + 1}`;
 
         // Set the formatted explanation for the question
-        const formattedExplanation = this.getFormattedExplanationObservable(questionIndex);
+        const formattedExplanation = this.getFormattedExplanationObservable(questionKey);
 
         // Log the observable for the question
         formattedExplanation.subscribe(value => {
@@ -192,12 +192,12 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
 
-  getFormattedExplanationObservable(questionIndex: number): Observable<string> {
-    // Verify that the questionIndex is within the bounds of the array
-    if (questionIndex < 0 || questionIndex >= this.formattedExplanations$.length) {
-        this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
+  getFormattedExplanationObservable(questionKey: string): Observable<string> {
+    // Verify that the questionKey is within the bounds of the array
+    if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
+        this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
     }
-    return this.formattedExplanations$[questionIndex].asObservable();
+    return this.formattedExplanations$[questionKey].asObservable();
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): void {
