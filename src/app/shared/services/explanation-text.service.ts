@@ -183,22 +183,15 @@ export class ExplanationTextService implements OnDestroy {
         this.formattedExplanationsDictionary = {};
         for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
             const questionKey = `Q${questionIndex + 1}`;
-            
-            // Retrieve the processed question
-            let processedQuestion: QuizQuestion;
-            this.processedQuestions$
-                .pipe(take(1))
-                .subscribe(questions => processedQuestion = questions[questionIndex]);
 
-            const explanationText = this.formatExplanationText(processedQuestion, questionIndex);
-            const observable = this.formattedExplanations$[questionKey]?.asObservable();
-
-            if (observable) {
-                this.formattedExplanationsDictionary[questionKey] = observable;
-                console.log(`Key: ${questionKey}, Value:`, explanationText);
-            } else {
-                console.error(`Observable not initialized for index ${questionIndex}`);
-            }
+            this.formattedExplanations$[questionKey].asObservable().subscribe(explanationText => {
+                if (explanationText) {
+                    this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionKey].asObservable();
+                    console.log(`Key: ${questionKey}, Value:`, explanationText);
+                } else {
+                    console.error(`Explanation not available for index ${questionIndex}`);
+                }
+            });
         }
 
         console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
