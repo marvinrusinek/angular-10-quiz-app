@@ -198,13 +198,12 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
-    const questionKey = JSON.stringify(question);
-    this.processedQuestions.clear();
+  formatExplanationText(question: QuizQuestion, questionIndex: number): void {
+    const questionKey = `Q${questionIndex + 1}`;
 
-    if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
+    if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
         console.log('Skipping already processed or invalid question:', question.questionText);
-        return { explanation: '' };
+        return;
     }
 
     console.log('Processing question:', question.questionText);
@@ -223,16 +222,19 @@ export class ExplanationTextService implements OnDestroy {
         formattedExplanation = 'No correct option selected...';
     }
 
+    // Set the formatted explanation for the question
+    const explanationSubject = new BehaviorSubject<string>(formattedExplanation);
+    this.formattedExplanationsDictionary[questionKey] = explanationSubject.asObservable();
+
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
 
-    // Set the formatted explanation for the question
-    this.formattedExplanation$.next(formattedExplanation);
+    // Log the observable for the question
+    explanationSubject.subscribe(value => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+    });
+
     this.processedQuestions.add(questionKey);
-
-    console.log('Formatted explanation for question:', formattedExplanation);
-
-    return { explanation: formattedExplanation };
   }
 
   // Function to set or update the formatted explanation for a question
