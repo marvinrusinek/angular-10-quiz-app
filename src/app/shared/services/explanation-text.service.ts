@@ -185,58 +185,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-  
-
-  /* initializeFormattedExplanationsArray(numQuestions: number): void {
-    console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
-  
-    // Initialize formattedExplanations$ if it's not already initialized
-    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-      // Initialize formattedExplanations$ array with empty subjects
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, () =>
-        new BehaviorSubject<string>('')
-      );
-  
-      this.formattedExplanations$.forEach((subject, questionIndex) => {
-        const questionKey = `Q${questionIndex + 1}`;
-  
-        // Log the observable for each question
-        subject.asObservable().subscribe(value => {
-          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-        });
-      });
-  
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
-    }
-  }
-  
-  initializeFormattedExplanationsDictionary(numQuestions: number): void {
-    // Ensure formattedExplanations$ is initialized
-    if (!this.formattedExplanations$ || Object.keys(this.formattedExplanations$).length !== numQuestions) {
-      console.error('Formatted Explanations Array is not properly initialized.');
-      return;
-    }
-  
-    // Initialize formattedExplanationsDictionary
-    this.formattedExplanationsDictionary = {};
-  
-    Object.keys(this.formattedExplanations$).forEach((questionKey) => {
-      const subject = this.formattedExplanations$[questionKey];
-  
-      // Log the observable and check if it's defined
-      console.log(`Observable for ${questionKey}:`, subject);
-  
-      if (subject instanceof BehaviorSubject) {
-        this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
-        console.log(`Observable added for ${questionKey}`);
-      } else {
-        console.error(`Observable not initialized or invalid for key ${questionKey}`);
-      }
-    });
-  
-    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  } */ 
-                      
+                        
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
