@@ -177,42 +177,35 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   initializeFormattedExplanationsDictionary(numQuestions: number): void {
-    console.log('Before initializing formattedExplanationsDictionary:', this.formattedExplanationsDictionary);
-  
-    // Log the state of formattedExplanations$
-    console.log('Formatted Explanations Array (Before Initialization):', this.formattedExplanations$);
-  
-    // Initialize formattedExplanationsDictionary only if formattedExplanations$ is properly initialized
-    if (Array.isArray(this.formattedExplanations$) && this.formattedExplanations$.length === numQuestions) {
-      // Initialize formattedExplanationsDictionary
-      this.formattedExplanationsDictionary = {};
-  
-      // Loop through questions synchronously
-      for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-        const questionKey = `Q${questionIndex + 1}`;
-        const observable = this.getFormattedExplanationObservable(questionKey); // Pass questionKey
-  
-        // Log the observable and check if it's defined
-        console.log(`Observable for ${questionKey}:`, observable);
-  
-        // Add the observable to formattedExplanationsDictionary
-        this.formattedExplanationsDictionary[questionKey] = observable;
-  
-        // Log the state after adding to the dictionary
-        console.log('Formatted Explanations Dictionary (After Adding):', this.formattedExplanationsDictionary);
-      }
-  
-      // Log the state after loop completion
-      console.log('Formatted Explanations Dictionary (After Loop):', this.formattedExplanationsDictionary);
-    } else {
-      console.error('Formatted explanations array is not properly initialized or has an incorrect length.');
+    // Ensure formattedExplanations$ is initialized
+    if (!this.formattedExplanations$ || Object.keys(this.formattedExplanations$).length !== numQuestions) {
+      console.error('Formatted Explanations Array is not properly initialized.');
+      return;
     }
   
-    // Log the state outside the loop to check if there's any change
-    console.log('Formatted Explanations Dictionary (Outside Loop):', this.formattedExplanationsDictionary);
-    console.log('Formatted Explanations Array (Outside Loop):', this.formattedExplanations$);
-  }
-              
+    // Initialize formattedExplanationsDictionary
+    this.formattedExplanationsDictionary = {};
+  
+    Object.keys(this.formattedExplanations$).forEach((questionKey) => {
+      const observable = this.formattedExplanations$[questionKey];
+  
+      // Log the state of formattedExplanations$
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+  
+      // Log the observable and check if it's defined
+      console.log(`Observable for ${questionKey}:`, observable);
+  
+      if (observable && typeof observable.pipe === 'function') {
+        this.formattedExplanationsDictionary[questionKey] = observable;
+        console.log(`Observable added for ${questionKey}`);
+      } else {
+        console.error(`Observable not initialized or invalid for key ${questionKey}`);
+      }
+    });
+  
+    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+  }  
+                    
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
