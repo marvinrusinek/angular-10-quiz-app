@@ -164,17 +164,21 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanationsDictionary = {};
   
     // Use Promise.all to wait for all Observables to emit at least once
-    await Promise.all(this.formattedExplanations$.map(subject => subject.pipe(first()).toPromise()));
+    await Promise.all(this.formattedExplanations$.map((subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
+  
+      // Log the observable for each question
+      subject.subscribe(value => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+      });
+  
+      return subject.pipe(first()).toPromise();
+    }));
   
     // Populate the dictionary after all Observables have emitted at least once
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       const observable = subject.asObservable();
-  
-      // Log the formatted explanation for each question
-      observable.subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-      });
   
       if (observable && typeof observable.pipe === 'function') {
         // Cast the observable to BehaviorSubject<string>
