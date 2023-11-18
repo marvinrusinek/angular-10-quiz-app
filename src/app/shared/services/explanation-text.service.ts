@@ -200,13 +200,16 @@ export class ExplanationTextService implements OnDestroy {
         }
       });
   
-      // Log the state after initialization
-      console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+      // Log the state after each observable is added
+      console.log('Formatted Explanations Dictionary (After Adding Observables):', this.formattedExplanationsDictionary);
     } else {
       console.error('Formatted explanations array is not properly initialized.');
     }
-  }  
-    
+  
+    // Log the final state after initialization
+    console.log('Formatted Explanations Dictionary (After Initialization):', this.formattedExplanationsDictionary);
+  }
+  
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
