@@ -3,6 +3,7 @@ import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription }
 import {
   debounceTime,
   first,
+  forkJoin,
   interval,
   map,
   switchMap,
@@ -153,38 +154,36 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    return new Promise<void>((resolve) => {
-        // Initialize formattedExplanations$ if it's not already initialized
-        if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-            this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-            console.log('Formatted Explanations Array:', this.formattedExplanations$);
-        }
+  initializeFormattedExplanations(numQuestions: number): void {
+    // Initialize formattedExplanations$ if it's not already initialized
+    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
+        this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+        console.log('Formatted Explanations Array:', this.formattedExplanations$);
+    }
 
-        const observablesInitialized = this.formattedExplanations$
-            .map(subject => subject.pipe(take(1)).toPromise());
+    const observables: Observable<string>[] = [];
 
-        Promise.all(observablesInitialized).then(() => {
-            // Initialize formattedExplanationsDictionary
-            this.formattedExplanationsDictionary = {};
+    // Initialize formattedExplanationsDictionary
+    this.formattedExplanationsDictionary = {};
 
-            this.formattedExplanations$.forEach((subject, questionIndex) => {
-                const questionKey = `Q${questionIndex + 1}`;
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
+        const questionKey = `Q${questionIndex + 1}`;
+        observables.push(subject.asObservable());
 
-                // Subscribe only after the BehaviorSubject has emitted at least once
-                subject.pipe(take(1)).subscribe(() => {
-                    this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
-
-                    // Log the observable for each question
-                    this.formattedExplanationsDictionary[questionKey].subscribe((value) => {
-                        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-                    });
-                });
-            });
-
-            console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-            resolve();
+        // Log the observable for each question
+        observables[questionIndex].subscribe((value) => {
+            console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
         });
+    });
+
+    forkJoin(observables).subscribe(() => {
+        // All Observables have emitted at least once, now populate the dictionary
+        this.formattedExplanations$.forEach((subject, questionIndex) => {
+            const questionKey = `Q${questionIndex + 1}`;
+            this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
+        });
+
+        console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
     });
   }
 
