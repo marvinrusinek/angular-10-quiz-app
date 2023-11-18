@@ -192,7 +192,7 @@ export class ExplanationTextService implements OnDestroy {
       // Log the observable and check if it's defined
       console.log(`Observable for ${questionKey}:`, subject);
   
-      if (subject instanceof BehaviorSubject) {
+      if (subject instanceof BehaviorSubject && typeof subject.value === 'string') {
         this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
         console.log(`Observable added for ${questionKey}`);
       } else {
