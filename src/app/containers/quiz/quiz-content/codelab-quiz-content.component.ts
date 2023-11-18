@@ -588,6 +588,7 @@ export class CodelabQuizContentComponent
       console.error('Formatted Explanations Dictionary is not properly initialized.');
       return;
     }
+    console.log("CQIV", this.currentQuestionIndexValue);
 
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
     console.log("CQK", currentQuestionKey);

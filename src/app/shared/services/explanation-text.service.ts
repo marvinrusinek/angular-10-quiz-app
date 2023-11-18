@@ -169,10 +169,10 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
   
-      // Log the observable for each question
+      // Log the observable for each question during initialization
       const observablePromise = new Promise<void>((resolve) => {
         subject.subscribe((value) => {
-          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+          console.log(`Formatted explanation during initialization for ${questionKey}:`, value?.toString());
           resolve();
         });
       });
@@ -183,6 +183,9 @@ export class ExplanationTextService implements OnDestroy {
     // Wait for all observables to emit at least once
     await Promise.all(observablePromises);
   
+    // Log additional information after the delay
+    console.log('After delay. All keys in dictionary:', Object.keys(this.formattedExplanationsDictionary));
+  
     // All Observables have emitted at least once, now populate the dictionary
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
@@ -191,7 +194,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-        
+          
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
     // Verify that the questionKey is within the bounds of the array
     if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
