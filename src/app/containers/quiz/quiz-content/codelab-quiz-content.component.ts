@@ -598,23 +598,23 @@ export class CodelabQuizContentComponent
       const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
   
       if (observable && typeof observable.pipe === 'function') {
-          // Use zip to wait for the observable to emit
-          zip(observable).pipe(take(1)) // take(1) to complete after the first emission
-              .subscribe(
-                  ([explanation]) => {
-                      console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
-                      // Update your UI to display the unique explanation text
-                  },
-                  (error) => {
-                      console.error(`Error in observable for key ${currentQuestionKey}:`, error);
-                  }
-              );
+        // Use zip to wait for the observable to emit
+        zip(observable).pipe(take(1)) // take(1) to complete after the first emission
+          .subscribe(
+            ([explanation]) => {
+              console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
+              // Update your UI to display the unique explanation text
+            },
+            (error) => {
+              console.error(`Error in observable for key ${currentQuestionKey}:`, error);
+            }
+          );
       } else {
           console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
       }
-  } else {
+    } else {
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
-    }  
+    }
   }
 
   private setupExplanationTextSubscription(): void {
