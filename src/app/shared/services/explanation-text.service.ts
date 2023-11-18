@@ -166,7 +166,7 @@ export class ExplanationTextService implements OnDestroy {
             const questionKey = `Q${questionIndex + 1}`;
             this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
 
-            this.formattedExplanations$[questionKey].asObservable().subscribe(value => {
+            this.formattedExplanations$[questionKey].pipe(takeUntil(this.destroyed$)).subscribe(value => {
                 console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
             });
         }
