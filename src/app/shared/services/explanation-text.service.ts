@@ -188,11 +188,6 @@ export class ExplanationTextService implements OnDestroy {
   
     Object.keys(this.formattedExplanations$).forEach((questionKey) => {
       const observable = this.formattedExplanations$[questionKey];
-    
-      // Log the state of formattedExplanations$
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
-    
-      // Log the observable and check if it's defined
       console.log(`Observable for ${questionKey}:`, observable);
     
       if (observable && typeof observable.pipe === 'function') {
