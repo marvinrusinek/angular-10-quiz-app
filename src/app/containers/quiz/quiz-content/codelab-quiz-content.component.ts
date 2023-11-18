@@ -154,85 +154,89 @@ export class CodelabQuizContentComponent
   }
 
   ngOnInit(): void {
-    this.initializeQuestionData();
-    this.initializeNextQuestionSubscription();
-    this.initializeExplanationTextSubscription();
-    this.initializeCombinedQuestionData();
-    this.setupExplanationTextSubscription();
-    this.setupCombinedQuestionData();
-    this.setupOptions();
-
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
-      this.questions = questions;
+    try {
+      this.initializeQuestionData();
+      this.initializeNextQuestionSubscription();
+      this.initializeExplanationTextSubscription();
+      this.initializeCombinedQuestionData();
+      this.setupExplanationTextSubscription();
+      this.setupCombinedQuestionData();
+      this.setupOptions();
   
-      if (this.questions && this.questions.length > 0) {
-        this.currentQuestion$.next(this.questions[0]);
+      this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+        this.questions = questions;
   
-        this.currentQuestion$.subscribe((newQuestion) => {
-          this.questionText = newQuestion.questionText;
-          this.formattedExplanation = '';
-        });
-      } else {
-        console.error('No questions loaded or questions array is empty.');
-      }
-    });
-
-    // Combine explanationTextService's observable with selectedOptionExplanation$
-    this.explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$,
-    ]).pipe(
-      map(
-        ([explanationText, selectedOptionExplanation]: [string, string]) =>
-          selectedOptionExplanation || explanationText
-      )
-    ) as Observable<string>;
-
-    // Subscribe to the selectedOptionExplanation$ observable and store the subscription
-    this.selectedOptionSubscription =
-      this.selectedOptionService.selectedOptionExplanation$.subscribe(
-        (explanationText) => {
-          if (explanationText) {
-            this.explanationText = explanationText;
-          } else {
-            this.explanationText = 'No explanation available.';
-          }
-        }
-      );
-
-    this.currentQuestion$.next(this.question);
-
-    this.currentQuestion$.subscribe((newQuestion) => {
-      this.formattedExplanation = '';
-    });
-
-    this.quizService.getTotalQuestions().subscribe(async (numQuestions) => {
-      console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
-    
-      // Ensure numQuestions is a valid number
-      if (numQuestions > 0) {
-        // Initialize formattedExplanation$ array with empty subjects
-        this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-    
-        // Initialize formatted explanations
-        await this.explanationTextService.initializeFormattedExplanations(numQuestions);
-    
-        // Subscribe to the first element in formattedExplanations$ if available
-        if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
-          this.explanationTextService.formattedExplanations$[0].subscribe(value => {
-            console.log('formattedExplanation$', value);
-            this.setupExplanationTextDisplay();
-            this.continueInitialization();
+        if (this.questions && this.questions.length > 0) {
+          this.currentQuestion$.next(this.questions[0]);
+  
+          this.currentQuestion$.subscribe((newQuestion) => {
+            this.questionText = newQuestion.questionText;
+            this.formattedExplanation = '';
           });
         } else {
-          console.error('Formatted explanations array is not properly initialized.');
+          console.error('No questions loaded or questions array is empty.');
         }
-      } else {
-        console.error('Invalid number of questions:', numQuestions);
-      }
-    });    
-  }    
-
+      });
+  
+      // Combine explanationTextService's observable with selectedOptionExplanation$
+      this.explanationText$ = combineLatest([
+        this.explanationTextService.getExplanationText$(),
+        this.selectedOptionService.selectedOptionExplanation$,
+      ]).pipe(
+        map(
+          ([explanationText, selectedOptionExplanation]: [string, string]) =>
+            selectedOptionExplanation || explanationText
+        )
+      ) as Observable<string>;
+  
+      // Subscribe to the selectedOptionExplanation$ observable and store the subscription
+      this.selectedOptionSubscription =
+        this.selectedOptionService.selectedOptionExplanation$.subscribe(
+          (explanationText) => {
+            if (explanationText) {
+              this.explanationText = explanationText;
+            } else {
+              this.explanationText = 'No explanation available.';
+            }
+          }
+        );
+  
+      this.currentQuestion$.next(this.question);
+  
+      this.currentQuestion$.subscribe((newQuestion) => {
+        this.formattedExplanation = '';
+      });
+  
+      this.quizService.getTotalQuestions().subscribe(async (numQuestions) => {
+        console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
+  
+        // Ensure numQuestions is a valid number
+        if (numQuestions > 0) {
+          // Initialize formattedExplanation$ array with empty subjects
+          this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+  
+          // Initialize formatted explanations
+          await this.explanationTextService.initializeFormattedExplanations(numQuestions);
+  
+          // Subscribe to the first element in formattedExplanations$ if available
+          if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
+            this.explanationTextService.formattedExplanations$[0].subscribe(value => {
+              console.log('formattedExplanation$', value);
+              this.setupExplanationTextDisplay();
+              this.continueInitialization();
+            });
+          } else {
+            console.error('Formatted explanations array is not properly initialized.');
+          }
+        } else {
+          console.error('Invalid number of questions:', numQuestions);
+        }
+      });
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
+    }
+  }
+  
   ngOnChanges(): void {
     if (
       this.correctAnswersText !== undefined &&

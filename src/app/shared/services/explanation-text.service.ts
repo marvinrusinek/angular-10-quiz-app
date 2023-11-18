@@ -1,9 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import {
   debounceTime,
   first,
-  forkJoin,
   interval,
   map,
   switchMap,
@@ -32,7 +31,7 @@ export class ExplanationTextService implements OnDestroy {
   processedQuestions: Set<string> = new Set<string>();
   processedQuestionsSubject: BehaviorSubject<Set<string>> = new BehaviorSubject<Set<string>>(new Set());
   questionIndexCounter = 0;
-  formattedExplanationsDictionary: { [key: string]: Observable<string> } = {};
+  formattedExplanationsDictionary: { [key: string]: BehaviorSubject<string> } = {};
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
