@@ -579,6 +579,10 @@ export class CodelabQuizContentComponent
       )
     );
 
+    checkObservable();
+  }
+
+  async checkObservable() {
     // Ensure that the formattedExplanationsDictionary is initialized
     if (!this.explanationTextService.formattedExplanationsDictionary) {
       console.error('Formatted Explanations Dictionary is not properly initialized.');
@@ -588,8 +592,11 @@ export class CodelabQuizContentComponent
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
     console.log("CQK", currentQuestionKey);
 
-    // Log the dictionary and check if the observable is present
+    // Log the dictionary
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
+
+    // Wait until the dictionary is fully populated
+    await this.delay(1000); // Adjust the delay time as needed
 
     console.log('All keys in dictionary:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
 
@@ -601,9 +608,7 @@ export class CodelabQuizContentComponent
 
       if (observable && typeof observable.pipe === 'function') {
         // Use zip to wait for the observable to emit
-        zip(observable.pipe(
-          tap(value => console.log(`Value emitted for ${currentQuestionKey}:`, value))
-        )).pipe(take(1))
+        zip(observable).pipe(take(1))
           .subscribe(
             ([explanation]) => {
               console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
@@ -619,6 +624,11 @@ export class CodelabQuizContentComponent
     } else {
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
     }
+  }
+
+  // Function to introduce a delay
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private setupExplanationTextSubscription(): void {
