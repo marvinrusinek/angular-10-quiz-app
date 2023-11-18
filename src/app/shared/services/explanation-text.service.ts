@@ -187,11 +187,11 @@ export class ExplanationTextService implements OnDestroy {
   }
                         
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
-      // Verify that the questionKey is within the bounds of the array
-      if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
-          this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
-      }
-      return this.formattedExplanations$[questionKey].asObservable();
+    // Verify that the questionKey is within the bounds of the array
+    if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
+        this.formattedExplanations$[questionKey] = new BehaviorSubject<string>('');
+    }
+    return this.formattedExplanations$[questionKey].asObservable();
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): void {
