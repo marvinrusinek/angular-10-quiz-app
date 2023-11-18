@@ -177,21 +177,26 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   initializeFormattedExplanationsDictionary(): void {
-    // Initialize formattedExplanationsDictionary
-    this.formattedExplanationsDictionary = {};
+    // Initialize formattedExplanationsDictionary only if formattedExplanations$ is properly initialized
+    if (Array.isArray(this.formattedExplanations$) && this.formattedExplanations$.length > 0) {
+      // Initialize formattedExplanationsDictionary
+      this.formattedExplanationsDictionary = {};
   
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-      const observable = subject.asObservable();
+      this.formattedExplanations$.forEach((subject, questionIndex) => {
+        const questionKey = `Q${questionIndex + 1}`;
+        const observable = subject.asObservable();
   
-      // Log the observable and check if it's defined
-      console.log(`Observable for ${questionKey}:`, observable);
+        // Log the observable and check if it's defined
+        console.log(`Observable for ${questionKey}:`, observable);
   
-      this.formattedExplanationsDictionary[questionKey] = observable;
-    });
+        this.formattedExplanationsDictionary[questionKey] = observable;
+      });
   
-    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  }   
+      console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+    } else {
+      console.error('Formatted explanations array is not properly initialized.');
+    }
+  }  
   
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
