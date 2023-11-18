@@ -217,6 +217,9 @@ export class CodelabQuizContentComponent
   
           // Initialize formatted explanations
           await this.explanationTextService.initializeFormattedExplanations(numQuestions);
+
+          // Log to check if the initialization is complete
+          console.log('Formatted Explanations initialized:', this.explanationTextService.formattedExplanations$);
   
           // Subscribe to the first element in formattedExplanations$ if available
           if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {

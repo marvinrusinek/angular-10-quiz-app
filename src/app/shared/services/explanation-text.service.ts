@@ -71,7 +71,7 @@ export class ExplanationTextService implements OnDestroy {
         console.log('Received new formatted explanation:', value);
       });
 
-    this.formattedExplanations$ = {};
+    this.formattedExplanations$ = [];
   }
 
   ngOnDestroy(): void {
@@ -153,7 +153,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeFormattedExplanations(numQuestions: number): void {
+  async initializeFormattedExplanations(numQuestions: number): Promise<void> {
     // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
         this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
@@ -179,7 +179,7 @@ export class ExplanationTextService implements OnDestroy {
         // All Observables have emitted at least once, now populate the dictionary
         this.formattedExplanations$.forEach((subject, questionIndex) => {
             const questionKey = `Q${questionIndex + 1}`;
-            this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
+            this.formattedExplanationsDictionary[questionKey] = subject.asObservable() as any;
         });
 
         console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
