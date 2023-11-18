@@ -163,16 +163,20 @@ export class ExplanationTextService implements OnDestroy {
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
+    // Log the dictionary before Observables emit
+    console.log('Formatted Explanations Dictionary (before emit):', this.formattedExplanationsDictionary);
+  
     // Use Promise.all to wait for all Observables to emit at least once
     await Promise.all(this.formattedExplanations$.map((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
   
-      // Log the observable for each question
-      subject.subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-      });
+      // Log the observable for each question before it emits
+      console.log(`Formatted explanation (before emit) for ${questionKey}:`, subject.getValue());
   
-      return subject.pipe(first()).toPromise();
+      // Log the observable for each question after it emits
+      return subject.pipe(first()).toPromise().then((value) => {
+        console.log(`Formatted explanation (after emit) for ${questionKey}:`, value);
+      });
     }));
   
     // Populate the dictionary after all Observables have emitted at least once
@@ -192,9 +196,9 @@ export class ExplanationTextService implements OnDestroy {
     console.log('All keys in dictionary:', Object.keys(this.formattedExplanationsDictionary));
   
     // Now, all Observables have emitted at least once, and the dictionary is populated
-    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+    console.log('Formatted Explanations Dictionary (after emit):', this.formattedExplanationsDictionary);
   }
-    
+      
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
     // Verify that the questionKey is within the bounds of the array
     if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
