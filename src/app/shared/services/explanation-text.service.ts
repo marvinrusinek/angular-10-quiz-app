@@ -26,8 +26,7 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   explanationTexts: { [questionIndex: number]: string } = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  // formattedExplanations$: BehaviorSubject<string>[] = [];
-  formattedExplanations$: { [key: string]: BehaviorSubject<string> } = {};
+  formattedExplanations$: BehaviorSubject<string>[] = [];
   formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
   processedQuestionsSubject: BehaviorSubject<Set<string>> = new BehaviorSubject<Set<string>>(new Set());
@@ -156,43 +155,36 @@ export class ExplanationTextService implements OnDestroy {
 
   initializeFormattedExplanations(numQuestions: number): void {
     console.log('Before initializing formattedExplanations$:', this.formattedExplanations$);
-
+  
     // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-        // Initialize formattedExplanations$ array with empty subjects
-        this.formattedExplanations$ = Array.from({ length: numQuestions }, () =>
-            new BehaviorSubject<string>('')
-        );
-
-        for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-            // Log the observable for each question
-            this.formattedExplanations$[questionIndex].asObservable().subscribe(value => {
-                console.log(`Formatted explanation for Q${questionIndex + 1}:`, value?.toString());
-            });
-        }
-
-        console.log('Formatted Explanations Array:', this.formattedExplanations$);
+      // Initialize formattedExplanations$ array with empty subjects
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () =>
+        new BehaviorSubject<string>('')
+      );
+  
+      this.formattedExplanations$.forEach((subject, questionIndex) => {
+        const questionKey = `Q${questionIndex + 1}`;
+  
+        // Log the observable for each question
+        subject.asObservable().subscribe(value => {
+          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+        });
+      });
+  
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-
+  
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
-
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-        const questionKey = `Q${questionIndex + 1}`;
-
-        // Set the formatted explanation for the question
-        const formattedExplanation$ = this.formattedExplanations$[questionIndex].asObservable();
-
-        // Log the observable for the question
-        formattedExplanation$.subscribe(value => {
-            console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-        });
-
-        this.formattedExplanationsDictionary[questionKey] = formattedExplanation$;
-    }
-
+  
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
+    });
+  
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  }
+  }  
 
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
