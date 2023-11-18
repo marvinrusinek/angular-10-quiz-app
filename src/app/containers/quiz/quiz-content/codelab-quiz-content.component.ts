@@ -571,12 +571,18 @@ export class CodelabQuizContentComponent
       )
     );
 
+    // Ensure that the formattedExplanationsDictionary is initialized
+    if (!this.explanationTextService.formattedExplanationsDictionary) {
+      console.error('Formatted Explanations Dictionary is not properly initialized.');
+      return;
+    }
+
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
 
     // Log the dictionary and check if the observable is present
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
 
-    if (this.explanationTextService.formattedExplanationsDictionary) {
+    if (this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey]) {
       const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
 
       // Log the observable and check if it's defined
@@ -591,7 +597,7 @@ export class CodelabQuizContentComponent
         console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
       }
     } else {
-      console.error('Formatted Explanations Dictionary is not properly initialized.');
+      console.error(`Observable not initialized for key ${currentQuestionKey}`);
     }
   }
 
