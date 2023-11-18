@@ -579,29 +579,35 @@ export class CodelabQuizContentComponent
     }
 
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
+    console.log("CQK", currentQuestionKey);
 
     // Log the dictionary and check if the observable is present
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
 
+    console.log('All keys in dictionary:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
+
     // Check if the key exists in the dictionary
     if (this.explanationTextService.formattedExplanationsDictionary.hasOwnProperty(currentQuestionKey)) {
       const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
-
-      // Log the observable and check if it's defined
-      console.log(`Observable for ${currentQuestionKey}:`, observable);
-
-      zip(of(null), observable).subscribe(
-        ([, explanation]) => {
-          console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
-          // Update your UI to display the unique explanation text
-        },
-        (error) => {
-          console.error(`Error in observable for key ${currentQuestionKey}:`, error);
-        }
-      );
-    } else {
+  
+      if (observable && typeof observable.pipe === 'function') {
+          // Use zip to wait for the observable to emit
+          zip(observable).pipe(take(1)) // take(1) to complete after the first emission
+              .subscribe(
+                  ([explanation]) => {
+                      console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
+                      // Update your UI to display the unique explanation text
+                  },
+                  (error) => {
+                      console.error(`Error in observable for key ${currentQuestionKey}:`, error);
+                  }
+              );
+      } else {
+          console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
+      }
+  } else {
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
-    }
+    }  
   }
 
   private setupExplanationTextSubscription(): void {

@@ -156,24 +156,29 @@ export class ExplanationTextService implements OnDestroy {
   initializeFormattedExplanations(numQuestions: number): void {
     // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+        this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+        console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
 
-    // Initialize formattedExplanationsDictionary
-    this.formattedExplanationsDictionary = {};
+    // Ensure Observables are initialized before creating the dictionary
+    if (this.formattedExplanations$ && this.formattedExplanations$.every(observable => observable instanceof BehaviorSubject)) {
+        // Initialize formattedExplanationsDictionary
+        this.formattedExplanationsDictionary = {};
 
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
+        this.formattedExplanations$.forEach((subject, questionIndex) => {
+            const questionKey = `Q${questionIndex + 1}`;
+            this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
 
-      // Log the observable for each question
-      this.formattedExplanationsDictionary[questionKey].subscribe((value) => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-      });
-    });
+            // Log the observable for each question
+            this.formattedExplanationsDictionary[questionKey].subscribe((value) => {
+                console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+            });
+        });
 
-    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+        console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+    } else {
+        console.error('Formatted explanations array is not properly initialized.');
+    }
   }
 
   /* initializeFormattedExplanationsArray(numQuestions: number): void {
