@@ -177,6 +177,9 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   initializeFormattedExplanationsDictionary(): void {
+    // Log the state before initialization
+    console.log('Before initializing formattedExplanationsDictionary:', this.formattedExplanationsDictionary);
+  
     // Initialize formattedExplanationsDictionary only if formattedExplanations$ is properly initialized
     if (Array.isArray(this.formattedExplanations$) && this.formattedExplanations$.length > 0) {
       // Initialize formattedExplanationsDictionary
@@ -197,11 +200,12 @@ export class ExplanationTextService implements OnDestroy {
         }
       });
   
+      // Log the state after initialization
       console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
     } else {
       console.error('Formatted explanations array is not properly initialized.');
     }
-  }
+  }  
     
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
