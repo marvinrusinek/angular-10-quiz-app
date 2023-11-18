@@ -601,7 +601,9 @@ export class CodelabQuizContentComponent
 
       if (observable && typeof observable.pipe === 'function') {
         // Use zip to wait for the observable to emit
-        zip(observable).pipe(take(1))
+        zip(observable.pipe(
+          tap(value => console.log(`Value emitted for ${currentQuestionKey}:`, value))
+        )).pipe(take(1))
           .subscribe(
             ([explanation]) => {
               console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
