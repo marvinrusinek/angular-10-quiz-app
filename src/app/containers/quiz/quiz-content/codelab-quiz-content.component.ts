@@ -284,7 +284,6 @@ export class CodelabQuizContentComponent
             .subscribe(
               (formattedExplanation) => {
                 console.log('Formatted explanation for current question:', formattedExplanation);
-                // Update the UI or perform other actions as needed
                 this.formattedExplanation = formattedExplanation;
               },
               (error) => {
@@ -573,6 +572,10 @@ export class CodelabQuizContentComponent
     );
 
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
+
+    // Log the dictionary and check if the observable is present
+    console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
+
     if (this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey]) {
       this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey].subscribe((explanation) => {
         console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
@@ -580,7 +583,7 @@ export class CodelabQuizContentComponent
       });
     } else {
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
-    }    
+    } 
   }
 
   private setupExplanationTextSubscription(): void {

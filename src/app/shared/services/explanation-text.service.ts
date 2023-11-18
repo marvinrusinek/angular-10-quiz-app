@@ -177,6 +177,7 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   initializeFormattedExplanationsDictionary(): void {
+    // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
     this.formattedExplanations$.forEach((subject, questionIndex) => {
