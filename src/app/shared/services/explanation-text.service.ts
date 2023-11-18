@@ -192,7 +192,7 @@ export class ExplanationTextService implements OnDestroy {
       // Log the observable and check if it's defined
       console.log(`Observable for ${questionKey}:`, subject);
   
-      if (subject instanceof BehaviorSubject && typeof subject.value === 'string') {
+      if (subject instanceof BehaviorSubject) {
         this.formattedExplanationsDictionary[questionKey] = subject.asObservable();
         console.log(`Observable added for ${questionKey}`);
       } else {
@@ -201,7 +201,7 @@ export class ExplanationTextService implements OnDestroy {
     });
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  }
+  }  
                       
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
