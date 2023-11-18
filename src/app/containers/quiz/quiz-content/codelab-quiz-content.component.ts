@@ -579,7 +579,7 @@ export class CodelabQuizContentComponent
       )
     );
 
-    checkObservable();
+    this.checkObservable();
   }
 
   async checkObservable() {
