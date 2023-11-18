@@ -164,13 +164,18 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanationsDictionary = {};
   
     // Log the observable for each question after creating it
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
+    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
+      const subject = this.formattedExplanations$[questionIndex];
       const observable = subject.asObservable();
   
       // Log the observable and check if it's defined
       console.log(`Observable for ${questionKey}:`, observable);
   
+      // Subscribe to the observable to ensure it emits a value
+      await observable.pipe(first()).toPromise();
+  
+      // Log the formatted explanation for each question
       observable.subscribe(value => {
         console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
       });
@@ -182,20 +187,14 @@ export class ExplanationTextService implements OnDestroy {
       } else {
         console.error(`Observable not initialized or invalid for key ${questionKey}`);
       }
-    });
+    }
   
-    // Wait for all Observables to emit at least once
-    await forkJoin(this.formattedExplanations$.map(subject => subject.pipe(first()))).toPromise();
+    console.log('All keys in dictionary:', Object.keys(this.formattedExplanationsDictionary));
   
-    // All Observables have emitted at least once, now populate the dictionary
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject;
-    });
-  
+    // Now, all Observables have emitted at least once, and the dictionary is populated
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-
+  
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
     // Verify that the questionKey is within the bounds of the array
     if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
