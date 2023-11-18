@@ -214,7 +214,7 @@ export class CodelabQuizContentComponent
     
         // Initialize formatted explanations
         this.explanationTextService.initializeFormattedExplanationsArray(numQuestions);
-        this.explanationTextService.initializeFormattedExplanationsDictionary();
+        this.explanationTextService.initializeFormattedExplanationsDictionary(numQuestions);
     
         // Subscribe to the first element in formattedExplanations$ if available
         if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {

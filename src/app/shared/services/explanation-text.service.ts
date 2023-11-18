@@ -176,18 +176,17 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
   
-  initializeFormattedExplanationsDictionary(): void {
-    // Log the state before initialization
+  initializeFormattedExplanationsDictionary(numQuestions: number): void {
     console.log('Before initializing formattedExplanationsDictionary:', this.formattedExplanationsDictionary);
   
     // Initialize formattedExplanationsDictionary only if formattedExplanations$ is properly initialized
-    if (Array.isArray(this.formattedExplanations$) && this.formattedExplanations$.length > 0) {
+    if (Array.isArray(this.formattedExplanations$) && this.formattedExplanations$.length === numQuestions) {
       // Initialize formattedExplanationsDictionary
       this.formattedExplanationsDictionary = {};
   
-      for (let questionIndex = 0; questionIndex < this.formattedExplanations$.length; questionIndex++) {
+      for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
         const questionKey = `Q${questionIndex + 1}`;
-        const observable = this.getFormattedExplanationObservable(questionIndex);
+        const observable = this.getFormattedExplanationObservable(questionKey);
   
         // Log the observable and check if it's defined
         console.log(`Observable for ${questionKey}:`, observable);
@@ -199,13 +198,13 @@ export class ExplanationTextService implements OnDestroy {
       // Log the state after initialization
       console.log('Formatted Explanations Dictionary (After Initialization):', this.formattedExplanationsDictionary);
     } else {
-      console.error('Formatted explanations array is not properly initialized.');
+      console.error('Formatted explanations array is not properly initialized or has an incorrect length.');
     }
   
     // Log the state outside the loop to check if there's any change
     console.log('Formatted Explanations Dictionary (Outside Loop):', this.formattedExplanationsDictionary);
   }
-      
+          
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
