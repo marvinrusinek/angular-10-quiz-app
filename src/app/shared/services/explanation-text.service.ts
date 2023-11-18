@@ -179,6 +179,9 @@ export class ExplanationTextService implements OnDestroy {
   initializeFormattedExplanationsDictionary(numQuestions: number): void {
     console.log('Before initializing formattedExplanationsDictionary:', this.formattedExplanationsDictionary);
   
+    // Log the state of formattedExplanations$
+    console.log('Formatted Explanations Array (Before Initialization):', this.formattedExplanations$);
+  
     // Initialize formattedExplanationsDictionary only if formattedExplanations$ is properly initialized
     if (Array.isArray(this.formattedExplanations$) && this.formattedExplanations$.length === numQuestions) {
       // Initialize formattedExplanationsDictionary
@@ -186,7 +189,7 @@ export class ExplanationTextService implements OnDestroy {
   
       for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
         const questionKey = `Q${questionIndex + 1}`;
-        const observable = this.getFormattedExplanationObservable(questionKey);
+        const observable = this.getFormattedExplanationObservable(questionKey); // Pass questionKey
   
         // Log the observable and check if it's defined
         console.log(`Observable for ${questionKey}:`, observable);
@@ -203,8 +206,9 @@ export class ExplanationTextService implements OnDestroy {
   
     // Log the state outside the loop to check if there's any change
     console.log('Formatted Explanations Dictionary (Outside Loop):', this.formattedExplanationsDictionary);
+    console.log('Formatted Explanations Array (Outside Loop):', this.formattedExplanations$);
   }
-          
+            
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
       // Verify that the questionKey is within the bounds of the array
       if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
