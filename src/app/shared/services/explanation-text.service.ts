@@ -30,6 +30,7 @@ export class ExplanationTextService implements OnDestroy {
   formattedExplanations$: { [key: string]: BehaviorSubject<string> } = {};
   formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
+  processedQuestionsSubject: BehaviorSubject<Set<string>> = new BehaviorSubject<Set<string>>(new Set());
   questionIndexCounter = 0;
   formattedExplanationsDictionary: { [key: string]: Observable<string> } = {};
 
@@ -119,6 +120,10 @@ export class ExplanationTextService implements OnDestroy {
     this.processedQuestions = new Set<string>();
   }
 
+  get processedQuestions$(): Observable<Set<string>> {
+    return this.processedQuestionsSubject.asObservable();
+  }
+
   getFormattedExplanationObservable(questionIndex: number): Observable<string> {
     // Verify that the questionIndex is within the bounds of the array
     if (questionIndex < 0 || questionIndex >= this.formattedExplanations$.length) {
@@ -176,11 +181,23 @@ export class ExplanationTextService implements OnDestroy {
 
         // Initialize formattedExplanationsDictionary
         this.formattedExplanationsDictionary = {};
-        for (const key in this.formattedExplanations$) {
-            if (this.formattedExplanations$.hasOwnProperty(key)) {
-                const observable = this.formattedExplanations$[key].asObservable();
-                this.formattedExplanationsDictionary[key] = observable;
-                console.log(`Key: ${key}, Value:`, observable?._value); // Log the value here
+        for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+            const questionKey = `Q${questionIndex + 1}`;
+            
+            // Retrieve the processed question
+            let processedQuestion: QuizQuestion;
+            this.processedQuestions$
+                .pipe(take(1))
+                .subscribe(questions => processedQuestion = questions[questionIndex]);
+
+            const explanationText = this.formatExplanationText(processedQuestion, questionIndex);
+            const observable = this.formattedExplanations$[questionKey]?.asObservable();
+
+            if (observable) {
+                this.formattedExplanationsDictionary[questionKey] = observable;
+                console.log(`Key: ${questionKey}, Value:`, explanationText);
+            } else {
+                console.error(`Observable not initialized for index ${questionIndex}`);
             }
         }
 
@@ -212,6 +229,9 @@ export class ExplanationTextService implements OnDestroy {
     } else {
         formattedExplanation = 'No correct option selected...';
     }
+
+    // Update the processedQuestions set
+    this.processedQuestionsSubject.next(this.processedQuestions);
 
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
