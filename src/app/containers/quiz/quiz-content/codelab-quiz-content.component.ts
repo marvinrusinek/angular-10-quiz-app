@@ -215,8 +215,7 @@ export class CodelabQuizContentComponent
         this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
     
         // Initialize formatted explanations
-        this.explanationTextService.initializeFormattedExplanationsArray(numQuestions);
-        this.explanationTextService.initializeFormattedExplanationsDictionary(numQuestions);
+        this.explanationTextService.initializeFormattedExplanations(numQuestions);
     
         // Subscribe to the first element in formattedExplanations$ if available
         if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
