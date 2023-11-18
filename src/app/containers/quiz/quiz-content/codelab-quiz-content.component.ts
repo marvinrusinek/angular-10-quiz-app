@@ -576,14 +576,23 @@ export class CodelabQuizContentComponent
     // Log the dictionary and check if the observable is present
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
 
-    if (this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey]) {
-      this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey].subscribe((explanation) => {
-        console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
-        // Update your UI to display the unique explanation text
-      });
+    if (this.explanationTextService.formattedExplanationsDictionary) {
+      const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
+
+      // Log the observable and check if it's defined
+      console.log(`Observable for ${currentQuestionKey}:`, observable);
+
+      if (observable && typeof observable.pipe === 'function') {
+        observable.subscribe((explanation) => {
+          console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
+          // Update your UI to display the unique explanation text
+        });
+      } else {
+        console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
+      }
     } else {
-      console.error(`Observable not initialized for key ${currentQuestionKey}`);
-    } 
+      console.error('Formatted Explanations Dictionary is not properly initialized.');
+    }
   }
 
   private setupExplanationTextSubscription(): void {
