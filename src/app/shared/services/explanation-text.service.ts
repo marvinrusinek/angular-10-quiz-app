@@ -258,6 +258,7 @@ export class ExplanationTextService implements OnDestroy {
 
     // Store the explanation text for the question
     this.explanationTexts[questionKey] = formattedExplanation;
+    console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
   
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
