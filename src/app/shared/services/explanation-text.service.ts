@@ -170,8 +170,12 @@ export class ExplanationTextService implements OnDestroy {
       const questionKey = `Q${questionIndex + 1}`;
   
       // Log the observable for each question during initialization
-      const observablePromise = subject.pipe(take(1)).toPromise().then(() => {
-        console.log(`Formatted explanation for ${questionKey}: ${subject.value}`);
+      const observablePromise = new Promise<void>((resolve) => {
+        const subscription = subject.pipe(take(1)).subscribe((value) => {
+          console.log(`Formatted explanation for ${questionKey}: ${value}`);
+          subscription.unsubscribe(); // Unsubscribe after the first value is emitted
+          resolve();
+        });
       });
   
       observablePromises.push(observablePromise);
@@ -191,7 +195,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-    
+      
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
