@@ -173,20 +173,20 @@ export class ExplanationTextService implements OnDestroy {
       const observable = new BehaviorSubject<string>('');
       const subscription = subject.pipe(
         take(1)
-      ).subscribe(
-        (value) => {
+      ).subscribe({
+        next: (value) => {
           observable.next(value);
           console.log(`Formatted explanation for ${questionKey}: ${value}`);
         },
-        (error) => {
+        error: (error) => {
           console.error(`Error in observable for ${questionKey}:`, error);
         },
-        () => {
+        complete: () => {
           if (subscription) {
             subscription.unsubscribe();
           }
         }
-      );
+      });
 
       observables.push(observable);
     });
