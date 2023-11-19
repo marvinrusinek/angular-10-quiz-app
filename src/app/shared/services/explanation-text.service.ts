@@ -186,6 +186,11 @@ export class ExplanationTextService implements OnDestroy {
           if (subscription) {
             subscription.unsubscribe();
           }
+        },
+        complete: () => {
+          if (subscription) {
+            subscription.unsubscribe();
+          }
         }
       });
 
