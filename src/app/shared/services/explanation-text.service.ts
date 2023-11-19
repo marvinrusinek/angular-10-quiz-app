@@ -204,14 +204,21 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after emit:', observables);
 
     // All Observables have emitted at least once, now populate the dictionary
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
+    await Promise.all(this.formattedExplanations$.map(async (subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
-
+    
       // Log the observable for each question during initialization
-      const formattedExplanation = this.formattedExplanation$[questionIndex]; 
+      const formattedExplanation = this.formattedExplanation$[questionIndex];
+
+      console.log('formattedExplanation$:', this.formattedExplanation$);
+      console.log('formattedExplanation:', formattedExplanation);
+    
+      // Introduce a small delay with a Promise
+      await new Promise(resolve => setTimeout(resolve, 0));
+    
       subject.next(formattedExplanation);
-    });
+    }));
 
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
 
