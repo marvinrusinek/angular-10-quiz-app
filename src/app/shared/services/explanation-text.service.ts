@@ -197,7 +197,7 @@ export class ExplanationTextService implements OnDestroy {
     // Log the dictionary after all observables have emitted
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-
+         
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
