@@ -158,51 +158,48 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-  
+
     this.formattedExplanationsDictionary = {};
-  
+
     console.log('formattedExplanations$ array:', this.formattedExplanations$.map(subject => subject.getValue()));
-  
+
     // Create an array to store observables
     const observables: BehaviorSubject<string>[] = [];
-  
+
     // Initialize the dictionary and observables
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-  
+
       // Log the observable for each question during initialization
       const observable = new BehaviorSubject<string>('');
       observable.pipe(take(1)).subscribe(value => {
         console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
       });
-  
+
       // Ensure that the value is not undefined before assigning
       const formattedExplanation = observable.getValue();
       console.log('formattedExplanation$:::::', formattedExplanation);
-  
+
       // Introduce a small delay with a Promise
       setTimeout(() => {
         subject.next(formattedExplanation);
-        this.formattedExplanationsDictionary[questionKey] = subject;
-  
+        subject.complete(); // Complete the Observable after emitting its value
+        observables.push(subject);
+
         // Log the observable for each question during initialization
         console.log(`formattedExplanation$[${questionIndex}] after assignment:`, subject.getValue());
       }, 0);
-  
-      observables.push(observable);
     });
-  
-    // Log observables just before waiting for them to emit
-    console.log('Observables just before waiting for emit:', observables);
-  
+
     // Wait for all observables to emit at least once
-    await Promise.all(observables.map(obs => obs.pipe(take(1)).toPromise()));
-  
-    console.log('Observables after emit:', observables);
-  
-    console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
-  
-    // Log observables and dictionary after initialization
+    await forkJoin(observables.map(obs => obs.pipe(take(1)).toPromise())).toPromise();
+
+    // Populate the dictionary after all Observables have emitted
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = subject;
+    });
+
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
