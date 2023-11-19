@@ -179,9 +179,15 @@ export class ExplanationTextService implements OnDestroy {
   
       observables.push(observable);
     });
+
+    // Log observables just before waiting for them to emit
+    console.log('Observables just before waiting for emit:', observables);
   
     // Wait for all observables to emit at least once
     await forkJoin(observables).toPromise();
+
+    // Log observables after emitting
+    console.log('Observables after emit:', observables);
   
     // All Observables have emitted at least once, now populate the dictionary
     this.formattedExplanations$.forEach((subject, questionIndex) => {
