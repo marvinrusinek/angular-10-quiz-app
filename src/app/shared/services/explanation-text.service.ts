@@ -171,10 +171,14 @@ export class ExplanationTextService implements OnDestroy {
   
       // Log the observable for each question during initialization
       const observablePromise = new Promise<void>((resolve) => {
-        const subscription = subject.pipe(take(1)).subscribe({
+        let subscription: Subscription | undefined;
+        
+        subscription = subject.pipe(take(1)).subscribe({
           next: (value) => {
             console.log(`Formatted explanation for ${questionKey}: ${value}`);
-            subscription.unsubscribe(); // Unsubscribe after the first value is emitted
+            if (subscription) {
+              subscription.unsubscribe(); // Unsubscribe after the first value is emitted
+            }
             resolve();
           },
           error: (error) => {
@@ -182,8 +186,8 @@ export class ExplanationTextService implements OnDestroy {
             resolve(); // Resolve the promise even if there's an error
           },
         });
-      });      
-  
+      });
+           
       observablePromises.push(observablePromise);
     });
   
