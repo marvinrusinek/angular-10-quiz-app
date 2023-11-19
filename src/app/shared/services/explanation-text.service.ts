@@ -171,14 +171,9 @@ export class ExplanationTextService implements OnDestroy {
   
       // Log the observable for each question during initialization
       const observablePromise = new Promise<void>((resolve) => {
-        let subscription: Subscription | undefined;
-  
-        subscription = subject.pipe(take(1)).subscribe({
+        subject.pipe(take(1)).subscribe({
           next: (value) => {
             console.log(`Formatted explanation for ${questionKey}: ${value}`);
-            if (subscription) {
-              subscription.unsubscribe(); // Unsubscribe after the first value is emitted
-            }
             resolve();
           },
           error: (error) => {
@@ -189,6 +184,9 @@ export class ExplanationTextService implements OnDestroy {
       });
   
       observablePromises.push(observablePromise);
+  
+      // Store the BehaviorSubject directly in the dictionary
+      this.formattedExplanationsDictionary[questionKey] = subject;
     });
   
     // Wait for all observables to emit at least once
@@ -196,16 +194,10 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
   
-    // All Observables have emitted at least once, now populate the dictionary
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject;
-      console.log('Formatted Explanations Dictionary after emit:', this.formattedExplanationsDictionary);
-    });
-  
+    // Log the dictionary after all observables have emitted
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
-  }  
-        
+  }
+       
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
