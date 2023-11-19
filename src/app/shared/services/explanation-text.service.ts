@@ -163,83 +163,42 @@ export class ExplanationTextService implements OnDestroy {
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
-    // Create an array to store observables
-    const observables: BehaviorSubject<string>[] = [];
-
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-      const explanationObservable = this.formattedExplanationsDictionary[questionKey];
-      console.log("EO", explanationObservable);
-
-      if (explanationObservable) {
-        explanationObservable.subscribe(value => {
-          console.log(`Formatted explanation for ${questionKey}::>>`, value?.toString());
-        });
-      }
-
-      // Log the observable for each question during initialization
-      const observable = new BehaviorSubject<string>('');
-
-      // Use take(1) to automatically unsubscribe after the first value is emitted
-      const subscription = subject.pipe(take(1)).subscribe({
-        next: (value) => {
-          observable.next(value);
-          console.log(`Formatted explanation for ${questionKey}: ${value}`);
-        },
-        error: (error) => {
-          console.error(`Error in observable for ${questionKey}:`, error);
-        },
-      });
-
-      observables.push(observable);
-    });
-
-    // Log observables just before waiting for them to emit
-    console.log('Observables just before waiting for emit:', observables);
-
-    // Log observable types just before waiting for them to emit
-    observables.forEach((observable, index) => {
-      console.log(`Observable ${index + 1} type:`, observable.constructor.name);
-    });
-
-    // Log observables just before waiting for them to emit
-    console.log('Observables just before waiting for emit:', observables);
-
+    // Log the formattedExplanations$ array
+    console.log('formattedExplanations$ array:', this.formattedExplanations$.map(subject => subject.getValue()));
+  
     // Wait for all observables to emit at least once
-    await Promise.all(observables.map(obs => obs.pipe(take(1)).toPromise()));
-
-    // Log observables after emitting
-    console.log('Observables after emit:', observables);
-
-    // All Observables have emitted at least once, now populate the dictionary
     await Promise.all(this.formattedExplanations$.map(async (subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject;
-
+  
       // Log the observable for each question during initialization
-      console.log(`formattedExplanation$[${questionIndex}] before assignment:`, this.formattedExplanation$.getValue());
-
-      // Log the formattedExplanation$ array
-      console.log('formattedExplanation$ array:', this.formattedExplanation$.getValue());
-
+      subject.pipe(take(1)).subscribe(value => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+      });
+  
+      // Log the value immediately after setting it
+      console.log(`Value immediately after setting for ${questionKey}:`, subject.getValue());
+  
+      // Log the observable for each question during initialization
+      console.log(`formattedExplanation$[${questionIndex}] before assignment:`, subject.getValue());
+  
       // Ensure that the value is not undefined before assigning
-      const formattedExplanation = this.formattedExplanation$.getValue();
+      const formattedExplanation = subject.getValue();
       console.log('formattedExplanation$:::::', formattedExplanation);
-
+  
       // Introduce a small delay with a Promise
       await new Promise(resolve => setTimeout(resolve, 0));
-
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+  
+      this.formattedExplanationsDictionary[questionKey] = subject;
       subject.next(formattedExplanation);
     }));
-
+  
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
-
+  
     // Log observables and dictionary after initialization
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-             
+               
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
