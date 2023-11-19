@@ -164,25 +164,30 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanationsDictionary = {};
   
     // Create an array to store observables
-    const observables: Observable<string>[] = [];
-  
+    const observables: BehaviorSubject<string>[] = [];
+
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-  
+
       // Log the observable for each question during initialization
       const observable = subject.pipe(
         tap((value) => {
           console.log(`Formatted explanation for ${questionKey}: ${value}`);
         }),
         take(1)
-      );
-  
+      ) as BehaviorSubject<string>;
+
       observables.push(observable);
     });
 
     // Log observables just before waiting for them to emit
     console.log('Observables just before waiting for emit:', observables);
-  
+
+    // Log observable types just before waiting for them to emit
+    observables.forEach((observable, index) => {
+     console.log(`Observable ${index + 1} type:`, observable.constructor.name);
+    });
+
     // Wait for all observables to emit at least once
     await forkJoin(observables).toPromise();
 
