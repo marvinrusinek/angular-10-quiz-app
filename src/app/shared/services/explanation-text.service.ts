@@ -154,26 +154,30 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, index) => {
-      const questionKey = `Q${index + 1}`;
-      const formattedExplanation$ = new BehaviorSubject<string>('');
-      
-      // Log the observable for each question during initialization
-      formattedExplanation$.pipe(take(1)).subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+    this.formattedExplanations$ = [];
+
+    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+      await new Promise<void>(resolve => {
+        const questionKey = `Q${questionIndex + 1}`;
+        const formattedExplanation$ = new BehaviorSubject<string>('');
+
+        // Log the observable for each question during initialization
+        formattedExplanation$.pipe(take(1)).subscribe(value => {
+          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+        });
+
+        // Ensure that the value is not undefined before assigning
+        const formattedExplanation = formattedExplanation$.getValue();
+        console.log('formattedExplanation$:::::', formattedExplanation);
+
+        // Introduce a small delay with a Promise
+        setTimeout(() => {
+          formattedExplanation$.next(formattedExplanation);
+          this.formattedExplanations$.push(formattedExplanation$);
+          resolve();
+        }, 0);
       });
-
-      // Ensure that the value is not undefined before assigning
-      const formattedExplanation = formattedExplanation$.getValue();
-      console.log('formattedExplanation$:::::', formattedExplanation);
-
-      // Introduce a small delay with a Promise
-      setTimeout(() => {
-        formattedExplanation$.next(formattedExplanation);
-      }, 0);
-
-      return formattedExplanation$;
-    });
+    }
 
     // Wait for all observables to emit at least once
     await forkJoin(this.formattedExplanations$.map(obs => obs.pipe(take(1)).toPromise())).toPromise();
@@ -188,7 +192,6 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-
   
   // Function to introduce a delay
   delay(ms: number) {
