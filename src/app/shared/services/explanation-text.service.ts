@@ -184,12 +184,19 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
   
-    // Set a dummy value to trigger the observable
-    formattedExplanation$.next('dummy');
+    // Set the initial value based on your logic
+    const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
+    formattedExplanation$.next(initialFormattedExplanation);
   
     // Introduce a small delay with a Promise
     await new Promise(resolve => setTimeout(resolve, 0));
   }
+  
+  private calculateInitialFormattedExplanation(questionIndex: number): string {
+    // Add your logic here to calculate the initial value based on the questionIndex
+    return `Initial value for Q${questionIndex + 1}`;
+  }
+  
   
   // Function to introduce a delay
   delay(ms: number) {
