@@ -24,7 +24,7 @@ export class ExplanationTextService implements OnDestroy {
     string | null
   >('');
   explanations: string[] = [];
-  explanationTexts: { [questionIndex: number]: string } = {};
+  explanationTexts: { [key: string]: string } = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations$: BehaviorSubject<string>[] = [];
   formattedExplanations: FormattedExplanation[] = [];
@@ -193,10 +193,20 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
-    const processedQuestionsString = Array.from(this.processedQuestionsSubject.getValue()).join(', ');
+    const questionKey = `Q${questionIndex + 1}`;
   
-    return `Initial value for Q${questionIndex + 1}. Processed Questions: ${processedQuestionsString}`;
-  }  
+    // Check if the explanation text for the question exists
+    const explanationText = this.explanationTexts[questionKey];
+  
+    if (explanationText) {
+      // Explanation text exists, include it in the result
+      return `${explanationText}`;
+    } else {
+      // Explanation text does not exist, provide a default message
+      return `No explanation text available for ${questionKey}`;
+    }
+  }
+   
   
   // Function to introduce a delay
   delay(ms: number) {
@@ -245,6 +255,9 @@ export class ExplanationTextService implements OnDestroy {
   
     // Set the value using next
     explanationSubject.next(formattedExplanation);
+
+    // Store the explanation text for the question
+    this.explanationTexts[questionKey] = formattedExplanation;
   
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
