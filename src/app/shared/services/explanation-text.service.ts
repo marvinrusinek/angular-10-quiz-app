@@ -155,41 +155,44 @@ export class ExplanationTextService implements OnDestroy {
 
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
     this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-
+  
+    // Call formatExplanationText() for each question before proceeding
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      const questionKey = `Q${questionIndex + 1}`;
-      const formattedExplanation$ = this.formattedExplanations$[questionIndex];
-
-      // Log the observable for each question during initialization
-      formattedExplanation$.pipe(take(1)).subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-      });
-
-      // Ensure that the value is not undefined before assigning
-      const formattedExplanation = 'default'; // Provide your actual default value here
-      console.log('formattedExplanation$:::::', formattedExplanation);
-
-      // Use 'from' to create an Observable that emits the initial value
-      await from([formattedExplanation]).toPromise();
-
-      formattedExplanation$.next(formattedExplanation);
+      this.formatExplanationTextForInitialization(questionIndex);
     }
-
+  
     // Wait for all observables to emit at least once
     await forkJoin(this.formattedExplanations$.map(obs => obs.pipe(take(1)).toPromise())).toPromise();
-
+  
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
     });
-
+  
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
 
-
+  private formatExplanationTextForInitialization(questionIndex: number): void {
+    const questionKey = `Q${questionIndex + 1}`;
+    const formattedExplanation$ = this.formattedExplanations$[questionIndex];
+  
+    // Log the observable for each question during initialization
+    formattedExplanation$.pipe(take(1)).subscribe(value => {
+      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+    });
+  
+    // Ensure that the value is not undefined before assigning
+    const formattedExplanation = 'default'; // Provide your actual default value here
+    console.log('formattedExplanation$:::::', formattedExplanation);
+  
+    // Use 'from' to create an Observable that emits the initial value
+    from([formattedExplanation]).toPromise().then(() => {
+      formattedExplanation$.next(formattedExplanation);
+    });
+  }
 
   // Function to introduce a delay
   delay(ms: number) {
