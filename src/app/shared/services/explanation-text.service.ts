@@ -158,11 +158,11 @@ export class ExplanationTextService implements OnDestroy {
   
     // Call formatExplanationText() for each question before proceeding
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      this.formatExplanationTextForInitialization(questionIndex);
+      await this.formatExplanationTextForInitialization(questionIndex);
     }
   
-    // Wait for all observables to emit at least once
-    await forkJoin(this.formattedExplanations$.map(obs => obs.pipe(take(1)).toPromise())).toPromise();
+    // Wait for a short delay to ensure all observables have emitted
+    await new Promise(resolve => setTimeout(resolve, 0));
   
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
@@ -174,8 +174,8 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-
-  private formatExplanationTextForInitialization(questionIndex: number): void {
+  
+  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
   
@@ -184,16 +184,13 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
   
-    // Ensure that the value is not undefined before assigning
-    const formattedExplanation = 'default'; // Provide your actual default value here
-    console.log('formattedExplanation$:::::', formattedExplanation);
+    // Set a dummy value to trigger the observable
+    formattedExplanation$.next('dummy');
   
-    // Use 'from' to create an Observable that emits the initial value
-    from([formattedExplanation]).toPromise().then(() => {
-      formattedExplanation$.next(formattedExplanation);
-    });
+    // Introduce a small delay with a Promise
+    await new Promise(resolve => setTimeout(resolve, 0));
   }
-
+  
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -231,33 +228,23 @@ export class ExplanationTextService implements OnDestroy {
       formattedExplanation = 'No correct option selected...';
     }
   
-    // Set the formatted explanation for the question
-    const explanationSubject = new BehaviorSubject<string>(''); // Initialize without default value
+    // Set the formatted explanation for the question using the existing BehaviorSubject
+    const explanationSubject = this.formattedExplanations$[questionIndex];
   
     // Log the observable for the question
     explanationSubject.subscribe(value => {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
   
-    // Use a Promise to ensure the order of execution
-    const setFormattedExplanation = async () => {
-      await Promise.resolve(); // Introduce a microtask to allow the next tick
-      explanationSubject.next(formattedExplanation);
-    };
-  
-    setFormattedExplanation();
-  
-    this.formattedExplanationsDictionary[questionKey] = explanationSubject;
+    // Set the value using next
+    explanationSubject.next(formattedExplanation);
   
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
   
     this.processedQuestions.add(questionKey);
-  
-    // Now call initializeFormattedExplanations() after setting the value
-    this.initializeFormattedExplanations(this.formattedExplanations$.length);
   }
-      
+        
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
     questionIndex: number,
