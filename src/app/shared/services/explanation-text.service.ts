@@ -1,23 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, forkJoin, from, Observable, of, Subject, Subscription } from 'rxjs';
-import {
-  debounceTime,
-  first,
-  interval,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap, 
-  throwError
-} from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { take, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
-import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
