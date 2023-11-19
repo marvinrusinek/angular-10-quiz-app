@@ -498,7 +498,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private initializeCombinedQuestionData(): void {
+  async private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
@@ -579,7 +579,7 @@ export class CodelabQuizContentComponent
       )
     );
 
-    this.checkObservable();
+    await this.checkObservable();
   }
 
   async checkObservable() {
