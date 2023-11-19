@@ -236,7 +236,13 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
   
-    explanationSubject.next(formattedExplanation);
+    // Use a Promise to ensure the order of execution
+    const setFormattedExplanation = async () => {
+      await Promise.resolve(); // Introduce a microtask to allow the next tick
+      explanationSubject.next(formattedExplanation);
+    };
+  
+    setFormattedExplanation();
   
     this.formattedExplanationsDictionary[questionKey] = explanationSubject;
   
@@ -248,7 +254,7 @@ export class ExplanationTextService implements OnDestroy {
     // Now call initializeFormattedExplanations() after setting the value
     this.initializeFormattedExplanations(this.formattedExplanations$.length);
   }
-  
+      
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
     questionIndex: number,
