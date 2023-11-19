@@ -163,31 +163,27 @@ export class ExplanationTextService implements OnDestroy {
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
-    // Create an array to store observables
+   // Create an array to store observables
     const observables: BehaviorSubject<string>[] = [];
 
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
 
       // Log the observable for each question during initialization
-      const observable = new BehaviorSubject<string>(''); // Create a new BehaviorSubject
-
+      const observable = new BehaviorSubject<string>('');
       const subscription = subject.pipe(
         take(1)
       ).subscribe({
         next: (value) => {
-          observable.next(value); // Forward the value to the new BehaviorSubject
+          observable.next(value);
           console.log(`Formatted explanation for ${questionKey}: ${value}`);
         },
         error: (error) => {
           console.error(`Error in observable for ${questionKey}:`, error);
-          if (subscription) {
-            subscription.unsubscribe(); // Unsubscribe if there's an error
-          }
         },
         complete: () => {
           if (subscription) {
-            subscription.unsubscribe(); // Unsubscribe after the first value is emitted
+            subscription.unsubscribe();
           }
         }
       });
@@ -200,7 +196,7 @@ export class ExplanationTextService implements OnDestroy {
 
     // Log observable types just before waiting for them to emit
     observables.forEach((observable, index) => {
-    console.log(`Observable ${index + 1} type:`, observable.constructor.name);
+      console.log(`Observable ${index + 1} type:`, observable.constructor.name);
     });
 
     // Wait for all observables to emit at least once
@@ -208,6 +204,7 @@ export class ExplanationTextService implements OnDestroy {
 
     // Log observables after emitting
     console.log('Observables after emit:', observables);
+
 
 
     // All Observables have emitted at least once, now populate the dictionary
