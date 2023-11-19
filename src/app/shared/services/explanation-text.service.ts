@@ -170,6 +170,10 @@ export class ExplanationTextService implements OnDestroy {
       const questionKey = `Q${questionIndex + 1}`;
 
       // Log the observable for each question during initialization
+      const formattedExplanation = this.formattedExplanation$[questionIndex]; 
+      subject.next(formattedExplanation);
+
+      // Log the observable for each question during initialization
       const observable = new BehaviorSubject<string>('');
 
       // Use take(1) to automatically unsubscribe after the first value is emitted
@@ -194,6 +198,9 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Observable ${index + 1} type:`, observable.constructor.name);
     });
 
+    // Log observables just before waiting for them to emit
+    console.log('Observables just before waiting for emit:', observables);
+
     // Wait for all observables to emit at least once
     await Promise.all(observables.map(obs => obs.pipe(take(1)).toPromise()));
 
@@ -204,6 +211,7 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
+      subject.next(`Value for Q${questionIndex + 1}`);
     });
 
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
