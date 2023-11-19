@@ -627,7 +627,7 @@ export class CodelabQuizContentComponent
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
     }
   }
-
+  
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
