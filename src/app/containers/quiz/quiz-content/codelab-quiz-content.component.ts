@@ -588,25 +588,26 @@ export class CodelabQuizContentComponent
       console.error('Formatted Explanations Dictionary is not properly initialized.');
       return;
     }
+  
     console.log("CQIV", this.currentQuestionIndexValue);
-
+  
     const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
     console.log("CQK", currentQuestionKey);
-
+  
     // Log the dictionary
     console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
-
+  
     // Wait until the dictionary is fully populated
     await this.delay(1000); // Adjust the delay time as needed
-
+  
     console.log('All keys in dictionary:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
-
+  
     // Check if the key exists in the dictionary
     if (this.explanationTextService.formattedExplanationsDictionary.hasOwnProperty(currentQuestionKey)) {
       const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
-
+  
       console.log(`Observable for ${currentQuestionKey}:`, observable);
-
+  
       if (observable && typeof observable.pipe === 'function') {
         // Use zip to wait for the observable to emit
         zip(observable).pipe(take(1))
