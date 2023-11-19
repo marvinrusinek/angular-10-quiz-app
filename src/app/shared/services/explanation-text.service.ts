@@ -171,9 +171,9 @@ export class ExplanationTextService implements OnDestroy {
 
       // Log the observable for each question during initialization
       const observable = new BehaviorSubject<string>('');
-      const subscription = subject.pipe(
-        take(1)
-      ).subscribe({
+
+      // Use take(1) to automatically unsubscribe after the first value is emitted
+      const subscription = subject.pipe(take(1)).subscribe({
         next: (value) => {
           observable.next(value);
           console.log(`Formatted explanation for ${questionKey}: ${value}`);
@@ -181,11 +181,6 @@ export class ExplanationTextService implements OnDestroy {
         error: (error) => {
           console.error(`Error in observable for ${questionKey}:`, error);
         },
-        complete: () => {
-          if (subscription) {
-            subscription.unsubscribe();
-          }
-        }
       });
 
       observables.push(observable);
