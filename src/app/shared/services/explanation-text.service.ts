@@ -207,16 +207,21 @@ export class ExplanationTextService implements OnDestroy {
     await Promise.all(this.formattedExplanations$.map(async (subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
-    
-      // Log the observable for each question during initialization
-      const formattedExplanation = this.formattedExplanation$[questionIndex];
 
-      console.log('formattedExplanation$:', this.formattedExplanation$);
-      console.log('formattedExplanation:', formattedExplanation);
-    
+      // Log the observable for each question during initialization
+      console.log(`formattedExplanation$[${questionIndex}] before assignment:`, this.formattedExplanation$.getValue());
+
+      // Log the formattedExplanation$ array
+      console.log('formattedExplanation$ array:', this.formattedExplanation$.getValue());
+
+      // Ensure that the value is not undefined before assigning
+      const formattedExplanation = this.formattedExplanation$.getValue();
+      console.log('formattedExplanation$:::::', formattedExplanation);
+
       // Introduce a small delay with a Promise
       await new Promise(resolve => setTimeout(resolve, 0));
-    
+
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
       subject.next(formattedExplanation);
     }));
 
@@ -266,15 +271,16 @@ export class ExplanationTextService implements OnDestroy {
 
     // Set the formatted explanation for the question
     const explanationSubject = new BehaviorSubject<string>(formattedExplanation);
-    this.formattedExplanationsDictionary[questionKey] = explanationSubject.asObservable();
-
-    // Update the processedQuestions set
-    this.processedQuestionsSubject.next(this.processedQuestions);
 
     // Log the observable for the question
     explanationSubject.subscribe(value => {
-        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
+
+    this.formattedExplanationsDictionary[questionKey] = explanationSubject;
+
+    // Update the processedQuestions set
+    this.processedQuestionsSubject.next(this.processedQuestions);
 
     this.processedQuestions.add(questionKey);
   }
