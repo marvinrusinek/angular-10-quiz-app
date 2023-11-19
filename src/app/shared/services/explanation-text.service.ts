@@ -221,7 +221,8 @@ export class ExplanationTextService implements OnDestroy {
     return this.formattedExplanations$[questionKey].asObservable();
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): void {
+  formatExplanationText(question: QuizQuestion, questionIndex: number): string {
+    console.log('formatted explanations text...');
     const questionKey = `Q${questionIndex + 1}`;
   
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
@@ -264,6 +265,8 @@ export class ExplanationTextService implements OnDestroy {
     this.processedQuestionsSubject.next(this.processedQuestions);
   
     this.processedQuestions.add(questionKey);
+
+    return formattedExplanation;
   }
         
   // Function to set or update the formatted explanation for a question
