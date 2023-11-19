@@ -181,9 +181,14 @@ export class ExplanationTextService implements OnDestroy {
         },
         error: (error) => {
           console.error(`Error in observable for ${questionKey}:`, error);
+          if (subscription) {
+            subscription.unsubscribe(); // Unsubscribe if there's an error
+          }
         },
         complete: () => {
-          subscription.unsubscribe(); // Unsubscribe after the first value is emitted
+          if (subscription) {
+            subscription.unsubscribe(); // Unsubscribe after the first value is emitted
+          }
         }
       });
 
@@ -203,6 +208,7 @@ export class ExplanationTextService implements OnDestroy {
 
     // Log observables after emitting
     console.log('Observables after emit:', observables);
+
 
     // All Observables have emitted at least once, now populate the dictionary
     this.formattedExplanations$.forEach((subject, questionIndex) => {
