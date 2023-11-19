@@ -166,26 +166,16 @@ export class ExplanationTextService implements OnDestroy {
     // Create an array to store promises for each observable
     const observablePromises: Promise<void>[] = [];
   
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
   
       // Log the observable for each question during initialization
-      const observablePromise = new Promise<void>((resolve) => {
-        const subject = this.formattedExplanations$[questionIndex];
-  
-        if (subject) {
-          subject.subscribe((value) => {
-            console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-            resolve();
-          });
-        } else {
-          console.error(`Observable not initialized for ${questionKey}`);
-          resolve(); // Resolve the promise even if the observable is not initialized
-        }
+      const observablePromise = subject.pipe(take(1)).toPromise().then(() => {
+        console.log(`Formatted explanation for ${questionKey}: ${subject.value}`);
       });
   
       observablePromises.push(observablePromise);
-    }
+    });
   
     // Wait for all observables to emit at least once
     await Promise.all(observablePromises);
@@ -201,7 +191,12 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-              
+    
+  // Function to introduce a delay
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+                
   getFormattedExplanationObservable(questionKey: string): Observable<string> {
     // Verify that the questionKey is within the bounds of the array
     if (!this.formattedExplanations$.hasOwnProperty(questionKey)) {
