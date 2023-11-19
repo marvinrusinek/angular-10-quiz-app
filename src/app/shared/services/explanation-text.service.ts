@@ -173,26 +173,20 @@ export class ExplanationTextService implements OnDestroy {
       const observable = new BehaviorSubject<string>('');
       const subscription = subject.pipe(
         take(1)
-      ).subscribe({
-        next: (value) => {
+      ).subscribe(
+        (value) => {
           observable.next(value);
           console.log(`Formatted explanation for ${questionKey}: ${value}`);
-          if (subscription) {
-            subscription.unsubscribe();
-          }
         },
-        error: (error) => {
+        (error) => {
           console.error(`Error in observable for ${questionKey}:`, error);
-          if (subscription) {
-            subscription.unsubscribe();
-          }
         },
-        complete: () => {
+        () => {
           if (subscription) {
             subscription.unsubscribe();
           }
         }
-      });
+      );
 
       observables.push(observable);
     });
@@ -210,7 +204,6 @@ export class ExplanationTextService implements OnDestroy {
 
     // Log observables after emitting
     console.log('Observables after emit:', observables);
-
 
     // All Observables have emitted at least once, now populate the dictionary
     this.formattedExplanations$.forEach((subject, questionIndex) => {
