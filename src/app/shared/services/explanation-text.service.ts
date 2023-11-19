@@ -268,6 +268,9 @@ export class ExplanationTextService implements OnDestroy {
       });
   
       subject.next(formattedExplanation);
+  
+      // Log the observable for each question after emissions
+      console.log(`formattedExplanation$[${questionIndex}] after emissions:`, subject.getValue());
     }));
   
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
@@ -276,7 +279,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-                   
+                  
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
