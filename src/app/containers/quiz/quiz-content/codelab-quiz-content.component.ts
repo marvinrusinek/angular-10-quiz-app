@@ -600,7 +600,9 @@ export class CodelabQuizContentComponent
     // Wait until the dictionary is fully populated
     await this.delay(1000); // Adjust the delay time as needed
   
-    console.log('All keys in dictionary:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
+    // console.log('All keys in dictionary:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
+
+    console.log('Keys in Formatted Explanations Dictionary before check:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
   
     // Check if the key exists in the dictionary
     if (this.explanationTextService.formattedExplanationsDictionary.hasOwnProperty(currentQuestionKey)) {

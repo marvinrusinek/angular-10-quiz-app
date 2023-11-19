@@ -171,9 +171,14 @@ export class ExplanationTextService implements OnDestroy {
   
       // Log the observable for each question during initialization
       const observablePromise = new Promise<void>((resolve) => {
-        subject.subscribe((value) => {
+        const subscription = subject.subscribe((value) => {
           console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
           resolve();
+        });
+
+        // Unsubscribe after the first emission
+        subscription.add(() => {
+          subscription.unsubscribe();
         });
       });
   
@@ -184,7 +189,6 @@ export class ExplanationTextService implements OnDestroy {
     await Promise.all(observablePromises);
 
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
-
   
     // All Observables have emitted at least once, now populate the dictionary
     this.formattedExplanations$.forEach((subject, questionIndex) => {
