@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, from, Observable, of, Subject, Subscription } from 'rxjs';
 import {
   debounceTime,
   first,
@@ -157,26 +157,23 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$ = [];
 
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      await new Promise<void>(resolve => {
-        const questionKey = `Q${questionIndex + 1}`;
-        const formattedExplanation$ = new BehaviorSubject<string>('');
+      const questionKey = `Q${questionIndex + 1}`;
+      const formattedExplanation$ = new BehaviorSubject<string>('');
 
-        // Log the observable for each question during initialization
-        formattedExplanation$.pipe(take(1)).subscribe(value => {
-          console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-        });
-
-        // Ensure that the value is not undefined before assigning
-        const formattedExplanation = formattedExplanation$.getValue();
-        console.log('formattedExplanation$:::::', formattedExplanation);
-
-        // Introduce a small delay with a Promise
-        setTimeout(() => {
-          formattedExplanation$.next(formattedExplanation);
-          this.formattedExplanations$.push(formattedExplanation$);
-          resolve();
-        }, 0);
+      // Log the observable for each question during initialization
+      formattedExplanation$.pipe(take(1)).subscribe(value => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
       });
+
+      // Ensure that the value is not undefined before assigning
+      const formattedExplanation = formattedExplanation$.getValue();
+      console.log('formattedExplanation$:::::', formattedExplanation);
+
+      // Use 'from' to create an Observable that emits the initial value
+      await from([formattedExplanation]).toPromise();
+
+      formattedExplanation$.next(formattedExplanation);
+      this.formattedExplanations$.push(formattedExplanation$);
     }
 
     // Wait for all observables to emit at least once
