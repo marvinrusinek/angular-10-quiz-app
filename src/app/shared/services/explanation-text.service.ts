@@ -193,10 +193,10 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
-    // Add your logic here to calculate the initial value based on the questionIndex
-    return `Initial value for Q${questionIndex + 1}`;
-  }
+    const processedQuestionsString = Array.from(this.processedQuestionsSubject.getValue()).join(', ');
   
+    return `Initial value for Q${questionIndex + 1}. Processed Questions: ${processedQuestionsString}`;
+  }  
   
   // Function to introduce a delay
   delay(ms: number) {
