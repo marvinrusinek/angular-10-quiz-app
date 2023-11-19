@@ -154,47 +154,32 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
-    }
-
-    this.formattedExplanationsDictionary = {};
-
-    console.log('formattedExplanations$ array:', this.formattedExplanations$.map(subject => subject.getValue()));
-
-    // Create an array to store observables
-    const observables: BehaviorSubject<string>[] = [];
-
-    // Initialize the dictionary and observables
-    this.formattedExplanations$.forEach((subject, questionIndex) => {
-      const questionKey = `Q${questionIndex + 1}`;
-
+    this.formattedExplanations$ = Array.from({ length: numQuestions }, (_, index) => {
+      const questionKey = `Q${index + 1}`;
+      const formattedExplanation$ = new BehaviorSubject<string>('');
+      
       // Log the observable for each question during initialization
-      const observable = new BehaviorSubject<string>('');
-      observable.pipe(take(1)).subscribe(value => {
+      formattedExplanation$.pipe(take(1)).subscribe(value => {
         console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
       });
 
       // Ensure that the value is not undefined before assigning
-      const formattedExplanation = observable.getValue();
+      const formattedExplanation = formattedExplanation$.getValue();
       console.log('formattedExplanation$:::::', formattedExplanation);
 
       // Introduce a small delay with a Promise
       setTimeout(() => {
-        subject.next(formattedExplanation);
-        subject.complete(); // Complete the Observable after emitting its value
-        observables.push(subject);
-
-        // Log the observable for each question during initialization
-        console.log(`formattedExplanation$[${questionIndex}] after assignment:`, subject.getValue());
+        formattedExplanation$.next(formattedExplanation);
       }, 0);
+
+      return formattedExplanation$;
     });
 
     // Wait for all observables to emit at least once
-    await forkJoin(observables.map(obs => obs.pipe(take(1)).toPromise())).toPromise();
+    await forkJoin(this.formattedExplanations$.map(obs => obs.pipe(take(1)).toPromise())).toPromise();
 
     // Populate the dictionary after all Observables have emitted
+    this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
@@ -203,6 +188,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
+
   
   // Function to introduce a delay
   delay(ms: number) {
