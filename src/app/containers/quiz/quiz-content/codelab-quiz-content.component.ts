@@ -600,8 +600,6 @@ export class CodelabQuizContentComponent
     // Wait until the dictionary is fully populated
     await this.delay(1000); // Adjust the delay time as needed
   
-    // console.log('All keys in dictionary:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
-
     console.log('Keys in Formatted Explanations Dictionary before check:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
   
     // Check if the key exists in the dictionary
@@ -620,6 +618,9 @@ export class CodelabQuizContentComponent
             },
             (error) => {
               console.error(`Error in observable for key ${currentQuestionKey}:`, error);
+            },
+            () => {
+              console.log(`Observable completed for key ${currentQuestionKey}`);
             }
           );
       } else {
@@ -629,7 +630,7 @@ export class CodelabQuizContentComponent
       console.error(`Observable not initialized for key ${currentQuestionKey}`);
     }
   }
-  
+    
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
