@@ -208,8 +208,9 @@ export class ExplanationTextService implements OnDestroy {
 
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
 
-    // Log the dictionary after all observables have emitted
-    console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
+    // Log observables and dictionary after initialization
+    console.log('Observables after initialization:', this.formattedExplanations$);
+    console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
              
   // Function to introduce a delay
