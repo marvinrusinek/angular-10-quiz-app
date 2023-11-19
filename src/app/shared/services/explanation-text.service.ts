@@ -205,44 +205,46 @@ export class ExplanationTextService implements OnDestroy {
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): void {
     const questionKey = `Q${questionIndex + 1}`;
-
+  
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
-        console.log('Skipping already processed or invalid question:', question.questionText);
-        return;
+      console.log('Skipping already processed or invalid question:', question.questionText);
+      return;
     }
-
+  
     console.log('Processing question:', question.questionText);
-
+  
     const correctOptionIndices: number[] = question.options
-        .map((option, index) => (option.correct ? index + 1 : null))
-        .filter(index => index !== null);
-
+      .map((option, index) => (option.correct ? index + 1 : null))
+      .filter(index => index !== null);
+  
     let formattedExplanation = '';
-
+  
     if (correctOptionIndices.length > 1) {
-        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
-        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
     } else {
-        formattedExplanation = 'No correct option selected...';
+      formattedExplanation = 'No correct option selected...';
     }
-
-    // Set the formatted explanation for the question
-    const explanationSubject = new BehaviorSubject<string>(formattedExplanation);
-
+  
+    // Initialize or update the formatted explanation for the question
+    if (!this.formattedExplanations$[questionIndex]) {
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>(formattedExplanation);
+    } else {
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    }
+  
     // Log the observable for the question
-    explanationSubject.subscribe(value => {
+    this.formattedExplanations$[questionIndex].subscribe(value => {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
-
-    this.formattedExplanationsDictionary[questionKey] = explanationSubject;
-
+  
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
-
+  
     this.processedQuestions.add(questionKey);
   }
-
+  
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
     questionIndex: number,
