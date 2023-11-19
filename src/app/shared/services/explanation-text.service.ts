@@ -263,7 +263,6 @@ export class ExplanationTextService implements OnDestroy {
   
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
-  
     this.processedQuestions.add(questionKey);
 
     return formattedExplanation;
