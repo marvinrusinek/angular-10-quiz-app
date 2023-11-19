@@ -163,7 +163,7 @@ export class ExplanationTextService implements OnDestroy {
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
-   // Create an array to store observables
+    // Create an array to store observables
     const observables: BehaviorSubject<string>[] = [];
 
     this.formattedExplanations$.forEach((subject, questionIndex) => {
@@ -210,9 +210,9 @@ export class ExplanationTextService implements OnDestroy {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
     });
-  
+
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
-  
+
     // Log the dictionary after all observables have emitted
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
