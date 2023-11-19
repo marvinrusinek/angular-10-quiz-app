@@ -153,7 +153,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  async initializeFormattedExplanations(numQuestions: number): Promise<void> {
+  /* async initializeFormattedExplanations(numQuestions: number): Promise<void> {
     // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
@@ -233,13 +233,56 @@ export class ExplanationTextService implements OnDestroy {
       subject.next(formattedExplanation);
     }));
 
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
 
     // Log observables and dictionary after initialization
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
+  } */
+
+  async initializeFormattedExplanations(numQuestions: number): Promise<void> {
+    // Initialize formattedExplanations$ if it's not already initialized
+    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+    }
+  
+    // Initialize formattedExplanationsDictionary
+    this.formattedExplanationsDictionary = {};
+  
+    // Log the formattedExplanations$ array
+    console.log('formattedExplanations$ array:', this.formattedExplanations$.map(subject => subject.getValue()));
+  
+    // Wait for all observables to emit at least once
+    await Promise.all(this.formattedExplanations$.map(async (subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = subject;
+  
+      // Log the value immediately after setting it
+      console.log(`Value immediately after setting for ${questionKey}:`, this.formattedExplanationsDictionary[questionKey]?.getValue());
+  
+      // Log the observable for each question during initialization
+      console.log(`formattedExplanation$[${questionIndex}] before assignment:`, subject.getValue());
+  
+      // Ensure that the value is not undefined before assigning
+      const formattedExplanation = subject.getValue();
+      console.log('formattedExplanation$:::::', formattedExplanation);
+  
+      // Introduce a small delay with a Promise
+      await new Promise(resolve => setTimeout(resolve, 0));
+  
+      subject.next(formattedExplanation);
+    }));
+  
+    console.log('Number of formatted explanations after emit:', this.formattedExplanations$.length);
+  
+    // Log observables and dictionary after initialization
+    console.log('Observables after initialization:', this.formattedExplanations$);
+    console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-             
+                 
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -255,43 +298,48 @@ export class ExplanationTextService implements OnDestroy {
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): void {
     const questionKey = `Q${questionIndex + 1}`;
-
+  
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
-        console.log('Skipping already processed or invalid question:', question.questionText);
-        return;
+      console.log('Skipping already processed or invalid question:', question.questionText);
+      return;
     }
-
+  
     console.log('Processing question:', question.questionText);
-
+  
     const correctOptionIndices: number[] = question.options
-        .map((option, index) => (option.correct ? index + 1 : null))
-        .filter(index => index !== null);
-
+      .map((option, index) => (option.correct ? index + 1 : null))
+      .filter(index => index !== null);
+  
     let formattedExplanation = '';
-
+  
     if (correctOptionIndices.length > 1) {
-        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
-        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
     } else {
-        formattedExplanation = 'No correct option selected...';
+      formattedExplanation = 'No correct option selected...';
     }
-
-    // Set the formatted explanation for the question
-    const explanationSubject = new BehaviorSubject<string>(formattedExplanation);
-
-    // Log the observable for the question
-    explanationSubject.subscribe(value => {
-      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-    });
-
-    this.formattedExplanationsDictionary[questionKey] = explanationSubject;
-
+  
+    // Check if the subject already exists
+    const explanationSubject = this.formattedExplanationsDictionary[questionKey];
+  
+    if (explanationSubject) {
+      explanationSubject.next(formattedExplanation);
+    } else {
+      // If not, create a new subject and add it to the dictionary
+      const newExplanationSubject = new BehaviorSubject<string>(formattedExplanation);
+      newExplanationSubject.subscribe(value => {
+        console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+      });
+  
+      this.formattedExplanationsDictionary[questionKey] = newExplanationSubject;
+    }
+  
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
-
+  
     this.processedQuestions.add(questionKey);
-  }
+  }  
 
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
