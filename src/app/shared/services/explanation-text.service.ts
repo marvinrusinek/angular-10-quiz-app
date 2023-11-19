@@ -163,41 +163,25 @@ export class ExplanationTextService implements OnDestroy {
     // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
-    // Create an array to store promises for each observable
-    const observablePromises: Promise<void>[] = [];
+    // Create an array to store observables
+    const observables: Observable<string>[] = [];
   
-    await Promise.all(
-      this.formattedExplanations$.map(async (subject, questionIndex) => {
-        const questionKey = `Q${questionIndex + 1}`;
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
   
-        // Log the observable for each question during initialization
-        const observablePromise = new Promise<void>((resolve) => {
-          const subscription = subject.pipe(take(1)).subscribe({
-            next: (value) => {
-              console.log(`Formatted explanation for ${questionKey}: ${value}`);
-              resolve();
-            },
-            error: (error) => {
-              console.error(`Error in observable for ${questionKey}:`, error);
-              resolve(); // Resolve the promise even if there's an error
-            },
-          });
+      // Log the observable for each question during initialization
+      const observable = subject.pipe(
+        tap((value) => {
+          console.log(`Formatted explanation for ${questionKey}: ${value}`);
+        }),
+        take(1)
+      );
   
-          // Ensure the subscription is cleaned up
-          const cleanup = () => {
-            subscription.unsubscribe();
-          };
+      observables.push(observable);
+    });
   
-          // Wait for a short delay before resolving the promise
-          setTimeout(() => {
-            cleanup();
-            resolve();
-          }, 500); // Adjust the delay time as needed
-        });
-  
-        observablePromises.push(observablePromise);
-      })
-    );
+    // Wait for all observables to emit at least once
+    await forkJoin(observables).toPromise();
   
     // All Observables have emitted at least once, now populate the dictionary
     this.formattedExplanations$.forEach((subject, questionIndex) => {
@@ -210,7 +194,7 @@ export class ExplanationTextService implements OnDestroy {
     // Log the dictionary after all observables have emitted
     console.log('Formatted Explanations Dictionary:', this.formattedExplanationsDictionary);
   }
-           
+             
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
