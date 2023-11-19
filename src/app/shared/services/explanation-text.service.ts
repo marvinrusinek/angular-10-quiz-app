@@ -243,16 +243,13 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
   
-    // Initialize formattedExplanationsDictionary
     this.formattedExplanationsDictionary = {};
   
-    // Log the formattedExplanations$ array
     console.log('formattedExplanations$ array:', this.formattedExplanations$.map(subject => subject.getValue()));
   
     // Wait for all observables to emit at least once
@@ -260,18 +257,15 @@ export class ExplanationTextService implements OnDestroy {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
   
-      // Log the value immediately after setting it
-      console.log(`Value immediately after setting for ${questionKey}:`, this.formattedExplanationsDictionary[questionKey]?.getValue());
-  
-      // Log the observable for each question during initialization
-      console.log(`formattedExplanation$[${questionIndex}] before assignment:`, subject.getValue());
-  
-      // Ensure that the value is not undefined before assigning
       const formattedExplanation = subject.getValue();
-      console.log('formattedExplanation$:::::', formattedExplanation);
   
-      // Introduce a small delay with a Promise
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise(resolve => {
+        // Wait for the Observable to complete its emissions
+        const subscription = subject.subscribe(() => {}, error => console.error(error), () => {
+          subscription.unsubscribe();
+          resolve();
+        });
+      });
   
       subject.next(formattedExplanation);
     }));
@@ -282,7 +276,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-                 
+                   
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
