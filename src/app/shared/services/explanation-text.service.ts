@@ -224,6 +224,21 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Processing question:', question.questionText);
   
+    // Set the formatted explanation for the question using the existing BehaviorSubject
+    await this.initializeExplanationSubject(questionIndex);
+  
+    // Check if the BehaviorSubject is initialized
+    if (!this.formattedExplanations$[questionIndex]) {
+      console.error(`BehaviorSubject not initialized for ${questionKey}`);
+      return 'No explanation available';
+    }
+  
+    // Log the observable for the question before setting a new value
+    this.formattedExplanations$[questionIndex].subscribe(value => {
+      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
+    });
+  
+    // Generate the formatted explanation
     const correctOptionIndices: number[] = question.options
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
@@ -238,19 +253,10 @@ export class ExplanationTextService implements OnDestroy {
       formattedExplanation = 'No correct option selected...';
     }
   
-    // Set the formatted explanation for the question using the existing BehaviorSubject
-    await this.initializeExplanationSubject(questionIndex);
-  
-    // Log the observable for the question
-    this.formattedExplanations$[questionIndex].subscribe(value => {
-      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-    });
-  
     // Set the value using next
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
   
-    // Store the explanation text for the question
-    this.explanationTexts[questionKey] = formattedExplanation;
+    // Log the stored explanation text for the question
     console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
   
     // Update the processedQuestions set
@@ -259,7 +265,7 @@ export class ExplanationTextService implements OnDestroy {
   
     return formattedExplanation;
   }
-  
+    
   private initializeExplanationSubject(questionIndex: number): Promise<void> {
     return new Promise<void>(resolve => {
       if (!this.formattedExplanations$[questionIndex]) {
