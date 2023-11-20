@@ -1076,8 +1076,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       () => {
         console.log('isMultipleAnswer subscription completed');
       }
-    );       
-  } 
+    );
+  }
   
   checkOptionSelected(option: Option): boolean {
     return this.selectedOptions.includes(option as Option);
