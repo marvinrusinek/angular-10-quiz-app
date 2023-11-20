@@ -1028,7 +1028,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }  
   
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
-    console.log('Entering handleOptionClicked');
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((o) => o === option);
 
@@ -1124,9 +1123,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  async setExplanationText(currentQuestion: QuizQuestion, questionIndex: number): Promise<void> {
-    console.log('Entering setExplanationText for question:', currentQuestion.questionText);
-  
+  async setExplanationText(currentQuestion: QuizQuestion, questionIndex: number): Promise<void> {  
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
