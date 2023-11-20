@@ -239,24 +239,16 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     // Set the formatted explanation for the question using the existing BehaviorSubject
-    let explanationSubject = this.formattedExplanations$[questionIndex];
-
-    // Check if explanationSubject is undefined or null
-    if (!explanationSubject) {
-      // If it's not already initialized, create a new BehaviorSubject
-      explanationSubject = new BehaviorSubject<string>('');
-      // Assign it to the array at the correct index
-      this.formattedExplanations$[questionIndex] = explanationSubject;
-    }
-
+    this.initializeExplanationSubject(questionIndex);
+  
     // Log the observable for the question
-    explanationSubject.subscribe(value => {
+    this.formattedExplanations$[questionIndex].subscribe(value => {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
-
+  
     // Set the value using next
-    explanationSubject.next(formattedExplanation);
-
+    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+  
     // Store the explanation text for the question
     this.explanationTexts[questionKey] = formattedExplanation;
     console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
@@ -264,10 +256,25 @@ export class ExplanationTextService implements OnDestroy {
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
     this.processedQuestions.add(questionKey);
-
+  
     return formattedExplanation;
   }
-        
+  
+  private initializeExplanationSubject(questionIndex: number): void {
+    const questionKey = `Q${questionIndex + 1}`;
+  
+    // Set the formatted explanation for the question using the existing BehaviorSubject
+    let explanationSubject = this.formattedExplanations$[questionIndex];
+  
+    // Check if explanationSubject is undefined or null
+    if (!explanationSubject) {
+      // If it's not already initialized, create a new BehaviorSubject
+      explanationSubject = new BehaviorSubject<string>('');
+      // Assign it to the array at the correct index
+      this.formattedExplanations$[questionIndex] = explanationSubject;
+    }
+  }
+          
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
     questionIndex: number,
