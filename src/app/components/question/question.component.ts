@@ -1122,7 +1122,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
-      const explanationText = formattedExplanation.explanation || 'No explanation available';
+      const explanationText = formattedExplanation || 'No explanation available';
   
       this.explanationText$.next(explanationText);
       this.updateCombinedQuestionData(this.questions[questionIndex], explanationText);
