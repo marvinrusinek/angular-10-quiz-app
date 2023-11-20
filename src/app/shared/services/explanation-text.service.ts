@@ -383,7 +383,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('resetExplanationState() called');
     this.questionIndexCounter = 0;
     this.formattedExplanation$.next('');
-    this.explanationTexts = [];
+    this.explanationTexts = {};
     this.explanationText$.next(null);
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
