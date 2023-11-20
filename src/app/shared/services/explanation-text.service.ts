@@ -143,7 +143,11 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+    // Initialize formattedExplanations$ if it's not already initialized
+    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+    }
   
     // Call formatExplanationText() for each question before proceeding
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
