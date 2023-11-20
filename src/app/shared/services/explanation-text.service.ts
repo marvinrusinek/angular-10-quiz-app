@@ -214,7 +214,7 @@ export class ExplanationTextService implements OnDestroy {
     return this.formattedExplanations$[questionKey].asObservable();
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): string {
+  async formatExplanationText(question: QuizQuestion, questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
   
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
@@ -239,7 +239,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     // Set the formatted explanation for the question using the existing BehaviorSubject
-    this.initializeExplanationSubject(questionIndex);
+    await this.initializeExplanationSubject(questionIndex);
   
     // Log the observable for the question
     this.formattedExplanations$[questionIndex].subscribe(value => {
