@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
+import { catchError, delay, distinctUntilChanged, map } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -65,22 +65,19 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion): BehaviorSubject<boolean> {  
-    const resultSubject = new BehaviorSubject<boolean>(false);
-  
+  isMultipleAnswer(question: QuizQuestion) {
     try {
       // Perform the logic to determine if it's a multiple-answer question
       const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
-      resultSubject.next(isMultipleAnswer);
+
+      // Delay the completion of the subject to allow time for subscription setup
+      return of(isMultipleAnswer).pipe(delay(0));
     } catch (error) {
       console.error('Error determining if it is a multiple-answer question:', error);
       this.setMultipleAnswer(false);
-    } finally {
-      resultSubject.complete(); // Complete the subject
+      return of(false); // Return an observable that immediately completes with the default value
     }
-  
-    return resultSubject;
-  }  
+  }
 
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
