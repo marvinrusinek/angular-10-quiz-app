@@ -225,7 +225,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Processing question:', question.questionText);
   
     // Set the formatted explanation for the question using the existing BehaviorSubject
-    await this.initializeExplanationSubject(questionIndex);
+    this.initializeExplanationSubject(questionIndex);
   
     // Check if the BehaviorSubject is initialized
     if (!this.formattedExplanations$[questionIndex]) {
@@ -265,22 +265,18 @@ export class ExplanationTextService implements OnDestroy {
   
     return formattedExplanation;
   }
-    
-  private initializeExplanationSubject(questionIndex: number): Promise<void> {
-    return new Promise<void>(resolve => {
-      if (!this.formattedExplanations$[questionIndex]) {
-        // If it's not already initialized, create a new BehaviorSubject
-        this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
+      
+  private initializeExplanationSubject(questionIndex: number): void {
+    if (!this.formattedExplanations$[questionIndex]) {
+      // If it's not already initialized, create a new BehaviorSubject
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
   
-        // Log the observable for the question
-        this.formattedExplanations$[questionIndex].subscribe(value => {
-          console.log(`Formatted explanation for Q${questionIndex + 1}:`, value?.toString());
-        });
-  
-        resolve();
-      }
-    });
-  }  
+      // Log the observable for the question
+      this.formattedExplanations$[questionIndex].subscribe(value => {
+        console.log(`Formatted explanation for Q${questionIndex + 1}:`, value?.toString());
+      });
+    }
+  }
           
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
