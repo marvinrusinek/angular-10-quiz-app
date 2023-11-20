@@ -211,7 +211,6 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): string {
-    console.log('formatted explanations text...');
     const questionKey = `Q${questionIndex + 1}`;
   
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
