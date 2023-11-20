@@ -219,7 +219,7 @@ export class ExplanationTextService implements OnDestroy {
   
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
       console.log('Skipping already processed or invalid question:', question.questionText);
-      return 'No explanation available'; // Provide a default explanation text
+      return 'No explanation available';
     }
   
     console.log('Processing question:', question.questionText);
