@@ -1111,25 +1111,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  setExplanationText(currentQuestion: QuizQuestion, questionIndex: number): void {
+  async setExplanationText(currentQuestion: QuizQuestion, questionIndex: number): Promise<void> {
     console.log('Entering setExplanationText for question:', currentQuestion.questionText);
   
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   
-    const formattedExplanation = this.explanationTextService.formatExplanationText(currentQuestion, questionIndex);
-    const explanationText = formattedExplanation ? formattedExplanation.explanation : 'No explanation available';
+    // Use async/await to wait for the formatted explanation
+    const formattedExplanation = await this.explanationTextService.formatExplanationText(currentQuestion, questionIndex);
   
-    this.explanationText$.next(explanationText);
-    this.updateCombinedQuestionData(this.questions[questionIndex], explanationText);
+    // Ensure formattedExplanation is not void
+    if (formattedExplanation) {
+      const explanationText = formattedExplanation.explanation || 'No explanation available';
   
-    this.isAnswerSelectedChange.emit(true);
-    this.toggleVisibility.emit();
-    this.updateFeedbackVisibility();
+      this.explanationText$.next(explanationText);
+      this.updateCombinedQuestionData(this.questions[questionIndex], explanationText);
   
-    console.log('Exiting setExplanationText for question:', currentQuestion.questionText);
+      this.isAnswerSelectedChange.emit(true);
+      this.toggleVisibility.emit();
+      this.updateFeedbackVisibility();
+  
+      console.log('Exiting setExplanationText for question:', currentQuestion.questionText);
+    } else {
+      console.error('Error: formatExplanationText returned void');
+    }
   }
-
+  
   updateCombinedQuestionData(currentQuestion: QuizQuestion, explanationText: string): void {
     this.combinedQuestionData$.next({
       questionText: currentQuestion?.questionText || '',
