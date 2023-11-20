@@ -1047,12 +1047,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Fetch whether the current question is a multiple-answer question
     this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
       isMultipleAnswer => {
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+    
         if (this.quizService.selectedOptions.length > 0) {
           this.questions.pipe(take(1)).subscribe(
             questionsArray => {
               console.log('Questions array:', questionsArray);
+    
               const questionIndex = questionsArray.indexOf(currentQuestion);
+              console.log('Question index:', questionIndex);
+    
               this.setExplanationText(currentQuestion, questionIndex);
+    
+              console.log('Exiting inner subscribe block');
             },
             error => {
               console.error('Error fetching questions array:', error);
@@ -1061,11 +1068,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.explanationText$.next('');
         }
+    
+        console.log('Exiting isMultipleAnswer subscription block');
       },
       error => {
         console.error('Error fetching multiple answer status:', error);
       }
-    );
+    );    
   } 
   
   checkOptionSelected(option: Option): boolean {
