@@ -236,13 +236,21 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     // Set the formatted explanation for the question using the existing BehaviorSubject
-    const explanationSubject = this.formattedExplanations$[questionIndex];
-  
+    let explanationSubject = this.formattedExplanations$[questionIndex];
+
+    // Check if explanationSubject is undefined or null
+    if (!explanationSubject) {
+      // If it's not already initialized, create a new BehaviorSubject
+      explanationSubject = new BehaviorSubject<string>('');
+      // Assign it to the array at the correct index
+      this.formattedExplanations$[questionIndex] = explanationSubject;
+    }
+
     // Log the observable for the question
     explanationSubject.subscribe(value => {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
-  
+
     // Set the value using next
     explanationSubject.next(formattedExplanation);
 
