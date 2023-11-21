@@ -200,8 +200,8 @@ export class ExplanationTextService implements OnDestroy {
     const questionKey = `Q${questionIndex + 1}`;
   
     // Check if the BehaviorSubject is initialized and has emitted a value
-    if (!this.formattedExplanations$[questionIndex] || this.formattedExplanations$[questionIndex].value === '') {
-      console.error(`BehaviorSubject not initialized or no value emitted for ${questionKey}`);
+    if (!this.formattedExplanations$[questionIndex]) {
+      console.error(`BehaviorSubject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
   
@@ -223,7 +223,6 @@ export class ExplanationTextService implements OnDestroy {
       return `No explanation text available for ${questionKey}`;
     }
   }
-  
       
   // Function to introduce a delay
   delay(ms: number) {
