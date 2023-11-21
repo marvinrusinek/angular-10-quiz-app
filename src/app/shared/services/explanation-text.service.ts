@@ -226,35 +226,35 @@ export class ExplanationTextService implements OnDestroy {
 
   async formatExplanationText(question: QuizQuestion, questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
-  
+
     if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
       console.log('Skipping already processed or invalid question:', question.questionText);
       return 'No explanation available';
     }
-  
+
     console.log('Processing question:', question.questionText);
-  
+
     // Set the formatted explanation for the question using the existing BehaviorSubject
     this.initializeExplanationSubject(questionIndex);
-  
+
     // Check if the BehaviorSubject is initialized
     if (!this.formattedExplanations$[questionIndex]) {
       console.error(`BehaviorSubject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
-  
+
     // Log the observable for the question before setting a new value
     this.formattedExplanations$[questionIndex].subscribe(value => {
       console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
-  
+
     // Generate the formatted explanation
     const correctOptionIndices: number[] = question.options
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
-  
+
     let formattedExplanation = '';
-  
+
     if (correctOptionIndices.length > 1) {
       formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
@@ -262,20 +262,20 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       formattedExplanation = 'No correct option selected...';
     }
-  
+
     // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(async () => {
+    await this.ngZone.run(() => {
       // Set the value using next
       this.formattedExplanations$[questionIndex].next(formattedExplanation);
-  
+
       // Log the stored explanation text for the question
       console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
     });
-  
+
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
     this.processedQuestions.add(questionKey);
-  
+
     return formattedExplanation;
   }
         
