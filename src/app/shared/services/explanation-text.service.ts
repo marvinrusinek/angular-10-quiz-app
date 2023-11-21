@@ -196,21 +196,34 @@ export class ExplanationTextService implements OnDestroy {
     );
   }
   
-  private async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
+  private calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
   
-    // Check if the explanation text for the question exists
+    // Check if the BehaviorSubject is initialized
+    if (!this.formattedExplanations$[questionIndex]) {
+      console.error(`BehaviorSubject not initialized for ${questionKey}`);
+      return 'No explanation available';
+    }
+  
+    // Get the current value from the BehaviorSubject
+    const currentValue = this.formattedExplanations$[questionIndex].value;
+  
+    // If the current value is not an empty string, return it
+    if (currentValue !== '') {
+      return currentValue;
+    }
+  
+    // If the explanation text for the question exists, include it in the result
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText) {
-      // Explanation text exists, include it in the result
       return `${explanationText}`;
     } else {
       // Explanation text does not exist, provide a default message
       return `No explanation text available for ${questionKey}`;
     }
   }
-    
+      
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
