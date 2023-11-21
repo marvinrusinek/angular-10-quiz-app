@@ -271,32 +271,25 @@ export class ExplanationTextService implements OnDestroy {
       return 'No explanation available';
     }
   
+    // Log the current value of the BehaviorSubject
+    console.log(`Current value of ${questionKey}: ${subject.value}`);
+  
     // Check if the lastFormattedExplanationSubject is set
-    if (!this.lastFormattedExplanationSubject) {
-      console.error(`LastFormattedExplanationSubject not set for ${questionKey}`);
-      return 'No explanation available';
-    }
+    if (this.lastFormattedExplanationSubject) {
+      console.log(`LastFormattedExplanationSubject is set for ${questionKey}`);
   
-    // Use the value from lastFormattedExplanationSubject
-    const currentValue = this.lastFormattedExplanationSubject.value;
-  
-    // If the current value is an empty string, it's considered as uninitialized
-    if (currentValue !== undefined && currentValue !== '') {
+      // Log the current value of lastFormattedExplanationSubject
+      console.log(`LastFormattedExplanationSubject value: ${this.lastFormattedExplanationSubject.value}`);
+      
       // Insert the value into the dictionary
-      this.formattedExplanationsDictionary[questionKey] = subject;
-      return currentValue;
-    }
-  
-    // If the explanation text for the question exists, include it in the result
-    const explanationText = this.explanationTexts[questionKey];
-  
-    if (explanationText !== undefined && explanationText !== null) {
-      return `${explanationText}`;
+      this.formattedExplanationsDictionary[questionKey] = this.lastFormattedExplanationSubject;
+      
+      // Use the value from lastFormattedExplanationSubject
+      return this.lastFormattedExplanationSubject.value;
     }
   
     return 'No explanation available...';
   }
-  
 
   // Function to introduce a delay
   delay(ms: number) {
