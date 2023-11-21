@@ -174,8 +174,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
   
-
-  async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
+  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
     console.log(`Formatting explanation for initialization: ${questionKey}`);
@@ -190,20 +189,28 @@ export class ExplanationTextService implements OnDestroy {
     await initializationObservable.toPromise();
   
     // Log additional values
-    console.log(`Current explanation text for ${questionKey}: ${this.getExplanationValue(formattedExplanation$)}`);
+    console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
     console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
     console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
   
-    // If the BehaviorSubject or ReplaySubject is still uninitialized, set the initial value
-    if (
-      (formattedExplanation$ instanceof BehaviorSubject && formattedExplanation$.value === undefined) ||
-      (formattedExplanation$ instanceof ReplaySubject && formattedExplanation$['_events'].length === 0)
-    ) {
-      const initialFormattedExplanation = await this.calculateInitialFormattedExplanation(questionIndex);
+    // If the BehaviorSubject is still uninitialized, set the initial value
+    const currentValue =
+      formattedExplanation$ instanceof BehaviorSubject
+        ? formattedExplanation$.value
+        : formattedExplanation$ instanceof ReplaySubject
+        ? (() => {
+            let value: string | undefined;
+            formattedExplanation$.pipe(take(1)).subscribe((v) => (value = v));
+            return value;
+          })()
+        : undefined;
+  
+    if (currentValue === undefined || currentValue === '') {
+      const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
     }
   }
-
+ 
   private getExplanationValue(subject: BehaviorSubject<string> | ReplaySubject<string>): string | undefined {
     if (subject instanceof BehaviorSubject) {
       return subject.value;
