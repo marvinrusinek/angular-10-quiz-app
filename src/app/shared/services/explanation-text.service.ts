@@ -1,5 +1,5 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
-import { BehaviorSubject, forkJoin, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { filter, mapTo, take, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -15,7 +15,7 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   explanationTexts: { [key: string]: string } = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  formattedExplanations$: BehaviorSubject<string>[] = [];
+  formattedExplanations$: (BehaviorSubject<string> | ReplaySubject<string>)[] = [];
   formattedExplanations: FormattedExplanation[] = [];
   processedQuestions: Set<string> = new Set<string>();
   processedQuestionsSubject: BehaviorSubject<Set<string>> = new BehaviorSubject<Set<string>>(new Set());
@@ -179,19 +179,23 @@ export class ExplanationTextService implements OnDestroy {
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
     console.log(`Formatting explanation for initialization: ${questionKey}`);
   
-    // Log the observable for each question during initialization
-    formattedExplanation$.pipe(
-      take(1),
-      tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
-    ).subscribe();
+    // Wait for the initialization to complete
+    const initializationObservable = this.initializeExplanationSubject(questionIndex);
   
-    // Introduce a small delay with a Promise before setting the initial value
-    await new Promise(resolve => setTimeout(resolve, 0));
+    if (initializationObservable) {
+      await initializationObservable.toPromise();
   
-    // Set the initial value based on your logic
-    const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
-    formattedExplanation$.next(initialFormattedExplanation);
+      // Log the observable for each question during initialization
+      formattedExplanation$.pipe(
+        take(1),
+        tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
+      ).subscribe();
+    } else {
+      console.error(`Initialization observable is undefined for ${questionKey}`);
+    }
   }
+  
+  
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
@@ -206,8 +210,8 @@ export class ExplanationTextService implements OnDestroy {
     // Get the current value from the BehaviorSubject
     const currentValue = this.formattedExplanations$[questionIndex].value;
   
-    // If the current value is not undefined, return it
-    if (currentValue !== undefined) {
+    // If the current value is an empty string, it's considered as uninitialized
+    if (currentValue !== undefined && currentValue !== '') {
       return currentValue;
     }
   
@@ -221,7 +225,6 @@ export class ExplanationTextService implements OnDestroy {
       return `No explanation text available for ${questionKey}`;
     }
   }
-  
       
   // Function to introduce a delay
   delay(ms: number) {
@@ -292,22 +295,26 @@ export class ExplanationTextService implements OnDestroy {
   }
         
   private initializeExplanationSubject(questionIndex: number): void {
+    const questionKey = `Q${questionIndex + 1}`;
+  
+    // If it's not already initialized, create a new ReplaySubject
     if (!this.formattedExplanations$[questionIndex]) {
-      // If it's not already initialized, create a new BehaviorSubject
-      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
+      this.formattedExplanations$[questionIndex] = new ReplaySubject<string>(1);
   
       // Log the observable for the question
-      this.formattedExplanations$[questionIndex].subscribe(value => {
-        console.log(`Formatted explanation for Q${questionIndex + 1}:`, value?.toString());
-      });
+      this.formattedExplanations$[questionIndex].pipe(
+        take(1),
+        tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
+      ).subscribe();
   
-      // Set an initial value
-      this.formattedExplanations$[questionIndex].next(''); // or provide a default value if needed
+      // Set the initial value based on your logic
+      const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
+      this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
     } else {
       // If it's already initialized, log the current value
-      console.log(`Formatted explanation for Q${questionIndex + 1}:`, this.formattedExplanations$[questionIndex].value?.toString());
+      console.log(`Formatted explanation for ${questionKey}:`, this.formattedExplanations$[questionIndex].value?.toString());
     }
-  }  
+  }
           
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
