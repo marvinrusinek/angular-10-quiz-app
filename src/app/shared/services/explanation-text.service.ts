@@ -212,7 +212,7 @@ export class ExplanationTextService implements OnDestroy {
     // If the explanation text for the question exists, include it in the result
     const explanationText = this.explanationTexts[questionKey];
   
-    if (explanationText) {
+    if (explanationText !== undefined && explanationText !== null) {
       return `${explanationText}`;
     } else {
       // Explanation text does not exist, provide a default message
