@@ -177,6 +177,7 @@ export class ExplanationTextService implements OnDestroy {
   private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
+    console.log(`Formatting explanation for initialization: ${questionKey}`);
   
     // Log the observable for each question during initialization
     formattedExplanation$.pipe(
@@ -194,8 +195,9 @@ export class ExplanationTextService implements OnDestroy {
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
+    console.log(`Calculating initial explanation for ${questionKey}`);
   
-    // Check if the BehaviorSubject is initialized and has emitted a value
+    // Check if the BehaviorSubject is initialized
     if (!this.formattedExplanations$[questionIndex]) {
       console.error(`BehaviorSubject not initialized for ${questionKey}`);
       return 'No explanation available';
@@ -204,8 +206,8 @@ export class ExplanationTextService implements OnDestroy {
     // Get the current value from the BehaviorSubject
     const currentValue = this.formattedExplanations$[questionIndex].value;
   
-    // If the current value is not an empty string, return it
-    if (currentValue !== '') {
+    // If the current value is not undefined, return it
+    if (currentValue !== undefined) {
       return currentValue;
     }
   
@@ -219,6 +221,7 @@ export class ExplanationTextService implements OnDestroy {
       return `No explanation text available for ${questionKey}`;
     }
   }
+  
       
   // Function to introduce a delay
   delay(ms: number) {
