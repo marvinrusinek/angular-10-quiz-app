@@ -296,6 +296,7 @@ export class ExplanationTextService implements OnDestroy {
   
     return 'No explanation available...';
   }
+  
 
   // Function to introduce a delay
   delay(ms: number) {
