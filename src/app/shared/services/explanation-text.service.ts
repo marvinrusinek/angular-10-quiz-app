@@ -274,18 +274,15 @@ export class ExplanationTextService implements OnDestroy {
     // Log the current value of the BehaviorSubject
     console.log(`Current value of ${questionKey}: ${subject.value}`);
   
-    // Check if the lastFormattedExplanationSubject is set
-    if (this.lastFormattedExplanationSubject) {
-      console.log(`LastFormattedExplanationSubject is set for ${questionKey}`);
-  
-      // Log the current value of lastFormattedExplanationSubject
-      console.log(`LastFormattedExplanationSubject value: ${this.lastFormattedExplanationSubject.value}`);
+    // Check if lastFormattedExplanation is set
+    if (this.lastFormattedExplanation !== undefined) {
+      console.log(`LastFormattedExplanation is set for ${questionKey}: ${this.lastFormattedExplanation}`);
       
       // Insert the value into the dictionary
-      this.formattedExplanationsDictionary[questionKey] = this.lastFormattedExplanationSubject;
+      this.formattedExplanationsDictionary[questionKey] = this.lastFormattedExplanation;
       
-      // Use the value from lastFormattedExplanationSubject
-      return this.lastFormattedExplanationSubject.value;
+      // Use the value from lastFormattedExplanation
+      return this.lastFormattedExplanation;
     }
   
     return 'No explanation available...';
@@ -367,12 +364,10 @@ export class ExplanationTextService implements OnDestroy {
     // Use NgZone to run the async code within Angular's zone
     await this.ngZone.run(() => {
       // Set the value using next
-      formattedExplanation$.next(formattedExplanation);
-
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+  
       // Log the stored explanation text for the question
-      console.log(
-        `Stored explanation text for ${questionKey}: ${formattedExplanation}`
-      );
+      console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
     });
 
     // Update the processedQuestions set
