@@ -188,6 +188,11 @@ export class ExplanationTextService implements OnDestroy {
     // Wait for the initialization to complete
     await initializationObservable.toPromise();
   
+    // Log additional values
+    console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
+    console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
+    console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
+  
     // If the BehaviorSubject is still uninitialized, set the initial value
     const currentValue =
       formattedExplanation$ instanceof BehaviorSubject
@@ -199,8 +204,7 @@ export class ExplanationTextService implements OnDestroy {
             return value;
           })()
         : undefined;
-
-
+  
     if (currentValue === undefined || currentValue === '') {
       const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
