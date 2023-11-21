@@ -149,13 +149,13 @@ export class ExplanationTextService implements OnDestroy {
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
   
-    // Call formatExplanationText() for each question before proceeding
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      await this.formatExplanationTextForInitialization(questionIndex);
-    }
+    // Create an array of promises for each question
+    const initializationPromises = Array.from({ length: numQuestions }, (_, questionIndex) =>
+      this.formatExplanationTextForInitialization(questionIndex)
+    );
   
-    // Wait for a short delay to ensure all observables have emitted
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // Wait for all promises to resolve
+    await Promise.all(initializationPromises);
   
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
@@ -180,9 +180,6 @@ export class ExplanationTextService implements OnDestroy {
     // Set the initial value based on your logic
     const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
     formattedExplanation$.next(initialFormattedExplanation);
-  
-    // Introduce a small delay with a Promise
-    await new Promise(resolve => setTimeout(resolve, 0));
   }
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
