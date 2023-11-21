@@ -163,7 +163,7 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject;
+      this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
     });
 
     // Set the flag to indicate initialization is complete
@@ -174,28 +174,22 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   
-  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
+  private formatExplanationTextForInitialization(questionIndex: number): Observable<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
     console.log(`Formatting explanation for initialization: ${questionKey}`);
   
-    // Wait for the initialization to complete
-    const initializationObservable = this.initializeExplanationSubject(questionIndex);
+    // Log the observable for each question during initialization
+    const initializationObservable = formattedExplanation$.pipe(
+      take(1),
+      tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
+    );
   
-    if (initializationObservable) {
-      await initializationObservable.toPromise();
-  
-      // Log the observable for each question during initialization
-      formattedExplanation$.pipe(
-        take(1),
-        tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
-      ).subscribe();
-    } else {
-      console.error(`Initialization observable is undefined for ${questionKey}`);
-    }
+    // Map the observable to void
+    return initializationObservable.pipe(
+      mapTo(undefined)
+    );
   }
-  
-  
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
