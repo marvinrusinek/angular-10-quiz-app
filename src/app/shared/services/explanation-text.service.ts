@@ -192,19 +192,22 @@ export class ExplanationTextService implements OnDestroy {
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
+    
+    // Get the BehaviorSubject for the question
+    const formattedExplanation$ = this.formattedExplanations$[questionIndex];
   
-    // Check if the explanation text for the question exists
-    const explanationText = this.explanationTexts[questionKey];
+    // Get the latest emitted value from the BehaviorSubject
+    const latestValue = formattedExplanation$.getValue();
   
-    if (explanationText) {
-      // Explanation text exists, include it in the result
-      return `${explanationText}`;
+    // Check if there is a value emitted
+    if (latestValue) {
+      // Value exists, include it in the result
+      return `${latestValue}`;
     } else {
-      // Explanation text does not exist, provide a default message
+      // Value does not exist, provide a default message
       return `No explanation text available for ${questionKey}`;
     }
-  }
-   
+  }   
   
   // Function to introduce a delay
   delay(ms: number) {
