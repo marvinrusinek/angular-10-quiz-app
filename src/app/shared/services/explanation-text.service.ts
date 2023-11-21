@@ -146,18 +146,26 @@ export class ExplanationTextService implements OnDestroy {
 
   // Initialize formattedExplanations$ if it's not already initialized
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    // Initialize formattedExplanations$ directly with BehaviorSubjects
-    this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
+      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+    }
+  
+    // Call formatExplanationText() for each question before proceeding
+    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+      await this.formatExplanationTextForInitialization(questionIndex);
+    }
+  
+    // Wait for a short delay to ensure all observables have emitted
+    await new Promise(resolve => setTimeout(resolve, 0));
   
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
-    await Promise.all(
-      this.formattedExplanations$.map(async (subject, questionIndex) => {
-        const questionKey = `Q${questionIndex + 1}`;
-        this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
-        await this.formatExplanationTextForInitialization(questionIndex);
-      })
-    );
+    this.formattedExplanations$.forEach((subject, questionIndex) => {
+      const questionKey = `Q${questionIndex + 1}`;
+      // Explicitly type as BehaviorSubject<string>
+      this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
+    });
   
     // Set the flag to indicate initialization is complete
     this.isInitializationComplete = true;
@@ -165,6 +173,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
+  
 
   async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
@@ -181,7 +190,7 @@ export class ExplanationTextService implements OnDestroy {
     await initializationObservable.toPromise();
   
     // Log additional values
-    console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
+    console.log(`Current explanation text for ${questionKey}: ${this.getExplanationValue(formattedExplanation$)}`);
     console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
     console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
   
@@ -194,13 +203,24 @@ export class ExplanationTextService implements OnDestroy {
       formattedExplanation$.next(initialFormattedExplanation);
     }
   }
+
+  private getExplanationValue(subject: BehaviorSubject<string> | ReplaySubject<string>): string | undefined {
+    if (subject instanceof BehaviorSubject) {
+      return subject.value;
+    } else if (subject instanceof ReplaySubject) {
+      const events = (subject as any)._events;
+      const latestValue = events[events.length - 1]?.args[0];
+      return latestValue !== undefined ? latestValue : '';
+    }
+    return undefined;
+  }
   
   calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+    const subject = this.formattedExplanations$[questionIndex];
   
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
@@ -211,18 +231,19 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText !== undefined && explanationText !== null) {
-       // Get the current value from the BehaviorSubject
-      const currentValue = subject.value;
-    
-      // If the current value is an empty string, it's considered as uninitialized
+      // Get the current value from the BehaviorSubject
+      const currentValue = 'value' in subject ? subject.value : undefined;
+  
+      // If the current value is an empty string or undefined, it's considered as uninitialized
       if (currentValue !== undefined && currentValue !== '') {
         return currentValue;
       }
-    
+  
       return `${explanationText}`;
     }
-  }
   
+    return 'No explanation available';
+  }
       
   // Function to introduce a delay
   delay(ms: number) {
