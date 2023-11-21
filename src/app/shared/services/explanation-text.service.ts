@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable, Subject, Subscription } from 'rxjs';
-import { take, takeUntil, tap } from 'rxjs/operators';
+import { filter, mapTo, take, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
