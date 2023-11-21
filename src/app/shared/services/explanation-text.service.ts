@@ -189,7 +189,19 @@ export class ExplanationTextService implements OnDestroy {
     await initializationObservable.toPromise();
   
     // If the BehaviorSubject is still uninitialized, set the initial value
-    if (formattedExplanation$.value === undefined || formattedExplanation$.value === '') {
+    const currentValue =
+      formattedExplanation$ instanceof BehaviorSubject
+        ? formattedExplanation$.value
+        : formattedExplanation$ instanceof ReplaySubject
+        ? (() => {
+            let value: string | undefined;
+            formattedExplanation$.pipe(take(1)).subscribe((v) => (value = v));
+            return value;
+          })()
+        : undefined;
+
+
+    if (currentValue === undefined || currentValue === '') {
       const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
     }
