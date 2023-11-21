@@ -196,7 +196,7 @@ export class ExplanationTextService implements OnDestroy {
     );
   }
   
-  private async calculateInitialFormattedExplanationAsync(questionIndex: number): Promise<string> {
+  private async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
   
     // Check if the explanation text for the question exists
