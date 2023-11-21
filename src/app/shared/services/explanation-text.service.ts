@@ -318,7 +318,7 @@ export class ExplanationTextService implements OnDestroy {
     });
   
     // Return a placeholder value as the actual value will be set asynchronously
-    return 'Calculating...';
+    return this.lastFormattedExplanation;
   }
 
   // Function to introduce a delay
