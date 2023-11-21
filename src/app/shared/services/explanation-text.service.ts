@@ -259,7 +259,7 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
 
-  calculateInitialFormattedExplanation(questionIndex: number): string {
+  /* calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
@@ -286,6 +286,39 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     return 'No explanation available...';
+  } */
+
+  calculateInitialFormattedExplanation(questionIndex: number): string {
+    const questionKey = `Q${questionIndex + 1}`;
+    console.log(`Calculating initial explanation for ${questionKey}`);
+  
+    // Check if the BehaviorSubject is initialized
+    const subject = this.formattedExplanations$[questionIndex];
+  
+    if (!subject) {
+      console.error(`Subject not initialized for ${questionKey}`);
+      return 'No explanation available';
+    }
+  
+    // Check if the explanation text for the question exists
+    const explanationText = this.explanationTexts[questionKey];
+  
+    // Use NgZone to run the async code within Angular's zone
+    this.ngZone.run(() => {
+      // Subscribe to the BehaviorSubject to get the current value
+      subject.pipe(take(1)).subscribe((currentValue) => {
+        // If the current value is an empty string or undefined, set the initial value
+        if (currentValue === undefined || currentValue === '') {
+          const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
+            ? `${explanationText}`
+            : 'No explanation available';
+          subject.next(initialFormattedExplanation);
+        }
+      });
+    });
+  
+    // Return a placeholder value as the actual value will be set asynchronously
+    return 'Calculating...';
   }
 
   // Function to introduce a delay
