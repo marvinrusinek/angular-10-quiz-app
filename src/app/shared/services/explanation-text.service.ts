@@ -62,8 +62,8 @@ export class ExplanationTextService implements OnDestroy {
 
   subscriptions: Subscription[] = [];
 
-  private lastFormattedExplanation: string | undefined;
-  private lastFormattedExplanationSubject: BehaviorSubject<string> | undefined;
+  lastFormattedExplanation: string | undefined;
+  lastFormattedExplanationSubject: BehaviorSubject<string> | undefined;
 
   private destroyed$ = new Subject<void>();
 
@@ -393,7 +393,7 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
       
       // Save the BehaviorSubject in the class property for later use
-      this.lastFormattedExplanationSubject = this.formattedExplanations$[questionIndex];
+      this.lastFormattedExplanationSubject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
       // Log the observable for the question
       this.formattedExplanations$[questionIndex].pipe(
@@ -409,7 +409,7 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Formatted explanation for ${questionKey}:`, this.formattedExplanations$[questionIndex].value?.toString());
     }
   
-    return this.formattedExplanations$[questionIndex];
+    return this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   }
 
   // Function to set or update the formatted explanation for a question
