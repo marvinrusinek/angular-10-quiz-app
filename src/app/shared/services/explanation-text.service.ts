@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, Subject, Subscription } from 'rxjs';
 import { take, takeUntil, tap } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -149,13 +149,13 @@ export class ExplanationTextService implements OnDestroy {
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
   
-    // Create an array of promises for each question
-    const initializationPromises = Array.from({ length: numQuestions }, (_, questionIndex) =>
+    // Create an array of Observables for each question
+    const initializationObservables = this.formattedExplanations$.map((subject, questionIndex) =>
       this.formatExplanationTextForInitialization(questionIndex)
     );
   
-    // Wait for all promises to resolve
-    await Promise.all(initializationPromises);
+    // Wait for all Observables to emit a value
+    await forkJoin(initializationObservables).toPromise();
   
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
@@ -168,18 +168,26 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
   
-  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
+  private formatExplanationTextForInitialization(questionIndex: number): Observable<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
   
     // Log the observable for each question during initialization
-    formattedExplanation$.pipe(take(1)).subscribe(value => {
-      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-    });
+    formattedExplanation$.pipe(
+      take(1),
+      tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
+    ).subscribe();
   
     // Set the initial value based on your logic
     const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
     formattedExplanation$.next(initialFormattedExplanation);
+  
+    // Return an observable that completes when the value is set
+    return formattedExplanation$.pipe(
+      filter(value => !!value),
+      take(1),
+      mapTo(undefined)
+    );
   }
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
