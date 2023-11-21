@@ -145,39 +145,36 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-
+  
     // Call formatExplanationText() for each question before proceeding
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       await this.formatExplanationTextForInitialization(questionIndex);
     }
-
+  
     // Wait for a short delay to ensure all observables have emitted
     await new Promise(resolve => setTimeout(resolve, 0));
-
+  
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
+      this.formattedExplanationsDictionary[questionKey] = subject;
     });
-
+  
     // Set the flag to indicate initialization is complete
     this.isInitializationComplete = true;
-
+  
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
 
-  
-  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
+  async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
-    console.log(`Formatting explanation for initialization: ${questionKey}`);
   
     // Log the observable for each question during initialization
     const initializationObservable = formattedExplanation$.pipe(
@@ -187,34 +184,25 @@ export class ExplanationTextService implements OnDestroy {
   
     // Wait for the initialization to complete
     await initializationObservable.toPromise();
-
-    // Log additional values
-    console.log(`Current explanation text for: ${questionKey}: ${formattedExplanation$.getValue()}`);
-  
-    // Log additional values
-    // console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
-    console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
-    console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
   
     // If the BehaviorSubject is still uninitialized, set the initial value
     const currentValue =
-      formattedExplanation$ instanceof BehaviorSubject
-        ? formattedExplanation$.value
-        : formattedExplanation$ instanceof ReplaySubject
-        ? (() => {
-            let value: string | undefined;
-            formattedExplanation$.pipe(take(1)).subscribe((v) => (value = v));
-            return value;
-          })()
-        : undefined;
-  
+    formattedExplanation$ instanceof BehaviorSubject
+      ? formattedExplanation$.value
+      : formattedExplanation$ instanceof ReplaySubject
+      ? (() => {
+          let value: string | undefined;
+          formattedExplanation$.pipe(take(1)).subscribe((v) => (value = v));
+          return value;
+        })()
+      : undefined;
     if (currentValue === undefined || currentValue === '') {
       const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
     }
   }
   
-  private calculateInitialFormattedExplanation(questionIndex: number): string {
+  calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
