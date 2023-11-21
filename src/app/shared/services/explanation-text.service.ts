@@ -188,7 +188,7 @@ export class ExplanationTextService implements OnDestroy {
     // If the BehaviorSubject or ReplaySubject is still uninitialized, set the initial value
     if (
       (formattedExplanation$ instanceof BehaviorSubject && formattedExplanation$.value === undefined) ||
-      (formattedExplanation$ instanceof ReplaySubject && formattedExplanation$.getValue() === undefined)
+      (formattedExplanation$ instanceof ReplaySubject && formattedExplanation$['_events'].length === 0)
     ) {
       const initialFormattedExplanation = await this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
