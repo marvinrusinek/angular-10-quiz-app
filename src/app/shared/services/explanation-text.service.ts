@@ -180,20 +180,19 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Formatting explanation for initialization: ${questionKey}`);
   
     // Log the observable for each question during initialization
-    formattedExplanation$.subscribe(value => {
-      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
-    });
+    const initializationObservable = formattedExplanation$.pipe(
+      take(1),
+      tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
+    );
   
-    // Introduce a small delay with a Promise before setting the initial value
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // Wait for the initialization to complete
+    await initializationObservable.toPromise();
   
-    // Set the initial value based on your logic
-    const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
-    
-    // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(() => {
+    // If the BehaviorSubject is still uninitialized, set the initial value
+    if (formattedExplanation$.value === undefined || formattedExplanation$.value === '') {
+      const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
-    });
+    }
   }
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
