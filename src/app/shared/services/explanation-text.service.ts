@@ -187,9 +187,12 @@ export class ExplanationTextService implements OnDestroy {
   
     // Wait for the initialization to complete
     await initializationObservable.toPromise();
+
+    // Log additional values
+    console.log(`Current explanation text for: ${questionKey}: ${formattedExplanation$.getValue()}`);
   
     // Log additional values
-    console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
+    // console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
     console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
     console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
   
@@ -216,15 +219,15 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex];
+    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
   
-    // Get the current value from the subject
-    const currentValue = 'value' in subject ? subject.value : undefined;
+    // Get the current value from the BehaviorSubject
+    const currentValue = subject.value;
   
     // If the current value is an empty string, it's considered as uninitialized
     if (currentValue !== undefined && currentValue !== '') {
