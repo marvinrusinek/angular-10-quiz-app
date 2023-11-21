@@ -224,19 +224,18 @@ export class ExplanationTextService implements OnDestroy {
     // Get the current value from the BehaviorSubject
     const currentValue = subject.value;
   
-    // If the current value is an empty string, it's considered as uninitialized
-    if (currentValue !== undefined && currentValue !== '') {
-      return currentValue;
-    }
-  
     // If the explanation text for the question exists, include it in the result
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText !== undefined && explanationText !== null) {
+      const currentValue = subject.value;
+    
+      // If the current value is an empty string, it's considered as uninitialized
+      if (currentValue !== undefined && currentValue !== '') {
+        return currentValue;
+      }
+    
       return `${explanationText}`;
-    } else {
-      // Explanation text does not exist, provide a default message
-      return `No explanation text available for ${questionKey}`;
     }
   }
   
