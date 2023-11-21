@@ -302,6 +302,9 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$[questionIndex].subscribe(value => {
         console.log(`Formatted explanation for Q${questionIndex + 1}:`, value?.toString());
       });
+  
+      // Set an initial value
+      this.formattedExplanations$[questionIndex].next(''); // or provide a default value if needed
     }
   }
           
