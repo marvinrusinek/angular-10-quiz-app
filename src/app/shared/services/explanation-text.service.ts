@@ -305,8 +305,11 @@ export class ExplanationTextService implements OnDestroy {
   
       // Set an initial value
       this.formattedExplanations$[questionIndex].next(''); // or provide a default value if needed
+    } else {
+      // If it's already initialized, log the current value
+      console.log(`Formatted explanation for Q${questionIndex + 1}:`, this.formattedExplanations$[questionIndex].value?.toString());
     }
-  }
+  }  
           
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
