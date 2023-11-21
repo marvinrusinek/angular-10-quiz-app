@@ -146,6 +146,7 @@ export class ExplanationTextService implements OnDestroy {
 
   // Initialize formattedExplanations$ if it's not already initialized
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
+    // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
@@ -163,7 +164,6 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      // Explicitly type as BehaviorSubject<string>
       this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
     });
   
@@ -188,24 +188,8 @@ export class ExplanationTextService implements OnDestroy {
     // Wait for the initialization to complete
     await initializationObservable.toPromise();
   
-    // Log additional values
-    console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
-    console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
-    console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
-  
     // If the BehaviorSubject is still uninitialized, set the initial value
-    const currentValue =
-      formattedExplanation$ instanceof BehaviorSubject
-        ? formattedExplanation$.value
-        : formattedExplanation$ instanceof ReplaySubject
-        ? (() => {
-            let value: string | undefined;
-            formattedExplanation$.pipe(take(1)).subscribe((v) => (value = v));
-            return value;
-          })()
-        : undefined;
-  
-    if (currentValue === undefined || currentValue === '') {
+    if (!formattedExplanation$.value) {
       const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
     }
@@ -226,33 +210,17 @@ export class ExplanationTextService implements OnDestroy {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
-    // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
-  
-    if (!subject) {
-      console.error(`Subject not initialized for ${questionKey}`);
-      return 'No explanation available';
-    }
-  
-    // Get the current value from the BehaviorSubject
-    const currentValue = subject.value;
-  
-    // If the current value is not empty or undefined, it's considered initialized
-    if (currentValue !== undefined && currentValue !== '') {
-      return currentValue;
-    }
-  
-    // If the explanation text for the question exists, include it in the result
+    // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText !== undefined && explanationText !== null) {
       return `${explanationText}`;
+    } else {
+      // Explanation text does not exist, provide a default message
+      console.error(`No explanation text available for ${questionKey}`);
+      return 'No explanation available';
     }
-  
-    // Default message when no explanation is available
-    return 'No explanation available';
   }
-  
       
   // Function to introduce a delay
   delay(ms: number) {
