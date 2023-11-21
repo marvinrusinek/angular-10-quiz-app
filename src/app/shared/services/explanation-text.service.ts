@@ -222,35 +222,37 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
   
-  calculateInitialFormattedExplanation(questionIndex: number): string {
+  private calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex];
+    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
   
+    // Get the current value from the BehaviorSubject
+    const currentValue = subject.value;
+  
+    // If the current value is not empty or undefined, it's considered initialized
+    if (currentValue !== undefined && currentValue !== '') {
+      return currentValue;
+    }
+  
     // If the explanation text for the question exists, include it in the result
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText !== undefined && explanationText !== null) {
-      // Get the current value from the BehaviorSubject
-      const currentValue = 'value' in subject ? subject.value : undefined;
-  
-      // If the current value is an empty string or undefined, it's considered as uninitialized
-      if (currentValue !== undefined && currentValue !== '') {
-        return currentValue;
-      }
-  
       return `${explanationText}`;
     }
   
+    // Default message when no explanation is available
     return 'No explanation available';
   }
+  
       
   // Function to introduce a delay
   delay(ms: number) {
