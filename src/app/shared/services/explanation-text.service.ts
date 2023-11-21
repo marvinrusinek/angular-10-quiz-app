@@ -146,26 +146,19 @@ export class ExplanationTextService implements OnDestroy {
 
   // Initialize formattedExplanations$ if it's not already initialized
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-      this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
-    }
-
-    // Call formatExplanationText() for each question before proceeding
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      await this.formatExplanationTextForInitialization(questionIndex);
-    }
-
-    // Wait for a short delay to ensure all observables have emitted
-    await new Promise(resolve => setTimeout(resolve, 0));
+    this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
 
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
-      // Explicitly type as BehaviorSubject<string>
       this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
     });
+
+    // Call formatExplanationText() for each question before proceeding
+    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+      await this.formatExplanationTextForInitialization(questionIndex);
+    }
 
     // Set the flag to indicate initialization is complete
     this.isInitializationComplete = true;
@@ -191,6 +184,11 @@ export class ExplanationTextService implements OnDestroy {
   
     // Wait for the initialization to complete
     await initializationObservable.toPromise();
+
+    // Log additional values
+    console.log(`Current explanation text for ${questionKey}: ${formattedExplanation$.value}`);
+    console.log(`Is BehaviorSubject: ${formattedExplanation$ instanceof BehaviorSubject}`);
+    console.log(`Is ReplaySubject: ${formattedExplanation$ instanceof ReplaySubject}`);
   
     // If the BehaviorSubject is still uninitialized, set the initial value
     const currentValue =
@@ -203,8 +201,8 @@ export class ExplanationTextService implements OnDestroy {
           return value;
         })()
       : undefined;
-    if (!currentValue) {
-      const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
+    if (currentValue === undefined || currentValue === '') {
+      const initialFormattedExplanation = await this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
     }
   }
