@@ -221,13 +221,11 @@ export class ExplanationTextService implements OnDestroy {
       return 'No explanation available';
     }
   
-    // Get the current value from the BehaviorSubject
-    const currentValue = subject.value;
-  
     // If the explanation text for the question exists, include it in the result
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText !== undefined && explanationText !== null) {
+       // Get the current value from the BehaviorSubject
       const currentValue = subject.value;
     
       // If the current value is an empty string, it's considered as uninitialized
