@@ -42,6 +42,8 @@ export class ExplanationTextService implements OnDestroy {
   shouldDisplayExplanation$ =
     this.shouldDisplayExplanationSource.asObservable();
 
+  private isInitializationComplete = false;
+
   lastDisplayedExplanationText = '';
 
   subscriptions: Subscription[] = [];
@@ -148,25 +150,29 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-  
-    // Create an array of Observables for each question
-    const initializationObservables = this.formattedExplanations$.map((subject, questionIndex) =>
-      this.formatExplanationTextForInitialization(questionIndex)
-    );
-  
-    // Wait for all Observables to emit a value
-    await forkJoin(initializationObservables).toPromise();
-  
+
+    // Call formatExplanationText() for each question before proceeding
+    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+      await this.formatExplanationTextForInitialization(questionIndex);
+    }
+
+    // Wait for a short delay to ensure all observables have emitted
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
     this.formattedExplanations$.forEach((subject, questionIndex) => {
       const questionKey = `Q${questionIndex + 1}`;
       this.formattedExplanationsDictionary[questionKey] = subject;
     });
-  
+
+    // Set the flag to indicate initialization is complete
+    this.isInitializationComplete = true;
+
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
+
   
   private formatExplanationTextForInitialization(questionIndex: number): Observable<void> {
     const questionKey = `Q${questionIndex + 1}`;
@@ -190,27 +196,17 @@ export class ExplanationTextService implements OnDestroy {
     );
   }
   
-  private calculateInitialFormattedExplanation(questionIndex: number): string {
+  private async calculateInitialFormattedExplanationAsync(questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
   
-    // Get the BehaviorSubject for the question
-    const formattedExplanation$ = this.formattedExplanations$[questionIndex];
+    // Check if the explanation text for the question exists
+    const explanationText = this.explanationTexts[questionKey];
   
-    // Subscribe to the BehaviorSubject to get the latest emitted value
-    let latestValue: string;
-    const subscription = formattedExplanation$.subscribe(value => {
-      latestValue = value;
-    });
-  
-    // Unsubscribe to avoid memory leaks
-    subscription.unsubscribe();
-  
-    // Check if there is a value emitted
-    if (latestValue) {
-      // Value exists, include it in the result
-      return `${latestValue}`;
+    if (explanationText) {
+      // Explanation text exists, include it in the result
+      return `${explanationText}`;
     } else {
-      // Value does not exist, provide a default message
+      // Explanation text does not exist, provide a default message
       return `No explanation text available for ${questionKey}`;
     }
   }
