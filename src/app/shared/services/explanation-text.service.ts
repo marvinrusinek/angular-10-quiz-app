@@ -198,7 +198,7 @@ export class ExplanationTextService implements OnDestroy {
           return value;
         })()
       : undefined;
-    if (currentValue === undefined || currentValue === '') {
+    if (!currentValue) {
       const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
       formattedExplanation$.next(initialFormattedExplanation);
     }
