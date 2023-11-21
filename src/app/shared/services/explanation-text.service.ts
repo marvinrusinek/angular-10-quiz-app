@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { BehaviorSubject, forkJoin, Observable, Subject, Subscription } from 'rxjs';
 import { filter, mapTo, take, takeUntil, tap } from 'rxjs/operators';
 
@@ -50,7 +50,7 @@ export class ExplanationTextService implements OnDestroy {
 
   private destroyed$ = new Subject<void>();
 
-  constructor() {
+  constructor(private ngZone: NgZone) {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
 
@@ -263,11 +263,14 @@ export class ExplanationTextService implements OnDestroy {
       formattedExplanation = 'No correct option selected...';
     }
   
-    // Set the value using next
-    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    // Use NgZone to run the async code within Angular's zone
+    await this.ngZone.run(async () => {
+      // Set the value using next
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
   
-    // Log the stored explanation text for the question
-    console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
+      // Log the stored explanation text for the question
+      console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
+    });
   
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
@@ -275,7 +278,7 @@ export class ExplanationTextService implements OnDestroy {
   
     return formattedExplanation;
   }
-      
+        
   private initializeExplanationSubject(questionIndex: number): void {
     if (!this.formattedExplanations$[questionIndex]) {
       // If it's not already initialized, create a new BehaviorSubject
