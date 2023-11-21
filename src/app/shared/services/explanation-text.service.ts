@@ -174,7 +174,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   
-  private formatExplanationTextForInitialization(questionIndex: number): Observable<void> {
+  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
   
@@ -184,16 +184,12 @@ export class ExplanationTextService implements OnDestroy {
       tap(value => console.log(`Formatted explanation for ${questionKey}:`, value?.toString()))
     ).subscribe();
   
+    // Introduce a small delay with a Promise before setting the initial value
+    await new Promise(resolve => setTimeout(resolve, 0));
+  
     // Set the initial value based on your logic
     const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
     formattedExplanation$.next(initialFormattedExplanation);
-  
-    // Return an observable that completes when the value is set
-    return formattedExplanation$.pipe(
-      filter(value => !!value),
-      take(1),
-      mapTo(undefined)
-    );
   }
   
   private calculateInitialFormattedExplanation(questionIndex: number): string {
