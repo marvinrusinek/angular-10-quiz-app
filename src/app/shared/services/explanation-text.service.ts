@@ -263,35 +263,38 @@ export class ExplanationTextService implements OnDestroy {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
-    // Check if the lastFormattedExplanationSubject is available
-    if (this.lastFormattedExplanationSubject) {
-      // Use the lastFormattedExplanationSubject value
-      const currentValue = this.lastFormattedExplanationSubject.value;
-  
-      // If the current value is an empty string or undefined, it's considered as uninitialized
-      if (currentValue !== undefined && currentValue !== '') {
-        return currentValue;
-      }
-    }
-  
-    // Fallback to the default logic if the lastFormattedExplanationSubject is not available
-    const subject = this.formattedExplanations$[questionIndex];
+    // Check if the BehaviorSubject is initialized
+    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
   
-    // Get the explanation text for the question
+    // Check if the lastFormattedExplanationSubject is set
+    if (!this.lastFormattedExplanationSubject) {
+      console.error(`LastFormattedExplanationSubject not set for ${questionKey}`);
+      return 'No explanation available';
+    }
+  
+    // Use the value from lastFormattedExplanationSubject
+    const currentValue = this.lastFormattedExplanationSubject.value;
+  
+    // If the current value is an empty string, it's considered as uninitialized
+    if (currentValue !== undefined && currentValue !== '') {
+      // Insert the value into the dictionary
+      this.formattedExplanationsDictionary[questionKey] = subject;
+      return currentValue;
+    }
+  
+    // If the explanation text for the question exists, include it in the result
     const explanationText = this.explanationTexts[questionKey];
   
     if (explanationText !== undefined && explanationText !== null) {
       return `${explanationText}`;
-    } else {
-      // Explanation text does not exist, provide a default message
-      console.error(`No explanation text available for ${questionKey}`);
-      return 'No explanation available';
     }
+  
+    return 'No explanation available...';
   }
 
   // Function to introduce a delay
