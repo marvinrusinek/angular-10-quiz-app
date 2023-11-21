@@ -177,6 +177,11 @@ export class ExplanationTextService implements OnDestroy {
   async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
+
+    if (!formattedExplanation$) {
+      console.error(`Subject not initialized for ${questionKey}`);
+      return;
+    }
   
     // Log the observable for each question during initialization
     const initializationObservable = formattedExplanation$.pipe(
