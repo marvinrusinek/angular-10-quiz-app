@@ -304,7 +304,7 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
 
     // Use NgZone to run the async code within Angular's zone
-    const initialValue = await this.ngZone.run(() => {
+    return this.ngZone.run(() => {
         return new Promise<string>((resolve) => {
             // Subscribe to the BehaviorSubject to get the current value
             const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
@@ -315,11 +315,11 @@ export class ExplanationTextService implements OnDestroy {
                             ? `${explanationText}`
                             : 'No explanation available';
 
-                    // Resolve the Promise with the initial value
-                    resolve(initialValue);
-
                     // Update the dictionary with the initial value
                     this.formattedExplanationsDictionary[questionKey] = subject;
+
+                    // Resolve the Promise with the initial value
+                    resolve(initialFormattedExplanation);
                 }
             });
 
@@ -327,9 +327,6 @@ export class ExplanationTextService implements OnDestroy {
             subscription.unsubscribe();
         });
     });
-
-    // Return the initial value
-    return initialValue;
   }
 
   // Function to introduce a delay
