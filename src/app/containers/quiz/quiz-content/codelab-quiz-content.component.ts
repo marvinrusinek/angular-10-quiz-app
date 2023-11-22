@@ -518,7 +518,7 @@ export class CodelabQuizContentComponent
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
-      this.formattedExplanation$
+      this.formattedExplanation$,
     ]).pipe(
       switchMap(
         ([
