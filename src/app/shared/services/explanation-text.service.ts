@@ -288,43 +288,49 @@ export class ExplanationTextService implements OnDestroy {
     return 'No explanation available...';
   } */
 
-  calculateInitialFormattedExplanation(questionIndex: number): string {
+  async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
-  
+
     // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex];
-  
+    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+
     if (!subject) {
-      console.error(`Subject not initialized for ${questionKey}`);
-      return 'No explanation available';
+        console.error(`Subject not initialized for ${questionKey}`);
+        return 'No explanation available';
     }
-  
+
     // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
-  
+
     // Use NgZone to run the async code within Angular's zone
-    this.ngZone.run(() => {
-      // Subscribe to the BehaviorSubject to get the current value
-      subject.pipe(take(1)).subscribe((currentValue) => {
-        // If the current value is an empty string or undefined, set the initial value
-        if (currentValue === undefined || currentValue === '') {
-          const initialFormattedExplanation =
-            explanationText !== undefined && explanationText !== null
-              ? `${explanationText}`
-              : 'No explanation available';
-          subject.next(initialFormattedExplanation);
-  
-          // Update the dictionary with the initial value
-          this.formattedExplanationsDictionary[questionKey] = subject;
-        }
-      });
+    const initialValue = await this.ngZone.run(() => {
+        return new Promise<string>((resolve) => {
+            // Subscribe to the BehaviorSubject to get the current value
+            const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
+                // If the current value is an empty string or undefined, set the initial value
+                if (currentValue === undefined || currentValue === '') {
+                    const initialFormattedExplanation =
+                        explanationText !== undefined && explanationText !== null
+                            ? `${explanationText}`
+                            : 'No explanation available';
+
+                    // Resolve the Promise with the initial value
+                    resolve(initialValue);
+
+                    // Update the dictionary with the initial value
+                    this.formattedExplanationsDictionary[questionKey] = subject;
+                }
+            });
+
+            // Unsubscribe after getting the initial value
+            subscription.unsubscribe();
+        });
     });
-  
-    // Return a placeholder value as the actual value will be set asynchronously
-    return this.lastFormattedExplanation;
+
+    // Return the initial value
+    return initialValue;
   }
-  
 
   // Function to introduce a delay
   delay(ms: number) {
