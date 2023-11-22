@@ -309,10 +309,14 @@ export class ExplanationTextService implements OnDestroy {
       subject.pipe(take(1)).subscribe((currentValue) => {
         // If the current value is an empty string or undefined, set the initial value
         if (currentValue === undefined || currentValue === '') {
-          const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
-            ? `${explanationText}`
-            : 'No explanation available';
+          const initialFormattedExplanation =
+            explanationText !== undefined && explanationText !== null
+              ? `${explanationText}`
+              : 'No explanation available';
           subject.next(initialFormattedExplanation);
+  
+          // Update the dictionary with the initial value
+          this.formattedExplanationsDictionary[questionKey] = subject;
         }
       });
     });
@@ -320,6 +324,7 @@ export class ExplanationTextService implements OnDestroy {
     // Return a placeholder value as the actual value will be set asynchronously
     return this.lastFormattedExplanation;
   }
+  
 
   // Function to introduce a delay
   delay(ms: number) {
