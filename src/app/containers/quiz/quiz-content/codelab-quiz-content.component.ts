@@ -163,7 +163,7 @@ export class CodelabQuizContentComponent
       this.setupCombinedQuestionData();
       this.setupOptions();
   
-      this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
+     /* this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
         this.questions = questions;
   
         if (this.questions && this.questions.length > 0) {
@@ -176,7 +176,7 @@ export class CodelabQuizContentComponent
         } else {
           console.error('No questions loaded or questions array is empty.');
         }
-      });
+      }); */
   
       // Combine explanationTextService's observable with selectedOptionExplanation$
       this.explanationText$ = combineLatest([
@@ -502,12 +502,12 @@ export class CodelabQuizContentComponent
     );
   }
 
-  async private initializeCombinedQuestionData(): void {
+  private async initializeCombinedQuestionData(): Promise<void> {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
         currentQuestion,
-        currentOptions,
+        currentOptions
       }))
     );
 
@@ -518,14 +518,14 @@ export class CodelabQuizContentComponent
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
-      this.formattedExplanation$,
+      this.formattedExplanation$
     ]).pipe(
       switchMap(
         ([
           { currentQuestion, currentOptions },
           numberOfCorrectAnswers,
           isExplanationDisplayed,
-          formattedExplanation,
+          formattedExplanation
         ]) => {
           // Calculate question text
           const questionText = currentQuestion
