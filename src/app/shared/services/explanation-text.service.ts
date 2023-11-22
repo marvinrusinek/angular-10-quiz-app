@@ -259,35 +259,6 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
 
-  /* calculateInitialFormattedExplanation(questionIndex: number): string {
-    const questionKey = `Q${questionIndex + 1}`;
-    console.log(`Calculating initial explanation for ${questionKey}`);
-  
-    // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
-  
-    if (!subject) {
-      console.error(`Subject not initialized for ${questionKey}`);
-      return 'No explanation available';
-    }
-  
-    // Log the current value of the BehaviorSubject
-    console.log(`Current value of ${questionKey}: ${subject.value}`);
-  
-    // Check if lastFormattedExplanation is set
-    if (this.lastFormattedExplanation !== undefined) {
-      console.log(`LastFormattedExplanation is set for ${questionKey}: ${this.lastFormattedExplanation}`);
-      
-      // Insert the value into the dictionary
-      this.formattedExplanationsDictionary[questionKey] = this.lastFormattedExplanation;
-      
-      // Use the value from lastFormattedExplanation
-      return this.lastFormattedExplanation;
-    }
-  
-    return 'No explanation available...';
-  } */
-
   async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
@@ -307,6 +278,8 @@ export class ExplanationTextService implements OnDestroy {
     return this.ngZone.run(() => {
         // If the BehaviorSubject has a value, return it
         if (subject.value !== undefined && subject.value !== '') {
+            // Update the dictionary with the existing value
+            this.formattedExplanationsDictionary[questionKey] = subject;
             return subject.value;
         }
 
