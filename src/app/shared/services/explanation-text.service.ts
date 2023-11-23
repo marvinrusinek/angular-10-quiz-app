@@ -284,9 +284,7 @@ export class ExplanationTextService implements OnDestroy {
       // Use a Promise to wait for the asynchronous code to complete
       await new Promise<void>((resolve) => {
         // Subscribe to the BehaviorSubject to get the current value
-        let subscription: Subscription;
-  
-        subscription = subject.pipe(take(1)).subscribe((currentValue) => {
+        const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
           // If the current value is an empty string or undefined, set the initial value
           if (currentValue === undefined || currentValue === '') {
             const initialFormattedExplanation =
@@ -301,8 +299,11 @@ export class ExplanationTextService implements OnDestroy {
             this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
           }
   
-          // Unsubscribe after getting the initial value
-          subscription.unsubscribe();
+          // Unsubscribe if the subscription is defined
+          if (subscription) {
+            subscription.unsubscribe();
+          }
+  
           resolve();
         });
       });
