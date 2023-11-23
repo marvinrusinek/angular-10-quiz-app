@@ -298,8 +298,8 @@ export class ExplanationTextService implements OnDestroy {
             // Use the BehaviorSubject's next method to set the initial value
             subject.next(initialFormattedExplanation);
   
-            // Insert the initialFormattedExplanation into the dictionary
-            this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
+            // Insert the lastFormattedExplanation into the dictionary
+            this.formattedExplanationsDictionary[questionKey].next(this.lastFormattedExplanation);
           }
   
           // Unsubscribe if the subscription is defined
