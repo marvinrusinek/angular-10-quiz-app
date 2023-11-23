@@ -270,7 +270,6 @@ export class ExplanationTextService implements OnDestroy {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
-    // Check if the BehaviorSubject is initialized
     const subject = this.formattedExplanations$[questionIndex];
   
     if (!subject) {
@@ -278,35 +277,32 @@ export class ExplanationTextService implements OnDestroy {
       return 'No explanation available';
     }
   
-    // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
   
-    // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(async () => {
-      // Subscribe to the BehaviorSubject to get the current value
-      const currentValue = await subject.pipe(take(1)).toPromise();
+    // Check if the subject already has a value
+    if (!subject.value) {
+      // Use NgZone to run the async code within Angular's zone
+      await this.ngZone.run(async () => {
+        // Subscribe to the BehaviorSubject to get the current value
+        const currentValue = subject.value;
   
-      // If the current value is an empty string or undefined, set the initial value
-      if (currentValue === undefined || currentValue === '') {
-        const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
-          ? `${explanationText}`
-          : 'No explanation available';
+        // If the current value is an empty string or undefined, set the initial value
+        if (currentValue === undefined || currentValue === '') {
+          const initialFormattedExplanation =
+            explanationText !== undefined && explanationText !== null
+              ? `${explanationText}`
+              : 'No explanation available';
   
-        // Set the initial value
-        subject.next(initialFormattedExplanation);
+          // Use the BehaviorSubject's next method to set the initial value
+          subject.next(initialFormattedExplanation);
+        }
+      });
+    }
   
-        // Update the dictionary with the initial value
-        this.formattedExplanationsDictionary[questionKey] = subject;
-  
-        // Return the initial value
-        return initialFormattedExplanation;
-      }
-    });
-  
-    // If the current value is not empty, return it
-    return subject.value;
-  }  
-  
+    // Return the lastFormattedExplanation (a string)
+    return this.lastFormattedExplanation;
+  }
+    
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
