@@ -299,7 +299,7 @@ export class ExplanationTextService implements OnDestroy {
             subject.next(initialFormattedExplanation);
   
             // Insert the initialFormattedExplanation into the dictionary
-            this.formattedExplanationsDictionary[questionKey] = subject;
+            this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
           }
   
           // Unsubscribe if the subscription is defined
