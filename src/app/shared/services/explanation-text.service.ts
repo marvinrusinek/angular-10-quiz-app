@@ -282,7 +282,7 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    return this.ngZone.run(() => {
+    return this.ngZone.run(async () => {
       // Get the last formatted explanation from the class property
       const lastFormattedExplanation = this.lastFormattedExplanation;
   
@@ -295,7 +295,8 @@ export class ExplanationTextService implements OnDestroy {
       }
   
       // If the lastFormattedExplanation is empty, use the logic to set the initial value
-      const currentValue = subject.value;
+      const currentValue = await subject.pipe(take(1)).toPromise();
+  
       if (currentValue === undefined || currentValue === '') {
         const initialFormattedExplanation =
           explanationText !== undefined && explanationText !== null
