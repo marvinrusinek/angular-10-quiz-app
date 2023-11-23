@@ -282,35 +282,28 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    const initialValue = await this.ngZone.run(() => {
-      // Subscribe to the BehaviorSubject to get the current value
-      const currentValue = subject.getValue();
+    const currentValue = subject.value;
   
-      // If the current value is an empty string or undefined, set the initial value
-      if (currentValue === undefined || currentValue === '') {
-        const initialFormattedExplanation =
-          explanationText !== undefined && explanationText !== null
-            ? `${explanationText}`
-            : 'No explanation available';
+    // If the current value is an empty string or undefined, set the initial value
+    if (currentValue === undefined || currentValue === '') {
+      const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
+        ? `${explanationText}`
+        : 'No explanation available';
   
-        // Set the initial value
-        subject.next(initialFormattedExplanation);
+      // Set the initial value
+      subject.next(initialFormattedExplanation);
   
-        // Return the initial value
-        return initialFormattedExplanation;
-      }
+      // Update the dictionary with the initial value
+      this.formattedExplanationsDictionary[questionKey] = initialFormattedExplanation;
   
-      // If the current value is not empty, return it
-      return currentValue;
-    });
+      // Return the initial value
+      return initialFormattedExplanation;
+    }
   
-    // Update the dictionary with the initial value
-    this.formattedExplanationsDictionary[questionKey] = subject;
+    // If the current value is not empty, return it
+    return currentValue;
+  }  
   
-    // Return the initial value
-    return initialValue;
-  }    
-
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
