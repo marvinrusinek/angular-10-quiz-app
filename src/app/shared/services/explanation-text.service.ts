@@ -282,36 +282,34 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    return this.ngZone.run(async () => {
-      // Get the last formatted explanation from the class property
-      const lastFormattedExplanation = this.lastFormattedExplanation;
-  
-      // If the lastFormattedExplanation is not empty, set it as the initial value
-      if (lastFormattedExplanation !== undefined && lastFormattedExplanation !== '') {
-        subject.next(lastFormattedExplanation);
-  
-        // Return the initial value
-        return lastFormattedExplanation;
-      }
-  
-      // If the lastFormattedExplanation is empty, use the logic to set the initial value
+    const initialValue = await this.ngZone.run(() => {
+      // Subscribe to the BehaviorSubject to get the current value
       const currentValue = subject.getValue();
   
+      // If the current value is an empty string or undefined, set the initial value
       if (currentValue === undefined || currentValue === '') {
         const initialFormattedExplanation =
           explanationText !== undefined && explanationText !== null
             ? `${explanationText}`
             : 'No explanation available';
+  
+        // Set the initial value
         subject.next(initialFormattedExplanation);
   
         // Return the initial value
         return initialFormattedExplanation;
       }
   
-      // Return the existing value if it's not empty
+      // If the current value is not empty, return it
       return currentValue;
     });
-  }  
+  
+    // Update the dictionary with the initial value
+    this.formattedExplanationsDictionary[questionKey] = subject;
+  
+    // Return the initial value
+    return initialValue;
+  }    
 
   // Function to introduce a delay
   delay(ms: number) {
