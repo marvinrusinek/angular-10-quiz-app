@@ -299,7 +299,12 @@ export class ExplanationTextService implements OnDestroy {
             subject.next(initialFormattedExplanation);
   
             // Insert the lastFormattedExplanation into the dictionary
-            this.formattedExplanationsDictionary[questionKey].next(this.lastFormattedExplanation);
+            const dictionarySubject = this.formattedExplanationsDictionary[questionKey];
+            if (dictionarySubject instanceof BehaviorSubject) {
+              dictionarySubject.next(this.lastFormattedExplanation);
+            } else {
+              console.error(`Invalid dictionary entry for ${questionKey}`);
+            }
           }
   
           // Unsubscribe if the subscription is defined
@@ -314,7 +319,7 @@ export class ExplanationTextService implements OnDestroy {
   
     // Return the lastFormattedExplanation (a string)
     return this.lastFormattedExplanation;
-  }
+  }  
     
   // Function to introduce a delay
   delay(ms: number) {
