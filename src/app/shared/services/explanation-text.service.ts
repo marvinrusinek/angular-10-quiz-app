@@ -295,7 +295,7 @@ export class ExplanationTextService implements OnDestroy {
       }
   
       // If the lastFormattedExplanation is empty, use the logic to set the initial value
-      const currentValue = await subject.pipe(take(1)).toPromise();
+      const currentValue = subject.getValue();
   
       if (currentValue === undefined || currentValue === '') {
         const initialFormattedExplanation =
