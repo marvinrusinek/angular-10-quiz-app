@@ -281,22 +281,22 @@ export class ExplanationTextService implements OnDestroy {
   
     // Check if the subject already has a value
     if (!subject.value) {
-      // Use NgZone to run the async code within Angular's zone
-      await this.ngZone.run(async () => {
-        // Subscribe to the BehaviorSubject to get the current value
-        const currentValue = subject.value;
+      // Subscribe to the BehaviorSubject to get the current value
+      const currentValue = subject.value;
   
-        // If the current value is an empty string or undefined, set the initial value
-        if (currentValue === undefined || currentValue === '') {
-          const initialFormattedExplanation =
-            explanationText !== undefined && explanationText !== null
-              ? `${explanationText}`
-              : 'No explanation available';
+      // If the current value is an empty string or undefined, set the initial value
+      if (currentValue === undefined || currentValue === '') {
+        const initialFormattedExplanation =
+          explanationText !== undefined && explanationText !== null
+            ? `${explanationText}`
+            : 'No explanation available';
   
-          // Use the BehaviorSubject's next method to set the initial value
-          subject.next(initialFormattedExplanation);
-        }
-      });
+        // Use the BehaviorSubject's next method to set the initial value
+        subject.next(initialFormattedExplanation);
+  
+        // Wait for a short delay to ensure the BehaviorSubject has emitted the initial value
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
     }
   
     // Return the lastFormattedExplanation (a string)
