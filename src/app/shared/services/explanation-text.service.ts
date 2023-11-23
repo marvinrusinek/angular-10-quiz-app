@@ -266,51 +266,51 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
 
-  calculateInitialFormattedExplanation(questionIndex: number): string {
+  async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
-
+  
     // Check if the BehaviorSubject is initialized
     const subject = this.formattedExplanations$[questionIndex];
-
+  
     if (!subject) {
-        console.error(`Subject not initialized for ${questionKey}`);
-        return 'No explanation available';
+      console.error(`Subject not initialized for ${questionKey}`);
+      return 'No explanation available';
     }
-
+  
     // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
-
-    // Use NgZone to run the code within Angular's zone
+  
+    // Use NgZone to run the async code within Angular's zone
     return this.ngZone.run(() => {
-        // Get the last formatted explanation from the class property
-        const lastFormattedExplanation = this.lastFormattedExplanation;
-
-        // If the lastFormattedExplanation is not empty, set it as the initial value
-        if (lastFormattedExplanation !== undefined && lastFormattedExplanation !== '') {
-            subject.next(lastFormattedExplanation);
-
-            // Return the initial value
-            return lastFormattedExplanation;
-        }
-
-        // If the lastFormattedExplanation is empty, use the logic to set the initial value
-        const currentValue = 'getValue' in subject ? subject.getValue() : undefined;
-        if (currentValue === undefined || currentValue === '') {
-            const initialFormattedExplanation =
-                explanationText !== undefined && explanationText !== null
-                    ? `${explanationText}`
-                    : 'No explanation available';
-            subject.next(initialFormattedExplanation);
-
-            // Return the initial value
-            return initialFormattedExplanation;
-        }
-
-        // Return the existing value if it's not empty
-        return currentValue;
+      // Get the last formatted explanation from the class property
+      const lastFormattedExplanation = this.lastFormattedExplanation;
+  
+      // If the lastFormattedExplanation is not empty, set it as the initial value
+      if (lastFormattedExplanation !== undefined && lastFormattedExplanation !== '') {
+        subject.next(lastFormattedExplanation);
+  
+        // Return the initial value
+        return lastFormattedExplanation;
+      }
+  
+      // If the lastFormattedExplanation is empty, use the logic to set the initial value
+      const currentValue = subject.value;
+      if (currentValue === undefined || currentValue === '') {
+        const initialFormattedExplanation =
+          explanationText !== undefined && explanationText !== null
+            ? `${explanationText}`
+            : 'No explanation available';
+        subject.next(initialFormattedExplanation);
+  
+        // Return the initial value
+        return initialFormattedExplanation;
+      }
+  
+      // Return the existing value if it's not empty
+      return currentValue;
     });
-  }
+  }  
 
   // Function to introduce a delay
   delay(ms: number) {
@@ -332,84 +332,68 @@ export class ExplanationTextService implements OnDestroy {
     questionIndex: number
   ): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
-
-    if (
-      !question ||
-      !question.questionText ||
-      this.processedQuestions.has(questionKey)
-    ) {
-      console.log(
-        'Skipping already processed or invalid question:',
-        question.questionText
-      );
+  
+    if (!question || !question.questionText || this.processedQuestions.has(questionKey)) {
+      console.log('Skipping already processed or invalid question:', question.questionText);
       return 'No explanation available';
     }
-
+  
     console.log('Processing question:', question.questionText);
-
+  
     // Set the formatted explanation for the question using the existing BehaviorSubject
-    const formattedExplanation$ =
-      this.initializeExplanationSubject(questionIndex);
-
+    const formattedExplanation$ = this.initializeExplanationSubject(questionIndex);
+  
     // Check if the BehaviorSubject is initialized
     if (!formattedExplanation$) {
       console.error(`BehaviorSubject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
-
+  
     // Log the observable for the question before setting a new value
     formattedExplanation$.subscribe((value) => {
-      console.log(
-        `Formatted explanation for ${questionKey}:`,
-        value?.toString()
-      );
+      console.log(`Formatted explanation for ${questionKey}:`, value?.toString());
     });
-
+  
     // Generate the formatted explanation
     const correctOptionIndices: number[] = question.options
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter((index) => index !== null);
-
+  
     let formattedExplanation = '';
-
+  
     if (correctOptionIndices.length > 1) {
-      formattedExplanation = `Options ${correctOptionIndices.join(
-        ' and '
-      )} are correct because ${question.explanation}`;
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
       formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
     } else {
       formattedExplanation = 'No correct option selected...';
     }
-
-    // Save the formatted explanation in the class property for later use
-    this.lastFormattedExplanation = formattedExplanation;
-
+  
     // Use NgZone to run the async code within Angular's zone
     await this.ngZone.run(() => {
       // Set the value using next
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+      formattedExplanation$.next(formattedExplanation);
   
       // Log the stored explanation text for the question
       console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
     });
-
+  
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
     this.processedQuestions.add(questionKey);
-
+  
+    // Save the lastFormattedExplanation for later use
+    this.lastFormattedExplanation = formattedExplanation;
+  
     return formattedExplanation;
   }
-
+  
   private initializeExplanationSubject(questionIndex: number): BehaviorSubject<string> {
     const questionKey = `Q${questionIndex + 1}`;
   
     // If it's not already initialized, create a new BehaviorSubject
     if (!this.formattedExplanations$[questionIndex]) {
       this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
-      
-      // Save the BehaviorSubject in the class property for later use
-      this.lastFormattedExplanationSubject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
       // Log the observable for the question
       this.formattedExplanations$[questionIndex].pipe(
@@ -425,8 +409,8 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Formatted explanation for ${questionKey}:`, this.formattedExplanations$[questionIndex].value?.toString());
     }
   
-    return this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
-  }
+    return this.formattedExplanations$[questionIndex];
+  }  
 
   // Function to set or update the formatted explanation for a question
   setFormattedExplanationForQuestion(
