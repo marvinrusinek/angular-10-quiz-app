@@ -182,18 +182,19 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     // Call formatExplanationText() for each question before proceeding
+    const initializationPromises: Promise<void>[] = [];
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-        await this.formatExplanationTextForInitialization(questionIndex);
+        initializationPromises.push(this.formatExplanationTextForInitialization(questionIndex));
     }
 
-    // Wait for a short delay to ensure all observables have emitted
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // Wait for all promises to resolve
+    await Promise.all(initializationPromises);
 
     // Populate the dictionary after all Observables have emitted
     this.formattedExplanationsDictionary = {};
 
     // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(async () => {
+    await this.ngZone.run(() => {
         for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
             const subject = this.formattedExplanations$[questionIndex];
             const questionKey = `Q${questionIndex + 1}`;
@@ -201,8 +202,8 @@ export class ExplanationTextService implements OnDestroy {
             // Ensure the subject is defined
             if (subject) {
                 // Get the initial value
-                const initialValue = await this.calculateInitialFormattedExplanation(questionIndex);
-                
+                const initialValue = this.calculateInitialFormattedExplanation(questionIndex);
+
                 // Update the dictionary with the initial value
                 this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
 
@@ -220,6 +221,8 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
+
+
 
   private async formatExplanationTextForInitialization(
     questionIndex: number
@@ -268,7 +271,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Calculating initial explanation for ${questionKey}`);
 
     // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+    const subject = this.formattedExplanations$[questionIndex];
 
     if (!subject) {
         console.error(`Subject not initialized for ${questionKey}`);
@@ -279,30 +282,25 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
 
     // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(() => {
-        // Subscribe to the BehaviorSubject to get the current value
-        const subscription = subject.pipe(take(1)).subscribe(async (currentValue) => {
-            // If the current value is an empty string or undefined, set the initial value
-            if (currentValue === undefined || currentValue === '') {
-                const initialFormattedExplanation =
-                    explanationText !== undefined && explanationText !== null
-                        ? `${explanationText}`
-                        : await this.ngZone.run(() => Promise.resolve(this.lastFormattedExplanation));
+    return await this.ngZone.run(async () => {
+        // Directly extract the value using .toPromise()
+        const currentValue = await subject.pipe(take(1)).toPromise();
 
-                // Update the dictionary with the initial value
-                this.formattedExplanationsDictionary[questionKey] = subject;
+        // If the current value is an empty string or undefined, set the initial value
+        if (currentValue === undefined || currentValue === '') {
+            const initialFormattedExplanation =
+                explanationText !== undefined && explanationText !== null
+                    ? `${explanationText}`
+                    : 'No explanation available';
+            subject.next(initialFormattedExplanation);
 
-                // Set the initial value
-                subject.next(initialFormattedExplanation);
-            }
-        });
+            // Return the initial value
+            return initialFormattedExplanation;
+        }
 
-        // Unsubscribe after getting the initial value
-        subscription.unsubscribe();
+        // Return the existing value if it's not empty
+        return currentValue;
     });
-
-    // Return the initial value
-    return this.lastFormattedExplanation;
   }
 
   // Function to introduce a delay
