@@ -281,27 +281,31 @@ export class ExplanationTextService implements OnDestroy {
   
     // Check if the subject already has a value
     if (!subject.value) {
-      // Subscribe to the BehaviorSubject to get the current value
-      const currentValue = subject.value;
+      // Wrap the asynchronous code in a Promise
+      await new Promise<void>((resolve) => {
+        // Subscribe to the BehaviorSubject to get the current value
+        const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
+          // If the current value is an empty string or undefined, set the initial value
+          if (currentValue === undefined || currentValue === '') {
+            const initialFormattedExplanation =
+              explanationText !== undefined && explanationText !== null
+                ? `${explanationText}`
+                : 'No explanation available';
   
-      // If the current value is an empty string or undefined, set the initial value
-      if (currentValue === undefined || currentValue === '') {
-        const initialFormattedExplanation =
-          explanationText !== undefined && explanationText !== null
-            ? `${explanationText}`
-            : 'No explanation available';
+            // Use the BehaviorSubject's next method to set the initial value
+            subject.next(initialFormattedExplanation);
+          }
   
-        // Use the BehaviorSubject's next method to set the initial value
-        subject.next(initialFormattedExplanation);
-  
-        // Wait for a short delay to ensure the BehaviorSubject has emitted the initial value
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
+          // Unsubscribe after getting the initial value
+          subscription.unsubscribe();
+          resolve();
+        });
+      });
     }
   
     // Return the lastFormattedExplanation (a string)
     return this.lastFormattedExplanation;
-  }
+  } 
     
   // Function to introduce a delay
   delay(ms: number) {
