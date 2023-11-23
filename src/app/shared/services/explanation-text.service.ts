@@ -266,7 +266,7 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
 
-  async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
+  calculateInitialFormattedExplanation(questionIndex: number): string {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
 
@@ -281,12 +281,21 @@ export class ExplanationTextService implements OnDestroy {
     // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
 
-    // Use NgZone to run the async code within Angular's zone
-    return await this.ngZone.run(async () => {
-        // Directly extract the value using .toPromise()
-        const currentValue = await subject.pipe(take(1)).toPromise();
+    // Use NgZone to run the code within Angular's zone
+    return this.ngZone.run(() => {
+        // Get the last formatted explanation from the class property
+        const lastFormattedExplanation = this.lastFormattedExplanation;
 
-        // If the current value is an empty string or undefined, set the initial value
+        // If the lastFormattedExplanation is not empty, set it as the initial value
+        if (lastFormattedExplanation !== undefined && lastFormattedExplanation !== '') {
+            subject.next(lastFormattedExplanation);
+
+            // Return the initial value
+            return lastFormattedExplanation;
+        }
+
+        // If the lastFormattedExplanation is empty, use the logic to set the initial value
+        const currentValue = subject.getValue();
         if (currentValue === undefined || currentValue === '') {
             const initialFormattedExplanation =
                 explanationText !== undefined && explanationText !== null
