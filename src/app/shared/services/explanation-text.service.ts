@@ -295,6 +295,35 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
   
+  async initializeFormattedExplanations(numQuestions: number): Promise<void> {
+    // Initialize formattedExplanations$ if it's not already initialized
+    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
+      this.formattedExplanations$ = Array.from(
+        { length: numQuestions },
+        () => new BehaviorSubject<string>('')
+      );
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+    }
+  
+    // Populate the dictionary during initialization
+    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+      const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
+  
+      // Calculate the initial explanation for each question
+      await this.calculateInitialFormattedExplanation(questionIndex);
+    }
+  
+    // Wait for a short delay to ensure all observables have emitted
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  
+    // Set the flag to indicate initialization is complete
+    this.isInitializationComplete = true;
+  
+    console.log('Observables after initialization:', this.formattedExplanations$);
+    console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
+  }
+  
   async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
