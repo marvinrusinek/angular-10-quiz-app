@@ -335,11 +335,14 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       formattedExplanation = 'No correct option selected...';
     }
+
+    // Save the lastFormattedExplanation for later use
+    this.lastFormattedExplanation = formattedExplanation;
   
     // Use NgZone to run the async code within Angular's zone
     await this.ngZone.run(() => {
       // Set the value using next
-      formattedExplanation$.next(formattedExplanation);
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
   
       // Log the stored explanation text for the question
       console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
@@ -348,9 +351,6 @@ export class ExplanationTextService implements OnDestroy {
     // Update the processedQuestions set
     this.processedQuestionsSubject.next(this.processedQuestions);
     this.processedQuestions.add(questionKey);
-  
-    // Save the lastFormattedExplanation for later use
-    this.lastFormattedExplanation = formattedExplanation;
   
     return formattedExplanation;
   }
