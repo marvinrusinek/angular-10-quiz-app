@@ -176,53 +176,36 @@ export class ExplanationTextService implements OnDestroy {
 
   // Initialize formattedExplanations$ if it's not already initialized
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
+    // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-        this.formattedExplanations$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-        console.log('Formatted Explanations Array:', this.formattedExplanations$);
+      this.formattedExplanations$ = Array.from(
+        { length: numQuestions },
+        () => new BehaviorSubject<string>('')
+      );
+      console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-
-    // Call formatExplanationText() for each question before proceeding
-    const initializationPromises: Promise<void>[] = [];
+  
+    // Create a promise array to ensure the order of operations
+    const initializationPromises = [];
+  
+    // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-        initializationPromises.push(this.formatExplanationTextForInitialization(questionIndex));
+      const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
+  
+      // Calculate the initial explanation for each question and push the promise
+      initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex));
     }
-
-    // Wait for all promises to resolve
+  
+    // Wait for all promises to resolve before proceeding
     await Promise.all(initializationPromises);
-
-    // Populate the dictionary after all Observables have emitted
-    this.formattedExplanationsDictionary = {};
-
-    // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(() => {
-        for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-            const subject = this.formattedExplanations$[questionIndex];
-            const questionKey = `Q${questionIndex + 1}`;
-
-            // Ensure the subject is defined
-            if (subject) {
-                // Get the initial value
-                const initialValue = this.calculateInitialFormattedExplanation(questionIndex);
-
-                // Update the dictionary with the initial value
-                this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
-
-                // Set the initial value
-                subject.next(initialValue);
-            } else {
-                console.error(`Subject not initialized for ${questionKey}`);
-            }
-        }
-    });
-
+  
     // Set the flag to indicate initialization is complete
     this.isInitializationComplete = true;
-
+  
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }
-
-
 
   private async formatExplanationTextForInitialization(
     questionIndex: number
@@ -265,66 +248,8 @@ export class ExplanationTextService implements OnDestroy {
     }
     return undefined;
   }
-
-  async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    // Initialize formattedExplanations$ if it's not already initialized
-    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-      this.formattedExplanations$ = Array.from(
-        { length: numQuestions },
-        () => new BehaviorSubject<string>('')
-      );
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
-    }
   
-    // Populate the dictionary during initialization
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
-  
-      // Calculate the initial explanation for each question
-      await this.calculateInitialFormattedExplanation(questionIndex);
-    }
-  
-    // Wait for a short delay to ensure all observables have emitted
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  
-    // Set the flag to indicate initialization is complete
-    this.isInitializationComplete = true;
-  
-    console.log('Observables after initialization:', this.formattedExplanations$);
-    console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
-  }
-  
-  async initializeFormattedExplanations(numQuestions: number): Promise<void> {
-    // Initialize formattedExplanations$ if it's not already initialized
-    if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
-      this.formattedExplanations$ = Array.from(
-        { length: numQuestions },
-        () => new BehaviorSubject<string>('')
-      );
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
-    }
-  
-    // Populate the dictionary during initialization
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
-  
-      // Calculate the initial explanation for each question
-      await this.calculateInitialFormattedExplanation(questionIndex);
-    }
-  
-    // Wait for a short delay to ensure all observables have emitted
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  
-    // Set the flag to indicate initialization is complete
-    this.isInitializationComplete = true;
-  
-    console.log('Observables after initialization:', this.formattedExplanations$);
-    console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
-  }
-  
-  async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
+  async calculateInitialFormattedExplanation(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
@@ -332,7 +257,7 @@ export class ExplanationTextService implements OnDestroy {
   
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
-      return 'No explanation available';
+      return;
     }
   
     const explanationText = this.explanationTexts[questionKey];
@@ -350,10 +275,7 @@ export class ExplanationTextService implements OnDestroy {
       // Insert the lastFormattedExplanation into the dictionary
       this.formattedExplanationsDictionary[questionKey].next(this.lastFormattedExplanation);
     }
-  
-    // Return the lastFormattedExplanation (a string)
-    return this.lastFormattedExplanation;
-  }  
+  }
     
   // Function to introduce a delay
   delay(ms: number) {
