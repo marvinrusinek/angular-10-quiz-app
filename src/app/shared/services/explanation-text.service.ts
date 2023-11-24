@@ -191,7 +191,13 @@ export class ExplanationTextService implements OnDestroy {
     // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
+      
+      // Ensure that the BehaviorSubject is initialized
+      if (this.formattedExplanations$[questionIndex] instanceof BehaviorSubject) {
+        this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+      } else {
+        console.error(`Invalid dictionary entry for ${questionKey}`);
+      }
   
       // Calculate the initial explanation for each question and push the promise
       initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
@@ -205,7 +211,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
-  }
+  }  
 
   private async formatExplanationTextForInitialization(
     questionIndex: number
@@ -288,7 +294,7 @@ export class ExplanationTextService implements OnDestroy {
         });
       });
     });
-  }
+  }  
           
   // Function to introduce a delay
   delay(ms: number) {
