@@ -263,18 +263,26 @@ export class ExplanationTextService implements OnDestroy {
   
     // Use NgZone to run the async code within Angular's zone
     await this.ngZone.run(() => {
-      // Subscribe to the BehaviorSubject to get the current value
-      const subscription = this.formattedExplanations$[questionIndex].pipe(take(1)).subscribe((currentValue) => {
-        // If the current value is an empty string or undefined, set the initial value
-        if (currentValue === undefined || currentValue === '') {
-          const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
-            ? `${explanationText}`
-            : 'No explanation available';
-          this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
+      // Create a new Promise to handle asynchronous subscription
+      return new Promise<void>((resolve) => {
+        // Subscribe to the BehaviorSubject to get the current value
+        const subscription = this.formattedExplanations$[questionIndex].pipe(take(1)).subscribe((currentValue) => {
+          // If the current value is an empty string or undefined, set the initial value
+          if (currentValue === undefined || currentValue === '') {
+            const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
+              ? `${explanationText}`
+              : 'No explanation available';
+            this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
   
-          // Unsubscribe after getting the initial value
+            // Resolve the Promise to signal completion
+            resolve();
+          }
+        });
+  
+        // Unsubscribe after getting the initial value or encountering an error
+        subscription.add(() => {
           subscription.unsubscribe();
-        }
+        });
       });
     });
   
