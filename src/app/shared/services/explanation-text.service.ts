@@ -249,34 +249,40 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
   
-  async calculateInitialFormattedExplanation(questionIndex: number, questionKey: string): Promise<void> {
+  async calculateInitialFormattedExplanation(questionIndex: number, questionKey: string): Promise<string> {
     console.log(`Calculating initial explanation for ${questionKey}`);
   
-    const subject = this.formattedExplanations$[questionIndex];
-  
-    if (!subject) {
+    // Check if the BehaviorSubject is initialized
+    if (!this.formattedExplanations$ || !this.formattedExplanations$[questionIndex]) {
       console.error(`Subject not initialized for ${questionKey}`);
-      return;
+      return 'No explanation available';
     }
   
+    // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
     await this.ngZone.run(() => {
-      // Check if the subject already has a value
-      if (!subject.value) {
-        const initialFormattedExplanation =
-          explanationText !== undefined && explanationText !== null
+      // Subscribe to the BehaviorSubject to get the current value
+      const subscription = this.formattedExplanations$[questionIndex].pipe(take(1)).subscribe((currentValue) => {
+        // If the current value is an empty string or undefined, set the initial value
+        if (currentValue === undefined || currentValue === '') {
+          const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
             ? `${explanationText}`
             : 'No explanation available';
+          this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
   
-        // Use the BehaviorSubject's next method to set the initial value
-        subject.next(initialFormattedExplanation);
-  
-        // Insert the lastFormattedExplanation into the dictionary
-        this.formattedExplanationsDictionary[questionKey].next(this.lastFormattedExplanation);
-      }
+          // Unsubscribe after getting the initial value
+          subscription.unsubscribe();
+        }
+      });
     });
+  
+    // Update the dictionary with the initial value
+    this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
+  
+    // Return the initial value
+    return this.lastFormattedExplanation;
   }  
     
   // Function to introduce a delay
