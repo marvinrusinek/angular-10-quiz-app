@@ -180,13 +180,10 @@ export class ExplanationTextService implements OnDestroy {
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
       this.formattedExplanations$ = Array.from(
         { length: numQuestions },
-        () => new BehaviorSubject<string>('')
+        () => new BehaviorSubject<string>('') // Initialize with an empty string
       );
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
-  
-    // Create a promise array to ensure the order of operations
-    const initializationPromises = [];
   
     // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
@@ -195,16 +192,16 @@ export class ExplanationTextService implements OnDestroy {
       // Ensure that the BehaviorSubject is initialized
       if (this.formattedExplanations$[questionIndex] instanceof BehaviorSubject) {
         this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+  
+        // Calculate the initial explanation for each question
+        const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
+        this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
+  
+        console.log(`Initialized explanation for ${questionKey}: ${initialFormattedExplanation}`);
       } else {
         console.error(`Invalid dictionary entry for ${questionKey}`);
       }
-  
-      // Calculate the initial explanation for each question and push the promise
-      initializationPromises.push(this.formatExplanationTextForInitialization(questionIndex));
     }
-  
-    // Wait for all promises to resolve before proceeding
-    await Promise.all(initializationPromises);
   
     // Set the flag to indicate initialization is complete
     this.isInitializationComplete = true;
@@ -253,12 +250,15 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
   
-  async calculateInitialFormattedExplanation(questionIndex: number, questionKey: string): Promise<string> {
+  async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
+    const questionKey = `Q${questionIndex + 1}`;
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
-    if (!this.formattedExplanations$ || !this.formattedExplanations$[questionIndex] || !(this.formattedExplanations$[questionIndex] instanceof BehaviorSubject)) {
-      console.error(`Subject not initialized or not an instance of BehaviorSubject for ${questionKey}`);
+    const subject = this.formattedExplanations$[questionIndex];
+  
+    if (!subject) {
+      console.error(`Subject not initialized for ${questionKey}`);
       return 'No explanation available';
     }
   
@@ -266,33 +266,28 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    return this.ngZone.run(async () => {
-      // Create a new Promise to handle asynchronous subscription
+    return this.ngZone.run(() => {
+      // Subscribe to the BehaviorSubject to get the current value
       return new Promise<string>((resolve) => {
-        // Subscribe to the BehaviorSubject to get the current value
-        const subscription = this.formattedExplanations$[questionIndex].pipe(take(1)).subscribe((currentValue) => {
+        const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
           // If the current value is an empty string or undefined, set the initial value
           if (currentValue === undefined || currentValue === '') {
-            const initialFormattedExplanation = explanationText !== undefined && explanationText !== null
-              ? `${explanationText}`
-              : 'No explanation available';
-            this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
-  
-            // Update the dictionary with the initial value
-            this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+            const initialFormattedExplanation =
+              explanationText !== undefined && explanationText !== null
+                ? `${explanationText}`
+                : 'No explanation available';
+            subject.next(initialFormattedExplanation);
   
             // Resolve the Promise with the initial value
             resolve(initialFormattedExplanation);
           }
         });
   
-        // Unsubscribe after getting the initial value or encountering an error
-        subscription.add(() => {
-          subscription.unsubscribe();
-        });
+        // Unsubscribe after getting the initial value
+        subscription.unsubscribe();
       });
     });
-  }  
+  }    
           
   // Function to introduce a delay
   delay(ms: number) {
