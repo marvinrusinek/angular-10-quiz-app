@@ -266,7 +266,7 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    return this.ngZone.run(() => {
+    return await this.ngZone.run(async () => {
       // Subscribe to the BehaviorSubject to get the current value
       return new Promise<string>((resolve) => {
         const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
@@ -287,7 +287,7 @@ export class ExplanationTextService implements OnDestroy {
         subscription.unsubscribe();
       });
     });
-  }    
+  }  
           
   // Function to introduce a delay
   delay(ms: number) {
