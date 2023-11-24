@@ -191,7 +191,7 @@ export class ExplanationTextService implements OnDestroy {
     // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      
+  
       // Ensure that the BehaviorSubject is initialized
       if (this.formattedExplanations$[questionIndex] instanceof BehaviorSubject) {
         this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
@@ -200,7 +200,7 @@ export class ExplanationTextService implements OnDestroy {
       }
   
       // Calculate the initial explanation for each question and push the promise
-      initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
+      initializationPromises.push(this.formatExplanationTextForInitialization(questionIndex));
     }
   
     // Wait for all promises to resolve before proceeding
@@ -213,13 +213,11 @@ export class ExplanationTextService implements OnDestroy {
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
   }  
 
-  private async formatExplanationTextForInitialization(
-    questionIndex: number
-  ): Promise<void> {
+  private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
     console.log(`Formatting explanation for initialization: ${questionKey}`);
-
+  
     // Log the observable for each question during initialization
     const initializationObservable = formattedExplanation$.pipe(
       take(1),
@@ -230,10 +228,10 @@ export class ExplanationTextService implements OnDestroy {
         )
       )
     );
-
+  
     // Wait for the initialization to complete
     await initializationObservable.toPromise();
-
+  
     // If the BehaviorSubject is still uninitialized, set the initial value
     if (!formattedExplanation$.value) {
       const initialFormattedExplanation =
