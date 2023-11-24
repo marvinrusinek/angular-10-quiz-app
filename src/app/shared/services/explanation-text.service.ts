@@ -180,28 +180,27 @@ export class ExplanationTextService implements OnDestroy {
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
       this.formattedExplanations$ = Array.from(
         { length: numQuestions },
-        () => new BehaviorSubject<string>('') // Initialize with an empty string
+        () => new BehaviorSubject<string>('')
       );
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
   
+    // Create a promise array to ensure the order of operations
+    const initializationPromises: Promise<void>[] = [];
+  
     // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
+      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
-      // Ensure that the BehaviorSubject is initialized
-      if (this.formattedExplanations$[questionIndex] instanceof BehaviorSubject) {
-        this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
-  
-        // Calculate the initial explanation for each question
-        const initialFormattedExplanation = this.calculateInitialFormattedExplanation(questionIndex);
-        this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
-  
-        console.log(`Initialized explanation for ${questionKey}: ${initialFormattedExplanation}`);
-      } else {
-        console.error(`Invalid dictionary entry for ${questionKey}`);
-      }
+      // Calculate the initial explanation for each question and push the promise
+      initializationPromises.push(
+        this.calculateInitialFormattedExplanation(questionIndex).then(() => {})
+      );
     }
+  
+    // Wait for all promises to resolve before proceeding
+    await Promise.all(initializationPromises);
   
     // Set the flag to indicate initialization is complete
     this.isInitializationComplete = true;
