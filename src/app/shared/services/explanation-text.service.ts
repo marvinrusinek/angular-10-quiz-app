@@ -194,7 +194,7 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
   
       // Calculate the initial explanation for each question and push the promise
-      initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex));
+      initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
     }
   
     // Wait for all promises to resolve before proceeding
@@ -249,8 +249,7 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
   
-  async calculateInitialFormattedExplanation(questionIndex: number): Promise<void> {
-    const questionKey = `Q${questionIndex + 1}`;
+  async calculateInitialFormattedExplanation(questionIndex: number, questionKey: string): Promise<void> {
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     const subject = this.formattedExplanations$[questionIndex];
@@ -262,20 +261,23 @@ export class ExplanationTextService implements OnDestroy {
   
     const explanationText = this.explanationTexts[questionKey];
   
-    // Check if the subject already has a value
-    if (!subject.value) {
-      const initialFormattedExplanation =
-        explanationText !== undefined && explanationText !== null
-          ? `${explanationText}`
-          : 'No explanation available';
+    // Use NgZone to run the async code within Angular's zone
+    await this.ngZone.run(() => {
+      // Check if the subject already has a value
+      if (!subject.value) {
+        const initialFormattedExplanation =
+          explanationText !== undefined && explanationText !== null
+            ? `${explanationText}`
+            : 'No explanation available';
   
-      // Use the BehaviorSubject's next method to set the initial value
-      subject.next(initialFormattedExplanation);
+        // Use the BehaviorSubject's next method to set the initial value
+        subject.next(initialFormattedExplanation);
   
-      // Insert the lastFormattedExplanation into the dictionary
-      this.formattedExplanationsDictionary[questionKey].next(this.lastFormattedExplanation);
-    }
-  }
+        // Insert the lastFormattedExplanation into the dictionary
+        this.formattedExplanationsDictionary[questionKey].next(this.lastFormattedExplanation);
+      }
+    });
+  }  
     
   // Function to introduce a delay
   delay(ms: number) {
