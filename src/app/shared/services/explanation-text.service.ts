@@ -253,8 +253,8 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
-    if (!this.formattedExplanations$ || !this.formattedExplanations$[questionIndex]) {
-      console.error(`Subject not initialized for ${questionKey}`);
+    if (!this.formattedExplanations$ || !this.formattedExplanations$[questionIndex] || !(this.formattedExplanations$[questionIndex] instanceof BehaviorSubject)) {
+      console.error(`Subject not initialized or not an instance of BehaviorSubject for ${questionKey}`);
       return 'No explanation available';
     }
   
@@ -275,7 +275,7 @@ export class ExplanationTextService implements OnDestroy {
             this.formattedExplanations$[questionIndex].next(initialFormattedExplanation);
   
             // Update the dictionary with the initial value
-            this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex];
+            this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
   
             // Resolve the Promise with the initial value
             resolve(initialFormattedExplanation);
@@ -288,8 +288,8 @@ export class ExplanationTextService implements OnDestroy {
         });
       });
     });
-  }  
-        
+  }
+          
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
