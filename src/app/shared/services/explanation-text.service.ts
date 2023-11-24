@@ -266,29 +266,27 @@ export class ExplanationTextService implements OnDestroy {
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    return await this.ngZone.run(async () => {
+    return await new Promise<string>((resolve) => {
       // Subscribe to the BehaviorSubject to get the current value
-      return new Promise<string>((resolve) => {
-        const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
-          // If the current value is an empty string or undefined, set the initial value
-          if (currentValue === undefined || currentValue === '') {
-            const initialFormattedExplanation =
-              explanationText !== undefined && explanationText !== null
-                ? `${explanationText}`
-                : 'No explanation available';
-            subject.next(initialFormattedExplanation);
+      const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
+        // If the current value is an empty string or undefined, set the initial value
+        if (currentValue === undefined || currentValue === '') {
+          const initialFormattedExplanation =
+            explanationText !== undefined && explanationText !== null
+              ? `${explanationText}`
+              : 'No explanation available';
+          subject.next(initialFormattedExplanation);
   
-            // Resolve the Promise with the initial value
-            resolve(initialFormattedExplanation);
-          }
-        });
-  
-        // Unsubscribe after getting the initial value
-        subscription.unsubscribe();
+          // Resolve the Promise with the initial value
+          resolve(initialFormattedExplanation);
+        }
       });
+  
+      // Unsubscribe after getting the initial value
+      subscription.unsubscribe();
     });
-  }  
-          
+  }
+            
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
