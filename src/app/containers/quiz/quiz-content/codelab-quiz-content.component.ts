@@ -11,19 +11,16 @@ import {
   BehaviorSubject,
   combineLatest,
   forkJoin,
-  from, 
   Observable,
   of,
   Subject,
   Subscription,
-  zip
 } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
   startWith,
   switchMap,
-  take,
   takeUntil,
   tap,
   withLatestFrom,
@@ -116,8 +113,7 @@ export class CodelabQuizContentComponent
   displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
-  formattedExplanation$: BehaviorSubject<string>[] = [];
-  formattedExplanations$: BehaviorSubject<string>[] = [];
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
   showNumberOfCorrectAnswersText = false;
@@ -128,9 +124,7 @@ export class CodelabQuizContentComponent
 
   private isNavigatingToPreviousQuestion: Observable<boolean>;
 
-  private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(
-    false
-  );
+  private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$: Observable<boolean> =
     this.shouldDisplayCorrectAnswersSource.asObservable();
   shouldDisplayCorrectAnswersAfterQuestion = false;
@@ -147,107 +141,84 @@ export class CodelabQuizContentComponent
     private activatedRoute: ActivatedRoute,
     private router: Router
   ) {
-    this.currentQuestionIndexValue = this.quizDataService.currentQuestionIndex;
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
+    this.formattedExplanation$ = this.explanationTextService
+      .formattedExplanation$ as BehaviorSubject<string>;
   }
 
   ngOnInit(): void {
-    try {
-      this.initializeQuestionData();
-      this.initializeNextQuestionSubscription();
-      this.initializeExplanationTextSubscription();
-      this.initializeCombinedQuestionData();
-      this.setupExplanationTextSubscription();
-      this.setupCombinedQuestionData();
-      this.setupOptions();
-  
-     /* this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
-        this.questions = questions;
-  
-        if (this.questions && this.questions.length > 0) {
-          this.currentQuestion$.next(this.questions[0]);
-  
-          this.currentQuestion$.subscribe((newQuestion) => {
-            this.questionText = newQuestion.questionText;
-            this.formattedExplanation = '';
-          });
-        } else {
-          console.error('No questions loaded or questions array is empty.');
-        }
-      }); */
-  
-      // Combine explanationTextService's observable with selectedOptionExplanation$
-      this.explanationText$ = combineLatest([
-        this.explanationTextService.getExplanationText$(),
-        this.selectedOptionService.selectedOptionExplanation$,
-      ]).pipe(
-        map(
-          ([explanationText, selectedOptionExplanation]: [string, string]) =>
-            selectedOptionExplanation || explanationText
-        )
-      ) as Observable<string>;
-  
-      // Subscribe to the selectedOptionExplanation$ observable and store the subscription
-      this.selectedOptionSubscription =
-        this.selectedOptionService.selectedOptionExplanation$.subscribe(
-          (explanationText) => {
-            if (explanationText) {
-              this.explanationText = explanationText;
-            } else {
-              this.explanationText = 'No explanation available.';
-            }
-          }
-        );
-  
-      this.currentQuestion$.next(this.question);
-  
-      this.currentQuestion$.subscribe((newQuestion) => {
-        this.formattedExplanation = '';
-      });
-  
-      this.quizService.getTotalQuestions().subscribe(async (numQuestions) => {
-        console.log('Subscription to getTotalQuestions triggered. Max Questions:', numQuestions);
-      
-        // Ensure numQuestions is a valid number
-        if (numQuestions > 0) {
-          // Initialize formattedExplanation$ array with empty subjects
-          this.formattedExplanation$ = Array.from({ length: numQuestions }, () => new BehaviorSubject<string>(''));
-      
-          // Initialize formatted explanations
-          await this.explanationTextService.initializeFormattedExplanations(numQuestions);
-      
-          // Log to check if the initialization is complete
-          console.log('Formatted Explanations initialized:', this.explanationTextService.formattedExplanations$);
-      
-          // Subscribe to the first element in formattedExplanations$ if available
-          if (
-            Array.isArray(this.explanationTextService.formattedExplanations$) &&
-            this.explanationTextService.formattedExplanations$.length > 0
-          ) {
-            // Ensure to use the correct instance here
-            this.explanationTextService.formattedExplanations$[0].subscribe(value => {
-              console.log('formattedExplanation$', value);
-              this.setupExplanationTextDisplay();
-              this.continueInitialization();
-            });
+    this.initializeQuestionData();
+    this.initializeNextQuestionSubscription();
+    this.initializeExplanationTextSubscription();
+    this.initializeCombinedQuestionData();
+    this.setupExplanationTextSubscription();
+    this.setupCombinedQuestionData();
+    this.setupOptions();
+    this.setupExplanationTextDisplay();
+
+    // Combine explanationTextService's observable with selectedOptionExplanation$
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      this.selectedOptionService.selectedOptionExplanation$,
+    ]).pipe(
+      map(
+        ([explanationText, selectedOptionExplanation]: [string, string]) =>
+          selectedOptionExplanation || explanationText
+      )
+    ) as Observable<string>;
+
+    // Subscribe to the selectedOptionExplanation$ observable and store the subscription
+    this.selectedOptionSubscription =
+      this.selectedOptionService.selectedOptionExplanation$.subscribe(
+        (explanationText) => {
+          if (explanationText) {
+            this.explanationText = explanationText;
           } else {
-            console.error('Formatted explanations array is not properly initialized.');
+            this.explanationText = 'No explanation available.';
           }
-        } else {
-          console.error('Invalid number of questions:', numQuestions);
+        }
+      );
+
+    this.currentQuestion$.next(this.question);
+
+    this.currentQuestion$.subscribe(newQuestion => {
+      this.formattedExplanation = '';
+    });
+
+    this.quizService.currentQuestionIndex$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index) => {
+        console.log('Current question index::::>>', index);
+      },
+      (error) => {
+        console.error('Error in getCurrentQuestionIndex$ subscription:', error);
+      });
+  
+    this.formattedExplanation$
+      .pipe(
+        withLatestFrom(this.quizService.currentQuestionIndex$),
+        distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([formattedExplanation, currentQuestionIndex]) => {
+        if (formattedExplanation !== null && formattedExplanation !== undefined) {
+          this.formattedExplanation = formattedExplanation;
+
+          console.log('Received new formatted explanation:', formattedExplanation);
+          console.log('Current question index:', currentQuestionIndex);
+
+          this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
+
+          console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
-    } catch (error) {
-      console.error('Error in ngOnInit:', error);
-    }
   }
-  
+
   ngOnChanges(): void {
     if (
       this.correctAnswersText !== undefined &&
-      this.question !== undefined &&
       this.quizStateService.isMultipleAnswer(this.question)
     ) {
       this.correctAnswersTextSource.next(this.correctAnswersText);
@@ -265,57 +236,6 @@ export class CodelabQuizContentComponent
     this.selectedOptionSubscription?.unsubscribe();
   }
 
-  continueInitialization(): void {
-    this.quizService.currentQuestionIndex$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (index) => {
-          console.log('Current question index::::>>', index);
-        },
-        (error) => {
-          console.error('Error in getCurrentQuestionIndex$ subscription:', error);
-        }
-      );
-  
-    // Check if formattedExplanations$ is an array with elements
-    if (Array.isArray(this.explanationTextService.formattedExplanations$) && this.explanationTextService.formattedExplanations$.length > 0) {
-      const currentQuestionIndex = this.currentQuestionIndexValue;
-  
-      // Ensure currentQuestionIndex is within bounds
-      if (currentQuestionIndex !== undefined && currentQuestionIndex !== null && currentQuestionIndex < this.explanationTextService.formattedExplanations$.length) {
-        console.log('Current Question Index::>>', currentQuestionIndex);
-  
-        const formattedExplanation$ = this.explanationTextService.formattedExplanations$[currentQuestionIndex];
-  
-        // Check if formattedExplanation$ is defined and has a 'pipe' method
-        if (formattedExplanation$ && typeof formattedExplanation$.pipe === 'function') {
-          console.log('About to subscribe to formattedExplanation$');
-  
-          formattedExplanation$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(
-              (formattedExplanation) => {
-                console.log('Formatted explanation for current question:', formattedExplanation);
-                this.formattedExplanation = formattedExplanation;
-              },
-              (error) => {
-                console.error('Error in formattedExplanation$ subscription:', error);
-              },
-              () => {
-                console.log('Subscription to formattedExplanation$ completed.');
-              }
-            );
-        } else {
-          console.error('Invalid formattedExplanation$:', formattedExplanation$);
-        }
-      } else {
-        console.error('Invalid currentQuestionIndexValue:', currentQuestionIndex);
-      }
-    } else {
-      console.error('Invalid formattedExplanations$:', this.explanationTextService.formattedExplanations$);
-    }
-  }
-  
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
@@ -502,12 +422,12 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private async initializeCombinedQuestionData(): Promise<void> {
+  private initializeCombinedQuestionData(): void {
     const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
         currentQuestion,
-        currentOptions
+        currentOptions,
       }))
     );
 
@@ -525,7 +445,7 @@ export class CodelabQuizContentComponent
           { currentQuestion, currentOptions },
           numberOfCorrectAnswers,
           isExplanationDisplayed,
-          formattedExplanation
+          formattedExplanation,
         ]) => {
           // Calculate question text
           const questionText = currentQuestion
@@ -544,7 +464,7 @@ export class CodelabQuizContentComponent
 
             const questionHasMultipleAnswers =
               this.quizStateService.isMultipleAnswer(currentQuestion);
-
+            
             let correctAnswersText = '';
             if (
               questionHasMultipleAnswers &&
@@ -565,7 +485,7 @@ export class CodelabQuizContentComponent
               correctAnswersText: correctAnswersText,
               currentOptions: currentOptions,
               isNavigatingToPrevious: false,
-              formattedExplanation: formattedExplanation,
+              formattedExplanation: formattedExplanation
             });
           } else {
             console.log('currentQuestion or this.questions is null');
@@ -576,68 +496,12 @@ export class CodelabQuizContentComponent
               correctAnswersText: '',
               currentOptions: [],
               isNavigatingToPrevious: false,
-              formattedExplanation: '',
+              formattedExplanation: ''
             });
           }
         }
       )
     );
-
-    await this.checkObservable();
-  }
-
-  async checkObservable() {
-    // Ensure that the formattedExplanationsDictionary is initialized
-    if (!this.explanationTextService.formattedExplanationsDictionary) {
-      console.error('Formatted Explanations Dictionary is not properly initialized.');
-      return;
-    }
-  
-    console.log("CQIV", this.currentQuestionIndexValue);
-  
-    const currentQuestionKey = `Q${this.currentQuestionIndexValue + 1}`;
-    console.log("CQK", currentQuestionKey);
-  
-    // Log the dictionary
-    console.log('Formatted Explanations Dictionary:', this.explanationTextService.formattedExplanationsDictionary);
-  
-    // Wait until the dictionary is fully populated
-    await this.delay(1000); // Adjust the delay time as needed
-  
-    console.log('Keys in Formatted Explanations Dictionary before check:', Object.keys(this.explanationTextService.formattedExplanationsDictionary));
-  
-    // Check if the key exists in the dictionary
-    if (this.explanationTextService.formattedExplanationsDictionary.hasOwnProperty(currentQuestionKey)) {
-      const observable = this.explanationTextService.formattedExplanationsDictionary[currentQuestionKey];
-  
-      console.log(`Observable for ${currentQuestionKey}:`, observable);
-  
-      if (observable && typeof observable.pipe === 'function') {
-        // Use zip to wait for the observable to emit
-        zip(observable).pipe(take(1))
-          .subscribe(
-            ([explanation]) => {
-              console.log(`Unique Explanation for ${currentQuestionKey}:`, explanation);
-              // Update your UI to display the unique explanation text
-            },
-            (error) => {
-              console.error(`Error in observable for key ${currentQuestionKey}:`, error);
-            },
-            () => {
-              console.log(`Observable completed for key ${currentQuestionKey}`);
-            }
-          );
-      } else {
-        console.error(`Observable not initialized or invalid for key ${currentQuestionKey}`);
-      }
-    } else {
-      console.error(`Observable not initialized for key ${currentQuestionKey}`);
-    }
-  }
-    
-  // Function to introduce a delay
-  delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private setupExplanationTextSubscription(): void {
@@ -659,7 +523,7 @@ export class CodelabQuizContentComponent
 
     this.isNavigatingToPreviousQuestion = combineLatest([
       this.nextQuestion$,
-      this.quizService.nextOptions$,
+      this.quizService.nextOptions$
     ]).pipe(
       map(([nextQuestion, nextOptions]) => {
         // Determine if navigating to a previous question
@@ -679,7 +543,7 @@ export class CodelabQuizContentComponent
         questionToDisplay: questionToDisplay$,
         nextOptions: this.quizService.nextOptions$,
         explanationText: this.explanationTextService.formattedExplanation$,
-        correctAnswersText: this.correctAnswersText$,
+        correctAnswersText: this.correctAnswersText$
       })
         .pipe(
           switchMap(
@@ -687,7 +551,7 @@ export class CodelabQuizContentComponent
               questionToDisplay,
               nextOptions,
               explanationText,
-              correctAnswersText,
+              correctAnswersText
             }) => {
               console.log('questionToDisplay:', questionToDisplay);
               console.log('nextOptions:', nextOptions);
@@ -705,7 +569,7 @@ export class CodelabQuizContentComponent
                   correctAnswersText: correctAnswersText,
                   currentQuestion: questionToDisplay || null,
                   currentOptions: nextOptions || [],
-                  isNavigatingToPrevious: isNavigatingToPrevious,
+                  isNavigatingToPrevious: isNavigatingToPrevious
                 }))
               );
             }
@@ -721,7 +585,7 @@ export class CodelabQuizContentComponent
     // Update the options$ initialization using combineLatest
     this.options$ = combineLatest([
       this.currentQuestion$,
-      this.currentOptions$,
+      this.currentOptions$
     ]).pipe(
       map(([currentQuestion, currentOptions]) => {
         if (currentQuestion && currentQuestion.options) {
@@ -734,59 +598,43 @@ export class CodelabQuizContentComponent
 
   private setupExplanationTextDisplay(): void {
     this.explanationText$ = this.explanationTextService.explanationText$;
-    this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
-
-    this.nextQuestion$.subscribe(value => console.log('nextQuestion$', value));
-    this.previousQuestion$.subscribe(value => console.log('previousQuestion$', value));
-    this.nextExplanationText$.subscribe(value => console.log('nextExplanationText$', value));
-    this.explanationTextService.shouldDisplayExplanation$.subscribe(value => console.log('shouldDisplayExplanation$', value));
-    
-    if (
-      Array.isArray(this.explanationTextService.formattedExplanations$) &&
-      this.explanationTextService.formattedExplanations$.length > 0
-    ) {
-      this.explanationTextService.formattedExplanations$[0]?.subscribe((value) => {
-        console.log('formattedExplanation$', value);
-      });
-    } else {
-      console.error('formattedExplanations$ is not properly initialized or empty.');
-    }
+    this.nextExplanationText$ =
+      this.explanationTextService.nextExplanationText$;
 
     this.combinedText$ = combineLatest([
-        this.nextQuestion$,
-        this.previousQuestion$,
-        this.nextExplanationText$,
-        this.formattedExplanation$,
-        this.explanationTextService.shouldDisplayExplanation$,
+      this.nextQuestion$,
+      this.previousQuestion$,
+      this.nextExplanationText$,
+      this.formattedExplanation$,
+      this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
-        tap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
-            console.log('nextQuestion:', nextQuestion);
-            console.log('previousQuestion:', previousQuestion);
-            console.log('nextExplanationText:', nextExplanationText);
-            console.log('formattedExplanation:', formattedExplanation);
-            console.log('shouldDisplayExplanation:', shouldDisplayExplanation);
-        }),
-        switchMap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
-            if (!nextQuestion || !previousQuestion) {
-                return of('');
-            } else {
-                let textToDisplay = '';
+      switchMap(
+        ([
+          nextQuestion,
+          previousQuestion,
+          nextExplanationText,
+          formattedExplanation,
+          shouldDisplayExplanation,
+        ]) => {
+          if (
+            (!nextQuestion || !nextQuestion.questionText) &&
+            (!previousQuestion || !previousQuestion.questionText)
+          ) {
+            return of('');
+          } else {
+            let textToDisplay = '';
 
-                textToDisplay = shouldDisplayExplanation
-                    ? formattedExplanation instanceof BehaviorSubject
-                        ? formattedExplanation.getValue()
-                        : formattedExplanation || ''
-                    : this.questionToDisplay || '';
+            textToDisplay = shouldDisplayExplanation
+              ? formattedExplanation || ''
+              : this.questionToDisplay || '';
 
-                console.log('Text to Display:', textToDisplay);
-
-                return of(textToDisplay);
-            }
-        }),
-        startWith('')
+            return of(textToDisplay);
+          }
+        }
+      ),
+      startWith('')
     );
   }
-
 
   getQuestionText(
     currentQuestion: QuizQuestion,
