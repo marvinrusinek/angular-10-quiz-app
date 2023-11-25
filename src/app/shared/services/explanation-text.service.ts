@@ -254,7 +254,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
-    const subject = this.formattedExplanations$[questionIndex];
+    let subject = this.formattedExplanations$[questionIndex];
   
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
@@ -276,28 +276,21 @@ export class ExplanationTextService implements OnDestroy {
     // Use NgZone to run the async code within Angular's zone
     const initialValue = await this.ngZone.run(() => {
       return new Promise<string>((resolve) => {
-        // Subscribe to the BehaviorSubject to get the current value
-        const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
-          // If the current value is an empty string or undefined, set the initial value
-          if (currentValue === undefined || currentValue === '') {
-            const initialFormattedExplanation =
-              explanationText !== undefined && explanationText !== null
-                ? `${explanationText}`
-                : 'No explanation available';
+        // If subject is not initialized, create a new BehaviorSubject
+        if (!subject) {
+          const initialFormattedExplanation =
+            explanationText !== undefined && explanationText !== null
+              ? `${explanationText}`
+              : 'No explanation available';
   
-            // Create a new BehaviorSubject with the initial value
-            const newExplanation$ = new BehaviorSubject<string>(initialFormattedExplanation);
+          subject = new BehaviorSubject<string>(initialFormattedExplanation);
   
-            // Update the dictionary with the new BehaviorSubject
-            this.formattedExplanationsDictionary[questionKey] = newExplanation$;
+          // Update the dictionary with the new BehaviorSubject
+          this.formattedExplanationsDictionary[questionKey] = subject;
+        }
   
-            // Resolve the Promise with the initial value
-            resolve(initialFormattedExplanation);
-          }
-        });
-  
-        // Unsubscribe after getting the initial value
-        subscription.unsubscribe();
+        // Resolve the Promise with the current value of the BehaviorSubject
+        resolve(subject.getValue());
       });
     });
   
