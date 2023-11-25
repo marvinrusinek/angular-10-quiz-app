@@ -281,9 +281,15 @@ export class ExplanationTextService implements OnDestroy {
       return initialFormattedExplanation;
     }
   
+    // Check if the subject is already in the dictionary
+    if (!this.formattedExplanationsDictionary[questionKey]) {
+      // Update the dictionary with the existing BehaviorSubject
+      this.formattedExplanationsDictionary[questionKey] = subject;
+    }
+  
     // Return the initial value
     return subject.getValue();
-  }
+  }  
               
   // Function to introduce a delay
   delay(ms: number) {
