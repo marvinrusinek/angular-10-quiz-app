@@ -355,7 +355,7 @@ export class ExplanationTextService implements OnDestroy {
     this.lastFormattedExplanation = formattedExplanation;
   
     // Use NgZone to run the async code within Angular's zone
-    await this.ngZone.run(() => {
+    await this.ngZone.run(async () => {
       // Set the value using next
       formattedExplanation$.next(formattedExplanation);
   
@@ -371,7 +371,7 @@ export class ExplanationTextService implements OnDestroy {
     this.processedQuestions.add(questionKey);
   
     return formattedExplanation;
-  }
+  }  
     
   private initializeExplanationSubject(questionIndex: number): BehaviorSubject<string> {
     const questionKey = `Q${questionIndex + 1}`;
