@@ -265,8 +265,9 @@ export class ExplanationTextService implements OnDestroy {
     const storedExplanation$ = this.formattedExplanationsDictionary[questionKey];
   
     if (storedExplanation$) {
-      console.log(`Explanation for ${questionKey} already stored: ${storedExplanation$.getValue()}`);
-      return storedExplanation$.getValue();
+      const storedValue = storedExplanation$.getValue();
+      console.log(`Explanation for ${questionKey} already stored: ${storedValue}`);
+      return storedValue;
     }
   
     // Check if the explanation text for the question exists
@@ -284,10 +285,11 @@ export class ExplanationTextService implements OnDestroy {
                 ? `${explanationText}`
                 : 'No explanation available';
   
-            // Update the dictionary with the initial value
-            this.formattedExplanationsDictionary[questionKey] = new BehaviorSubject<string>(
-              initialFormattedExplanation
-            );
+            // Create a new BehaviorSubject with the initial value
+            const newExplanation$ = new BehaviorSubject<string>(initialFormattedExplanation);
+  
+            // Update the dictionary with the new BehaviorSubject
+            this.formattedExplanationsDictionary[questionKey] = newExplanation$;
   
             // Resolve the Promise with the initial value
             resolve(initialFormattedExplanation);
@@ -301,7 +303,7 @@ export class ExplanationTextService implements OnDestroy {
   
     // Return the initial value
     return initialValue;
-  }
+  }  
               
   // Function to introduce a delay
   delay(ms: number) {
