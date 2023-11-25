@@ -182,6 +182,7 @@ export class ExplanationTextService implements OnDestroy {
         { length: numQuestions },
         () => new BehaviorSubject<string>('')
       );
+  
       console.log('Formatted Explanations Array:', this.formattedExplanations$);
     }
   
@@ -191,14 +192,9 @@ export class ExplanationTextService implements OnDestroy {
     // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      
-      // Check if the explanation text for the question exists in the dictionary
-      const storedExplanation$ = this.formattedExplanationsDictionary[questionKey];
   
-      if (!storedExplanation$) {
-        // Calculate the initial explanation for each question and push the promise
-        initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
-      }
+      // Calculate the initial explanation for each question and push the promise
+      initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
     }
   
     // Wait for all promises to resolve before proceeding
@@ -209,8 +205,8 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log('Observables after initialization:', this.formattedExplanations$);
     console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
-  }  
-
+  }
+    
   private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
     const formattedExplanation$ = this.formattedExplanations$[questionIndex];
