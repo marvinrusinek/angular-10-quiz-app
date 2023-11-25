@@ -287,7 +287,9 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     // Return the initial value
-    return subject.getValue();
+    return subject instanceof BehaviorSubject
+      ? subject.getValue()
+      : '';
   }  
               
   // Function to introduce a delay
