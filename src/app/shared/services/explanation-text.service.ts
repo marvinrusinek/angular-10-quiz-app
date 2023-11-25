@@ -301,8 +301,8 @@ export class ExplanationTextService implements OnDestroy {
   
     // Return the initial value
     return initialValue;
-  }  
-            
+  }
+              
   // Function to introduce a delay
   delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
