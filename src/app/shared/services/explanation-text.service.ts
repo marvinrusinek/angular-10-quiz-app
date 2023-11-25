@@ -186,17 +186,19 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     // Create a promise array to ensure the order of operations
-    const initializationPromises: Promise<void>[] = [];
+    const initializationPromises = [];
   
     // Populate the dictionary during initialization
     for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
       const questionKey = `Q${questionIndex + 1}`;
-      this.formattedExplanationsDictionary[questionKey] = this.formattedExplanations$[questionIndex] as BehaviorSubject<string>;
+      
+      // Check if the explanation text for the question exists in the dictionary
+      const storedExplanation$ = this.formattedExplanationsDictionary[questionKey];
   
-      // Calculate the initial explanation for each question and push the promise
-      initializationPromises.push(
-        this.calculateInitialFormattedExplanation(questionIndex).then(() => {})
-      );
+      if (!storedExplanation$) {
+        // Calculate the initial explanation for each question and push the promise
+        initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
+      }
     }
   
     // Wait for all promises to resolve before proceeding
@@ -249,8 +251,7 @@ export class ExplanationTextService implements OnDestroy {
     return undefined;
   }
   
-  async calculateInitialFormattedExplanation(questionIndex: number): Promise<string> {
-    const questionKey = `Q${questionIndex + 1}`;
+  async calculateInitialFormattedExplanation(questionIndex: number, questionKey: string): Promise<string> {
     console.log(`Calculating initial explanation for ${questionKey}`);
   
     // Check if the BehaviorSubject is initialized
@@ -259,15 +260,6 @@ export class ExplanationTextService implements OnDestroy {
     if (!subject) {
       console.error(`Subject not initialized for ${questionKey}`);
       return 'No explanation available';
-    }
-  
-    // Check if the explanation text for the question exists in the dictionary
-    const storedExplanation$ = this.formattedExplanationsDictionary[questionKey];
-  
-    if (storedExplanation$) {
-      const storedValue = storedExplanation$.getValue();
-      console.log(`Explanation for ${questionKey} already stored: ${storedValue}`);
-      return storedValue;
     }
   
     // Check if the explanation text for the question exists
@@ -284,11 +276,14 @@ export class ExplanationTextService implements OnDestroy {
   
       // Update the dictionary with the new BehaviorSubject
       this.formattedExplanationsDictionary[questionKey] = subject;
+  
+      // Return the initial value
+      return initialFormattedExplanation;
     }
   
     // Return the initial value
     return subject.getValue();
-  }  
+  }
               
   // Function to introduce a delay
   delay(ms: number) {
