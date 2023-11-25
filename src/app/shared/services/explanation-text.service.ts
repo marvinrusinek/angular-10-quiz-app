@@ -273,29 +273,21 @@ export class ExplanationTextService implements OnDestroy {
     // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
   
-    // Use NgZone to run the async code within Angular's zone
-    const initialValue = await this.ngZone.run(() => {
-      return new Promise<string>((resolve) => {
-        // If subject is not initialized, create a new BehaviorSubject
-        if (!subject) {
-          const initialFormattedExplanation =
-            explanationText !== undefined && explanationText !== null
-              ? `${explanationText}`
-              : 'No explanation available';
+    // If subject is not initialized, create a new BehaviorSubject
+    if (!subject) {
+      const initialFormattedExplanation =
+        explanationText !== undefined && explanationText !== null
+          ? `${explanationText}`
+          : 'No explanation available';
   
-          subject = new BehaviorSubject<string>(initialFormattedExplanation);
+      subject = new BehaviorSubject<string>(initialFormattedExplanation);
   
-          // Update the dictionary with the new BehaviorSubject
-          this.formattedExplanationsDictionary[questionKey] = subject;
-        }
-  
-        // Resolve the Promise with the current value of the BehaviorSubject
-        resolve(subject.getValue());
-      });
-    });
+      // Update the dictionary with the new BehaviorSubject
+      this.formattedExplanationsDictionary[questionKey] = subject;
+    }
   
     // Return the initial value
-    return initialValue;
+    return subject.getValue();
   }  
               
   // Function to introduce a delay
