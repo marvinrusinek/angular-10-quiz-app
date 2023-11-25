@@ -283,7 +283,11 @@ export class ExplanationTextService implements OnDestroy {
               explanationText !== undefined && explanationText !== null
                 ? `${explanationText}`
                 : 'No explanation available';
-            subject.next(initialFormattedExplanation);
+  
+            // Update the dictionary with the initial value
+            this.formattedExplanationsDictionary[questionKey] = new BehaviorSubject<string>(
+              initialFormattedExplanation
+            );
   
             // Resolve the Promise with the initial value
             resolve(initialFormattedExplanation);
@@ -294,9 +298,6 @@ export class ExplanationTextService implements OnDestroy {
         subscription.unsubscribe();
       });
     });
-  
-    // Update the dictionary with the initial value
-    this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
   
     // Return the initial value
     return initialValue;
