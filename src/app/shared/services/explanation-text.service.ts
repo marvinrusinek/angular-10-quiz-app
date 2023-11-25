@@ -261,30 +261,46 @@ export class ExplanationTextService implements OnDestroy {
       return 'No explanation available';
     }
   
+    // Check if the explanation text for the question exists in the dictionary
+    const storedExplanation$ = this.formattedExplanationsDictionary[questionKey];
+  
+    if (storedExplanation$) {
+      console.log(`Explanation for ${questionKey} already stored: ${storedExplanation$.getValue()}`);
+      return storedExplanation$.getValue();
+    }
+  
     // Check if the explanation text for the question exists
     const explanationText = this.explanationTexts[questionKey];
   
     // Use NgZone to run the async code within Angular's zone
-    return await new Promise<string>((resolve) => {
-      // Subscribe to the BehaviorSubject to get the current value
-      const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
-        // If the current value is an empty string or undefined, set the initial value
-        if (currentValue === undefined || currentValue === '') {
-          const initialFormattedExplanation =
-            explanationText !== undefined && explanationText !== null
-              ? `${explanationText}`
-              : 'No explanation available';
-          subject.next(initialFormattedExplanation);
+    const initialValue = await this.ngZone.run(() => {
+      return new Promise<string>((resolve) => {
+        // Subscribe to the BehaviorSubject to get the current value
+        const subscription = subject.pipe(take(1)).subscribe((currentValue) => {
+          // If the current value is an empty string or undefined, set the initial value
+          if (currentValue === undefined || currentValue === '') {
+            const initialFormattedExplanation =
+              explanationText !== undefined && explanationText !== null
+                ? `${explanationText}`
+                : 'No explanation available';
+            subject.next(initialFormattedExplanation);
   
-          // Resolve the Promise with the initial value
-          resolve(initialFormattedExplanation);
-        }
+            // Resolve the Promise with the initial value
+            resolve(initialFormattedExplanation);
+          }
+        });
+  
+        // Unsubscribe after getting the initial value
+        subscription.unsubscribe();
       });
-  
-      // Unsubscribe after getting the initial value
-      subscription.unsubscribe();
     });
-  }
+  
+    // Update the dictionary with the initial value
+    this.formattedExplanationsDictionary[questionKey] = subject as BehaviorSubject<string>;
+  
+    // Return the initial value
+    return initialValue;
+  }  
             
   // Function to introduce a delay
   delay(ms: number) {
