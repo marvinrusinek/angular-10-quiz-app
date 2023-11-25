@@ -178,34 +178,36 @@ export class ExplanationTextService implements OnDestroy {
   async initializeFormattedExplanations(numQuestions: number): Promise<void> {
     // Initialize formattedExplanations$ if it's not already initialized
     if (!this.formattedExplanations$ || this.formattedExplanations$.length !== numQuestions) {
+      // Initialize formattedExplanations$
       this.formattedExplanations$ = Array.from(
         { length: numQuestions },
-        () => new BehaviorSubject<string>('')
+        () => new BehaviorSubject<string>('No explanation available')
       );
   
-      console.log('Formatted Explanations Array:', this.formattedExplanations$);
+      // Initialize the dictionary
+      this.formattedExplanationsDictionary = {};
+  
+      // Create a promise array to ensure the order of operations
+      const initializationPromises = [];
+  
+      // Populate the dictionary during initialization
+      for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
+        const questionKey = `Q${questionIndex + 1}`;
+  
+        // Calculate the initial explanation for each question and push the promise
+        initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
+      }
+  
+      // Wait for all promises to resolve before proceeding
+      await Promise.all(initializationPromises);
+  
+      // Set the flag to indicate initialization is complete
+      this.isInitializationComplete = true;
+  
+      console.log('Observables after initialization:', this.formattedExplanations$);
+      console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
     }
-  
-    // Create a promise array to ensure the order of operations
-    const initializationPromises = [];
-  
-    // Populate the dictionary during initialization
-    for (let questionIndex = 0; questionIndex < numQuestions; questionIndex++) {
-      const questionKey = `Q${questionIndex + 1}`;
-  
-      // Calculate the initial explanation for each question and push the promise
-      initializationPromises.push(this.calculateInitialFormattedExplanation(questionIndex, questionKey));
-    }
-  
-    // Wait for all promises to resolve before proceeding
-    await Promise.all(initializationPromises);
-  
-    // Set the flag to indicate initialization is complete
-    this.isInitializationComplete = true;
-  
-    console.log('Observables after initialization:', this.formattedExplanations$);
-    console.log('Dictionary after initialization:', this.formattedExplanationsDictionary);
-  }
+  }  
     
   private async formatExplanationTextForInitialization(questionIndex: number): Promise<void> {
     const questionKey = `Q${questionIndex + 1}`;
