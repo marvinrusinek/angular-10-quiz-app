@@ -312,6 +312,14 @@ export class ExplanationTextService implements OnDestroy {
       return 'No explanation available';
     }
   
+    // Check if the explanation for the question is already stored
+    const existingExplanation$ = this.formattedExplanationsDictionary[questionKey];
+  
+    if (existingExplanation$) {
+      console.log(`Explanation for ${questionKey} already stored: ${existingExplanation$.getValue()}`);
+      return existingExplanation$.getValue();
+    }
+  
     console.log('Processing question:', question.questionText);
   
     // Set the formatted explanation for the question using the existing BehaviorSubject
@@ -342,14 +350,17 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       formattedExplanation = 'No correct option selected...';
     }
-
+  
     // Save the lastFormattedExplanation for later use
     this.lastFormattedExplanation = formattedExplanation;
   
     // Use NgZone to run the async code within Angular's zone
     await this.ngZone.run(() => {
       // Set the value using next
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+      formattedExplanation$.next(formattedExplanation);
+  
+      // Store the formatted explanation in the dictionary
+      this.formattedExplanationsDictionary[questionKey] = formattedExplanation$;
   
       // Log the stored explanation text for the question
       console.log(`Stored explanation text for ${questionKey}: ${formattedExplanation}`);
@@ -361,7 +372,7 @@ export class ExplanationTextService implements OnDestroy {
   
     return formattedExplanation;
   }
-  
+    
   private initializeExplanationSubject(questionIndex: number): BehaviorSubject<string> {
     const questionKey = `Q${questionIndex + 1}`;
   
