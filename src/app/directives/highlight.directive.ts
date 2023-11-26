@@ -13,7 +13,7 @@ export class HighlightDirective {
   }
 
   private applyHighlight() {
-    const color = this.isCorrect ? '#006400' : '#ff0000';
+    const color = this.isCorrect ? '#43e756' : '#ff0000';
     this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
   }
 }
