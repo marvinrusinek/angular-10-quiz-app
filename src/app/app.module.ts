@@ -104,6 +104,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     FontAwesomeModule
   ],
   exports: [
+    HighlightDirective,
     MatExpansionModule
   ],
   bootstrap: [AppComponent],
