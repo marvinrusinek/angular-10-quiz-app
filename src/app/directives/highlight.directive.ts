@@ -10,12 +10,14 @@ export class HighlightDirective implements OnChanges {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('Directive ngOnChanges called', changes);
     if (changes.isCorrect || changes.appHighlightInputType) {
       this.applyHighlight();
     }
   }
 
   private applyHighlight() {
+    console.log('Applying highlight with isCorrect:', this.isCorrect);
     const isCheckbox = this.appHighlightInputType === 'checkbox';
     const isRadioButton = this.appHighlightInputType === 'radio';
 
