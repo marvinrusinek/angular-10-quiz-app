@@ -4,7 +4,7 @@ import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } fro
   selector: '[appHighlight]'
 })
 export class HighlightDirective implements OnChanges {
-  @Input() isCorrect: boolean = false;
+  @Input() isCorrect = false;
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
