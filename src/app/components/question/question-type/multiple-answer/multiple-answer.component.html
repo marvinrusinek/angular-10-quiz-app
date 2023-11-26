@@ -10,7 +10,8 @@
       <mat-checkbox
         [checked]="isSelectedOption(option)"
         (click)="onOptionClick(option)"
-        [appHighlight]="option?.isCorrect"
+        [isCorrect]="option?.correct"
+        appHighlight
         appHighlightInputType="checkbox"
       >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
