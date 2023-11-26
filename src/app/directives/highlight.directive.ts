@@ -20,10 +20,10 @@ export class HighlightDirective implements OnChanges {
     const isRadioButton = this.appHighlightInputType === 'radio';
 
     if (this.isCorrect !== undefined && this.isCorrect !== null) {
-      const color = this.isCorrect ? 'green' : 'initial';
+      const color = this.isCorrect ? 'green' : 'red';
 
       if (isCheckbox || isRadioButton) {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', this.el.nativeElement.checked ? color : 'initial');
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', this.el.nativeElement.checked ? color : 'white');
       } else {
         this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
       }
