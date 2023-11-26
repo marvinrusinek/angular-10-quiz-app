@@ -8,8 +8,10 @@ export class HighlightDirective implements OnChanges {
   private _inputType: string;
 
   @Input() set isCorrect(value: boolean) {
-    this._isCorrect = value;
-    this.applyHighlight();
+    if (value !== undefined && value !== null) {
+      this._isCorrect = value;
+      this.applyHighlight();
+    }
   }
 
   @Input() set appHighlightInputType(value: string) {
