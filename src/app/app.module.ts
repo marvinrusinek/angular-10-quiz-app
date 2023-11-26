@@ -41,6 +41,7 @@ import { SummaryStatsComponent } from './containers/results/summary-report/summa
 import { ChallengeComponent } from './containers/results/challenge/challenge.component';
 import { CodelabQuizContentComponent } from './containers/quiz/quiz-content/codelab-quiz-content.component';
 import { CodelabQuizHeaderComponent } from './containers/quiz/quiz-header/quiz-header.component';
+import { HighlightDirective } from './directives/highlight.directive';
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
@@ -78,6 +79,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     ChallengeComponent,
     CodelabQuizContentComponent,
     CodelabQuizHeaderComponent,
+    HighlightDirective,
     JoinPipe
   ],
   imports: [
