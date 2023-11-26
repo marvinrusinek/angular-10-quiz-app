@@ -1,5 +1,5 @@
 <section class="message" *ngIf="showFeedback">
-  <div class="feedback-message" [ngClass]="{
+  <div class="feedback-message" [appHighlight]="selectedOption.correct" [ngClass]="{
     'correct-message': selectedOption.correct,
     'wrong-message': !selectedOption.correct
   }">

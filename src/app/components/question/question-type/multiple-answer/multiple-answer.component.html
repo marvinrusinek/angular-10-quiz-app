@@ -8,7 +8,6 @@
   >
     <label class="options">
       <mat-checkbox
-        [class]="getOptionClass(option)"
         [checked]="isSelectedOption(option)"
         (click)="onOptionClick(option)"
         [appHighlight]="option?.correct"
