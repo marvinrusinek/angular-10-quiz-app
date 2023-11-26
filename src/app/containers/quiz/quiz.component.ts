@@ -79,7 +79,7 @@ enum QuestionType {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService]
+  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
@@ -1275,6 +1275,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
+      this.highlightDirective.reset();
       this.explanationTextService.resetExplanationState();
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
