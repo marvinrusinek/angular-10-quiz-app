@@ -10,7 +10,7 @@
         <mat-radio-button
           [checked]="option.selected"
           (click)="onOptionClick(option)"
-          [isCorrect]="option?.correct" appHighlight appHighlightInputType="radio"
+          [isCorrect]="option?.correct" [appHighlight]="isCorrect" appHighlightInputType="radio"
         >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
         <span class="option-text" i18n>{{ option.text }}</span>
