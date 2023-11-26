@@ -38,6 +38,7 @@ export class HighlightDirective {
   
   // Add this method to reset the state between questions
   public reset() {
+    console.log('Resetting background color to white');
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
   }
