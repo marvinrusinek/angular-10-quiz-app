@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -9,7 +9,7 @@ export class HighlightDirective implements OnChanges {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['isCorrect']) {
+    if (changes['this.isCorrect']) {
       this.applyHighlight();
     }
   }
