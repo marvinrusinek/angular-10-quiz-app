@@ -9,7 +9,7 @@ export class HighlightDirective implements OnChanges {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['this.isCorrect']) {
+    if (changes['isCorrect']) {
       this.applyHighlight();
     }
   }
