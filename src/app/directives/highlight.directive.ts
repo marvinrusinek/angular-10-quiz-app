@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, NgZone, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -11,7 +11,7 @@ export class HighlightDirective {
     this.appHighlightInputType = value;
   }
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
+  constructor(private el: ElementRef, private renderer: Renderer2, private ngZone: NgZone) {}
 
   @HostListener('click') onClick() {
     this.isAnswered = true;
@@ -38,8 +38,14 @@ export class HighlightDirective {
   
   // Add this method to reset the state between questions
   public reset() {
-    console.log('Resetting background color to white');
-    this.isAnswered = false;
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+    // Use NgZone to ensure the code runs outside Angular's zone
+    this.ngZone.runOutsideAngular(() => {
+      // Use a small timeout to allow Angular to finish rendering
+      setTimeout(() => {
+        console.log('Resetting background color to white');
+        this.isAnswered = false;
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+      });
+    });
   }
 }
