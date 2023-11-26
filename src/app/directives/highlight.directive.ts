@@ -13,7 +13,7 @@ export class HighlightDirective implements OnInit, OnChanges {
 
   ngOnInit() {
     this.isCheckboxOrRadioButton = this.appHighlightInputType === 'checkbox' || this.appHighlightInputType === 'radio';
-    this.applyHighlight();
+    this.applyHighlight(); // Set initial background color
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -24,6 +24,8 @@ export class HighlightDirective implements OnInit, OnChanges {
 
   private applyHighlight() {
     const color = this.isCorrect ? 'green' : 'white';
-    this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+    if (!this.el.nativeElement.checked) {
+      this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+    }
   }
 }
