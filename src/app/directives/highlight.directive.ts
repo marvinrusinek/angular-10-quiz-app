@@ -5,6 +5,7 @@ import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/
 })
 export class HighlightDirective {
   @Input() isCorrect: boolean;
+  private isAnswered: boolean = false;
 
   @Input() set appHighlightInputType(value: string) {
     this.appHighlightInputType = value;
@@ -13,23 +14,24 @@ export class HighlightDirective {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('click') onClick() {
+    this.isAnswered = true;
     this.applyHighlight();
   }
 
   private applyHighlight() {
     const isCheckbox = this.appHighlightInputType === 'checkbox';
     const isRadioButton = this.appHighlightInputType === 'radio';
-  
-    if (this.isCorrect !== undefined && this.isCorrect !== null) {
+
+    if (this.isAnswered) {
       const color = this.isCorrect ? '#43f756' : '#ff0000';
-  
+
       if (isCheckbox || isRadioButton) {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', this.el.nativeElement.checked ? color : 'white');
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
       } else {
         this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
       }
     } else {
-      // Reset background color to white if not supposed to be highlighted
+      // Reset background color to white if not answered
       this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     }
   }   
