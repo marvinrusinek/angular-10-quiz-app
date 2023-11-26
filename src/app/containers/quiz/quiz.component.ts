@@ -50,6 +50,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { HighlightDirective } from '../../directives/highlight.directive';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
@@ -182,6 +183,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private explanationTextService: ExplanationTextService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
+    private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
