@@ -1277,7 +1277,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Call the reset method of the HighlightDirective
       this.highlightDirective.reset();
-      
+
       this.explanationTextService.resetExplanationState();
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
