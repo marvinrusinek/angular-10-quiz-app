@@ -9,10 +9,11 @@
     <label class="options">
       <mat-checkbox
         [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option)"
+        (click)="onOptionClick(option); highlightDirective.markAnswered()"
         [isCorrect]="option?.correct"
         appHighlight
         appHighlightInputType="checkbox"
+        #highlightDirective
       >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
         <span class="option-text">{{ option?.text }}</span>
