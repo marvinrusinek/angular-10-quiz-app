@@ -8,12 +8,11 @@
   >
     <label class="options">
       <mat-checkbox
-        [checked]="isSelectedOption(option)"
-        (click)="onOptionClick(option); highlightDirective.markAnswered()"
-        [isCorrect]="option?.correct"
         appHighlight
-        appHighlightInputType="checkbox"
         #highlightDirective
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClick(option)"
+        [isCorrect]="option?.correct"
       >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
         <span class="option-text">{{ option?.text }}</span>
@@ -27,8 +26,7 @@
       ></codelab-quiz-option-feedback>
 
       <codelab-quiz-feedback
-        *ngIf="shouldDisplayFeedback(option)"
-        [appHighlight]="option?.correct"
+        *ngIf="shouldDisplayFeedback(option)"        
         [question]="currentQuestion"
         [selectedOption]="option"
         [correctMessage]="correctMessage"
