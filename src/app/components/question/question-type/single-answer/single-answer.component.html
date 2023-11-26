@@ -26,6 +26,7 @@
 
       <codelab-quiz-feedback
         *ngIf="selectedOption === option"
+        appHighlight
         [question]="question"
         [selectedOption]="selectedOption?.text"
         [correctMessage]="correctMessage"
