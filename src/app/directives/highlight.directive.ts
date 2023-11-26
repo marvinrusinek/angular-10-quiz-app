@@ -28,12 +28,14 @@ export class HighlightDirective implements OnChanges {
     // Check if the input is a checkbox or radio button
     const isCheckbox = this._inputType === 'checkbox';
     const isRadioButton = this._inputType === 'radio';
-
+  
     if (this._isCorrect) {
-      if (isCheckbox || (isRadioButton && this.el.nativeElement.checked)) {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', 'green');
+      if (isCheckbox) {
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', this.el.nativeElement.checked ? 'green' : 'initial');
+      } else if (isRadioButton) {
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', this.el.nativeElement.checked ? 'green' : 'initial');
       } else {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', 'initial');
+        this.renderer.setStyle(this.el.nativeElement, 'background-color', 'green');
       }
     } else {
       this.renderer.setStyle(this.el.nativeElement, 'background-color', 'red');
