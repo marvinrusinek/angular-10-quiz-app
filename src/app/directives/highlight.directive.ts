@@ -1,7 +1,7 @@
 import { Directive, ElementRef, Input, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
 
 @Directive({
-  selector: '[appHighlight]'
+  selector: 'appHighlight'
 })
 export class HighlightDirective implements OnChanges {
   @Input() isCorrect: boolean = false;
