@@ -31,8 +31,14 @@ export class HighlightDirective {
         this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
       }
     } else {
-      // Reset background color to white if not answered
+      // Reset background color to white
       this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
     }
   }   
+  
+  // Add this method to reset the state between questions
+  public reset() {
+    this.isAnswered = false;
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+  }
 }
