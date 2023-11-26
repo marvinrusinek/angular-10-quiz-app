@@ -11,6 +11,7 @@
         [checked]="isSelectedOption(option)"
         (click)="onOptionClick(option)"
         [appHighlight]="option?.correct"
+        [isCorrect]="option?.correct"
       >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
         <span class="option-text">{{ option?.text }}</span>
