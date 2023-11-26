@@ -13,6 +13,7 @@
           [isCorrect]="option?.correct"
           appHighlight
           appHighlightInputType="radio"
+          #highlightDirective
         >
         <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
         <span class="option-text" i18n>{{ option.text }}</span>
