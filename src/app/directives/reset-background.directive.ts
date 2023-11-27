@@ -1,18 +1,21 @@
-import { Directive, Input, ElementRef, Renderer2 } from '@angular/core';
+import { Directive, Input, ElementRef, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
 
 @Directive({
-  selector: '[appResetBackground]',
+  selector: '[appHighlightReset]',
 })
-export class ResetBackgroundDirective {
-  @Input() set appResetBackground(value: boolean) {
-    if (value) {
-      this.renderer.setStyle(
-        this.el.nativeElement,
-        'background-color',
-        'white'
-      );
+export class ResetBackgroundDirective implements OnChanges {
+  @Input() appHighlightReset: boolean;
+
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['appHighlightReset']) {
+      this.resetBackground();
     }
   }
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
+  private resetBackground() {
+    console.log('Resetting background color to white');
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+  }
 }
