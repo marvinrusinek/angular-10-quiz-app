@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -6,6 +6,7 @@ import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, Renderer
 export class HighlightDirective {
   @Input() isCorrect: boolean;
   private isAnswered: boolean = false;
+  @Output() resetBackground = new EventEmitter<boolean>();
 
   @Input() set appHighlightInputType(value: string) {
     this._appHighlightInputType = value;
