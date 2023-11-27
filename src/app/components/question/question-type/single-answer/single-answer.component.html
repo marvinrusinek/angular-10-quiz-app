@@ -6,28 +6,28 @@
       trackBy: trackByFn
     "
   >
-      <label class="options">
-        <mat-radio-button
-          appHighlight
-          [appHighlightInputType]="'radio'"
-          [appHighlightReset]="shouldResetBackground"
-          [shouldResetBackground]="shouldResetBackground"
-          #highlightDirective
-          [checked]="isSelectedOption(option)"
-          (click)="onOptionClick(option)"
-          [isCorrect]="option.correct"
-        >
-        <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
-        <span class="option-text" i18n>{{ option.text }}</span>
+    <label class="options">
+      <mat-radio-button
+        appHighlight
+        [appHighlightInputType]="'radio'"
+        [appHighlightReset]="shouldResetBackground"
+        [shouldResetBackground]="shouldResetBackground"
+        #highlightDirective
+        [checked]="isSelectedOption(option)"
+        (click)="onOptionClick(option)"
+        [isCorrect]="option.correct"
+      >
+      <span class="option-letter" i18n>{{ i + 1 }}.</span>&nbsp;
+      <span class="option-text" i18n>{{ option.text }}</span>
 
-        <codelab-quiz-option-feedback
-          *ngIf="isSelectedOption(option)"
-          [correct]="option.correct"
-          [selected]="option.selected"
-          [options]="data?.options"
-        >
-        </codelab-quiz-option-feedback>
-        </mat-radio-button>
+      <codelab-quiz-option-feedback
+        *ngIf="isSelectedOption(option)"
+        [correct]="option.correct"
+        [selected]="option.selected"
+        [options]="data?.options"
+      >
+      </codelab-quiz-option-feedback>
+      </mat-radio-button>
 
       <codelab-quiz-feedback
         *ngIf="selectedOption === option"
