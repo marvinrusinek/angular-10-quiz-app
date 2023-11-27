@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, NgZone, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -11,7 +11,7 @@ export class HighlightDirective {
     this.appHighlightInputType = value;
   }
 
-  constructor(private el: ElementRef, private renderer: Renderer2, private ngZone: NgZone, private cdRef: ChangeDetectorRef) {}
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('click') onClick() {
     this.isAnswered = true;
@@ -36,7 +36,7 @@ export class HighlightDirective {
     }
   }   
   
-  // Add this method to reset the state between questions
+  // reset the state in-between questions
   public reset() {
     console.log('Calling reset method...');
     console.log('Before resetting background color:', this.el.nativeElement.style.backgroundColor);
