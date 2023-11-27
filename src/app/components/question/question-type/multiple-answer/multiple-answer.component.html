@@ -11,6 +11,7 @@
         appHighlight
         [appHighlightInputType]="'checkbox'"
         [appHighlightReset]="shouldResetBackground"
+        [shouldResetBackground]="shouldResetBackground"
         #highlightDirective
         [checked]="isSelectedOption(option)"
         (click)="onOptionClick(option)"
