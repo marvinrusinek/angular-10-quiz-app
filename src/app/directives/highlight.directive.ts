@@ -38,15 +38,12 @@ export class HighlightDirective {
   
   // Add this method to reset the state between questions
   public reset() {
-    // Use NgZone to ensure the code runs outside Angular's zone
-    this.ngZone.runOutsideAngular(() => {
-      // Use a small timeout to allow Angular to finish rendering
-      setTimeout(() => {
-        console.log('Resetting background color to white');
-        this.isAnswered = false;
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
-        this.cdRef.detectChanges();
-      });
-    });
-  }
+    console.log('Calling reset method...');
+    console.log('Before resetting background color:', this.el.nativeElement.style.backgroundColor);
+  
+    this.isAnswered = false;
+    this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+  
+    console.log('After resetting background color:', this.el.nativeElement.style.backgroundColor);
+  }  
 }
