@@ -171,6 +171,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   optionsToDisplay: Option[] = [];
   optionsToDisplay2: Option[] = [];
 
+  shouldResetBackground: boolean = false;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
