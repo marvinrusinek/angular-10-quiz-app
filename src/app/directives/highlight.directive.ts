@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, NgZone, Renderer2 } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, NgZone, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -11,7 +11,7 @@ export class HighlightDirective {
     this.appHighlightInputType = value;
   }
 
-  constructor(private el: ElementRef, private renderer: Renderer2, private ngZone: NgZone) {}
+  constructor(private el: ElementRef, private renderer: Renderer2, private ngZone: NgZone, private cdRef: ChangeDetectorRef) {}
 
   @HostListener('click') onClick() {
     this.isAnswered = true;
@@ -45,6 +45,7 @@ export class HighlightDirective {
         console.log('Resetting background color to white');
         this.isAnswered = false;
         this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+        this.cdRef.detectChanges();
       });
     });
   }
