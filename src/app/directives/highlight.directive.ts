@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, Output, Renderer2 } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -19,7 +19,7 @@ export class HighlightDirective {
   @HostListener('click') onClick() {
     this.isAnswered = true;
     this.applyHighlight();
-    this.cdRef.detectChanges();
+    this.resetBackground.emit(true);
   }
 
   private applyHighlight() {
