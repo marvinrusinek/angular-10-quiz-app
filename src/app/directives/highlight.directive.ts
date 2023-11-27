@@ -8,8 +8,10 @@ export class HighlightDirective {
   private isAnswered: boolean = false;
 
   @Input() set appHighlightInputType(value: string) {
-    this.appHighlightInputType = value;
+    this._appHighlightInputType = value;
   }
+
+  private _appHighlightInputType: string;
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
@@ -19,8 +21,8 @@ export class HighlightDirective {
   }
 
   private applyHighlight() {
-    const isCheckbox = this.appHighlightInputType === 'checkbox';
-    const isRadioButton = this.appHighlightInputType === 'radio';
+    const isCheckbox = this._appHighlightInputType === 'checkbox';
+    const isRadioButton = this._appHighlightInputType === 'radio';
 
     if (this.isAnswered) {
       const color = this.isCorrect ? '#43f756' : '#ff0000';
