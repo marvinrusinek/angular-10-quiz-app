@@ -8,7 +8,8 @@
   >
     <label class="options">
       <mat-checkbox
-        appHighlight
+        [appHighlight]="shouldResetBackground"
+        appResetBackground
         #highlightDirective
         [checked]="isSelectedOption(option)"
         (click)="onOptionClick(option)"
