@@ -9,6 +9,7 @@ export class ResetBackgroundDirective implements OnChanges {
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('ngOnChanges triggered:', changes);
     if (changes['appHighlightReset']) {
       this.resetBackground();
     }
