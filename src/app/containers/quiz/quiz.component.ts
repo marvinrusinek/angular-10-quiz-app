@@ -50,6 +50,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
+import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { HighlightDirective } from '../../directives/highlight.directive';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -185,6 +186,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private explanationTextService: ExplanationTextService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
+    private resetBackgroundService: ResetBackgroundService,
     private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -1281,6 +1283,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Call the reset method of the HighlightDirective
       this.highlightDirective.reset();
       this.quizService.resetBackgroundColor();
+      this.resetBackgroundService.setShouldResetBackground(true);
 
       this.explanationTextService.resetExplanationState();
       this.navigateToQuestion(nextQuestionIndex);
