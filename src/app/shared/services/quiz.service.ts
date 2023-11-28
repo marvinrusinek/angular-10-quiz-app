@@ -1323,8 +1323,6 @@ export class QuizService implements OnDestroy {
   }
 
   resetBackgroundColor(): void {
-    this.ngZone.run(() => {
-      this.shouldResetBackground = true;
-    });
+    this.shouldResetBackground = true;
   }
 }
