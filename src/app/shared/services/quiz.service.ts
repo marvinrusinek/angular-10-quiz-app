@@ -241,6 +241,8 @@ export class QuizService implements OnDestroy {
   unsubscribe$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
+  shouldResetBackground: boolean = false;
+
   correctSound: Howl;
   incorrectSound: Howl;
 
@@ -1317,5 +1319,9 @@ export class QuizService implements OnDestroy {
     this.correctMessage = '';
     this.explanationText.next('');
     this.currentQuestionIndex = 0;
+  }
+
+  resetBackgroundColor(): void {
+    this.shouldResetBackground = true;
   }
 }
