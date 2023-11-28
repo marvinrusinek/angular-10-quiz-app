@@ -1,5 +1,5 @@
 import { Directive, Input, ElementRef, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
-import { ResetBackgroundService } from 'path-to-your-service/reset-background.service';
+import { ResetBackgroundService } from '../shared/services/reset-background.service';
 import { Subscription } from 'rxjs';
 
 @Directive({
