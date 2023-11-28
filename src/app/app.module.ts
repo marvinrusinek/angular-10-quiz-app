@@ -53,6 +53,7 @@ import { SelectionMessageService } from './shared/services/selection-message.ser
 import { TimerService } from './shared/services/timer.service';
 import { CountdownService } from './shared/services/countdown.service';
 import { StopwatchService } from './shared/services/stopwatch.service';
+import { ResetBackgroundService } from './shared/services/reset-background.service';
 import { JoinPipe } from './pipes/join.pipe';
 import { QuizGuard } from './router/guards/quiz.guard';
 
@@ -121,7 +122,8 @@ import { QuizGuard } from './router/guards/quiz.guard';
     SelectionMessageService,
     TimerService,
     CountdownService,
-    StopwatchService
+    StopwatchService,
+    ResetBackgroundService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
