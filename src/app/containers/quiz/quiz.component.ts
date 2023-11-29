@@ -1376,14 +1376,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    console.log(`Navigating to Question ${questionIndex}...`);
+  
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
     if (questionIndex !== 1) {
       this.quizService.updateCurrentQuestionIndex(questionIndex);
       this.currentQuestionIndex = questionIndex;
+  
+      try {
+        await this.router.navigateByUrl(newUrl);
+        console.log(`Successfully navigated to Question ${questionIndex}.`);
+      } catch (error) {
+        console.error(`Error navigating to Question ${questionIndex}:`, error);
+      }
     }
-    
-    await this.router.navigateByUrl(newUrl);
   }
 
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
