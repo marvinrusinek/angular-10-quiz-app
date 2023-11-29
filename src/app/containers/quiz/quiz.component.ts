@@ -1339,9 +1339,11 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.previousQuestionSubject.next(previousQuestion);
           this.quizService.previousOptionsSubject.next(this.currentOptions);
 
-          this.highlightDirective.reset();
-          this.resetBackgroundService.setShouldResetBackground(true);
-          this.explanationTextService.resetExplanationState();
+          setTimeout(() => {
+            this.highlightDirective.reset();
+            this.resetBackgroundService.setShouldResetBackground(true);
+            this.explanationTextService.resetExplanationState();
+          }, 0);
 
           await this.navigateToQuestion(this.currentQuestionIndex);
         } else {
