@@ -1282,7 +1282,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('Calling reset method...');
       // Call the reset method of the HighlightDirective
       this.highlightDirective.reset();
-      this.quizService.resetBackgroundColor();
       this.resetBackgroundService.setShouldResetBackground(true);
 
       this.explanationTextService.resetExplanationState();
