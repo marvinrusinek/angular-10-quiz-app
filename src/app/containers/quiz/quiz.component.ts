@@ -172,7 +172,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   optionsToDisplay: Option[] = [];
   optionsToDisplay2: Option[] = [];
 
-  shouldResetBackground: boolean = false;
+  private clearingTrigger$ = new Subject<void>();
+  clearingObservable$ = this.clearingTrigger$.asObservable();
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
