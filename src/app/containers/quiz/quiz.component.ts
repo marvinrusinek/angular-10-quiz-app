@@ -1267,10 +1267,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
-      this.highlightDirective.reset();
-      this.resetBackgroundService.setShouldResetBackground(true);
-      this.explanationTextService.resetExplanationState();
-      
+      setTimeout(() => {
+        this.highlightDirective.reset();
+        this.resetBackgroundService.setShouldResetBackground(true);
+        this.explanationTextService.resetExplanationState();
+      }, 0);
+
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
