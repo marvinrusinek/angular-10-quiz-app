@@ -23,7 +23,6 @@ import {
   from,
   Observable,
   of,
-  startWith,
   Subject,
   Subscription
 } from 'rxjs';
@@ -172,9 +171,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
   optionsToDisplay2: Option[] = [];
-
-  private clearingTrigger$ = new Subject<void>();
-  clearingObservable$ = this.clearingTrigger$.asObservable();
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -1281,13 +1277,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
-      this.clearingObservable$.pipe(
-        startWith(null)
-      ).subscribe(() => {
-        this.highlightDirective.reset();
-        this.resetBackgroundService.setShouldResetBackground(true);
-        this.explanationTextService.resetExplanationState();
-      });
+      this.highlightDirective.reset();
+      this.resetBackgroundService.setShouldResetBackground(true);
+      this.explanationTextService.resetExplanationState();
       
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
