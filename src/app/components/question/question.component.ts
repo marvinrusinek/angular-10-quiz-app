@@ -148,7 +148,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctAnswersLoadedSubscription: Subscription;
   questionDataSubscription: Subscription;
   isExplanationTextDisplayed: boolean = false;
-  shouldResetBackground: boolean = false;
 
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -1235,9 +1234,5 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
-  }
-
-  resetBackgroundColor() {
-    this.shouldResetBackground = true;
   }
 }  
