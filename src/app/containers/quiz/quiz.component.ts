@@ -641,10 +641,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       quizId,
       currentQuestionIndex
     );
-    this.question$.subscribe((question) => {
-      console.log('Question:::>>>>>', question);
-    });
-
     this.options$ = this.quizDataService.getOptions(
       this.quizId,
       this.currentQuestionIndex
@@ -669,11 +665,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
-    /* this.router.navigate([
-      QuizRoutes.QUESTION,
-      quizId,
-      currentQuestionIndex + 1,
-    ]); */
   }
 
   initializeFirstQuestionText(): void {
