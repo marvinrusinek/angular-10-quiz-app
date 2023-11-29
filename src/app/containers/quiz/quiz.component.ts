@@ -1214,7 +1214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
   
-      await this.navigateToQuestionInternal();
+      await this.navigateToQuestion(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
@@ -1245,7 +1245,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
   
-      await this.navigateToQuestionInternal();
+      await this.navigateToQuestion(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
