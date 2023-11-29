@@ -1235,7 +1235,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Placeholder for your original function
       const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
-      
+  
       if (this.currentQuestionIndex >= totalQuestions) {
         // navigate to the results page
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
@@ -1271,12 +1271,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Placeholder for your original function
       await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
   
-      // Ensure that all data is loaded before navigating
-      await Promise.all([
-        this.highlightDirective.reset(),
-        this.resetBackgroundService.setShouldResetBackground(true),
-        this.explanationTextService.resetExplanationState(),
-      ]);
+      // Reset UI immediately before navigating
+      this.highlightDirective.reset();
+      // Placeholder for your original function
+      this.resetBackgroundService.setShouldResetBackground(true);
+      this.explanationTextService.resetExplanationState();
   
       // Your existing navigateToQuestion function
       await this.navigateToQuestion(this.currentQuestionIndex);
@@ -1288,7 +1287,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-  
 
   /* advanceToPreviousQuestion() {
     this.answers = [];
