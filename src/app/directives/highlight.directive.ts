@@ -1,4 +1,12 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  Renderer2
+} from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
@@ -27,22 +35,35 @@ export class HighlightDirective {
     const isRadioButton = this._appHighlightInputType === 'radio';
 
     if (this.isAnswered) {
+      // depending on whether isCorrect set green or red
       const color = this.isCorrect ? '#43f756' : '#ff0000';
 
       if (isCheckbox || isRadioButton) {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+        this.renderer.setStyle(
+          this.el.nativeElement,
+          'background-color',
+          color
+        );
       } else {
-        this.renderer.setStyle(this.el.nativeElement, 'background-color', color);
+        this.renderer.setStyle(
+          this.el.nativeElement,
+          'background-color',
+          color
+        );
       }
     } else {
       // Reset background color to white
-      this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
+      this.renderer.setStyle(
+        this.el.nativeElement,
+        'background-color',
+        'white'
+      );
     }
-  }   
-  
+  }
+
   // reset the state in-between questions
-  public reset() {  
+  public reset() {
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
-  }  
+  }
 }
