@@ -41,13 +41,8 @@ export class HighlightDirective {
   }   
   
   // reset the state in-between questions
-  public reset() {
-    console.log('Calling reset method...');
-    console.log('Before resetting background color:', this.el.nativeElement.style.backgroundColor);
-  
+  public reset() {  
     this.isAnswered = false;
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
-  
-    console.log('After resetting background color:', this.el.nativeElement.style.backgroundColor);
   }  
 }
