@@ -1214,7 +1214,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
   
-      await this.navigateToQuestion(this.currentQuestionIndex);
+      await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
@@ -1245,14 +1245,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
   
-      await this.navigateToQuestion(this.currentQuestionIndex);
+      await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigating = false;
     }
   }
-  
   
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
