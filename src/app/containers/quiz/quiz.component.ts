@@ -1189,31 +1189,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
-    const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
-    const nextQuestionIndex = this.currentQuestionIndex + 1;
-  
-    if (nextQuestionIndex < totalQuestions) {
-      this.currentQuestionIndex = nextQuestionIndex;
-      await this.performCommonNavigation();
-    } else {
-      // Navigate to the results page
-      this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
-      console.log('End of quiz reached.');
-    }
-  }
-  
-  async advanceToPreviousQuestion(): Promise<void> {
-    const previousQuestionIndex = this.currentQuestionIndex - 1;
-  
-    if (previousQuestionIndex >= 0) {
-      this.currentQuestionIndex = previousQuestionIndex;
-      await this.performCommonNavigation();
-    } else {
-      console.log('No valid previous question available.');
-    }
-  }
-  
-  private async performCommonNavigation(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1222,71 +1197,88 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isNavigating = true;
   
     try {
-      if (!this.selectedQuiz) {
-        console.log('Navigation Aborted: Selected Quiz is not available.');
-        return;
-      }
-  
-      // Start animation or any other operations
-      this.animationState$.next('animationStarted');
-  
-      // Placeholder for your original function
-      await this.onAnswerSelectedOrNextQuestionClicked();
-  
-      // Placeholder for your original function
       const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
   
-      if (this.currentQuestionIndex >= totalQuestions) {
-        // navigate to the results page
+      if (this.currentQuestionIndex >= totalQuestions - 1) {
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
         return;
       }
   
-      // Set shouldDisplayExplanation to false when navigating to the next question
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      this.currentQuestionIndex++; // Increment the index
+      this.currentQuestionIndex++;
   
-      // Placeholder for your original function
-      const { nextQuestion, explanationText } =
-        await this.quizService.getNextQuestionWithExplanation(this.currentQuestionIndex);
-  
-      this.clearExplanationText();
-  
-      // Placeholder for your original function
-      const nextQuestionText = this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-  
-      this.nextQuestionText = nextQuestionText;
-      this.questionToDisplay = this.nextQuestionText;
-  
-      this.explanationTextService.setNextExplanationText(explanationText);
-      this.explanationTextService.setIsExplanationTextDisplayed(false);
-  
-      // Placeholder for your original function
-      this.currentOptions = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
-      this.optionsToDisplay = this.currentOptions;
-      this.quizService.setNextOptions(this.currentOptions);
-  
-      // Placeholder for your original function
-      await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
+      await this.fetchAndSetQuestionData();
   
       // Reset UI immediately before navigating
-      this.highlightDirective.reset();
-      // Placeholder for your original function
-      this.resetBackgroundService.setShouldResetBackground(true);
-      this.explanationTextService.resetExplanationState();
+      this.resetUI();
   
-      // Your existing navigateToQuestion function
       await this.navigateToQuestion(this.currentQuestionIndex);
-  
     } catch (error) {
-      console.error('Error occurred while navigating to the next question:', error);
+      console.error('Error occurred while advancing to the next question:', error);
     } finally {
-      // Ensure that isNavigating is always set to false
       this.isNavigating = false;
     }
   }
+  
+  async advanceToPreviousQuestion(): Promise<void> {
+    if (this.isNavigating) {
+      console.warn('Navigation already in progress. Aborting.');
+      return;
+    }
+  
+    this.isNavigating = true;
+  
+    try {
+      if (this.currentQuestionIndex <= 0) {
+        console.log('No valid previous question available.');
+        return;
+      }
+  
+      this.explanationTextService.setShouldDisplayExplanation(false);
+  
+      this.currentQuestionIndex--;
+  
+      await this.fetchAndSetQuestionData();
+  
+      // Reset UI immediately before navigating
+      this.resetUI();
+  
+      await this.navigateToQuestion(this.currentQuestionIndex);
+    } catch (error) {
+      console.error('Error occurred while navigating to the previous question:', error);
+    } finally {
+      this.isNavigating = false;
+    }
+  }
+  
+  private async fetchAndSetQuestionData(): Promise<void> {
+    try {
+      console.log('Fetching data for index:', this.currentQuestionIndex);
+  
+      const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+      console.log('Fetched question text:', questionText);
+  
+      const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
+      console.log('Fetched options:', options);
+  
+      this.nextQuestionText = questionText;
+      this.questionToDisplay = this.nextQuestionText;
+      this.optionsToDisplay = options;
+    } catch (error) {
+      console.error('Error fetching and setting question data:', error);
+    }
+  }
+    
+  private resetUI(): void {
+    // Reset UI immediately before navigating
+    this.highlightDirective.reset();
+    // Placeholder for your original function
+    this.resetBackgroundService.setShouldResetBackground(true);
+    this.explanationTextService.resetExplanationState();
+  }
+  
 
   /* advanceToPreviousQuestion() {
     this.answers = [];
