@@ -735,25 +735,29 @@ export class QuizService implements OnDestroy {
   
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
-
+  
     if (
       currentQuiz &&
       currentQuiz.questions &&
       currentQuestionIndex >= 0 &&
-      currentQuestionIndex <= currentQuiz.questions.length - 1
+      currentQuestionIndex < currentQuiz.questions.length
     ) {
-      const currentOptions =
-        currentQuiz.questions[currentQuestionIndex].options;
+      const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+  
+      // Broadcasting the current options
       this.nextOptionsSource.next(currentOptions);
       this.nextOptionsSubject.next(currentOptions);
+  
       return currentOptions;
     }
-
+  
+    // Broadcasting null when index is invalid
     this.nextOptionsSource.next(null);
     this.nextOptionsSubject.next(null);
+  
     return undefined;
   }
-
+  
   async getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
     try {
       const previousQuestion = await this.getPreviousQuestion(questionIndex);
