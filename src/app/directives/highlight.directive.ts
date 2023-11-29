@@ -1,12 +1,12 @@
-import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appHighlight]'
 })
 export class HighlightDirective {
-  @Input() isCorrect: boolean;
-  private isAnswered: boolean = false;
   @Output() resetBackground = new EventEmitter<boolean>();
+  @Input() isCorrect: boolean;
+  private isAnswered = false;
 
   @Input() set appHighlightInputType(value: string) {
     this._appHighlightInputType = value;
@@ -14,7 +14,7 @@ export class HighlightDirective {
 
   private _appHighlightInputType: string;
 
-  constructor(private el: ElementRef, private renderer: Renderer2, private cdRef: ChangeDetectorRef) {}
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('click') onClick() {
     this.isAnswered = true;
