@@ -8,13 +8,13 @@ import { ResetBackgroundService } from '../shared/services/reset-background.serv
 })
 export class ResetBackgroundDirective implements OnChanges {
   @Input() appResetBackground: boolean;
-
   private subscription: Subscription;
 
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
-    private resetBackgroundService: ResetBackgroundService) {
+    private resetBackgroundService: ResetBackgroundService
+  ) {
     this.subscription = this.resetBackgroundService.shouldResetBackground$.subscribe((value) => {
       if (value) {
         this.resetBackground();
