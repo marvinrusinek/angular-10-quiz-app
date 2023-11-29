@@ -1279,12 +1279,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
-      console.log('Calling reset method...');
-      // Call the reset method of the HighlightDirective
       this.highlightDirective.reset();
       this.resetBackgroundService.setShouldResetBackground(true);
-
       this.explanationTextService.resetExplanationState();
+      
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
@@ -1352,10 +1350,9 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.previousOptionsSubject.next(this.currentOptions);
 
           this.highlightDirective.reset();
-          this.shouldResetBackground = true;
-          console.log('shouldResetBackground set to true');
-
+          this.resetBackgroundService.setShouldResetBackground(true);
           this.explanationTextService.resetExplanationState();
+
           await this.navigateToQuestion(this.currentQuestionIndex);
         } else {
           console.log('No valid previous question available.');
