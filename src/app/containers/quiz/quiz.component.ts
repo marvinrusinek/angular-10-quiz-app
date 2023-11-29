@@ -1271,16 +1271,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Placeholder for your original function
       await this.calculateAndSetCorrectAnswersText(nextQuestion, this.currentOptions);
   
-      // Reset UI after a short delay
-      setTimeout(async () => {
-        this.highlightDirective.reset();
-        // Placeholder for your original function
-        this.resetBackgroundService.setShouldResetBackground(true);
-        this.explanationTextService.resetExplanationState();
+      // Ensure that all data is loaded before navigating
+      await Promise.all([
+        this.highlightDirective.reset(),
+        this.resetBackgroundService.setShouldResetBackground(true),
+        this.explanationTextService.resetExplanationState(),
+      ]);
   
-        // Ensure that the navigation is based on the correct nextQuestionIndex
-        await this.navigateToQuestion(this.currentQuestionIndex);
-      }, 0);
+      // Your existing navigateToQuestion function
+      await this.navigateToQuestion(this.currentQuestionIndex);
   
     } catch (error) {
       console.error('Error occurred while navigating to the next question:', error);
@@ -1289,7 +1288,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
-  
   
 
   /* advanceToPreviousQuestion() {
