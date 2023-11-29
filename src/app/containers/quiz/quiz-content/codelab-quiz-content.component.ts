@@ -614,7 +614,7 @@ export class CodelabQuizContentComponent
           previousQuestion,
           nextExplanationText,
           formattedExplanation,
-          shouldDisplayExplanation,
+          shouldDisplayExplanation
         ]) => {
           if (
             (!nextQuestion || !nextQuestion.questionText) &&
@@ -628,7 +628,7 @@ export class CodelabQuizContentComponent
               ? formattedExplanation || ''
               : this.questionToDisplay || '';
 
-              return of(textToDisplay).pipe(startWith(textToDisplay));
+            return of(textToDisplay).pipe(startWith(textToDisplay));
           }
         }
       ),
