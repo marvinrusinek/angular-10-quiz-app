@@ -1211,9 +1211,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       await this.fetchAndSetQuestionData();
   
-      // Reset UI immediately before navigating
-      this.resetUI();
-  
       await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
@@ -1242,9 +1239,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       await this.fetchAndSetQuestionData();
   
-      // Reset UI immediately before navigating
-      this.resetUI();
-  
       await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
@@ -1255,21 +1249,25 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
-      console.log('Fetching data for index:', this.currentQuestionIndex);
-  
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       console.log('Fetched question text:', questionText);
   
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
       console.log('Fetched options:', options);
   
+      // Set the data before navigating
       this.nextQuestionText = questionText;
-      this.questionToDisplay = this.nextQuestionText;
       this.optionsToDisplay = options;
+  
+      // Reset UI immediately before navigating
+      this.resetUI();
+  
+      await this.navigateToQuestion(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
   }
+  
     
   private resetUI(): void {
     // Reset UI immediately before navigating
