@@ -23,6 +23,7 @@ import {
   from,
   Observable,
   of,
+  startWith,
   Subject,
   Subscription
 } from 'rxjs';
@@ -1280,9 +1281,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Construct the URL for the next question
       const nextQuestionIndex = this.currentQuestionIndex + 1;
 
-      this.highlightDirective.reset();
-      this.resetBackgroundService.setShouldResetBackground(true);
-      this.explanationTextService.resetExplanationState();
+      this.clearingObservable$.pipe(
+        startWith(null)
+      ).subscribe(() => {
+        this.highlightDirective.reset();
+        this.resetBackgroundService.setShouldResetBackground(true);
+        this.explanationTextService.resetExplanationState();
+      });
       
       this.navigateToQuestion(nextQuestionIndex);
     } catch (error) {
