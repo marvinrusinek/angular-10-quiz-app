@@ -1259,7 +1259,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      const questionText = currentQuiz.questions[this.currentQuestionIndex].questionText;
+      const questionText = currentQuiz?.questions[this.currentQuestionIndex]?.questionText;
       console.log('Fetched question text:', questionText);
   
       this.nextQuestionText = questionText;
