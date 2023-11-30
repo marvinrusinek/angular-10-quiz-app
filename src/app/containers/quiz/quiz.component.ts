@@ -1205,13 +1205,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      this.explanationTextService.setShouldDisplayExplanation(false);
-  
       this.currentQuestionIndex++;
-  
       await this.fetchAndSetQuestionData();
-  
-      await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
+      this.resetUI();
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
@@ -1249,7 +1245,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
-      // Ensure currentQuestionIndex is within bounds
+      const currentQuiz = this.quizService.getCurrentQuiz();
+  
+      if (!currentQuiz) {
+        console.warn('Current quiz is not available. Aborting.');
+        return;
+      }
+  
       const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
   
       if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= totalQuestions) {
@@ -1257,24 +1259,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+      const questionText = currentQuiz.questions[this.currentQuestionIndex].questionText;
       console.log('Fetched question text:', questionText);
+  
+      this.nextQuestionText = questionText;
+      this.questionToDisplay = questionText;
   
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
       console.log('Fetched options:', options);
   
-      // Set the data before navigating
-      this.nextQuestionText = questionText;
-      this.questionToDisplay = questionText;  // Set questionToDisplay to the fetched question text
       this.optionsToDisplay = options;
-  
-      // Reset UI immediately before navigating
-      this.resetUI();
-  
-      // Increment the index after setting data
-      this.currentQuestionIndex++;
-  
-      await this.navigateToQuestion(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
