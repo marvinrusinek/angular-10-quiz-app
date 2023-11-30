@@ -1271,7 +1271,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
   
-      await this.navigateToQuestionInternal();
+      await this.navigateToQuestion(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
