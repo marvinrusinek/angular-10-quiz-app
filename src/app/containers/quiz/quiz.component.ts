@@ -1259,6 +1259,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
+      console.log('Current Quiz:', currentQuiz);
+  
       const questionText = currentQuiz?.questions[this.currentQuestionIndex]?.questionText;
       console.log('Fetched question text:', questionText);
   
@@ -1273,6 +1275,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.error('Error fetching and setting question data:', error);
     }
   }
+  
     
   private resetUI(): void {
     // Reset UI immediately before navigating
