@@ -1249,6 +1249,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
+      // Ensure currentQuestionIndex is within bounds
+      const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
+  
+      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= totalQuestions) {
+        console.warn('Invalid question index. Aborting.');
+        return;
+      }
+  
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       console.log('Fetched question text:', questionText);
   
@@ -1257,16 +1265,18 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Set the data before navigating
       this.nextQuestionText = questionText;
+      this.questionToDisplay = questionText;  // Set questionToDisplay to the fetched question text
       this.optionsToDisplay = options;
   
       // Reset UI immediately before navigating
       this.resetUI();
   
-      await this.navigateToQuestion(this.currentQuestionIndex);
+      await this.navigateToQuestionInternal();
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
   }
+  
   
     
   private resetUI(): void {
