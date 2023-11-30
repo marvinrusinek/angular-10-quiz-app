@@ -1276,16 +1276,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
   
-    
+  // Reset UI immediately before navigating
   private resetUI(): void {
-    // Reset UI immediately before navigating
     this.highlightDirective.reset();
-    // Placeholder for your original function
     this.resetBackgroundService.setShouldResetBackground(true);
     this.explanationTextService.resetExplanationState();
   }
   
-
   /* advanceToPreviousQuestion() {
     this.answers = [];
     this.status = QuizStatus.CONTINUE;
