@@ -1265,7 +1265,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Set the data before navigating
       this.nextQuestionText = questionText;
-      this.questionToDisplay = questionText;  // Set questionToDisplay to the fetched question text
+      this.questionToDisplay = questionText;
       this.optionsToDisplay = options;
   
       // Reset UI immediately before navigating
