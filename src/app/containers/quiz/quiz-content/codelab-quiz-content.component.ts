@@ -624,15 +624,9 @@ export class CodelabQuizContentComponent
           } else {
             let textToDisplay = '';
 
-            /* textToDisplay = shouldDisplayExplanation
-              ? formattedExplanation || ''
-              : this.questionToDisplay || ''; */
-            /* textToDisplay = shouldDisplayExplanation
-              ? formattedExplanation || ''
-              : nextQuestion.questionText || ''; */
             textToDisplay = shouldDisplayExplanation
-              ? (formattedExplanation || '')
-              : nextQuestion.questionText;
+              ? formattedExplanation || ''
+              : this.questionToDisplay || '';
 
             return of(textToDisplay).pipe(startWith(textToDisplay));
           }
