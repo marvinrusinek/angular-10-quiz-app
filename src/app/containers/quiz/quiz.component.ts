@@ -1208,7 +1208,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       await this.fetchAndSetQuestionData();
   
-      await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
+      // await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
@@ -1233,7 +1233,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       await this.fetchAndSetQuestionData();
   
-      await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
+      // await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -1261,12 +1261,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = questionText;
       this.questionToDisplay = questionText;
       this.optionsToDisplay = options;
-
+  
       this.explanationTextService.setShouldDisplayExplanation(false);
   
       // Reset UI immediately before navigating
       this.resetUI();
   
+      // Move the navigation here
       await this.navigateToQuestion(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
