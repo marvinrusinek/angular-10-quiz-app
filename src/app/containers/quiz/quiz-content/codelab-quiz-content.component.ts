@@ -689,12 +689,15 @@ export class CodelabQuizContentComponent
   
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
   
-    this.shouldDisplayCorrectAnswers = 
-      this.quizStateService.isMultipleAnswer(data.currentQuestion) &&
+    const questionTextCondition = data.questionText || data.questionText.trim().length > 0;
+    const explanationTextCondition = !data.explanationText;
+    this.shouldDisplayCorrectAnswers = this.quizStateService.isMultipleAnswer(data.currentQuestion) &&
       data.isNavigatingToPrevious &&
-      !data.explanationText &&
-      (data.questionText || data.questionText.trim().length > 0);
+      explanationTextCondition &&
+      questionTextCondition;
 
+    console.log('questionTextCondition:', questionTextCondition);
+    console.log('explanationTextCondition:', explanationTextCondition);
     console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
   }
 
