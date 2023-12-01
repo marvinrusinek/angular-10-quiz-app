@@ -679,6 +679,10 @@ export class CodelabQuizContentComponent
       return;
     }
   
+    console.log('Data:', data);
+    console.log('Explanation Text:', data.explanationText);
+    console.log('Question Text:', data.questionText);
+  
     const currentQuestionHasMultipleAnswers = await this.quizStateService
       .isMultipleAnswer(data.currentQuestion)
       .toPromise();
@@ -688,8 +692,13 @@ export class CodelabQuizContentComponent
     this.shouldDisplayCorrectAnswers =
       currentQuestionHasMultipleAnswers &&
       isNavigatingToPrevious &&
-      !data.explanationText;
+      !data.explanationText &&
+      !!data.questionText;
+  
+    console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
   }
+  
+  
   
 
   getNumberOfCorrectAnswers(data: any): number {
