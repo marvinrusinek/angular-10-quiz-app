@@ -1207,8 +1207,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex++;
   
       await this.fetchAndSetQuestionData();
-  
-      // await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while advancing to the next question:', error);
     } finally {
@@ -1232,8 +1230,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex--;
   
       await this.fetchAndSetQuestionData();
-  
-      // await this.router.navigate([`${QuizRoutes.QUESTION}${this.quizId}/${this.currentQuestionIndex + 1}`]);
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
@@ -1269,6 +1265,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Move the navigation here
       await this.navigateToQuestion(this.currentQuestionIndex);
+      //const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
+      //await this.router.navigateByUrl(newUrl);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
