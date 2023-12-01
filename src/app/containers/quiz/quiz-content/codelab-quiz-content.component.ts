@@ -689,17 +689,14 @@ export class CodelabQuizContentComponent
   
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
   
-    this.shouldDisplayCorrectAnswers =
-      currentQuestionHasMultipleAnswers &&
-      isNavigatingToPrevious &&
+    this.shouldDisplayCorrectAnswers = 
+      this.quizStateService.isMultipleAnswer(data.currentQuestion) &&
+      data.isNavigatingToPrevious &&
       !data.explanationText &&
-      !!data.questionText;
-  
+      (data.questionText || data.questionText.trim().length > 0);
+
     console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
   }
-  
-  
-  
 
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
