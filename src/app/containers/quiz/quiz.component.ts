@@ -1204,9 +1204,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('End of quiz reached.');
         return;
       }
-  
-      this.explanationTextService.setShouldDisplayExplanation(false);
-  
       this.currentQuestionIndex++;
   
       await this.fetchAndSetQuestionData();
@@ -1232,9 +1229,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('No valid previous question available.');
         return;
       }
-  
-      this.explanationTextService.setShouldDisplayExplanation(false);
-  
       this.currentQuestionIndex--;
   
       await this.fetchAndSetQuestionData();
@@ -1267,6 +1261,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = questionText;
       this.questionToDisplay = questionText;
       this.optionsToDisplay = options;
+
+      this.explanationTextService.setShouldDisplayExplanation(false);
   
       // Reset UI immediately before navigating
       this.resetUI();
