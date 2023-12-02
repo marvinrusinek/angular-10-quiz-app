@@ -784,24 +784,19 @@ export class CodelabQuizContentComponent
   
       console.log('Current question:', data.currentQuestion);
   
-      // Assume isMultipleAnswer returns an observable
-      this.quizStateService.isMultipleAnswer(data.currentQuestion).subscribe((isMultipleAnswer) => {
-        console.log('isMultipleAnswer:', isMultipleAnswer);
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
+      
+      console.log('isMultipleAnswer:', isMultipleAnswer);
   
-        if (isMultipleAnswer === undefined) {
-          console.warn('isMultipleAnswer data is not available yet.');
-          return;
-        }
+      if (isMultipleAnswer === undefined) {
+        console.warn('isMultipleAnswer data is not available yet.');
+        return;
+      }
   
-        // Log the content of correctAnswers
-        console.log('Correct Answers:', data.currentQuestion.correctAnswers);
+      // Log the content of correctAnswers
+      console.log('Correct Answers:', data.currentQuestion.correctAnswers);
   
-        if (!isMultipleAnswer || !data.currentQuestion.correctAnswers) {
-          console.warn('Not a multiple-answer question or correct answers are undefined.');
-          return;
-        }
-  
-        // Use your existing function to get the number of correct answers
+      if (isMultipleAnswer && data.currentQuestion.correctAnswers) {
         const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data.currentQuestion);
   
         this.shouldDisplayCorrectAnswers =
@@ -813,12 +808,14 @@ export class CodelabQuizContentComponent
         // Display the number of correct answers along with the flag
         console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
         console.log('Number of correct answers:', numberOfCorrectAnswers);
-      });
+      } else {
+        console.warn('Not a multiple-answer question or correct answers are undefined.');
+      }
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
-  }  
-  
+  }
+     
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
     return correctAnswers.length;

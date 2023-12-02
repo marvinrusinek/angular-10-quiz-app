@@ -520,14 +520,12 @@ export class QuizDataService implements OnDestroy {
   }
 
   setQuestionType(question: QuizQuestion): void {
-    const numCorrectAnswers = question.options.filter(
-      (option) => option.correct
-    ).length;
-    question.type =
-      numCorrectAnswers > 1
-        ? QuestionType.MultipleAnswer
-        : QuestionType.SingleAnswer;
-  }
+    const numCorrectAnswers = question.options.filter((option) => option.correct).length;
+    console.log('Number of Correct Answers:', numCorrectAnswers);
+  
+    question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+    console.log('Question Type Set:', question.type);
+  }  
 
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;

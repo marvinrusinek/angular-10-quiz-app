@@ -68,6 +68,7 @@ export class QuizStateService {
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     try {
       const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
+      console.log('Question Type:::>>', question.type);
       this.setMultipleAnswer(isMultipleAnswer);
       return of(isMultipleAnswer);
     } catch (error) {
