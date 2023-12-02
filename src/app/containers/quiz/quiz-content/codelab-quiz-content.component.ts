@@ -650,7 +650,7 @@ export class CodelabQuizContentComponent
     return '';
   }
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
     try {
       console.log('Data:', data);
       if (!data || !data.currentQuestion) {
@@ -679,7 +679,34 @@ export class CodelabQuizContentComponent
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
       return false;
     }
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    try {
+      if (!data || !data.currentQuestion) {
+        this.shouldDisplayCorrectAnswers = false;
+        console.error('Current question is not defined');
+        return;
+      }
+  
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
+  
+      if (isMultipleAnswer === undefined) {
+        console.warn('isMultipleAnswer data is not available yet.');
+        return;
+      }
+  
+      this.shouldDisplayCorrectAnswers =
+        isMultipleAnswer &&
+        data.isNavigatingToPrevious &&
+        !data.explanationText &&
+        !!data.questionText; // Ensure questionText is truthy
+  
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
   }
+  
   
 
   getNumberOfCorrectAnswers(data: any): number {
