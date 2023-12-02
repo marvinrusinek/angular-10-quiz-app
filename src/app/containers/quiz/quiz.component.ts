@@ -1239,6 +1239,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
+      this.animationState$.next('animationStarted');
+
       // Ensure currentQuestionIndex is within bounds
       const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
   
