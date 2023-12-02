@@ -783,6 +783,8 @@ export class CodelabQuizContentComponent
       }
   
       this.quizStateService.isMultipleAnswer(data.currentQuestion).subscribe((isMultipleAnswer) => {
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+
         if (isMultipleAnswer === undefined) {
           console.warn('isMultipleAnswer data is not available yet.');
           return;
@@ -793,11 +795,15 @@ export class CodelabQuizContentComponent
           data.isNavigatingToPrevious &&
           !data.explanationText &&
           !!data.questionText;
+
+        console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
       });
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
   }
+  
+  
   
   
 
