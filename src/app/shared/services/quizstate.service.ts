@@ -84,7 +84,6 @@ export class QuizStateService {
     }
   }
   
-  
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
