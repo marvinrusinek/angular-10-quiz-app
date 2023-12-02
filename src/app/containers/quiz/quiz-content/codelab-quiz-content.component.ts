@@ -545,40 +545,43 @@ export class CodelabQuizContentComponent
         explanationText: this.explanationTextService.formattedExplanation$,
         correctAnswersText: this.correctAnswersText$
       })
-        .pipe(
-          switchMap(
-            ({
-              questionToDisplay,
-              nextOptions,
-              explanationText,
-              correctAnswersText
-            }) => {
-              console.log('questionToDisplay:', questionToDisplay);
-              console.log('nextOptions:', nextOptions);
-              console.log('explanationText:', explanationText);
-              console.log('correctAnswersText:', correctAnswersText);
-
-              const questionText = isNavigatingToPrevious
-                ? `${this.previousQuestionText} ${correctAnswersText}`
-                : questionToDisplay?.questionText || '';
-
-              return this.explanationTextService.formattedExplanation$.pipe(
-                map((formattedExplanation) => ({
-                  questionText: questionText,
-                  explanationText: formattedExplanation,
-                  correctAnswersText: correctAnswersText,
-                  currentQuestion: questionToDisplay || null,
-                  currentOptions: nextOptions || [],
-                  isNavigatingToPrevious: isNavigatingToPrevious
-                }))
-              );
-            }
-          )
+      .pipe(
+        switchMap(
+          ({
+            questionToDisplay,
+            nextOptions,
+            explanationText,
+            correctAnswersText
+          }) => {
+            console.log('Question To Display:', questionToDisplay);
+            console.log('Next Options:', nextOptions);
+            console.log('Explanation Text:', explanationText);
+            console.log('Correct Answers Text:', correctAnswersText);
+  
+            const questionText = isNavigatingToPrevious
+              ? `${this.previousQuestionText} ${correctAnswersText}`
+              : questionToDisplay?.questionText || '';
+  
+            console.log('Formatted Question Text:', questionText);
+  
+            return this.quizStateService.isMultipleAnswer(questionToDisplay).pipe(
+              map((isMultipleAnswer) => ({
+                questionText: isMultipleAnswer ? `${questionText} (Multiple Answers)` : questionText,
+                explanationText: explanationText,
+                correctAnswersText: correctAnswersText,
+                currentQuestion: questionToDisplay || null,
+                currentOptions: nextOptions || [],
+                isNavigatingToPrevious: isNavigatingToPrevious
+              }))
+            );
+          }
         )
-        .subscribe((combinedData) => {
-          this.combinedQuestionData$ = of(combinedData);
-        });
-    });
+      )
+      .subscribe((combinedData) => {
+        console.log('Combined Data:', combinedData);
+        this.combinedQuestionData$ = of(combinedData);
+      });
+    });  
   }
 
   private setupOptions(): void {
