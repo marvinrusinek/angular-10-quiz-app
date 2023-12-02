@@ -817,12 +817,8 @@ export class CodelabQuizContentComponent
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
-  }
+  }  
   
-  
-  
-  
-
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
     return correctAnswers.length;

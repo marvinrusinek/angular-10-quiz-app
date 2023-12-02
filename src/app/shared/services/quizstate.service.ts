@@ -67,20 +67,13 @@ export class QuizStateService {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     try {
-      // Perform the logic to determine if it's a multiple-answer question
       const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
-
-      // Set the value to true if it's a multiple-answer question
-      if (isMultipleAnswer) {
-        this.setMultipleAnswer(true);
-      }
-  
-      // Return an observable that completes after emitting the value
+      this.setMultipleAnswer(isMultipleAnswer);
       return of(isMultipleAnswer);
     } catch (error) {
       console.error('Error determining if it is a multiple-answer question:', error);
       this.setMultipleAnswer(false);
-      return of(false); // Return an observable that immediately completes with the default value
+      return of(false);
     }
   }
   
