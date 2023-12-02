@@ -782,22 +782,23 @@ export class CodelabQuizContentComponent
         return;
       }
   
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
+      this.quizStateService.isMultipleAnswer(data.currentQuestion).subscribe((isMultipleAnswer) => {
+        if (isMultipleAnswer === undefined) {
+          console.warn('isMultipleAnswer data is not available yet.');
+          return;
+        }
   
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return;
-      }
-  
-      this.shouldDisplayCorrectAnswers =
-        isMultipleAnswer &&
-        data.isNavigatingToPrevious &&
-        !data.explanationText &&
-        !!data.questionText;
+        this.shouldDisplayCorrectAnswers =
+          isMultipleAnswer &&
+          data.isNavigatingToPrevious &&
+          !data.explanationText &&
+          !!data.questionText;
+      });
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
   }
+  
   
 
   getNumberOfCorrectAnswers(data: any): number {
