@@ -741,7 +741,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
     try {
       console.log('Data:', data);
   
@@ -772,18 +772,32 @@ export class CodelabQuizContentComponent
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
       return false;
     }
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    try {
+      if (!data || !data.currentQuestion) {
+        this.shouldDisplayCorrectAnswers = false;
+        console.error('Current question is not defined');
+        return;
+      }
+  
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
+  
+      if (isMultipleAnswer === undefined) {
+        console.warn('isMultipleAnswer data is not available yet.');
+        return;
+      }
+  
+      this.shouldDisplayCorrectAnswers =
+        isMultipleAnswer &&
+        data.isNavigatingToPrevious &&
+        !data.explanationText &&
+        !!data.questionText;
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
   }
-  
-  
-  
-  
-  
-  
-
-
-  
-  
-  
   
 
   getNumberOfCorrectAnswers(data: any): number {
