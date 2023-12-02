@@ -553,27 +553,37 @@ export class CodelabQuizContentComponent
             explanationText,
             correctAnswersText
           }) => {
-            console.log('Question To Display:', questionToDisplay);
-            console.log('Next Options:', nextOptions);
-            console.log('Explanation Text:', explanationText);
-            console.log('Correct Answers Text:', correctAnswersText);
-  
+            return from(this.quizStateService.isMultipleAnswer(questionToDisplay)).pipe(
+              map(isMultipleAnswer => ({
+                questionToDisplay,
+                nextOptions,
+                explanationText,
+                correctAnswersText,
+                isMultipleAnswer
+              }))
+            );
+          }
+        ),
+        map(
+          ({
+            questionToDisplay,
+            nextOptions,
+            explanationText,
+            correctAnswersText,
+            isMultipleAnswer
+          }) => {
             const questionText = isNavigatingToPrevious
               ? `${this.previousQuestionText} ${correctAnswersText}`
               : questionToDisplay?.questionText || '';
   
-            console.log('Formatted Question Text:', questionText);
-  
-            return this.quizStateService.isMultipleAnswer(questionToDisplay).pipe(
-              map((isMultipleAnswer) => ({
-                questionText: isMultipleAnswer ? `${questionText} (Multiple Answers)` : questionText,
-                explanationText: explanationText,
-                correctAnswersText: correctAnswersText,
-                currentQuestion: questionToDisplay || null,
-                currentOptions: nextOptions || [],
-                isNavigatingToPrevious: isNavigatingToPrevious
-              }))
-            );
+            return {
+              questionText: isMultipleAnswer ? `${questionText} (Multiple Answers)` : questionText,
+              explanationText: explanationText,
+              correctAnswersText: correctAnswersText,
+              currentQuestion: questionToDisplay || null,
+              currentOptions: nextOptions || [],
+              isNavigatingToPrevious: isNavigatingToPrevious
+            };
           }
         )
       )
@@ -710,7 +720,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
     try {
         if (!data || !data.currentQuestion) {
             console.error('Current question is not defined');
@@ -729,7 +739,46 @@ export class CodelabQuizContentComponent
         console.error('Error in shouldDisplayCorrectAnswersText:', error);
         return false;
     }
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
+    try {
+      console.log('Data:', data);
+  
+      if (!data || !data.currentQuestion) {
+        console.error('Current question is not defined');
+        return false;
+      }
+  
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
+  
+      console.log('isMultipleAnswer:', isMultipleAnswer);
+  
+      if (isMultipleAnswer === undefined) {
+        console.warn('isMultipleAnswer data is not available yet.');
+        return false;
+      }
+  
+      console.log('data.isNavigatingToPrevious:', data.isNavigatingToPrevious);
+      console.log('data.explanationText:', data.explanationText);
+      console.log('data.questionText:', data.questionText);
+  
+      const result = isMultipleAnswer && data.isNavigatingToPrevious && !data.explanationText && !!data.questionText; // Ensure questionText is truthy
+  
+      console.log('Result:', result);
+  
+      return result;
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+      return false;
+    }
   }
+  
+  
+  
+  
+  
+  
 
 
   

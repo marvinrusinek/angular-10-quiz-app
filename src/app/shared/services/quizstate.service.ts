@@ -65,7 +65,7 @@ export class QuizStateService {
     this.currentOptions$ = of(options);
   }
 
-  isMultipleAnswer(question: QuizQuestion) {
+  /* isMultipleAnswer(question: QuizQuestion) {
     try {
       // Perform the logic to determine if it's a multiple-answer question
       const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
@@ -77,8 +77,21 @@ export class QuizStateService {
       this.setMultipleAnswer(false);
       return of(false); // Return an observable that immediately completes with the default value
     }
-  }
+  } */
 
+  async isMultipleAnswer(question: QuizQuestion): Promise<boolean> {
+    try {
+      // Perform the logic to determine if it's a multiple-answer question
+      const isMultipleAnswer = question.type === QuestionType.MultipleAnswer;
+      
+      return isMultipleAnswer;
+    } catch (error) {
+      console.error('Error determining if it is a multiple-answer question:', error);
+      this.setMultipleAnswer(false);
+      return false; // Return the default value
+    }
+  }
+  
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
