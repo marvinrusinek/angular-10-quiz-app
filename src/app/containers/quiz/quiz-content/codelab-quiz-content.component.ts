@@ -782,21 +782,37 @@ export class CodelabQuizContentComponent
         return;
       }
   
+      console.log('Current question:', data.currentQuestion);
+  
+      // Assume isMultipleAnswer returns an observable
       this.quizStateService.isMultipleAnswer(data.currentQuestion).subscribe((isMultipleAnswer) => {
         console.log('isMultipleAnswer:', isMultipleAnswer);
-
+  
         if (isMultipleAnswer === undefined) {
           console.warn('isMultipleAnswer data is not available yet.');
           return;
         }
+  
+        // Log the content of correctAnswers
+        console.log('Correct Answers:', data.currentQuestion.correctAnswers);
+  
+        if (!isMultipleAnswer || !data.currentQuestion.correctAnswers) {
+          console.warn('Not a multiple-answer question or correct answers are undefined.');
+          return;
+        }
+  
+        // Use your existing function to get the number of correct answers
+        const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data.currentQuestion);
   
         this.shouldDisplayCorrectAnswers =
           isMultipleAnswer &&
           data.isNavigatingToPrevious &&
           !data.explanationText &&
           !!data.questionText;
-
+  
+        // Display the number of correct answers along with the flag
         console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
+        console.log('Number of correct answers:', numberOfCorrectAnswers);
       });
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
