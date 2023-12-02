@@ -754,7 +754,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     try {
       if (!data || !data.currentQuestion) {
         this.shouldDisplayCorrectAnswers = false;
@@ -785,7 +785,37 @@ export class CodelabQuizContentComponent
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
+    try {
+      console.log('Data:', data);
+      if (!data || !data.currentQuestion) {
+        console.error('Current question is not defined');
+        return false;
+      }
+  
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
+      console.log('isMultipleAnswer:', isMultipleAnswer);
+  
+      if (isMultipleAnswer === undefined) {
+        console.warn('isMultipleAnswer data is not available yet.');
+        return false;
+      }
+  
+      const isNavigatingToPrevious = data.isNavigatingToPrevious;
+      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+  
+      // Explicitly check conditions before setting shouldDisplayCorrectAnswers
+      const result = isMultipleAnswer && isNavigatingToPrevious && !data.explanationText && !!data.questionText;
+      console.log('shouldDisplayCorrectAnswers:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+      return false;
+    }
   }
+  
   
 
   getNumberOfCorrectAnswers(data: any): number {
