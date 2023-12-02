@@ -1,8 +1,0 @@
-{
-  "featureFlags": {
-    "terminalLayout": true
-  },
-  "editor.acceptSuggestionOnCommitCharacter": true,
-  "editor.acceptSuggestionOnEnter": "on",
-  "editor.autoClosingBrackets": "languageDefined"
-}

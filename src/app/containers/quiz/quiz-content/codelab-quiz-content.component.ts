@@ -650,143 +650,6 @@ export class CodelabQuizContentComponent
     return '';
   }
 
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    if (!data || !data.currentQuestion) {
-      this.shouldDisplayCorrectAnswers = false;
-      console.error('Current question is not defined');
-      return;
-    }
-
-    const currentQuestionHasMultipleAnswers = await this.quizStateService
-      .isMultipleAnswer(data.currentQuestion)
-      .toPromise();
-
-    const isQuestionDisplayed = !!data.questionText;
-    const isExplanationDisplayed = !!data.explanationText;
-    const isNavigatingToPrevious = data.isNavigatingToPrevious;
-
-    this.shouldDisplayCorrectAnswers =
-      currentQuestionHasMultipleAnswers &&
-      isQuestionDisplayed &&
-      !isExplanationDisplayed &&
-      isNavigatingToPrevious;
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    if (!data || !data.currentQuestion || data.isMultipleAnswer === undefined) {
-      this.shouldDisplayCorrectAnswers = false;
-      console.error('Current question or isMultipleAnswer data is not defined');
-      return;
-    }
-  
-    const currentQuestionHasMultipleAnswers = await data.isMultipleAnswer.toPromise();
-    const isNavigatingToPrevious = data.isNavigatingToPrevious;
-    const questionTextCondition = data.questionText && data.questionText.trim().length > 0;
-    const explanationTextCondition = !data.explanationText;
-  
-    // Ensure we have valid data before setting shouldDisplayCorrectAnswers
-    if (questionTextCondition && explanationTextCondition) {
-      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers && isNavigatingToPrevious;
-      console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    try {
-      if (!data || !data.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false;
-        console.error('Current question is not defined');
-        return;
-      }
-  
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-  
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return;
-      }
-  
-      const isNavigatingToPrevious = data.isNavigatingToPrevious;
-  
-      // Explicitly check conditions before setting shouldDisplayCorrectAnswers
-      if (isMultipleAnswer && isNavigatingToPrevious && !data.explanationText && data.questionText) {
-        this.shouldDisplayCorrectAnswers = true;
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
-    try {
-      console.log('Data:', data);
-      if (!data || !data.currentQuestion) {
-        console.error('Current question is not defined');
-        return false;
-      }
-  
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-  
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return false;
-      }
-  
-      const isNavigatingToPrevious = data.isNavigatingToPrevious;
-  
-      console.log('isMultipleAnswer:', isMultipleAnswer);
-      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
-  
-      const shouldDisplayCorrectAnswers =
-        isMultipleAnswer &&
-        isNavigatingToPrevious &&
-        !data.explanationText &&
-        data.questionText; // Ensure questionText is available
-  
-      console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-  
-      return shouldDisplayCorrectAnswers;
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
-      return false;
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    try {
-      if (!data || !data.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false;
-        console.error('Current question is not defined');
-        return;
-      }
-  
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-  
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return;
-      }
-  
-      const isNavigatingToPrevious = data.isNavigatingToPrevious;
-  
-      // Explicitly check conditions before setting shouldDisplayCorrectAnswers
-      if (isMultipleAnswer && isNavigatingToPrevious && !data.explanationText && data.questionText) {
-        this.shouldDisplayCorrectAnswers = true;
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
-  
-      console.log('Data:', data);
-      console.log('isMultipleAnswer:', isMultipleAnswer);
-      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
-      console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
-    }
-  } */
-
   async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
     try {
       console.log('Data:', data);
@@ -806,16 +669,17 @@ export class CodelabQuizContentComponent
       const isNavigatingToPrevious = data.isNavigatingToPrevious;
       console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
   
-      // Explicitly check conditions before setting shouldDisplayCorrectAnswers
-      const result = isMultipleAnswer && isNavigatingToPrevious && !data.explanationText && !!data.questionText;
-      console.log('shouldDisplayCorrectAnswers:', result);
-      return result;
+      const shouldDisplayCorrectAnswers =
+        isMultipleAnswer &&
+        isNavigatingToPrevious;
+      console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
+  
+      return shouldDisplayCorrectAnswers;
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
       return false;
     }
   }
-  
   
 
   getNumberOfCorrectAnswers(data: any): number {
