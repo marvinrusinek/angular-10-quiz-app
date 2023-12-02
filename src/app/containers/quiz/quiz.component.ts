@@ -123,6 +123,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   status: QuizStatus;
   isNavigating = false;
   isNavigatingToNext: boolean;
+  isNavigatingToPrevious = false;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -1227,12 +1228,16 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('No valid previous question available.');
         return;
       }
+
+      this.isNavigatingToPrevious = true; // Set to true before navigating
+
       this.currentQuestionIndex--;
   
       await this.fetchAndSetQuestionData();
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
+      this.isNavigatingToPrevious = false; // Reset after navigating
       this.isNavigating = false;
     }
   }
