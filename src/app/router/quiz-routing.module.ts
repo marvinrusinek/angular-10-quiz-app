@@ -27,7 +27,7 @@ const routes: Routes = [
     path: 'question/:quizId/:questionIndex',
     component: QuizComponent,
     pathMatch: 'full'
-    // 0canActivate: [QuizGuard],
+    // canActivate: [QuizGuard],
     // runGuardsAndResolvers: 'always'
   },
   {
