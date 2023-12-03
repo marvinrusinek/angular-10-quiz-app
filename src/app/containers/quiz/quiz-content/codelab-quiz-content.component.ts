@@ -827,19 +827,31 @@ export class CodelabQuizContentComponent
       }
   
       const isNavigatingToPrevious = data.isNavigatingToPrevious;
+  
+      // Check if it's a multiple-answer question
       const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
   
+      // Assuming you have correct answers information available in the current question
+      const correctAnswers = data.currentQuestion.correctAnswers || [];
+  
+      // Display correct answers text for multiple-answer questions when navigating using previous
       this.shouldDisplayCorrectAnswers =
         isMultipleAnswer &&
         isNavigatingToPrevious &&
         !data.explanationText &&
-        !!data.questionText;
+        !!data.questionText &&
+        correctAnswers.length > 1;
   
       console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
+      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+      console.log('isMultipleAnswer:', isMultipleAnswer);
+      console.log('correctAnswers:', correctAnswers);
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
   }
+  
+  
   
   
      
