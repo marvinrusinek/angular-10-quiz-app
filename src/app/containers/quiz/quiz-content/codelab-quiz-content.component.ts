@@ -774,7 +774,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     try {
       if (!data || !data.currentQuestion) {
         this.shouldDisplayCorrectAnswers = false;
@@ -814,7 +814,34 @@ export class CodelabQuizContentComponent
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
+  } */
+  
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    try {
+      console.log('Current question:', data.currentQuestion);
+  
+      if (!data || !data.currentQuestion) {
+        this.shouldDisplayCorrectAnswers = false;
+        console.error('Current question is not defined.');
+        return;
+      }
+  
+      const isNavigatingToPrevious = data.isNavigatingToPrevious;
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
+  
+      this.shouldDisplayCorrectAnswers =
+        isMultipleAnswer &&
+        isNavigatingToPrevious &&
+        !data.explanationText &&
+        !!data.questionText;
+  
+      console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
   }
+  
+  
      
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
