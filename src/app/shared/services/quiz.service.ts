@@ -279,7 +279,7 @@ export class QuizService implements OnDestroy {
       },
     });
 
-    this.currentQuestion.pipe(take(1)).subscribe((question) => {
+    this.currentQuestion.subscribe((question) => {
       this.question = question;
     });
   }
