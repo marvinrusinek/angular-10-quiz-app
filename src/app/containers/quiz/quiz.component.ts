@@ -877,12 +877,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Assuming this.question.options is an array of numbers
     const options = this.question && this.question.options
-      ? this.question.options.map(option => option.value)  // Adjust this based on your actual data structure
+      ? this.question.options.map(option => option.value)
       : [];
     
-    // Use setAnswers in QuizService
     this.quizService.setAnswers(options);
   
     console.log('Options after setting:', options);
