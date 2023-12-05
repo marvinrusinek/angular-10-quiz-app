@@ -867,6 +867,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Question:', this.question);
     console.log('Answers:', this.answers);
   
+    if (!this.question) {
+      console.error('Question not found');
+      return;
+    }
+  
+    if (!this.options || this.options.length === 0) {
+      console.error('Options not found or empty');
+      return;
+    }
+
     // Assuming this.question.options is an array of numbers
     const options = this.question && this.question.options
       ? this.question.options.map(option => option.value)  // Adjust this based on your actual data structure
