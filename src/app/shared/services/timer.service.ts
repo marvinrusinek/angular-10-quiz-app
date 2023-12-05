@@ -68,7 +68,7 @@ export class TimerService implements OnInit {
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
-import { shareReplay, takeWhile } from 'rxjs/operators';
+import { shareReplay, takeUntil, takeWhile, tap } from 'rxjs/operators';
 
 import { CountdownService } from './countdown.service';
 
@@ -83,6 +83,7 @@ export class TimerService {
   timeLeft = 0;
 
   private isTimerRunning = false;
+  private timer$: Observable<number>;
   private timerSubscription: any;
 
   start$: Observable<number>;
@@ -93,14 +94,21 @@ export class TimerService {
   isStop = new BehaviorSubject<number>(1);
   isReset = new BehaviorSubject<number>(1);
 
-  constructor(private countdownService: CountdownService) {
-    this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
+  constructor() {
+    this.start$ = this.isStart.asObservable();
     this.reset$ = this.isReset.asObservable();
     this.stop$ = this.isStop.asObservable();
 
-    this.timer = timer(0, 1000).pipe(
-      takeWhile(() => this.isTimerRunning),
+    this.timer$ = timer(0, 1000).pipe(
+      takeUntil(this.stop$),
+      tap(() => {
+        if (this.isTimerRunning) {
+          this.elapsedTime++;
+        }
+      })
     );
+
+    this.timer = this.timer$.pipe(takeUntil(this.isReset));
   }
 
   stopTimer(callback: (elapsedTime: number) => void): void {
