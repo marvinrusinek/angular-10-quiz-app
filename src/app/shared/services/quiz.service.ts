@@ -68,6 +68,7 @@ export class QuizService implements OnDestroy {
   questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
+  isOptionSelected = false;
   isNavigating = false;
 
   private currentQuestionObservable: Observable<QuizQuestion>;
@@ -93,6 +94,7 @@ export class QuizService implements OnDestroy {
   private answerStatus = new BehaviorSubject<boolean>(false);
   answerStatus$ = this.answerStatus.asObservable();
   totalQuestions = 0;
+  correctCount: number;
 
   selectedQuiz: any;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
@@ -414,6 +416,54 @@ export class QuizService implements OnDestroy {
     return !!this.answers[this.currentQuestionIndex];
   }
 
+  checkIfAnsweredCorrectly(): boolean {
+    if (!this.question) {
+      return;
+    }
+
+    const correctAnswerFound = this.answers.find((answer) => {
+      return (
+        this.question.options &&
+        this.question.options[answer] &&
+        this.question.options[answer]['selected'] &&
+        this.question.options[answer]['correct']
+      );
+    });
+
+    let answers;
+    if (this.isQuestionAnswered()) {
+      answers = this.answers.map((answer) => answer + 1);
+      this.userAnswers.push(answers);
+    } else {
+      answers = this.answers;
+      this.userAnswers.push(this.answers);
+    }
+
+    this.incrementScore(answers, correctAnswerFound);
+
+    // Return whether the answer was correct or not
+    return correctAnswerFound !== undefined;
+  }
+
+  incrementScore(answers: number[], correctAnswerFound: number): void {
+    // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
+    if (
+      correctAnswerFound > -1 &&
+      answers.length === this.numberOfCorrectAnswers
+    ) {
+      this.updateCorrectCountForResults(this.correctCount + 1);
+    }
+  }
+
+  private updateCorrectCountForResults(value: number): void {
+    this.correctCount = value;
+    this.sendCorrectCountToResults(this.correctCount);
+  }
+
+  isQuestionAnswered(): boolean {
+    return this.isOptionSelected;
+  }
+  
   // Update the current question text
   public setCurrentQuestionText(questionText: string): void {
     this.currentQuestionTextSubject.next(questionText);
