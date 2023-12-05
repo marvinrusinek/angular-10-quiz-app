@@ -115,20 +115,26 @@ export class TimerService {
     if (callback) {
       callback(this.elapsedTime);
     }
+
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+    }
   }
 
   resetTimer(): void {
-    if (!this.isTimerRunning) {
+    if (this.isTimerRunning) {
+      this.stopTimer(null);
+    }
+
+    this.elapsedTime = 0;
+    this.isReset.next(1);
+
+    if (this.isTimerRunning) {
       this.isTimerRunning = true;
       this.isStart.next(1);
-
       this.timerSubscription = this.timer.subscribe(() => {
         this.elapsedTime++;
       });
-    } else {
-      // Reset the timer
-      this.elapsedTime = 0;
-      this.isReset.next(1);
     }
   }
 

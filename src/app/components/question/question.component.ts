@@ -1020,6 +1020,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       // Fetch explanation text based on the current question index
       this.fetchExplanationText(this.currentQuestionIndex);
     });
+
+    this.timerService.stopTimer(() => {});
   }
   
   fetchExplanationText(questionIndex: number): string {
