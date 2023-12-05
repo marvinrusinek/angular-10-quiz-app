@@ -840,7 +840,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.updateProgressValue(); // move later
   }
 
-  private handleQuestion(question: QuizQuestion): void {
+  handleQuestion(question: QuizQuestion): void {
     if (!question) {
       console.error('Question not found');
       return;
