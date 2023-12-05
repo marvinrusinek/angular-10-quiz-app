@@ -450,12 +450,9 @@ export class QuizService implements OnDestroy {
     return correctAnswerFound;
   }
 
-  incrementScore(answers: number[], correctAnswerFound: number): void {
+  incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
-    if (
-      correctAnswerFound > -1 &&
-      answers.length === this.numberOfCorrectAnswers
-    ) {
+    if (correctAnswerFound && answers.length === this.numberOfCorrectAnswers) {
       this.updateCorrectCountForResults(this.correctCount + 1);
     }
   }
