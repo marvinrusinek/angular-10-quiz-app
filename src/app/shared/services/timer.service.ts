@@ -110,18 +110,14 @@ export class TimerService {
 
     this.isTimerRunning = false;
     this.isStop.next(1);
-    this.elapsedTimes.push(this.elapsedTime);
 
     if (callback) {
       callback(this.elapsedTime);
     }
-
-    if (this.timerSubscription) {
-      this.timerSubscription.unsubscribe();
-    }
   }
 
   resetTimer(): void {
+    console.log('Resetting timer');
     if (this.isTimerRunning) {
       this.stopTimer(null);
     }
