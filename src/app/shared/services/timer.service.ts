@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+/* import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
@@ -64,4 +64,78 @@ export class TimerService implements OnInit {
       return this.completionTime;
     }
   }
+} */
+
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
+import { shareReplay, takeWhile } from 'rxjs/operators';
+
+import { CountdownService } from './countdown.service';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class TimerService {
+  timePerQuestion = 20;
+  elapsedTime = 0;
+  elapsedTimes: number[] = [];
+  completionTime: number;
+  timeLeft = 0;
+
+  private isTimerRunning = false;
+  private timerSubscription: any;
+
+  start$: Observable<number>;
+  reset$: Observable<number>;
+  stop$: Observable<number>;
+  timer: Observable<number>;
+  isStart = new BehaviorSubject<number>(0);
+  isStop = new BehaviorSubject<number>(1);
+  isReset = new BehaviorSubject<number>(1);
+
+  constructor(private countdownService: CountdownService) {
+    this.start$ = this.isStart.asObservable().pipe(shareReplay(1));
+    this.reset$ = this.isReset.asObservable();
+    this.stop$ = this.isStop.asObservable();
+
+    this.timer = timer(0, 1000).pipe(
+      takeWhile(() => this.isTimerRunning),
+    );
+  }
+
+  stopTimer(callback: (elapsedTime: number) => void): void {
+    if (!this.isTimerRunning) {
+      return;
+    }
+
+    this.isTimerRunning = false;
+    this.isStop.next(1);
+    this.elapsedTimes.push(this.elapsedTime);
+
+    if (callback) {
+      callback(this.elapsedTime);
+    }
+  }
+
+  resetTimer(): void {
+    if (!this.isTimerRunning) {
+      this.isTimerRunning = true;
+      this.isStart.next(1);
+
+      this.timerSubscription = this.timer.subscribe(() => {
+        this.elapsedTime++;
+      });
+    } else {
+      // Reset the timer
+      this.elapsedTime = 0;
+      this.isReset.next(1);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+    }
+  }
 }
+

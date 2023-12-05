@@ -312,6 +312,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuiz$.next(null);
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription.unsubscribe();
+    this.timerService.stopTimer(null);
   }
 
   private initializeQuiz(): void {
