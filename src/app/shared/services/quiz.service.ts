@@ -422,8 +422,11 @@ export class QuizService implements OnDestroy {
   }
 
   checkIfAnsweredCorrectly(): boolean {
-    if (!this.question) {
-      console.error('Question is not defined');
+    console.log('Answers:', this.answers);
+    console.log('Current Question:', this.question);
+
+    if (!this.question || !this.answers) {
+      console.error('Question or Answers is not defined');
       return false;
     }
   
