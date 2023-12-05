@@ -112,16 +112,20 @@ export class TimerService {
   }
 
   stopTimer(callback: (elapsedTime: number) => void): void {
+    console.log('Before stopping timer, isTimerRunning:', this.isTimerRunning);
     if (!this.isTimerRunning) {
+      console.log('Timer is not running, returning.');
       return;
     }
-
+  
     this.isTimerRunning = false;
     this.isStop.next(1);
-
+  
     if (callback) {
       callback(this.elapsedTime);
     }
+  
+    console.log('After stopping timer, isTimerRunning:', this.isTimerRunning);
   }
 
   resetTimer(): void {
