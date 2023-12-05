@@ -1023,6 +1023,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Check if the answer is correct using services directly
     const isCorrect = this.quizService.checkIfAnsweredCorrectly();
+    console.log("ISCORRECT", isCorrect);
 
     if (isCorrect) {
       // Stop the timer and provide an empty callback

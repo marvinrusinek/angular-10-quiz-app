@@ -418,9 +418,9 @@ export class QuizService implements OnDestroy {
 
   checkIfAnsweredCorrectly(): boolean {
     if (!this.question) {
-      return;
+      return false;
     }
-
+  
     const correctAnswerFound = this.answers.find((answer) => {
       return (
         this.question.options &&
@@ -429,7 +429,7 @@ export class QuizService implements OnDestroy {
         this.question.options[answer]['correct']
       );
     });
-
+  
     let answers;
     if (this.isQuestionAnswered()) {
       answers = this.answers.map((answer) => answer + 1);
@@ -438,9 +438,9 @@ export class QuizService implements OnDestroy {
       answers = this.answers;
       this.userAnswers.push(this.answers);
     }
-
+  
     this.incrementScore(answers, correctAnswerFound);
-
+  
     // Return whether the answer was correct or not
     return correctAnswerFound !== undefined;
   }
