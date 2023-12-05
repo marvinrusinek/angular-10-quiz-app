@@ -18,6 +18,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  take,
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
@@ -276,6 +277,10 @@ export class QuizService implements OnDestroy {
       onplay: () => {
         console.log('Incorrect sound playing...');
       },
+    });
+
+    this.currentQuestion.pipe(take(1)).subscribe((question) => {
+      this.question = question;
     });
   }
 
