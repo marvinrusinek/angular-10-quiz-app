@@ -413,6 +413,10 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   }
 
+  setAnswers(answers: number[]): void {
+    this.answers = answers;
+  }
+
   setAnswerStatus(status: boolean) {
     this.answerStatus.next(status);
   }
