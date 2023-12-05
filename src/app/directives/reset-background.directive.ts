@@ -1,4 +1,4 @@
-import { Directive, Input, ElementRef, Renderer2, OnChanges, SimpleChanges } from '@angular/core';
+import { Directive, Input, ElementRef, Renderer2 } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { ResetBackgroundService } from '../shared/services/reset-background.service';
@@ -6,7 +6,7 @@ import { ResetBackgroundService } from '../shared/services/reset-background.serv
 @Directive({
   selector: '[appResetBackground]'
 })
-export class ResetBackgroundDirective implements OnChanges {
+export class ResetBackgroundDirective {
   @Input() appResetBackground: boolean;
   private subscription: Subscription;
 
@@ -20,21 +20,6 @@ export class ResetBackgroundDirective implements OnChanges {
         this.resetBackground();
       }
     });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['appResetBackground']) {
-      console.log('ngOnChanges triggered in ResetBackgroundDirective:', changes);
-
-      // can check the new value
-      const newValue = changes['appResetBackground'].currentValue;
-      console.log('New value of appResetBackground:', newValue);
-
-      // Perform additional logic based on the new value
-      if (newValue) {
-        console.log('Additional action: appResetBackground is true');
-      }
-    }
   }
 
   private resetBackground(): void {

@@ -863,6 +863,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setOptions(): void {
+    console.log('setOptions() called');
     console.log('Setting options...');
     this.answers = this.question && this.question.options
       ? this.question.options.map((option) => option.value)
