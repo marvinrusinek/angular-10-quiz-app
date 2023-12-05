@@ -1021,7 +1021,15 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.fetchExplanationText(this.currentQuestionIndex);
     });
 
-    this.timerService.stopTimer(() => {});
+    // Check if the answer is correct using services directly
+    const isCorrect = this.quizService.checkIfAnsweredCorrectly();
+
+    if (isCorrect) {
+      // Stop the timer and provide an empty callback
+      this.timerService.stopTimer(() => {
+        console.log('Correct answer selected!'); // You can add additional logic here
+      });
+    }
   }
   
   fetchExplanationText(questionIndex: number): string {
