@@ -423,31 +423,31 @@ export class QuizService implements OnDestroy {
 
   checkIfAnsweredCorrectly(): boolean {
     if (!this.question) {
+      console.error('Question is not defined');
       return false;
     }
   
-    const correctAnswerFound = this.answers.find((answer) => {
-      return (
-        this.question.options &&
-        this.question.options[answer] &&
-        this.question.options[answer]['selected'] &&
-        this.question.options[answer]['correct']
-      );
+    const questionCopy = { ...this.question }; // Create a copy to avoid unintended modifications
+    const correctAnswerFound = this.answers.some((answer) => {
+      const option = questionCopy.options && questionCopy.options[answer];
+      console.log('Answer:', answer, 'Option:', option);
+      const isCorrect = option && option['selected'] && option['correct'];
+      console.log('Is correct:', isCorrect);
+      return isCorrect;
     });
   
-    let answers;
     if (this.isQuestionAnswered()) {
-      answers = this.answers.map((answer) => answer + 1);
+      const answers = this.answers.map((answer) => answer + 1);
       this.userAnswers.push(answers);
     } else {
-      answers = this.answers;
+      const answers = this.answers;
       this.userAnswers.push(this.answers);
     }
   
-    this.incrementScore(answers, correctAnswerFound);
+    this.incrementScore(this.answers, correctAnswerFound);
   
-    // Return whether the answer was correct or not
-    return correctAnswerFound !== undefined;
+    // Return whether any of the selected answers was correct
+    return correctAnswerFound;
   }
 
   incrementScore(answers: number[], correctAnswerFound: number): void {
