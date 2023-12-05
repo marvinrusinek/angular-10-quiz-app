@@ -971,7 +971,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   selectedAnswer(option: Option): void {
     this.answered = true;
-    this.checkIfAnsweredCorrectly();
+    this.quizService.checkIfAnsweredCorrectly();
 
     const correctAnswers = this.question.options.filter(
       (option) => option.correct
@@ -1298,7 +1298,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.elapsedTimeDisplay = elapsedTime;
     });
     this.timerService.resetTimer();
-    this.checkIfAnsweredCorrectly();
+    this.quizService.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
   }
   
@@ -1417,10 +1417,5 @@ export class QuizComponent implements OnInit, OnDestroy {
   // not called anywhere...
   private sendContinueQuizIdToQuizService(): void {
     this.quizService.setContinueQuizId(this.quizId);
-  }
-
-  private sendCorrectCountToQuizService(value: number): void {
-    this.correctCount = value;
-    this.quizService.sendCorrectCountToResults(this.correctCount);
   }
 }
