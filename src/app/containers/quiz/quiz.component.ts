@@ -203,13 +203,24 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
+
+    // Set up observables
     this.setObservables();
+
+    // Initialize quiz-related properties
     this.initializeQuiz();
     this.getSelectedQuiz();
+
+    // Fetch and display the current question
     this.getQuestion();
     this.getCurrentQuestion();
+
+    // Additional initialization
     this.initializeFirstQuestionText();
+
+    // Fetch additional quiz data
     this.fetchQuizData();
     
     this.activatedRoute.params.subscribe((params) => {
@@ -635,6 +646,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async getQuestion(): Promise<void> {
+    console.log('getQuestion called');
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
 
@@ -653,6 +665,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.question$,
       this.options$.pipe(take(1)),
     ]).toPromise();
+
+    // Log retrieved data
+    console.log('Retrieved Question:', question);
+    console.log('Retrieved Options:', options);
 
     if (!question) {
       console.error('QuizDataService returned null question');
