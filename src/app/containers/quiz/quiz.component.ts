@@ -652,6 +652,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
     this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
+
+    this.options$.subscribe((o) => console.log('Received Options:', o));
   
     const [question, options] = await forkJoin([
       this.question$.pipe(take(1)),
