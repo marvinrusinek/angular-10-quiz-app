@@ -650,22 +650,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
   
-    // Simplified code for debugging
     this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
     this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
-  
-    //const question = await this.question$.toPromise();
-    //const options = await this.options$.pipe(take(1)).toPromise();
   
     const [question, options] = await forkJoin([
       this.question$.pipe(take(1)),
       this.options$.pipe(take(1))
     ]).toPromise();
-    
-    console.log('Retrieved Question:', question);
-    console.log('Retrieved Options:', options);
   
-    // Simplified code to isolate the issue
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
@@ -843,7 +835,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuestion(question: QuizQuestion): void {
-    console.log("HANDLE QUESTION CALLED");
     if (!question) {
       console.error('Question not found');
       return;
