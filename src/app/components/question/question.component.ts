@@ -191,12 +191,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectedOption = null;
 
+    // Initialize answers array
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
-      // Ensure that currentQuestion and its options are not null or undefined
       if (currentQuestion && currentQuestion.options) {
         this.answers = Array(currentQuestion.options.length).fill(false);
       } else {
-        // Handle the case where currentQuestion or its options are not available
         console.error('Unable to initialize answers: Current question or its options are null or undefined.');
       }
     });
@@ -1019,6 +1018,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option): Promise<void> {
+    // Check if answers and currentQuestion are defined
+    if (!this.answers || !this.currentQuestion) {
+      console.error('Answers or Current Question is not defined');
+      return;
+    }
+
     this.quizService.addSelectedOption(option);
   
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe(async (currentQuestion) => {
