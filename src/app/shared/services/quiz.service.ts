@@ -481,7 +481,13 @@ export class QuizService implements OnDestroy {
     const correctAnswerFound = await Promise.all(this.answers.map(async (answer) => {
       const option = questionCopy.options && questionCopy.options[answer];
       console.log('Answer:', answer, 'Option:', option);
-      const isCorrect = option && option['selected'] && option['correct'];
+  
+      if (!option) {
+        console.error('Option not found for answer:', answer);
+        return false;
+      }
+  
+      const isCorrect = option['selected'] && option['correct'];
       console.log('Is correct:', isCorrect);
       return isCorrect;
     }));
@@ -499,6 +505,7 @@ export class QuizService implements OnDestroy {
     // Return whether any selected answer was correct
     return correctAnswerFound.includes(true);
   }
+  
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
