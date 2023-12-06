@@ -215,13 +215,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         );
         this.initializeMultipleAnswer();
 
-        this.quizService.getCurrentQuestion().subscribe(
+        this.quizStateService.getCurrentQuestion().subscribe(
           (question) => {
+            console.log('Current Question Retrieved:', question);
+            // Log the structure of options
+            console.log('Options Structure:', question.options);
             this.currentQuestion = question;
+            // Call the method to initialize answers after setting the current question
             this.initializeAnswers();
           },
           (error) => {
             console.error('Error fetching current question:', error);
+          },
+          () => {
+            console.log('Service call completed.');
           }
         );
 
@@ -1045,8 +1052,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private initializeAnswers(): void {
-    console.log('Current Question::::::::>>>>>>', this.currentQuestion);
-
     if (!this.answers || this.answers.length === 0) {
       if (!this.currentQuestion || !this.currentQuestion.options) {
         console.error(
