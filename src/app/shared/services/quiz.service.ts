@@ -477,7 +477,9 @@ export class QuizService implements OnDestroy {
       return false;
     }
   
-    const questionCopy = { ...this.currentQuestion }; // Create a copy to avoid unintended modifications
+    const currentQuestionValue = this.currentQuestion.value; // Access the value if it's an observable
+    const questionCopy = { ...currentQuestionValue }; // Create a copy to avoid unintended modifications
+  
     const correctAnswerFound = await Promise.all(this.answers.map(async (answer) => {
       const option = questionCopy.options && questionCopy.options[answer];
       console.log('Answer:', answer, 'Option:', option);
@@ -505,6 +507,7 @@ export class QuizService implements OnDestroy {
     // Return whether any selected answer was correct
     return correctAnswerFound.includes(true);
   }
+  
   
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
