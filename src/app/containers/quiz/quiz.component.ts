@@ -1042,47 +1042,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkIfAnsweredCorrectly(): void {
-    if (!this.question) {
-      return;
-    }
-
-    const correctAnswerFound = this.answers.find((answer) => {
-      return (
-        this.question.options &&
-        this.question.options[answer] &&
-        this.question.options[answer]['selected'] &&
-        this.question.options[answer]['correct']
-      );
-    });
-
-    let answers;
-    if (this.isQuestionAnswered()) {
-      answers = this.answers.map((answer) => answer + 1);
-      this.quizService.userAnswers.push(answers);
-
-      console.log(
-        'explanationText::::',
-        this.explanationTextService.explanationText$
-      );
-    } else {
-      answers = this.answers;
-      this.quizService.userAnswers.push(this.answers);
-    }
-
-    this.incrementScore(answers, correctAnswerFound);
-  }
-
-  incrementScore(answers: number[], correctAnswerFound: number): void {
-    // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
-    if (
-      correctAnswerFound > -1 &&
-      answers.length === this.numberOfCorrectAnswers
-    ) {
-      this.sendCorrectCountToQuizService(this.correctCount + 1);
-    }
-  }
-
   shouldDisplayExplanation(): boolean {
     return this.quizService.shouldExplanationBeDisplayed();
   }
