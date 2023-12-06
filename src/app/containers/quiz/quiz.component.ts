@@ -646,14 +646,11 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async getQuestion(): Promise<void> {
-    console.log('getQuestion called');
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
   
     this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
     this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
-
-    this.options$.subscribe((o) => console.log('Received Options:', o));
   
     const [question, options] = await forkJoin([
       this.question$.pipe(take(1)),
