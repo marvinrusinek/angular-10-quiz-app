@@ -468,7 +468,8 @@ export class QuizService implements OnDestroy {
   
     const answersCopy = [...this.answers]; // Create a copy to avoid unintended modifications
     const correctAnswerFound = this.question.options.some((option, index) => {
-      const isCorrect = option['selected'] && option['correct'];
+      const isCorrect =
+        answersCopy.includes(index) && option['selected'] && option['correct'];
       console.log('Option:', index, 'Is correct:', isCorrect);
       return isCorrect;
     });
