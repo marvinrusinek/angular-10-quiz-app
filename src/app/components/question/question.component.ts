@@ -234,7 +234,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     this.quizService.answers$.subscribe((answers) => {
-      console.log('Received answers:', answers);
+      console.log('Received answers:::', answers);
       this.answers = answers;
     });
   

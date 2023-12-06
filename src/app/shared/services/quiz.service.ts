@@ -218,7 +218,7 @@ export class QuizService implements OnDestroy {
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
-  private answersSubject = new BehaviorSubject<number[]>([]);
+  private answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
   answers$ = this.answersSubject.asObservable();
 
   loadingQuestions = false;
@@ -421,7 +421,7 @@ export class QuizService implements OnDestroy {
   } */
 
   setAnswers(answers: number[]): void {
-    console.log('Setting answers:', answers);
+    console.log('Setting answers:::', answers);
     this.answersSubject.next(answers);
   }
 
