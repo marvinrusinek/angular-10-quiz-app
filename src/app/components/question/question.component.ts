@@ -1026,13 +1026,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.fetchExplanationText(this.currentQuestionIndex);
     });
 
-    const optionIndex = this.answers.findIndex((answer) => answer === option.value);
-
-    // Toggle the selected state of the option
-    this.answers[optionIndex] = !this.answers[optionIndex];
+    // Set the value for answers
+    const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+    if (answerIndex !== -1) {
+      this.answers[answerIndex] = true; // or false based on your logic
+    }
 
     // Emit the updated answers
     this.quizService.answersSubject.next(this.answers);
+
+    // Log the values for debugging
+    console.log('Answers:', this.answers);
+    console.log('Current Question:', this.question);
 
     // Check if the answer is correct using services directly
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
