@@ -218,7 +218,7 @@ export class QuizService implements OnDestroy {
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
-  private answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
+  answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
   answers$ = this.answersSubject.asObservable();
 
   loadingQuestions = false;
