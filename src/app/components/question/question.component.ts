@@ -1009,10 +1009,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onOptionClicked(option: Option): Promise<void> {
-    // Initialize answers array if not already initialized
     this.initializeAnswers();
-  
-    // Continue with the rest of your logic
     this.handleSelectedOption(option);
     await this.updateExplanationAndFetchText();
     this.checkAndStopTimer();
@@ -1020,7 +1017,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   private initializeAnswers(): void {
     if (!this.answers || this.answers.length === 0) {
-      // Check if currentQuestion is defined
       if (!this.currentQuestion || !this.currentQuestion.options) {
         console.error('Unable to initialize answers: Current question or its options are null or undefined.');
         return;
@@ -1059,14 +1055,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private async checkAndStopTimer(): Promise<void> {
-    // Check if the answer is correct using services directly
+    // Check if the answer is correct
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     console.log('ISCORRECT', isCorrect);
   
     if (isCorrect) {
       // Stop the timer and provide an empty callback
       this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!'); // You can add additional logic here
+        console.log('Correct answer selected!'); // add additional logic here
       });
     }
   }
