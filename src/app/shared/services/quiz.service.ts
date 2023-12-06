@@ -425,7 +425,7 @@ export class QuizService implements OnDestroy {
     return !!this.answers[this.currentQuestionIndex];
   }
 
-  checkIfAnsweredCorrectly(): boolean {
+  /* checkIfAnsweredCorrectly(): boolean {
     console.log('Answers:', this.answers);
     console.log('Current Question:', this.question);
 
@@ -452,6 +452,36 @@ export class QuizService implements OnDestroy {
     }
   
     this.incrementScore(this.answers, correctAnswerFound);
+  
+    // Return whether any of the selected answers was correct
+    return correctAnswerFound;
+  } */
+
+  checkIfAnsweredCorrectly(): boolean {
+    console.log('Answers:', this.answers);
+    console.log('Current Question:', this.question);
+  
+    if (!this.question || !this.answers) {
+      console.error('Question or Answers is not defined');
+      return false;
+    }
+  
+    const answersCopy = [...this.answers]; // Create a copy to avoid unintended modifications
+    const correctAnswerFound = this.question.options.some((option, index) => {
+      const isCorrect = option['selected'] && option['correct'];
+      console.log('Option:', index, 'Is correct:', isCorrect);
+      return isCorrect;
+    });
+  
+    if (this.isQuestionAnswered()) {
+      const answers = answersCopy.map((answer) => answer + 1);
+      this.userAnswers.push(answers);
+    } else {
+      const answers = answersCopy;
+      this.userAnswers.push(answersCopy);
+    }
+  
+    this.incrementScore(answersCopy, correctAnswerFound);
   
     // Return whether any of the selected answers was correct
     return correctAnswerFound;
