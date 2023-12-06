@@ -1011,7 +1011,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option): Promise<void> {
     this.initializeAnswers();
     this.handleSelectedOption(option);
-    await this.updateExplanationAndFetchText();
+    await this.updateExplanationAndFetchText(option);
     this.checkAndStopTimer();
   }
   
@@ -1045,7 +1045,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Current Question:', this.currentQuestion);
   }
   
-  private async updateExplanationAndFetchText(): Promise<void> {
+  private async updateExplanationAndFetchText(option: Option): Promise<void> {
     const isOptionSelected = this.isSelectedOption(option);
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
     this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
