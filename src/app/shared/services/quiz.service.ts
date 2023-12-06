@@ -492,9 +492,9 @@ export class QuizService implements OnDestroy {
     this.incrementScore(answersCopy, correctAnswerFound);
   
     // Return whether all selected answers are correct
+    console.log('ISCORRECT (from service)', correctAnswerFound);
     return correctAnswerFound;
   }
-  
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase

@@ -1003,7 +1003,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  onOptionClicked(option: Option): void {
+  async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
   
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
@@ -1022,7 +1022,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Check if the answer is correct using services directly
-    const isCorrect = this.quizService.checkIfAnsweredCorrectly();
+    const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     console.log("ISCORRECT", isCorrect);
 
     if (isCorrect) {
