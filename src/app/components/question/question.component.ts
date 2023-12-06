@@ -130,7 +130,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctMessage: string;
   alreadyAnswered = false;
   optionChecked: { [optionId: number]: boolean } = {};
-  answers: number[] = [];
+  answers: any[] = [];
   correctOptionIndex: number;
   selectedOptionIndex: number | null = null;
   prevSelectedOption: Option;
@@ -1027,9 +1027,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // Set the value for answers
-    const answerIndex = this.answers.findIndex((answer) => answer === Number(option.value));
+    const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+
     if (answerIndex !== -1) {
-      this.answers[answerIndex] = true;
+      this.answers[answerIndex] = true; // You can assign a specific boolean value here
     }
 
     // Emit the updated answers
