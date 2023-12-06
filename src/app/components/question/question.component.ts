@@ -1011,9 +1011,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
   
-    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe(async (currentQuestion) => {
       this.currentQuestion = currentQuestion;
-      this.handleOptionClicked(this.currentQuestion, option);
   
       // Check if the clicked option is selected
       const isOptionSelected = this.isSelectedOption(option);
@@ -1024,32 +1023,32 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
       // Fetch explanation text based on the current question index
       this.fetchExplanationText(this.currentQuestionIndex);
+  
+      // Set the value for answers
+      const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+  
+      if (answerIndex !== -1) {
+        this.answers[answerIndex] = true;
+      }
+  
+      // Emit the updated answers
+      this.quizService.answersSubject.next(this.answers);
+  
+      // Log the values for debugging
+      console.log('Answers:', this.answers);
+      console.log('Current Question:', this.currentQuestion);
+  
+      // Check if the answer is correct using services directly
+      const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
+      console.log("ISCORRECT", isCorrect);
+  
+      if (isCorrect) {
+        // Stop the timer and provide an empty callback
+        this.timerService.stopTimer(() => {
+          console.log('Correct answer selected!'); // You can add additional logic here
+        });
+      }
     });
-
-    // Set the value for answers
-    const answerIndex = this.answers.findIndex((answer) => answer === option.value);
-
-    if (answerIndex !== -1) {
-      this.answers[answerIndex] = true;
-    }
-
-    // Emit the updated answers
-    this.quizService.answersSubject.next(this.answers);
-
-    // Log the values for debugging
-    console.log('Answers:', this.answers);
-    console.log('Current Question:', this.question);
-
-    // Check if the answer is correct using services directly
-    const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-    console.log("ISCORRECT", isCorrect);
-
-    if (isCorrect) {
-      // Stop the timer and provide an empty callback
-      this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!'); // You can add additional logic here
-      });
-    }
   }
   
   fetchExplanationText(questionIndex: number): string {
