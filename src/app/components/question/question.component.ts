@@ -1030,7 +1030,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const answerIndex = this.answers.findIndex((answer) => answer === option.value);
 
     if (answerIndex !== -1) {
-      this.answers[answerIndex] = true; // You can assign a specific boolean value here
+      this.answers[answerIndex] = true;
     }
 
     // Emit the updated answers
