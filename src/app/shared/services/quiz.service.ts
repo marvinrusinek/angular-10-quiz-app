@@ -457,7 +457,7 @@ export class QuizService implements OnDestroy {
     return correctAnswerFound;
   } */
 
-  checkIfAnsweredCorrectly(): boolean {
+  async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers:', this.answers);
     console.log('Current Question:', this.question);
   
@@ -467,14 +467,19 @@ export class QuizService implements OnDestroy {
     }
   
     const answersCopy = [...this.answers]; // Create a copy to avoid unintended modifications
-    const correctAnswerFound = this.question.options.every((option, index) => {
-      const isCorrect =
-        answersCopy.includes(index) &&
-        option['selected'] === true &&
-        option['correct'] === true;
-      console.log('Option:', index, 'Is correct:', isCorrect);
-      return isCorrect;
-    });
+    const options = [...this.question.options];
+  
+    const correctnessArray = await Promise.all(
+      answersCopy.map(async (answer, index) => {
+        const option = options[answer];
+        const isCorrect =
+          option && option['selected'] === true && option['correct'] === true;
+        console.log('Option:', answer, 'Is correct:', isCorrect);
+        return isCorrect;
+      })
+    );
+  
+    const correctAnswerFound = correctnessArray.every((isCorrect) => isCorrect);
   
     if (this.isQuestionAnswered()) {
       const answers = answersCopy.map((answer) => answer + 1);
@@ -489,6 +494,7 @@ export class QuizService implements OnDestroy {
     // Return whether all selected answers are correct
     return correctAnswerFound;
   }
+  
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
