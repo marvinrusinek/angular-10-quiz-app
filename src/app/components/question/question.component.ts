@@ -190,6 +190,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('ngOnInit of QuizQuestionComponent is called.');
 
     this.selectedOption = null;
+
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+      // Ensure that currentQuestion and its options are not null or undefined
+      if (currentQuestion && currentQuestion.options) {
+        this.answers = Array(currentQuestion.options.length).fill(false);
+      } else {
+        // Handle the case where currentQuestion or its options are not available
+        console.error('Unable to initialize answers: Current question or its options are null or undefined.');
+      }
+    });
     
     this.logInitialData();
     this.initializeQuizQuestion();
