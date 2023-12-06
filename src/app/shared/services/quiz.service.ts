@@ -421,6 +421,7 @@ export class QuizService implements OnDestroy {
   } */
 
   setAnswers(answers: number[]): void {
+    console.log('Setting answers:', answers);
     this.answersSubject.next(answers);
   }
 
