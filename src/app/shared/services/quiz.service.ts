@@ -467,9 +467,11 @@ export class QuizService implements OnDestroy {
     }
   
     const answersCopy = [...this.answers]; // Create a copy to avoid unintended modifications
-    const correctAnswerFound = this.question.options.some((option, index) => {
+    const correctAnswerFound = this.question.options.every((option, index) => {
       const isCorrect =
-        answersCopy.includes(index) && option['selected'] && option['correct'];
+        answersCopy.includes(index) &&
+        option['selected'] === true &&
+        option['correct'] === true;
       console.log('Option:', index, 'Is correct:', isCorrect);
       return isCorrect;
     });
@@ -484,7 +486,7 @@ export class QuizService implements OnDestroy {
   
     this.incrementScore(answersCopy, correctAnswerFound);
   
-    // Return whether any of the selected answers was correct
+    // Return whether all selected answers are correct
     return correctAnswerFound;
   }
 
