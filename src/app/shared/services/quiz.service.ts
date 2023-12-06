@@ -218,6 +218,9 @@ export class QuizService implements OnDestroy {
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
+  private answersSubject = new BehaviorSubject<number[]>([]);
+  answers$ = this.answersSubject.asObservable();
+
   loadingQuestions = false;
   loadQuestionsLock = false;
   lock = false;
@@ -413,8 +416,12 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   }
 
-  setAnswers(answers: number[]): void {
+  /* setAnswers(answers: number[]): void {
     this.answers = answers;
+  } */
+
+  setAnswers(answers: number[]): void {
+    this.answersSubject.next(answers);
   }
 
   setAnswerStatus(status: boolean) {
