@@ -782,6 +782,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     if (shuffleOptions && this.options.length > 1) {
       this.quizService.shuffle(this.options);
     }
+
+    this.setOptions();
   }
 
   handleParamMap(params: ParamMap): void {
@@ -840,8 +842,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.question = question;
-    this.setOptions();
-    this.cdRef.detectChanges();
   }
 
   async getQuiz(id: string): Promise<void> {
