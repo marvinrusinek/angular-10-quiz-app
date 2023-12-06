@@ -130,7 +130,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   correctMessage: string;
   alreadyAnswered = false;
   optionChecked: { [optionId: number]: boolean } = {};
-  answers;
+  answers = [];
   correctOptionIndex: number;
   selectedOptionIndex: number | null = null;
   prevSelectedOption: Option;
