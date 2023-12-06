@@ -649,43 +649,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('getQuestion called');
     const quizId = this.activatedRoute.snapshot.params.quizId;
     const currentQuestionIndex = this.currentQuestionIndex;
-
-    this.displayQuestion(this.quizId);
-
-    this.question$ = this.quizDataService.getQuestion(
-      quizId,
-      currentQuestionIndex
-    );
-    this.options$ = this.quizDataService.getOptions(
-      this.quizId,
-      this.currentQuestionIndex
-    );
-
+  
+    // Simplified code for debugging
+    this.question$ = this.quizDataService.getQuestion(quizId, currentQuestionIndex);
+    this.options$ = this.quizDataService.getOptions(quizId, currentQuestionIndex);
+  
+    //const question = await this.question$.toPromise();
+    //const options = await this.options$.pipe(take(1)).toPromise();
+  
     const [question, options] = await forkJoin([
-      this.question$,
-      this.options$.pipe(take(1)),
+      this.question$.pipe(take(1)),
+      this.options$.pipe(take(1))
     ]).toPromise();
-
-    // Log retrieved data
+    
     console.log('Retrieved Question:', question);
     console.log('Retrieved Options:', options);
-
-    if (!question) {
-      console.error('QuizDataService returned null question');
-      return;
-    }
-
-    if (!options || options.length === 0) {
-      console.error('QuizDataService returned null or empty options');
-      return;
-    }
-
-    this.options = options;
+  
+    // Simplified code to isolate the issue
     this.handleQuestion(question);
     this.handleOptions(options);
     this.cdRef.detectChanges();
   }
-
+  
   initializeFirstQuestionText(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions) => {
       if (questions && questions.length > 0) {
@@ -812,6 +797,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const quizId = params.get('quizId');
     const questionIndex = parseInt(params.get('questionIndex') || '0');
     this.quizDataService.setCurrentQuestionIndex(questionIndex);
+
     if (quizId) {
       this.quizDataService.getQuiz(quizId).subscribe((quiz) => {
         if (quiz) {
@@ -857,6 +843,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   handleQuestion(question: QuizQuestion): void {
+    console.log("HANDLE QUESTION CALLED");
     if (!question) {
       console.error('Question not found');
       return;
