@@ -219,10 +219,7 @@ export class QuizService implements OnDestroy {
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   private answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
-  // answers$ = this.answersSubject.asObservable();
-  public answers$ = this.answersSubject.asObservable().pipe(
-    tap((answers) => console.log('Answers Observable Emits:', answers))
-  );
+  answers$ = this.answersSubject.asObservable();
 
   loadingQuestions = false;
   loadQuestionsLock = false;
