@@ -466,34 +466,28 @@ export class QuizService implements OnDestroy {
       return false;
     }
   
-    const answersCopy = [...this.answers]; // Create a copy to avoid unintended modifications
-    const options = [...this.question.options];
+    const questionCopy = { ...this.question }; // Create a copy to avoid unintended modifications
   
-    const correctnessArray = await Promise.all(
-      answersCopy.map(async (answer, index) => {
-        const option = options[answer];
-        const isCorrect =
-          option && option['selected'] === true && option['correct'] === true;
-        console.log('Option:', answer, 'Is correct:', isCorrect);
-        return isCorrect;
-      })
-    );
+    return new Promise((resolve) => {
+      const correctAnswerFound = this.answers.some((answer) => {
+        const option = questionCopy.options && questionCopy.options[answer];
+        console.log('Option:', answer, 'Is correct:', option?.correct);
+        return option?.correct;
+      });
   
-    const correctAnswerFound = correctnessArray.every((isCorrect) => isCorrect);
+      if (this.isQuestionAnswered()) {
+        const answers = this.answers.map((answer) => answer + 1);
+        this.userAnswers.push(answers);
+      } else {
+        const answers = this.answers;
+        this.userAnswers.push(this.answers);
+      }
   
-    if (this.isQuestionAnswered()) {
-      const answers = answersCopy.map((answer) => answer + 1);
-      this.userAnswers.push(answers);
-    } else {
-      const answers = answersCopy;
-      this.userAnswers.push(answersCopy);
-    }
+      this.incrementScore(this.answers, correctAnswerFound);
   
-    this.incrementScore(answersCopy, correctAnswerFound);
-  
-    // Return whether all selected answers are correct
-    console.log('ISCORRECT (from service)', correctAnswerFound);
-    return correctAnswerFound;
+      // Resolve with whether any of the selected answers was correct
+      resolve(correctAnswerFound);
+    });
   }
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
