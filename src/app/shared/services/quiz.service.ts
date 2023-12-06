@@ -219,7 +219,10 @@ export class QuizService implements OnDestroy {
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   private answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
-  answers$ = this.answersSubject.asObservable();
+  // answers$ = this.answersSubject.asObservable();
+  public answers$ = this.answersSubject.asObservable().pipe(
+    tap((answers) => console.log('Answers Observable Emits:', answers))
+  );
 
   loadingQuestions = false;
   loadQuestionsLock = false;
@@ -467,35 +470,34 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers:', this.answers);
-    console.log('Current Question:', this.question);
+    console.log('Current Question:', this.currentQuestion);
   
-    if (!this.question || !this.answers) {
+    if (!this.currentQuestion || !this.answers) {
       console.error('Question or Answers is not defined');
       return false;
     }
   
-    const questionCopy = { ...this.question }; // Create a copy to avoid unintended modifications
+    const questionCopy = { ...this.currentQuestion }; // Create a copy to avoid unintended modifications
+    const correctAnswerFound = await Promise.all(this.answers.map(async (answer) => {
+      const option = questionCopy.options && questionCopy.options[answer];
+      console.log('Answer:', answer, 'Option:', option);
+      const isCorrect = option && option['selected'] && option['correct'];
+      console.log('Is correct:', isCorrect);
+      return isCorrect;
+    }));
   
-    return new Promise((resolve) => {
-      const correctAnswerFound = this.answers.some((answer) => {
-        const option = questionCopy.options && questionCopy.options[answer];
-        console.log('Option:', answer, 'Is correct:', option?.correct);
-        return option?.correct;
-      });
+    if (this.isQuestionAnswered()) {
+      const answers = this.answers.map((answer) => answer + 1);
+      this.userAnswers.push(answers);
+    } else {
+      const answers = this.answers;
+      this.userAnswers.push(this.answers);
+    }
   
-      if (this.isQuestionAnswered()) {
-        const answers = this.answers.map((answer) => answer + 1);
-        this.userAnswers.push(answers);
-      } else {
-        const answers = this.answers;
-        this.userAnswers.push(this.answers);
-      }
+    this.incrementScore(this.answers, correctAnswerFound.includes(true));
   
-      this.incrementScore(this.answers, correctAnswerFound);
-  
-      // Resolve with whether any of the selected answers was correct
-      resolve(correctAnswerFound);
-    });
+    // Return whether any selected answer was correct
+    return correctAnswerFound.includes(true);
   }
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
