@@ -875,7 +875,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     console.log('Options array before modification:', this.question.options);
     const options = this.question && this.question.options
-      ? this.question.options.map(option => option.value !== undefined ? option.value : 0)
+      ? this.question.options.map((option, index) => {
+          const value = 'value' in option ? option.value : 0;
+          console.log(`Original option ${index}:`, option);
+          console.log(`Modified value ${index}:`, value);
+          return value;
+        })
       : [];
     console.log('Options array after modification:', options);
 
