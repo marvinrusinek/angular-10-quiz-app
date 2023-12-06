@@ -215,7 +215,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         );
         this.initializeMultipleAnswer();
 
-        this.quizStateService.getCurrentQuestion().subscribe(
+        this.quizStateService.currentQuestion$.subscribe(
           (question) => {
             console.log('Current Question Retrieved:', question);
             // Log the structure of options
