@@ -659,7 +659,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.handleQuestion(question);
     this.handleOptions(options);
-    this.cdRef.detectChanges();
   }
   
   initializeFirstQuestionText(): void {
