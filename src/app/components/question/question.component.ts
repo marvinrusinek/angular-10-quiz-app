@@ -1043,9 +1043,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private extractOptionFromQuizQuestion(quizQuestion: QuizQuestion): Option | undefined {
-    // Example: Extracting the first option, adjust as needed
-    return quizQuestion.options[0];
+  private extractOptionFromQuizQuestion(quizQuestion: QuizQuestion, optionId: number): Option | undefined {
+    return quizQuestion.options[optionId];
   }
 
   private handleClickedOption(option: Option): boolean {
