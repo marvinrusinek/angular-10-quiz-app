@@ -1038,9 +1038,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleExplanationDisplay(isOptionSelected: boolean): void {
-      if (isOptionSelected) {
-          this.fetchExplanationText(this.currentQuestionIndex);
-      }
+    if (isOptionSelected) {
+      this.fetchExplanationText(this.currentQuestionIndex);
+    }
+  }
+
+  private retrieveExplanationText(): void {
+    this.fetchExplanationText(this.currentQuestionIndex);
   }
 
   private updateAnswers(option: Option): void {
