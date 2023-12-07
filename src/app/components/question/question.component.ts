@@ -1010,47 +1010,66 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
-  
-    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
-      this.currentQuestion = currentQuestion;
-      this.handleOptionClicked(this.currentQuestion, option);
-  
-      // Check if the clicked option is selected
-      const isOptionSelected = this.isSelectedOption(option);
-  
-      // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
-      this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
-      this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
-  
-      // Fetch explanation text based on the current question index
-      this.fetchExplanationText(this.currentQuestionIndex);
-    });
 
-    // Set the value for answers
-    const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+    this.processCurrentQuestion();
+    const isOptionSelected = this.handleClickedOption(option);
+    this.handleExplanationDisplay(isOptionSelected);
+    this.retrieveExplanationText();
 
-    if (answerIndex !== -1) {
-      this.answers[answerIndex] = true; // You can assign a specific boolean value here
-    }
+    this.updateAnswers(option);
 
-    // Emit the updated answers
-    this.quizService.answersSubject.next(this.answers);
+    this.logDebugInfo();
 
-    // Log the values for debugging
-    console.log('Answers:', this.answers);
-    console.log('Current Question:', this.question);
-
-    // Check if the answer is correct using services directly
-    const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-    console.log("ISCORRECT", isCorrect);
-
-    if (isCorrect) {
-      // Stop the timer and provide an empty callback
-      this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!'); // You can add additional logic here
-      });
-    }
+    const isCorrect = await this.checkIfAnsweredCorrectly();
+    this.handleCorrectAnswer(isCorrect);
   }
+
+  private processCurrentQuestion(): void {
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+        this.currentQuestion = currentQuestion;
+        this.currentQuestionIndex = /* calculate current question index */;
+    });
+  }
+
+  private handleClickedOption(option: Option): boolean {
+    const isOptionSelected = this.isSelectedOption(option);
+    this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
+    this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
+    return isOptionSelected;
+  }
+
+  private handleExplanationDisplay(isOptionSelected: boolean): void {
+      if (isOptionSelected) {
+          this.fetchExplanationText(this.currentQuestionIndex);
+      }
+  }
+
+  private updateAnswers(option: Option): void {
+      const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+      if (answerIndex !== -1) {
+          this.answers[answerIndex] = true;
+      }
+      this.quizService.answersSubject.next(this.answers);
+  }
+
+  private logDebugInfo(): void {
+      console.log('Answers:', this.answers);
+      console.log('Current Question:', this.question);
+  }
+
+  private async checkIfAnsweredCorrectly(): Promise<boolean> {
+      return await this.quizService.checkIfAnsweredCorrectly();
+  }
+
+  private handleCorrectAnswer(isCorrect: boolean): void {
+      if (isCorrect) {
+          this.timerService.stopTimer(() => {
+              console.log('Correct answer selected!');
+              // Additional logic for correct answer
+          });
+      }
+  }
+
   
   fetchExplanationText(questionIndex: number): string {
     const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
