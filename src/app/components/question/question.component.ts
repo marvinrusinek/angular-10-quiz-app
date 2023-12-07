@@ -1024,28 +1024,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleCorrectAnswer(isCorrect);
   }
 
-  private async processCurrentQuestion(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+  private processCurrentQuestion(): void {
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
         this.currentQuestion = currentQuestion;
-        this.currentQuestionIndex = this.calculateIndex(currentQuestion);
-        resolve();
-      });
+        this.currentQuestionIndex = this.quizService.currentQuestionIndex; // Update accordingly
     });
-  }
-
-  private calculateIndex(currentQuestion: QuizQuestion): number {
-    if (currentQuestion && typeof currentQuestion.questionIndex === 'number') {
-        return currentQuestion.questionIndex;
-    } else {
-      // Handle the case where the index cannot be determined
-      console.error('Unable to determine question index.');
-      return -1; // or some default value
-    }
   }
 
   private handleClickedOption(option: Option): boolean {
     const isOptionSelected = this.isSelectedOption(option);
+    console.log('isOptionSelected:', isOptionSelected);
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
     this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
     return isOptionSelected;
@@ -1053,6 +1041,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleExplanationDisplay(isOptionSelected: boolean): void {
     if (isOptionSelected) {
+      console.log('Current Question Index before fetchExplanationText:', this.currentQuestionIndex);
       this.fetchExplanationText(this.currentQuestionIndex);
     }
   }
