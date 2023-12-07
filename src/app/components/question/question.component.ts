@@ -1044,22 +1044,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private processCurrentQuestion(optionId: number): void {
     this.quizStateService.currentQuestion$
-      .pipe(take(1))
-      .subscribe(async (currentQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.currentQuestionIndex = this.quizService.currentQuestionIndex;
-
-        // Ensure asynchronous operations are completed before proceeding
-        await Promise.resolve();
-
-        console.log(
-          'Current Question Index after update:',
-          this.currentQuestionIndex
-        );
-
-        // Example: Extracting the option based on dynamic optionId
-        const currentOption: Option | undefined =
-          this.extractOptionFromQuizQuestion(this.currentQuestion, optionId);
+      .pipe(
+        take(1),
+        tap((currentQuestion) => {
+          this.currentQuestion = currentQuestion;
+          this.currentQuestionIndex = this.quizService.currentQuestionIndex;
+          console.log('Current Question Index after update:', this.currentQuestionIndex);
+        }),
+        map(() => optionId)
+      )
+      .subscribe((optionId) => {
+        const currentOption: Option | undefined = this.extractOptionFromQuizQuestion(this.currentQuestion, optionId);
 
         if (currentOption) {
           this.handleExplanationDisplay(this.isSelectedOption(currentOption));
