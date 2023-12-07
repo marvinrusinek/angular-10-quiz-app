@@ -1048,7 +1048,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleClickedOption(option: Option): boolean {
-    console.log('Clicked option:', option);
+    this.selectedOption = option;
+    console.log('this.selectedOption:', this.selectedOption);
     const isOptionSelected = this.isSelectedOption(option);
     console.log('isOptionSelected:', isOptionSelected);
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
@@ -1057,6 +1058,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleExplanationDisplay(isOptionSelected: boolean): void {
+    console.log('isOptionSelected:::>>>', isOptionSelected);
     if (isOptionSelected) {
       console.log('Current Question Index before fetchExplanationText:', this.currentQuestionIndex);
       this.fetchExplanationText(this.currentQuestionIndex);
@@ -1240,9 +1242,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isSelectedOption(option: Option): boolean {
-    console.log('this.selectedOption:', this.selectedOption);
-    console.log('option:', option);
-    return this.selectedOption === option;
+    return this.selectedOption && this.selectedOption.optionId === option.optionId;
   }
 
   // not called anywhere...
