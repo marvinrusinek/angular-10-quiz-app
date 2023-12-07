@@ -1078,6 +1078,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   
   fetchExplanationText(questionIndex: number): string {
+    console.log('Fetching explanation text for question index:', questionIndex);
     const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
     return explanation || '';
   }  
