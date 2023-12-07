@@ -1024,10 +1024,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.handleCorrectAnswer(isCorrect);
   }
 
-  private processCurrentQuestion(): void {
-    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
-      this.currentQuestion = currentQuestion;
+  private async processCurrentQuestion(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+        this.currentQuestion = currentQuestion;
+        this.currentQuestionIndex = this.calculateIndex(currentQuestion);
+        resolve();
+      });
     });
+  }
+
+  private calculateIndex(currentQuestion: QuizQuestion): number {
+    if (currentQuestion && typeof currentQuestion.questionIndex === 'number') {
+        return currentQuestion.questionIndex;
+    } else {
+      // Handle the case where the index cannot be determined
+      console.error('Unable to determine question index.');
+      return -1; // or some default value
+    }
   }
 
   private handleClickedOption(option: Option): boolean {
@@ -1048,29 +1062,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateAnswers(option: Option): void {
-      const answerIndex = this.answers.findIndex((answer) => answer === option.value);
-      if (answerIndex !== -1) {
-          this.answers[answerIndex] = true;
-      }
-      this.quizService.answersSubject.next(this.answers);
+    const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+    if (answerIndex !== -1) {
+      this.answers[answerIndex] = true;
+    }
+    this.quizService.answersSubject.next(this.answers);
   }
 
   private logDebugInfo(): void {
-      console.log('Answers:', this.answers);
-      console.log('Current Question:', this.question);
+    console.log('Answers:', this.answers);
+    console.log('Current Question:', this.question);
   }
 
   private async checkIfAnsweredCorrectly(): Promise<boolean> {
-      return await this.quizService.checkIfAnsweredCorrectly();
+    return await this.quizService.checkIfAnsweredCorrectly();
   }
 
   private handleCorrectAnswer(isCorrect: boolean): void {
-      if (isCorrect) {
-          this.timerService.stopTimer(() => {
-              console.log('Correct answer selected!');
-              // Additional logic for correct answer
-          });
-      }
+    if (isCorrect) {
+      this.timerService.stopTimer(() => {
+        console.log('Correct answer selected!');
+        // Additional logic for correct answer
+      });
+    }
   }
 
   
