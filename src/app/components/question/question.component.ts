@@ -1026,8 +1026,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private processCurrentQuestion(): void {
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.currentQuestionIndex = this.quizService.currentQuestionIndex; // Update accordingly
+      this.currentQuestion = currentQuestion;
+      this.currentQuestionIndex = this.quizService.currentQuestionIndex;
     });
   }
 
