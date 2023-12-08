@@ -1259,9 +1259,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.resetUI();
   
       // Move the navigation here
-      await this.navigateToQuestion(this.currentQuestionIndex);
-      //const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${this.currentQuestionIndex + 1}`;
-      //await this.router.navigateByUrl(newUrl);
+      await this.navigateToQuestion(this.currentQuestionIndex + 1);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
