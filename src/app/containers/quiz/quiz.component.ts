@@ -1219,6 +1219,21 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigating = false;
     }
   }
+
+  /* advanceToPreviousQuestion() {
+    this.answers = [];
+    this.status = QuizStatus.CONTINUE;
+  } */
+
+  advanceToResults() {
+    this.quizService.resetAll();
+    this.timerService.stopTimer((elapsedTime: number) => {
+      this.elapsedTimeDisplay = elapsedTime;
+    });
+    this.timerService.resetTimer();
+    this.quizService.checkIfAnsweredCorrectly();
+    this.quizService.navigateToResults();
+  }
   
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
@@ -1257,28 +1272,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Reset UI immediately before navigating
-  private resetUI(): void {
-    this.highlightDirective.reset();
-    this.resetBackgroundService.setShouldResetBackground(true);
-    this.explanationTextService.resetExplanationState();
-  }
-  
-  /* advanceToPreviousQuestion() {
-    this.answers = [];
-    this.status = QuizStatus.CONTINUE;
-  } */
-
-  advanceToResults() {
-    this.quizService.resetAll();
-    this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
-    });
-    this.timerService.resetTimer();
-    this.quizService.checkIfAnsweredCorrectly();
-    this.quizService.navigateToResults();
-  }
-  
   async navigateToQuestion(questionIndex: number): Promise<void> {
     console.log(`Navigating to Question ${questionIndex}...`);
   
@@ -1295,6 +1288,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error(`Error navigating to Question ${questionIndex}:`, error);
       }
     }
+  }
+
+  // Reset UI immediately before navigating
+  private resetUI(): void {
+    this.highlightDirective.reset();
+    this.resetBackgroundService.setShouldResetBackground(true);
+    this.explanationTextService.resetExplanationState();
   }
 
   async calculateAndSetCorrectAnswersText(question: QuizQuestion, options: Option[]): Promise<void> {
