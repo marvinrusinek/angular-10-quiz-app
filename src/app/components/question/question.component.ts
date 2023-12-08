@@ -1032,7 +1032,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.processCurrentQuestion(option.optionId);
     const isOptionSelected = this.handleClickedOption(option);
     this.handleExplanationDisplay(isOptionSelected);
-    this.retrieveExplanationText();
+    // this.retrieveExplanationText();
 
     this.updateAnswers(option);
 
@@ -1048,7 +1048,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         take(1),
         tap((currentQuestion) => {
           this.currentQuestion = currentQuestion;
-          this.currentQuestionIndex = this.quizService.currentQuestionIndex;
+          // this.currentQuestionIndex = this.quizService.currentQuestionIndex;
+          this.currentQuestionIndex = this.calculateIndex(currentQuestion, optionId);
           console.log('Current Question Index after update:', this.currentQuestionIndex);
         }),
         map(() => optionId)
@@ -1062,6 +1063,17 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
+  private calculateIndex(currentQuestion: QuizQuestion, optionId: number): number {
+    const index = currentQuestion.options.findIndex((option) => option.optionId === optionId);
+  
+    if (index !== -1) {
+      return index;
+    } else {
+      console.error('Option not found for optionId:', optionId);
+      return 0;
+    }
+  }
+  
   private extractOptionFromQuizQuestion(
     quizQuestion: QuizQuestion,
     optionId: number
@@ -1070,6 +1082,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleClickedOption(option: Option): boolean {
+    console.log('Handling clicked option:', option);
     this.selectedOption = option;
     console.log('this.selectedOption:', this.selectedOption);
     const isOptionSelected = this.isSelectedOption(option);
@@ -1290,9 +1303,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   isSelectedOption(option: Option): boolean {
     console.log('this.selectedOption:', this.selectedOption);
     console.log('option:', option);
-    return (
+    /* return (
       this.selectedOption && this.selectedOption.optionId === option.optionId
-    );
+    ); */
+    return this.selectedOption === option;
   }
 
   // not called anywhere...
