@@ -1234,6 +1234,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.animationState$.next('animationStarted');
 
+      this.explanationTextService.setShouldDisplayExplanation(false);
+
       // Ensure currentQuestionIndex is within bounds
       const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
       if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= totalQuestions) {
@@ -1248,8 +1250,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = questionText;
       this.questionToDisplay = questionText;
       this.optionsToDisplay = options;
-  
-      this.explanationTextService.setShouldDisplayExplanation(false);
   
       // Reset UI immediately before navigating
       this.resetUI();
