@@ -1254,6 +1254,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
 
+       // Reset explanation state before navigating
+      this.explanationTextService.clearExplanationText();
+      this.explanationTextService.resetExplanationState();
+
       await this.navigateToQuestion(this.currentQuestionIndex + 1);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
@@ -1271,6 +1275,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = questionIndex;
   
       try {
+        // Reset explanation state during navigation
+        this.explanationTextService.clearExplanationText();
+        this.explanationTextService.resetExplanationState();
+
         await this.router.navigateByUrl(newUrl);
         console.log(`Successfully navigated to Question ${questionIndex}.`);
       } catch (error) {
