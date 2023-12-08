@@ -1261,6 +1261,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
+    // Reset explanation text before navigating
+    this.explanationTextService.setShouldDisplayExplanation(false);
+
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
     if (questionIndex >= 1) {
