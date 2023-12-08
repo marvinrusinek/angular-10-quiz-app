@@ -1220,11 +1220,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  /* advanceToPreviousQuestion() {
-    this.answers = [];
-    this.status = QuizStatus.CONTINUE;
-  } */
-
   advanceToResults() {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
