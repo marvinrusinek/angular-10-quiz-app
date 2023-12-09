@@ -345,6 +345,7 @@ export class CodelabQuizContentComponent
                 questionIndex + 1,
                 nextExplanationText
               );
+              console.log('Set explanation for index', questionIndex + 1, ':', nextExplanationText);
 
               console.log(
                 'Explanation Texts Object:',

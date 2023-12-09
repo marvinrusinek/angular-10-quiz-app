@@ -1089,6 +1089,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.explanationTextService.getExplanationTextForQuestionIndex(
         questionIndex
       );
+    console.log('Fetched explanation for index', questionIndex, ':', explanation);
+
     console.log('Fetched explanation:', explanation);
     return explanation || '';
   }
