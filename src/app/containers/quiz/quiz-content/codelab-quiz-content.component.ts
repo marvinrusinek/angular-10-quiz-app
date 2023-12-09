@@ -215,6 +215,8 @@ export class CodelabQuizContentComponent
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
+    
+    this.combinedText$.subscribe(combinedText => console.log('Combined Text::::', combinedText));
   }
 
   ngOnChanges(): void {
@@ -622,6 +624,9 @@ export class CodelabQuizContentComponent
       this.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
+      tap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
+        console.log('Observables:', nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation);
+      }),
       switchMap(
         ([
           nextQuestion,
