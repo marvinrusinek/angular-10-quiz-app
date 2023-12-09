@@ -79,6 +79,7 @@ export class ExplanationTextService implements OnDestroy {
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     this.explanationTexts[index] = explanation;
+    console.log(`Set explanation for index ${index}: ${explanation}`);
   }
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
