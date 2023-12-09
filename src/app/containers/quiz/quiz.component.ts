@@ -1256,7 +1256,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Reset explanation state before navigating
       this.explanationTextService.resetStateBetweenQuestions();
-      
+
+      console.log('After reset - explanationText$:', this.explanationTextService.explanationText$);
+      console.log('After reset - nextExplanationText$:', this.explanationTextService.nextExplanationText$);
+
       await this.navigateToQuestion(this.currentQuestionIndex + 1);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
