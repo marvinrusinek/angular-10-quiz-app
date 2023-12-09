@@ -1031,7 +1031,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Fetch explanation text based on the current question index
     const questionIndex = this.currentQuestionIndex;
-    const explanationText = this.fetchExplanationText(questionIndex);
+    this.fetchExplanationText(questionIndex);
   
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
@@ -1044,6 +1044,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private processOptionSelection(currentQuestion: QuizQuestion, option: Option): void {
+    console.log('Processing option selection...');
     this.handleOptionClicked(currentQuestion, option);
   
     // Check if the clicked option is selected
