@@ -244,6 +244,13 @@ export class ExplanationTextService implements OnDestroy {
     return this.lastDisplayedExplanationText;
   }
 
+  private getExplanationObservable(questionIndex: number): BehaviorSubject<string> {
+    if (!this.explanationTexts[questionIndex]) {
+      this.explanationTexts[questionIndex] = new BehaviorSubject<string>('');
+    }
+    return this.explanationTexts$[questionIndex];
+  }
+
   resetStateBetweenQuestions(): void {
     console.log('Resetting explanation state between questions...');
     this.clearExplanationText();
