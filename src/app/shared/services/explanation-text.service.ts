@@ -102,10 +102,6 @@ export class ExplanationTextService implements OnDestroy {
     return this.formattedExplanation$.asObservable();
   }
 
-  resetProcessedQuestionsState() {
-    this.processedQuestions = new Set<string>();
-  }
-
   getFormattedExplanationObservable(questionIndex: number): Observable<string> {
     // Verify that the questionIndex is within the bounds of the array
     if (questionIndex < 0 || questionIndex >= this.formattedExplanations$.length) {
@@ -248,6 +244,12 @@ export class ExplanationTextService implements OnDestroy {
     return this.lastDisplayedExplanationText;
   }
 
+  resetStateBetweenQuestions(): void {
+    this.clearExplanationText();
+    this.resetExplanationState();
+    this.resetProcessedQuestionsState();
+  }  
+
   clearExplanationText(): void {
     console.log('clearExplanationText() called');
     this.explanationText$.next('');
@@ -264,5 +266,9 @@ export class ExplanationTextService implements OnDestroy {
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
+  }
+
+  resetProcessedQuestionsState() {
+    this.processedQuestions = new Set<string>();
   }
 }
