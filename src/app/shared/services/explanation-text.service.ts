@@ -83,8 +83,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
-    return this.explanationTexts[index];
-  }
+    const explanation = this.explanationTexts[index];
+    console.log(`Get explanation for index ${index}: ${explanation}`);
+    return explanation;
+  }  
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(

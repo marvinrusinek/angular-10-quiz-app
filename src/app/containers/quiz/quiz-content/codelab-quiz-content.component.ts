@@ -262,6 +262,7 @@ export class CodelabQuizContentComponent
 
         // Store explanation texts in an array
         this.explanationTextService.explanationTexts = explanationTexts;
+        console.log('Explanation Texts from API:', explanationTexts);
 
         // Collect explanations for all questions
         this.questionsWithExplanations = questions.map((question) => ({
@@ -335,6 +336,7 @@ export class CodelabQuizContentComponent
             if (questionIndex !== -1 && questionIndex < questions.length - 1) {
               const nextQuestion = questions[questionIndex + 1];
               const nextExplanationText = nextQuestion.explanation; // Use the explanation from the next question
+              console.log('Setting explanation text for question index:', questionIndex + 1);
               this.explanationTextService.setExplanationTextForQuestionIndex(
                 questionIndex + 1,
                 nextExplanationText
