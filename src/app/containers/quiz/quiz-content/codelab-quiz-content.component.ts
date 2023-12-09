@@ -337,6 +337,10 @@ export class CodelabQuizContentComponent
               const nextQuestion = questions[questionIndex + 1];
               const nextExplanationText = nextQuestion.explanation; // Use the explanation from the next question
               console.log('Setting explanation text for question index:', questionIndex + 1);
+
+              console.log('Fetching explanation text for question index:', questionIndex + 1);
+              console.log('Explanation text from the API:', nextExplanationText);
+              
               this.explanationTextService.setExplanationTextForQuestionIndex(
                 questionIndex + 1,
                 nextExplanationText
