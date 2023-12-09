@@ -1028,6 +1028,10 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
+
+    // Fetch explanation text based on the current question index
+    const questionIndex = this.currentQuestionIndex;
+    const explanationText = this.fetchExplanationText(questionIndex);
   
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
       this.currentQuestion = currentQuestion;
