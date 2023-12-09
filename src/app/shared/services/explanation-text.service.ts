@@ -124,8 +124,8 @@ export class ExplanationTextService implements OnDestroy {
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
     if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
-        console.log('Skipping already processed or invalid question:', question.questionText);
-        return { explanation: '' };
+      console.log('Skipping already processed or invalid question:', question.questionText);
+      return { explanation: '' };
     }
 
     const correctOptionIndices: number[] = question.options
