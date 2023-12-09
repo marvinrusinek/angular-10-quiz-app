@@ -1254,18 +1254,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Reset UI immediately before navigating
       this.resetUI();
 
-       // Reset explanation state before navigating
-      this.explanationTextService.clearExplanationText();
-
-      this.explanationText$.subscribe(value => console.log('Before reset - explanationText$: ', value));
-      this.explanationTextService.nextExplanationText$.subscribe(value => console.log('Before reset - nextExplanationText$: ', value));
-      this.explanationTextService.resetExplanationState();
-
-
+      // Reset explanation state before navigating
+      this.explanationTextService.resetStateBetweenQuestions();
+      
       await this.navigateToQuestion(this.currentQuestionIndex + 1);
-
-      this.explanationText$.subscribe(value => console.log('After reset - explanationText$: ', value));
-      this.explanationTextService.nextExplanationText$.subscribe(value => console.log('After reset - nextExplanationText$: ', value));
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
