@@ -648,7 +648,7 @@ export class CodelabQuizContentComponent
             textToDisplay = shouldDisplayExplanation
               ? formattedExplanation || ''
               : this.questionToDisplay || '';
-
+              
             return of(textToDisplay).pipe(startWith(textToDisplay));
           }
         }
