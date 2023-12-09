@@ -34,7 +34,7 @@ export class ExplanationTextService implements OnDestroy {
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
 
-  private nextExplanationTextSource = new BehaviorSubject<string>(null);
+  nextExplanationTextSource = new BehaviorSubject<string>(null);
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
   private previousExplanationTextSource = new BehaviorSubject<string>('');
