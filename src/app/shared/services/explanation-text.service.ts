@@ -274,8 +274,14 @@ export class ExplanationTextService implements OnDestroy {
     this.processedQuestions = new Set<string>();
   }
 
-  resetObservables(): void {
+  /* resetObservables(): void {
     this.explanationText$ = new BehaviorSubject<string | null>('');
     this.nextExplanationText$ = new BehaviorSubject<string | null>('');
-  }
+  } */
+
+  resetObservables(): void {
+    console.log('Resetting observables...');
+    this.explanationText$.next('');
+    this.nextExplanationTextSource.next('');
+  }    
 }
