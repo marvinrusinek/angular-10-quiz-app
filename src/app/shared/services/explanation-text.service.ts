@@ -248,6 +248,7 @@ export class ExplanationTextService implements OnDestroy {
     this.clearExplanationText();
     this.resetExplanationState();
     this.resetProcessedQuestionsState();
+    this.resetObservables();
   }  
 
   clearExplanationText(): void {
@@ -270,5 +271,10 @@ export class ExplanationTextService implements OnDestroy {
 
   resetProcessedQuestionsState() {
     this.processedQuestions = new Set<string>();
+  }
+
+  resetObservables(): void {
+    this.explanationText$ = new BehaviorSubject<string | null>('');
+    this.nextExplanationText$ = new BehaviorSubject<string | null>('');
   }
 }
