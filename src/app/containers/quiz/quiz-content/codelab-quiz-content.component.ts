@@ -330,14 +330,16 @@ export class CodelabQuizContentComponent
             const questionIndex = questions.findIndex(
               (q) => q.questionText === question.questionText
             );
-
+            console.log('Calculated question index:', questionIndex);
             console.log('Question Index:>', questionIndex);
 
             if (questionIndex !== -1 && questionIndex < questions.length - 1) {
               const nextQuestion = questions[questionIndex + 1];
-              const nextExplanationText = nextQuestion.explanation; // Use the explanation from the next question
-              console.log('Setting explanation text for question index:', questionIndex + 1);
+              console.log('Next Question Text:', nextQuestion.questionText);
 
+              const nextExplanationText = nextQuestion.explanation; // Use the explanation from the next question
+              console.log('Next Explanation Text:', nextExplanationText);
+              console.log('Setting explanation text for question index:', questionIndex + 1);
               console.log('Fetching explanation text for question index:', questionIndex + 1);
               console.log('Explanation text from the API:', nextExplanationText);
               

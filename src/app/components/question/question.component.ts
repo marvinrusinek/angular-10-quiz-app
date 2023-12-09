@@ -1207,8 +1207,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
+      // Extract the explanation string if formattedExplanation is an object
       const explanationText =
-        formattedExplanation || 'No explanation available';
+      typeof formattedExplanation === 'string'
+        ? formattedExplanation
+        : formattedExplanation.explanation || 'No explanation available';
 
       this.explanationText$.next(explanationText);
       this.updateCombinedQuestionData(
