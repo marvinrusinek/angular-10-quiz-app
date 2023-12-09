@@ -1268,6 +1268,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Reset explanation text before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
 
+    // Reset explanation text before navigating
+    this.explanationTextService.resetStateBetweenQuestions();
+
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     
     if (questionIndex >= 1) {
@@ -1275,10 +1278,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex = questionIndex;
   
       try {
-        // Reset explanation state during navigation
-        this.explanationTextService.clearExplanationText();
-        this.explanationTextService.resetExplanationState();
-
         await this.router.navigateByUrl(newUrl);
         console.log(`Successfully navigated to Question ${questionIndex}.`);
       } catch (error) {
