@@ -711,17 +711,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.fetchQuizQuestions();
         this.quizService.setQuestionData(questionData);
         this.quizService.setCurrentOptions(this.data.currentOptions);
-
+      
         const currentQuestion: QuizQuestion = {
           questionText: this.data.questionText,
           options: this.data.currentOptions,
           explanation: '',
           type: QuestionType.MultipleAnswer,
         };
-
+      
         // Pass the data to the QuizQuestionComponent
         this.question = currentQuestion;
-
+      
         const correctAnswerOptions = this.data.currentOptions.filter(
           (option) => option.correct
         );
@@ -731,13 +731,25 @@ export class QuizComponent implements OnInit, OnDestroy {
         );
         this.quizService.setCorrectAnswersLoaded(true);
         this.quizService.correctAnswersLoadedSubject.next(true);
-
+      
+        // Load and set the explanation text for the current question
+        this.quizDataService.getCurrentQuestionIndex().pipe(
+          switchMap((currentIndex) => {
+            return this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
+          })
+        ).subscribe((explanationText) => {
+          if (explanationText) {
+            currentQuestion.explanation = explanationText;
+            this.quizService.setExplanationTextForCurrentQuestion(explanationText);
+          }
+        });
+      
         // Log to check if the correct data is being used
         console.log('Question Data:', currentQuestion);
         console.log('Correct Answer Options:', correctAnswerOptions);
       } else {
         this.data = null;
-      }
+      }      
     });
 
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {

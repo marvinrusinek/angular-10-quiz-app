@@ -78,6 +78,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+    // Set the explanation text
     if (!this.explanationTexts[index]) {
       this.explanationTexts[index] = new BehaviorSubject<string>('');
     }
