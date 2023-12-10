@@ -78,9 +78,13 @@ export class ExplanationTextService implements OnDestroy {
     return this.explanationText$.asObservable();
   }
 
-  setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+  /* setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
     console.log(`Set explanation for index ${index}: ${explanation}`);
+  } */
+
+  setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+    this.explanationTexts[index]?.next(explanation);
   }  
 
   getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
