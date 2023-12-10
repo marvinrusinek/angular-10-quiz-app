@@ -745,6 +745,8 @@ export class QuizComponent implements OnInit, OnDestroy {
             if (currentIndex !== undefined) {
               const explanationText$ = this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
 
+              console.log('Is explanationText$ an observable?', explanationText$ instanceof Observable);
+
               // Ensure that explanationText$ is an observable
               if (explanationText$ instanceof Observable) {
                 explanationText$.subscribe({

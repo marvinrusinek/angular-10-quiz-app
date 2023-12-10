@@ -93,17 +93,17 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Set explanation for index ${index}: ${validExplanation}`);
   }  
 
-  getExplanationTextForQuestionIndex(index: number): string | undefined {
+  getExplanationTextForQuestionIndex(index: number): Observable<string> {
     const explanationSubject = this.explanationTexts[index];
   
     if (explanationSubject) {
-      const explanation = explanationSubject.value;
-      console.log(`Get explanation for index ${index}: ${explanation}`);
-      return explanation;
+      // Use of to wrap the synchronous value in an observable
+      return of(explanationSubject.value);
     }
   
-    return undefined;
-  }
+    // Return an observable with undefined if explanationSubject is not found
+    return of(undefined);
+  }  
 
   /* getExplanationTextForQuestionIndex(index: number): BehaviorSubject<string> | undefined {
     return this.explanationTexts[index];
