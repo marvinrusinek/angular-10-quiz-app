@@ -325,14 +325,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       );
 
       // Use forkJoin to wait for all observables to complete
-      forkJoin(observables).subscribe((explanationTexts) => {
-        // Loop through the explanation texts and set them in the service
-        explanationTexts.forEach((explanationText, i) => {
-          if (explanationText) {
-            this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
-          }
-        });
-      });
+      forkJoin(observables).subscribe({
+        next: (explanationTexts) => {
+          explanationTexts.forEach((explanationText, i) => {
+            if (explanationText) {
+              this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error fetching explanation texts:', error);
+        },
+      });      
     }
   }
 
