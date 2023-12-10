@@ -1195,6 +1195,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: QuizQuestion,
     questionIndex: number
   ): Promise<void> {
+    console.log('Entering setExplanationText for question:', currentQuestion.questionText);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
@@ -1212,6 +1213,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       typeof formattedExplanation === 'string'
         ? formattedExplanation
         : formattedExplanation.explanation || 'No explanation available';
+
+      console.log('Formatted Explanation:', formattedExplanation);
+      console.log('Final Explanation Text:', explanationText);
 
       this.explanationText$.next(explanationText);
       this.updateCombinedQuestionData(
