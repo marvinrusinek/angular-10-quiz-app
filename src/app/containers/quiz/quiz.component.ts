@@ -319,13 +319,17 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Set explanation text for each question
     if (this.questions && this.questions.length > 0) {
-      for (let i = 0; i < this.questions.length; i++) {
-        this.explanationTextService.getExplanationTextForQuestionIndex(i).subscribe((explanationText) => {
+      const observables = this.questions.map((_, i) =>
+        this.explanationTextService.getExplanationTextForQuestionIndex(i)
+      );
+
+      forkJoin(observables).subscribe((explanationTexts) => {
+        explanationTexts.forEach((explanationText, i) => {
           if (explanationText) {
             this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
           }
         });
-      }
+      });
     }
   }
 
