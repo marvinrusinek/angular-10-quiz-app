@@ -733,14 +733,15 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.correctAnswersLoadedSubject.next(true);
       
         // Load and set the explanation text for the current question
+        let currentIndex: number;
+
         this.quizDataService.getCurrentQuestionIndex().pipe(
-          switchMap((currentIndex) => {
-            return this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
-          })
+          tap((index) => currentIndex = index), // Save the index for later use
+          switchMap(() => this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex))
         ).subscribe((explanationText) => {
           if (explanationText) {
             currentQuestion.explanation = explanationText;
-            this.quizService.setExplanationTextForCurrentQuestion(explanationText);
+            this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText);
           }
         });
       

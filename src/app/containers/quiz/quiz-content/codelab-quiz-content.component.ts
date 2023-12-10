@@ -215,8 +215,6 @@ export class CodelabQuizContentComponent
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
-    
-    this.combinedText$.subscribe(combinedText => console.log('Combined Text::::', combinedText));
   }
 
   ngOnChanges(): void {

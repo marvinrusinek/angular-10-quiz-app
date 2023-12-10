@@ -24,15 +24,6 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   private explanationTexts: Record<number, BehaviorSubject<string>> = Object.create(null);
 
-  // Observable to track changes in the current question index
-  currentQuestionIndex$ = new BehaviorSubject<number | null>(null);
-
-  // Observable to provide explanation text for the current question
-  explanationTextForCurrentQuestion$: Observable<string | null> = this.currentQuestionIndex$.pipe(
-    switchMap((index) => this.getExplanationTextForQuestionIndex(index))
-  );
-
-
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
