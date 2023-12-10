@@ -738,6 +738,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         this.quizDataService.getCurrentQuestionIndex().subscribe((index) => {
           currentIndex = index;
+          console.log('Current Index:::>', currentIndex);
 
           // Ensure that currentIndex is defined before calling getExplanationTextForQuestionIndex
           if (currentIndex !== undefined) {
@@ -746,6 +747,8 @@ export class QuizComponent implements OnInit, OnDestroy {
             // Ensure that explanationText$ is an observable
             if (isObservable(explanationText$)) {
               explanationText$.subscribe((explanationText) => {
+                console.log('Explanation Text:::>', explanationText);
+
                 if (explanationText) {
                   currentQuestion.explanation = explanationText as string;
                   this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText as string);

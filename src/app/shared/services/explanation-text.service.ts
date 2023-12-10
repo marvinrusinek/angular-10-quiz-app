@@ -74,10 +74,6 @@ export class ExplanationTextService implements OnDestroy {
     this.destroyed$.complete();
   }
 
-  setCurrentQuestionIndex(index: number) {
-    this.currentQuestionIndex$.next(index);
-  }
-
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
   }
