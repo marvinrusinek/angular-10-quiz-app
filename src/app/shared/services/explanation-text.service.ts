@@ -98,7 +98,7 @@ export class ExplanationTextService implements OnDestroy {
   
     if (explanationSubject) {
       // Use of to wrap the synchronous value in an observable
-      return of(explanationSubject.value);
+      return explanationSubject.asObservable();
     }
   
     // Return an observable with undefined if explanationSubject is not found
