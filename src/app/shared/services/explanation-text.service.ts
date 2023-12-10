@@ -22,7 +22,7 @@ export class ExplanationTextService implements OnDestroy {
     string | null
   >('');
   explanations: string[] = [];
-  explanationTexts: { [questionIndex: number]: string } = {};
+  private explanationTexts: Record<number, BehaviorSubject<string>> = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
@@ -251,7 +251,7 @@ export class ExplanationTextService implements OnDestroy {
     if (!this.explanationTexts[questionIndex]) {
       this.explanationTexts[questionIndex] = new BehaviorSubject<string>('');
     }
-    return this.explanationTexts$[questionIndex];
+    return this.explanationTexts[questionIndex];
   }
 
   resetStateBetweenQuestions(): void {
