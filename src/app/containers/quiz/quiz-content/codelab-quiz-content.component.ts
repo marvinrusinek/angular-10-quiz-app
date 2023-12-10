@@ -235,7 +235,7 @@ export class CodelabQuizContentComponent
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
     this.selectedOptionSubscription?.unsubscribe();
-    this.explanationTextService.resetState();
+    this.explanationTextService.resetStateBetweenQuestions();
   }
 
   private initializeQuestionData(): void {

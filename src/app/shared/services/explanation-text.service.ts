@@ -280,6 +280,7 @@ export class ExplanationTextService implements OnDestroy {
   resetStateBetweenQuestions(): void {
     console.log('Resetting explanation state between questions...');
     this.clearExplanationText();
+    this.resetState();
     this.resetExplanationState();
     this.resetProcessedQuestionsState();
     this.resetObservables();
