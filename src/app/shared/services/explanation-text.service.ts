@@ -79,37 +79,21 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    // Ensure explanationTexts[index] is initialized as BehaviorSubject
-    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
-      this.explanationTexts[index] = new BehaviorSubject<string>('');
-    }
-  
-    // Provide a default explanation if it is undefined or not a string
-    const defaultExplanation = 'No explanation available';
-    const validExplanation = typeof explanation === 'string' ? explanation : defaultExplanation;
-  
-    // Update explanationTexts[index] using next
-    if (this.explanationTexts[index] instanceof BehaviorSubject) {
-      this.explanationTexts[index].next(validExplanation);
-      console.log(`Set explanation for index ${index}: ${validExplanation}`);
-    } else {
-      console.error(`Error: explanationTexts[${index}] is not a BehaviorSubject`);
-    }
+    this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    console.log(`Set explanation for index ${index}: ${explanation}`);
   }  
 
-  getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
+  getExplanationTextForQuestionIndex(index: number): Observable<string> {
     const explanationSubject = this.explanationTexts[index];
-
+  
     if (explanationSubject) {
-      return explanationSubject.asObservable();
+      // Use of to wrap the synchronous value in an observable
+      return of(explanationSubject.value);
     }
-
-    return of(undefined);
+  
+    // Return an empty observable if explanationSubject is not found
+    return of('');
   }
-
-  /* getExplanationTextForQuestionIndex(index: number): BehaviorSubject<string> | undefined {
-    return this.explanationTexts[index];
-  } */
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
