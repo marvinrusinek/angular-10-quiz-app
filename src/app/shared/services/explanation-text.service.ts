@@ -80,16 +80,16 @@ export class ExplanationTextService implements OnDestroy {
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (!this.explanationTexts[index]) {
-      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+        this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
     } else {
-      // Check if it's an instance of BehaviorSubject before calling next
-      if (this.explanationTexts[index] instanceof BehaviorSubject) {
-        this.explanationTexts[index].next(explanation);
-      } else {
-        console.error(`Explanation text for index ${index} is not an instance of BehaviorSubject.`);
-      }
+        // Check if it's an instance of BehaviorSubject before calling next
+        if (this.explanationTexts[index] instanceof BehaviorSubject) {
+            this.explanationTexts[index].next(explanation);
+        } else {
+            console.error(`Explanation text for index ${index} is not an instance of BehaviorSubject. Type: ${typeof this.explanationTexts[index]}`);
+        }
     }
-  
+
     console.log(`Set explanation for index ${index}: ${explanation}`);
   }
   
