@@ -85,14 +85,7 @@ export class ExplanationTextService implements OnDestroy {
 
   getExplanationTextForQuestionIndex(index: number): Observable<string> {
     const explanationSubject = this.explanationTexts[index];
-  
-    if (explanationSubject) {
-      // Use of to wrap the synchronous value in an observable
-      return of(explanationSubject.value);
-    }
-  
-    // Return an empty observable if explanationSubject is not found
-    return of('');
+    return explanationSubject ? explanationSubject.asObservable() : of('');
   }
 
   // Function to update explanations based on question ID or index
@@ -295,11 +288,6 @@ export class ExplanationTextService implements OnDestroy {
   resetProcessedQuestionsState() {
     this.processedQuestions = new Set<string>();
   }
-
-  /* resetObservables(): void {
-    this.explanationText$ = new BehaviorSubject<string | null>('');
-    this.nextExplanationText$ = new BehaviorSubject<string | null>('');
-  } */
 
   resetObservables(): void {
     console.log('Resetting observables...');
