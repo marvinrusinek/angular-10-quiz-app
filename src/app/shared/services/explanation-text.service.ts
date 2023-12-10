@@ -22,7 +22,7 @@ export class ExplanationTextService implements OnDestroy {
     string | null
   >('');
   explanations: string[] = [];
-  private explanationTexts: Record<number, BehaviorSubject<string>> = Object.create(null);
+  explanationTexts: Record<number, BehaviorSubject<string>> = Object.create(null);
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
