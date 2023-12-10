@@ -736,28 +736,44 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Load and set the explanation text for the current question
         let currentIndex: number;
 
-        this.quizDataService.getCurrentQuestionIndex().subscribe((index) => {
-          currentIndex = index;
-          console.log('Current Index:::>', currentIndex);
+        this.quizDataService.getCurrentQuestionIndex().subscribe({
+          next: (index) => {
+            currentIndex = index;
+            console.log('Current Index:::>', currentIndex);
 
-          // Ensure that currentIndex is defined before calling getExplanationTextForQuestionIndex
-          if (currentIndex !== undefined) {
-            const explanationText$ = this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
+            // Ensure that currentIndex is defined before calling getExplanationTextForQuestionIndex
+            if (currentIndex !== undefined) {
+              const explanationText$ = this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
 
-            // Ensure that explanationText$ is an observable
-            if (isObservable(explanationText$)) {
-              explanationText$.subscribe((explanationText) => {
-                console.log('Explanation Text:::>', explanationText);
+              // Ensure that explanationText$ is an observable
+              if (explanationText$ instanceof Observable) {
+                explanationText$.subscribe({
+                  next: (explanationText) => {
+                    console.log('Explanation Text:::>', explanationText);
 
-                if (explanationText) {
-                  currentQuestion.explanation = explanationText as string;
-                  this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText as string);
-                }
-              });
+                    if (explanationText) {
+                      currentQuestion.explanation = explanationText as string;
+                      this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText as string);
+                    }
+                  },
+                  error: (error) => {
+                    console.error('Error fetching explanation text:', error);
+                  },
+                  complete: () => {
+                    // Handle completion if needed
+                  }
+                });
+              }
             }
+          },
+          error: (error) => {
+            console.error('Error fetching current question index:', error);
+          },
+          complete: () => {
+            // Handle completion if needed
           }
         });
-      
+
         // Log to check if the correct data is being used
         console.log('Question Data:', currentQuestion);
         console.log('Correct Answer Options:', correctAnswerOptions);
