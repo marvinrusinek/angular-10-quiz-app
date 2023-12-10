@@ -21,6 +21,7 @@ import {
   combineLatest,
   forkJoin,
   from,
+  isObservable,
   Observable,
   of,
   Subject,
@@ -731,17 +732,26 @@ export class QuizComponent implements OnInit, OnDestroy {
         );
         this.quizService.setCorrectAnswersLoaded(true);
         this.quizService.correctAnswersLoadedSubject.next(true);
-      
+
         // Load and set the explanation text for the current question
         let currentIndex: number;
 
-        this.quizDataService.getCurrentQuestionIndex().pipe(
-          tap((index) => currentIndex = index), // Save the index for later use
-          switchMap(() => this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex))
-        ).subscribe((explanationText) => {
-          if (explanationText) {
-            currentQuestion.explanation = explanationText;
-            this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText);
+        this.quizDataService.getCurrentQuestionIndex().subscribe((index) => {
+          currentIndex = index;
+
+          // Ensure that currentIndex is defined before calling getExplanationTextForQuestionIndex
+          if (currentIndex !== undefined) {
+            const explanationText$ = this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
+
+            // Ensure that explanationText$ is an observable
+            if (isObservable(explanationText$)) {
+              explanationText$.subscribe((explanationText) => {
+                if (explanationText) {
+                  currentQuestion.explanation = explanationText as string;
+                  this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText as string);
+                }
+              });
+            }
           }
         });
       
