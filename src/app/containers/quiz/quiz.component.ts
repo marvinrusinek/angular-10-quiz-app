@@ -327,8 +327,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Use forkJoin to wait for all observables to complete
       forkJoin(observables).subscribe({
         next: (explanationTexts) => {
+          console.log('Received explanationTexts:', explanationTexts);
+      
           explanationTexts.forEach((explanationText, i) => {
             if (explanationText) {
+              console.log(`Setting explanation for index ${i}: ${explanationText}`);
               this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
             }
           });
@@ -336,7 +339,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error fetching explanation texts:', error);
         },
-      });      
+      });          
     }
   }
 
