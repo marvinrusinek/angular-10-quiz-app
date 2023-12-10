@@ -291,6 +291,10 @@ export class ExplanationTextService implements OnDestroy {
     this.nextExplanationTextSource.next('');
   }
 
+  resetState(): void {
+    this.explanationTexts = {};
+  }  
+
   resetExplanationState() {
     console.log('resetExplanationState() called');
     this.questionIndexCounter = 0;
