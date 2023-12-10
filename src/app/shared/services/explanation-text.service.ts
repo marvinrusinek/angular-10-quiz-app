@@ -81,7 +81,7 @@ export class ExplanationTextService implements OnDestroy {
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     // Ensure it's always an instance of BehaviorSubject
     if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
-        this.explanationTexts[index] = new BehaviorSubject<string>('');
+      this.explanationTexts[index] = new BehaviorSubject<string>('');
     }
 
     this.explanationTexts[index].next(explanation);
