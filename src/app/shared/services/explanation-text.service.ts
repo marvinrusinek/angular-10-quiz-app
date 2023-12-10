@@ -78,15 +78,24 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    this.explanationTexts[index] = explanation;
+    if (!this.explanationTexts[index]) {
+      this.explanationTexts[index] = new BehaviorSubject<string>('');
+    }
+    this.explanationTexts[index].next(explanation);
     console.log(`Set explanation for index ${index}: ${explanation}`);
   }
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
-    const explanation = this.explanationTexts[index];
-    console.log(`Get explanation for index ${index}: ${explanation}`);
-    return explanation;
-  }  
+    const explanationSubject = this.explanationTexts[index];
+  
+    if (explanationSubject) {
+      const explanation = explanationSubject.value;
+      console.log(`Get explanation for index ${index}: ${explanation}`);
+      return explanation;
+    }
+  
+    return undefined;
+  }
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
@@ -247,7 +256,7 @@ export class ExplanationTextService implements OnDestroy {
     return this.lastDisplayedExplanationText;
   }
 
-  private getExplanationObservable(questionIndex: number): BehaviorSubject<string> {
+  getExplanationObservable(questionIndex: number): BehaviorSubject<string> {
     if (!this.explanationTexts[questionIndex]) {
       this.explanationTexts[questionIndex] = new BehaviorSubject<string>('');
     }
