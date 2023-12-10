@@ -89,11 +89,16 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
+    if (index < 0 || index >= this.explanationTexts.length) {
+      console.error(`Invalid index: ${index}`);
+      return of(undefined);
+    }
+
     const explanationSubject = this.explanationTexts[index];
-    return explanationSubject 
-      ? of(explanationSubject.value) 
-      : of(undefined);
-  }
+    const explanation = explanationSubject ? explanationSubject.value : undefined;
+    console.log(`Get explanation for index ${index}::>> ${explanation}`);
+    return of(explanation);
+  }  
   
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
