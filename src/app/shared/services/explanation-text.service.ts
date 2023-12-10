@@ -98,12 +98,12 @@ export class ExplanationTextService implements OnDestroy {
   
     if (explanationSubject) {
       // Use of to wrap the synchronous value in an observable
-      return explanationSubject.asObservable();
+      return of(explanationSubject.value);
     }
   
-    // Return an observable with undefined if explanationSubject is not found
-    return of(undefined);
-  }  
+    // Return an empty observable if explanationSubject is not found
+    return of('');
+  }
 
   /* getExplanationTextForQuestionIndex(index: number): BehaviorSubject<string> | undefined {
     return this.explanationTexts[index];

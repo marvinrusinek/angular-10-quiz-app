@@ -751,6 +751,7 @@ export class QuizComponent implements OnInit, OnDestroy {
               if (explanationText$ instanceof Observable) {
                 explanationText$.subscribe({
                   next: (explanationText) => {
+                    console.log('Explanation Text Observable:', explanationText$);
                     console.log('Explanation Text:::>', explanationText);
 
                     if (explanationText) {
