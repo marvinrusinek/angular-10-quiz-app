@@ -424,12 +424,26 @@ export class CodelabQuizContentComponent
       })
     ) as Observable<string>;
 
-    this.explanationTextSubscription = this.explanationText$.subscribe(
+    console.log('Explanation Text Observable::>>', this.explanationText$);
+    this.explanationText$.subscribe({
+      next: (displayText) => {
+        console.log('Received Explanation Text::>>', displayText);
+      },
+      complete: () => {
+        console.log('Explanation Text Observable completed.');
+      },
+      error: (err) => {
+        console.error('Error in Explanation Text Observable:', err);
+      }
+    });    
+    
+    /* this.explanationTextSubscription = this.explanationText$.subscribe(
       (displayText) => {
+        console.log('Received Explanation Text::>>', displayText);
         this.quizQuestionManagerService.setExplanationText(displayText);
         this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
       }
-    );
+    ); */
   }
 
   private initializeCombinedQuestionData(): void {
