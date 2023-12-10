@@ -83,11 +83,13 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Set explanation for index ${index}: ${explanation}`);
   }  
 
-  getExplanationTextForQuestionIndex(index: number): Observable<string> {
+  getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
     const explanationSubject = this.explanationTexts[index];
-    return explanationSubject ? explanationSubject.asObservable() : of('');
+    return explanationSubject 
+      ? of(explanationSubject.value) 
+      : of(undefined);
   }
-
+  
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
     questionId: string | number,
@@ -259,7 +261,6 @@ export class ExplanationTextService implements OnDestroy {
     this.clearExplanationText();
     this.resetExplanationState();
     this.resetProcessedQuestionsState();
-    this.resetObservables();
   }  
 
   clearExplanationText(): void {
@@ -273,20 +274,14 @@ export class ExplanationTextService implements OnDestroy {
     this.questionIndexCounter = 0;
     this.formattedExplanation$.next('');
     this.explanationTexts = {};
-    this.explanationText$.next(null);
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
     this.shouldDisplayExplanation$ = new BehaviorSubject<boolean>(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.shouldDisplayExplanationSource.next(false);
+    this.nextExplanationTextSource.next('');
   }
 
   resetProcessedQuestionsState() {
     this.processedQuestions = new Set<string>();
-  }
-
-  resetObservables(): void {
-    console.log('Resetting observables...');
-    this.explanationText$.next('');
-    this.nextExplanationTextSource.next('');
-  }    
+  } 
 }
