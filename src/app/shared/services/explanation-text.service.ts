@@ -22,7 +22,17 @@ export class ExplanationTextService implements OnDestroy {
     string | null
   >('');
   explanations: string[] = [];
-  private explanationTexts: Record<number, BehaviorSubject<string>> = {};
+  private explanationTexts: Record<number, BehaviorSubject<string>> = Object.create(null);
+
+  // Observable to track changes in the current question index
+  currentQuestionIndex$ = new BehaviorSubject<number | null>(null);
+
+  // Observable to provide explanation text for the current question
+  explanationTextForCurrentQuestion$: Observable<string | null> = this.currentQuestionIndex$.pipe(
+    switchMap((index) => this.getExplanationTextForQuestionIndex(index))
+  );
+
+
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
@@ -73,18 +83,23 @@ export class ExplanationTextService implements OnDestroy {
     this.destroyed$.complete();
   }
 
+  setCurrentQuestionIndex(index: number) {
+    this.currentQuestionIndex$.next(index);
+  }
+
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     // Set the explanation text
-    if (!this.explanationTexts[index]) {
+    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
       this.explanationTexts[index] = new BehaviorSubject<string>('');
     }
+  
     this.explanationTexts[index].next(explanation);
     console.log(`Set explanation for index ${index}: ${explanation}`);
-  }
+  }  
 
   getExplanationTextForQuestionIndex(index: number): string | undefined {
     const explanationSubject = this.explanationTexts[index];
