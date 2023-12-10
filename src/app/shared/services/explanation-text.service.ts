@@ -79,11 +79,23 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    if (!this.explanationTexts[index]) {
+    // Ensure explanationTexts[index] is initialized as BehaviorSubject
+    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
       this.explanationTexts[index] = new BehaviorSubject<string>('');
     }
-    this.explanationTexts[index].next(explanation);
-  }
+  
+    // Provide a default explanation if it is undefined or not a string
+    const defaultExplanation = 'No explanation available';
+    const validExplanation = typeof explanation === 'string' ? explanation : defaultExplanation;
+  
+    // Update explanationTexts[index] using next
+    if (this.explanationTexts[index] instanceof BehaviorSubject) {
+      this.explanationTexts[index].next(validExplanation);
+      console.log(`Set explanation for index ${index}: ${validExplanation}`);
+    } else {
+      console.error(`Error: explanationTexts[${index}] is not a BehaviorSubject`);
+    }
+  }  
 
   getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
     const explanationSubject = this.explanationTexts[index];
