@@ -79,32 +79,20 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-    console.log(`Set explanation for index ${index}: ${explanation}`);
-    // Ensure explanationTexts[index] is initialized as BehaviorSubject
-    /*  (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
+    if (!this.explanationTexts[index]) {
       this.explanationTexts[index] = new BehaviorSubject<string>('');
     }
-  
-    // Provide a default explanation if it is undefined or not a string
-    const defaultExplanation = 'No explanation available';
-    const validExplanation = typeof explanation === 'string' ? explanation : defaultExplanation;
-  
-    // Update explanationTexts[index] using next
-    this.explanationTexts[index].next(validExplanation);
-    console.log(`Set explanation for index ${index}: ${validExplanation}`); */
-  }  
+    this.explanationTexts[index].next(explanation);
+  }
 
-  getExplanationTextForQuestionIndex(index: number): Observable<string> {
+  getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
     const explanationSubject = this.explanationTexts[index];
-  
+
     if (explanationSubject) {
-      // Use of to wrap the synchronous value in an observable
-      return of(explanationSubject.value);
+      return explanationSubject.asObservable();
     }
-  
-    // Return an empty observable if explanationSubject is not found
-    return of('');
+
+    return of(undefined);
   }
 
   /* getExplanationTextForQuestionIndex(index: number): BehaviorSubject<string> | undefined {
