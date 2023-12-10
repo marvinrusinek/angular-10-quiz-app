@@ -93,7 +93,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Set explanation for index ${index}: ${validExplanation}`);
   }  
 
-  getExplanationTextForQuestionIndex(index: number): string | undefined {
+  /* getExplanationTextForQuestionIndex(index: number): string | undefined {
     const explanationSubject = this.explanationTexts[index];
   
     if (explanationSubject) {
@@ -103,7 +103,11 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     return undefined;
-  }
+  } */
+
+  getExplanationTextForQuestionIndex(index: number): BehaviorSubject<string> | undefined {
+    return this.explanationTexts[index];
+  }  
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
