@@ -79,8 +79,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+    this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    console.log(`Set explanation for index ${index}: ${explanation}`);
     // Ensure explanationTexts[index] is initialized as BehaviorSubject
-    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
+    /*  (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
       this.explanationTexts[index] = new BehaviorSubject<string>('');
     }
   
@@ -90,7 +92,7 @@ export class ExplanationTextService implements OnDestroy {
   
     // Update explanationTexts[index] using next
     this.explanationTexts[index].next(validExplanation);
-    console.log(`Set explanation for index ${index}: ${validExplanation}`);
+    console.log(`Set explanation for index ${index}: ${validExplanation}`); */
   }  
 
   getExplanationTextForQuestionIndex(index: number): Observable<string> {
