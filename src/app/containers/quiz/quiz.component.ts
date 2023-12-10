@@ -316,6 +316,15 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.options$ = of(previousOptions);
         }
       });
+
+    // Set explanation text for each question
+    for (let i = 0; i < this.questions.length; i++) {
+      this.explanationTextService.getExplanationTextForQuestionIndex(i).subscribe((explanationText) => {
+        if (explanationText) {
+          this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
