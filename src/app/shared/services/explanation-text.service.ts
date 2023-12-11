@@ -100,8 +100,8 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
-    if (numericIndex < 0 || !this.explanationTexts.hasOwnProperty(numericIndex)) {
-      console.warn(`Invalid index: ${numericIndex}, must be greater than or equal to 0`);
+    if (numericIndex < 0 || numericIndex >= Object.keys(this.explanationTexts).length) {
+      console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
   
@@ -116,7 +116,7 @@ export class ExplanationTextService implements OnDestroy {
   
     return explanationSubject.asObservable();
   }
-        
+
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
     questionId: string | number,
