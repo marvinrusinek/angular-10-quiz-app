@@ -100,23 +100,23 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
-    if (numericIndex < 0) {
+    if (numericIndex < 0 || !this.explanationTexts.hasOwnProperty(numericIndex)) {
       console.warn(`Invalid index: ${numericIndex}, must be greater than or equal to 0`);
       return of(undefined);
     }
   
     const explanationSubject = this.explanationTexts[numericIndex];
   
-    if (!explanationSubject || !(explanationSubject instanceof BehaviorSubject)) {
+    if (!(explanationSubject instanceof BehaviorSubject)) {
       console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
       return of(undefined);
     }
   
     console.log(`Got explanation for index ${numericIndex}: ${explanationSubject.value}`);
   
-    return of(explanationSubject.value);
+    return explanationSubject.asObservable();
   }
-    
+      
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
     questionId: string | number,
