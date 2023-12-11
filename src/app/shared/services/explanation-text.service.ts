@@ -89,7 +89,7 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   getExplanationTextForQuestionIndex(index: number): Observable<string | undefined> {
-    if (index < 0 || index >= this.explanationTexts.length) {
+    if (!this.explanationTexts.hasOwnProperty(index)) {
       console.error(`Invalid index: ${index}`);
       return of(undefined);
     }
