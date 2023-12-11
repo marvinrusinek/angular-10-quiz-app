@@ -102,7 +102,7 @@ export class ExplanationTextService implements OnDestroy {
       } else {
         console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
       }
-    } else if (numericIndex < 0) {
+    } else {
       console.warn(`Invalid index: ${numericIndex}`);
     }
   
