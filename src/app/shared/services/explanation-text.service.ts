@@ -79,20 +79,20 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    if (index < 0) {
+    const numericIndex = index >= 0 ? index : null;
+  
+    if (numericIndex === null) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
   
-    if (!this.explanationTexts[index]) {
-      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-    } else if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
-      console.error(`Explanation text for index ${index} is not an instance of BehaviorSubject. Type: ${typeof this.explanationTexts[index]}`);
+    if (!this.explanationTexts[numericIndex] || !(this.explanationTexts[numericIndex] instanceof BehaviorSubject)) {
+      this.explanationTexts[numericIndex] = new BehaviorSubject<string>(explanation);
+      console.log(`Set explanation for index ${numericIndex}: ${explanation}`);
     } else {
-      (this.explanationTexts[index] as BehaviorSubject<string>).next(explanation);
+      (this.explanationTexts[numericIndex] as BehaviorSubject<string>).next(explanation);
+      console.log(`Updated explanation for index ${numericIndex}: ${explanation}`);
     }
-  
-    console.log(`Set explanation for index ${index}: ${explanation}`);
   }
   
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
@@ -116,7 +116,7 @@ export class ExplanationTextService implements OnDestroy {
   
     return explanationSubject.asObservable();
   }
-      
+        
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
     questionId: string | number,
