@@ -107,7 +107,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   
     return of(undefined);
-  }  
+  }
   
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
