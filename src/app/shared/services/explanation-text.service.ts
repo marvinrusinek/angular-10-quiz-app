@@ -93,27 +93,21 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
-    if (numericIndex >= 0) {
-      const keys = Object.keys(this.explanationTexts);
-  
-      if (numericIndex < keys.length) {
-        const explanationSubject = this.explanationTexts[numericIndex];
-  
-        if (explanationSubject instanceof BehaviorSubject) {
-          console.log(`Got explanation for index ${numericIndex}: ${explanationSubject.value}`);
-          return of(explanationSubject.value);
-        } else {
-          console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
-        }
-      } else {
-        console.warn(`Invalid index: ${numericIndex}, exceeds the maximum index of ${keys.length - 1}`);
-      }
-    } else {
+    if (numericIndex < 0 || numericIndex >= Object.keys(this.explanationTexts).length) {
       console.warn(`Invalid index: ${numericIndex}, must be greater than or equal to 0`);
+      return of(undefined);
     }
   
-    return of(undefined);
-  }  
+    const explanationSubject = this.explanationTexts[numericIndex];
+    if (!explanationSubject) {
+      console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: undefined`);
+      return of(undefined);
+    }
+  
+    console.log(`Got explanation for index ${numericIndex}: ${explanationSubject.value}`);
+  
+    return of(explanationSubject.value);
+  }    
   
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
