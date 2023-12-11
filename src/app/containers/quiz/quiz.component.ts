@@ -330,7 +330,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           console.log('Received explanationTexts:', explanationTexts);
       
           explanationTexts.forEach((explanationText, i) => {
-            if (explanationText) {
+            if (explanationText && i >= 0) {
               console.log(`Setting explanation for index ${i}: ${explanationText}`);
               this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
             }
