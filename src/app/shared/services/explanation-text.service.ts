@@ -79,14 +79,21 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    // Ensure it's always an instance of BehaviorSubject
-    if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
-      this.explanationTexts[index] = new BehaviorSubject<string>('');
+    if (index < 0) {
+      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
+      return;
     }
-
-    this.explanationTexts[index].next(explanation);
+  
+    if (!this.explanationTexts[index]) {
+      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    } else if (this.explanationTexts[index] instanceof BehaviorSubject) {
+      this.explanationTexts[index].next(explanation);
+    } else {
+      console.error(`Explanation text for index ${index} is not an instance of BehaviorSubject. Type: ${typeof this.explanationTexts[index]}`);
+    }
+  
     console.log(`Set explanation for index ${index}: ${explanation}`);
-  }
+  }  
   
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
