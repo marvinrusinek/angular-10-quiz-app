@@ -102,12 +102,12 @@ export class ExplanationTextService implements OnDestroy {
       } else {
         console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
       }
-    } else {
+    } else if (numericIndex < 0) {
       console.warn(`Invalid index: ${numericIndex}`);
     }
   
     return of(undefined);
-  }
+  }  
   
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
