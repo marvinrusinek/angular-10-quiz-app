@@ -115,7 +115,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Got explanation for index ${numericIndex}: ${explanationSubject.value}`);
   
     return explanationSubject.asObservable();
-  }
+  }  
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
