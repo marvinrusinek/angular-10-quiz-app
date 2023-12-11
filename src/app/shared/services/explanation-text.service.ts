@@ -91,12 +91,16 @@ export class ExplanationTextService implements OnDestroy {
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
   
+    console.log(`Trying to get explanation for index: ${numericIndex}`);
+  
     if (numericIndex < 0 || numericIndex >= Object.keys(this.explanationTexts).length) {
       console.warn(`Invalid index: ${numericIndex}`);
       return of(undefined);
     }
   
     const explanationSubject = this.explanationTexts[numericIndex];
+    console.log(`Got explanation for index ${numericIndex}: ${explanationSubject?.value}`);
+  
     return explanationSubject
       ? of(explanationSubject.value)
       : of(undefined);
