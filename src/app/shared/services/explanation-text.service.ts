@@ -93,7 +93,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
-    if (numericIndex >= 0) {
+    if (numericIndex >= 0 && numericIndex < Object.keys(this.explanationTexts).length) {
       const explanationSubject = this.explanationTexts[numericIndex];
   
       if (explanationSubject instanceof BehaviorSubject) {
