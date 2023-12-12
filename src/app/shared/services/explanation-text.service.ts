@@ -86,7 +86,7 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
   
-    if (!this.explanationTexts[numericIndex] || !(this.explanationTexts[numericIndex] instanceof BehaviorSubject)) {
+    if (!this.explanationTexts.hasOwnProperty(numericIndex) || !(this.explanationTexts[numericIndex] instanceof BehaviorSubject)) {
       this.explanationTexts[numericIndex] = new BehaviorSubject<string>(explanation);
       console.log(`Set explanation for index ${numericIndex}: ${explanation}`);
     } else {
@@ -114,7 +114,7 @@ export class ExplanationTextService implements OnDestroy {
       console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
       return of(undefined);
     }
-  }
+  }  
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
