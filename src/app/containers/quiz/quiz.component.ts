@@ -351,7 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Add logging for each observable
         observable.subscribe({
           next: (explanationText) => {
-            console.log(`Received explanation text for index ${i}: ${explanationText}`);
+            console.log(`Received explanation text for index ${i}::>> ${explanationText}`);
           },
           error: (error) => {
             console.error(`Error fetching explanation text for index ${i}:`, error);
@@ -368,7 +368,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           explanationTexts.forEach((explanationText, i) => {
             if (explanationText) {
-              console.log(`Setting explanation for index ${i}: ${explanationText}`);
+              console.log(`Setting explanation for index ${i}::>> ${explanationText}`);
               this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
             }
           });
