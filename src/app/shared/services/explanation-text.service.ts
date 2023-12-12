@@ -79,19 +79,19 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    if (index < 0) {
+    const numericIndex = index >= 0 ? index : null;
+  
+    if (numericIndex === null) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
   
-    const explanationSubject = this.explanationTexts[index];
-  
-    if (!explanationSubject || !(explanationSubject instanceof BehaviorSubject)) {
-      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-      console.log(`Set explanation for index ${index}: ${explanation}`);
+    if (!this.explanationTexts.hasOwnProperty(numericIndex) || !(this.explanationTexts[numericIndex] instanceof BehaviorSubject)) {
+      this.explanationTexts[numericIndex] = new BehaviorSubject<string>(explanation);
+      console.log(`Set explanation for index ${numericIndex}: ${explanation}`);
     } else {
-      explanationSubject.next(explanation);
-      console.log(`Updated explanation for index ${index}: ${explanation}`);
+      (this.explanationTexts[numericIndex] as BehaviorSubject<string>).next(explanation);
+      console.log(`Updated explanation for index ${numericIndex}: ${explanation}`);
     }
   }
   
@@ -100,7 +100,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
-    if (numericIndex < 0 || numericIndex >= this.questions.length) {
+    if (numericIndex < 0 || !this.explanationTexts.hasOwnProperty(numericIndex)) {
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
@@ -114,7 +114,7 @@ export class ExplanationTextService implements OnDestroy {
       console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
       return of(undefined);
     }
-  }
+  }  
   
 
   // Function to update explanations based on question ID or index
