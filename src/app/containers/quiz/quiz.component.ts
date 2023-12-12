@@ -342,6 +342,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       });          
     } */
 
+    console.log("MYQUESTIONS", this.questions);
+
     // Set explanation text for each question
     if (this.questions && this.questions.length > 0) {
       // Create an array of observables for each question index
