@@ -318,7 +318,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
 
     // Set explanation text for each question
-    if (this.questions && this.questions.length > 0) {
+    /* if (this.questions && this.questions.length > 0) {
       // Create an array of observables for each question index
       const observables = this.questions.map((_, i) =>
         this.explanationTextService.getExplanationTextForQuestionIndex(i)
@@ -327,8 +327,45 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Use forkJoin to wait for all observables to complete
       forkJoin(observables).subscribe({
         next: (explanationTexts) => {
-          console.log('Received explanationTexts:', explanationTexts);
+          console.log('Received explanationTexts::::', explanationTexts);
       
+          explanationTexts.forEach((explanationText, i) => {
+            if (explanationText) {
+              console.log(`Setting explanation for index ${i}::: ${explanationText}`);
+              this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error fetching explanation texts:', error);
+        },
+      });          
+    } */
+
+    // Set explanation text for each question
+    if (this.questions && this.questions.length > 0) {
+      // Create an array of observables for each question index
+      const observables = this.questions.map((_, i) => {
+        const observable = this.explanationTextService.getExplanationTextForQuestionIndex(i);
+
+        // Add logging for each observable
+        observable.subscribe({
+          next: (explanationText) => {
+            console.log(`Received explanation text for index ${i}: ${explanationText}`);
+          },
+          error: (error) => {
+            console.error(`Error fetching explanation text for index ${i}:`, error);
+          },
+        });
+
+        return observable;
+      });
+
+      // Use forkJoin to wait for all observables to complete
+      forkJoin(observables).subscribe({
+        next: (explanationTexts) => {
+          console.log('Received explanationTexts:', explanationTexts);
+
           explanationTexts.forEach((explanationText, i) => {
             if (explanationText) {
               console.log(`Setting explanation for index ${i}: ${explanationText}`);
@@ -339,7 +376,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error fetching explanation texts:', error);
         },
-      });          
+      });
     }
   }
 
