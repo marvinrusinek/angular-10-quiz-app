@@ -1361,9 +1361,6 @@ export class QuizService implements OnDestroy {
       // Obtain the explanation text
       const explanationText = nextQuestion.explanation;
 
-      console.log('Next Question fetched::>', nextQuestion);
-      console.log('Explanation Text::>', explanationText);
-
       return { nextQuestion, explanationText };
     } catch (error) {
       console.error(
