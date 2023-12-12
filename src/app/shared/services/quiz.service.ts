@@ -1381,7 +1381,6 @@ export class QuizService implements OnDestroy {
     try {
       // Fetch the previous question
       const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
-
   
       if (!previousQuestion) {
         // Handle the case where previousQuestion is undefined
@@ -1391,9 +1390,6 @@ export class QuizService implements OnDestroy {
   
       // Obtain the explanation text for the previous question
       const explanationText = previousQuestion.explanation;
-  
-      console.log('Previous Question fetched:', previousQuestion);
-      console.log('Explanation Text:', explanationText);
   
       return { previousQuestion, explanationText };
     } catch (error) {
