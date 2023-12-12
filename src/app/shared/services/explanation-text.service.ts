@@ -100,7 +100,7 @@ export class ExplanationTextService implements OnDestroy {
   
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
-    if (numericIndex < 0 || numericIndex >= Object.keys(this.explanationTexts).length) {
+    if (numericIndex < 0 || numericIndex >= this.questions.length) {
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
@@ -115,6 +115,7 @@ export class ExplanationTextService implements OnDestroy {
       return of(undefined);
     }
   }
+  
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
