@@ -1403,16 +1403,6 @@ export class QuizService implements OnDestroy {
   }
 
   /********* navigation functions ***********/
-  /* navigateToPreviousQuestion() {
-    this.quizCompleted = false;
-    this.router.navigate([
-      QuizRoutes.QUESTION,
-      this.quizId,
-      this.currentQuestionIndex,
-    ]);
-    this.resetAll();
-  } */
-
   navigateToResults() {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
@@ -1429,7 +1419,6 @@ export class QuizService implements OnDestroy {
     this.correctAnswerOptions = [];
     this.correctOptions = [];
     this.correctMessage = '';
-    this.explanationText.next('');
     this.currentQuestionIndex = 0;
   }
 }
