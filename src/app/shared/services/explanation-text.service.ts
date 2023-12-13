@@ -23,6 +23,7 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
+  private maxIndex: number = -1;
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
@@ -80,13 +81,15 @@ export class ExplanationTextService implements OnDestroy {
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
-    const keys = Object.keys(this.explanationTexts);
     
-    if (index < 0 || index >= keys.length) {
+    // Update the maxIndex if the current index is greater
+    this.maxIndex = Math.max(this.maxIndex, index);
+
+    if (index < 0 || index > this.maxIndex) {
       console.warn(`Invalid index: ${index}, must be within the valid range`);
       return;
     }
-  
+
     if (!this.explanationTexts.hasOwnProperty(index) || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
       console.log(`Set explanation for index ${index}: ${explanation}`);
@@ -95,20 +98,18 @@ export class ExplanationTextService implements OnDestroy {
       console.log(`Updated explanation for index ${index}: ${explanation}`);
     }
   }
-  
+
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
     console.log(`Trying to get explanation for index: ${numericIndex}`);
     
-    const keys = Object.keys(this.explanationTexts);
-  
-    if (numericIndex < 0 || numericIndex >= keys.length) {
+    if (numericIndex < 0 || numericIndex > this.maxIndex) {
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
-  
+
     const explanationSubject = this.explanationTexts[numericIndex];
-  
+
     if (explanationSubject instanceof BehaviorSubject) {
       console.log(`Got explanation for index ${numericIndex}: ${explanationSubject.value}`);
       return explanationSubject.asObservable();
@@ -117,6 +118,7 @@ export class ExplanationTextService implements OnDestroy {
       return of(undefined);
     }
   }
+
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
