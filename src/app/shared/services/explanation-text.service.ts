@@ -24,6 +24,7 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
   private maxIndex: number = -1;
+  private validIndices = new Set<number>();
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
@@ -81,14 +82,14 @@ export class ExplanationTextService implements OnDestroy {
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
-    
-    // Update the maxIndex if the current index is greater
-    this.maxIndex = Math.max(this.maxIndex, index);
 
-    if (index < 0 || index > this.maxIndex) {
-      console.warn(`Invalid index: ${index}, must be within the valid range`);
+    if (index < 0) {
+      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
+
+    // Add the index to the set of valid indices
+    this.validIndices.add(index);
 
     if (!this.explanationTexts.hasOwnProperty(index) || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
@@ -102,8 +103,9 @@ export class ExplanationTextService implements OnDestroy {
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
     console.log(`Trying to get explanation for index: ${numericIndex}`);
-    
-    if (numericIndex < 0 || numericIndex > this.maxIndex) {
+
+    // Check if the index is in the set of valid indices
+    if (!this.validIndices.has(numericIndex)) {
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
@@ -118,6 +120,7 @@ export class ExplanationTextService implements OnDestroy {
       return of(undefined);
     }
   }
+
 
 
   // Function to update explanations based on question ID or index
