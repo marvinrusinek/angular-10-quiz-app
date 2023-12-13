@@ -99,6 +99,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
     if (numericIndex < 0 || !this.explanationTexts.hasOwnProperty(numericIndex)) {
+      console.log(`Index ${numericIndex} exists in explanationTexts: ${numericIndex in this.explanationTexts}`);
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
