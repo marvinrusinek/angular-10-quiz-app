@@ -79,6 +79,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
+    console.log(`Setting explanation for index ${index}: ${explanation}`);
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
