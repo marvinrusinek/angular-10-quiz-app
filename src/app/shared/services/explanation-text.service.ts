@@ -23,8 +23,8 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
-  private maxIndex: number = -1;
   private validIndices = new Set<number>();
+  private maxIndex: number = -1;
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
@@ -83,29 +83,26 @@ export class ExplanationTextService implements OnDestroy {
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
 
-    if (index < 0) {
-      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
+    if (index < 0 || index > this.maxIndex) {
+      console.warn(`Invalid index: ${index}, must be within the valid range`);
       return;
     }
 
-    // Add the index to the set of valid indices
-    this.validIndices.add(index);
+    // Update the maxIndex if the current index is greater
+    this.maxIndex = Math.max(this.maxIndex, index);
 
-    if (!this.explanationTexts.hasOwnProperty(index) || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
-      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-      console.log(`Set explanation for index ${index}: ${explanation}`);
-    } else {
-      (this.explanationTexts[index] as BehaviorSubject<string>).next(explanation);
-      console.log(`Updated explanation for index ${index}: ${explanation}`);
-    }
+    // Use BehaviorSubject directly without checking if it exists
+    this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+
+    console.log(`Set explanation for index ${index}: ${explanation}`);
   }
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
     console.log(`Trying to get explanation for index: ${numericIndex}`);
 
-    // Check if the index is in the set of valid indices
-    if (!this.validIndices.has(numericIndex)) {
+    // Check if the index is within the valid range
+    if (numericIndex < 0 || numericIndex > this.maxIndex) {
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
@@ -120,6 +117,7 @@ export class ExplanationTextService implements OnDestroy {
       return of(undefined);
     }
   }
+
 
 
 
