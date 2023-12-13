@@ -344,8 +344,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
       this.questions = questions;
-      console.log("MYQUESTIONS", this.questions);
     });
+
+    console.log("MYQUESTIONS", this.questions);
 
     // Set explanation text for each question
     if (this.questions && this.questions.length > 0) {
