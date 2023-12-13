@@ -85,21 +85,19 @@ export class ExplanationTextService implements OnDestroy {
 
     // Ensure that index is within the valid range
     if (index < 0) {
-        console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
-        return;
+      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
+      return;
     }
 
-    // Update the maxIndex if the current index is greater
-    this.maxIndex = Math.max(this.maxIndex, index);
-
     // Ensure that the explanationTexts array is initialized
-    if (!this.explanationTexts[index]) {
-        // Initialize the BehaviorSubject if it doesn't exist
-        this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-    } else if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
-        // Handle the case where the element is not an instance of BehaviorSubject
-        console.warn(`Explanation text for index ${index} is not an instance of BehaviorSubject.`);
-        return;
+    if (!this.explanationTexts) {
+      this.explanationTexts = [];
+    }
+
+    // Ensure that the element at index is initialized and is an instance of BehaviorSubject
+    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
+      // Initialize the BehaviorSubject if it doesn't exist or is not an instance of BehaviorSubject
+      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
     }
 
     // Update the existing BehaviorSubject with the new explanation
@@ -128,9 +126,6 @@ export class ExplanationTextService implements OnDestroy {
       return of(undefined);
     }
   }
-
-
-
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
