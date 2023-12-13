@@ -317,31 +317,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Set explanation text for each question
-    /* if (this.questions && this.questions.length > 0) {
-      // Create an array of observables for each question index
-      const observables = this.questions.map((_, i) =>
-        this.explanationTextService.getExplanationTextForQuestionIndex(i)
-      );
-
-      // Use forkJoin to wait for all observables to complete
-      forkJoin(observables).subscribe({
-        next: (explanationTexts) => {
-          console.log('Received explanationTexts::::', explanationTexts);
-      
-          explanationTexts.forEach((explanationText, i) => {
-            if (explanationText) {
-              console.log(`Setting explanation for index ${i}::: ${explanationText}`);
-              this.explanationTextService.setExplanationTextForQuestionIndex(i, explanationText);
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Error fetching explanation texts:', error);
-        },
-      });          
-    } */
-
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
       this.questions = questions;
       console.log("MYQUESTIONS", this.questions);
