@@ -91,7 +91,7 @@ export class ExplanationTextService implements OnDestroy {
       (this.explanationTexts[index] as BehaviorSubject<string>).next(explanation);
       console.log(`Updated explanation for index ${index}: ${explanation}`);
     }
-  }  
+  }
   
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
@@ -99,7 +99,6 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Trying to get explanation for index: ${numericIndex}`);
   
     if (numericIndex < 0 || !this.explanationTexts.hasOwnProperty(numericIndex)) {
-      console.log(`Index ${numericIndex} exists in explanationTexts: ${numericIndex in this.explanationTexts}`);
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
@@ -113,8 +112,7 @@ export class ExplanationTextService implements OnDestroy {
       console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
       return of(undefined);
     }
-  }  
-  
+  }
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
