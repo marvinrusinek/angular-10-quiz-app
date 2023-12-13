@@ -84,7 +84,7 @@ export class ExplanationTextService implements OnDestroy {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
 
     if (index < 0 || index > this.maxIndex) {
-      console.warn(`Invalid index: ${index}, must be within the valid range`);
+      console.warn(`Invalid index: ${index}, must be within the valid range..`);
       return;
     }
 
