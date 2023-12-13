@@ -1083,16 +1083,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  fetchExplanationText(questionIndex: number): string {
+  fetchExplanationText(questionIndex: number): Observable<string> {
     console.log('Fetching explanation text for question index:', questionIndex);
-    const explanation =
-      this.explanationTextService.getExplanationTextForQuestionIndex(
-        questionIndex
-      );
-    console.log('Fetched explanation for index', questionIndex, ':', explanation);
-
-    console.log('Fetched explanation:', explanation);
-    return explanation || '';
+    return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
