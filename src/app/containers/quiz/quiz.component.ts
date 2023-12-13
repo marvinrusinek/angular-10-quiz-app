@@ -323,12 +323,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     
         // Set explanation text for each question
         if (this.questions && this.questions.length > 0) {
+            const maxIndex = this.questions.length - 1; // Calculate the maximum valid index
+    
             // Create an array of observables for each valid question index
             const observables = this.questions.map((_, i) => {
                 console.log(`Processing index: ${i}`);
                 // Ensure that the index is within the valid range
-                if (i >= 0 && i < this.questions.length) {
-                    const observable = this.explanationTextService.getExplanationTextForQuestionIndex(i);
+                if (i >= 0 && i <= maxIndex) {
+                    const observable = this.explanationTextService.getExplanationTextForQuestionIndex(i, maxIndex);
     
                     // Add logging for each observable
                     observable.subscribe({
