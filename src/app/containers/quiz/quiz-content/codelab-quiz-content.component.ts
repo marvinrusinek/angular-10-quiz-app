@@ -482,10 +482,10 @@ export class CodelabQuizContentComponent
             const questionIndex = this.questions.indexOf(currentQuestion);
 
             // Fetch the explanation text
-            const explanationText =
+            /* const explanationText =
               this.explanationTextService.getExplanationTextForQuestionIndex(
                 questionIndex
-              );
+              ); */
 
             const questionHasMultipleAnswers =
               this.quizStateService.isMultipleAnswer(currentQuestion);
