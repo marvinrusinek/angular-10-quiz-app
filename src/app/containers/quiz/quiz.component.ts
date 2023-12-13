@@ -317,7 +317,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
 
-      this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
+      /* this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe(questions => {
         this.questions = questions;
         console.log("MYQUESTIONS", this.questions);
     
@@ -366,7 +366,7 @@ export class QuizComponent implements OnInit, OnDestroy {
                 },
             });
         }
-    });
+    }); */
   }
 
   ngOnDestroy(): void {
@@ -787,7 +787,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Load and set the explanation text for the current question
         let currentIndex: number;
 
-        this.quizDataService.getCurrentQuestionIndex().subscribe({
+        /* this.quizDataService.getCurrentQuestionIndex().subscribe({
           next: (index) => {
             currentIndex = index;
             console.log('Current Index:::>', currentIndex);
@@ -826,7 +826,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           complete: () => {
             // Handle completion if needed
           }
-        });
+        }); */
 
         // Log to check if the correct data is being used
         console.log('Question Data:', currentQuestion);
