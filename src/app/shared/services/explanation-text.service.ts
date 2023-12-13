@@ -83,16 +83,27 @@ export class ExplanationTextService implements OnDestroy {
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
 
-    if (index < 0 || index > this.maxIndex) {
-      console.warn(`Invalid index: ${index}, must be within the valid range..`);
-      return;
+    // Ensure that index is within the valid range
+    if (index < 0) {
+        console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
+        return;
     }
 
     // Update the maxIndex if the current index is greater
     this.maxIndex = Math.max(this.maxIndex, index);
 
-    // Use BehaviorSubject directly without checking if it exists
-    this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    // Ensure that the explanationTexts array is initialized
+    if (!this.explanationTexts[index]) {
+        // Initialize the BehaviorSubject if it doesn't exist
+        this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    } else if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
+        // Handle the case where the element is not an instance of BehaviorSubject
+        console.warn(`Explanation text for index ${index} is not an instance of BehaviorSubject.`);
+        return;
+    }
+
+    // Update the existing BehaviorSubject with the new explanation
+    this.explanationTexts[index].next(explanation);
 
     console.log(`Set explanation for index ${index}: ${explanation}`);
   }
