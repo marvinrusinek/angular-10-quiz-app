@@ -80,7 +80,9 @@ export class ExplanationTextService implements OnDestroy {
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
-    if (index < 0 || index >= Object.keys(this.explanationTexts).length) {
+    const keys = Object.keys(this.explanationTexts);
+    
+    if (index < 0 || index >= keys.length) {
       console.warn(`Invalid index: ${index}, must be within the valid range`);
       return;
     }
@@ -96,16 +98,11 @@ export class ExplanationTextService implements OnDestroy {
   
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-  
     console.log(`Trying to get explanation for index: ${numericIndex}`);
+    
+    const keys = Object.keys(this.explanationTexts);
   
-    /* if (numericIndex < 0 || !this.explanationTexts.hasOwnProperty(numericIndex)) {
-      console.log(`Index ${numericIndex} exists in explanationTexts: ${numericIndex in this.explanationTexts}`);
-      console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
-      return of(undefined);
-    } */
-
-    if (numericIndex < 0 || numericIndex >= Object.keys(this.explanationTexts).length) {
+    if (numericIndex < 0 || numericIndex >= keys.length) {
       console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
       return of(undefined);
     }
