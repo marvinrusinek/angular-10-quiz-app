@@ -79,21 +79,19 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    const numericIndex = index >= 0 ? index : null;
-  
-    if (numericIndex === null) {
+    if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
   
-    if (!this.explanationTexts.hasOwnProperty(numericIndex) || !(this.explanationTexts[numericIndex] instanceof BehaviorSubject)) {
-      this.explanationTexts[numericIndex] = new BehaviorSubject<string>(explanation);
-      console.log(`Set explanation for index ${numericIndex}: ${explanation}`);
+    if (!this.explanationTexts.hasOwnProperty(index) || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
+      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+      console.log(`Set explanation for index ${index}: ${explanation}`);
     } else {
-      (this.explanationTexts[numericIndex] as BehaviorSubject<string>).next(explanation);
-      console.log(`Updated explanation for index ${numericIndex}: ${explanation}`);
+      (this.explanationTexts[index] as BehaviorSubject<string>).next(explanation);
+      console.log(`Updated explanation for index ${index}: ${explanation}`);
     }
-  }
+  }  
   
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
