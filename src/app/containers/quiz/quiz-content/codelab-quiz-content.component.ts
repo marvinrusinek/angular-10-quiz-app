@@ -332,33 +332,35 @@ export class CodelabQuizContentComponent
             console.log('Calculated question index:', questionIndex);
             console.log('Question Index:>', questionIndex);
 
-            const zeroBasedIndex = questionIndex - 1; // Assuming questionIndex is 1-based
-            if (zeroBasedIndex !== -1 && zeroBasedIndex < questions.length - 1) {
-                const nextQuestion = questions[zeroBasedIndex + 1];
-                console.log('Next Question Text:', nextQuestion.questionText);
-
-                const nextExplanationText = nextQuestion.explanation;
-                console.log('Next Explanation Text:', nextExplanationText);
-
-                console.log('Setting explanation text for question index:', zeroBasedIndex + 1);
-                console.log('Fetching explanation text for question index:', zeroBasedIndex + 1);
-                console.log('Explanation text from the API:', nextExplanationText);
-
-                this.explanationTextService.setExplanationTextForQuestionIndex(
-                    zeroBasedIndex + 1,
-                    nextExplanationText
-                );
-
-                console.log('Set explanation for index', zeroBasedIndex + 1, ':', nextExplanationText);
-
-                console.log(
-                    'Explanation Texts Object:',
-                    this.explanationTextService.explanationTexts
-                );
-
-                this.updateExplanationForQuestion(nextQuestion);
+            if (questionIndex !== -1 && questionIndex < questions.length - 1) {
+              const zeroBasedIndex = questionIndex - 1;
+              const nextQuestion = questions[zeroBasedIndex + 1];
+          
+              console.log('Next Question Index:', zeroBasedIndex + 1);
+              console.log('Current Questions Array:', questions);
+              
+              if (nextQuestion) {
+                  console.log('Next Question Text:', nextQuestion.questionText);
+                  const nextExplanationText = nextQuestion.explanation;
+                  console.log('Next Explanation Text:', nextExplanationText);
+          
+                  console.log('Setting explanation text for question index:', zeroBasedIndex + 1);
+                  console.log('Fetching explanation text for question index:', zeroBasedIndex + 1);
+                  console.log('Explanation text from the API:', nextExplanationText);
+          
+                  this.explanationTextService.setExplanationTextForQuestionIndex(
+                      zeroBasedIndex + 1,
+                      nextExplanationText
+                  );
+          
+                  console.log('Set explanation for index', zeroBasedIndex + 1, ':', nextExplanationText);
+          
+                  this.updateExplanationForQuestion(nextQuestion);
+              } else {
+                  console.warn('Next question not found in the questions array.');
+              }
             } else {
-                console.warn('Current question not found in the questions array.');
+              console.warn('Current question not found in the questions array.');
             }
           }
         }
