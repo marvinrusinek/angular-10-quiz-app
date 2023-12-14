@@ -165,6 +165,7 @@ export class ExplanationTextService implements OnDestroy {
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
     const questionKey = JSON.stringify(question);
+
     if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
       console.log('Skipping already processed or invalid question:', question.questionText);
       return { explanation: '' };
@@ -184,8 +185,14 @@ export class ExplanationTextService implements OnDestroy {
       formattedExplanation = 'No correct option selected...';
     }
 
-    // Set the formatted explanation for the question
-    this.formattedExplanation$.next(formattedExplanation);
+    // Check if BehaviorSubject for this index already exists
+    if (!this.explanationTexts[questionIndex]) {
+      this.explanationTexts[questionIndex] = new BehaviorSubject<string>(formattedExplanation);
+    } else {
+      // Update the existing BehaviorSubject with the new formatted explanation
+      this.explanationTexts[questionIndex].next(formattedExplanation);
+    }
+
     this.processedQuestions.add(questionKey);
 
     return { explanation: formattedExplanation };
