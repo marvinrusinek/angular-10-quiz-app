@@ -642,6 +642,11 @@ export class CodelabQuizContentComponent
     this.nextExplanationText$ =
       this.explanationTextService.nextExplanationText$;
 
+    this.explanationTextService.formattedExplanation$.subscribe(explanations => {
+      console.log('Formatted Explanation Values:', explanations);
+    });
+      
+
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
