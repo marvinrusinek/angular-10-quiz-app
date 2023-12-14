@@ -191,7 +191,7 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$.next([...this.formattedExplanations]);
 
     // Set the formatted explanation for the question
-    // this.formattedExplanation$.next(formattedExplanation);
+    this.formattedExplanation$.next(formattedExplanation);
     this.processedQuestions.add(questionKey);
 
     return { explanation: formattedExplanation };
