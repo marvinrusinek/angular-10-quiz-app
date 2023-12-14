@@ -185,10 +185,10 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     // Add the formatted explanation to the array
-    this.formattedExplanations$[questionIndex] = formattedExplanation;
+    // this.formattedExplanations$[questionIndex] = formattedExplanation;
 
     // Emit the entire array of formatted explanations
-    this.formattedExplanations$.next([...this.formattedExplanations]);
+    // this.formattedExplanations$.next([...this.formattedExplanations]);
 
     // Set the formatted explanation for the question
     this.formattedExplanation$.next(formattedExplanation);
