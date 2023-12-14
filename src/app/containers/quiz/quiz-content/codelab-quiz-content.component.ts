@@ -666,9 +666,7 @@ export class CodelabQuizContentComponent
           ) {
             return of('');
           } else {
-            let textToDisplay = '';
-
-            textToDisplay = shouldDisplayExplanation
+            const textToDisplay = shouldDisplayExplanation
               ? formattedExplanation || ''
               : this.questionToDisplay || '';
               
