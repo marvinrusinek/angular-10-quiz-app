@@ -70,6 +70,15 @@ export class ExplanationTextService implements OnDestroy {
     return this.explanationText$.asObservable();
   }
 
+  initializeExplanations(explanations: string[]): void {
+    this.explanationTexts = explanations.reduce((acc, exp, index) => {
+      acc[index] = new BehaviorSubject<string>(exp);
+      return acc;
+    }, {});
+  
+    this.maxIndex = Object.keys(this.explanationTexts).length - 1;
+  }  
+
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
 

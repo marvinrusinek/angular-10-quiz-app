@@ -51,6 +51,7 @@ export class QuizDataService implements OnDestroy {
 
   currentQuestionIndex = 0;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
+  maxIndex: number;
 
   selectedQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
