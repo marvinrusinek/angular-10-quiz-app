@@ -1088,7 +1088,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   fetchExplanationText(questionIndex: number): Observable<string> {
     console.log('Fetching explanation text for question index:', questionIndex);
 
-    if (typeof questionIndex !== 'number' || questionIndex < 0) {
+    if (typeof questionIndex !== 'number' || 
+        questionIndex < 0 || 
+        questionIndex >= this.quizService.totalQuestions) {
       console.warn(`Invalid question index: ${questionIndex}`);
       return of('Invalid question index');
     }
