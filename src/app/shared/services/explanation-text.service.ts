@@ -103,12 +103,12 @@ export class ExplanationTextService implements OnDestroy {
     // Update the existing BehaviorSubject with the new explanation
     this.explanationTexts[index].next(explanation);
 
-    console.log(`Set explanation for index ${index}: ${explanation}`);
+    console.log(`Set explanation for index ${index}::>> ${explanation}`);
   }
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-    console.log(`Trying to get explanation for index: ${numericIndex}`);
+    console.log(`Trying to get explanation for index::>> ${numericIndex}`);
 
     // Check if the index is within the valid range
     if (numericIndex < 0 || numericIndex > this.maxIndex) {
@@ -119,7 +119,7 @@ export class ExplanationTextService implements OnDestroy {
     const explanationSubject = this.explanationTexts[numericIndex];
 
     if (explanationSubject instanceof BehaviorSubject) {
-      console.log(`Got explanation for index ${numericIndex}: ${explanationSubject.value}`);
+      console.log(`Got explanation for index ${numericIndex}::>> ${explanationSubject.value}`);
       return explanationSubject.asObservable();
     } else {
       console.warn(`Explanation text for index ${numericIndex} is not an instance of BehaviorSubject. Type: ${typeof explanationSubject}`);
