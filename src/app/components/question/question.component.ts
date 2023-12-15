@@ -1090,8 +1090,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (typeof questionIndex !== 'number' || 
         questionIndex < 0 || 
-        questionIndex >= this.quizService.totalQuestions) {
-      console.warn(`Invalid question index: ${questionIndex}`);
+        questionIndex > this.quizService.totalQuestions) {
+      console.warn(`Invalid question index:: ${questionIndex}`);
       return of('Invalid question index');
     }
 

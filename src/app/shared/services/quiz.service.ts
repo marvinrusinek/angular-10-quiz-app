@@ -91,7 +91,7 @@ export class QuizService implements OnDestroy {
   selectedOptions: Option[] = [];
   resources: Resource[];
   quizId = '';
-  answers: number[];
+  answers: number[] = [];
   private answerStatus = new BehaviorSubject<boolean>(false);
   answerStatus$ = this.answerStatus.asObservable();
   totalQuestions = 0;
@@ -467,8 +467,8 @@ export class QuizService implements OnDestroy {
   } */
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
-    console.log('Answers:', this.answers);
-    console.log('Current Question:', this.currentQuestion);
+    console.log('Answers::', this.answers);
+    console.log('Current Question::', this.currentQuestion);
   
     if (!this.currentQuestion || !this.answers) {
       console.error('Question or Answers is not defined');
