@@ -1,17 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
-import {
-  debounceTime,
-  interval,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
-import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
@@ -23,7 +14,6 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
-  private validIndices = new Set<number>();
   private maxIndex: number = -1;
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
