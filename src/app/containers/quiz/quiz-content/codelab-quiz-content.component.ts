@@ -18,6 +18,7 @@ import {
   Subscription,
 } from 'rxjs';
 import {
+  catchError,
   distinctUntilChanged,
   map,
   startWith,
@@ -639,14 +640,12 @@ export class CodelabQuizContentComponent
 
   private setupExplanationTextDisplay(): void {
     this.explanationText$ = this.explanationTextService.explanationText$;
-    this.nextExplanationText$ =
-      this.explanationTextService.nextExplanationText$;
-
+    this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
+  
     this.explanationTextService.formattedExplanation$.subscribe(explanations => {
       console.log('Formatted Explanation Values:', explanations);
     });
-      
-
+  
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
@@ -654,34 +653,30 @@ export class CodelabQuizContentComponent
       this.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
-      tap(([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]) => {
-        console.log('Observables:', nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation);
-      }),
-      switchMap(
-        ([
-          nextQuestion,
-          previousQuestion,
-          nextExplanationText,
-          formattedExplanation,
-          shouldDisplayExplanation
-        ]) => {
-          if (
-            (!nextQuestion || !nextQuestion.questionText) &&
-            (!previousQuestion || !previousQuestion.questionText)
-          ) {
-            return of('');
-          } else {
-            const textToDisplay = shouldDisplayExplanation
-              ? formattedExplanation || ''
-              : this.questionToDisplay || '';
-              
-            return of(textToDisplay).pipe(startWith(textToDisplay));
-          }
-        }
-      ),
-      startWith('')
+      tap(this.logObservables.bind(this)),
+      switchMap(this.determineTextToDisplay.bind(this)),
+      startWith(''),
+      catchError(this.handleError.bind(this))
     );
   }
+  
+  private logObservables([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): void {
+    console.log('Observables:', nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation);
+  }
+  
+  private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      const textToDisplay = shouldDisplayExplanation ? formattedExplanation || '' : this.questionToDisplay || '';
+      return of(textToDisplay).pipe(startWith(textToDisplay));
+    }
+  }
+  
+  private handleError(error: any): Observable<string> {
+    console.error('An error occurred:', error);
+    return of('Error: unable to load explanation text');
+  }  
 
   getQuestionText(
     currentQuestion: QuizQuestion,
