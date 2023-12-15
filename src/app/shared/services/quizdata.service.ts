@@ -248,6 +248,9 @@ export class QuizDataService implements OnDestroy {
           }
         });
 
+        // Set maxIndex here after explanations are fetched
+        this.maxIndex = explanationTexts.length - 1;
+
         return of(explanationTexts);
       }),
       catchError((error) => {
