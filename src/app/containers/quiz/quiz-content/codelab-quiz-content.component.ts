@@ -655,6 +655,7 @@ export class CodelabQuizContentComponent
     ]).pipe(
       tap(this.logObservables.bind(this)),
       switchMap(this.determineTextToDisplay.bind(this)),
+      tap(text => console.log('Determined Text:', text)), // Log the determined text
       startWith(''),
       catchError(this.handleError.bind(this))
     );
