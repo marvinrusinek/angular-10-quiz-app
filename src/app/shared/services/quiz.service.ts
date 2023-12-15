@@ -1,6 +1,6 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {
   BehaviorSubject,
   from,
@@ -301,8 +301,9 @@ export class QuizService implements OnDestroy {
   }
 
   getQuizData(): Observable<Quiz[]> {
-    return this.http.get<Quiz[]>(this.quizUrl);
-  }
+    const headers = new HttpHeaders().set('Cache-Control', 'no-cache');
+    return this.http.get<Quiz[]>(this.quizUrl, { headers });
+  }  
 
   setSelectedQuiz(selectedQuiz: Quiz) {
     this.selectedQuiz$.next(selectedQuiz);
