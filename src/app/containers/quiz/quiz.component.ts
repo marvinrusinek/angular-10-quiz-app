@@ -1356,9 +1356,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.log('After reset - explanationText$:', this.explanationTextService.explanationText$);
       console.log('After reset - nextExplanationText$:', this.explanationTextService.nextExplanationText$);
 
-      const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex);
-      this.explanationTextService.setExplanationText(explanationText);
-
       await this.navigateToQuestion(this.currentQuestionIndex + 1);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
