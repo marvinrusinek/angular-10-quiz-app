@@ -1029,6 +1029,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
 
+    console.log("CQI:::>>>", this.currentQuestionIndex);
+
     // Fetch explanation text based on the current question index
     const questionIndex = this.currentQuestionIndex;
     this.fetchExplanationText(questionIndex).subscribe(explanationText => {
@@ -1090,12 +1092,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (typeof questionIndex !== 'number' || 
         questionIndex < 0 || 
-        questionIndex > this.quizService.totalQuestions) {
-      console.warn(`Invalid question index:: ${questionIndex}`);
+        questionIndex >= this.quizService.totalQuestions) {  // Adjusted condition
+      console.warn(`Invalid question index: ${questionIndex}`);
       return of('Invalid question index');
     }
 
-    return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+    const explanation$ = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+    explanation$.subscribe(text => console.log(`Explanation for index ${questionIndex}:`, text));
+    return explanation$;
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
