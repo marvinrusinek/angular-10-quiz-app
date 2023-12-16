@@ -1144,8 +1144,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       },
       (error) => {
         console.error('Error in isMultipleAnswer subscription:', error);
+      },
+      () => {
+        console.log('isMultipleAnswer subscription completed');
       }
-    );  
+    );     
   }
 
   checkOptionSelected(option: Option): boolean {
