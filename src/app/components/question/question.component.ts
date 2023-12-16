@@ -1210,7 +1210,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const formattedExplanation =
       this.explanationTextService.formatExplanationText(
         currentQuestion,
-        questionIndex
+        questionIndex + 1
       );
 
     // Ensure formattedExplanation is not void

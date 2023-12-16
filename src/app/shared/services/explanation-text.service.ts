@@ -170,7 +170,8 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
   }
 
-  formatExplanationText(question: QuizQuestion, questionIndex: number): { explanation: string } {
+  formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
+    console.log("QI", questionIndex);
     const questionKey = JSON.stringify(question);
     if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
       console.log('Skipping already processed or invalid question:', question.questionText);
@@ -205,6 +206,7 @@ export class ExplanationTextService implements OnDestroy {
 
     // Update the formatted explanation for the current question index
     this.formattedExplanations[questionIndex] = formattedExplanationObj;
+    console.log("FEA", this.formattedExplanations[questionIndex]);
 
     // Set the formatted explanation for the question
     console.log("FE BEFORE", formattedExplanation);
@@ -212,7 +214,10 @@ export class ExplanationTextService implements OnDestroy {
     console.log("FE::>>", this.formattedExplanation$.value);
     this.processedQuestions.add(questionKey);
 
-    return { explanation: formattedExplanation };
+    return {
+      questionIndex: questionIndex,
+      explanation: formattedExplanation
+    };
   }
 
   // Function to set or update the formatted explanation for a question
