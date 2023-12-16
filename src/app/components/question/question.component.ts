@@ -1082,7 +1082,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (isCorrect) {
       // Stop the timer and provide an empty callback
       this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!'); // You can add additional logic here
+        console.log('Correct answer selected!'); // add additional logic here
       });
     }
   }
@@ -1092,7 +1092,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     if (typeof questionIndex !== 'number' || 
         questionIndex < 0 || 
-        questionIndex >= this.quizService.totalQuestions) {  // Adjusted condition
+        questionIndex >= this.quizService.totalQuestions) {
       console.warn(`Invalid question index: ${questionIndex}`);
       return of('Invalid question index');
     }
