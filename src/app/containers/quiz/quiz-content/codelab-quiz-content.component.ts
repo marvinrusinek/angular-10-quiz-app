@@ -640,7 +640,6 @@ export class CodelabQuizContentComponent
 
   private setupExplanationTextDisplay(): void {
     this.explanationText$ = this.explanationTextService.explanationText$;
-    this.nextExplanationText$ = this.explanationTextService.nextExplanationText$;
   
     this.explanationTextService.formattedExplanation$.subscribe(explanations => {
       console.log('Formatted Explanation Values:', explanations);
@@ -649,8 +648,8 @@ export class CodelabQuizContentComponent
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
-      this.nextExplanationText$,
-      this.formattedExplanation$,
+      this.explanationTextService.nextExplanationText$,
+      this.explanationTextService.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       tap(this.logObservables.bind(this)),

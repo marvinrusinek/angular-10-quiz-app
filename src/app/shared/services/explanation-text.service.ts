@@ -19,7 +19,8 @@ export class ExplanationTextService implements OnDestroy {
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
-  formattedExplanations: FormattedExplanation[] = [];
+  // formattedExplanations: FormattedExplanation[] = [];
+  formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: Subject<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
@@ -78,7 +79,12 @@ export class ExplanationTextService implements OnDestroy {
     console.log("ET:::", this.explanationTexts);
   
     this.maxIndex = Object.keys(this.explanationTexts).length - 1;
-  }  
+  }
+
+
+  storeFormattedExplanations(formattedExplanations: Record<number, string>) {
+    this.formattedExplanations = formattedExplanations;
+  }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
