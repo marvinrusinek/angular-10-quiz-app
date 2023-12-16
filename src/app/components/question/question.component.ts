@@ -1122,18 +1122,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
       (isMultipleAnswer) => {
         console.log('isMultipleAnswer:', isMultipleAnswer);
-
+    
         if (this.quizService.selectedOptions.length > 0) {
+          // Subscribe to the questions Observable to access its emitted value
           this.questions.pipe(take(1)).subscribe(
             (questionsArray: QuizQuestion[]) => {
               console.log('currentQuestion:', currentQuestion);
               console.log('questionsArray:', questionsArray);
-
-              const questionIndex = questionsArray.indexOf(currentQuestion);
+    
+              // Find the question index based on the currentQuestion
+              const questionIndex = questionsArray.findIndex((q) => q.questionText === currentQuestion.questionText);
               console.log('Question index::>>', questionIndex);
-
-              this.setExplanationText(currentQuestion, questionIndex);
-
+    
+              if (questionIndex !== -1) {
+                this.setExplanationText(currentQuestion, questionIndex);
+              } else {
+                console.warn('Question not found in questionsArray:', currentQuestion);
+              }
+    
               console.log('Exiting inner subscribe block');
             },
             (error) => {
@@ -1143,7 +1149,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.explanationText$.next('');
         }
-
+    
         console.log('Exiting isMultipleAnswer subscription block');
       },
       (error) => {
@@ -1152,7 +1158,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       () => {
         console.log('isMultipleAnswer subscription completed');
       }
-    );
+    );    
   }
 
   checkOptionSelected(option: Option): boolean {
