@@ -75,6 +75,7 @@ export class ExplanationTextService implements OnDestroy {
       acc[index] = new BehaviorSubject<string>(exp);
       return acc;
     }, {});
+    console.log("ET:::", this.explanationTexts);
   
     this.maxIndex = Object.keys(this.explanationTexts).length - 1;
   }  
