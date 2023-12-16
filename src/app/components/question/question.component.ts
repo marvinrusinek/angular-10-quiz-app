@@ -1130,7 +1130,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             (questionsArray) => {
               console.log('Questions array::>>', questionsArray);
     
-              const questionIndex = questionsArray.indexOf(currentQuestion);
+              // const questionIndex = questionsArray.indexOf(currentQuestion);
+              const questionIndex = questionsArray.findIndex(q => {
+                const isSameQuestion = q.questionText === currentQuestion.questionText && 
+                                       q.explanation === currentQuestion.explanation;
+                console.log(`Comparing:`, q, currentQuestion, `Result: ${isSameQuestion}`);
+                return isSameQuestion;
+              });
+              
               console.log('Question index::>>', questionIndex);
     
               this.setExplanationText(currentQuestion, questionIndex);
@@ -1207,7 +1214,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const formattedExplanation =
       this.explanationTextService.formatExplanationText(
         currentQuestion,
-        questionIndex + 1
+        questionIndex
       );
     console.log("MY FE", formattedExplanation);
 
