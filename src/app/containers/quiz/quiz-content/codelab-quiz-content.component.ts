@@ -638,9 +638,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private setupExplanationTextDisplay(): void {
-    this.explanationText$ = this.explanationTextService.explanationText$;
-  
+  private setupExplanationTextDisplay(): void {  
     this.explanationTextService.formattedExplanation$.subscribe(explanations => {
       console.log('Formatted Explanation Values:', explanations);
     });
