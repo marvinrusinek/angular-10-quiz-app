@@ -1029,8 +1029,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async onOptionClicked(option: Option): Promise<void> {
     this.quizService.addSelectedOption(option);
 
-    console.log("CQI:::>>>", this.currentQuestionIndex);
-
     // Fetch explanation text based on the current question index
     const questionIndex = this.currentQuestionIndex;
     this.fetchExplanationText(questionIndex).subscribe(explanationText => {
@@ -1089,6 +1087,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   
   fetchExplanationText(questionIndex: number): Observable<string> {
     console.log('Fetching explanation text for question index:', questionIndex);
+    console.log("TQ", this.quizService.totalQuestions);
 
     if (typeof questionIndex !== 'number' || 
         questionIndex < 0 || 
