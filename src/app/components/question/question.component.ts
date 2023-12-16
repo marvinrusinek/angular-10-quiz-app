@@ -1089,16 +1089,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('Fetching explanation text for question index:', questionIndex);
     console.log("TQ", this.quizService.totalQuestions);
 
-    if (typeof questionIndex !== 'number' || 
-        questionIndex < 0 || 
-        questionIndex > this.quizService.getTotalQuestions()) {
-      console.warn(`Invalid question index: ${questionIndex}`);
-      return of('Invalid question index');
-    }
+    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
+      if (typeof questionIndex !== 'number' || 
+          questionIndex < 0 || 
+          questionIndex >= totalQuestions) {
+        console.warn(`Invalid question index: ${questionIndex}`);
+        return of('Invalid question index');
+      }
 
-    const explanation$ = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
-    explanation$.subscribe(text => console.log(`Explanation for index ${questionIndex}:`, text));
-    return explanation$;
+      const explanation$ = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+      explanation$.subscribe(text => console.log(`Explanation for index ${questionIndex}:`, text));
+      return explanation$;
+    });
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
