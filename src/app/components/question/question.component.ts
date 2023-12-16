@@ -1124,27 +1124,28 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         console.log('isMultipleAnswer:', isMultipleAnswer);
     
         if (this.quizService.selectedOptions.length > 0) {
-          console.log('Questions array::>>', this.questions);
+          // Subscribe to the questions Observable to get the array
+          this.questions.subscribe(
+            (questionsArray) => {
+              console.log('Questions array::>>', questionsArray);
     
-          const questionIndex = this.questions.indexOf(currentQuestion);
-          console.log('Question index::>>', questionIndex);
+              const questionIndex = questionsArray.indexOf(currentQuestion);
+              console.log('Question index::>>', questionIndex);
     
-          this.setExplanationText(currentQuestion, questionIndex);
-    
-          console.log('Exiting inner block');
+              this.setExplanationText(currentQuestion, questionIndex);
+            },
+            (error) => {
+              console.error('Error fetching questions array:', error);
+            }
+          );
         } else {
           this.explanationText$.next('');
         }
-    
-        console.log('Exiting isMultipleAnswer subscription block');
       },
       (error) => {
         console.error('Error in isMultipleAnswer subscription:', error);
-      },
-      () => {
-        console.log('isMultipleAnswer subscription completed');
       }
-    );
+    );  
   }
 
   checkOptionSelected(option: Option): boolean {
