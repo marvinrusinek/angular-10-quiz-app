@@ -104,6 +104,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   question!: QuizQuestion;
   questions: QuizQuestion[];
   question$!: Observable<QuizQuestion>;
+  questions$: Observable<QuizQuestion[]>;
   currentQuestion: QuizQuestion;
   currentQuestion$!: Observable<QuizQuestion | null>;
   currentQuestionWithOptions$: Observable<QuizQuestion>;
@@ -256,6 +257,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       });
     });
+
+    this.questions$ = this.quizService.getAllQuestions();
 
     const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
     const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
