@@ -197,6 +197,9 @@ export class ExplanationTextService implements OnDestroy {
     // Emit the entire array of formatted explanations
     // this.formattedExplanations$.next([...this.formattedExplanations]);
 
+    // Update the formatted explanation for the current question index
+    this.formattedExplanations[questionIndex] = formattedExplanation;
+
     // Set the formatted explanation for the question
     console.log("FE BEFORE", formattedExplanation);
     this.formattedExplanation$.next(formattedExplanation);
@@ -223,7 +226,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   // Function to retrieve the formatted explanation for a question
-  getFormattedExplanationForQuestion(
+  /* getFormattedExplanationForQuestion(
     questionIndex: number
   ): string | undefined {
     const explanationObj = this.formattedExplanations.find(
@@ -231,6 +234,10 @@ export class ExplanationTextService implements OnDestroy {
     );
 
     return explanationObj ? explanationObj.explanation : undefined;
+  } */
+
+  getFormattedExplanationForQuestion(questionIndex: number): string | undefined {
+    return this.formattedExplanations[questionIndex];
   }
 
   // Function to aggregate the formatted explanations
