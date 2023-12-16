@@ -1125,7 +1125,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
         if (this.quizService.selectedOptions.length > 0) {
           this.questions.pipe(take(1)).subscribe(
-            (questionsArray) => {
+            (questionsArray: QuizQuestion[]) => {
               console.log('currentQuestion:', currentQuestion);
               console.log('questionsArray:', questionsArray);
 
