@@ -3,7 +3,7 @@
     <h3 question-content>
       <span *ngIf="combinedText$ | async as combinedText">
         {{ combinedText }}
-      </span>
+      </span>    
       <span
         class="number-correct"
         *ngIf="shouldDisplayCorrectAnswersText(data)"
