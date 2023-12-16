@@ -1088,19 +1088,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   fetchExplanationText(questionIndex: number): Observable<string> {
     console.log('Fetching explanation text for question index:', questionIndex);
     console.log("TQ", this.quizService.totalQuestions);
-
-    this.quizService.getTotalQuestions().subscribe(totalQuestions => {
-      if (typeof questionIndex !== 'number' || 
-          questionIndex < 0 || 
-          questionIndex >= totalQuestions) {
-        console.warn(`Invalid question index: ${questionIndex}`);
-        return of('Invalid question index');
-      }
-
-      const explanation$ = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
-      explanation$.subscribe(text => console.log(`Explanation for index ${questionIndex}:`, text));
-      return explanation$;
-    });
+  
+    return this.quizService.getTotalQuestions().pipe(
+      switchMap(totalQuestions => {
+        if (typeof questionIndex !== 'number' || 
+            questionIndex < 0 || 
+            questionIndex >= totalQuestions) {
+          console.warn(`Invalid question index: ${questionIndex}`);
+          return of('Invalid question index');
+        }
+  
+        return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
+      })
+    );
   }
 
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
