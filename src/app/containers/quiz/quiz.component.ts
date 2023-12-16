@@ -258,7 +258,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.questions$ = this.quizService.getAllQuestions();
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
     const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
     const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
