@@ -216,6 +216,12 @@ export class CodelabQuizContentComponent
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
+    
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
+
+    this.formattedExplanation$.subscribe(formattedExplanation => {
+      console.log('Received Formatted Explanation:::>>', formattedExplanation);
+    });
   }
 
   ngOnChanges(): void {
@@ -639,9 +645,9 @@ export class CodelabQuizContentComponent
   }
 
   private setupExplanationTextDisplay(): void {  
-    this.explanationTextService.formattedExplanation$.subscribe(explanations => {
+    /* this.explanationTextService.formattedExplanation$.subscribe(explanations => {
       console.log('Formatted Explanation Values:::>>>', explanations);
-    });
+    }); */
   
     this.combinedText$ = combineLatest([
       this.nextQuestion$,

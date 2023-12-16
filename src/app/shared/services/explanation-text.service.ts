@@ -198,6 +198,7 @@ export class ExplanationTextService implements OnDestroy {
     // this.formattedExplanations$.next([...this.formattedExplanations]);
 
     // Set the formatted explanation for the question
+    console.log("FE BEFORE", formattedExplanation);
     this.formattedExplanation$.next(formattedExplanation);
     console.log("FE::>>", this.formattedExplanation$.value);
     this.processedQuestions.add(questionKey);
