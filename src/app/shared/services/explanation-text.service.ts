@@ -237,7 +237,15 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   getFormattedExplanationForQuestion(questionIndex: number): string | undefined {
-    return this.formattedExplanations[questionIndex];
+    // Retrieve the explanation object
+    const formattedExplanationObj = this.formattedExplanations[questionIndex];
+
+    // Check if the explanation object exists and has an 'explanation' property
+    if (formattedExplanationObj && formattedExplanationObj.explanation) {
+      return formattedExplanationObj.explanation;
+    } else {
+      return undefined;
+    }
   }
 
   // Function to aggregate the formatted explanations
