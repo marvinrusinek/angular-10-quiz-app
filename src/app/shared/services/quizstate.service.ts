@@ -31,31 +31,23 @@ export class QuizStateService {
 
   constructor() {}
 
-  setCurrentQuestion(question$: Observable<QuizQuestion>): void {
-    if (!question$) {
-      throwError('Question$ is null or undefined.');
+  setCurrentQuestion(newQuestion: QuizQuestion): void {
+    if (!newQuestion) {
+      console.error('newQuestion is null or undefined.');
       return;
     }
   
-    question$.pipe(
-      catchError((error) => {
-        console.error(error);
-        return throwError(error);
-      }),
-      distinctUntilChanged()
-    ).subscribe((question) => {
-      this.currentQuestion.next(question);
-      this.currentQuestionSubject.next(question);
-      this.currentQuestionSource.next(question);
-
-      if (question && question.options) {
-        this.currentQuestion.next(question);
-        this.currentOptionsSubject.next(question?.options || []);
-      } else {
-        console.log('No options found.');
-      }
-    });
-  }
+    this.currentQuestionSubject.next(newQuestion);
+  
+    // Assuming currentQuestionSource and currentOptionsSubject are also subjects 
+    // that need to be updated with the new question data
+    this.currentQuestionSource.next(newQuestion);
+    if (newQuestion.options) {
+      this.currentOptionsSubject.next(newQuestion.options);
+    } else {
+      console.log('No options found for the current question.');
+    }
+  }  
       
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.currentQuestion$;
