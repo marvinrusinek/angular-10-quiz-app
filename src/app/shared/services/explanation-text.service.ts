@@ -208,16 +208,19 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations[questionIndex] = formattedExplanationObj;
     console.log("FEA", this.formattedExplanations[questionIndex]);
 
-    // Set the formatted explanation for the question
-    console.log("FE BEFORE", formattedExplanation);
-    this.formattedExplanation$.next(formattedExplanation);
-    console.log("FE::>>", this.formattedExplanation$.value);
+    this.setFormattedExplanation(formattedExplanation);
     this.processedQuestions.add(questionKey);
 
     return {
       questionIndex: questionIndex,
       explanation: formattedExplanation
     };
+  }
+
+  // Inside explanationTextService
+  setFormattedExplanation(newExplanation: string): void {
+    console.log(`Updating formatted explanation: ${newExplanation}`);
+    this.formattedExplanation$.next(newExplanation);
   }
 
   // Function to set or update the formatted explanation for a question
