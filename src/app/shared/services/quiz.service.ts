@@ -989,6 +989,13 @@ export class QuizService implements OnDestroy {
     return quizSelectionParams;
   }
 
+  getQuestionByIndex(index: number): QuizQuestion {
+    if (index < 0 || index >= this.questions.length) {
+      throw new Error('Question index out of bounds');
+    }
+    return this.questions[index];
+  }
+
   getQuestionByExplanation(explanation: string): QuizQuestion | null {
     if (!this.quizData || this.quizData.length === 0) {
       return null;
