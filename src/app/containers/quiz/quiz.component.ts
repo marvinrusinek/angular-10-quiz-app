@@ -1368,12 +1368,17 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.resetStateBetweenQuestions();
 
       // Fetch the explanation text for the current question
-      const explanationText = await this.explanationTextService
-      .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
-      .toPromise();
+      try {
+        const explanationText = await this.explanationTextService
+          .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
+          .toPromise();
+        console.log(`Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`);
 
-      // Set the explanation text for the current question index
-      this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
+        // Set the explanation text for the current question index
+        this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
+      } catch (error) {
+        console.error('Error fetching explanation text:', error);
+      }      
 
       await this.navigateToQuestion(this.currentQuestionIndex + 1);
     } catch (error) {
