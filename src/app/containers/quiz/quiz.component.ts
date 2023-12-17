@@ -1362,7 +1362,22 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
-      const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
+      
+      // Fetch the explanation text for the current question
+      try {
+        const explanationText = await this.explanationTextService
+          .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
+          .toPromise();
+        console.log(`Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`);
+
+        // Set the explanation text for the current question index
+        this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
+
+        // Set the current question's explanation
+        this.explanationTextService.setCurrentQuestionExplanation(explanationText);
+      } catch (error) {
+        console.error('Error fetching explanation text:', error);
+      }
   
       // Set the data before navigating
       this.nextQuestionText = questionText;
