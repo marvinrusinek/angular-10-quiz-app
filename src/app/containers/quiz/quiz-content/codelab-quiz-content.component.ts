@@ -151,53 +151,38 @@ export class CodelabQuizContentComponent
   }
 
   ngOnInit(): void {
+    this.initializeComponent();
+    this.setupObservables();
+    this.subscribeToQuestionChanges();
+    this.subscribeToExplanationChanges();
+  }
+
+  private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
-    this.setupExplanationTextSubscription();
-    this.setupCombinedQuestionData();
     this.setupOptions();
-    this.setupExplanationTextDisplay();
+  }
 
-    // Combine explanationTextService's observable with selectedOptionExplanation$
+  private setupObservables(): void {
+    this.setupExplanationTextDisplay();
+    this.setupExplanationTextObservable();
+    this.setupFormattedExplanationObservable();
+  }
+
+  private setupExplanationTextObservable(): void {
     this.explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$(),
       this.selectedOptionService.selectedOptionExplanation$,
     ]).pipe(
-      map(
-        ([explanationText, selectedOptionExplanation]: [string, string]) =>
-          selectedOptionExplanation || explanationText
+      map(([explanationText, selectedOptionExplanation]) =>
+        selectedOptionExplanation || explanationText
       )
-    ) as Observable<string>;
+    );
+  }
 
-    // Subscribe to the selectedOptionExplanation$ observable and store the subscription
-    this.selectedOptionSubscription =
-      this.selectedOptionService.selectedOptionExplanation$.subscribe(
-        (explanationText) => {
-          if (explanationText) {
-            this.explanationText = explanationText;
-          } else {
-            this.explanationText = 'No explanation available.';
-          }
-        }
-      );
-
-    this.currentQuestion$.next(this.question);
-
-    this.currentQuestion$.subscribe(newQuestion => {
-      this.formattedExplanation = '';
-    });
-
-    this.quizService.currentQuestionIndex$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((index) => {
-        console.log('Current question index::::>>', index);
-      },
-      (error) => {
-        console.error('Error in getCurrentQuestionIndex$ subscription:', error);
-      });
-  
+  private setupFormattedExplanationObservable(): void {
     this.formattedExplanation$
       .pipe(
         withLatestFrom(this.quizService.currentQuestionIndex$),
@@ -216,12 +201,30 @@ export class CodelabQuizContentComponent
           console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
-    
+  }
 
-      this.explanationTextService.formattedExplanation$.subscribe(formattedExplanation => {
-        console.log('Received Formatted Explanation::>>', formattedExplanation);
-        // Use this value as needed in your component
+  private subscribeToQuestionChanges(): void {
+    this.quizService.currentQuestionIndex$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index) => {
+        console.log('Current question index::::>>', index);
+      },
+      (error) => {
+        console.error('Error in getCurrentQuestionIndex$ subscription:', error);
       });
+  }
+  
+  private subscribeToExplanationChanges(): void {
+    this.selectedOptionSubscription =
+      this.selectedOptionService.selectedOptionExplanation$.subscribe(
+        (explanationText) => {
+          if (explanationText) {
+            this.explanationText = explanationText;
+          } else {
+            this.explanationText = 'No explanation available.';
+          }
+        }
+      );
   }
 
   ngOnChanges(): void {
