@@ -1354,8 +1354,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
 
       // Fetch question data based on this.currentQuestionIndex
-      const question = await this.quizService.getQuestionByIndex(this.currentQuestionIndex);
-      this.quizStateService.setCurrentQuestion(question);
+      const question = this.quizService.getQuestionByIndex(this.currentQuestionIndex);
+      this.quizStateService.updateCurrentQuestion(question); 
   
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
