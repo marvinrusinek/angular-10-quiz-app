@@ -38,10 +38,8 @@ export class QuizStateService {
     }
   
     this.currentQuestionSubject.next(newQuestion);
-  
-    // Assuming currentQuestionSource and currentOptionsSubject are also subjects 
-    // that need to be updated with the new question data
     this.currentQuestionSource.next(newQuestion);
+    
     if (newQuestion.options) {
       this.currentOptionsSubject.next(newQuestion.options);
     } else {
