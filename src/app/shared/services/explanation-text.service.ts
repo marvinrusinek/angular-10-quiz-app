@@ -20,6 +20,7 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
+  private currentQuestionExplanation: string | null = null;
   private maxIndex: number = -1;
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
@@ -238,6 +239,15 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
+  public setCurrentQuestionExplanation(explanation: string) {
+    this.currentQuestionExplanation = explanation;
+  }
+  
+  private isCurrentQuestion(question: QuizQuestion): boolean {
+    // Check if the provided 'question' matches the current question based on their explanations
+    return this.currentQuestionExplanation !== null && question.explanation === this.currentQuestionExplanation;
+  }
+  
   // Inside explanationTextService
   setFormattedExplanation(newExplanation: string): void {
     console.log(`Updating formatted explanation: ${newExplanation}`);
