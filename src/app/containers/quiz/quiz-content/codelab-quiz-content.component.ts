@@ -156,6 +156,12 @@ export class CodelabQuizContentComponent
     this.setupObservables();
     this.subscribeToQuestionChanges();
     this.subscribeToExplanationChanges();
+
+    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(
+      (formattedExplanation) => {
+        this.explanationToDisplay = formattedExplanation;
+      }
+    );
   }
 
   private initializeComponent(): void {
@@ -679,7 +685,7 @@ export class CodelabQuizContentComponent
     if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
       return of('');
     } else {
-      const textToDisplay = shouldDisplayExplanation ? formattedExplanation || '' : this.questionToDisplay || '';
+      const textToDisplay = shouldDisplayExplanation ? this.explanationToDisplay || '' : this.questionToDisplay || '';
       return of(textToDisplay).pipe(startWith(textToDisplay));
     }
   }
