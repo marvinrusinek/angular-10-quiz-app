@@ -1289,7 +1289,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.currentQuestionIndex++;
 
-      const nextQuestion = this.getNextQuestion();
+      const nextQuestion = await this.quizService.getNextQuestion(this.currentQuestionIndex);
       this.quizService.nextQuestion$.next(nextQuestion);
   
       await this.fetchAndSetQuestionData();
@@ -1317,6 +1317,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.isNavigatingToPrevious = true; // Set to true before navigating
 
       this.currentQuestionIndex--;
+
+      const previousQuestion = await this.quizService.getPreviousQuestion(this.currentQuestionIndex);
+      this.quizService.previousQuestion$.next(previousQuestion);
   
       await this.fetchAndSetQuestionData();
     } catch (error) {
