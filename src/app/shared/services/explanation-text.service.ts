@@ -196,42 +196,46 @@ export class ExplanationTextService implements OnDestroy {
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
 
-    let formattedExplanation = '';
+    if (this.isCurrentQuestion(question)) {
+      let formattedExplanation = '';
 
-    if (correctOptionIndices.length > 1) {
-      question.type = QuestionType.MultipleAnswer;
-      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
-    } else if (correctOptionIndices.length === 1) {
-      question.type = QuestionType.SingleAnswer;
-      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+      if (correctOptionIndices.length > 1) {
+        question.type = QuestionType.MultipleAnswer;
+        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+      } else if (correctOptionIndices.length === 1) {
+        question.type = QuestionType.SingleAnswer;
+        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+      } else {
+        formattedExplanation = 'No correct option selected...';
+      }
+
+      // Add the formatted explanation to the array
+      // this.formattedExplanations$[questionIndex] = formattedExplanation;
+
+      // Emit the entire array of formatted explanations
+      // this.formattedExplanations$.next([...this.formattedExplanations]);
+
+      // Create a FormattedExplanation object
+      const formattedExplanationObj: FormattedExplanation = {
+        questionIndex: questionIndex,
+        explanation: formattedExplanation
+      };
+
+      // Update the formatted explanation for the current question index
+      this.formattedExplanations[questionIndex] = formattedExplanationObj;
+      console.log("FEA", this.formattedExplanations[questionIndex]);
+
+      // this.updateExplanationForIndex(questionIndex, formattedExplanation);
+      this.setFormattedExplanation(formattedExplanation);
+      this.processedQuestions.add(questionKey);
+
+      return {
+        questionIndex: questionIndex,
+        explanation: formattedExplanation
+      };
     } else {
-      formattedExplanation = 'No correct option selected...';
+      console.log("Question is not the current question");
     }
-
-    // Add the formatted explanation to the array
-    // this.formattedExplanations$[questionIndex] = formattedExplanation;
-
-    // Emit the entire array of formatted explanations
-    // this.formattedExplanations$.next([...this.formattedExplanations]);
-
-    // Create a FormattedExplanation object
-    const formattedExplanationObj: FormattedExplanation = {
-      questionIndex: questionIndex,
-      explanation: formattedExplanation
-    };
-
-    // Update the formatted explanation for the current question index
-    this.formattedExplanations[questionIndex] = formattedExplanationObj;
-    console.log("FEA", this.formattedExplanations[questionIndex]);
-
-    // this.updateExplanationForIndex(questionIndex, formattedExplanation);
-    this.setFormattedExplanation(formattedExplanation);
-    this.processedQuestions.add(questionKey);
-
-    return {
-      questionIndex: questionIndex,
-      explanation: formattedExplanation
-    };
   }
 
   // Inside explanationTextService
