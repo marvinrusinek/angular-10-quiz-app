@@ -173,6 +173,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   questionToDisplay = '';
   optionsToDisplay: Option[] = [];
+  explanationToDisplay = '';
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -1354,18 +1355,20 @@ export class QuizComponent implements OnInit, OnDestroy {
       } 
 
       // Fetch the full question object based on the currentQuestionIndex
-      const fullQuestion = await this.quizService.getFullQuestionByIndex(this.currentQuestionIndex);
+      // const fullQuestion = await this.quizService.getQuestionByIndex(this.currentQuestionIndex);
 
       // Update the current question in your state management
-      this.quizStateService.setCurrentQuestion(fullQuestion);
+      // this.quizStateService.setCurrentQuestion(fullQuestion);
   
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
+      const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
   
       // Set the data before navigating
       this.nextQuestionText = questionText;
       this.questionToDisplay = questionText;
       this.optionsToDisplay = options;
+      this.explanationToDisplay = explanationText;
   
       // Reset UI immediately before navigating
       this.resetUI();
