@@ -1352,6 +1352,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.warn('Invalid question index. Aborting.');
         return;
       }
+
+      // Fetch question data based on this.currentQuestionIndex
+      const question = await this.quizService.getQuestionByIndex(this.currentQuestionIndex);
+      this.quizStateService.setCurrentQuestion(question);
   
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
