@@ -58,6 +58,7 @@ export class CodelabQuizContentComponent
   }> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
+  @Input() explanationToDisplay: string;
   @Input() questionToDisplay: string;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion | null>;
