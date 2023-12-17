@@ -178,6 +178,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
+    console.log(`Formatting explanation for question index ${questionIndex}:`, question);
     console.log("QI", questionIndex);
     const questionKey = JSON.stringify(question);
     if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
@@ -215,7 +216,7 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations[questionIndex] = formattedExplanationObj;
     console.log("FEA", this.formattedExplanations[questionIndex]);
 
-    this.updateExplanationForIndex(questionIndex, formattedExplanation);
+    // this.updateExplanationForIndex(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
     this.processedQuestions.add(questionKey);
 

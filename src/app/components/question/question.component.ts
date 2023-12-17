@@ -1037,6 +1037,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   
     this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+      console.log(`Current question received: ${currentQuestion.questionText}`);
       this.currentQuestion = currentQuestion;
       this.processOptionSelection(this.currentQuestion, option);
     });
