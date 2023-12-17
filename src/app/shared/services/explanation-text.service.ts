@@ -199,11 +199,11 @@ export class ExplanationTextService implements OnDestroy {
     let formattedExplanation = '';
 
     if (correctOptionIndices.length > 1) {
-      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
       question.type = QuestionType.MultipleAnswer;
+      formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
     } else if (correctOptionIndices.length === 1) {
-      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
       question.type = QuestionType.SingleAnswer;
+      formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
     } else {
       formattedExplanation = 'No correct option selected...';
     }

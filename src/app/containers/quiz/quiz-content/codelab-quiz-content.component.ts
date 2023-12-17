@@ -156,12 +156,29 @@ export class CodelabQuizContentComponent
     this.setupObservables();
     this.subscribeToQuestionChanges();
     this.subscribeToExplanationChanges();
+    this.subscribeToFormattedExplanationChanges();
+  }
 
-    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(
-      (formattedExplanation) => {
-        this.explanationToDisplay = formattedExplanation;
-      }
-    );
+  ngOnChanges(): void {
+    if (
+      this.correctAnswersText !== undefined &&
+      this.quizStateService.isMultipleAnswer(this.question)
+    ) {
+      this.correctAnswersTextSource.next(this.correctAnswersText);
+    } else {
+      this.correctAnswersTextSource.next('');
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.currentQuestionSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
+    this.nextQuestionSubscription?.unsubscribe();
+    this.selectedOptionSubscription?.unsubscribe();
+    this.formattedExplanationSubscription?.unsubscribe();
+    this.explanationTextService.resetStateBetweenQuestions();
   }
 
   private initializeComponent(): void {
@@ -234,26 +251,13 @@ export class CodelabQuizContentComponent
       );
   }
 
-  ngOnChanges(): void {
-    if (
-      this.correctAnswersText !== undefined &&
-      this.quizStateService.isMultipleAnswer(this.question)
-    ) {
-      this.correctAnswersTextSource.next(this.correctAnswersText);
-    } else {
-      this.correctAnswersTextSource.next('');
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.currentQuestionSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
-    this.nextQuestionSubscription?.unsubscribe();
-    this.selectedOptionSubscription?.unsubscribe();
-    this.formattedExplanationSubscription?.unsubscribe();
-    this.explanationTextService.resetStateBetweenQuestions();
+  private subscribeToFormattedExplanationChanges(): void {
+    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(
+      (formattedExplanation) => {
+        console.log('Formatted Explanation Received:', formattedExplanation);
+        this.explanationToDisplay = formattedExplanation;
+      }
+    );    
   }
 
   private initializeQuestionData(): void {
@@ -679,7 +683,7 @@ export class CodelabQuizContentComponent
     console.log('Observables:', nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation);
   }
 
-  private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+  /* private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     console.log('Determining text to display for:', nextQuestion?.questionText || previousQuestion?.questionText); // Log the question being processed
     console.log('NET:', nextExplanationText);
     console.log('Formatted Explanation:', formattedExplanation);
@@ -692,10 +696,9 @@ export class CodelabQuizContentComponent
       console.log('Text To Display:', textToDisplay);
       return of(textToDisplay).pipe(startWith(textToDisplay));
     }
-  }
+  } */
   
-  
-  /* private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+  private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     console.log('Determining text to display for:', nextQuestion?.questionText || previousQuestion?.questionText); // Log the question being processed
     console.log("NET", nextExplanationText);
 
@@ -705,8 +708,8 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? this.explanationToDisplay || '' : this.questionToDisplay || '';
       return of(textToDisplay).pipe(startWith(textToDisplay));
     }
-  } */
-  
+  }
+
   private handleError(error: any): Observable<string> {
     console.error('An error occurred:', error);
     return of('Error: unable to load explanation text');
