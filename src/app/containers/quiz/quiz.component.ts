@@ -1288,6 +1288,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
       this.currentQuestionIndex++;
+
+      const nextQuestion = this.getNextQuestion();
+      this.quizService.nextQuestion$.next(nextQuestion);
   
       await this.fetchAndSetQuestionData();
     } catch (error) {
