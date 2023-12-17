@@ -252,6 +252,7 @@ export class CodelabQuizContentComponent
     this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
     this.selectedOptionSubscription?.unsubscribe();
+    this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
 
@@ -708,159 +709,6 @@ export class CodelabQuizContentComponent
     }
     return '';
   }
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
-    try {
-      console.log('Data:', data);
-      if (!data || !data.currentQuestion) {
-        console.error('Current question is not defined');
-        return false;
-      }
-  
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-      console.log('isMultipleAnswer:', isMultipleAnswer);
-  
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return false;
-      }
-  
-      const isNavigatingToPrevious = data.isNavigatingToPrevious;
-      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
-  
-      const shouldDisplayCorrectAnswers =
-        isMultipleAnswer &&
-        isNavigatingToPrevious;
-      console.log('shouldDisplayCorrectAnswers:', shouldDisplayCorrectAnswers);
-  
-      return shouldDisplayCorrectAnswers;
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
-      return false;
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
-    try {
-        if (!data || !data.currentQuestion) {
-            console.error('Current question is not defined');
-            return false;
-        }
-
-        const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-
-        console.log('isMultipleAnswer:', isMultipleAnswer);
-        console.log('isNavigatingToPrevious:', data.isNavigatingToPrevious);
-        console.log('explanationText:', data.explanationText);
-        console.log('questionText:', data.questionText);
-
-        if (isMultipleAnswer === undefined) {
-            console.warn('isMultipleAnswer data is not available yet.');
-            return false;
-        }
-
-        return isMultipleAnswer && data.isNavigatingToPrevious && !data.explanationText && !!data.questionText;
-    } catch (error) {
-        console.error('Error in shouldDisplayCorrectAnswersText:', error);
-        return false;
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
-    try {
-        if (!data || !data.currentQuestion) {
-            console.error('Current question is not defined');
-            return false;
-        }
-
-        const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-
-        if (isMultipleAnswer === undefined) {
-            console.warn('isMultipleAnswer data is not available yet.');
-            return false;
-        }
-
-        return isMultipleAnswer && data.isNavigatingToPrevious && !data.explanationText && !!data.questionText;
-    } catch (error) {
-        console.error('Error in shouldDisplayCorrectAnswersText:', error);
-        return false;
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<boolean> {
-    try {
-      console.log('Data:', data);
-  
-      if (!data || !data.currentQuestion) {
-        console.error('Current question is not defined');
-        return false;
-      }
-  
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-  
-      console.log('isMultipleAnswer:', isMultipleAnswer);
-  
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return false;
-      }
-  
-      console.log('data.isNavigatingToPrevious:', data.isNavigatingToPrevious);
-      console.log('data.explanationText:', data.explanationText);
-      console.log('data.questionText:', data.questionText);
-  
-      const result = isMultipleAnswer && data.isNavigatingToPrevious && !data.explanationText && !!data.questionText; // Ensure questionText is truthy
-  
-      console.log('Result:', result);
-  
-      return result;
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
-      return false;
-    }
-  } */
-
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    try {
-      if (!data || !data.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false;
-        console.error('Current question is not defined');
-        return;
-      }
-  
-      console.log('Current question:', data.currentQuestion);
-  
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).toPromise();
-      
-      console.log('isMultipleAnswer:', isMultipleAnswer);
-  
-      if (isMultipleAnswer === undefined) {
-        console.warn('isMultipleAnswer data is not available yet.');
-        return;
-      }
-  
-      // Log the content of correctAnswers
-      console.log('Correct Answers:', data.currentQuestion.correctAnswers);
-  
-      if (isMultipleAnswer && data.currentQuestion.correctAnswers) {
-        const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data.currentQuestion);
-  
-        this.shouldDisplayCorrectAnswers =
-          isMultipleAnswer &&
-          data.isNavigatingToPrevious &&
-          !data.explanationText &&
-          !!data.questionText;
-  
-        // Display the number of correct answers along with the flag
-        console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
-        console.log('Number of correct answers:', numberOfCorrectAnswers);
-      } else {
-        console.warn('Not a multiple-answer question or correct answers are undefined.');
-      }
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
-    }
-  } */
   
   async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     try {
@@ -896,10 +744,6 @@ export class CodelabQuizContentComponent
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
   }
-  
-  
-  
-  
      
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
