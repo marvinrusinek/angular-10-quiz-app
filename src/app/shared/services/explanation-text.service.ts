@@ -113,6 +113,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
+    console.log(`Retrieving explanation for index: ${index}`);
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
     console.log(`Trying to get explanation for index::>> ${numericIndex}`);
 
@@ -123,7 +124,7 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     const explanationSubject = this.explanationTexts[numericIndex];
-    console.log("ES", explanationSubject);
+    console.log("ES", explanationSubject.getValue());
 
     if (explanationSubject instanceof BehaviorSubject) {
       console.log(`Got explanation for index ${numericIndex}::>> ${explanationSubject.value}`);
