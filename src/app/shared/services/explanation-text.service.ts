@@ -5,6 +5,12 @@ import { takeUntil } from 'rxjs/operators';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
+enum QuestionType {
+  SingleAnswer = 'single_answer',
+  MultipleAnswer = 'multiple_answer',
+  TrueFalse = 'true_false'
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -194,8 +200,10 @@ export class ExplanationTextService implements OnDestroy {
 
     if (correctOptionIndices.length > 1) {
       formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+      question.type = QuestionType.MultipleAnswer;
     } else if (correctOptionIndices.length === 1) {
       formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+      question.type = QuestionType.SingleAnswer;
     } else {
       formattedExplanation = 'No correct option selected...';
     }
