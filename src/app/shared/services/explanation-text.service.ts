@@ -86,6 +86,14 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations = formattedExplanations;
   }
 
+  updateExplanationForIndex(index: number, explanation: string): void {
+    if (this.explanationTexts[index]) {
+      this.explanationTexts[index].next(explanation);
+    } else {
+      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    }
+  }
+
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     console.log(`Setting explanation for index ${index}: ${explanation}`);
 
@@ -207,6 +215,7 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations[questionIndex] = formattedExplanationObj;
     console.log("FEA", this.formattedExplanations[questionIndex]);
 
+    this.updateExplanationForIndex(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
     this.processedQuestions.add(questionKey);
 
