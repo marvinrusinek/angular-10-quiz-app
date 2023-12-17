@@ -1032,7 +1032,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Fetch explanation text based on the current question index
     const questionIndex = this.currentQuestionIndex;
+
     this.fetchExplanationText(questionIndex).subscribe(explanationText => {
+      this.explanationText = explanationText;
+    });
+    
+    this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
+      console.log("MY ET!", explanationText);
       this.explanationText = explanationText;
     });
   
