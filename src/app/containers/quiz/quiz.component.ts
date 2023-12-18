@@ -1410,6 +1410,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
+      const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
   
       // Fetch the explanation text for the current question
       try {
@@ -1431,6 +1432,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.nextQuestionText = questionText;
       this.questionToDisplay = questionText;
       this.optionsToDisplay = options;
+      this.explanationToDisplay = explanationText;
   
       // Reset UI immediately before navigating
       this.resetUI();
