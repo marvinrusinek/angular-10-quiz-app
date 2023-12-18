@@ -149,6 +149,10 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
+  initializeExplanationTexts(explanationTextsArray: string[]): void {
+    this.explanationTexts = explanationTextsArray.map(text => new BehaviorSubject<string>(text));
+  }  
+
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
     questionId: string | number,
@@ -183,6 +187,10 @@ export class ExplanationTextService implements OnDestroy {
   
     // Update the explanation text based on the provided question index
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
+  }
+
+  fetchExplanationTexts(): string[] {
+    return this.explanationTexts;
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {

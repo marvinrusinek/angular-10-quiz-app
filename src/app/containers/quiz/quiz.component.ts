@@ -19,6 +19,7 @@ import {
 import {
   BehaviorSubject,
   combineLatest,
+  firstValueFrom,
   forkJoin,
   from,
   isObservable,
@@ -742,7 +743,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     );
   }
 
-  fetchQuizData(): void {
+  async fetchQuizData(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.params['quizId'];
     const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
@@ -762,11 +763,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set the selected quiz
       this.quizService.setSelectedQuiz(selectedQuiz);
 
-      const questionData = this.quizService.getQuestionData(
+      const questionData = await this.quizService.getQuestionData(
         quizId,
         questionIndex
       );
 
+      const explanationTexts = await firstValueFrom(this.explanationTextService.fetchExplanationTexts());
+      this.explanationTextService.initializeExplanationTexts(explanationTexts);
+
+      
       if (questionData) {
         this.data = questionData;
         this.quizService.fetchQuizQuestions();
