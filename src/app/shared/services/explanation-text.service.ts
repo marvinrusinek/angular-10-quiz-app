@@ -150,9 +150,11 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeExplanationTexts(explanations: string[]): void {
-    console.log(`Initializing explanation texts:`, explanations);
+    console.log(`Initializing explanation texts with:`, explanations);
+    this.explanationTexts = {};
     explanations.forEach((explanation, index) => {
       this.explanationTexts[index] = new BehaviorSubject(explanation);
+      console.log(`Set index ${index} with explanation: ${explanation}`);
     });
   }
 
