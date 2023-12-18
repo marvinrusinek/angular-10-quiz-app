@@ -245,12 +245,16 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   private isCurrentQuestion(question: QuizQuestion): boolean {
-    // Check if the provided 'question' matches the current question based on their explanations
-    console.log('Current Question Explanation:', this.currentQuestionExplanation);
-    console.log('Question Explanation:', question.explanation);
-    return this.currentQuestionExplanation !== null && question.explanation === this.currentQuestionExplanation;
-  }  
-  
+    // Check if the provided 'question' and 'currentQuestionExplanation' are defined and match
+    return (
+      this.currentQuestionExplanation !== null &&
+      this.currentQuestionExplanation !== undefined &&
+      question.explanation !== null &&
+      question.explanation !== undefined &&
+      question.explanation === this.currentQuestionExplanation
+    );
+  }
+    
   // Inside explanationTextService
   setFormattedExplanation(newExplanation: string): void {
     console.log(`Updating formatted explanation: ${newExplanation}`);
