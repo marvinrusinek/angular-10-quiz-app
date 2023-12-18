@@ -164,8 +164,8 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   fetchExplanationTexts(): string[] {
-    return this.explanationTexts.map(subject => subject.value);
-  }
+    return Object.values(this.explanationTexts).map(subject => subject.value);
+  }  
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
