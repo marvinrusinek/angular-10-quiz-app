@@ -149,9 +149,11 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeExplanationTexts(explanationTextsArray: string[]): void {
-    this.explanationTexts = explanationTextsArray.map(text => new BehaviorSubject<string>(text));
-  }  
+  initializeExplanationTexts(explanations: string[]): void {
+    explanations.forEach((explanation, index) => {
+      this.explanationTexts[index] = new BehaviorSubject(explanation);
+    });
+  }
 
   // Function to update explanations based on question ID or index
   updateExplanationForQuestion(
@@ -262,7 +264,7 @@ export class ExplanationTextService implements OnDestroy {
   
   private isCurrentQuestion(question: QuizQuestion): boolean {
     // Check if the provided 'question' and 'currentQuestionExplanation' are defined and match
-    console.log('Current Question Explanation:', this.currentQuestionExplanation);
+    console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
     return (
       this.currentQuestionExplanation !== null &&
       this.currentQuestionExplanation !== undefined &&
