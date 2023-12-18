@@ -766,13 +766,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Fetch question data
       const questionData = await this.quizService.getQuestionData(quizId, questionIndex);
 
-      // Assume fetchExplanationTexts returns an Observable that you need to convert to a Promise
-      const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
-      console.log('Fetched explanation texts::>>', explanationTexts);
-
-      console.log('Data to be passed to initializeExplanationTexts:', explanationTexts);
-      this.explanationTextService.initializeExplanationTexts(['Hardcoded explanation 1', 'Hardcoded explanation 2']);
-      console.log('Data after initialization:', this.explanationTextService.fetchExplanationTexts());
+      try {
+        const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
+        console.log('Dynamically fetched explanation texts:', explanationTexts);
+    
+        if (explanationTexts && explanationTexts.length > 0) {
+          this.explanationTextService.initializeExplanationTexts(explanationTexts);
+        } else {
+          console.log('No explanation texts were fetched dynamically');
+        }
+      } catch (error) {
+        console.error('Error fetching explanation texts:', error);
+      }
 
       if (questionData) {
         this.data = questionData;
