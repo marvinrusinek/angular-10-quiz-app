@@ -770,7 +770,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
       console.log('Fetched explanation texts::>>', explanationTexts);
 
+      console.log('Data to be passed to initializeExplanationTexts:', explanationTexts);
       this.explanationTextService.initializeExplanationTexts(explanationTexts);
+      console.log('Data after initialization:', this.explanationTextService.fetchExplanationTexts());
 
       if (questionData) {
         this.data = questionData;

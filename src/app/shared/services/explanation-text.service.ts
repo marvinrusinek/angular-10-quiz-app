@@ -159,11 +159,13 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeExplanationTexts(explanations: string[]): void {
+    console.log('Initializing explanation texts with:', explanations);
     this.explanationTexts = explanations.map(explanation => new BehaviorSubject(explanation));
     console.log('Initialized explanation texts:', this.explanationTexts);
   }
 
   fetchExplanationTexts(): string[] {
+    console.log('Current state of explanationTexts:', this.explanationTexts);
     return Object.values(this.explanationTexts).map(subject => subject.value);
   }  
 
