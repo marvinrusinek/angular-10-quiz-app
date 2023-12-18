@@ -1210,16 +1210,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  setExplanationText(
+  async setExplanationText(
     currentQuestion: QuizQuestion,
     questionIndex: number
-  ): void {
+  ): Promise<void> {
     console.log('Entering setExplanationText for question:', currentQuestion.questionText);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
     const formattedExplanation =
-      this.explanationTextService.formatExplanationText(
+      await this.explanationTextService.formatExplanationText(
         currentQuestion,
         questionIndex
       );

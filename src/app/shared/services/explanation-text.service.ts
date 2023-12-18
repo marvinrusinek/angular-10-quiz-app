@@ -210,6 +210,12 @@ export class ExplanationTextService implements OnDestroy {
         formattedExplanation = 'No correct option selected...';
       }
 
+      console.log("FE BEFORE:>>", formattedExplanation);
+      if (formattedExplanation) {
+        this.currentQuestionExplanation = formattedExplanation;
+        console.log("CQE", this.currentQuestionExplanation);
+      }
+
       // Add the formatted explanation to the array
       // this.formattedExplanations$[questionIndex] = formattedExplanation;
 
@@ -227,10 +233,6 @@ export class ExplanationTextService implements OnDestroy {
       console.log("FEA", this.formattedExplanations[questionIndex]);
 
       // this.updateExplanationForIndex(questionIndex, formattedExplanation);
-      
-      if (formattedExplanation) {
-        this.currentQuestionExplanation = formattedExplanation;
-      }
 
       this.setFormattedExplanation(formattedExplanation);
       this.processedQuestions.add(questionKey);
