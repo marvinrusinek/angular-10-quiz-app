@@ -20,7 +20,7 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
-  private currentQuestionExplanation: string | null = null;
+  private currentQuestionExplanation: string | null;
   private maxIndex: number = -1;
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
@@ -227,6 +227,7 @@ export class ExplanationTextService implements OnDestroy {
       console.log("FEA", this.formattedExplanations[questionIndex]);
 
       // this.updateExplanationForIndex(questionIndex, formattedExplanation);
+      this.currentQuestionExplanation = formattedExplanation;
       this.setFormattedExplanation(formattedExplanation);
       this.processedQuestions.add(questionKey);
 
