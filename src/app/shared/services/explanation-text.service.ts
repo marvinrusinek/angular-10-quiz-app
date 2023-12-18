@@ -149,13 +149,22 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeExplanationTexts(explanations: string[]): void {
+  /* initializeExplanationTexts(explanations: string[]): void {
     console.log(`Initializing explanation texts with:`, explanations);
     this.explanationTexts = {};
     explanations.forEach((explanation, index) => {
       this.explanationTexts[index] = new BehaviorSubject(explanation);
       console.log(`Set index ${index} with explanation: ${explanation}`);
     });
+  } */
+
+  initializeExplanationTexts(explanations: string[]): void {
+    this.explanationTexts = explanations.map(explanation => new BehaviorSubject(explanation));
+    console.log('Initialized explanation texts:', this.explanationTexts);
+  }
+
+  fetchExplanationTexts(): string[] {
+    return this.explanationTexts.map(subject => subject.value);
   }
 
   // Function to update explanations based on question ID or index
@@ -194,9 +203,9 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
   }
 
-  fetchExplanationTexts(): string[] {
+  /* fetchExplanationTexts(): string[] {
     return Object.values(this.explanationTexts).map(subject => subject.value);
-  }
+  } */
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
     console.log(`Formatting explanation for question index ${questionIndex}:`, question);
