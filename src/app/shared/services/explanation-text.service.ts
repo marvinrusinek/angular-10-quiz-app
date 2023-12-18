@@ -197,6 +197,7 @@ export class ExplanationTextService implements OnDestroy {
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
 
+    console.log("Entering isCurrentQuestion block");
     if (this.isCurrentQuestion(question)) {
       let formattedExplanation = '';
 
