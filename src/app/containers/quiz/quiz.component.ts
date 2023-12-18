@@ -1414,6 +1414,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const explanationText = await this.explanationTextService
         .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
         .toPromise();
+      console.log("MY ET FROM SERVICE", explanationText);
       console.log(`Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`);
   
       // Set the current question's explanation

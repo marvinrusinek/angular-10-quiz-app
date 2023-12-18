@@ -139,6 +139,7 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     const explanationSubject = this.explanationTexts[numericIndex];
+    console.log(`Value at index ${numericIndex}:`, explanationSubject);
     if (explanationSubject instanceof BehaviorSubject) {
       console.log(`Got explanation for index ${numericIndex}::>> ${explanationSubject.value}`);
       return explanationSubject.asObservable();
