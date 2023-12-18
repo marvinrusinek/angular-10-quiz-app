@@ -1398,7 +1398,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
-  
       this.explanationTextService.setShouldDisplayExplanation(false);
   
       // Ensure currentQuestionIndex is within bounds
@@ -1410,28 +1409,20 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
       const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
-      const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
   
       // Fetch the explanation text for the current question
-      try {
-        const explanationText = await this.explanationTextService
-          .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
-          .toPromise();
-        console.log(`Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`);
-
-        // Set the current question's explanation
-        if (explanationText) {
-          this.explanationTextService.setCurrentQuestionExplanation(explanationText);
-        } else {
-          console.log('No explanation text found for the current question');
-        }
+      const explanationText = await this.explanationTextService
+        .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
+        .toPromise();
+      console.log(`Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`);
   
+      // Set the current question's explanation
+      if (explanationText) {
+        this.explanationTextService.setCurrentQuestionExplanation(explanationText);
         // Set the explanation text for the current question index
         this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
-  
-        
-      } catch (error) {
-        console.error('Error fetching explanation text:', error);
+      } else {
+        console.log('No explanation text found for the current question');
       }
   
       // Set the data before navigating
