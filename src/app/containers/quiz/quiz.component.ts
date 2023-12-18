@@ -771,7 +771,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Dynamically fetched explanation texts:', explanationTexts);
     
         if (explanationTexts && explanationTexts.length > 0) {
-          this.explanationTextService.initializeExplanationTexts(explanationTexts);
+          console.log('Before initializing explanation texts:', explanationTexts);
+          this.explanationTextService.initializeExplanationTexts(['Test Explanation 1', 'Test Explanation 2']);
         } else {
           console.log('No explanation texts were fetched dynamically');
         }
