@@ -228,7 +228,6 @@ export class ExplanationTextService implements OnDestroy {
 
       // this.updateExplanationForIndex(questionIndex, formattedExplanation);
       this.setFormattedExplanation(formattedExplanation);
-      this.setCurrentQuestionExplanation(formattedExplanation);
       this.processedQuestions.add(questionKey);
 
       return {
