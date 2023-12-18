@@ -245,6 +245,7 @@ export class ExplanationTextService implements OnDestroy {
   
   private isCurrentQuestion(question: QuizQuestion): boolean {
     // Check if the provided 'question' and 'currentQuestionExplanation' are defined and match
+    console.log('Current Question Explanation:', this.currentQuestionExplanation);
     return (
       this.currentQuestionExplanation !== null &&
       this.currentQuestionExplanation !== undefined &&
