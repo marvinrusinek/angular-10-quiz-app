@@ -768,6 +768,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Assume fetchExplanationTexts returns an Observable that you need to convert to a Promise
       const explanationTexts = await firstValueFrom(this.explanationTextService.fetchExplanationTexts());
+      console.log('Fetched explanation texts::>>', explanationTexts);
+
       this.explanationTextService.initializeExplanationTexts(explanationTexts);
 
       if (questionData) {
