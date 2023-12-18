@@ -744,13 +744,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async fetchQuizData(): Promise<void> {
-    const quizId = this.activatedRoute.snapshot.params['quizId'];
-    const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+    try {
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
 
-    this.quizService.getQuizData().subscribe((quizData: Quiz[]) => {
-      const selectedQuiz: Quiz | undefined = quizData.find(
-        (quiz) => quiz.quizId === quizId
-      );
+      // Fetch quiz data
+      const quizData: Quiz[] = await firstValueFrom(this.quizService.getQuizData());
+      const selectedQuiz: Quiz | undefined = quizData.find(quiz => quiz.quizId === quizId);
 
       if (!selectedQuiz) {
         console.error('Selected quiz not found in quizData.');
@@ -763,15 +763,13 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Set the selected quiz
       this.quizService.setSelectedQuiz(selectedQuiz);
 
-      const questionData = await this.quizService.getQuestionData(
-        quizId,
-        questionIndex
-      );
+      // Fetch question data
+      const questionData = await firstValueFrom(this.quizService.getQuestionData(quizId, questionIndex));
 
+      // Assume fetchExplanationTexts returns an Observable that you need to convert to a Promise
       const explanationTexts = await firstValueFrom(this.explanationTextService.fetchExplanationTexts());
       this.explanationTextService.initializeExplanationTexts(explanationTexts);
 
-      
       if (questionData) {
         this.data = questionData;
         this.quizService.fetchQuizQuestions();
@@ -847,27 +845,29 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('Correct Answer Options:', correctAnswerOptions);
       } else {
         this.data = null;
-      }      
-    });
-
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      const numericIndex = +questionIndex;
-      if (!isNaN(numericIndex)) {
-        this.quizService.setCurrentQuestionIndex(numericIndex);
-      } else {
-        console.error('Invalid questionIndex:', questionIndex);
-        return;
       }
-    
-      this.quizService.setQuestions(questions);
-      this.quizService.setTotalQuestions(questions.length);
-    
-      if (!this.quizService.questionsLoaded) {
-        this.quizService.updateQuestions(quizId);
-      }
-    
-      this.getCurrentQuestion();
-    });    
+      
+      this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+        const numericIndex = +questionIndex;
+        if (!isNaN(numericIndex)) {
+          this.quizService.setCurrentQuestionIndex(numericIndex);
+        } else {
+          console.error('Invalid questionIndex:', questionIndex);
+          return;
+        }
+      
+        this.quizService.setQuestions(questions);
+        this.quizService.setTotalQuestions(questions.length);
+      
+        if (!this.quizService.questionsLoaded) {
+          this.quizService.updateQuestions(quizId);
+        }
+      
+        this.getCurrentQuestion();
+      });    
+    } catch (error) {
+      console.error('Error in fetchQuizData:', error);
+    }
   }
 
   handleOptions(options: Option[]): void {

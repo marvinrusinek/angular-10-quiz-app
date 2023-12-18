@@ -190,7 +190,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   fetchExplanationTexts(): string[] {
-    return this.explanationTexts;
+    return Object.values(this.explanationTexts).map(subject => subject.value);
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
