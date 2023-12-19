@@ -1482,6 +1482,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         (await this.quizService.getNextOptions(this.currentQuestionIndex)) ||
         [];
 
+      console.log('Current question index::', this.currentQuestionIndex);
       // Fetch the explanation text for the current question
       const explanationText = await this.explanationTextService
         .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
