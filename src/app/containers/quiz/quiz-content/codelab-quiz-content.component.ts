@@ -292,10 +292,21 @@ export class CodelabQuizContentComponent
     }
   }
   
-  private initializeExplanationTexts(explanationTexts: string[]): void {
+  /* private initializeExplanationTexts(explanationTexts: string[]): void {
     this.explanationTextService.explanationTexts = explanationTexts;
     console.log('Explanation Texts from API:', explanationTexts);
-  }
+  } */
+
+  private initializeExplanationTexts(explanationTexts: string[]): void {
+    const explanationTextMap: Record<number, BehaviorSubject<string>> = {};
+    
+    explanationTexts.forEach((text, index) => {
+      explanationTextMap[index] = new BehaviorSubject<string>(text);
+    });
+  
+    this.explanationTextService.explanationTexts = explanationTextMap;
+    console.log('Explanation Texts from API:', explanationTexts);
+  }  
   
   private initializeQuestionsWithExplanations(questions: QuizQuestion[]): { question: QuizQuestion; explanation: string }[] {
     return questions.map((question) => ({
