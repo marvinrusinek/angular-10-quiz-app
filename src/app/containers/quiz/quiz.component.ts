@@ -248,21 +248,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.timerService.stopTimer(null);
   }
 
-  initializeRouteParams(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-  
-      // Convert to a number and ensure it's not less than 1
-      const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
-  
-      // Adjust for zero-based index: subtract 1
-      this.currentQuestionIndex = routeQuestionIndex - 1;
-  
-      console.log('Received question index from route:', routeQuestionIndex);
-      console.log('Adjusted current question index:', this.currentQuestionIndex);
-    });
-  }
-
   subscribeToSelectedQuiz(): void {
     this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
       if (selectedQuiz) {
@@ -627,6 +612,21 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.handleParamMap(params);
         });
       });
+  }
+
+  initializeRouteParams(): void {
+    this.activatedRoute.params.subscribe((params) => {
+      this.quizId = params['quizId'];
+  
+      // Convert to a number and ensure it's not less than 1
+      const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
+  
+      // Adjust for zero-based index: subtract 1
+      this.currentQuestionIndex = routeQuestionIndex - 1;
+  
+      console.log('Received question index from route:', routeQuestionIndex);
+      console.log('Adjusted current question index:', this.currentQuestionIndex);
+    });
   }
 
   setObservables(): void {
