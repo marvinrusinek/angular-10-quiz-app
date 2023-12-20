@@ -276,7 +276,7 @@ export class ExplanationTextService implements OnDestroy {
     this.currentQuestionExplanation = explanation;
   }
   
-  private isCurrentQuestion(question: QuizQuestion): boolean {
+  /* private isCurrentQuestion(question: QuizQuestion): boolean {
     // Check if the provided 'question' and 'currentQuestionExplanation' are defined and match
     console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
     return (
@@ -286,6 +286,11 @@ export class ExplanationTextService implements OnDestroy {
       question.explanation !== undefined &&
       question.explanation === this.currentQuestionExplanation
     );
+  } */
+
+  private isCurrentQuestion(question: QuizQuestion): boolean {
+    console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
+    return this.currentQuestionExplanation === question.explanation;
   }
     
   // Inside explanationTextService
