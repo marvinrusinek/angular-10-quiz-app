@@ -1351,70 +1351,52 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
-
-      // Ensure currentQuestionIndex is within bounds
-      const totalQuestions: number = await this.quizService
-        .getTotalQuestions()
-        .toPromise();
-      if (
-        this.currentQuestionIndex < 0 ||
-        this.currentQuestionIndex >= totalQuestions
-      ) {
+  
+      if (!await this.isQuestionIndexValid()) {
         console.warn('Invalid question index. Aborting.');
         return;
       }
-
-      const questionText = await this.quizService.getQuestionTextForIndex(
-        this.currentQuestionIndex
-      );
-      const options =
-        (await this.quizService.getNextOptions(this.currentQuestionIndex)) ||
-        [];
-
-      console.log('Current question index::', this.currentQuestionIndex);
-      // Fetch the explanation text for the current question
-      const explanationText = await this.explanationTextService
-        .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
-        .toPromise();
-      console.log('MY ET FROM SERVICE', explanationText);
-      console.log(
-        `Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`
-      );
-
-      // Set the current question's explanation
-      if (explanationText) {
-        /* this.explanationTextService.setCurrentQuestionExplanation(
-          explanationText
-        ); */
-        this.explanationTextService.setCurrentQuestionExplanation(
-          "Known explanation for testing"
-        );
-        console.log(`Set current question explanation: ${explanationText}`);
-        // Set the explanation text for the current question index
-        this.explanationTextService.setExplanationTextForQuestionIndex(
-          this.currentQuestionIndex,
-          explanationText
-        );
-      } else {
-        console.log('No explanation text found for the current question');
-      }
-
-      // Set the data before navigating
-      this.nextQuestionText = questionText;
-      this.questionToDisplay = questionText;
-      this.optionsToDisplay = options;
-      this.explanationToDisplay = explanationText;
-
-      // Reset UI immediately before navigating
-      this.resetUI();
-
-      // Reset explanation state before navigating
-      this.explanationTextService.resetStateBetweenQuestions();
-
-      await this.navigateToQuestion(this.currentQuestionIndex + 1);
+  
+      const { questionText, options, explanationText } = await this.fetchQuestionDetails();
+  
+      this.setQuestionDetails(questionText, options, explanationText);
+      this.resetUIAndNavigate();
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
+  }
+  
+  private async isQuestionIndexValid(): Promise<boolean> {
+    const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
+    return this.currentQuestionIndex >= 0 && this.currentQuestionIndex < totalQuestions;
+  }
+  
+  private async fetchQuestionDetails() {
+    const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
+    const options = (await this.quizService.getNextOptions(this.currentQuestionIndex)) || [];
+    const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
+    
+    return { questionText, options, explanationText };
+  }
+  
+  private setQuestionDetails(questionText: string, options: any[], explanationText: string) {
+    this.nextQuestionText = questionText;
+    this.questionToDisplay = questionText;
+    this.optionsToDisplay = options;
+    this.explanationToDisplay = explanationText;
+  
+    if (explanationText) {
+      this.explanationTextService.setCurrentQuestionExplanation("Known explanation for testing");
+      this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
+    } else {
+      console.log('No explanation text found for the current question');
+    }
+  }
+  
+  private async resetUIAndNavigate() {
+    this.resetUI();
+    this.explanationTextService.resetStateBetweenQuestions();
+    await this.navigateToQuestion(this.currentQuestionIndex + 1);
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
