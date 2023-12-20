@@ -669,88 +669,75 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       'and questionIndex:',
       this.currentQuestionIndex
     );
-
-    const currentQuiz: Quiz = await this.quizDataService
-      .getQuiz(this.quizId)
-      .toPromise();
-
-    if (
-      this.quizId &&
-      this.currentQuestionIndex !== undefined &&
-      this.currentQuestionIndex >= 0
-    ) {
-      if (this.quizDataService.hasQuestionAndOptionsLoaded === false) {
-        this.quizDataService.hasQuestionAndOptionsLoaded = true;
-        const [currentQuestion, options] = await this.quizDataService
-          .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-          .toPromise();
-
-        console.log(
-          'getQuestionAndOptions() returned with question:',
-          currentQuestion,
-          'and options:',
-          options
-        );
-        if (this.quizId !== currentQuiz.quizId) {
-          console.error('Loaded question does not belong to selected quiz');
-        } else {
-          if (
-            JSON.stringify(currentQuestion) !==
-            JSON.stringify(this.currentQuestion)
-          ) {
-            this.currentQuestion = currentQuestion;
-            console.log('currentQuestion:', this.currentQuestion);
-            this.options = options;
-            console.log('options:::::>>', options);
-            this.currentOptions = currentQuestion.options; // added
-            this.quizDataService.questionAndOptions = [
-              currentQuestion,
-              options,
-            ];
-          }
-        }
-      }
-
-      // Wait for the getQuestionAndOptions() method to complete
-      await this.quizDataService
-        .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
-        .toPromise();
-
-      if (
-        this.quizDataService.questionAndOptions !== null &&
-        this.quizDataService.questionAndOptions !== undefined
-      ) {
-        const [currentQuestion, options] =
-          this.quizDataService.questionAndOptions;
-        console.log(
-          'questionAndOptions already loaded with question:',
-          currentQuestion,
-          'and options:',
-          options
-        );
-        if (this.quizId !== currentQuiz.quizId) {
-          console.error('Loaded question does not belong to selected quiz');
-        } else {
-          if (
-            JSON.stringify(currentQuestion) !==
-            JSON.stringify(this.currentQuestion)
-          ) {
-            this.currentQuestion = currentQuestion;
-            this.options = options;
-            console.log('options:::::>>', options);
-          }
-        }
-      } else {
-        console.error('questionAndOptions is null or undefined');
-      }
-    } else {
+  
+    if (!this.isInputValid()) {
       console.error('quizId or currentQuestionIndex is null or undefined');
+      return;
     }
-
+  
+    const currentQuiz: Quiz = await this.quizDataService.getQuiz(this.quizId).toPromise();
+  
+    if (!this.quizDataService.hasQuestionAndOptionsLoaded) {
+      await this.loadQuestionAndOptions(currentQuiz);
+    } else if (!this.quizDataService.questionAndOptions) {
+      console.error('questionAndOptions is null or undefined');
+    } else {
+      this.updateCurrentQuestion(currentQuiz);
+    }
+  
     console.log('Current Question:', this.currentQuestion);
     console.log('END OF FUNCTION');
     console.log('options:', this.options);
   }
+  
+  private isInputValid(): boolean {
+    return !!this.quizId && this.currentQuestionIndex !== undefined && this.currentQuestionIndex >= 0;
+  }
+  
+  private async loadQuestionAndOptions(currentQuiz: Quiz): Promise<void> {
+    this.quizDataService.hasQuestionAndOptionsLoaded = true;
+    const [currentQuestion, options] = await this.quizDataService
+      .getQuestionAndOptions(this.quizId, this.currentQuestionIndex)
+      .toPromise();
+  
+    console.log(
+      'getQuestionAndOptions() returned with question:',
+      currentQuestion,
+      'and options:',
+      options
+    );
+  
+    if (this.quizId !== currentQuiz.quizId) {
+      console.error('Loaded question does not belong to the selected quiz');
+    } else if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+      this.updateCurrentQuestionData(currentQuestion, options);
+    }
+  }
+  
+  private updateCurrentQuestion(currentQuiz: Quiz): void {
+    const [currentQuestion, options] = this.quizDataService.questionAndOptions;
+    console.log(
+      'questionAndOptions already loaded with question:',
+      currentQuestion,
+      'and options:',
+      options
+    );
+  
+    if (this.quizId !== currentQuiz.quizId) {
+      console.error('Loaded question does not belong to the selected quiz');
+    } else if (JSON.stringify(currentQuestion) !== JSON.stringify(this.currentQuestion)) {
+      this.updateCurrentQuestionData(currentQuestion, options);
+    }
+  }
+  
+  private updateCurrentQuestionData(currentQuestion: Question, options: Option[]): void {
+    this.currentQuestion = currentQuestion;
+    console.log('currentQuestion:', this.currentQuestion);
+    this.options = options;
+    console.log('options:::::>>', options);
+    this.currentOptions = currentQuestion.options; // added
+    this.quizDataService.questionAndOptions = [currentQuestion, options];
+  }  
 
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
