@@ -721,108 +721,92 @@ export class QuizComponent implements OnInit, OnDestroy {
   async fetchQuizData(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndex =
-        this.activatedRoute.snapshot.params['questionIndex'];
-
-      // Fetch quiz data
-      const quizData: Quiz[] = await firstValueFrom(
-        this.quizService.getQuizData()
-      );
-      const selectedQuiz: Quiz | undefined = quizData.find(
-        (quiz) => quiz.quizId === quizId
-      );
-
+      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+  
+      const quizData = await this.fetchQuizDataFromService();
+      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
+  
       if (!selectedQuiz) {
         console.error('Selected quiz not found in quizData.');
         return;
       }
-
-      // Set the quiz data
-      this.quizService.setQuizData(quizData);
-
-      // Set the selected quiz
-      this.quizService.setSelectedQuiz(selectedQuiz);
-
-      // Fetch question data
-      const questionData = await this.quizService.getQuestionData(
-        quizId,
-        questionIndex
-      );
-
-      try {
-        const explanationTexts =
-          await this.explanationTextService.fetchExplanationTexts();
-        console.log('Dynamically fetched explanation texts:', explanationTexts);
-
-        if (explanationTexts && explanationTexts.length > 0) {
-          console.log(
-            'Before initializing explanation texts:',
-            explanationTexts
-          );
-          this.explanationTextService.initializeExplanationTexts(explanationTexts);
-        } else {
-          console.log('No explanation texts were fetched dynamically');
-        }
-      } catch (error) {
-        console.error('Error fetching explanation texts:', error);
-      }
-
+  
+      this.initializeSelectedQuizData(selectedQuiz);
+  
+      const questionData = await this.fetchQuestionData(quizId, questionIndex);
+  
       if (questionData) {
-        this.data = questionData;
-        this.quizService.fetchQuizQuestions();
-        this.quizService.setQuestionData(questionData);
-        this.quizService.setCurrentOptions(this.data.currentOptions);
-
-        const currentQuestion: QuizQuestion = {
-          questionText: this.data.questionText,
-          options: this.data.currentOptions,
-          explanation: '',
-          type: QuestionType.MultipleAnswer,
-        };
-
-        // Pass the data to the QuizQuestionComponent
-        this.question = currentQuestion;
-
-        const correctAnswerOptions = this.data.currentOptions.filter(
-          (option) => option.correct
-        );
-        this.quizService.setCorrectAnswers(
-          currentQuestion,
-          correctAnswerOptions
-        );
-        this.quizService.setCorrectAnswersLoaded(true);
-        this.quizService.correctAnswersLoadedSubject.next(true);
-
-        // Log to check if the correct data is being used
-        console.log('Question Data:', currentQuestion);
-        console.log('Correct Answer Options:', correctAnswerOptions);
+        this.processQuestionData(questionData);
       } else {
         this.data = null;
       }
-
-      this.quizDataService
-        .getQuestionsForQuiz(quizId)
-        .subscribe((questions) => {
-          const numericIndex = +questionIndex;
-          if (!isNaN(numericIndex)) {
-            this.quizService.setCurrentQuestionIndex(numericIndex);
-          } else {
-            console.error('Invalid questionIndex:', questionIndex);
-            return;
-          }
-
-          this.quizService.setQuestions(questions);
-          this.quizService.setTotalQuestions(questions.length);
-
-          if (!this.quizService.questionsLoaded) {
-            this.quizService.updateQuestions(quizId);
-          }
-
-          this.getCurrentQuestion();
-        });
+  
+      this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
+  }
+  
+  private async fetchQuizDataFromService(): Promise<Quiz[]> {
+    return await firstValueFrom(this.quizService.getQuizData());
+  }
+  
+  private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
+    return quizData.find((quiz) => quiz.quizId === quizId);
+  }
+  
+  private initializeSelectedQuizData(selectedQuiz: Quiz): void {
+    this.quizService.setQuizData([selectedQuiz]);
+    this.quizService.setSelectedQuiz(selectedQuiz);
+  }
+  
+  private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
+    return await this.quizService.getQuestionData(quizId, questionIndex);
+  }
+  
+  private processQuestionData(questionData: any): void {
+    this.data = questionData;
+    this.quizService.fetchQuizQuestions();
+    this.quizService.setQuestionData(questionData);
+    this.quizService.setCurrentOptions(this.data.currentOptions);
+  
+    const currentQuestion: QuizQuestion = {
+      questionText: this.data.questionText,
+      options: this.data.currentOptions,
+      explanation: '',
+      type: QuestionType.MultipleAnswer,
+    };
+  
+    this.question = currentQuestion;
+  
+    const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
+    this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+    this.quizService.setCorrectAnswersLoaded(true);
+    this.quizService.correctAnswersLoadedSubject.next(true);
+  
+    console.log('Question Data:', currentQuestion);
+    console.log('Correct Answer Options:', correctAnswerOptions);
+  }
+  
+  private subscribeToQuestions(quizId: string, questionIndex: string): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      const numericIndex = +questionIndex;
+      if (!isNaN(numericIndex)) {
+        this.quizService.setCurrentQuestionIndex(numericIndex);
+      } else {
+        console.error('Invalid questionIndex:', questionIndex);
+        return;
+      }
+  
+      this.quizService.setQuestions(questions);
+      this.quizService.setTotalQuestions(questions.length);
+  
+      if (!this.quizService.questionsLoaded) {
+        this.quizService.updateQuestions(quizId);
+      }
+  
+      this.getCurrentQuestion();
+    });
   }
 
   handleOptions(options: Option[]): void {
