@@ -423,46 +423,21 @@ export class CodelabQuizContentComponent
   }
 
   private initializeExplanationTextSubscription(): void {
-    const selectedOptionExplanation$ =
-      this.selectedOptionService.selectedOptionExplanation$;
+    const explanationText$ = this.explanationTextService.getExplanationText$();
+    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
 
-    this.explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      selectedOptionExplanation$,
-    ]).pipe(
-      tap(([explanationText, selectedOptionExplanation]) => {
-        console.log('Explanation Text:', explanationText);
-        console.log('Selected Option Explanation:', selectedOptionExplanation);
-      }),
-      map(
-        ([explanationText, selectedOptionExplanation]) =>
-          selectedOptionExplanation || explanationText
-      ),
-      tap((explanation) => {
-        console.log('Final Explanation:', explanation);
-      })
+    this.explanationText$ = combineLatest([explanationText$, selectedOptionExplanation$]).pipe(
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText),
+      tap(explanation => console.log('Final Explanation:', explanation))
     ) as Observable<string>;
 
     console.log('Explanation Text Observable::>>', this.explanationText$);
+
     this.explanationText$.subscribe({
-      next: (displayText) => {
-        console.log('Received Explanation Text::>>', displayText);
-      },
-      complete: () => {
-        console.log('Explanation Text Observable completed.');
-      },
-      error: (err) => {
-        console.error('Error in Explanation Text Observable:', err);
-      }
-    });    
-    
-    /* this.explanationTextSubscription = this.explanationText$.subscribe(
-      (displayText) => {
-        console.log('Received Explanation Text::>>', displayText);
-        this.quizQuestionManagerService.setExplanationText(displayText);
-        this.quizQuestionManagerService.setExplanationDisplayed(!!displayText);
-      }
-    ); */
+      next: displayText => console.log('Received Explanation Text::>>', displayText),
+      complete: () => console.log('Explanation Text Observable completed.'),
+      error: err => console.error('Error in Explanation Text Observable:', err)
+    });
   }
 
   private initializeCombinedQuestionData(): void {
