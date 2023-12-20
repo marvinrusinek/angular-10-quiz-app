@@ -128,7 +128,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
-    console.log(`Retrieving explanation for index: ${index}`);
+    console.log(`Retrieving explanation for index: ${index}, Current explanations:`, this.explanationTexts);
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
     console.log(`Trying to get explanation for index::>> ${numericIndex}`);
 
