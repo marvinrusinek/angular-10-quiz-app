@@ -682,7 +682,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else if (!this.quizDataService.questionAndOptions) {
       console.error('questionAndOptions is null or undefined');
     } else {
-      await this.updateCurrentQuestion(currentQuiz);
+      await this.handleLoadedQuestion(currentQuiz);
     }
   
     console.log('Current Question:', this.currentQuestion);
@@ -714,7 +714,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  private updateCurrentQuestion(currentQuiz: Quiz): void {
+  private handleLoadedQuestion(currentQuiz: Quiz): void {
     const [currentQuestion, options] = this.quizDataService.questionAndOptions;
     console.log(
       'questionAndOptions already loaded with question:',
@@ -730,7 +730,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   
-  private updateCurrentQuestionData(currentQuestion: Question, options: Option[]): void {
+  private updateCurrentQuestionData(currentQuestion: QuizQuestion, options: Option[]): void {
     this.currentQuestion = currentQuestion;
     console.log('currentQuestion:', this.currentQuestion);
     this.options = options;
