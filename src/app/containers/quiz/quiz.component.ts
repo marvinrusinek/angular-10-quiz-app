@@ -1494,8 +1494,11 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       // Set the current question's explanation
       if (explanationText) {
-        this.explanationTextService.setCurrentQuestionExplanation(
+        /* this.explanationTextService.setCurrentQuestionExplanation(
           explanationText
+        ); */
+        this.explanationTextService.setCurrentQuestionExplanation(
+          "Known explanation for testing"
         );
         console.log(`Set current question explanation: ${explanationText}`);
         // Set the explanation text for the current question index
