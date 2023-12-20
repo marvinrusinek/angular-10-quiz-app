@@ -222,8 +222,15 @@ export class ExplanationTextService implements OnDestroy {
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
 
+    const testQuestion: QuizQuestion = {
+        questionText: "Dummy question text",
+        options: [],
+        explanation: "Known explanation for testing",
+        type: "QuestionType.MultipleAnswer"
+    };
     console.log("Entering isCurrentQuestion block");
-    if (this.isCurrentQuestion(question)) {
+    if (this.isCurrentQuestion(testQuestion)) {
+      console.log("isCurrentQuestion: true");
       let formattedExplanation = '';
 
       if (correctOptionIndices.length > 1) {
@@ -268,6 +275,7 @@ export class ExplanationTextService implements OnDestroy {
         explanation: formattedExplanation
       };
     } else {
+      console.log("isCurrentQuestion: false");
       console.log("Question is not the current question");
     }
   }
@@ -290,7 +298,8 @@ export class ExplanationTextService implements OnDestroy {
 
   private isCurrentQuestion(question: QuizQuestion): boolean {
     console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
-    return this.currentQuestionExplanation === question.explanation;
+    // return this.currentQuestionExplanation === question.explanation;
+    return this.currentQuestionExplanation === "Known explanation for testing";
   }
     
   // Inside explanationTextService
