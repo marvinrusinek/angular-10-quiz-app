@@ -301,6 +301,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       )
     );
 
+    this.subscribeToQuestionUpdates();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
+    this.selectedQuizSubscription?.unsubscribe();
+    this.routerSubscription.unsubscribe();
+    this.timerService.stopTimer(null);
+  }
+
+  subscribeToQuestionUpdates(): void {
     combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
@@ -317,20 +330,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.options$ = of(options);
       })
     )
-    .subscribe();    
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
-    this.selectedQuizSubscription?.unsubscribe();
-    this.routerSubscription.unsubscribe();
-    this.timerService.stopTimer(null);
-  }
-
-  createFunctionData() {
-    
+    .subscribe();
   }
 
   private initializeQuiz(): void {
