@@ -231,13 +231,15 @@ export class CodelabQuizContentComponent
   private subscribeToQuestionChanges(): void {
     this.quizService.currentQuestionIndex$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((index) => {
-        console.log('Current question index::::>>', index);
-      },
-      (error) => {
-        console.error('Error in getCurrentQuestionIndex$ subscription:', error);
+      .subscribe({
+        next: (index) => {
+          console.log('Current question index::::>>', index);
+        },
+        error: (error) => {
+          console.error('Error in getCurrentQuestionIndex$ subscription:', error);
+        }
       });
-  }
+  }  
   
   private subscribeToExplanationChanges(): void {
     this.selectedOptionSubscription =
