@@ -730,18 +730,17 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Selected quiz not found in quizData.');
         return;
       }
-  
-      this.fetchAndInitializeExplanationTexts();
       this.initializeSelectedQuizData(selectedQuiz);
-  
+
       const questionData = await this.fetchQuestionData(quizId, questionIndex);
       if (questionData) {
         this.processQuestionData(questionData);
       } else {
         this.data = null;
       }
-  
+ 
       this.subscribeToQuestions(quizId, questionIndex);
+      this.fetchAndInitializeExplanationTexts();
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
