@@ -6,14 +6,14 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
+  Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   ActivatedRoute,
   NavigationEnd,
   ParamMap,
-  Router,
+  Router
 } from '@angular/router';
 
 import {
@@ -22,11 +22,10 @@ import {
   firstValueFrom,
   forkJoin,
   from,
-  isObservable,
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -36,7 +35,7 @@ import {
   switchMap,
   take,
   tap,
-  withLatestFrom,
+  withLatestFrom
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -61,19 +60,19 @@ type AnimationState = 'animationStarted' | 'none';
 enum QuizRoutes {
   INTRO = 'intro/',
   QUESTION = 'question/',
-  RESULTS = 'results/',
+  RESULTS = 'results/'
 }
 
 enum QuizStatus {
   STARTED = 'started',
   CONTINUE = 'continue',
-  COMPLETED = 'completed',
+  COMPLETED = 'completed'
 }
 
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false',
+  TrueFalse = 'true_false'
 }
 
 @Component({
@@ -88,7 +87,7 @@ enum QuestionType {
     QuizDataService,
     QuizStateService,
     HighlightDirective,
-  ],
+  ]
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
@@ -202,7 +201,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private cdRef: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
-      selectedOption: [null],
+      selectedOption: [null]
     });
 
     this.selectedQuiz$ =
