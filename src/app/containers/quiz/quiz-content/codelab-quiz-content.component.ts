@@ -271,13 +271,10 @@ export class CodelabQuizContentComponent
           return;
         }
   
-        this.initializeExplanationTexts(explanationTexts);
-  
-        this.questionsWithExplanations = this.initializeQuestionsWithExplanations(questions);
-  
         this.initializeCurrentQuestionIndex();
-  
+        this.initializeExplanationTexts(explanationTexts);
         this.initializeQuestionsAndCurrentQuestionObservable();
+        this.questionsWithExplanations = this.initializeQuestionsWithExplanations(questions);
       });
   
     this.subscribeToCurrentQuestion();
