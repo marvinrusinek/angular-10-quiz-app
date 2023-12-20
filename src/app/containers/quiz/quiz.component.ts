@@ -215,6 +215,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Subscribe to router events and initialize
     this.subscribeRouterAndInit();
+    this.initializeRouteParams();
 
     // Set up observables
     this.setObservables();
@@ -222,6 +223,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Initialize quiz-related properties
     this.initializeQuiz();
     this.getSelectedQuiz();
+    this.subscribeToSelectedQuiz();
 
     // Fetch and display the current question
     this.getQuestion();
@@ -232,54 +234,62 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Fetch additional quiz data
     this.fetchQuizData();
+  
+    this.initializeQuestionStreams();
+    this.createQuestionData();
+    this.subscribeToQuestionUpdates();
+  }
 
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    this.selectedQuiz$.next(null);
+    this.selectedQuizSubscription?.unsubscribe();
+    this.routerSubscription.unsubscribe();
+    this.timerService.stopTimer(null);
+  }
+
+  initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-      this.questionIndex = +params['questionIndex'];
-      console.log('Received question index:', this.questionIndex);
-      this.currentQuestionIndex = Math.max(this.questionIndex - 1, 0);
-      console.log('CQI::', this.currentQuestionIndex);
-
-      /* if (this.questionIndex === 1) {
-        // For the first question, set the currentQuestionIndex to 0
-        this.currentQuestionIndex = 0;
-      } else {
-        // For other questions, calculate index accordingly
-        this.currentQuestionIndex = this.questionIndex - 1;
-      }
-
-      if (this.currentQuestionIndex <= 0) {
-        this.currentQuestionIndex = 0;
-      } */
-
-      // this.currentQuestionIndex = this.questionIndex - 1; // Convert to a number and subtract 1 to get the zero-based index
-      // console.log('Derived current question index:', this.currentQuestionIndex);
-
-      this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
-        if (selectedQuiz) {
-          this.quiz = selectedQuiz;
-          this.totalQuestions = selectedQuiz.questions.length;
-          this.lastQuestionIndex = this.totalQuestions - 1;
-        } else {
-          console.error('Selected quiz is null.');
-        }
-      });
+  
+      // Convert to a number and ensure it's not less than 1
+      const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
+  
+      // Adjust for zero-based index: subtract 1
+      this.currentQuestionIndex = routeQuestionIndex - 1;
+  
+      console.log('Received question index from route:', routeQuestionIndex);
+      console.log('Adjusted current question index:', this.currentQuestionIndex);
     });
+  }
 
+  subscribeToSelectedQuiz(): void {
+    this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
+      if (selectedQuiz) {
+        this.quiz = selectedQuiz;
+        this.totalQuestions = selectedQuiz.questions.length;
+        this.lastQuestionIndex = this.totalQuestions - 1;
+      } else {
+        console.error('Selected quiz is null.');
+      }
+    });
+  }
+
+  initializeQuestionStreams() {
+    // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+  
+    // Initialize next question and options streams
+    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+  }
 
-    const nextQuestion$ = this.quizService.getNextQuestion(
-      this.currentQuestionIndex
-    );
-    const nextOptions$ = this.quizService.getNextOptions(
-      this.currentQuestionIndex
-    );
-
-   // Function to create question data
+  createQuestionData(): void {
     const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
       questionText: question?.questionText ?? null,
       correctAnswersText: null,
-      options,
+      options
     });
 
     // Combine nextQuestion$ and nextOptions$ using combineLatest
@@ -300,17 +310,6 @@ export class QuizComponent implements OnInit, OnDestroy {
             )
       )
     );
-
-    this.subscribeToQuestionUpdates();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
-    this.selectedQuiz$.next(null);
-    this.selectedQuizSubscription?.unsubscribe();
-    this.routerSubscription.unsubscribe();
-    this.timerService.stopTimer(null);
   }
 
   subscribeToQuestionUpdates(): void {
