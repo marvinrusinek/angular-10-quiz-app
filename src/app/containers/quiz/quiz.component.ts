@@ -844,50 +844,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.quizService.setCorrectAnswersLoaded(true);
         this.quizService.correctAnswersLoadedSubject.next(true);
 
-        // Load and set the explanation text for the current question
-        let currentIndex: number;
-
-        /* this.quizDataService.getCurrentQuestionIndex().subscribe({
-          next: (index) => {
-            currentIndex = index;
-            console.log('Current Index:::>', currentIndex);
-
-            // Ensure that currentIndex is defined before calling getExplanationTextForQuestionIndex
-            if (currentIndex !== undefined) {
-              const explanationText$ = this.explanationTextService.getExplanationTextForQuestionIndex(currentIndex);
-
-              console.log('Is explanationText$ an observable?', explanationText$ instanceof Observable);
-
-              // Ensure that explanationText$ is an observable
-              if (explanationText$ instanceof Observable) {
-                explanationText$.subscribe({
-                  next: (explanationText) => {
-                    console.log('Explanation Text Observable:', explanationText$);
-                    console.log('Explanation Text:::>', explanationText);
-
-                    if (explanationText) {
-                      currentQuestion.explanation = explanationText as string;
-                      this.explanationTextService.setExplanationTextForQuestionIndex(currentIndex, explanationText as string);
-                    }
-                  },
-                  error: (error) => {
-                    console.error('Error fetching explanation text:', error);
-                  },
-                  complete: () => {
-                    // Handle completion if needed
-                  }
-                });
-              }
-            }
-          },
-          error: (error) => {
-            console.error('Error fetching current question index:', error);
-          },
-          complete: () => {
-            // Handle completion if needed
-          }
-        }); */
-
         // Log to check if the correct data is being used
         console.log('Question Data:', currentQuestion);
         console.log('Correct Answer Options:', correctAnswerOptions);
