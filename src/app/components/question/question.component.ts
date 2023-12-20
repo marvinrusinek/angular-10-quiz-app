@@ -682,7 +682,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else if (!this.quizDataService.questionAndOptions) {
       console.error('questionAndOptions is null or undefined');
     } else {
-      this.updateCurrentQuestion(currentQuiz);
+      await this.updateCurrentQuestion(currentQuiz);
     }
   
     console.log('Current Question:', this.currentQuestion);
