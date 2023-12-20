@@ -1293,60 +1293,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.navigateToResults();
   }
 
-  /* private async fetchAndSetQuestionData(): Promise<void> {
-    try {
-      this.animationState$.next('animationStarted');
-
-      this.explanationTextService.setShouldDisplayExplanation(false);
-
-      // Ensure currentQuestionIndex is within bounds
-      const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
-      if (this.currentQuestionIndex < 0 || this.currentQuestionIndex >= totalQuestions) {
-        console.warn('Invalid question index. Aborting.');
-        return;
-      } 
-
-      // Fetch the full question object based on the currentQuestionIndex
-      // const fullQuestion = await this.quizService.getQuestionByIndex(this.currentQuestionIndex);
-
-      // Update the current question in your state management
-      // this.quizStateService.setCurrentQuestion(fullQuestion);
-  
-      const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-      const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
-      const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
-  
-      // Set the data before navigating
-      this.nextQuestionText = questionText;
-      this.questionToDisplay = questionText;
-      this.optionsToDisplay = options;
-      this.explanationToDisplay = explanationText;
-  
-      // Reset UI immediately before navigating
-      this.resetUI();
-
-      // Reset explanation state before navigating
-      this.explanationTextService.resetStateBetweenQuestions();
-
-      // Fetch the explanation text for the current question
-      try {
-        const explanationText = await this.explanationTextService
-          .getExplanationTextForQuestionIndex(this.currentQuestionIndex)
-          .toPromise();
-        console.log(`Fetched explanation for index ${this.currentQuestionIndex}: ${explanationText}`);
-
-        // Set the explanation text for the current question index
-        this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
-      } catch (error) {
-        console.error('Error fetching explanation text:', error);
-      }      
-
-      await this.navigateToQuestion(this.currentQuestionIndex + 1);
-    } catch (error) {
-      console.error('Error fetching and setting question data:', error);
-    }
-  } */
-
   private async fetchAndSetQuestionData(): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
