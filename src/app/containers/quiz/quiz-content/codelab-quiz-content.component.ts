@@ -263,130 +263,123 @@ export class CodelabQuizContentComponent
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params) => {
-          this.quizId = params.get('quizId');
-          if (this.quizId) {
-            return forkJoin([
-              this.quizDataService.getQuestionsForQuiz(this.quizId),
-              this.quizDataService.getAllExplanationTextsForQuiz(this.quizId),
-            ]);
-          } else {
-            return of([null, []]);
-          }
-        }),
+        switchMap((params) => this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
       .subscribe(([questions, explanationTexts]) => {
         if (!questions) {
           return;
         }
-
-        // Store explanation texts in an array
-        this.explanationTextService.explanationTexts = explanationTexts;
-        console.log('Explanation Texts from API:', explanationTexts);
-
-        // Collect explanations for all questions
-        this.questionsWithExplanations = questions.map((question) => ({
-          question,
-          explanation: question.explanation || '',
-        }));
-
-        // Initialize the current question index
-        this.quizService.currentQuestionIndex = 0;
-
-        // Set the questions
-        this.questions = questions;
-        this.currentQuestionIndex$ =
-          this.quizService.getCurrentQuestionIndexObservable();
+  
+        this.storeExplanationTexts(explanationTexts);
+        this.collectQuestionsWithExplanations(questions);
+        this.initializeCurrentQuestionIndex();
+        this.setQuestions(questions);
+        this.subscribeToCurrentQuestion();
       });
-
+  }
+  
+  private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[] | null, string[]]> {
+    this.quizId = params.get('quizId');
+    if (this.quizId) {
+      return forkJoin([
+        this.quizDataService.getQuestionsForQuiz(this.quizId),
+        this.quizDataService.getAllExplanationTextsForQuiz(this.quizId),
+      ]).pipe(
+        map(([questions, explanationTexts]) => [questions, explanationTexts])
+      );
+    } else {
+      return of([null, []]);
+    }
+  }
+  
+  private storeExplanationTexts(explanationTexts: string[]): void {
+    this.explanationTextService.explanationTexts = explanationTexts;
+    console.log('Explanation Texts from API:', explanationTexts);
+  }
+  
+  private collectQuestionsWithExplanations(questions: QuizQuestion[]): void {
+    this.questionsWithExplanations = questions.map((question) => ({
+      question,
+      explanation: question.explanation || '',
+    }));
+  }
+  
+  private initializeCurrentQuestionIndex(): void {
+    this.quizService.currentQuestionIndex = 0;
+    this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
+  }
+  
+  private setQuestions(questions: QuizQuestion[]): void {
+    this.questions = questions;
+    this.currentQuestionIndex$.subscribe((index) => {
+      this.currentQuestionIndexValue = index;
+    });
+  }
+  
+  private subscribeToCurrentQuestion(): void {
     this.currentQuestion$.subscribe((question) => {
       if (question && question.options) {
         this.options = question.options;
       }
     });
-
-    this.currentQuestionIndex$ =
-      this.quizService.getCurrentQuestionIndexObservable();
-    this.currentQuestionIndex$.subscribe((index) => {
-      this.currentQuestionIndexValue = index;
-    });
-
-    this.quizStateService.currentQuestion$.subscribe((question) => {
-      this.question = question;
-
-      if (question && question.options) {
-        console.log('Options:', question.options);
-      }
-    });
-
-    this.currentQuestionSubscription =
-      this.quizStateService.currentQuestion$.subscribe(
-        async (question: QuizQuestion) => {
-          if (question) {
-            this.quizQuestionManagerService.setCurrentQuestion(question);
-            this.numberOfCorrectAnswers =
-              this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-                question.options
-              );
-            const correctAnswersText =
-              this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-                this.numberOfCorrectAnswers
-              );
-            this.correctAnswersTextSource.next(correctAnswersText);
-
-            const questions: QuizQuestion[] = await this.quizDataService
-              .getQuestionsForQuiz(this.quizId)
-              .toPromise();
-            console.log('After fetching questions:', questions);
-
-            console.log('Current Question:>', question.questionText);
-            console.log(
-              'All Questions:>',
-              questions.map((q) => q.questionText)
-            );
-
-            // Get the index of the current question
-            // const questionIndex = questions.indexOf(question);
-            const questionIndex = questions.findIndex(
-              (q) => q.questionText === question.questionText
-            );
-            console.log('Calculated question index:', questionIndex);
-            console.log('Question Index:>', questionIndex);
-
-            if (questionIndex !== -1 && questionIndex < questions.length - 1) {
-              const zeroBasedIndex = questionIndex - 1;
-              const nextQuestion = questions[zeroBasedIndex + 1];
-          
-              console.log('Next Question Index:', zeroBasedIndex + 1);
-              console.log('Current Questions Array:', questions);
-              
-              if (nextQuestion) {
-                  console.log('Next Question Text:', nextQuestion.questionText);
-                  const nextExplanationText = nextQuestion.explanation;
-                  console.log('Next Explanation Text:', nextExplanationText);
-          
-                  console.log('Setting explanation text for question index:', zeroBasedIndex + 1);
-                  console.log('Fetching explanation text for question index:', zeroBasedIndex + 1);
-                  console.log('Explanation text from the API:', nextExplanationText);
-          
-                  this.explanationTextService.setExplanationTextForQuestionIndex(
-                      zeroBasedIndex + 1,
-                      nextExplanationText
-                  );
-          
-                  console.log('Set explanation for index', zeroBasedIndex + 1, ':', nextExplanationText);
-          
-                  this.updateExplanationForQuestion(nextQuestion);
-              } else {
-                  console.warn('Next question not found in the questions array.');
-              }
-            } else {
-              console.warn('Current question not found in the questions array.');
-            }
-          }
+  
+    this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe(
+      async (question: QuizQuestion) => {
+        if (question) {
+          await this.processCurrentQuestion(question);
         }
-      );
+      }
+    );
+  }
+  
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    this.quizQuestionManagerService.setCurrentQuestion(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers(question);
+    await this.fetchAndDisplayExplanationText(question);
+  }
+  
+  private calculateAndDisplayNumberOfCorrectAnswers(question: QuizQuestion): void {
+    this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+      question.options
+    );
+  
+    const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+      this.numberOfCorrectAnswers
+    );
+  
+    this.correctAnswersTextSource.next(correctAnswersText);
+  }
+  
+  private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+    const questions: QuizQuestion[] = await this.quizDataService
+      .getQuestionsForQuiz(this.quizId)
+      .toPromise();
+  
+    const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
+  
+    if (questionIndex !== -1 && questionIndex < questions.length - 1) {
+      const zeroBasedIndex = questionIndex - 1;
+      const nextQuestion = questions[zeroBasedIndex + 1];
+  
+      if (nextQuestion) {
+        this.setExplanationForNextQuestion(zeroBasedIndex + 1, nextQuestion);
+        this.updateExplanationForQuestion(nextQuestion);
+      } else {
+        console.warn('Next question not found in the questions array.');
+      }
+    } else {
+      console.warn('Current question not found in the questions array.');
+    }
+  }
+  
+  private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
+    const nextExplanationText = nextQuestion.explanation;
+    console.log('Setting explanation text for question index:', questionIndex);
+    console.log('Fetching explanation text for question index:', questionIndex);
+    console.log('Explanation text from the API:', nextExplanationText);
+    this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, nextExplanationText);
+    console.log('Set explanation for index', questionIndex, ':', nextExplanationText);
   }
 
   updateExplanationForQuestion(question: QuizQuestion): void {
