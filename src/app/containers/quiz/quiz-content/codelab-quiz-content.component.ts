@@ -29,6 +29,7 @@ import {
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
+import { CombinedDataType } from '../../../shared/models/CombinedDataType.type';
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -412,9 +413,10 @@ export class CodelabQuizContentComponent
         )
       )
       .subscribe((nextQuestion) => {
+        const question = nextQuestion as QuizQuestion;
         if (nextQuestion) {
-          this.currentQuestion.next(nextQuestion);
-          this.currentOptions$.next(nextQuestion.options);
+          this.currentQuestion.next(question);
+          this.currentOptions$.next(question.options);
         } else {
           // Handle the scenario when there are no more questions
           this.router.navigate(['/results']);
@@ -598,7 +600,7 @@ export class CodelabQuizContentComponent
       )
       .subscribe((combinedData) => {
         console.log('Combined Data:', combinedData);
-        this.combinedQuestionData$ = of(combinedData);
+        this.combinedQuestionData$ = of(combinedData as CombinedDataType);
       });
     });  
   }
