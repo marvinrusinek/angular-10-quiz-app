@@ -740,7 +740,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
  
       this.subscribeToQuestions(quizId, questionIndex);
-      this.fetchAndInitializeExplanationTexts();
+      await this.fetchAndInitializeExplanationTexts();
     } catch (error) {
       console.error('Error in fetchQuizData:', error);
     }
