@@ -731,10 +731,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
+      this.fetchAndInitializeExplanationTexts();
       this.initializeSelectedQuizData(selectedQuiz);
   
       const questionData = await this.fetchQuestionData(quizId, questionIndex);
-  
       if (questionData) {
         this.processQuestionData(questionData);
       } else {
@@ -754,7 +754,23 @@ export class QuizComponent implements OnInit, OnDestroy {
   private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
     return quizData.find((quiz) => quiz.quizId === quizId);
   }
+
+  async fetchAndInitializeExplanationTexts(): Promise<void> {
+    try {
+      const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
+      console.log('Dynamically fetched explanation texts:', explanationTexts);
   
+      if (explanationTexts && explanationTexts.length > 0) {
+        console.log('Before initializing explanation texts:', explanationTexts);
+        this.explanationTextService.initializeExplanationTexts(explanationTexts);
+      } else {
+        console.log('No explanation texts were fetched dynamically');
+      }
+    } catch (error) {
+      console.error('Error fetching explanation texts:', error);
+    }
+  }
+    
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
