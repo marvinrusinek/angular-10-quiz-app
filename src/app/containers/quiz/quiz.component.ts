@@ -275,35 +275,30 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestionIndex
     );
 
+   // Function to create question data
+    const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
+      questionText: question?.questionText ?? null,
+      correctAnswersText: null,
+      options,
+    });
+
     // Combine nextQuestion$ and nextOptions$ using combineLatest
     this.combinedQuestionData$ = combineLatest([
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
     ]).pipe(
-      switchMap(([nextQuestion, nextOptions]) => {
-        if (nextQuestion) {
-          // If nextQuestion is available, display it
-          return of({
-            questionText: nextQuestion.questionText,
-            correctAnswersText: null,
-            options: nextOptions,
-          });
-        } else {
-          // If nextQuestion is not available, switch to the previousQuestion
-          return combineLatest([
-            this.quizService.previousQuestion$,
-            this.quizService.previousOptions$,
-          ]).pipe(
-            map(([previousQuestion, previousOptions]) => {
-              return {
-                questionText: previousQuestion?.questionText,
-                correctAnswersText: null,
-                options: previousOptions,
-              };
-            })
-          );
-        }
-      })
+      switchMap(([nextQuestion, nextOptions]) =>
+        nextQuestion
+          ? of(createQuestionData(nextQuestion, nextOptions))
+          : combineLatest([
+              this.quizService.previousQuestion$,
+              this.quizService.previousOptions$
+            ]).pipe(
+              map(([previousQuestion, previousOptions]) => 
+                createQuestionData(previousQuestion, previousOptions)
+              )
+            )
+      )
     );
 
     combineLatest([
@@ -312,29 +307,17 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.previousQuestion$,
       this.quizService.previousOptions$,
     ])
-      .pipe(
-        map(
-          ([nextQuestion, nextOptions, previousQuestion, previousOptions]) => {
-            return {
-              nextQuestion: nextQuestion as QuizQuestion,
-              nextOptions: nextOptions as Option[],
-              previousQuestion: previousQuestion as QuizQuestion,
-              previousOptions: previousOptions as Option[],
-            };
-          }
-        )
-      )
-      .subscribe(
-        ({ nextQuestion, nextOptions, previousQuestion, previousOptions }) => {
-          if (nextQuestion) {
-            this.question$ = of(nextQuestion);
-            this.options$ = of(nextOptions);
-          } else {
-            this.question$ = of(previousQuestion);
-            this.options$ = of(previousOptions);
-          }
-        }
-      );
+    .pipe(
+      map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => ({
+        question: nextQuestion ?? previousQuestion,
+        options: nextQuestion ? nextOptions : previousOptions,
+      })),
+      tap(({ question, options }) => {
+        this.question$ = of(question);
+        this.options$ = of(options);
+      })
+    )
+    .subscribe();    
   }
 
   ngOnDestroy(): void {
@@ -344,6 +327,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription.unsubscribe();
     this.timerService.stopTimer(null);
+  }
+
+  createFunctionData() {
+    
   }
 
   private initializeQuiz(): void {
