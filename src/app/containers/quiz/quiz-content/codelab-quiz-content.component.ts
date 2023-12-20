@@ -722,7 +722,7 @@ export class CodelabQuizContentComponent
     return '';
   }
   
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  private async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     try {
       console.log('Current question:', data.currentQuestion);
   
