@@ -6,7 +6,7 @@ import {
   OnChanges,
   OnDestroy,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
@@ -293,7 +293,7 @@ export class CodelabQuizContentComponent
     }
   }
   
-  private storeExplanationTexts(explanationTexts: string[]): void {
+  private storeExplanationTexts(explanationTexts: Record<number, BehaviorSubject<string>>): void {
     this.explanationTextService.explanationTexts = explanationTexts;
     console.log('Explanation Texts from API:', explanationTexts);
   }
@@ -466,85 +466,76 @@ export class CodelabQuizContentComponent
   }
 
   private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.currentQuestion$.pipe(
-      withLatestFrom(this.currentOptions$),
-      map(([currentQuestion, currentOptions]) => ({
-        currentQuestion,
-        currentOptions,
-      }))
-    );
-
-    this.isExplanationTextDisplayed$ =
-      this.explanationTextService.isExplanationTextDisplayed$;
-
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+  
+    this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+  
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
       this.formattedExplanation$,
     ]).pipe(
-      switchMap(
-        ([
-          { currentQuestion, currentOptions },
-          numberOfCorrectAnswers,
-          isExplanationDisplayed,
-          formattedExplanation,
-        ]) => {
-          // Calculate question text
-          const questionText = currentQuestion
-            ? this.getQuestionText(currentQuestion, this.questions)
-            : '';
-
-          if (currentQuestion && this.questions.length > 0) {
-            // Get the question index
-            const questionIndex = this.questions.indexOf(currentQuestion);
-
-            // Fetch the explanation text
-            /* const explanationText =
-              this.explanationTextService.getExplanationTextForQuestionIndex(
-                questionIndex
-              ); */
-
-            const questionHasMultipleAnswers =
-              this.quizStateService.isMultipleAnswer(currentQuestion);
-            
-            let correctAnswersText = '';
-            if (
-              questionHasMultipleAnswers &&
-              !isExplanationDisplayed &&
-              numberOfCorrectAnswers !== undefined &&
-              +numberOfCorrectAnswers > 1
-            ) {
-              correctAnswersText =
-                this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-                  +numberOfCorrectAnswers
-                );
-            }
-
-            return of({
-              questionText: questionText,
-              currentQuestion: currentQuestion,
-              explanationText: formattedExplanation,
-              correctAnswersText: correctAnswersText,
-              currentOptions: currentOptions,
-              isNavigatingToPrevious: false,
-              formattedExplanation: formattedExplanation
-            });
-          } else {
-            console.log('currentQuestion or this.questions is null');
-            return of({
-              questionText: '',
-              currentQuestion: null,
-              explanationText: '',
-              correctAnswersText: '',
-              currentOptions: [],
-              isNavigatingToPrevious: false,
-              formattedExplanation: ''
-            });
-          }
-        }
+      switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) =>
+        this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
       )
     );
+  }
+  
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+    return this.currentQuestion$.pipe(
+      withLatestFrom(this.currentOptions$),
+      map(([currentQuestion, currentOptions]) => ({
+        currentQuestion,
+        currentOptions,
+      }))
+    );
+  }
+  
+  private calculateCombinedQuestionData(
+    currentQuestionData: { currentQuestion: QuizQuestion | null, currentOptions: Option[] },
+    numberOfCorrectAnswers: number | undefined,
+    isExplanationDisplayed: boolean,
+    formattedExplanation: string
+  ): Observable<any> {
+    const { currentQuestion, currentOptions } = currentQuestionData;
+  
+    const questionText = currentQuestion ? this.getQuestionText(currentQuestion, this.questions) : '';
+  
+    if (currentQuestion && this.questions.length > 0) {
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+  
+      let correctAnswersText = '';
+      if (
+        questionHasMultipleAnswers &&
+        !isExplanationDisplayed &&
+        numberOfCorrectAnswers !== undefined &&
+        numberOfCorrectAnswers > 1
+      ) {
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+      }
+  
+      return of({
+        questionText,
+        currentQuestion,
+        explanationText: formattedExplanation,
+        correctAnswersText,
+        currentOptions,
+        isNavigatingToPrevious: false,
+        formattedExplanation,
+      });
+    } else {
+      console.log('currentQuestion or this.questions is null');
+      return of({
+        questionText: '',
+        currentQuestion: null,
+        explanationText: '',
+        correctAnswersText: '',
+        currentOptions: [],
+        isNavigatingToPrevious: false,
+        formattedExplanation: '',
+      });
+    }
   }
 
   private setupExplanationTextSubscription(): void {
