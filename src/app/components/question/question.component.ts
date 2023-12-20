@@ -755,23 +755,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   subscriptionToQuestion(): void {
-    this.currentQuestion$.subscribe((currentQuestion) => {
-      console.log('currentQuestion$ emitted:', currentQuestion);
-    });
-    this.quizStateService.currentQuestion$.subscribe((currentQuestion) => {
-      console.log('QuizStateService emitted:', currentQuestion);
-    });
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
         tap((question: QuizQuestion | null) => {
-          console.log('Observable emitted:', question);
           if (question) {
-            console.log('Question received:', question);
             this.currentQuestion = question;
             this.options = question.options;
-
-            console.log('this.currentQuestion:', this.currentQuestion);
-            console.log('this.options:', this.options);
           }
         }),
         catchError((error) => {
@@ -779,9 +768,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           return of(null);
         })
       )
-      .subscribe((currentQuestion) => {
-        console.log('Current Question emitted:', currentQuestion);
-      });
+      .subscribe();
   }
 
   setQuizQuestion(quizId: string | null | undefined): void {
@@ -1100,46 +1087,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((o) => o === option);
-
+  
     if (!isOptionSelected && index === -1) {
-      this.selectedOptions.push(option as Option);
-      console.log('After Click - selectedOptions:', this.selectedOptions);
-      this.selectOption(currentQuestion, option);
+      this.addSelectedOption(option, currentQuestion);
     } else {
       if (index !== -1) {
-        this.selectedOptions.splice(index, 1);
+        this.removeSelectedOption(index);
       }
       this.unselectOption();
-      console.log('Option is already selected or clicked to unselect.');
     }
-
-    // Fetch whether the current question is a multiple-answer question
+  
+    this.handleMultipleAnswer(currentQuestion);
+  }
+  
+  private addSelectedOption(option: Option, currentQuestion: QuizQuestion): void {
+    this.selectedOptions.push(option);
+    console.log('After Click - selectedOptions:', this.selectedOptions);
+    this.selectOption(currentQuestion, option);
+  }
+  
+  private removeSelectedOption(index: number): void {
+    this.selectedOptions.splice(index, 1);
+    console.log('Option is already selected or clicked to unselect.');
+  }
+  
+  private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
     this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
       (isMultipleAnswer) => {
         console.log('isMultipleAnswer:', isMultipleAnswer);
-    
+  
         if (this.quizService.selectedOptions.length > 0) {
-          // Subscribe to the questions Observable to get the array
-          this.questions.subscribe(
-            (questionsArray) => {
-              console.log('Questions array::>>', questionsArray);
-    
-              // const questionIndex = questionsArray.indexOf(currentQuestion);
-              const questionIndex = questionsArray.findIndex(q => {
-                const isSameQuestion = q.questionText === currentQuestion.questionText && 
-                                       q.explanation === currentQuestion.explanation;
-                console.log(`Comparing:`, q, currentQuestion, `Result: ${isSameQuestion}`);
-                return isSameQuestion;
-              });
-              
-              console.log('Question index::>>', questionIndex);
-    
-              this.setExplanationText(currentQuestion, questionIndex);
-            },
-            (error) => {
-              console.error('Error fetching questions array:', error);
-            }
-          );
+          this.fetchQuestionsArray(currentQuestion);
         } else {
           this.explanationText$.next('');
         }
@@ -1150,7 +1128,29 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       () => {
         console.log('isMultipleAnswer subscription completed');
       }
-    );     
+    );
+  }
+  
+  private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
+    this.questions.subscribe(
+      (questionsArray) => {
+        const questionIndex = questionsArray.findIndex((q) =>
+          this.isSameQuestion(q, currentQuestion)
+        );
+        console.log('Question index::>>', questionIndex);
+        this.setExplanationText(currentQuestion, questionIndex);
+      },
+      (error) => {
+        console.error('Error fetching questions array:', error);
+      }
+    );
+  }
+  
+  private isSameQuestion(question1: QuizQuestion, question2: QuizQuestion): boolean {
+    return (
+      question1.questionText === question2.questionText &&
+      question1.explanation === question2.explanation
+    );
   }
 
   checkOptionSelected(option: Option): boolean {
