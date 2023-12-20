@@ -141,10 +141,10 @@ export class ExplanationTextService implements OnDestroy {
     const explanationSubject = this.explanationTexts[numericIndex];
     console.log(`Value at index ${numericIndex}:`, explanationSubject);
     if (explanationSubject instanceof BehaviorSubject) {
-      console.log(`Got explanation for index ${numericIndex}::>> ${explanationSubject.value}`);
+      console.log(`Found explanation for index ${index}: ${explanationSubject.value}`);
       return explanationSubject.asObservable();
     } else {
-      console.warn(`Explanation text for index ${numericIndex} is not a BehaviorSubject.`);
+      console.warn(`No explanation text found at index ${index}`);
       return of(undefined);
     }
   }
