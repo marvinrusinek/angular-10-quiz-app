@@ -286,13 +286,16 @@ export class QuizService implements OnDestroy {
   loadData(): void {
     this.getQuizData()
       .pipe(distinctUntilChanged())
-      .subscribe((data) => {
+      .subscribe((data: Quiz[]) => {
         this._quizData$.next(data);
       });
-
+    
     this.activatedRoute.paramMap
       .pipe(
-        map((params) => params.get('quizId')),
+        map((params) => {
+          const param = params.get('quizId');
+          return (param !== null) ? param : ''; // Ensure a string is returned
+        }),
         distinctUntilChanged()
       )
       .subscribe((quizId) => {
