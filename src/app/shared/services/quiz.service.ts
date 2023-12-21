@@ -255,10 +255,6 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
-    /* this.currentQuestionIndex$ = this.currentQuestionIndexSource
-      .asObservable()
-      .pipe(tap((index) => console.log('currentQuestionIndex$:', index))); */
-
     this.currentQuestion.subscribe((question) => {
       this.question = question;
     });
@@ -309,7 +305,7 @@ export class QuizService implements OnDestroy {
     this.quizData = quizData;
   }
 
-  private loadData(): void {
+  loadData(): void {
     this.getQuizData()
       .pipe(distinctUntilChanged())
       .subscribe((data) => {
@@ -330,7 +326,7 @@ export class QuizService implements OnDestroy {
       });
   }
 
-  private initializeData(): void {
+  initializeData(): void {
     this.quizData = QUIZ_DATA || [];
     if (QUIZ_DATA) {
       this.quizInitialState = _.cloneDeep(QUIZ_DATA);
