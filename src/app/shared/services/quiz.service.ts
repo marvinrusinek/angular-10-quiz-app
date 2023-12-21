@@ -252,14 +252,9 @@ export class QuizService implements OnDestroy {
     private router: Router,
     private http: HttpClient
   ) {
-    this.loadData();
     this.initializeData();
-
-    this.currentQuestion.subscribe((question) => {
-      this.question = question;
-    });
-
-    
+    this.loadData();
+    this.setupSubscriptions();
   }
 
   ngOnDestroy(): void {
@@ -320,6 +315,12 @@ export class QuizService implements OnDestroy {
     this.quizResources = QUIZ_RESOURCES || [];
 
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
+  }
+
+  setupSubscriptions() {
+    this.currentQuestion.subscribe((question) => {
+      this.question = question;
+    });
   }
 
   getQuestionData(
@@ -1406,5 +1407,19 @@ export class QuizService implements OnDestroy {
         console.log(`${soundName} sound playing...`);
       },
     });
+  }
+
+  playSound(isCorrect) {
+    // Initialize sounds only if they haven't been loaded yet
+    if (!this.correctSound || !this.incorrectSound) {
+      this.initializeSounds();
+    }
+  
+    // Play the appropriate sound based on the answer correctness
+    if (isCorrect) {
+      this.correctSound.play();
+    } else {
+      this.incorrectSound.play();
+    }
   }  
 }
