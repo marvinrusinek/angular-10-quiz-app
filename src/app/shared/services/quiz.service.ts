@@ -18,6 +18,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  takeUntil,
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
@@ -241,7 +242,7 @@ export class QuizService implements OnDestroy {
   }>(null);
   combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
-  unsubscribe$ = new Subject<void>();
+  destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
   correctSound: Howl;
@@ -258,8 +259,8 @@ export class QuizService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getMultipleAnswer(): boolean {
@@ -283,13 +284,29 @@ export class QuizService implements OnDestroy {
     this.quizData = quizData;
   }
 
-  loadData(): void {
+  private loadData(): void {
+    this.loadQuizData();
+    this.loadRouteParams();
+  }
+
+  private loadQuizData(): void {
     this.getQuizData()
-      .pipe(distinctUntilChanged())
-      .subscribe((data: Quiz[]) => {
-        this._quizData$.next(data);
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (data: Quiz[]) => {
+          this._quizData$.next(data);
+        },
+        error: (err) => {
+          console.error('Error fetching quiz data:', err);
+          // Handle error appropriately
+        }
       });
-    
+  }
+
+  private loadRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
         map((params) => {
@@ -299,15 +316,32 @@ export class QuizService implements OnDestroy {
           }
           return param;
         }),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
       )
-      .subscribe((quizId: string) => {
-        this.quizId = quizId;
-        this.indexOfQuizId = this.quizData.findIndex(
-          (elem) => elem.quizId === this.quizId
-        );
-        this.returnQuizSelectionParams();
+      .subscribe({
+        next: (quizId: string) => {
+          this.quizId = quizId;
+          this.processQuizId();
+        },
+        error: (err) => {
+          console.error('Error with route parameters:', err);
+          // Handle error appropriately
+        }
       });
+  }
+
+  private processQuizId(): void {
+    this.indexOfQuizId = this.quizData.findIndex(
+      (elem) => elem.quizId === this.quizId
+    );
+
+    if (this.indexOfQuizId === -1) {
+      console.error('Quiz ID not found in quiz data');
+      // Handle the scenario where the quiz ID is not found
+    } else {
+      this.returnQuizSelectionParams();
+    }
   }
 
   initializeData(): void {
