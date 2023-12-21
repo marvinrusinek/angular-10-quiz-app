@@ -338,7 +338,6 @@ export class QuizDataService implements OnDestroy {
     console.log(
       `getQuestionAndOptions called with quizId: ${quizId} and questionIndex: ${questionIndex}`
     );
-    console.log('getQuestionAndOptions called');
     if (
       this.hasQuestionAndOptionsLoaded &&
       this.currentQuestionIndex === questionIndex
