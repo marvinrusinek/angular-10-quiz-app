@@ -16,4 +16,8 @@ export class OptionFeedbackComponent {
   };
   @Input() correct: boolean;
   @Input() selected: string;
+
+  getIconName(): string {
+    return this.correct ? 'done' : 'clear';
+  }
 }
