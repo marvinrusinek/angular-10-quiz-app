@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {
@@ -18,7 +18,6 @@ import {
   map,
   shareReplay,
   switchMap,
-  take,
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
@@ -72,7 +71,6 @@ export class QuizService implements OnDestroy {
   isOptionSelected = false;
   isNavigating = false;
 
-  private currentQuestionObservable: Observable<QuizQuestion>;
   private currentQuestionSource: Subject<QuizQuestion | null> =
     new Subject<QuizQuestion | null>();
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
@@ -86,7 +84,6 @@ export class QuizService implements OnDestroy {
   currentQuestionIndexSource = new BehaviorSubject<number>(0);
   currentQuestionIndex$ = this.currentQuestionIndexSource.asObservable();
 
-  private options: Option[] | null = null;
   currentOptions: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   selectedOptions: Option[] = [];
   resources: Resource[];
@@ -174,7 +171,6 @@ export class QuizService implements OnDestroy {
   nextQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
   private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
   nextQuestion$ = this.nextQuestionSubject.asObservable();
-  // nextQuestion$: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
 
   nextOptionsSource = new BehaviorSubject<Option[]>([]);
   private nextOptionsSubject = new BehaviorSubject<Option[]>(null);
@@ -183,7 +179,6 @@ export class QuizService implements OnDestroy {
   previousQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private previousQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
   previousQuestion$ = this.previousQuestionSubject.asObservable();
-  // previousQuestion$: BehaviorSubject<QuizQuestion> = new BehaviorSubject<QuizQuestion>(null);
 
   previousOptionsSubject = new BehaviorSubject<Option[]>([]);
   previousOptions$ = this.previousOptionsSubject.asObservable();
@@ -255,8 +250,7 @@ export class QuizService implements OnDestroy {
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
-    private ngZone: NgZone
+    private http: HttpClient
   ) {
     this.loadData();
     this.initializeData();
@@ -264,6 +258,10 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex$ = this.currentQuestionIndexSource
       .asObservable()
       .pipe(tap((index) => console.log('currentQuestionIndex$:', index)));
+
+    this.currentQuestion.subscribe((question) => {
+      this.question = question;
+    });
 
     this.correctSound = new Howl({
       src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
@@ -282,10 +280,6 @@ export class QuizService implements OnDestroy {
       onplay: () => {
         console.log('Incorrect sound playing...');
       },
-    });
-
-    this.currentQuestion.subscribe((question) => {
-      this.question = question;
     });
   }
 
