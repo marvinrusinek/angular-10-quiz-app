@@ -1,19 +1,15 @@
 <section class="message" *ngIf="showFeedback">
-  <div class="feedback-message" [ngClass]="{
-    'correct-message': selectedOption.correct,
-    'wrong-message': !selectedOption.correct
-  }">
-    <i class="material-icons correct-icon" 
-      *ngIf="selectedOption.correct">
+  <div class="feedback-message" 
+       [ngClass]="selectedOption.correct ? 'correct-message' : 'wrong-message'">
+    <i class="material-icons" 
+       *ngIf="selectedOption.correct; else wrongIcon">
       sentiment_very_satisfied
     </i>
-    <i class="material-icons wrong-icon" 
-      *ngIf="!selectedOption.correct">
-      sentiment_very_dissatisfied
-    </i>
-    {{ selectedOption.correct ? 
-       "You're right! " + correctMessage : 
-       "That's wrong. " + correctMessage
-    }}
+    <ng-template #wrongIcon>
+      <i class="material-icons wrong-icon">
+        sentiment_very_dissatisfied
+      </i>
+    </ng-template>
+    {{ selectedOption.correct ? "You're right! " : "That's wrong. " }}{{ correctMessage }}
   </div>
 </section>
