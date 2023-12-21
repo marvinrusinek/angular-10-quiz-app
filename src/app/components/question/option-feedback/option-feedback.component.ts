@@ -17,7 +17,7 @@ export class OptionFeedbackComponent {
   @Input() correct: boolean;
   @Input() selected: string;
 
-  getIconName(): string {
+  selectStatusIcon(): string {
     return this.correct ? 'done' : 'clear';
   }
 }
