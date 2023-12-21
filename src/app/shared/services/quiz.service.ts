@@ -521,8 +521,6 @@ export class QuizService implements OnDestroy {
     // Return whether any selected answer was correct
     return correctAnswerFound.includes(true);
   }
-  
-  
 
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
@@ -547,15 +545,12 @@ export class QuizService implements OnDestroy {
 
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
-      console.log('Entering setCurrentQuestionIndex with index:', index);
-  
       if (!this.quizId) {
         console.error('Quiz ID is not available.');
         return;
       }
   
       const response: any = await this.getQuestionsForQuiz(this.quizId).toPromise();
-      console.log("MY RESPONSE", response);
   
       // Check if response has 'questions' property and is an array
       if (!response || !response.questions || !Array.isArray(response.questions)) {
@@ -570,19 +565,14 @@ export class QuizService implements OnDestroy {
         return;
       }
   
-      console.log("QUESTIONS", questions);
-  
       // Validate the index
       if (index >= 0 && index < questions.length) {
-        console.log('Index is valid. Emitting new index:', index);
         this.currentQuestionIndex = index;
         this.currentQuestionIndexSource.next(index);
         this.setCurrentQuestion(questions[index]);
       } else {
         console.error('Invalid question index:', index);
       }
-  
-      console.log('After validating index:', index);
     } catch (error) {
       console.error('Error setting current question index:', error);
     }
