@@ -255,9 +255,9 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.initializeData();
 
-    this.currentQuestionIndex$ = this.currentQuestionIndexSource
+    /* this.currentQuestionIndex$ = this.currentQuestionIndexSource
       .asObservable()
-      .pipe(tap((index) => console.log('currentQuestionIndex$:', index)));
+      .pipe(tap((index) => console.log('currentQuestionIndex$:', index))); */
 
     this.currentQuestion.subscribe((question) => {
       this.question = question;
