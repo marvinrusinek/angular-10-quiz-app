@@ -259,24 +259,7 @@ export class QuizService implements OnDestroy {
       this.question = question;
     });
 
-    this.correctSound = new Howl({
-      src: ['http://www.marvinrusinek.com/sound-correct.mp3'],
-      onload: () => {
-        console.log('Correct sound loaded');
-      },
-      onplay: () => {
-        console.log('Correct sound playing...');
-      },
-    });
-    this.incorrectSound = new Howl({
-      src: ['http://www.marvinrusinek.com/sound-incorrect.mp3'],
-      onload: () => {
-        console.log('Incorrect sound loaded');
-      },
-      onplay: () => {
-        console.log('Incorrect sound playing...');
-      },
-    });
+    
   }
 
   ngOnDestroy(): void {
@@ -1407,4 +1390,21 @@ export class QuizService implements OnDestroy {
     this.correctMessage = '';
     this.currentQuestionIndex = 0;
   }
+
+  initializeSounds(): void {
+    this.correctSound = this.loadSound('http://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
+    this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
+  }
+  
+  loadSound(url, soundName) {
+    return new Howl({
+      src: [url],
+      onload: () => {
+        console.log(`${soundName} sound loaded`);
+      },
+      onplay: () => {
+        console.log(`${soundName} sound playing...`);
+      },
+    });
+  }  
 }
