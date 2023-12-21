@@ -294,11 +294,14 @@ export class QuizService implements OnDestroy {
       .pipe(
         map((params) => {
           const param = params.get('quizId');
-          return (param !== null) ? param : ''; // Ensure a string is returned
+          if (param === null) {
+            throw new Error("quizId is null or not found in route parameters");
+          }
+          return param;
         }),
         distinctUntilChanged()
       )
-      .subscribe((quizId) => {
+      .subscribe((quizId: string) => {
         this.quizId = quizId;
         this.indexOfQuizId = this.quizData.findIndex(
           (elem) => elem.quizId === this.quizId
