@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
@@ -80,7 +81,7 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedQuiz = quiz;
   }
 
-  getQuizTileStyles(quiz: Quiz) {
+  getQuizTileStyles(quiz: Quiz): NgStyle {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
       'background-size': '300px 210px',
@@ -141,13 +142,14 @@ export class QuizSelectionComponent implements OnInit {
     }
   }
 
-  getLinkRouterLink(quiz: Quiz) {
+  getLinkRouterLink(quiz: Quiz): string[] {
     const quizId = quiz.quizId;
     switch (quiz.status) {
       case QuizStatus.STARTED:
         return [QuizRoutes.INTRO, quizId];
       case QuizStatus.CONTINUE:
-        return [QuizRoutes.QUESTION, quizId, this.currentQuestionIndex];
+        return [QuizRoutes.QUESTION, quizId, 
+          this.currentQuestionIndex.toString()];
       case QuizStatus.COMPLETED:
         return [QuizRoutes.RESULTS, quizId];
     }
