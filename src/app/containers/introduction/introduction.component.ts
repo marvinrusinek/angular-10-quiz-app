@@ -50,6 +50,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .subscribe((selectedQuiz: Quiz) => {
         if (selectedQuiz) {
           this.introImg = this.imagePath + selectedQuiz?.image;
+        } else {
+          this.introImg = '';
         }
       });
 
@@ -81,7 +83,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizService.setChecked($event.checked);
   }
 
-  onStartQuiz(quizId: string) {
+  onStartQuiz(quizId: string): void {
     if (!quizId) {
       console.error('No quiz selected');
       return;
@@ -112,5 +114,5 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
   getQuestionText(count: number): string {
     return `${count === 1 ? 'question' : 'questions'}`;
-  }  
+  }
 }
