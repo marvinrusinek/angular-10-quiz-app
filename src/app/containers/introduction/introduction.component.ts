@@ -28,7 +28,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-  selectedQuizSubscription: Subscription;
 
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
@@ -52,7 +51,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.selectedQuizSubscription?.unsubscribe();
   }
 
   private initializeData(): void {
