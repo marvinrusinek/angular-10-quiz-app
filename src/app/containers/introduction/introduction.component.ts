@@ -89,11 +89,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           return throwError(error);
         })
       )
-      .subscribe((quiz) => {
-        const foundQuiz = this.quizDataService.quizzes.find((q) => q.quizId === quizId);
-        if (foundQuiz) {
-          this.quizDataService.selectedQuizSubject.next(foundQuiz);
-          this.router.navigate(['/question', quizId, 1]); // Navigate to the first question
+      .subscribe((quiz: Quiz) => {
+        if (quiz) {
+          this.quizDataService.selectedQuizSubject.next(quiz);
+          this.router.navigate(['/question', quiz.quizId, 1]); // Navigate to the first question
         } else {
           console.error(`Quiz with ID ${quizId} not found`);
         }
