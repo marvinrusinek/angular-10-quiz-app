@@ -7,8 +7,8 @@ import {
   Output,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Observable, Subscription, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { Observable, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -33,6 +33,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -43,11 +45,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
-    this.selectedQuiz$.subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.introImg = this.imagePath + selectedQuiz?.image;
-      }
-    });
+    this.selectedQuiz$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((selectedQuiz: Quiz) => {
+        if (selectedQuiz) {
+          this.introImg = this.imagePath + selectedQuiz?.image;
+        }
+      });
 
     this.activatedRoute.paramMap
       .pipe(
@@ -68,6 +72,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.selectedQuizSubscription?.unsubscribe();
   }
 
@@ -101,7 +107,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
-    console.log('Current milestone:', milestone);
     return milestone;
   }
   
