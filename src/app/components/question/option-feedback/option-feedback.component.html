@@ -1,6 +1,6 @@
 <ng-container *ngIf="selected">
   <mat-icon
-    matTooltip="{{ correct ? 'Correct' : 'Incorrect' }}"
+    [matTooltip]="correct ? 'Correct' : 'Incorrect'"
     aria-label="{{ correct ? 'Correct' : 'Incorrect' }}"
   >{{ selectStatusIcon() }}</mat-icon>
 </ng-container>
