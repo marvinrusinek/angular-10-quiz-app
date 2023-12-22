@@ -107,6 +107,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
   
   getQuestionText(count: number): string {
-    return `${count} ${count === 1 ? 'question' : 'questions'}`;
+    return `${count === 1 ? 'question' : 'questions'}`;
   }  
 }
