@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { NgStyle } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
@@ -81,7 +80,7 @@ export class QuizSelectionComponent implements OnInit {
     this.selectedQuiz = quiz;
   }
 
-  getQuizTileStyles(quiz: Quiz): NgStyle {
+  getQuizTileStyles(quiz: Quiz) {
     return {
       background: 'url(' + quiz.image + ') no-repeat center 10px',
       'background-size': '300px 210px',
