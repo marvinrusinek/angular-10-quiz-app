@@ -53,12 +53,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) => {
           const quizId = params.get('quizId');
+          console.log("QI", quizId);
           return quizId
             ? this.quizDataService.getQuizById(quizId)
             : throwError('Quiz ID is null or undefined');
         })
       )
-      .subscribe((quiz) => {
+      .subscribe((quiz: Quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
       });
 
@@ -97,7 +98,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error(`Quiz with ID ${quizId} not found`);
         }
       });
-  } 
+  }
+
+  get milestone(): string {
+    const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
+    console.log('Current milestone:', milestone);
+    return milestone;
+  }
   
   getQuestionText(count: number): string {
     return `${count} ${count === 1 ? 'question' : 'questions'}`;
