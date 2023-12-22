@@ -7,7 +7,7 @@ import {
   Output,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Observable, Subject, Subscription, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -27,7 +27,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizzes: any[];
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
-  selectedQuiz$: Observable<Quiz>;
+  selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   selectedQuizSubscription: Subscription;
 
   imagePath = '../../../assets/images/milestones/';
