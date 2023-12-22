@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, Observable, Subject } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -51,7 +51,13 @@ export class QuizSelectionComponent implements OnInit {
     this.quizzes$ = this.quizDataService.getQuizzes();
 
     this.quizService.selectedQuiz$
-      .pipe(takeUntil(this.unsubscribe$))
+      .pipe(
+        catchError(error => {
+          console.error('Error fetching selected quiz', error);
+          return EMPTY;
+        }),
+        takeUntil(this.unsubscribe$)
+      )
       .subscribe((quiz: Quiz) => {
         this.selectedQuiz = quiz;
       });
