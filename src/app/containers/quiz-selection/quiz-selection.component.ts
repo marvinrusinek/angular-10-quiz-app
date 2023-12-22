@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { SlideLeftToRightAnimation } from '../../animations/animations';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -13,13 +14,13 @@ type AnimationState = 'animationStarted' | 'none';
 enum QuizRoutes {
   INTRO = '/intro/',
   QUESTION = '/question/',
-  RESULTS = '/results/'
+  RESULTS = '/results/',
 }
 
 enum QuizStatus {
   STARTED = 'started',
   CONTINUE = 'continue',
-  COMPLETED = 'completed'
+  COMPLETED = 'completed',
 }
 
 @Component({
@@ -27,7 +28,7 @@ enum QuizStatus {
   templateUrl: './quiz-selection.component.html',
   styleUrls: ['./quiz-selection.component.scss'],
   animations: [SlideLeftToRightAnimation.slideLeftToRight],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSelectionComponent implements OnInit {
   quizzes$: Observable<Quiz[]>;
@@ -49,9 +50,11 @@ export class QuizSelectionComponent implements OnInit {
     this.selectionParams = this.quizService.returnQuizSelectionParams();
     this.quizzes$ = this.quizDataService.getQuizzes();
 
-    this.quizService.selectedQuiz$.subscribe((quiz) => {
-      this.selectedQuiz = this.quizService.selectedQuiz$.getValue();
-    });
+    this.quizService.selectedQuiz$
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((quiz: Quiz) => {
+        this.selectedQuiz = quiz;
+      });
   }
 
   onSelect(quizId: string): void {
@@ -59,7 +62,7 @@ export class QuizSelectionComponent implements OnInit {
       if (!quizId) {
         throw new Error('Quiz ID is null or undefined');
       }
-  
+
       this.quizService.quizId = quizId;
       this.router.navigate([QuizRoutes.INTRO, quizId]);
     } catch (error) {
@@ -73,8 +76,8 @@ export class QuizSelectionComponent implements OnInit {
 
   getQuizTileStyles(quiz: Quiz) {
     return {
-      'background': 'url(' + quiz.image + ') no-repeat center 10px',
-      'background-size': '300px 210px'
+      background: 'url(' + quiz.image + ') no-repeat center 10px',
+      'background-size': '300px 210px',
     };
   }
 
