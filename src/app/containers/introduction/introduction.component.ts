@@ -97,5 +97,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.error(`Quiz with ID ${quizId} not found`);
         }
       });
+  } 
+  
+  getQuestionText(count: number): string {
+    return `${count} ${count === 1 ? 'question' : 'questions'}`;
   }  
 }
