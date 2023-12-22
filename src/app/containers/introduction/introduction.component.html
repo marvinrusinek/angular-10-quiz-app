@@ -20,6 +20,7 @@
       mat-card-image
       class="quiz-topic-image"
       [src]="selectedQuiz?.image"
+      alt="Quiz topic image"
       loading="lazy"
     />
 
@@ -34,7 +35,7 @@
             selectedQuiz?.questions.length
           }}</strong>
           timed multiple-choice
-          {{ selectedQuiz?.questions.length === 1 ? 'question' : 'questions' }}.
+          {{ getQuestionText(selectedQuiz?.questions.length) }}.
         </p>
         <p>
           Taking this quiz should solidify your understanding of
@@ -47,9 +48,7 @@
 
     <mat-card-actions>
       <mat-checkbox (change)="onChange($event)" disableRipple="true">
-        <mat-checkbox-label labelPosition="after"
-          >Shuffle Questions and Answers</mat-checkbox-label
-        >
+        Shuffle Questions and Answers
       </mat-checkbox>
 
       <mat-button
