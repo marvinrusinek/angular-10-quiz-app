@@ -4,7 +4,7 @@ import {
   EventEmitter,
   OnDestroy,
   OnInit,
-  Output,
+  Output
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Subject, Subscription, throwError } from 'rxjs';
@@ -18,7 +18,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
   selector: 'codelab-quiz-intro',
   templateUrl: './introduction.component.html',
   styleUrls: ['./introduction.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IntroductionComponent implements OnInit, OnDestroy {
   @Output() quizSelected = new EventEmitter<string>();
@@ -43,23 +43,36 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.initializeData();
+    this.subscribeToSelectedQuiz();
+    this.handleRouteParameters();
+    this.initializeSelectedQuiz();
+  }
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.selectedQuizSubscription?.unsubscribe();
+  }
+
+  private initializeData(): void {
     this.quizId = this.selectedQuiz?.quizId;
     this.selectedQuiz$ = this.quizDataService.selectedQuiz$;
+  }
+  
+  private subscribeToSelectedQuiz(): void {
     this.selectedQuiz$
       .pipe(takeUntil(this.destroy$))
       .subscribe((selectedQuiz: Quiz) => {
-        if (selectedQuiz) {
-          this.introImg = this.imagePath + selectedQuiz?.image;
-        } else {
-          this.introImg = '';
-        }
+        this.introImg = selectedQuiz ? this.imagePath + selectedQuiz.image : '';
       });
-
+  }
+  
+  private handleRouteParameters(): void {
     this.activatedRoute.paramMap
       .pipe(
         switchMap((params: ParamMap) => {
           const quizId = params.get('quizId');
-          console.log("QI", quizId);
           return quizId
             ? this.quizDataService.getQuizById(quizId)
             : throwError(() => new Error('Quiz ID is null or undefined'));
@@ -68,15 +81,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .subscribe((quiz: Quiz) => {
         this.quizDataService.setSelectedQuiz(quiz);
       });
-
-    // get initial value
-    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.selectedQuizSubscription?.unsubscribe();
+  
+  private initializeSelectedQuiz(): void {
+    this.selectedQuiz = this.quizDataService.selectedQuiz$.getValue();
   }
 
   onChange($event): void {
