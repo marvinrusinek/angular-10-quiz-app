@@ -56,7 +56,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
           console.log("QI", quizId);
           return quizId
             ? this.quizDataService.getQuizById(quizId)
-            : throwError('Quiz ID is null or undefined');
+            : throwError(() => new Error('Quiz ID is null or undefined'));
         })
       )
       .subscribe((quiz: Quiz) => {
