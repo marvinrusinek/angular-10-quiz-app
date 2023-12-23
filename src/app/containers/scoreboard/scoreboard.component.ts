@@ -8,8 +8,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ReplaySubject, Subject, throwError } from 'rxjs';
-import { catchError, takeUntil } from 'rxjs/operators';
+import { ReplaySubject, of, Subject, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -23,10 +23,11 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
-  totalQuestions: number;
+  // totalQuestions: number;
   questionNumber: number;
   badgeText: string;
   unsubscribe$ = new Subject<void>();
+  totalQuestions: number = 0;
   private totalQuestions$ = new ReplaySubject<number>(1);
 
   constructor(
@@ -36,34 +37,40 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.activatedRoute.params
-      .pipe(
-        takeUntil(this.unsubscribe$),
-        catchError((error) => {
-          console.error('Failed to get question index', error);
-          return throwError('Failed to get question index');
-        })
-      )
-      .subscribe((params: Params) => {
+    this.activatedRoute.params.pipe(
+      takeUntil(this.unsubscribe$),
+      tap(params => console.log("Activated Route Params: ", params)), // Log the route parameters
+      switchMap((params: Params) => {
         if (params.questionIndex !== undefined) {
           this.questionNumber = +params.questionIndex;
           this.timerService.resetTimer();
-          this.quizService.totalQuestions$
-            .pipe(
-              takeUntil(this.unsubscribe$),
-              catchError((error) => {
-                console.error('Failed to get total questions', error);
-                return throwError('Failed to get total questions');
-              })
-            )
-            .subscribe((totalQuestions) => {
-              this.totalQuestions$.next(totalQuestions);
-              this.updateBadgeText(this.questionNumber, totalQuestions);
-            });
+          return this.quizService.totalQuestions$;
         }
-      });
+        return of(null); // Or handle the undefined case appropriately
+      }),
+      catchError((error) => {
+        console.error('Error in switchMap: ', error);
+        return throwError(error);
+      })
+    ).subscribe((totalQuestions) => {
+      console.log('Received totalQuestions from Service: ', totalQuestions);
+      if (totalQuestions !== null) {
+        this.totalQuestions$.next(totalQuestions);
+        this.updateBadgeText(this.questionNumber, totalQuestions);
+      }
+    });
+  
+    // Subscribe to quizService.totalQuestions$ here
+    this.quizService.totalQuestions$.subscribe((totalQuestions) => {
+      // Assign the fetched totalQuestions to your component property
+      this.totalQuestions = totalQuestions;
+    });
+  
+    // ... other initialization logic ...
   }
-
+  
+  
+  
   ngOnChanges(changes: SimpleChanges): void {
     if (
       changes.selectedAnswer &&
