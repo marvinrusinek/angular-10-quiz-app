@@ -54,7 +54,7 @@ enum QuestionType {
   templateUrl: './question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy { 
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -102,6 +102,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isOptionSelected: boolean = false;
   @Input() selectionMessage: string;
   @Input() showFeedback: boolean = false;
+  @Input() questionType: 'multiple' | 'single';
 
   combinedQuestionData$: Subject<{
     questionText: string;
