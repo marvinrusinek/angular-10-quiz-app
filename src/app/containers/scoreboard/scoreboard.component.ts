@@ -46,7 +46,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
           this.timerService.resetTimer();
           return this.quizService.totalQuestions$;
         }
-        return of(null); // Or handle the undefined case appropriately
+        return of(null);
       }),
       catchError((error) => {
         console.error('Error in switchMap: ', error);
@@ -62,14 +62,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   
     // Subscribe to quizService.totalQuestions$ here
     this.quizService.totalQuestions$.subscribe((totalQuestions) => {
-      // Assign the fetched totalQuestions to your component property
       this.totalQuestions = totalQuestions;
     });
-  
-    // ... other initialization logic ...
   }
-  
-  
   
   ngOnChanges(changes: SimpleChanges): void {
     if (

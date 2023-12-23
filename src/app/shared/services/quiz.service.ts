@@ -763,15 +763,14 @@ export class QuizService implements OnDestroy {
   }
 
   getTotalQuestions(): Observable<number> {
-    this.getQuizData().pipe(
+    return this.getQuizData().pipe(
       map((data) => {
         const quiz = data.find((q) => q.quizId === this.quizId);
         return quiz?.questions?.length || 0;
       })
-    ).subscribe((totalQuestions) => {
-      this.totalQuestionsSubject.next(totalQuestions);
-    });
+    );
   }
+  
 
   displayExplanationText(show: boolean): void {
     this.shouldDisplayExplanation = show;
