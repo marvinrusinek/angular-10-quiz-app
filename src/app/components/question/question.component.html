@@ -28,47 +28,51 @@
 <form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
   <ng-container *ngIf="shouldDisplayTextContent()">
     <ng-container *ngSwitchCase="multipleAnswer">
-      <ng-container *ngIf="shouldDisplayOptions()">
-        <codelab-question-multiple-answer
-          [form]="questionForm"
-          [data]="data"
-          [question]="questionToDisplay"
-          [questions]="questions"
-          [questionData]="questionData"
-          [currentQuestion$]="currentQuestion$"
-          [currentQuestionIndex]="currentQuestionIndex"
-          [options]="getOptionsForQuestion()"
-          [optionsToDisplay]="optionsToDisplay"
-          [selectedOptions]="currentQuestion?.selectedOptions"
-          [correctAnswers]="correctAnswers"
-          [correctMessage]="correctMessage"
-          (answer)="updateClassName($event)"
-        ></codelab-question-multiple-answer>
-      </ng-container>
-      <ng-container *ngIf="shouldHideOptions()">
-        No options found for the current question.
-      </ng-container>
+      <ng-container *ngTemplateOutlet="questionTemplate; context: {$implicit: 'multiple'}"></ng-container>
     </ng-container>
 
     <ng-container *ngSwitchCase="!multipleAnswer">
+      <ng-container *ngTemplateOutlet="questionTemplate; context: {$implicit: 'single'}"></ng-container>
+    </ng-container>
+
+    <ng-template #questionTemplate let-type>
       <ng-container *ngIf="shouldDisplayOptions()">
-        <codelab-question-single-answer
-          [data]="data"
-          [question]="questionToDisplay"
-          [questions]="questions"
-          [questionData]="questionData"
-          [options]="getOptionsForQuestion()"
-          [optionsToDisplay]="optionsToDisplay"
-          [currentQuestion]="currentQuestion"
-          [currentQuestionIndex]="currentQuestionIndex"
-          [selectedOption]="currentQuestion?.selectedOption"
-          [correctMessage]="correctMessage"
-          (answer)="updateClassName($event)"
-        ></codelab-question-single-answer>
+        <ng-container [ngSwitch]="type">
+          <codelab-question-multiple-answer *ngSwitchCase="'multiple'"
+            [form]="questionForm"
+            [data]="data"
+            [question]="questionToDisplay"
+            [questions]="questions"
+            [questionData]="questionData"
+            [currentQuestion$]="currentQuestion$"
+            [currentQuestionIndex]="currentQuestionIndex"
+            [options]="getOptionsForQuestion()"
+            [optionsToDisplay]="optionsToDisplay"
+            [selectedOptions]="currentQuestion?.selectedOptions"
+            [correctAnswers]="correctAnswers"
+            [correctMessage]="correctMessage"
+            (answer)="updateClassName($event)"
+          ></codelab-question-multiple-answer>
+
+          <codelab-question-single-answer *ngSwitchCase="'single'"
+            [data]="data"
+            [question]="questionToDisplay"
+            [questions]="questions"
+            [questionData]="questionData"
+            [options]="getOptionsForQuestion()"
+            [optionsToDisplay]="optionsToDisplay"
+            [currentQuestion]="currentQuestion"
+            [currentQuestionIndex]="currentQuestionIndex"
+            [selectedOption]="currentQuestion?.selectedOption"
+            [correctMessage]="correctMessage"
+            (answer)="updateClassName($event)"
+          ></codelab-question-single-answer>
+        </ng-container>
       </ng-container>
+
       <ng-container *ngIf="shouldHideOptions()">
         No options found for the current question.
       </ng-container>
-    </ng-container>
+    </ng-template>
   </ng-container>
 </form>
