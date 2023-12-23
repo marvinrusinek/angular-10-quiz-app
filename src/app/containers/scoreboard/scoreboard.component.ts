@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { ReplaySubject, of, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, take, tap } from 'rxjs/operators';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -79,11 +79,10 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
-    if (questionNumber && totalQuestions > 0) {
-      this.badgeText =
-        'Question ' + questionNumber + ' of ' + totalQuestions;
+    if (questionNumber > 0 && questionNumber <= totalQuestions) {
+      this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
     } else {
-      this.badgeText = '';
+      this.badgeText = 'End of Quiz';
     }
   }
 }
