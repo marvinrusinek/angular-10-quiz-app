@@ -37,6 +37,18 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to quizService.totalQuestions$ to get the total number of questions
+    this.quizService.totalQuestions$.subscribe((totalQuestions) => {
+      this.totalQuestions = totalQuestions;
+  
+      // Check if questionNumber is also available
+      if (this.questionNumber !== undefined) {
+        // Both questionNumber and totalQuestions are available, update the badge text
+        this.updateBadgeText(this.questionNumber, totalQuestions);
+      }
+    });
+  
+    // Continue with the rest of your code
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
       tap(params => console.log("Activated Route Params: ", params)), // Log the route parameters
@@ -54,17 +66,15 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       })
     ).subscribe((totalQuestions) => {
       console.log('Received totalQuestions from Service: ', totalQuestions);
+      
+      // Check if totalQuestions is available
       if (totalQuestions !== null) {
-        this.totalQuestions$.next(totalQuestions);
+        // Both questionNumber and totalQuestions are available, update the badge text
         this.updateBadgeText(this.questionNumber, totalQuestions);
       }
     });
-  
-    // Subscribe to quizService.totalQuestions$ here
-    this.quizService.totalQuestions$.subscribe((totalQuestions) => {
-      this.totalQuestions = totalQuestions;
-    });
   }
+  
   
   ngOnChanges(changes: SimpleChanges): void {
     if (
