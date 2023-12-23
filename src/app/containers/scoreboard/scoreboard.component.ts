@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { ReplaySubject, of, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, switchMap, takeUntil, take, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -38,7 +38,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     // Subscribe to quizService.totalQuestions$ to get the total number of questions
-    this.quizService.totalQuestions$.subscribe((totalQuestions) => {
+    this.quizService.totalQuestions$.pipe(
+      take(1) // Take only the first emitted value to prevent multiple calls
+    ).subscribe((totalQuestions) => {
       this.totalQuestions = totalQuestions;
   
       // Check if questionNumber is also available
@@ -74,6 +76,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
+  
   
   
   ngOnChanges(changes: SimpleChanges): void {
