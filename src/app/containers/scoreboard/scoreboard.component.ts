@@ -23,12 +23,11 @@ import { TimerService } from '../../shared/services/timer.service';
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
   answer: number;
-  // totalQuestions: number;
+  totalQuestions: number = 0;
+  totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
   badgeText: string;
   unsubscribe$ = new Subject<void>();
-  totalQuestions: number = 0;
-  private totalQuestions$ = new ReplaySubject<number>(1);
 
   constructor(
     private quizService: QuizService,
@@ -53,15 +52,12 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         return throwError(error);
       })
     ).subscribe((totalQuestions) => {
-      console.log('Received totalQuestions from Service: ', totalQuestions);
-      
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
         this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
       }
     });
   }
-  
   
   ngOnChanges(changes: SimpleChanges): void {
     if (
