@@ -9,6 +9,7 @@ export class CodelabQuestionGenericComponent implements OnChanges {
   @Input() form: FormGroup;
   @Input() questionType: 'multiple' | 'single';
   @Input() data: any; // Add more specific types as per your requirement
+  @Input() options: any[];
   // ... other inputs like questions, options, etc.
 
   @Output() answer = new EventEmitter<any>();
