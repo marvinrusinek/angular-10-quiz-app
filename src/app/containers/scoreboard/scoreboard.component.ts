@@ -60,9 +60,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
       }
     });
-
+  
     // Subscribe to quizService.totalQuestions$ here
-    /* this.quizService.totalQuestions$.pipe(
+    this.quizService.totalQuestions$.pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe((totalQuestions) => {
       this.totalQuestions = totalQuestions;
@@ -70,10 +70,14 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       if (this.questionNumber !== undefined) {
         this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
       }
-    }); */
+    });
+  
+    // Initialize totalQuestions
+    this.quizService.getTotalQuestions().subscribe((totalQuestions) => {
+      this.totalQuestions = totalQuestions;
+      this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
+    });
   }
-  
-  
   
   
   ngOnChanges(changes: SimpleChanges): void {
