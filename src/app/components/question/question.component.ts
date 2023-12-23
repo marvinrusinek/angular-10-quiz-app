@@ -193,6 +193,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     this.selectedOption = null;
 
+    this.options = this.getOptionsForQuestion();
+
     this.logInitialData();
     this.initializeQuizQuestion();
     this.subscribeToRouterEvents();
