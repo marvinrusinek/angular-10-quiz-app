@@ -762,31 +762,16 @@ export class QuizService implements OnDestroy {
     this.totalQuestionsSubject.next(totalQuestions);
   }
 
-  /* getTotalQuestions(): Observable<number> {
-    return this.getQuizData().pipe(
-      map((data) => {
-        const quiz = data.find((q) => q.quizId === this.quizId);
-        return quiz?.questions?.length || 0;
-      }),
-      distinctUntilChanged(),
-      catchError((error) => {
-        console.error('Error fetching total questions:', error);
-        return of(0);
-      })
-    );
-  } */
-
   getTotalQuestions(): void {
     this.getQuizData().pipe(
       map((data) => {
-        const totalQuestions = data.reduce((total, quiz) => total + (quiz.questions?.length || 0), 0);
-        return totalQuestions;
+        const quiz = data.find((q) => q.quizId === this.quizId);
+        return quiz?.questions?.length || 0;
       })
     ).subscribe((totalQuestions) => {
       this.totalQuestionsSubject.next(totalQuestions);
     });
   }
-
 
   displayExplanationText(show: boolean): void {
     this.shouldDisplayExplanation = show;
