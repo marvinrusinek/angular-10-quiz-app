@@ -773,15 +773,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  setQuestionNumber(questionNumber: number): void {
-    this.questionNumberSubject.next(questionNumber);
-  }
-
-  getQuestionNumber(): Observable<number> {
-    return this.questionNumberSubject.asObservable();
-  }
-  
-
   displayExplanationText(show: boolean): void {
     this.shouldDisplayExplanation = show;
   }
