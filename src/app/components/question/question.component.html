@@ -1,8 +1,9 @@
-<form [formGroup]="questionForm" [ngSwitch]="multipleAnswer">
+<form [formGroup]="questionForm">
   <ng-container *ngIf="shouldDisplayTextContent()">
-    <ng-container *ngSwitchCase="multipleAnswer">
-      <ng-container *ngIf="shouldDisplayOptions()">
-        <codelab-question-multiple-answer
+    <ng-container *ngIf="shouldDisplayOptions(); else noOptions">
+      <ng-container [ngSwitch]="multipleAnswer">
+        <!-- Multiple Answer -->
+        <codelab-question-multiple-answer *ngSwitchCase="true"
           [form]="questionForm"
           [data]="data"
           [question]="questionToDisplay"
@@ -17,15 +18,9 @@
           [correctMessage]="correctMessage"
           (answer)="updateClassName($event)"
         ></codelab-question-multiple-answer>
-      </ng-container>
-      <ng-container *ngIf="shouldHideOptions()">
-        No options found for the current question.
-      </ng-container>
-    </ng-container>
 
-    <ng-container *ngSwitchCase="!multipleAnswer">
-      <ng-container *ngIf="shouldDisplayOptions()">
-        <codelab-question-single-answer
+        <!-- Single Answer -->
+        <codelab-question-single-answer *ngSwitchCase="false"
           [data]="data"
           [question]="questionToDisplay"
           [questions]="questions"
@@ -39,9 +34,9 @@
           (answer)="updateClassName($event)"
         ></codelab-question-single-answer>
       </ng-container>
-      <ng-container *ngIf="shouldHideOptions()">
-        No options found for the current question.
-      </ng-container>
     </ng-container>
+    <ng-template #noOptions>
+      No options found for the current question.
+    </ng-template>
   </ng-container>
 </form>
