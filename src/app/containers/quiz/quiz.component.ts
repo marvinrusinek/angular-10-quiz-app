@@ -1173,9 +1173,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   shouldHideRestartNav(): boolean {
-    return (
-      this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.totalQuestions
-    );
+    return this.currentQuestionIndex === 0 || this.currentQuestionIndex === this.totalQuestions - 1;
   }
 
   shouldHideNextQuestionNav(): boolean {
