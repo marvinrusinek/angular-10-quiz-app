@@ -56,6 +56,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         this.totalQuestions = totalQuestions;
         this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
       }
+      return of(totalQuestions);
     });
   }
   
