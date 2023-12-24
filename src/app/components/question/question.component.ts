@@ -1204,7 +1204,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: QuizQuestion,
     questionIndex: number
   ): Promise<void> {
-    console.log('Entering setExplanationText for question:', currentQuestion.questionText);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
@@ -1217,7 +1216,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         nextQuestion,
         questionIndex
       );
-    console.log("MY FE", formattedExplanation);
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
@@ -1226,9 +1224,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       typeof formattedExplanation === 'string'
         ? formattedExplanation
         : formattedExplanation.explanation || 'No explanation available';
-
-      console.log('Formatted Explanation:', formattedExplanation);
-      console.log('Final Explanation Text:', explanationText);
 
       this.explanationText$.next(explanationText);
       this.updateCombinedQuestionData(
@@ -1239,11 +1234,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.isAnswerSelectedChange.emit(true);
       this.toggleVisibility.emit();
       this.updateFeedbackVisibility();
-
-      console.log(
-        'Exiting setExplanationText for question:',
-        currentQuestion.questionText
-      );
     } else {
       console.error('Error: formatExplanationText returned void');
     }
