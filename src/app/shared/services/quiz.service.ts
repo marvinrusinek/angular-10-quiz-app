@@ -833,7 +833,7 @@ export class QuizService implements OnDestroy {
         this.nextQuestionSubject.next(null);
         resolve(undefined);
       } catch (error) {
-        reject(error); // Use reject to handle exceptions
+        reject(error);
       }
     });
   }
