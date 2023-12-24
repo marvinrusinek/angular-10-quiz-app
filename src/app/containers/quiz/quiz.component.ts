@@ -1233,9 +1233,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('End of quiz reached.');
         return;
       }
+      this.currentQuestionIndex++;
 
       await this.fetchAndSetQuestionData();
-      this.currentQuestionIndex++;
     } catch (error) {
       console.error(
         'Error occurred while advancing to the next question:',
