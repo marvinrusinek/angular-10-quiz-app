@@ -1298,9 +1298,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
   
-      const { questionText, options, explanationText } = await this.fetchQuestionDetails();
+      const { questionText, options, explanation } = await this.fetchQuestionDetails();
   
-      this.setQuestionDetails(questionText, options, explanationText);
+      this.setQuestionDetails(questionText, options, explanation);
       this.resetUIAndNavigate();
     } catch (error) {
       console.error('Error fetching and setting question data:', error);

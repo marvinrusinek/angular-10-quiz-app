@@ -1207,11 +1207,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isNext = questionIndex > this.currentQuestionIndex;
 
     let question;
-    if (isNext) {
+    if (isNext && this.currentQuestionIndex === 0) {
       // Navigating forward to the next question
       question = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-    } else {
-      // Navigating backward to a previous question
+    } else if (!isNext && this.currentQuestionIndex > 0) {
+      // Navigating backward to a previous question, but not on the first question
       question = await this.quizService.getPreviousQuestion(this.currentQuestionIndex);
     }
     
