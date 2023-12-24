@@ -8,8 +8,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ReplaySubject, of, Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, ReplaySubject, of, Subject, throwError } from 'rxjs';
+import { catchError, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -51,7 +51,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error in switchMap: ', error);
         return throwError(error);
       }),
-      withLatestFrom(this.quizService.totalQuestions$) 
+      startWith(null),
+      combineLatest(this.quizService.totalQuestions$) 
     ).subscribe((totalQuestions) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
