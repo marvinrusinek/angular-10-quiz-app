@@ -1208,11 +1208,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    this.explanationTextService.setCurrentQuestionExplanation(currentQuestion.explanation);
+    const nextQuestion = this.quizService.getNextQuestion(this.currentQuestionIndex);
+
+    this.explanationTextService.setCurrentQuestionExplanation(nextQuestion.explanation);
 
     const formattedExplanation =
       await this.explanationTextService.formatExplanationText(
-        currentQuestion,
+        nextQuestion,
         questionIndex
       );
     console.log("MY FE", formattedExplanation);
