@@ -82,8 +82,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   updateBadgeText(questionNumber: number, totalQuestions: number): void {
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
       this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
-    } else {
-      this.badgeText = 'End of Quiz';
     }
   }
 }
