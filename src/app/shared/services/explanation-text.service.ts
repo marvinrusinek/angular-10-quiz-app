@@ -213,15 +213,7 @@ export class ExplanationTextService implements OnDestroy {
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
 
-    /* const testQuestion: QuizQuestion = {
-        questionText: "Dummy question text",
-        options: [],
-        explanation: "Known explanation for testing",
-        type: "QuestionType.MultipleAnswer"
-    }; */
-    console.log("Entering isCurrentQuestion block");
     if (this.isCurrentQuestion(question)) {
-      console.log("isCurrentQuestion: true");
       let formattedExplanation = '';
 
       if (correctOptionIndices.length > 1) {
@@ -232,12 +224,6 @@ export class ExplanationTextService implements OnDestroy {
         formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
       } else {
         formattedExplanation = 'No correct option selected...';
-      }
-
-      console.log("FE BEFORE:>>", formattedExplanation);
-      if (formattedExplanation) {
-        this.currentQuestionExplanation = formattedExplanation;
-        console.log("CQE", this.currentQuestionExplanation);
       }
 
       // Add the formatted explanation to the array
