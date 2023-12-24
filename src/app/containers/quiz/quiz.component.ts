@@ -1174,7 +1174,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   shouldHideRestartNav(): boolean {
     return (
-      this.currentQuestionIndex < 1 || this.questionIndex >= this.totalQuestions
+      this.currentQuestionIndex < 0 || this.currentQuestionIndex >= this.totalQuestions
     );
   }
 
@@ -1394,7 +1394,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  restartQuiz() {
+  restartQuiz(): void {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
     this.timerService.stopTimer((elapsedTime: number) => {
