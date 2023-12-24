@@ -50,9 +50,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       catchError((error) => {
         console.error('Error in switchMap: ', error);
         return throwError(error);
-      }),
-      startWith(null),
-      combineLatest(this.quizService.totalQuestions$) 
+      })
     ).subscribe((totalQuestions) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
