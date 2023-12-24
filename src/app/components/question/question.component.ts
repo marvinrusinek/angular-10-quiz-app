@@ -1199,43 +1199,36 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  async setExplanationText(questionIndex: number): Promise<void> {
-    console.log('setExplanationText called with index:', questionIndex);
-    console.log('Current question index:', this.currentQuestionIndex);
+  async setExplanationText(
+    currentQuestion: QuizQuestion,
+    questionIndex: number
+  ): Promise<void> {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    // Determine whether we are navigating to the next or previous question
-    const isNext = questionIndex > this.currentQuestionIndex;
+    const nextQuestion = this.quizService.getNextQuestion(this.currentQuestionIndex);
 
-    let questionToCheck;
-    //if (isNext) {
-      // Navigating forward to the next question
-      questionToCheck = await this.quizService.getNextQuestion(0);
-    //} else {
-      // Navigating backward to a previous question
-      //questionToCheck = await this.quizService.getPreviousQuestion(questionIndex);
-    //}
-    console.log('Fetched question:::>>>', questionToCheck);
+    this.explanationTextService.setCurrentQuestionExplanation(nextQuestion.explanation);
 
-    // Verify the fetched question
-    //if (!questionToCheck || !questionToCheck.explanation) {
-    //  console.error('Error: No question or explanation available');
-    //  return;
-    //}
-
-    this.explanationTextService.setCurrentQuestionExplanation(questionToCheck.explanation);
-
-    const formattedExplanation = await this.explanationTextService.formatExplanationText(questionToCheck, questionIndex);
+    const formattedExplanation =
+      await this.explanationTextService.formatExplanationText(
+        nextQuestion,
+        questionIndex
+      );
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
-      const explanationText = typeof formattedExplanation === 'string'
-                              ? formattedExplanation
-                              : formattedExplanation.explanation || 'No explanation available';
+      // Extract the explanation string if formattedExplanation is an object
+      const explanationText =
+      typeof formattedExplanation === 'string'
+        ? formattedExplanation
+        : formattedExplanation.explanation || 'No explanation available';
 
       this.explanationText$.next(explanationText);
-      this.updateCombinedQuestionData(questionToCheck, explanationText);
+      this.updateCombinedQuestionData(
+        this.questions[questionIndex],
+        explanationText
+      );
 
       this.isAnswerSelectedChange.emit(true);
       this.toggleVisibility.emit();
