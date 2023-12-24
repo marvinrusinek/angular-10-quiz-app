@@ -1140,8 +1140,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         const questionIndex = questionsArray.findIndex((q) =>
           this.isSameQuestion(q, currentQuestion)
         );
-        console.log('Question index::>>', questionIndex);
-        this.setExplanationText(currentQuestion, questionIndex);
+        this.setExplanationText(questionIndex);
       },
       (error) => {
         console.error('Error fetching questions array:', error);
@@ -1200,10 +1199,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  async setExplanationText(
-    currentQuestion: QuizQuestion,
-    questionIndex: number
-  ): Promise<void> {
+  async setExplanationText(questionIndex: number): Promise<void> {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
