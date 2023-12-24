@@ -1203,16 +1203,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    // Determine the direction of navigation
+    // Determine whether we are navigating to the next or previous question
     const isNext = questionIndex > this.currentQuestionIndex;
 
     let question;
     if (isNext) {
-        // Navigating to the next question
+        // Navigating forward to the next question
         question = this.quizService.getNextQuestion(questionIndex);
     } else {
-        // Navigating to a previous question
+        // Navigating backward to a previous question
         question = this.quizService.getPreviousQuestion(questionIndex);
+    }
+    console.log('Fetched question:::>>>', question);
+
+    // Verify the fetched question
+    if (!question || !question.explanation) {
+        console.error('Error: No question or explanation available');
+        return;
     }
 
     this.explanationTextService.setCurrentQuestionExplanation(question.explanation);
@@ -1221,7 +1228,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
-        // Extract the explanation string
         const explanationText = typeof formattedExplanation === 'string'
                                 ? formattedExplanation
                                 : formattedExplanation.explanation || 'No explanation available';
