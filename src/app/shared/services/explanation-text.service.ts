@@ -258,12 +258,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   public setCurrentQuestionExplanation(explanation: string) {
-    console.log(`Setting current question explanation: ${explanation}`);
     this.currentQuestionExplanation = explanation;
   }
 
   private isCurrentQuestion(question: QuizQuestion): boolean {
-    console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
     return this.currentQuestionExplanation === question.explanation;
   }
     
