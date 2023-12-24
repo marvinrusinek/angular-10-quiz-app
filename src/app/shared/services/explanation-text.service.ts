@@ -26,7 +26,6 @@ export class ExplanationTextService implements OnDestroy {
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
-  // formattedExplanations: FormattedExplanation[] = [];
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: Subject<string>[] = [];
   processedQuestions: Set<string> = new Set<string>();
@@ -60,11 +59,9 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
 
-    // Subscribe to the observable with takeUntil
     this.formattedExplanation$
       .pipe(takeUntil(this.destroyed$))
       .subscribe((value) => {
-        // Handle the value
         console.log('Received new formatted explanation:', value);
       });
   }
@@ -83,14 +80,19 @@ export class ExplanationTextService implements OnDestroy {
       acc[index] = new BehaviorSubject<string>(exp);
       return acc;
     }, {});
-    console.log("ET:::", this.explanationTexts);
   
     this.maxIndex = Object.keys(this.explanationTexts).length - 1;
   }
 
-
   storeFormattedExplanations(formattedExplanations: Record<number, string>) {
-    this.formattedExplanations = formattedExplanations;
+    this.formattedExplanations = Object.keys(formattedExplanations).reduce((acc, key) => {
+        const questionIndex = Number(key);
+        acc[questionIndex] = {
+            questionIndex,
+            explanation: formattedExplanations[questionIndex]
+        };
+        return acc;
+    }, {} as Record<number, FormattedExplanation>);
   }
 
   updateExplanationForIndex(index: number, explanation: string): void {
@@ -124,9 +126,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
-    console.log(`Retrieving explanation for index: ${index}, Current explanations:`, this.explanationTexts);
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-    console.log(`Trying to get explanation for index::>> ${numericIndex}`);
 
     // Check if the index is within the valid range
     if (numericIndex < 0 || numericIndex > this.maxIndex) {
@@ -135,9 +135,7 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     const explanationSubject = this.explanationTexts[numericIndex];
-    console.log(`Value at index ${numericIndex}:`, explanationSubject);
     if (explanationSubject instanceof BehaviorSubject) {
-      console.log(`Found explanation for index ${index}: ${explanationSubject.value}`);
       return explanationSubject.asObservable();
     } else {
       console.warn(`No explanation text found at index ${index}`);
@@ -241,7 +239,6 @@ export class ExplanationTextService implements OnDestroy {
     // this.updateExplanationForIndex(questionIndex, formattedExplanation);
   }
 
-
   public setCurrentQuestionExplanation(explanation: string) {
     this.currentQuestionExplanation = explanation;
   }
@@ -282,20 +279,6 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       return undefined;
     }
-  }
-
-  // Function to aggregate the formatted explanations
-  aggregateFormattedExplanations(questions: QuizQuestion[]): string[] {
-    const formattedExplanations: string[] = [];
-
-    for (const question of questions) {
-      const explanation = this.getFormattedExplanationForQuestion(
-        questions.indexOf(question)
-      );
-      formattedExplanations.push(explanation || '');
-    }
-
-    return formattedExplanations;
   }
 
   updateExplanationTextForCurrentAndNext(
