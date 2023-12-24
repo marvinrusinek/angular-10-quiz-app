@@ -1276,13 +1276,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  advanceToResults() {
+  advanceToResults(): Promise<void> {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
     });
     this.timerService.resetTimer();
-    this.quizService.checkIfAnsweredCorrectly();
+    await this.quizService.checkIfAnsweredCorrectly();
     this.quizService.navigateToResults();
   }
 
@@ -1310,7 +1310,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex >= 0 && this.currentQuestionIndex < totalQuestions;
   }
   
-  private async fetchQuestionDetails() {
+  private async fetchQuestionDetails(): Promise<QuizQuestion> {
     const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
     const options = (await this.quizService.getNextOptions(this.currentQuestionIndex)) || [];
     const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
@@ -1318,21 +1318,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     return { questionText, options, explanationText };
   }
   
-  private setQuestionDetails(questionText: string, options: any[], explanationText: string) {
+  private setQuestionDetails(questionText: string, options: Option[], explanationText: string): void {
     this.nextQuestionText = questionText;
     this.questionToDisplay = questionText;
     this.optionsToDisplay = options;
     this.explanationToDisplay = explanationText;
-  
-    if (explanationText) {
-      this.explanationTextService.setCurrentQuestionExplanation("Known explanation for testing");
-      this.explanationTextService.setExplanationTextForQuestionIndex(this.currentQuestionIndex, explanationText);
-    } else {
-      console.log('No explanation text found for the current question');
-    }
   }
   
-  private async resetUIAndNavigate() {
+  private async resetUIAndNavigate(): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
     await this.navigateToQuestion(this.currentQuestionIndex + 1);
