@@ -1276,14 +1276,18 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  advanceToResults(): Promise<void> {
+  advanceToResults(): void {
     this.quizService.resetAll();
     this.timerService.stopTimer((elapsedTime: number) => {
-      this.elapsedTimeDisplay = elapsedTime;
+        this.elapsedTimeDisplay = elapsedTime;
     });
     this.timerService.resetTimer();
-    await this.quizService.checkIfAnsweredCorrectly();
-    this.quizService.navigateToResults();
+
+    this.quizService.checkIfAnsweredCorrectly().then(() => {
+      this.quizService.navigateToResults();
+    }).catch(error => {
+      console.error("Error during checkIfAnsweredCorrectly:", error);
+    });
   }
 
   private async fetchAndSetQuestionData(): Promise<void> {
