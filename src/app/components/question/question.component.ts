@@ -1200,6 +1200,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async setExplanationText(questionIndex: number): Promise<void> {
+    console.log('setExplanationText called with index:', questionIndex);
+    console.log('Current question index:', this.currentQuestionIndex);
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
@@ -1207,20 +1209,20 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     const isNext = questionIndex > this.currentQuestionIndex;
 
     let questionToCheck;
-    if (isNext) {
+    //if (isNext) {
       // Navigating forward to the next question
-      questionToCheck = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-    } else {
+      questionToCheck = await this.quizService.getNextQuestion(0);
+    //} else {
       // Navigating backward to a previous question
-      questionToCheck = await this.quizService.getPreviousQuestion(questionIndex);
-    }
+      //questionToCheck = await this.quizService.getPreviousQuestion(questionIndex);
+    //}
     console.log('Fetched question:::>>>', questionToCheck);
 
     // Verify the fetched question
-    if (!questionToCheck || !questionToCheck.explanation) {
-      console.error('Error: No question or explanation available');
-      return;
-    }
+    //if (!questionToCheck || !questionToCheck.explanation) {
+    //  console.error('Error: No question or explanation available');
+    //  return;
+    //}
 
     this.explanationTextService.setCurrentQuestionExplanation(questionToCheck.explanation);
 
