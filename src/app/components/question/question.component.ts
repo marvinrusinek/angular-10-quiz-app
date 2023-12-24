@@ -1203,35 +1203,34 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    const nextQuestion = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    let question;
+    if (questionIndex > this.currentQuestionIndex) {
+        // Assuming getNextQuestion fetches the question at the specified index
+        question = this.quizService.getNextQuestion(questionIndex);
+    } else {
+        // Assuming getPreviousQuestion fetches the question at the specified index
+        question = this.quizService.getPreviousQuestion(questionIndex);
+    }
 
-    this.explanationTextService.setCurrentQuestionExplanation(nextQuestion.explanation);
+    this.explanationTextService.setCurrentQuestionExplanation(question.explanation);
 
-    const formattedExplanation =
-      await this.explanationTextService.formatExplanationText(
-        nextQuestion,
-        questionIndex
-      );
+    const formattedExplanation = await this.explanationTextService.formatExplanationText(question, questionIndex);
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
-      // Extract the explanation string if formattedExplanation is an object
-      const explanationText =
-      typeof formattedExplanation === 'string'
-        ? formattedExplanation
-        : formattedExplanation.explanation || 'No explanation available';
+        // Extract the explanation string
+        const explanationText = typeof formattedExplanation === 'string'
+                                ? formattedExplanation
+                                : formattedExplanation.explanation || 'No explanation available';
 
-      this.explanationText$.next(explanationText);
-      this.updateCombinedQuestionData(
-        this.questions[questionIndex],
-        explanationText
-      );
+        this.explanationText$.next(explanationText);
+        this.updateCombinedQuestionData(question, explanationText);
 
-      this.isAnswerSelectedChange.emit(true);
-      this.toggleVisibility.emit();
-      this.updateFeedbackVisibility();
+        this.isAnswerSelectedChange.emit(true);
+        this.toggleVisibility.emit();
+        this.updateFeedbackVisibility();
     } else {
-      console.error('Error: formatExplanationText returned void');
+        console.error('Error: formatExplanationText returned void');
     }
   }
 
