@@ -1203,11 +1203,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
+    // Determine the direction of navigation
+    const isNext = questionIndex > this.currentQuestionIndex;
+
     let question;
-    if (questionIndex > this.currentQuestionIndex) {
-      question = this.quizService.getNextQuestion(questionIndex);
+    if (isNext) {
+        // Navigating to the next question
+        question = this.quizService.getNextQuestion(questionIndex);
     } else {
-      question = this.quizService.getPreviousQuestion(questionIndex);
+        // Navigating to a previous question
+        question = this.quizService.getPreviousQuestion(questionIndex);
     }
 
     this.explanationTextService.setCurrentQuestionExplanation(question.explanation);
