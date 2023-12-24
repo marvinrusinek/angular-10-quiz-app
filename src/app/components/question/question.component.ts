@@ -1203,21 +1203,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    // Determine whether we are navigating to the next or previous question
-    const isNext = questionIndex > this.currentQuestionIndex;
-
     let question;
-    if (isNext) {
-      // Navigating forward to the next question
-      question = await this.quizService.getNextQuestion(this.currentQuestionIndex);
-    } else if (!isNext && this.currentQuestionIndex > 0) {
-      // Navigating backward to a previous question, but not on the first question
-      question = await this.quizService.getPreviousQuestion(this.currentQuestionIndex - 1); // Adjust index for backward navigation
+    const totalQuestions = await this.quizService.getTotalQuestions().toPromise();
+
+    if (questionIndex >= 0 && questionIndex < totalQuestions) {
+      question = await this.quizService.getQuestionByIndex(questionIndex);
+    } else {
+      console.error('Error: Question index out of bounds');
+      return;
     }
-    
+
     console.log('Current Question Index:', this.currentQuestionIndex);
     console.log('Navigating to Question Index:', questionIndex);
-    console.log('Is Next Question:', isNext);
     console.log('Fetched question:::>>>', question);
 
     // Verify the fetched question
