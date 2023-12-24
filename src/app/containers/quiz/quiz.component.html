@@ -8,43 +8,47 @@
     <mat-card-content *ngIf="combinedQuestionData$ | async as data">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
-    
-      <!-- the question and options -->
-      <codelab-quiz-content-component
-        *ngIf="questionToDisplay" 
-        [questions]="questions"
-        [question]="questionToDisplay"
-        [questionToDisplay]="questionToDisplay"
-        [explanationToDisplay]="explanationToDisplay"
-        [options]="optionsToDisplay"
-        [explanationText]="explanationText$ | async"  
-        [correctAnswersText]="correctAnswersText"
-      >
-      </codelab-quiz-content-component> 
-      <ng-content select="[question-content]"></ng-content>
 
-      <ng-container *ngIf="optionsToDisplay">
-        <codelab-quiz-question
-          *ngIf="data?.questionText || data?.correctAnswersText"
-          [data]="data"
-          [questionToDisplay]="questionToDisplay"
+      <!-- Check if both question text and questionToDisplay are available -->
+      <ng-container *ngIf="data.questionText && questionToDisplay">
+    
+        <!-- the question and options -->
+        <codelab-quiz-content-component
+          *ngIf="questionToDisplay" 
+          [questions]="questions"
           [question]="questionToDisplay"
-          [questions]="questions$"
+          [questionToDisplay]="questionToDisplay"
+          [explanationToDisplay]="explanationToDisplay"
           [options]="optionsToDisplay"
-          [optionsToDisplay]="optionsToDisplay"
-          (answer)="selectedAnswer($event)"
-          [selectedOption]="selectedOption$ | async"
-          (formReady)="form = $event"
-          [currentQuestion]="currentQuestion"
-          [currentQuestion$]="currentQuestion$ | async"
-          [currentQuestionIndex]="currentQuestionIndex"
-          [previousQuestionIndex]="previousQuestionIndex"
-          [multipleAnswer]="multipleAnswer"
-          (answersChange)="checkIfAnsweredCorrectly()"
-          [explanationTextValue$]="explanationTextValue$ | async"
-          [selectionMessage]="selectionMessage$ | async"
-          [showFeedback]="showFeedback"
-        ></codelab-quiz-question>
+          [explanationText]="explanationText$ | async"  
+          [correctAnswersText]="correctAnswersText"
+        >
+        </codelab-quiz-content-component> 
+        <ng-content select="[question-content]"></ng-content>
+
+        <ng-container *ngIf="optionsToDisplay">
+          <codelab-quiz-question
+            *ngIf="data?.questionText || data?.correctAnswersText"
+            [data]="data"
+            [questionToDisplay]="questionToDisplay"
+            [question]="questionToDisplay"
+            [questions]="questions$"
+            [options]="optionsToDisplay"
+            [optionsToDisplay]="optionsToDisplay"
+            (answer)="selectedAnswer($event)"
+            [selectedOption]="selectedOption$ | async"
+            (formReady)="form = $event"
+            [currentQuestion]="currentQuestion"
+            [currentQuestion$]="currentQuestion$ | async"
+            [currentQuestionIndex]="currentQuestionIndex"
+            [previousQuestionIndex]="previousQuestionIndex"
+            [multipleAnswer]="multipleAnswer"
+            (answersChange)="checkIfAnsweredCorrectly()"
+            [explanationTextValue$]="explanationTextValue$ | async"
+            [selectionMessage]="selectionMessage$ | async"
+            [showFeedback]="showFeedback"
+          ></codelab-quiz-question>
+        </ng-container>
       </ng-container>
       <ng-template #noQuestion>
         <p>No question available.</p>
