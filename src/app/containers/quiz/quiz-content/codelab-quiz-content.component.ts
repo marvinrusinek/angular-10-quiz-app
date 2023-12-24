@@ -634,22 +634,13 @@ export class CodelabQuizContentComponent
       this.explanationTextService.formattedExplanation$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
-      tap(this.logObservables.bind(this)),
       switchMap(this.determineTextToDisplay.bind(this)),
-      tap(text => console.log('Determined Text:', text)), // Log the determined text
       startWith(''),
       catchError(this.handleError.bind(this))
     );
   }
   
-  private logObservables([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): void {
-    console.log('Observables:', nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation);
-  }
-  
   private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    console.log('Determining text to display for:', nextQuestion?.questionText || previousQuestion?.questionText); // Log the question being processed
-    console.log("NET", nextExplanationText);
-
     if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
       return of('');
     } else {
