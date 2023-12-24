@@ -213,14 +213,14 @@ export class ExplanationTextService implements OnDestroy {
       .map((option, index) => (option.correct ? index + 1 : null))
       .filter(index => index !== null);
 
-    const testQuestion: QuizQuestion = {
+    /* const testQuestion: QuizQuestion = {
         questionText: "Dummy question text",
         options: [],
         explanation: "Known explanation for testing",
         type: "QuestionType.MultipleAnswer"
-    };
+    }; */
     console.log("Entering isCurrentQuestion block");
-    if (this.isCurrentQuestion(testQuestion)) {
+    if (this.isCurrentQuestion(question)) {
       console.log("isCurrentQuestion: true");
       let formattedExplanation = '';
 
@@ -272,25 +272,13 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   public setCurrentQuestionExplanation(explanation: string) {
+    console.log(`Setting current question explanation: ${explanation}`);
     this.currentQuestionExplanation = explanation;
   }
-  
-  /* private isCurrentQuestion(question: QuizQuestion): boolean {
-    // Check if the provided 'question' and 'currentQuestionExplanation' are defined and match
-    console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
-    return (
-      this.currentQuestionExplanation !== null &&
-      this.currentQuestionExplanation !== undefined &&
-      question.explanation !== null &&
-      question.explanation !== undefined &&
-      question.explanation === this.currentQuestionExplanation
-    );
-  } */
 
   private isCurrentQuestion(question: QuizQuestion): boolean {
     console.log(`Current explanation: ${this.currentQuestionExplanation}, Question explanation: ${question.explanation}`);
-    // return this.currentQuestionExplanation === question.explanation;
-    return this.currentQuestionExplanation === "Known explanation for testing";
+    return this.currentQuestionExplanation === question.explanation;
   }
     
   // Inside explanationTextService
