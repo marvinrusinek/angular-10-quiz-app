@@ -196,8 +196,6 @@ export class ExplanationTextService implements OnDestroy {
   
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     if (!this.isCurrentQuestion(question)) {
-      console.log("isCurrentQuestion: false");
-      console.log("Question is not the current question");
       return { questionIndex, explanation: '' };
     }
   
