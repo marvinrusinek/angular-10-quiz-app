@@ -1205,11 +1205,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     let question;
     if (questionIndex > this.currentQuestionIndex) {
-        // Assuming getNextQuestion fetches the question at the specified index
-        question = this.quizService.getNextQuestion(questionIndex);
+      question = this.quizService.getNextQuestion(questionIndex);
     } else {
-        // Assuming getPreviousQuestion fetches the question at the specified index
-        question = this.quizService.getPreviousQuestion(questionIndex);
+      question = this.quizService.getPreviousQuestion(questionIndex);
     }
 
     this.explanationTextService.setCurrentQuestionExplanation(question.explanation);
