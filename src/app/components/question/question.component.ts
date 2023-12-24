@@ -1212,7 +1212,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       question = await this.quizService.getNextQuestion(this.currentQuestionIndex);
     } else if (!isNext && this.currentQuestionIndex > 0) {
       // Navigating backward to a previous question, but not on the first question
-      question = await this.quizService.getPreviousQuestion(this.currentQuestionIndex);
+      question = await this.quizService.getPreviousQuestion(this.currentQuestionIndex - 2); // Adjust index for backward navigation
     }
     
     console.log('Current Question Index:', this.currentQuestionIndex);
