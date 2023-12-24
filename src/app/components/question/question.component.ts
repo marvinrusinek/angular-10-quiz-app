@@ -1208,18 +1208,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     let question;
     if (isNext) {
-        // Navigating forward to the next question
-        question = this.quizService.getNextQuestion(questionIndex);
+      // Navigating forward to the next question
+      question = await this.quizService.getNextQuestion(this.currentQuestionIndex);
     } else {
-        // Navigating backward to a previous question
-        question = this.quizService.getPreviousQuestion(questionIndex);
+      // Navigating backward to a previous question
+      question = await this.quizService.getPreviousQuestion(this.currentQuestionIndex);
     }
     console.log('Fetched question:::>>>', question);
 
     // Verify the fetched question
     if (!question || !question.explanation) {
-        console.error('Error: No question or explanation available');
-        return;
+      console.error('Error: No question or explanation available');
+      return;
     }
 
     this.explanationTextService.setCurrentQuestionExplanation(question.explanation);
@@ -1228,18 +1228,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
-        const explanationText = typeof formattedExplanation === 'string'
-                                ? formattedExplanation
-                                : formattedExplanation.explanation || 'No explanation available';
+      const explanationText = typeof formattedExplanation === 'string'
+                              ? formattedExplanation
+                              : formattedExplanation.explanation || 'No explanation available';
 
-        this.explanationText$.next(explanationText);
-        this.updateCombinedQuestionData(question, explanationText);
+      this.explanationText$.next(explanationText);
+      this.updateCombinedQuestionData(question, explanationText);
 
-        this.isAnswerSelectedChange.emit(true);
-        this.toggleVisibility.emit();
-        this.updateFeedbackVisibility();
+      this.isAnswerSelectedChange.emit(true);
+      this.toggleVisibility.emit();
+      this.updateFeedbackVisibility();
     } else {
-        console.error('Error: formatExplanationText returned void');
+      console.error('Error: formatExplanationText returned void');
     }
   }
 
