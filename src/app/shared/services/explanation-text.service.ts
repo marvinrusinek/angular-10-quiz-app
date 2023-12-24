@@ -102,8 +102,6 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    console.log(`Setting explanation for index ${index}: ${explanation}`);
-
     // Ensure that index is within the valid range
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -123,8 +121,6 @@ export class ExplanationTextService implements OnDestroy {
 
     // Update the existing BehaviorSubject with the new explanation
     this.explanationTexts[index].next(explanation);
-
-    console.log(`Set explanation for index ${index}::>> ${explanation}`);
   }
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
@@ -150,13 +146,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeExplanationTexts(explanations: string[]): void {
-    console.log('Initializing explanation texts with:', explanations);
     this.explanationTexts = explanations.map(explanation => new BehaviorSubject(explanation));
-    console.log('Initialized explanation texts:', this.explanationTexts);
   }
 
   fetchExplanationTexts(): string[] {
-    console.log('Current state of explanationTexts:', this.explanationTexts);
     return Object.values(this.explanationTexts).map(subject => subject.value);
   }  
 
