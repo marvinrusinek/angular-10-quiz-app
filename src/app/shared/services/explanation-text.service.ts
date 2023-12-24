@@ -196,66 +196,58 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
   }
 
-  /* fetchExplanationTexts(): string[] {
-    return Object.values(this.explanationTexts).map(subject => subject.value);
-  } */
-
-  formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
-    console.log(`Formatting explanation for question index ${questionIndex}:`, question);
-    console.log("QI", questionIndex);
+  public formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
     const questionKey = JSON.stringify(question);
-    if (!question || !question.questionText || this.processedQuestions.has(question.questionText)) {
+    if (!this.isQuestionValid(question)) {
       console.log('Skipping already processed or invalid question:', question.questionText);
       return { questionIndex, explanation: '' };
     }
-
-    const correctOptionIndices: number[] = question.options
-      .map((option, index) => (option.correct ? index + 1 : null))
-      .filter(index => index !== null);
-
-    if (this.isCurrentQuestion(question)) {
-      let formattedExplanation = '';
-
-      if (correctOptionIndices.length > 1) {
-        question.type = QuestionType.MultipleAnswer;
-        formattedExplanation = `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
-      } else if (correctOptionIndices.length === 1) {
-        question.type = QuestionType.SingleAnswer;
-        formattedExplanation = `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-      } else {
-        formattedExplanation = 'No correct option selected...';
-      }
-
-      // Add the formatted explanation to the array
-      // this.formattedExplanations$[questionIndex] = formattedExplanation;
-
-      // Emit the entire array of formatted explanations
-      // this.formattedExplanations$.next([...this.formattedExplanations]);
-
-      // Create a FormattedExplanation object
-      const formattedExplanationObj: FormattedExplanation = {
-        questionIndex: questionIndex,
-        explanation: formattedExplanation
-      };
-
-      // Update the formatted explanation for the current question index
-      this.formattedExplanations[questionIndex] = formattedExplanationObj;
-      console.log("FEA", this.formattedExplanations[questionIndex]);
-
-      // this.updateExplanationForIndex(questionIndex, formattedExplanation);
-
-      this.setFormattedExplanation(formattedExplanation);
-      this.processedQuestions.add(questionKey);
-
-      return {
-        questionIndex: questionIndex,
-        explanation: formattedExplanation
-      };
-    } else {
+  
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    if (!this.isCurrentQuestion(question)) {
       console.log("isCurrentQuestion: false");
       console.log("Question is not the current question");
+      return { questionIndex, explanation: '' };
+    }
+  
+    const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
+    this.syncFormattedExplanationState(questionIndex, formattedExplanation);
+    this.setFormattedExplanation(formattedExplanation);
+    this.processedQuestions.add(questionKey);
+  
+    return { questionIndex, explanation: formattedExplanation };
+  }
+
+  private isQuestionValid(question: QuizQuestion): boolean {
+    return question && question.questionText && !this.processedQuestions.has(question.questionText);
+  }
+  
+  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    return question.options
+      .map((option, index) => option.correct ? index + 1 : null)
+      .filter(index => index !== null);
+  }
+  
+  private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
+    if (correctOptionIndices.length > 1) {
+      question.type = QuestionType.MultipleAnswer;
+      return `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
+    } else if (correctOptionIndices.length === 1) {
+      question.type = QuestionType.SingleAnswer;
+      return `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+    } else {
+      return 'No correct option selected...';
     }
   }
+  
+  private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
+    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
+    this.formattedExplanations[questionIndex] = formattedExplanationObj;
+    console.log("FEA", this.formattedExplanations[questionIndex]);
+    // this.updateExplanationForIndex(questionIndex, formattedExplanation);
+  }
+
 
   public setCurrentQuestionExplanation(explanation: string) {
     this.currentQuestionExplanation = explanation;
@@ -286,17 +278,6 @@ export class ExplanationTextService implements OnDestroy {
       this.formattedExplanations.push({ questionIndex, explanation });
     }
   }
-
-  // Function to retrieve the formatted explanation for a question
-  /* getFormattedExplanationForQuestion(
-    questionIndex: number
-  ): string | undefined {
-    const explanationObj = this.formattedExplanations.find(
-      (exp) => exp.questionIndex === questionIndex
-    );
-
-    return explanationObj ? explanationObj.explanation : undefined;
-  } */
 
   getFormattedExplanationForQuestion(questionIndex: number): string | undefined {
     // Retrieve the explanation object
@@ -331,14 +312,6 @@ export class ExplanationTextService implements OnDestroy {
     try {
       this.currentExplanationTextSource.next(currentExplanationText);
       this.nextExplanationTextSource.next(nextExplanationText);
-      console.log(
-        'Updated explanation text for current question:',
-        currentExplanationText
-      );
-      console.log(
-        'Updated explanation text for next question:',
-        nextExplanationText
-      );
     } catch (error) {
       console.error('Error updating explanation text:', error);
     }
@@ -350,7 +323,6 @@ export class ExplanationTextService implements OnDestroy {
 
   setNextExplanationText(explanationText: string): void {
     try {
-      console.log('Setting next explanation text:', explanationText);
       this.nextExplanationTextSource.next(explanationText);
     } catch (error) {
       console.error('Error updating explanation text:', error);
@@ -366,7 +338,6 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
-    console.log('Setting isExplanationTextDisplayed to', isDisplayed);
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
@@ -386,20 +357,17 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   resetStateBetweenQuestions(): void {
-    console.log('Resetting explanation state between questions...');
     this.clearExplanationText();
     this.resetExplanationState();
     this.resetProcessedQuestionsState();
   }  
 
   clearExplanationText(): void {
-    console.log('clearExplanationText() called');
     this.explanationText$.next('');
     this.nextExplanationTextSource.next('');
   }
 
   resetExplanationState() {
-    console.log('resetExplanationState() called');
     this.questionIndexCounter = 0;
     this.formattedExplanation$.next('');
     this.explanationTexts = {};
