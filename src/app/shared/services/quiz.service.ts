@@ -804,7 +804,41 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
+  getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
+    return new Promise((resolve, reject) => {
+      try {
+        const currentQuiz = this.getCurrentQuiz();
+  
+        if (!currentQuiz) {
+          throw new Error("No current quiz available");
+        }
+  
+        if (
+          currentQuiz.questions &&
+          currentQuestionIndex >= 0 &&
+          currentQuestionIndex < currentQuiz.questions.length - 1
+        ) {
+          const nextQuestionIndex = currentQuestionIndex + 1;
+          if (nextQuestionIndex < currentQuiz.questions.length) {
+            const nextQuestion = currentQuiz.questions[nextQuestionIndex];
+            this.nextQuestionSource.next(nextQuestion);
+            this.nextQuestionSubject.next(nextQuestion);
+            this.setCurrentQuestionAndNext(nextQuestion, '');
+            resolve(nextQuestion);
+            return;
+          }
+        }
+  
+        this.nextQuestionSource.next(null);
+        this.nextQuestionSubject.next(null);
+        resolve(undefined);
+      } catch (error) {
+        reject(error); // Use reject to handle exceptions
+      }
+    });
+  }
+  
+  /* getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
 
     if (
@@ -813,19 +847,21 @@ export class QuizService implements OnDestroy {
       currentQuestionIndex >= 0 &&
       currentQuestionIndex <= currentQuiz.questions.length - 1
     ) {
-      const nextQuestion = currentQuiz.questions[currentQuestionIndex];
-
-      this.nextQuestionSource.next(nextQuestion);
-      this.nextQuestionSubject.next(nextQuestion);
-      this.setCurrentQuestionAndNext(nextQuestion, '');
-      return nextQuestion;
+      const nextQuestionIndex = currentQuestionIndex + 1;
+      if (nextQuestionIndex < currentQuiz.questions.length) {
+        const nextQuestion = currentQuiz.questions[nextQuestionIndex];
+        this.nextQuestionSource.next(nextQuestion);
+        this.nextQuestionSubject.next(nextQuestion);
+        this.setCurrentQuestionAndNext(nextQuestion, '');
+        return nextQuestion;
+      }
     }
 
     this.nextQuestionSource.next(null);
     this.nextQuestionSubject.next(null);
 
     return undefined;
-  }
+  } */
 
   async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     const currentQuiz = this.getCurrentQuiz();

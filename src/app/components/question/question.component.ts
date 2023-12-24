@@ -1206,25 +1206,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Determine whether we are navigating to the next or previous question
     const isNext = questionIndex > this.currentQuestionIndex;
 
-    let question;
+    let questionToCheck;
     if (isNext) {
       // Navigating forward to the next question
-      question = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      questionToCheck = await this.quizService.getNextQuestion(this.currentQuestionIndex);
     } else {
       // Navigating backward to a previous question
-      question = await this.quizService.getPreviousQuestion(questionIndex);
+      questionToCheck = await this.quizService.getPreviousQuestion(questionIndex);
     }
-    console.log('Fetched question:::>>>', question);
+    console.log('Fetched question:::>>>', questionToCheck);
 
     // Verify the fetched question
-    if (!question || !question.explanation) {
+    if (!questionToCheck || !questionToCheck.explanation) {
       console.error('Error: No question or explanation available');
       return;
     }
 
-    this.explanationTextService.setCurrentQuestionExplanation(question.explanation);
+    this.explanationTextService.setCurrentQuestionExplanation(questionToCheck.explanation);
 
-    const formattedExplanation = await this.explanationTextService.formatExplanationText(question, questionIndex);
+    const formattedExplanation = await this.explanationTextService.formatExplanationText(questionToCheck, questionIndex);
 
     // Ensure formattedExplanation is not void
     if (formattedExplanation) {
@@ -1233,7 +1233,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
                               : formattedExplanation.explanation || 'No explanation available';
 
       this.explanationText$.next(explanationText);
-      this.updateCombinedQuestionData(question, explanationText);
+      this.updateCombinedQuestionData(questionToCheck, explanationText);
 
       this.isAnswerSelectedChange.emit(true);
       this.toggleVisibility.emit();
