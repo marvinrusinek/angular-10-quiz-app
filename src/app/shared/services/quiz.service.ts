@@ -15,6 +15,7 @@ import {
   distinctUntilChanged,
   filter,
   finalize,
+  lastValueFrom,
   map,
   shareReplay,
   switchMap,
@@ -1250,12 +1251,12 @@ export class QuizService implements OnDestroy {
     this.resources = value;
   }
 
-  async fetchQuizQuestions() {
+  async fetchQuizQuestions(): Promise<void> {
     try {
       const quizId = this.quizId;
-      const filteredQuestions = await this.getQuestionsForQuiz(
-        quizId
-      ).toPromise();
+      const filteredQuestions = await lastValueFrom(
+        this.getQuestionsForQuiz(quizId)
+      );
 
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
