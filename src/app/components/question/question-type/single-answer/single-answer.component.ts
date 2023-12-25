@@ -21,6 +21,7 @@ import { QuizQuestionManagerService } from '../../../../shared/services/quizques
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
+import { SharedVisibilityService } from '../../../../shared/services/shared-visibility.service';
 import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
@@ -28,7 +29,7 @@ import { TimerService } from '../../../../shared/services/timer.service';
   templateUrl: './single-answer.component.html',
   styleUrls: [
     './single-answer.component.scss',
-    '../../question.component.scss',
+    '../../question.component.scss'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.ShadowDom,
@@ -53,6 +54,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     explanationTextService: ExplanationTextService,
     selectedOptionService: SelectedOptionService,
     selectionMessageService: SelectionMessageService,
+    sharedVisibilityService: SharedVisibilityService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
@@ -67,6 +69,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
       explanationTextService,
       selectedOptionService,
       selectionMessageService,
+      sharedVisibilityService,
       timerService,
       activatedRoute,
       fb,
@@ -79,6 +82,7 @@ export class SingleAnswerComponent extends QuizQuestionComponent implements OnIn
     this.quizQuestionManagerService = quizQuestionManagerService;
     this.explanationTextService = explanationTextService;
     this.selectionMessageService = selectionMessageService;
+    this.sharedVisibilityService = sharedVisibilityService;
   }
 
   async ngOnInit(): Promise<void> {
