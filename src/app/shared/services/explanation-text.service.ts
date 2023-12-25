@@ -59,12 +59,6 @@ export class ExplanationTextService implements OnDestroy {
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
-
-    this.formattedExplanation$
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe((value) => {
-        console.log('Received new formatted explanation:', value);
-      });
   }
 
   ngOnDestroy(): void {
