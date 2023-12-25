@@ -71,7 +71,6 @@ export class QuizStateService {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     try {
-      // Check if the question is not null and has options
       if (question && question.options) {
         // Check if the question has more than one correct answer
         const correctAnswersCount = question.options
@@ -80,7 +79,6 @@ export class QuizStateService {
   
         return of(correctAnswersCount > 1);
       } else {
-        // Handle the case where question is null or doesn't have options
         return of(false);
       }
     } catch (error) {
