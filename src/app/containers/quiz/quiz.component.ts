@@ -434,13 +434,19 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   loadCurrentQuestion(): void {
+    if (document.hidden) {
+      // Page is hidden, pause loading the current question (optional)
+      return;
+    }
+  
     this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
-      tap((currentQuestion) => {
-        if (currentQuestion) {
-          // Update the question text to display in the template
-          this.currentQuestionText = currentQuestion.questionText;
-        }
-      })
+      filter((currentQuestion: QuizQuestion | null): currentQuestion is QuizQuestion => {
+        return currentQuestion !== null;
+      }) as any,
+      tap((currentQuestion: QuizQuestion) => {
+        // Update the question text to display in the template
+        this.currentQuestionText = currentQuestion.questionText;
+      }) as any
     );
   }
 
