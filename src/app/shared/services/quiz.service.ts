@@ -1321,9 +1321,9 @@ export class QuizService implements OnDestroy {
     this.correctAnswersSubject.next(correctAnswers);
   }
 
-  private convertToOptions(optionIds: number[]): Option[] {
-    return optionIds.map((optionId) => {
-      return { optionId, text: '' } as Option; // Replace '' with the actual text property if available
+  private convertToOptions(options: Option[]): Option[] {
+    return options.map((option) => {
+      return { optionId: option.optionId, text: option.text } as Option;
     });
   }
 
