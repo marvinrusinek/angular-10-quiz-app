@@ -1,6 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -161,7 +160,7 @@ export class ExplanationTextService implements OnDestroy {
     this.formattedExplanations$[questionIndex].next(formattedExplanation);
   }
 
-  public formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
+  formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
     const questionKey = JSON.stringify(question);
     if (!this.isQuestionValid(question)) {
       console.log('Skipping already processed or invalid question:', question.questionText);
@@ -224,7 +223,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }  
 
-  public setCurrentQuestionExplanation(explanation: string) {
+  setCurrentQuestionExplanation(explanation: string) {
     this.currentQuestionExplanation = explanation;
   }
 
@@ -262,17 +261,6 @@ export class ExplanationTextService implements OnDestroy {
 
   setShouldDisplayExplanation(shouldDisplay: boolean): void {
     this.shouldDisplayExplanationSource.next(shouldDisplay);
-  }
-
-  getLastDisplayedExplanationText(): string {
-    return this.lastDisplayedExplanationText;
-  }
-
-  getExplanationObservable(questionIndex: number): BehaviorSubject<string> {
-    if (!this.explanationTexts[questionIndex]) {
-      this.explanationTexts[questionIndex] = new BehaviorSubject<string>('');
-    }
-    return this.explanationTexts[questionIndex];
   }
 
   resetStateBetweenQuestions(): void {
