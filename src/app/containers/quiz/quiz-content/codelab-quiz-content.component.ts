@@ -224,12 +224,7 @@ export class CodelabQuizContentComponent
         if (formattedExplanation !== null && formattedExplanation !== undefined) {
           this.formattedExplanation = formattedExplanation;
 
-          console.log('Received new formatted explanation:', formattedExplanation);
-          console.log('Current question index:', currentQuestionIndex);
-
           this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
-
-          console.log('Formatted explanation updated for question index:', currentQuestionIndex);
         }
       });
   }
@@ -639,11 +634,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private setupExplanationTextDisplay(): void {  
-    this.explanationTextService.formattedExplanation$.subscribe(explanations => {
-      console.log('Formatted Explanation Values:::>>>>>', explanations);
-    });
-  
+  private setupExplanationTextDisplay(): void {    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
