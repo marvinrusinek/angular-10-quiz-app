@@ -231,10 +231,9 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
-    // Ensure the formattedExplanations$ array has enough elements
-    while (this.formattedExplanations$.length <= questionIndex) {
-      // Initialize additional elements with null
-      this.formattedExplanations$.push(new BehaviorSubject<string | null>(null));
+    if (!this.formattedExplanations$[questionIndex]) {
+      // Initialize the BehaviorSubject if it doesn't exist at the specified index
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
     }
   
     // Access the BehaviorSubject at the specified questionIndex
