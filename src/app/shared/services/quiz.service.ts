@@ -1319,7 +1319,7 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  isQuizSelected() {
+  isQuizSelected(): boolean {
     return this.selectedQuizId !== null;
   }
 
