@@ -310,11 +310,7 @@ export class QuizService implements OnDestroy {
     this.activatedRoute.paramMap
       .pipe(
         map((params) => {
-          console.log('Route params:', params);
           const param = params.get('quizId');
-          if (param === null) {
-            throw new Error("quizId is null or not found in route parameters");
-          }
           return param;
         }),
         distinctUntilChanged(),
@@ -322,19 +318,18 @@ export class QuizService implements OnDestroy {
       )
       .subscribe({
         next: (quizId: string | null) => {
-          if (quizId !== null) {
-            this.quizId = quizId;
-            this.processQuizId();
+          this.quizId = quizId;
+          if (quizId === null) {
+            console.error("Quiz ID is missing or invalid. Please select a quiz.");
           } else {
-            console.error("Quiz ID is missing or invalid.");
+            this.processQuizId();
           }
         },
         error: (err) => {
           console.error('Error with route parameters:', err);
-          // Handle error appropriately
         }
       });
-  }
+  }  
 
   private processQuizId(): void {
     this.indexOfQuizId = this.quizData.findIndex(
