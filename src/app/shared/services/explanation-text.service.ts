@@ -261,9 +261,7 @@ export class ExplanationTextService implements OnDestroy {
     return this.currentQuestionExplanation === question.explanation;
   }
     
-  // Inside explanationTextService
   setFormattedExplanation(newExplanation: string): void {
-    console.log(`Updating formatted explanation: ${newExplanation}`);
     this.formattedExplanation$.next(newExplanation);
   }
 
