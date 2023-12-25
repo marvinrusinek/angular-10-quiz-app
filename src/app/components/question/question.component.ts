@@ -169,8 +169,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected explanationTextService: ExplanationTextService,
     protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
-    protected timerService: TimerService,
     protected sharedVisibilityService: SharedVisibilityService,
+    protected timerService: TimerService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
@@ -183,6 +183,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.explanationTextService = explanationTextService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
+    this.sharedVisibilityService = sharedVisibilityService;
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
     this.questionForm = this.fb.group({
@@ -190,13 +191,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
-      console.log('Page visibility changed:', isHidden);
       this.handlePageVisibilityChange(isHidden);
     });
   }
 
-  handlePageVisibilityChange(isHidden: boolean): void {
-    console.log('handlePageVisibilityChange called. IsHidden:', isHidden);
+  private handlePageVisibilityChange(isHidden: boolean): void {
     if (isHidden) {
       // Page is now hidden, pause or delay updates in this component
       this.isPaused = true; // pause updates
@@ -206,7 +205,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.setExplanationText(this.currentQuestion, this.currentQuestionIndex);
     }
   }
-  
 
   async ngOnInit(): Promise<void> {
     this.selectedOption = null;
@@ -1238,7 +1236,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
-    // Check if the page is hidden
     if (document.hidden) {
       return;
     }
