@@ -230,7 +230,12 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
-    this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    if (this.formattedExplanations$[questionIndex]) {
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    } else {
+      console.error(`No element at index ${questionIndex} in formattedExplanations$`);
+    }
+    
     const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
     this.formattedExplanations[questionIndex] = formattedExplanationObj;
     console.log("FEA", this.formattedExplanations[questionIndex]);
