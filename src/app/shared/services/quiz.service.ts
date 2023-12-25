@@ -1366,52 +1366,6 @@ export class QuizService implements OnDestroy {
       this.optionsSource.next(null);
       this.currentOptionsSource.next(null);
     }
-  }  
-
-  async getNextQuestionWithExplanation(currentQuestionIndex: number): Promise<{
-    nextQuestion: QuizQuestion;
-    explanationText: string;
-  }> {
-    try {
-      console.log('Received currentQuestionIndex:', currentQuestionIndex);
-
-      // Fetch the next question
-      const nextQuestion = await this.getNextQuestion(currentQuestionIndex);
-      // Obtain the explanation text
-      const explanationText = nextQuestion.explanation;
-
-      return { nextQuestion, explanationText };
-    } catch (error) {
-      console.error(
-        'Error occurred while fetching next question with explanation:',
-        error
-      );
-      throw error;
-    }
-  }
-
-  async getPreviousQuestionWithExplanation(currentQuestionIndex: number): Promise<{
-    previousQuestion: QuizQuestion | undefined;
-    explanationText: string | undefined;
-  }> {
-    try {
-      // Fetch the previous question
-      const previousQuestion = await this.getPreviousQuestion(currentQuestionIndex);
-  
-      if (!previousQuestion) {
-        // Handle the case where previousQuestion is undefined
-        console.log('No valid previous question available.');
-        return { previousQuestion: undefined, explanationText: undefined };
-      }
-  
-      // Obtain the explanation text for the previous question
-      const explanationText = previousQuestion.explanation;
-  
-      return { previousQuestion, explanationText };
-    } catch (error) {
-      console.error('Error occurred while fetching the previous question with explanation:', error);
-      throw error;
-    }
   }
 
   /********* navigation functions ***********/
