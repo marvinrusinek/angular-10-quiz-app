@@ -320,7 +320,7 @@ export class QuizService implements OnDestroy {
         next: (quizId: string | null) => {
           this.quizId = quizId;
           if (quizId === null) {
-            console.error("Quiz ID is missing or invalid. Please select a quiz.");
+            // console.error("Quiz ID is missing or invalid. Please select a quiz.");
           } else {
             this.processQuizId();
           }
