@@ -1075,8 +1075,8 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  setCorrectAnswerOptions(optionIds: number[]) {
-    const correctAnswerOptions = this.convertToOptions(optionIds);
+  setCorrectAnswerOptions(optionOptions: Option[]) {
+    const correctAnswerOptions = this.convertToOptions(optionOptions);
     this.correctAnswerOptions = correctAnswerOptions;
     this.setCorrectAnswers(this.question, this.currentOptionsSubject.value);
   }
