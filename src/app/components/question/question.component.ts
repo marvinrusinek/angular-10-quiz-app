@@ -41,6 +41,7 @@ import { QuizQuestionManagerService } from '../../shared/services/quizquestionmg
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
+import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
 
 enum QuestionType {
@@ -167,6 +168,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected timerService: TimerService,
+    protected sharedVisibilityService: SharedVisibilityService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef,
@@ -185,12 +187,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: [''],
     });
 
-    console.log('QuizQuestionComponent constructor called');
+    this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+      if (isHidden) {
+        // Page is now hidden, pause or delay updates in this component
+      } else {
+        // Page is now visible, resume updates in this component
+      }
+    });
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('ngOnInit of QuizQuestionComponent is called.');
-
     this.selectedOption = null;
 
     this.options = this.getOptionsForQuestion();
