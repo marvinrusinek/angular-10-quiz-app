@@ -444,7 +444,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadCurrentQuestion(): void {
+  /* loadCurrentQuestion(): void {
     if (document.hidden) {
       return;
     }
@@ -458,7 +458,19 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestionText = currentQuestion.questionText;
       }) as any
     );
+  } */
+
+  loadCurrentQuestion(): void {
+    this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
+      tap((currentQuestion) => {
+        if (currentQuestion) {
+          // Update the question text to display in the template
+          this.currentQuestionText = currentQuestion.questionText;
+        }
+      })
+    );
   }
+  
 
   getNextQuestion(): void {
     const nextQuestion = this.quizService.getNextQuestion(
