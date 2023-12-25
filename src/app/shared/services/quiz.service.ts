@@ -1370,15 +1370,15 @@ export class QuizService implements OnDestroy {
 
   updateCurrentOptions(options: Option[]): void {
     if (options) {
-      this.options = options;
       this.optionsSubject.next(options);
+      this.optionsSource.next(options);
       this.currentOptionsSource.next(options);
     } else {
-      this.options = null;
       this.optionsSubject.next(null);
+      this.optionsSource.next(null);
       this.currentOptionsSource.next(null);
     }
-  }
+  }  
 
   async getNextQuestionWithExplanation(currentQuestionIndex: number): Promise<{
     nextQuestion: QuizQuestion;
