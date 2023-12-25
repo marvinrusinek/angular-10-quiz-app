@@ -19,7 +19,7 @@ import {
   of,
   ReplaySubject,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -28,7 +28,7 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -47,13 +47,13 @@ import { TimerService } from '../../shared/services/timer.service';
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false',
+  TrueFalse = 'true_false'
 }
 
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy { 
   @Output() answer = new EventEmitter<number>();
@@ -159,6 +159,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
 
+  sharedVisibilitySubscription: Subscription;
+
   isPaused = false;
 
   constructor(
@@ -184,32 +186,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
-    this.selectedOption = this.question ? this.getSelectedOption() : undefined;
-
+    
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
 
-    this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+    this.sharedVisibilitySubscription = this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       this.handlePageVisibilityChange(isHidden);
     });
   }
 
-  private handlePageVisibilityChange(isHidden: boolean): void {
-    if (isHidden) {
-      // Page is now hidden, pause or delay updates in this component
-      this.isPaused = true; // pause updates
-    } else {
-      // Page is now visible, resume updates in this component
-      this.isPaused = false; // Unpause updates
-      this.setExplanationText(this.currentQuestion, this.currentQuestionIndex);
-    }
-  }
-
   async ngOnInit(): Promise<void> {
-    this.selectedOption = null;
-
     this.options = this.getOptionsForQuestion();
+    this.selectedOption = this.question ? this.getSelectedOption() : undefined;
 
     this.logInitialData();
     this.initializeQuizQuestion();
@@ -241,22 +230,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
-    this.quizService.questions$.subscribe(
-      (questionsArray: QuizQuestion[]) => {
-        console.log('Received questions:::', questionsArray);
-        // Your remaining logic here
-      },
-      (error) => {
-        console.error('Error in fetching questions:', error);
-      }
-    );
-
-    this.quizService.questions$.subscribe((data) => {
-      console.log('MY QUESTIONS:', data);
-    });
-
     this.quizService.answers$.subscribe((answers) => {
-      console.log('Received answers:::', answers);
+      console.log('Received answers:', answers);
       this.answers = answers;
     });
 
@@ -287,12 +262,24 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.optionsSubscription?.unsubscribe();
     this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
+    this.sharedVisibilitySubscription?.unsubscribe();
     this.correctAnswersSubscription?.unsubscribe();
     this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
   trackByFn(option: Option) {
     return option.optionId;
+  }
+
+  private handlePageVisibilityChange(isHidden: boolean): void {
+    if (isHidden) {
+      // Page is now hidden, pause or delay updates in this component
+      this.isPaused = true; // pause updates
+    } else {
+      // Page is now visible, resume updates in this component
+      this.isPaused = false; // Unpause updates
+      this.setExplanationText(this.currentQuestion, this.currentQuestionIndex);
+    }
   }
 
   getDisplayOptions(): Option[] {
