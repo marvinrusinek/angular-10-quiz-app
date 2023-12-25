@@ -77,10 +77,12 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   updateExplanationForIndex(index: number, explanation: string): void {
-    if (this.explanationTexts[index]) {
-      this.explanationTexts[index].next(explanation);
-    } else {
+    if (!this.explanationTexts[index]) {
+      // Initialize the BehaviorSubject at the given index
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    } else {
+      // If it already exists, update the value using next
+      this.explanationTexts[index].next(explanation);
     }
   }
 
