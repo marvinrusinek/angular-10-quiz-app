@@ -668,39 +668,18 @@ export class CodelabQuizContentComponent
     return '';
   }
   
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
-    try {
-      console.log('Current question:', data.currentQuestion);
-  
-      if (!data || !data.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false;
-        console.error('Current question is not defined.');
-        return;
-      }
-  
-      const isNavigatingToPrevious = data.isNavigatingToPrevious;
-  
-      // Check if it's a multiple-answer question
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
-  
-      // Assuming you have correct answers information available in the current question
-      const correctAnswers = data.currentQuestion.correctAnswers || [];
-  
-      // Display correct answers text for multiple-answer questions when navigating using previous
-      this.shouldDisplayCorrectAnswers =
-        isMultipleAnswer &&
-        isNavigatingToPrevious &&
-        !!data.explanationText &&
-        !!data.questionText &&
-        correctAnswers.length > 1;
-  
-      console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
-      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
-      console.log('isMultipleAnswer:', isMultipleAnswer);
-      console.log('correctAnswers:', correctAnswers);
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+  shouldDisplayCorrectAnswersText(data: any): void {
+    if (!data || !data.currentQuestion) {
+      this.shouldDisplayCorrectAnswers = false;
+      return;
     }
+  
+    this.quizStateService.isMultipleAnswer(data.currentQuestion)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isMultipleAnswer => {
+        console.log('Is multiple answer:::>>>', isMultipleAnswer);
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+      });
   }
 
   getNumberOfCorrectAnswers(data: any): number {
