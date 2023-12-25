@@ -1356,18 +1356,47 @@ export class QuizService implements OnDestroy {
   }
 
   updateCurrentQuestion(): void {
+    const defaultData: CombinedDataType = {
+      questionText: '',
+      explanationText: '',
+      correctAnswersText: '',
+      currentQuestion: null,
+      currentOptions: [],
+      isNavigatingToPrevious: false,
+      formattedExplanation: ''
+    };
+  
     if (
       this.currentQuestionIndex >= 0 &&
       this.currentQuestionIndex < this.questions.length
     ) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       this.currentQuestion.next(currentQuestion);
-      this.updateCurrentOptions(currentQuestion.options);
+  
+      const currentCombinedData = this.combinedQuestionDataSubject.getValue() || defaultData;
+  
+      const updatedCombinedData: CombinedDataType = {
+        ...currentCombinedData,
+        currentQuestion: currentQuestion,
+        questionText: currentQuestion.questionText, // Assuming questionText is the text of the current question
+        currentOptions: currentQuestion.options, // Update options for the current question
+        // Preserving other properties, update them if needed based on the current question
+        explanationText: currentCombinedData.explanationText,
+        correctAnswersText: currentCombinedData.correctAnswersText,
+        isNavigatingToPrevious: currentCombinedData.isNavigatingToPrevious,
+        formattedExplanation: currentCombinedData.formattedExplanation
+      };
+  
+      this.combinedQuestionDataSubject.next(updatedCombinedData);
+  
     } else {
       this.currentQuestion.next(null);
+  
+      // Reset to default data when currentQuestionIndex is out of bounds
+      this.combinedQuestionDataSubject.next(defaultData);
     }
   }
-
+  
   updateCurrentOptions(options: Option[]): void {
     if (options) {
       this.options = options;
