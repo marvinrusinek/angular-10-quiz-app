@@ -263,7 +263,6 @@ export class CodelabQuizContentComponent
   private subscribeToFormattedExplanationChanges(): void {
     this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(
       (formattedExplanation) => {
-        console.log('Formatted Explanation Received:', formattedExplanation);
         this.explanationToDisplay = formattedExplanation;
       }
     );    
