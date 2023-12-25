@@ -52,6 +52,8 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
+import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
+
 import { HighlightDirective } from '../../directives/highlight.directive';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -194,6 +196,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
     private resetBackgroundService: ResetBackgroundService,
+    private sharedVisibilityService: SharedVisibilityService,
     private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -209,6 +212,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.isNavigatingToNext = false;
     this.elapsedTimeDisplay = 0;
+
+    this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+      if (isHidden) {
+        // Page is now hidden, pause or delay updates in this component
+      } else {
+        // Page is now visible, resume updates in this component
+      }
+    });
   }
 
   ngOnInit(): void {
