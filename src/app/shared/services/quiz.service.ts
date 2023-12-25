@@ -326,7 +326,7 @@ export class QuizService implements OnDestroy {
             this.quizId = quizId;
             this.processQuizId();
           } else {
-
+            console.error("Quiz ID is missing or invalid.");
           }
         },
         error: (err) => {
