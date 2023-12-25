@@ -71,18 +71,24 @@ export class QuizStateService {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     try {
-      // Check if the question has more than one correct answer
-      const correctAnswersCount = question.options
-        .filter(option => option.correct)
-        .length;
-
-      return of(correctAnswersCount > 1);
+      // Check if the question is not null and has options
+      if (question && question.options) {
+        // Check if the question has more than one correct answer
+        const correctAnswersCount = question.options
+          .filter(option => option.correct)
+          .length;
+  
+        return of(correctAnswersCount > 1);
+      } else {
+        // Handle the case where question is null or doesn't have options
+        return of(false);
+      }
     } catch (error) {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
   }
-
+  
   setMultipleAnswer(value: boolean): void {
     this.multipleAnswerSubject.next(value);
     this.multipleAnswer$.subscribe((value) => {
