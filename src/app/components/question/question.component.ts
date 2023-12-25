@@ -187,13 +187,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: [''],
     });
 
-    this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+    /* this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
       if (isHidden) {
         // Page is now hidden, pause or delay updates in this component
       } else {
         // Page is now visible, resume updates in this component
       }
-    });
+    }); */
   }
 
   async ngOnInit(): Promise<void> {
