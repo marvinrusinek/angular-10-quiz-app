@@ -939,14 +939,6 @@ export class QuizService implements OnDestroy {
         }
       })
     );
-  }  
-
-  private setCurrentQuestionAndPrevious(
-    currentQuestion: QuizQuestion | null,
-    previousQuestion: QuizQuestion | null
-  ): void {
-    this.setCurrentQuestion(currentQuestion);
-    this.setPreviousQuestion(previousQuestion);
   }
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
