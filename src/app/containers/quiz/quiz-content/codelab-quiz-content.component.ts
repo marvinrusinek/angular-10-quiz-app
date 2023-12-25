@@ -29,7 +29,7 @@ import {
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
-import { CombinedDataType } from '../../../shared/models/CombinedDataType.type';
+import { CombinedDataType } from '../../../shared/models/CombinedDataType.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -48,15 +48,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 export class CodelabQuizContentComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() combinedQuestionData$: Observable<{
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    currentQuestion: QuizQuestion;
-    currentOptions: Option[];
-    isNavigatingToPrevious: boolean;
-    formattedExplanation?: string;
-  }> | null = null;
+  @Input() combinedQuestionData$: Observable<CombinedDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
   @Input() explanationToDisplay: string;
