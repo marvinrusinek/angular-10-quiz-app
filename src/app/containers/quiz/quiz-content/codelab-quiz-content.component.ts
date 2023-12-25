@@ -492,7 +492,7 @@ export class CodelabQuizContentComponent
       ? this.getQuestionText(currentQuestion, this.questions)
       : '';
   
-    if (currentQuestion && this.questions.length > 0) {
+    if (this.currentQuestion !== null && this.questions.length > 0) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(
         currentQuestion
       );
