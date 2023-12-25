@@ -20,17 +20,15 @@ export class ExplanationTextService implements OnDestroy {
   >('');
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
-  private currentQuestionExplanation: string | null = null;
-  private maxIndex: number = -1;
+  currentQuestionExplanation: string | null = null;
+  maxIndex = -1;
 
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
   formattedExplanations: Record<number, FormattedExplanation> = {};
-  // formattedExplanations$: Subject<string>[] = [];
-  private formattedExplanations$: BehaviorSubject<string | null>[] = [];
+  formattedExplanations$: BehaviorSubject<string | null>[] = [];
   processedQuestions: Set<string> = new Set<string>();
-  questionIndexCounter = 0;
 
   private currentExplanationTextSource = new BehaviorSubject<string>('');
   currentExplanationText$ = this.currentExplanationTextSource.asObservable();
@@ -144,14 +142,6 @@ export class ExplanationTextService implements OnDestroy {
 
   fetchExplanationTexts(): string[] {
     return Object.values(this.explanationTexts).map(subject => subject.value);
-  }  
-
-  // Function to update explanations based on question ID or index
-  updateExplanationForQuestion(
-    questionId: string | number,
-    explanation: string
-  ): void {
-    this.explanationTexts[questionId] = explanation;
   }
 
   // Retrieve explanation for a specific question
@@ -239,9 +229,7 @@ export class ExplanationTextService implements OnDestroy {
       // Update the formattedExplanations array
       const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
       this.formattedExplanations[questionIndex] = formattedExplanationObj;
-      
-      console.log("FEA", this.formattedExplanations[questionIndex]);
-      // this.updateExplanationForIndex(questionIndex, formattedExplanation);
+      this.updateExplanationForIndex(questionIndex, formattedExplanation);
     } else {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
     }
@@ -257,46 +245,6 @@ export class ExplanationTextService implements OnDestroy {
     
   setFormattedExplanation(newExplanation: string): void {
     this.formattedExplanation$.next(newExplanation);
-  }
-
-  // Function to set or update the formatted explanation for a question
-  setFormattedExplanationForQuestion(
-    questionIndex: number,
-    explanation: string
-  ): void {
-    const existingIndex = this.formattedExplanations.findIndex(
-      (exp) => exp.questionIndex === questionIndex
-    );
-
-    if (existingIndex > -1) {
-      this.formattedExplanations[existingIndex].explanation = explanation;
-    } else {
-      this.formattedExplanations.push({ questionIndex, explanation });
-    }
-  }
-
-  getFormattedExplanationForQuestion(questionIndex: number): string | undefined {
-    // Retrieve the explanation object
-    const formattedExplanationObj = this.formattedExplanations[questionIndex];
-
-    // Check if the explanation object exists and has an 'explanation' property
-    if (formattedExplanationObj && formattedExplanationObj.explanation) {
-      return formattedExplanationObj.explanation;
-    } else {
-      return undefined;
-    }
-  }
-
-  updateExplanationTextForCurrentAndNext(
-    currentExplanationText: string,
-    nextExplanationText: string
-  ) {
-    try {
-      this.currentExplanationTextSource.next(currentExplanationText);
-      this.nextExplanationTextSource.next(nextExplanationText);
-    } catch (error) {
-      console.error('Error updating explanation text:', error);
-    }
   }
 
   toggleExplanationDisplay(shouldDisplay: boolean): void {
@@ -350,7 +298,6 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   resetExplanationState() {
-    this.questionIndexCounter = 0;
     this.formattedExplanation$.next('');
     this.explanationTexts = {};
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
