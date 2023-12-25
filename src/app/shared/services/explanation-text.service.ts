@@ -27,7 +27,8 @@ export class ExplanationTextService implements OnDestroy {
     ''
   );
   formattedExplanations: Record<number, FormattedExplanation> = {};
-  formattedExplanations$: Subject<string>[] = [];
+  // formattedExplanations$: Subject<string>[] = [];
+  private formattedExplanations$: BehaviorSubject<string | null>[] = [];
   processedQuestions: Set<string> = new Set<string>();
   questionIndexCounter = 0;
 
@@ -230,17 +231,28 @@ export class ExplanationTextService implements OnDestroy {
   }
   
   private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
-    if (this.formattedExplanations$[questionIndex]) {
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
+    // Ensure the formattedExplanations$ array has enough elements
+    while (this.formattedExplanations$.length <= questionIndex) {
+      // Initialize additional elements with null
+      this.formattedExplanations$.push(new BehaviorSubject<string | null>(null));
+    }
+  
+    // Access the BehaviorSubject at the specified questionIndex
+    const subjectAtIndex = this.formattedExplanations$[questionIndex];
+  
+    if (subjectAtIndex) {
+      subjectAtIndex.next(formattedExplanation);
+      
+      // Update the formattedExplanations array
+      const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
+      this.formattedExplanations[questionIndex] = formattedExplanationObj;
+      
+      console.log("FEA", this.formattedExplanations[questionIndex]);
+      // this.updateExplanationForIndex(questionIndex, formattedExplanation);
     } else {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
     }
-    
-    const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
-    this.formattedExplanations[questionIndex] = formattedExplanationObj;
-    console.log("FEA", this.formattedExplanations[questionIndex]);
-    // this.updateExplanationForIndex(questionIndex, formattedExplanation);
-  }
+  }  
 
   public setCurrentQuestionExplanation(explanation: string) {
     this.currentQuestionExplanation = explanation;
