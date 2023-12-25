@@ -668,7 +668,7 @@ export class CodelabQuizContentComponent
     return '';
   }
   
-  private async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     try {
       console.log('Current question:', data.currentQuestion);
   
@@ -690,7 +690,7 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers =
         isMultipleAnswer &&
         isNavigatingToPrevious &&
-        !data.explanationText &&
+        !!data.explanationText &&
         !!data.questionText &&
         correctAnswers.length > 1;
   
