@@ -33,7 +33,6 @@
     "ngx-bootstrap": "6.1.0",
     "popper.js": "1.16.1",
     "rxjs": "^7.8.1",
-    "rxjs-compat": "^6.6.7",
     "tslib": "2.0.3",
     "typescript": "4.0.3",
     "zone.js": "0.11.1"
