@@ -478,17 +478,24 @@ export class CodelabQuizContentComponent
   }
   
   private calculateCombinedQuestionData(
-    currentQuestionData: { currentQuestion: QuizQuestion | null, currentOptions: Option[] },
+    currentQuestionData: {
+      currentQuestion: QuizQuestion | null;
+      currentOptions: Option[];
+    },
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
   ): Observable<any> {
     const { currentQuestion, currentOptions } = currentQuestionData;
   
-    const questionText = currentQuestion ? this.getQuestionText(currentQuestion, this.questions) : '';
+    const questionText = currentQuestion
+      ? this.getQuestionText(currentQuestion, this.questions)
+      : '';
   
     if (currentQuestion && this.questions.length > 0) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(
+        currentQuestion
+      );
   
       let correctAnswersText = '';
       if (
@@ -497,8 +504,13 @@ export class CodelabQuizContentComponent
         numberOfCorrectAnswers !== undefined &&
         numberOfCorrectAnswers > 1
       ) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+          numberOfCorrectAnswers
+        );
       }
+  
+      console.log('currentQuestion:', currentQuestion);
+      console.log('this.questions:', this.questions);
   
       return of({
         questionText,
@@ -522,7 +534,7 @@ export class CodelabQuizContentComponent
       });
     }
   }
-
+  
   private setupExplanationTextSubscription(): void {
     this.quizQuestionManagerService.explanationText$.subscribe(
       (explanationText) => {
