@@ -159,6 +159,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
 
+  isPaused = false;
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
@@ -187,14 +189,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       selectedOption: [''],
     });
 
-    /* this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
-      if (isHidden) {
-        // Page is now hidden, pause or delay updates in this component
-      } else {
-        // Page is now visible, resume updates in this component
-      }
-    }); */
+    this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+      this.handlePageVisibilityChange(isHidden);
+    });
   }
+
+  private handlePageVisibilityChange(isHidden: boolean): void {
+    if (isHidden) {
+      // Page is now hidden, pause or delay updates in this component
+      this.isPaused = true; // pause updates
+    } else {
+      // Page is now visible, resume updates in this component
+      this.isPaused = false; // Unpause updates
+      this.setExplanationText(this.currentQuestion, this.currentQuestionIndex);
+    }
+  }
+  
 
   async ngOnInit(): Promise<void> {
     this.selectedOption = null;
