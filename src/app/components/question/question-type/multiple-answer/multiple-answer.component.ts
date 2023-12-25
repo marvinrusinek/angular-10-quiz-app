@@ -10,7 +10,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -26,6 +26,7 @@ import { QuizQuestionManagerService } from '../../../../shared/services/quizques
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
+import { SharedVisibilityService } from '../../../../shared/services/shared-visibility.service';
 import { TimerService } from '../../../../shared/services/timer.service';
 
 @Component({
@@ -33,10 +34,10 @@ import { TimerService } from '../../../../shared/services/timer.service';
   templateUrl: './multiple-answer.component.html',
   styleUrls: [
     './multiple-answer.component.scss',
-    '../../question.component.scss',
+    '../../question.component.scss'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.ShadowDom,
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class MultipleAnswerComponent extends QuizQuestionComponent implements AfterViewInit, OnInit, OnChanges, OnDestroy {
   @Output() answer = new EventEmitter<number>();
@@ -72,6 +73,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     explanationTextService: ExplanationTextService,
     selectedOptionService: SelectedOptionService,
     selectionMessageService: SelectionMessageService,
+    sharedVisibilityService: SharedVisibilityService,
     timerService: TimerService,
     activatedRoute: ActivatedRoute,
     fb: FormBuilder,
@@ -86,6 +88,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       explanationTextService,
       selectedOptionService,
       selectionMessageService,
+      sharedVisibilityService,
       timerService,
       activatedRoute,
       fb,
@@ -99,6 +102,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.explanationTextService = explanationTextService;
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
+    this.sharedVisibilityService = sharedVisibilityService;
     this.selectedOptions = [];
   }
 
