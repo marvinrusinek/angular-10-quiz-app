@@ -158,6 +158,20 @@ export class CodelabQuizContentComponent
     this.subscribeToQuestionChanges();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
+
+    this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
+    .subscribe(data => {
+      console.log('Combined Question Data:', data);
+      if (data && data.currentQuestion) {
+        this.quizStateService.isMultipleAnswer(data.currentQuestion)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((isMultipleAnswer: boolean) => {
+            this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+          });
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
+      }
+    });
   }
 
   ngOnChanges(): void {
@@ -670,17 +684,16 @@ export class CodelabQuizContentComponent
   
   shouldDisplayCorrectAnswersText(data: any): void {
     if (!data || !data.currentQuestion) {
-      this.shouldDisplayCorrectAnswers = false;
+      this.displayCorrectAnswers = false;
       return;
     }
-  
+
     this.quizStateService.isMultipleAnswer(data.currentQuestion)
       .pipe(takeUntil(this.destroy$))
       .subscribe((isMultipleAnswer: boolean) => {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       });
   }
-  
 
   getNumberOfCorrectAnswers(data: any): number {
     const correctAnswers = data?.correctAnswers || [];
