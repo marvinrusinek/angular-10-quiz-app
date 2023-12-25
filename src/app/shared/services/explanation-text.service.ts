@@ -77,17 +77,6 @@ export class ExplanationTextService implements OnDestroy {
     this.maxIndex = Object.keys(this.explanationTexts).length - 1;
   }
 
-  storeFormattedExplanations(formattedExplanations: Record<number, string>) {
-    this.formattedExplanations = Object.keys(formattedExplanations).reduce((acc, key) => {
-        const questionIndex = Number(key);
-        acc[questionIndex] = {
-            questionIndex,
-            explanation: formattedExplanations[questionIndex]
-        };
-        return acc;
-    }, {} as Record<number, FormattedExplanation>);
-  }
-
   updateExplanationForIndex(index: number, explanation: string): void {
     if (this.explanationTexts[index]) {
       this.explanationTexts[index].next(explanation);
