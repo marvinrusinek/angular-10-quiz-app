@@ -190,11 +190,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+      console.log('Page visibility changed:', isHidden);
       this.handlePageVisibilityChange(isHidden);
     });
   }
 
-  private handlePageVisibilityChange(isHidden: boolean): void {
+  handlePageVisibilityChange(isHidden: boolean): void {
+    console.log('handlePageVisibilityChange called. IsHidden:', isHidden);
     if (isHidden) {
       // Page is now hidden, pause or delay updates in this component
       this.isPaused = true; // pause updates
