@@ -435,7 +435,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   loadCurrentQuestion(): void {
     if (document.hidden) {
-      // Page is hidden, pause loading the current question (optional)
       return;
     }
   

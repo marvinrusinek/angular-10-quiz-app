@@ -1222,7 +1222,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Check if the page is hidden
     if (document.hidden) {
-      // Page is hidden, handle accordingly (e.g., pause or delay updating explanation)
       return;
     }
 
