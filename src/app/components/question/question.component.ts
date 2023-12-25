@@ -1154,7 +1154,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         const questionIndex = questionsArray.findIndex((q) =>
           this.isSameQuestion(q, currentQuestion)
         );
-        this.setExplanationText(questionIndex);
+        this.setExplanationText(currentQuestion, questionIndex);
       },
       (error) => {
         console.error('Error fetching questions array:', error);
