@@ -1226,11 +1226,6 @@ export class QuizService implements OnDestroy {
     nextQuestion: QuizQuestion | null,
     explanationText: string
   ): void {
-    console.log(
-      'Setting current and next question in QuizService:',
-      nextQuestion
-    );
-
     // Set the next question
     this.nextQuestionSource.next(nextQuestion);
 
