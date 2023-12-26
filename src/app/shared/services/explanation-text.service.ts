@@ -77,14 +77,29 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   updateExplanationForIndex(index: number, explanation: string): void {
+    if (index < 0) {
+      console.error('Invalid index:', index);
+      return;
+    }
+  
+    if (!this.explanationTexts) {
+      this.explanationTexts = {}; // Initialize the object if it doesn't exist
+    }
+  
+    // Ensure there is a BehaviorSubject for the specified index
     if (!this.explanationTexts[index]) {
-      // Initialize the BehaviorSubject at the given index
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
     } else {
-      // If it already exists, update the value using next
+      // Check if the element at the specified index is a BehaviorSubject
+      if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
+        console.error('Invalid explanationTexts element at index', index);
+        return;
+      }
+  
+      // Update the value using next
       this.explanationTexts[index].next(explanation);
     }
-  }
+  }   
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     // Ensure that index is within the valid range
