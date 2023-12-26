@@ -66,15 +66,6 @@ export class QuizQuestionManagerService {
     this.shouldDisplayExplanation = displayed;
   }
 
-  setNumberOfCorrectAnswers(count: number): void {
-    this.numberOfCorrectAnswers = count;
-    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
-  }
-
-  getNumberOfCorrectAnswers(): number {
-    return this.numberOfCorrectAnswers;
-  }
-
   getNumberOfCorrectAnswersText(
     numberOfCorrectAnswers: number | undefined
   ): string {
