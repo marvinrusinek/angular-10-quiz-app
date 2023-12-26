@@ -289,7 +289,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private logInitialData(): void {
-    console.log('ngOnInit is called...');
     console.log('this.questionData:', this.questionData);
     console.log('this.data:', this.data);
     console.log('this.data.currentOptions:', this.data?.options);
@@ -468,7 +467,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private logFinalData(): void {
-    console.log('ngOnInit is called...');
     const data = {
       questionText: this.data.questionText,
       correctAnswersText: this.data.correctAnswersText || '',
