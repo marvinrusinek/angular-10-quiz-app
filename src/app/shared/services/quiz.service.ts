@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import {
   BehaviorSubject,
   from,
+  lastValueFrom,
   Observable,
   of,
   Subject,
@@ -15,7 +16,6 @@ import {
   distinctUntilChanged,
   filter,
   finalize,
-  lastValueFrom,
   map,
   shareReplay,
   switchMap,
