@@ -1,6 +1,6 @@
 # 🚀 Welcome to the Angular Quiz App! 🧠
 
-Are you ready to embark on an exciting journey into the world of Angular? Look no further! Our dynamic and engaging Quiz App has been meticulously crafted to challenge your understanding of Angular concepts and take your skills to new heights.
+Are you ready to embark on an exciting journey into the world of Angular? Look no further! This dynamic and engaging Quiz App has been meticulously crafted to challenge your understanding of Angular concepts and take your skills to new heights.
 
 ## 🎯 Aim of the App
 
@@ -8,11 +8,11 @@ The Angular Codelab Quiz App is your interactive learning companion, suitable fo
 
 ## 🛠️ Powered by Cutting-Edge Technologies
 
-Built with the latest web technologies, our app harnesses the full potential of Angular, TypeScript, RxJS, and Angular Material to provide a seamless and responsive user experience. Angular Material adds a touch of elegance and consistency to the app's design, making it visually appealing and incredibly user-friendly.
+Built with the latest web technologies, the app harnesses the full potential of Angular, TypeScript, RxJS, and Angular Material to provide a seamless and responsive user experience. Angular Material adds a touch of elegance and consistency to the app's design, making it visually appealing and incredibly user-friendly.
 
 ## 🌟 What's in Store
 
-This Quiz App is an ever-evolving project. We're constantly working on new features and improvements to make your learning experience fresh and captivating. Stay tuned for exciting updates that will keep you engaged.
+This Quiz App is an ever-evolving project, with new features and improvements to make your learning experience fresh and captivating. Stay tuned for exciting updates that will keep you engaged.
 
 ## 🎉 Ready to Get Started?
 
