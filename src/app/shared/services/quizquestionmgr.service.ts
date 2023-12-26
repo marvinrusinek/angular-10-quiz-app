@@ -5,7 +5,7 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QuizQuestionManagerService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
@@ -43,10 +43,6 @@ export class QuizQuestionManagerService {
       (option) => option.correct
     ).length;
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
-  }
-
-  getCurrentQuestion(): any {
-    return this.currentQuestion;
   }
 
   setExplanationText(explanation: string): void {
