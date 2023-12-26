@@ -1,18 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { catchError, distinctUntilChanged, throwError } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-enum QuestionType {
-  SingleAnswer = 'single_answer',
-  MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
-}
-
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QuizStateService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> 
@@ -24,7 +18,6 @@ export class QuizStateService {
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
 
-  private multipleAnswerSubject = new BehaviorSubject<boolean>(false);
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private quizQuestionCreated = false;
@@ -32,7 +25,7 @@ export class QuizStateService {
   constructor() {}
 
   setCurrentQuestion(question$: Observable<QuizQuestion | null>): void {
-    if (!question$) {
+    if (question$ === null || question$ === undefined) {
       throwError('Question$ is null or undefined.');
       return;
     }
@@ -43,7 +36,7 @@ export class QuizStateService {
         return throwError(error);
       }),
       distinctUntilChanged()
-    ).subscribe((question) => {
+    ).subscribe((question: QuizQuestion) => {
       this.currentQuestion.next(question);
       this.currentQuestionSubject.next(question);
       this.currentQuestionSource.next(question);
