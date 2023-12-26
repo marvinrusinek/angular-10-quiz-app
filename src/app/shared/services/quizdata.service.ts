@@ -365,8 +365,6 @@ export class QuizDataService implements OnDestroy {
       this.questionAndOptionsSubject.next(questionAndOptions);
     });
 
-    console.log('getQuestionAndOptions completed');
-
     return this.questionAndOptionsSubject
       .asObservable()
       .pipe(distinctUntilChanged());
