@@ -298,7 +298,6 @@ export class CodelabQuizContentComponent
   
   private storeExplanationTexts(explanationTexts: Record<number, BehaviorSubject<string>>): void {
     this.explanationTextService.explanationTexts = explanationTexts;
-    console.log('Explanation Texts from API:', explanationTexts);
   }
   
   private collectQuestionsWithExplanations(questions: QuizQuestion[]): void {
