@@ -56,8 +56,6 @@ export class ExplanationTextService implements OnDestroy {
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
-
-    console.log("MY EXPL TEXTS::", this.explanationTexts);
   }
 
   ngOnDestroy(): void {
@@ -71,13 +69,18 @@ export class ExplanationTextService implements OnDestroy {
 
   initializeExplanations(explanations: string[]): void {
     this.explanationTexts = explanations.reduce((acc, exp, index) => {
-      acc[index] = new BehaviorSubject<string>(exp);
+      acc[index] = {
+        explanationText: new BehaviorSubject<string>(exp),
+        formattedExplanation: new BehaviorSubject<string>(''), // Initialize formatted explanation as empty string
+      };
       return acc;
     }, {});
   
     this.maxIndex = Object.keys(this.explanationTexts).length - 1;
+  
+    console.log("MY EXPL TEXTS::", JSON.stringify(this.explanationTexts));
   }
-
+  
   updateExplanationForIndex(index: number, explanation: string): void {
     if (index < 0) {
       console.error('Invalid index:', index);
