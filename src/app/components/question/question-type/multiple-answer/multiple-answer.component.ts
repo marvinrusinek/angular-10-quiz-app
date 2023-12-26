@@ -48,7 +48,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     options: Option[];
   };
   @Input() question!: QuizQuestion;
-  // @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestionIndex!: number;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -103,6 +102,7 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
+
     this.selectedOptions = [];
   }
 
@@ -112,9 +112,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
       this.question
     );
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
-
-    console.log('data.currentOptions length:', this.data?.options?.length);
-    console.log('data.currentOptions:', this.data?.options);
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -176,7 +173,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
 
   getOptionClass(option: Option): string {
     const selectedOptions = this.selectedOptions ?? [];
-    const selectedOption = (this.currentQuestion?.selectedOptions || [])[0];
 
     if (
       Array.isArray(selectedOptions) &&
