@@ -56,6 +56,8 @@ export class ExplanationTextService implements OnDestroy {
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
+
+    console.log("MY EXPL TEXTS::", this.explanationTexts);
   }
 
   ngOnDestroy(): void {
