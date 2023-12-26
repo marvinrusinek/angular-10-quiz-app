@@ -639,9 +639,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       // Adjust for zero-based index: subtract 1
       this.currentQuestionIndex = routeQuestionIndex - 1;
-  
-      console.log('Received question index from route:', routeQuestionIndex);
-      console.log('Adjusted current question index:', this.currentQuestionIndex);
     });
   }
 
