@@ -504,7 +504,6 @@ export class CodelabQuizContentComponent
       }
   
       console.log('currentQuestion:', currentQuestion);
-      console.log('this.questions:', this.questions);
   
       return of({
         questionText,
