@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, delay, distinctUntilChanged, map } from 'rxjs/operators';
+import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -31,7 +31,7 @@ export class QuizStateService {
 
   constructor() {}
 
-  setCurrentQuestion(question$: Observable<QuizQuestion>): void {
+  setCurrentQuestion(question$: Observable<QuizQuestion | null>): void {
     if (!question$) {
       throwError('Question$ is null or undefined.');
       return;
@@ -85,13 +85,6 @@ export class QuizStateService {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
-  }
-  
-  setMultipleAnswer(value: boolean): void {
-    this.multipleAnswerSubject.next(value);
-    this.multipleAnswer$.subscribe((value) => {
-      this.multipleAnswerSubject.next(value);
-    });
   }
 
   setQuizQuestionCreated(): void {
