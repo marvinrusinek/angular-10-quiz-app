@@ -342,10 +342,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         const currentQuestionIndex = questionIndex - 1;
 
-        console.log('Current Question Index (Before):', currentQuestionIndex);
-        console.log('quizId:', quizId);
-        console.log('quizData:', quizData);
-
         // Check if quizData and this.quizId are defined
         if (quizData && quizId) {
           console.log('Both quizData and quizId are defined.');
