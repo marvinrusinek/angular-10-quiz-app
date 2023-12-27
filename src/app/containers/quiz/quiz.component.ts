@@ -571,7 +571,6 @@ export class QuizComponent implements OnInit, OnDestroy {
           this.quizService.showQuestionText$ = of(true);
           this.selectedOption$.next(null);
           this.explanationTextService.explanationText$.next('');
-          console.log('ngOnInit is called.');
           this.cdRef.detectChanges();
         } else {
           console.error(
