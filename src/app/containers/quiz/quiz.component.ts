@@ -243,16 +243,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Fetch and display the current question
     this.getQuestion();
     this.getCurrentQuestion();
+    this.initializeQuestionStreams();
+    this.createQuestionData();
+    this.subscribeToQuestionUpdates();
 
     // Additional initialization
     this.initializeFirstQuestionText();
 
     // Fetch additional quiz data
     this.fetchQuizData();
-  
-    this.initializeQuestionStreams();
-    this.createQuestionData();
-    this.subscribeToQuestionUpdates();
   }
 
   ngOnDestroy(): void {
@@ -274,62 +273,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.error('Selected quiz is null.');
       }
     });
-  }
-
-  initializeQuestionStreams(): void {
-    // Initialize questions stream
-    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-  
-    // Initialize next question and options streams
-    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
-  }
-
-  createQuestionData(): void {
-    const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
-      questionText: question?.questionText ?? null,
-      correctAnswersText: null,
-      options
-    });
-
-    // Combine nextQuestion$ and nextOptions$ using combineLatest
-    this.combinedQuestionData$ = combineLatest([
-      this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
-    ]).pipe(
-      switchMap(([nextQuestion, nextOptions]) =>
-        nextQuestion
-          ? of(createQuestionData(nextQuestion, nextOptions))
-          : combineLatest([
-              this.quizService.previousQuestion$,
-              this.quizService.previousOptions$
-            ]).pipe(
-              map(([previousQuestion, previousOptions]) => 
-                createQuestionData(previousQuestion, previousOptions)
-              )
-            )
-      )
-    );
-  }
-
-  subscribeToQuestionUpdates(): void {
-    combineLatest([
-      this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
-      this.quizService.previousQuestion$,
-      this.quizService.previousOptions$,
-    ])
-    .pipe(
-      map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => ({
-        question: nextQuestion ?? previousQuestion,
-        options: nextQuestion ? nextOptions : previousOptions,
-      })),
-      tap(({ question, options }) => {
-        this.question$ = of(question);
-        this.options$ = of(options);
-      })
-    )
-    .subscribe();
   }
 
   private initializeQuiz(): void {
@@ -699,6 +642,62 @@ export class QuizComponent implements OnInit, OnDestroy {
       }),
       map((question) => this.currentQuestion)
     );
+  }
+
+  initializeQuestionStreams(): void {
+    // Initialize questions stream
+    this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
+  
+    // Initialize next question and options streams
+    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
+  }
+
+  createQuestionData(): void {
+    const createQuestionData = (question: QuizQuestion | null, options: Option[] | null) => ({
+      questionText: question?.questionText ?? null,
+      correctAnswersText: null,
+      options
+    });
+
+    // Combine nextQuestion$ and nextOptions$ using combineLatest
+    this.combinedQuestionData$ = combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$,
+    ]).pipe(
+      switchMap(([nextQuestion, nextOptions]) =>
+        nextQuestion
+          ? of(createQuestionData(nextQuestion, nextOptions))
+          : combineLatest([
+              this.quizService.previousQuestion$,
+              this.quizService.previousOptions$
+            ]).pipe(
+              map(([previousQuestion, previousOptions]) => 
+                createQuestionData(previousQuestion, previousOptions)
+              )
+            )
+      )
+    );
+  }
+
+  subscribeToQuestionUpdates(): void {
+    combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$,
+      this.quizService.previousQuestion$,
+      this.quizService.previousOptions$,
+    ])
+    .pipe(
+      map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => ({
+        question: nextQuestion ?? previousQuestion,
+        options: nextQuestion ? nextOptions : previousOptions,
+      })),
+      tap(({ question, options }) => {
+        this.question$ = of(question);
+        this.options$ = of(options);
+      })
+    )
+    .subscribe();
   }
 
   async fetchQuizData(): Promise<void> {
