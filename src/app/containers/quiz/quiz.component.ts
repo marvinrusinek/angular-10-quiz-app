@@ -1332,6 +1332,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.optionsToDisplay = options;
     this.explanationToDisplay = explanationText;
   }
+
+  testNavigateToFirstQuestion(): void {
+    this.navigateToQuestion(0); // assuming 0 is the index for the first question
+  }
   
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
