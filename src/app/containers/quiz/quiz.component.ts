@@ -1278,13 +1278,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
 
-      console.log('Current Question Index Before:', this.currentQuestionIndex);
-      this.currentQuestionIndex--;
-      console.log('Current Question Index After:', this.currentQuestionIndex);
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-      
-      //this.currentQuestionIndex--;
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      if (this.currentQuestionIndex > 0) {
+        console.log('Current question index before decrement:', this.currentQuestionIndex);
+        this.currentQuestionIndex--;
+        console.log('Current question index after decrement:', this.currentQuestionIndex);
+
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      } else {
+        console.log('No previous question available.');
+      }
     } catch (error) {
       console.error(
         'Error occurred while navigating to the previous question:',
