@@ -228,7 +228,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
     console.log('Tab focused. Current question:', this.currentQuestion);
-    // Additional logic to re-initialize data if needed
   }
 
   ngOnInit(): void {
@@ -500,42 +499,22 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getSelectedQuiz(): void {
-    this.selectedQuizSubscription = this.quizDataService
-      .getSelectedQuiz()
-      .pipe(
-        filter((selectedQuiz) => !!selectedQuiz),
-        tap((selectedQuiz) => {
-          this.selectedQuiz = selectedQuiz;
-          this.quiz = selectedQuiz;
-          this.quizId = selectedQuiz.quizId;
-          this.quizDataService.setCurrentQuestionIndex(0);
-          this.question = selectedQuiz.questions[this.currentQuestionIndex];
-          this.handleQuizData(
-            selectedQuiz,
-            selectedQuiz.quizId,
-            this.currentQuestionIndex
-          );
-        }),
-        catchError((error) => {
-          console.error('Error occurred:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
-
-    this.quizDataService.selectedQuiz$
-      .pipe(
-        filter((quiz) => !!quiz),
-        distinctUntilChanged(),
-        tap((quiz) => {
-          this.quizId = quiz.quizId;
-        }),
-        catchError((error) => {
-          console.error('Error occurred:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
+    this.selectedQuizSubscription = this.quizDataService.getSelectedQuiz().pipe(
+      filter((selectedQuiz) => !!selectedQuiz),
+      tap(selectedQuiz => {
+        const { quizId, questions } = selectedQuiz;
+        this.selectedQuiz = selectedQuiz;
+        this.quiz = selectedQuiz;
+        this.quizId = quizId;
+        this.quizDataService.setCurrentQuestionIndex(0);
+        this.question = questions[this.currentQuestionIndex];
+        this.handleQuizData(selectedQuiz, quizId, this.currentQuestionIndex);
+      }),
+      catchError((error) => {
+        console.error('Error occurred:', error);
+        return of(null);
+      })
+    ).subscribe();
   }
 
   getExplanationText(): void {
