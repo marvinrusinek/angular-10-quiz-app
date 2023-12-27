@@ -1338,6 +1338,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.resetStateBetweenQuestions();
   
     const newIndex = this.isNextQuestion ? questionIndex + 1 : questionIndex;
+    console.log("NEW INDEX", newIndex);
     await this.navigateToQuestion(newIndex);
   }  
 
