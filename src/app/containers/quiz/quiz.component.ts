@@ -210,9 +210,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       selectedOption: [null]
     });
 
-    this.selectedQuiz$ =
-      this.quizService.getSelectedQuiz() as BehaviorSubject<Quiz>;
-
     this.isNavigatingToNext = false;
     this.elapsedTimeDisplay = 0;
 
