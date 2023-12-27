@@ -1242,8 +1242,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
       this.currentQuestionIndex++;
-
-      await this.fetchAndSetQuestionData();
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
     } catch (error) {
       console.error(
         'Error occurred while advancing to the next question:',
@@ -1269,8 +1268,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
       this.currentQuestionIndex--;
-
-      await this.fetchAndSetQuestionData();
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
     } catch (error) {
       console.error(
         'Error occurred while navigating to the previous question:',
@@ -1296,7 +1294,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async fetchAndSetQuestionData(): Promise<void> {
+  private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
@@ -1309,7 +1307,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { questionText, options, explanation } = await this.fetchQuestionDetails();
   
       this.setQuestionDetails(questionText, options, explanation);
-      await this.resetUIAndNavigate(this.currentQuestionIndex);
+      await this.resetUIAndNavigate(questionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
@@ -1335,10 +1333,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = explanationText;
   }
   
-  private async resetUIAndNavigate(targetQuestionIndex: number): Promise<void> {
+  private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
-    await this.navigateToQuestion(targetQuestionIndex);
+    await this.navigateToQuestion(questionIndex);
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
