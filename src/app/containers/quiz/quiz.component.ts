@@ -1309,7 +1309,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { questionText, options, explanation } = await this.fetchQuestionDetails();
   
       this.setQuestionDetails(questionText, options, explanation);
-      this.resetUIAndNavigate();
+      await this.resetUIAndNavigate(this.currentQuestionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
     }
@@ -1335,10 +1335,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationToDisplay = explanationText;
   }
   
-  private async resetUIAndNavigate(): Promise<void> {
+  private async resetUIAndNavigate(targetQuestionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
-    await this.navigateToQuestion(this.currentQuestionIndex + 1);
+    await this.navigateToQuestion(targetQuestionIndex);
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
