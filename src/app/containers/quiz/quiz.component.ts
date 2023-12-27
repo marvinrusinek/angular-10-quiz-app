@@ -1336,14 +1336,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
-
-    await this.navigateToQuestion(questionIndex + 1);
-    /* if (this.isNextQuestion) {
-      await this.navigateToQuestion(questionIndex + 1);
-    } else {
-      await this.navigateToQuestion(questionIndex - 1);
-    } */
-  }
+  
+    const newIndex = this.isNextQuestion ? questionIndex + 1 : questionIndex;
+    await this.navigateToQuestion(newIndex);
+  }  
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
     // Reset explanation text before navigating
