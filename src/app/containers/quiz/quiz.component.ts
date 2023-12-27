@@ -183,6 +183,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
 
+  isNextQuestion = false;
+
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
 
@@ -1230,6 +1232,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.isNavigating = true;
+    this.isNextQuestion = true;
 
     try {
       const totalQuestions: number = await this.quizService
@@ -1260,6 +1263,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.isNavigating = true;
+    this.isNextQuestion = false;
 
     try {
       if (this.currentQuestionIndex <= 0) {
@@ -1267,7 +1271,13 @@ export class QuizComponent implements OnInit, OnDestroy {
         return;
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
-      this.currentQuestionIndex--;
+
+      if (this.currentQuestionIndex > 0) {
+        this.currentQuestionIndex--;
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      }
+
+      //this.currentQuestionIndex--;
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
     } catch (error) {
       console.error(
@@ -1320,7 +1330,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async fetchQuestionDetails(): Promise<QuizQuestion> {
     const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-    const options = (await this.quizService.getNextOptions(this.currentQuestionIndex)) || [];
+    const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
     const explanationText = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
     
     return { questionText, options, explanationText };
@@ -1336,7 +1346,13 @@ export class QuizComponent implements OnInit, OnDestroy {
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
-    await this.navigateToQuestion(questionIndex);
+
+    await this.navigateToQuestion(questionIndex + 1);
+    /* if (this.isNextQuestion) {
+      await this.navigateToQuestion(questionIndex + 1);
+    } else {
+      await this.navigateToQuestion(questionIndex - 1);
+    } */
   }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
