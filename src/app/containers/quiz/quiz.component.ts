@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  HostListener,
   Input,
   OnDestroy,
   OnInit,
@@ -222,6 +223,12 @@ export class QuizComponent implements OnInit, OnDestroy {
         // Page is now visible, resume updates in this component
       }
     });
+  }
+
+  @HostListener('window:focus', ['$event'])
+  onFocus(event: FocusEvent): void {
+    console.log('Tab focused. Current question:', this.currentQuestion);
+    // Additional logic to re-initialize data if needed
   }
 
   ngOnInit(): void {
