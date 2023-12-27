@@ -1352,7 +1352,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizId
     )}/${questionIndex}`;
 
-    if (questionIndex >= 1) {
+    if (questionIndex >= 0) {
       this.quizService.updateCurrentQuestionIndex(questionIndex);
       this.currentQuestionIndex = questionIndex;
 
