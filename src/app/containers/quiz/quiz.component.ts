@@ -273,7 +273,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  initializeQuestionStreams() {
+  initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
   
@@ -688,8 +688,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.options$.pipe(take(1)),
     ]).toPromise();
 
-    this.handleQuestion(question);
-    this.handleOptions(options);
+    this.handleQuestion(question as QuizQuestion);
+    this.handleOptions(options as Option[]);
   }
 
   initializeFirstQuestionText(): void {
@@ -1244,7 +1244,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log('End of quiz reached.');
         return;
       }
+      console.log('Current Question Index Before:', this.currentQuestionIndex);
       this.currentQuestionIndex++;
+      console.log('Current Question Index After:', this.currentQuestionIndex);
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
     } catch (error) {
       console.error(
@@ -1272,11 +1274,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
 
-      if (this.currentQuestionIndex > 0) {
-        this.currentQuestionIndex--;
-        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
-      }
-
+      console.log('Current Question Index Before:', this.currentQuestionIndex);
+      this.currentQuestionIndex--;
+      console.log('Current Question Index After:', this.currentQuestionIndex);
+      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      
       //this.currentQuestionIndex--;
       await this.fetchAndSetQuestionData(this.currentQuestionIndex);
     } catch (error) {
