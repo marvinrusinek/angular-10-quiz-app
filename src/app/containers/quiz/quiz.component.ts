@@ -604,28 +604,33 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Initialize the previous quizId and questionIndex values to the current values
     let prevQuizId = this.quizId;
     let prevQuestionIndex = this.questionIndex;
-
+  
     this.getNextQuestion();
-
+  
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-
-    // Subscribe to the router events to detect changes in the quizId or questionIndex
-    this.routerSubscription = this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
+  
+    // Subscribe to the router events and handle paramMap changes
+    this.routerSubscription = this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      switchMap(() => {
+        // Extract and update quizId every time navigation ends
         const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
         this.quizId = quizId;
-        this.questionIndex = 0;
-
-        // Update the previous quizId and questionIndex values to the current values
-        prevQuizId = this.quizId;
-        prevQuestionIndex = this.questionIndex;
-
-        // Handle paramMap changes
-        this.activatedRoute.paramMap.subscribe((params) => {
-          this.handleParamMap(params);
-        });
-      });
+  
+        // Return an observable of the paramMap
+        return this.activatedRoute.paramMap;
+      })
+    ).subscribe((params: ParamMap) => {
+      // Update questionIndex based on paramMap
+      const questionIndex = +params.get('questionIndex') || 0;  // Adjust this line as needed
+      this.questionIndex = questionIndex;
+  
+      // Update the previous quizId and questionIndex values to the current values
+      prevQuizId = this.quizId;
+      prevQuestionIndex = this.questionIndex;
+  
+      this.handleParamMap(params);
+    });
   }
 
   initializeRouteParams(): void {
