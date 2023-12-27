@@ -622,7 +622,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       })
     ).subscribe((params: ParamMap) => {
       // Update questionIndex based on paramMap
-      const questionIndex = +params.get('questionIndex') || 0;  // Adjust this line as needed
+      const questionIndex = +params.get('questionIndex') || 0;
       this.questionIndex = questionIndex;
   
       // Update the previous quizId and questionIndex values to the current values
