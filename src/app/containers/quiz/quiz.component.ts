@@ -9,7 +9,8 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
-  Output
+  Output,
+  SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
