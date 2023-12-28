@@ -223,6 +223,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         // Page is now visible, resume updates in this component
       }
     });
+
+    this.router.events.subscribe(event => {
+      console.log(event);
+    });
   }
 
   @HostListener('window:focus', ['$event'])
