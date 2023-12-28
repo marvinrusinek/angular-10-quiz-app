@@ -1,10 +1,12 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
   HostListener,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output
@@ -92,7 +94,7 @@ enum QuestionType {
     HighlightDirective,
   ]
 })
-export class QuizComponent implements OnInit, OnDestroy {
+export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -261,6 +263,14 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription.unsubscribe();
     this.timerService.stopTimer(null);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('Component changes:', changes);
+  }
+  
+  ngAfterViewInit() {
+    console.log('View initialized. Current question:', this.currentQuestion);
   }
 
   subscribeToSelectedQuiz(): void {
@@ -1344,6 +1354,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.questionToDisplay = questionText;
     this.optionsToDisplay = options;
     this.explanationToDisplay = explanationText;
+
+    console.log('Question details updated in state:', { questionText, options, explanationText });
+    console.log('Current question after update:', this.currentQuestion);
   }
   
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
