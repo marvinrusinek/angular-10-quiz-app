@@ -1358,6 +1358,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
     console.log('Question details updated in state:', { questionText, options, explanationText });
     console.log('Current question after update:', this.currentQuestion);
+    this.cdRef.detectChanges();
   }
   
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
