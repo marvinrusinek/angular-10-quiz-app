@@ -1260,8 +1260,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
 
+      console.log('Current index before decrement:', this.currentQuestionIndex);
       if (this.currentQuestionIndex > 0) {
-        console.log('Current index before decrement:', this.currentQuestionIndex);
         this.currentQuestionIndex--;
         console.log('Current question index after decrement:', this.currentQuestionIndex);
 
