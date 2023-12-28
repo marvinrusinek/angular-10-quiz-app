@@ -52,7 +52,6 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
-
 import { SelectionMessageService } from '../../shared/services/selection-message.service';
 import { TimerService } from '../../shared/services/timer.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
@@ -87,13 +86,7 @@ enum QuestionType {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    FormBuilder,
-    QuizService,
-    QuizDataService,
-    QuizStateService,
-    HighlightDirective,
-  ]
+  providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
 export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Output() optionSelected = new EventEmitter<Option>();
