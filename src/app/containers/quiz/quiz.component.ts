@@ -1260,8 +1260,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
 
-      console.log('Current index before:', this.currentQuestionIndex);
       if (this.currentQuestionIndex > 0) {
+        console.log('Current index before decrement:', this.currentQuestionIndex);
         this.currentQuestionIndex--;
         console.log('Current question index after decrement:', this.currentQuestionIndex);
 
@@ -1339,6 +1339,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     const newIndex = this.isNextQuestion ? questionIndex + 1 : questionIndex;
     console.log("NEW INDEX", newIndex);
+    console.log('Navigating to index:', questionIndex);
     await this.navigateToQuestion(newIndex);
   }  
 
@@ -1352,6 +1353,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
       this.quizId
     )}/${questionIndex}`;
+    console.log(`Constructed URL for navigation: ${newUrl}`);
 
     if (questionIndex >= 0) {
       this.quizService.updateCurrentQuestionIndex(questionIndex);
