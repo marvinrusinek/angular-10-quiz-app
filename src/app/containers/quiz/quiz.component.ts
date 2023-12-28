@@ -1295,6 +1295,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
+    console.log('Entering fetchAndSetQuestionData with index:', questionIndex);
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
@@ -1307,6 +1308,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { questionText, options, explanation } = await this.fetchQuestionDetails();
   
       this.setQuestionDetails(questionText, options, explanation);
+      console.log('About to call resetUIAndNavigate with index:', questionIndex);
       await this.resetUIAndNavigate(questionIndex);
     } catch (error) {
       console.error('Error fetching and setting question data:', error);
