@@ -1299,8 +1299,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
-  
-      if (!await this.isQuestionIndexValid()) {
+
+      console.log('Entering fetchAndSetQuestionData with index:', questionIndex);
+
+      const isValidIndex = await this.isQuestionIndexValid();
+      console.log(`Index valid: ${isValidIndex}`);
+
+      if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
       }
@@ -1317,7 +1322,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private async isQuestionIndexValid(): Promise<boolean> {
     const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
-    return this.currentQuestionIndex >= 0 && this.currentQuestionIndex < totalQuestions;
+    const isValid = this.currentQuestionIndex >= 0 && this.currentQuestionIndex < totalQuestions;
+    console.log(`isQuestionIndexValid - Index: ${this.currentQuestionIndex}, Total: ${totalQuestions}, IsValid: ${isValid}`);
+    return isValid;
   }
   
   private async fetchQuestionDetails(): Promise<QuizQuestion> {
