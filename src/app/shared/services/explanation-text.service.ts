@@ -77,8 +77,6 @@ export class ExplanationTextService implements OnDestroy {
     }, {});
   
     this.maxIndex = Object.keys(this.explanationTexts).length - 1;
-  
-    console.log("MY EXPL TEXTS::", JSON.stringify(this.explanationTexts));
   }
   
   updateExplanationForIndex(index: number, explanation: string): void {
