@@ -320,7 +320,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
               currentQuestionIndex < currentQuiz.questions?.length
             ) {
               this.initializeQuizState();
-              this.loadCurrentQuestion();
 
               // Load the current question's explanation text
               if (
@@ -393,23 +392,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.quizDataService.selectedQuiz$.subscribe((quiz) => {
       this.selectedQuiz = quiz;
     });
-  }
-
-  loadCurrentQuestion(): void {
-    if (document.hidden) {
-      console.log('Document is hidden, not loading question');
-      return;
-    }
-  
-    this.currentQuestion$ = from(this.quizService.getCurrentQuestion()).pipe(
-      filter((currentQuestion: QuizQuestion | null): currentQuestion is QuizQuestion => {
-        return currentQuestion !== null;
-      }) as any,
-      tap((currentQuestion: QuizQuestion) => {
-        // Update the question text to display in the template
-        this.currentQuestionText = currentQuestion.questionText;
-      }) as any
-    );
   }
 
   getNextQuestion(): void {
