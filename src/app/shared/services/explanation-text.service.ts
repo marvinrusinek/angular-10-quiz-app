@@ -173,13 +173,10 @@ export class ExplanationTextService implements OnDestroy {
 
   updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
     // Verify that the index is valid and the array is initialized properly
-    if (!this.formattedExplanations$[questionIndex]) {
-      // If the observable at the given index is not initialized, initialize it
-      this.formattedExplanations$[questionIndex] = new Subject<string>();
+    if (this.formattedExplanations$[questionIndex]) {
+      // Update the explanation text based on the provided question index
+      this.formattedExplanations$[questionIndex].next(formattedExplanation);
     }
-  
-    // Update the explanation text based on the provided question index
-    this.formattedExplanations$[questionIndex].next(formattedExplanation);
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
