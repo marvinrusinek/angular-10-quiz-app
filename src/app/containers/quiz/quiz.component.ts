@@ -363,6 +363,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   }
 
   private fetchQuestionAndOptions(): void {
+    if (document.hidden) {
+      console.log('Document is hidden, not loading question');
+      return;
+    }
+
     this.quizDataService
       .getQuestionAndOptions(this.quizId, this.questionIndex)
       .subscribe(([question, options]) => {
