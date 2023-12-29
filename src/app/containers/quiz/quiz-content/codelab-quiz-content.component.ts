@@ -4,7 +4,7 @@ import {
   Input,
   OnInit,
   OnChanges,
-  OnDestroy,
+  OnDestroy
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
@@ -15,7 +15,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -25,7 +25,7 @@ import {
   switchMap,
   takeUntil,
   tap,
-  withLatestFrom,
+  withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
@@ -501,8 +501,6 @@ export class CodelabQuizContentComponent
           numberOfCorrectAnswers
         );
       }
-  
-      console.log('currentQuestion:', currentQuestion);
   
       return of({
         questionText,
