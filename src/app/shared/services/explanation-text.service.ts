@@ -163,14 +163,6 @@ export class ExplanationTextService implements OnDestroy {
     return this.formattedExplanation$.asObservable();
   }
 
-  getFormattedExplanationObservable(questionIndex: number): Observable<string> {
-    // Verify that the questionIndex is within the bounds of the array
-    if (questionIndex < 0 || questionIndex >= this.formattedExplanations$.length) {
-      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string>('');
-    }
-    return this.formattedExplanations$[questionIndex].asObservable();
-  }
-
   updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
     // Verify that the index is valid and the array is initialized properly
     if (this.formattedExplanations$[questionIndex]) {
