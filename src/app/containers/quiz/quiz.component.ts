@@ -397,6 +397,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
   loadCurrentQuestion(): void {
     if (document.hidden) {
+      console.log('Document is hidden, not loading question');
       return;
     }
   
@@ -567,6 +568,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
+      console.log('Route params:', params);
       this.quizId = params['quizId'];
   
       // Convert to a number and ensure it's not less than 1
@@ -574,6 +576,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   
       // Adjust for zero-based index: subtract 1
       this.currentQuestionIndex = routeQuestionIndex - 1;
+      console.log('Current question index:', this.currentQuestionIndex);
     });
   }
 
