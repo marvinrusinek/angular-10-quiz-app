@@ -1251,7 +1251,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     }
   }
 
-  async advanceToPreviousQuestion(): Promise<void> {
+  /* async advanceToPreviousQuestion(): Promise<void> {
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1284,6 +1284,43 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     } finally {
       this.isNavigatingToPrevious = false; // Reset after navigating
       this.isNavigating = false;
+    }
+  } */
+
+  async advanceToPreviousQuestion(): Promise<void> {
+    if (this.isNavigating) {
+        console.warn('Navigation already in progress. Aborting.');
+        return;
+    }
+
+    this.isNavigating = true;
+    this.isNextQuestion = false;
+
+    try {
+        if (this.currentQuestionIndex <= 0) {
+            console.log('No valid previous question available.');
+            return;
+        }
+        this.isNavigatingToPrevious = true; // Set to true before navigating
+
+        console.log('Current index before decrement:', this.currentQuestionIndex);
+
+        // Direct navigation test
+        if (this.currentQuestionIndex > 0) {
+            this.currentQuestionIndex--;
+            console.log('Current question index after decrement:', this.currentQuestionIndex);
+
+            // Replace the next line with a direct navigation for testing
+            await this.router.navigateByUrl('/question/dependency-injection/1');
+            console.log('Direct navigation to Q1 triggered.');
+        } else {
+            console.log('No previous question available.');
+        }
+    } catch (error) {
+        console.error('Error occurred while navigating to the previous question:', error);
+    } finally {
+        this.isNavigatingToPrevious = false; // Reset after navigating
+        this.isNavigating = false;
     }
   }
 
