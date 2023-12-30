@@ -132,6 +132,7 @@ export class ExplanationTextService implements OnDestroy {
     // Check if the numericIndex key exists in the explanationTexts Record
     if (this.explanationTexts.hasOwnProperty(numericIndex)) {
       const explanationSubject = this.explanationTexts[numericIndex];
+      console.log(`Found explanation subject for index ${numericIndex}:`, explanationSubject);
       if (explanationSubject instanceof BehaviorSubject) {
         return explanationSubject.asObservable();
       } else {
