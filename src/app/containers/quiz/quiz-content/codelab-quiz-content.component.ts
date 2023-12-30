@@ -546,7 +546,7 @@ export class CodelabQuizContentComponent
       return of('');
     } else {
       const textToDisplay = shouldDisplayExplanation ? this.explanationToDisplay || '' : this.questionToDisplay || '';
-      return of(textToDisplay).pipe(startWith(textToDisplay));
+      return of(textToDisplay);
     }
   }
 
