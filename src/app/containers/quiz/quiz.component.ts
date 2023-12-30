@@ -738,7 +738,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   
       if (explanationTexts && explanationTexts.length > 0) {
         console.log("Calling initializeExplanationTexts with:", explanationTexts);
-        this.explanationTextService.initializeExplanationTexts(["Hardcoded explanation 1", "Hardcoded explanation 2"]);
+        console.log("About to call initializeExplanationTexts");
+        this.explanationTextService.initializeExplanationTexts(explanationTexts);
       } else {
         console.log('No explanation texts were fetched dynamically');
       }

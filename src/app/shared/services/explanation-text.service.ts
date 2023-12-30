@@ -150,6 +150,7 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeExplanationTexts(explanations: string[]): void {
+    console.log("initializeExplanationTexts method called");
     console.log("Initializing explanation texts", explanations);
 
     // Initialize explanationTexts as an empty object
