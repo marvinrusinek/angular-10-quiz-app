@@ -11,7 +11,6 @@ import {
   BehaviorSubject,
   combineLatest,
   forkJoin,
-  from,
   Observable,
   of,
   Subject,
@@ -98,32 +97,17 @@ export class CodelabQuizContentComponent
 
   combinedText$: Observable<string>;
 
-  currentQuestionText: string;
-  currentDisplayText = '';
-  displayedText = '';
   displayCorrectAnswers = false;
-  showExplanation = false;
   isExplanationTextDisplayed = false;
   nextExplanationText = '';
-  nextExplanationText$: Observable<string>;
-  displayExplanation$: Observable<boolean>;
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  shouldDisplayExplanation$: Observable<boolean>;
   isExplanationDisplayed = false;
-  showNumberOfCorrectAnswersText = false;
   shouldDisplayCorrectAnswersText$: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
-
-  private isNavigatingToPreviousQuestion: Observable<boolean>;
-
-  private shouldDisplayCorrectAnswersSource = new BehaviorSubject<boolean>(false);
-  shouldDisplayCorrectAnswers$: Observable<boolean> =
-    this.shouldDisplayCorrectAnswersSource.asObservable();
-  shouldDisplayCorrectAnswersAfterQuestion = false;
 
   private destroy$ = new Subject<void>();
 
@@ -303,7 +287,7 @@ export class CodelabQuizContentComponent
   private collectQuestionsWithExplanations(questions: QuizQuestion[]): void {
     this.questionsWithExplanations = questions.map((question) => ({
       question,
-      explanation: question.explanation || '',
+      explanation: question.explanation || ''
     }));
   }
   
