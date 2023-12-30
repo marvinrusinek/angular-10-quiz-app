@@ -145,8 +145,19 @@ export class ExplanationTextService implements OnDestroy {
     }
   }
 
-  initializeExplanationTexts(explanations: string[]): void {
+  /* initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = explanations.map(explanation => new BehaviorSubject(explanation));
+  } */
+
+  initializeExplanationTexts(explanations: string[]): void {
+    this.explanationTexts = explanations.map((explanation, index) => {
+      // Check if an explanation is provided, if not, set a default or hardcoded explanation
+      if (!explanation && index === 1) { // Assuming index 1 corresponds to Q2
+        return new BehaviorSubject("Default or hardcoded explanation for Q2");
+      } else {
+        return new BehaviorSubject(explanation || "Default explanation for missing data");
+      }
+    });
   }
 
   fetchExplanationTexts(): string[] {
