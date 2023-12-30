@@ -1305,7 +1305,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       }
   
       const { questionText, options, explanation } = await this.fetchQuestionDetails();
-      console.log('Question details fetched:', { questionText, options, explanation });
+      console.log('Fetched Question Data:', { questionText, options, explanation });
   
       this.setQuestionDetails(questionText, options, explanation);
       console.log('Question details set, about to navigate');
