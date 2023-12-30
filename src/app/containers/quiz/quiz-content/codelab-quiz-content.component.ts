@@ -452,7 +452,7 @@ export class CodelabQuizContentComponent
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
         currentQuestion,
-        currentOptions,
+        currentOptions
       }))
     );
   }
@@ -496,7 +496,7 @@ export class CodelabQuizContentComponent
         correctAnswersText,
         currentOptions,
         isNavigatingToPrevious: false,
-        formattedExplanation,
+        formattedExplanation
       });
     } else {
       console.log('currentQuestion or this.questions is null');
@@ -507,7 +507,7 @@ export class CodelabQuizContentComponent
         correctAnswersText: '',
         currentOptions: [],
         isNavigatingToPrevious: false,
-        formattedExplanation: '',
+        formattedExplanation: ''
       });
     }
   }
@@ -520,86 +520,6 @@ export class CodelabQuizContentComponent
           : this.currentQuestion?.getValue()?.questionText || '';
       }
     );
-  }
-
-  private setupCombinedQuestionData(): void {
-    this.nextQuestion$ = this.quizService.nextQuestion$;
-    this.previousQuestion$ = this.quizService.previousQuestion$;
-    this.explanationText$ = this.explanationTextService.explanationText$;
-    this.shouldDisplayExplanation$ =
-      this.explanationTextService.shouldDisplayExplanation$;
-
-    this.isNavigatingToPreviousQuestion = combineLatest([
-      this.nextQuestion$,
-      this.quizService.nextOptions$
-    ]).pipe(
-      map(([nextQuestion, nextOptions]) => {
-        // Determine if navigating to a previous question
-        const targetQuestionIndex = this.quizService.currentQuestionIndex - 1;
-        return targetQuestionIndex >= 0; // Set to true if navigating to a previous question
-      })
-    );
-
-    const questionToDisplay$ = this.isNavigatingToPreviousQuestion.pipe(
-      switchMap((isNavigating) =>
-        isNavigating ? this.previousQuestion$ : this.nextQuestion$
-      )
-    );
-
-    this.isNavigatingToPreviousQuestion.subscribe((isNavigatingToPrevious) => {
-      forkJoin({
-        questionToDisplay: questionToDisplay$,
-        nextOptions: this.quizService.nextOptions$,
-        explanationText: this.explanationTextService.formattedExplanation$,
-        correctAnswersText: this.correctAnswersText$
-      })
-      .pipe(
-        switchMap(
-          ({
-            questionToDisplay,
-            nextOptions,
-            explanationText,
-            correctAnswersText
-          }) => {
-            return from(this.quizStateService.isMultipleAnswer(questionToDisplay)).pipe(
-              map(isMultipleAnswer => ({
-                questionToDisplay,
-                nextOptions,
-                explanationText,
-                correctAnswersText,
-                isMultipleAnswer
-              }))
-            );
-          }
-        ),
-        map(
-          ({
-            questionToDisplay,
-            nextOptions,
-            explanationText,
-            correctAnswersText,
-            isMultipleAnswer
-          }) => {
-            const questionText = isNavigatingToPrevious
-              ? `${this.previousQuestionText} ${correctAnswersText}`
-              : questionToDisplay?.questionText || '';
-  
-            return {
-              questionText: isMultipleAnswer ? `${questionText} (Multiple Answers)` : questionText,
-              explanationText: explanationText,
-              correctAnswersText: correctAnswersText,
-              currentQuestion: questionToDisplay || null,
-              currentOptions: nextOptions || [],
-              isNavigatingToPrevious: isNavigatingToPrevious
-            };
-          }
-        )
-      )
-      .subscribe((combinedData) => {
-        console.log('Combined Data:', combinedData);
-        this.combinedQuestionData$ = of(combinedData as CombinedDataType);
-      });
-    });  
   }
 
   private setupOptions(): void {
