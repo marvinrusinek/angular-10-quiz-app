@@ -170,6 +170,7 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   fetchExplanationTexts(): string[] {
+    console.log("Current explanationTexts:", this.explanationTexts);
     return Object.values(this.explanationTexts).map(subject => subject.value);
   }
 
