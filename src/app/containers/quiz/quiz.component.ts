@@ -116,7 +116,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   currentQuestionText: string = '';
   currentOptions: Option[] = [];
   options$: Observable<Option[]>;
-  optionsSet = false;
   currentQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject(null);
   selectedQuizSubscription: Subscription;
@@ -161,7 +160,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     question: QuizQuestion;
     options: Option[];
   }>(null);
-
   combinedQuestionData$: Observable<any> =
     this.combinedQuestionDataSubject.asObservable();
 
