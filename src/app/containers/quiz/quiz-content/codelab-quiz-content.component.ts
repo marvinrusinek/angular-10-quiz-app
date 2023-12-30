@@ -423,7 +423,7 @@ export class CodelabQuizContentComponent
       currentQuestionAndOptions$,
       this.numberOfCorrectAnswers$,
       this.isExplanationTextDisplayed$,
-      this.formattedExplanation$,
+      this.formattedExplanation$
     ]).pipe(
       switchMap(([currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) =>
         this.calculateCombinedQuestionData(currentQuestionData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation)
