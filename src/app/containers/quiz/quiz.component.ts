@@ -734,11 +734,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
       const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
-      console.log('Dynamically fetched explanation texts:', explanationTexts);
+      console.log('Fetched explanation texts:', explanationTexts);
   
       if (explanationTexts && explanationTexts.length > 0) {
-        console.log('Before initializing explanation texts:', explanationTexts);
-        this.explanationTextService.initializeExplanationTexts(explanationTexts);
+        console.log("Calling initializeExplanationTexts with:", explanationTexts);
+        this.explanationTextService.initializeExplanationTexts(["Hardcoded explanation 1", "Hardcoded explanation 2"]);
       } else {
         console.log('No explanation texts were fetched dynamically');
       }
