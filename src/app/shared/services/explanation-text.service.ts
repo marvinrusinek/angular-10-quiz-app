@@ -129,17 +129,17 @@ export class ExplanationTextService implements OnDestroy {
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
 
-    // Check if the index is within the valid range
-    if (numericIndex < 0 || numericIndex > this.maxIndex) {
-      console.warn(`Invalid index: ${numericIndex}, must be within the valid range`);
-      return of(undefined);
-    }
-
-    const explanationSubject = this.explanationTexts[numericIndex];
-    if (explanationSubject instanceof BehaviorSubject) {
-      return explanationSubject.asObservable();
+    // Check if the numericIndex key exists in the explanationTexts Record
+    if (this.explanationTexts.hasOwnProperty(numericIndex)) {
+      const explanationSubject = this.explanationTexts[numericIndex];
+      if (explanationSubject instanceof BehaviorSubject) {
+        return explanationSubject.asObservable();
+      } else {
+        console.warn(`No explanation text found at index ${numericIndex}`);
+        return of(undefined);
+      }
     } else {
-      console.warn(`No explanation text found at index ${index}`);
+      console.warn(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
       return of(undefined);
     }
   }
