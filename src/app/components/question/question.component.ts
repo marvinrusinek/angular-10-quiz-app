@@ -1224,13 +1224,13 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const nextQuestion = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
 
-    this.explanationTextService.setCurrentQuestionExplanation(nextQuestion.explanation);
+    this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
 
     const formattedExplanation =
       await this.explanationTextService.formatExplanationText(
-        nextQuestion,
+        questionData,
         questionIndex
       );
 
