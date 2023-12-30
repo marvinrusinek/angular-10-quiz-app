@@ -150,14 +150,23 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   initializeExplanationTexts(explanations: string[]): void {
+    console.log("Initializing explanation texts", explanations);
+
     this.explanationTexts = explanations.map((explanation, index) => {
-      // Check if an explanation is provided, if not, set a default or hardcoded explanation
-      if (!explanation && index === 1) { // Assuming index 1 corresponds to Q2
-        return new BehaviorSubject("Default or hardcoded explanation for Q2");
-      } else {
-        return new BehaviorSubject(explanation || "Default explanation for missing data");
-      }
+        console.log(`Processing explanation for index ${index}:`, explanation);
+
+        // Check if an explanation is provided, if not, set a default or hardcoded explanation
+        if (!explanation && index === 1) { // Assuming index 1 corresponds to Q2
+            console.log("Setting hardcoded explanation for Q2");
+            return new BehaviorSubject("Default or hardcoded explanation for Q2");
+        } else {
+            const text = explanation || "Default explanation for missing data";
+            console.log(`Setting explanation for index ${index}:`, text);
+            return new BehaviorSubject(text);
+        }
     });
+
+    console.log("Final explanation texts:", this.explanationTexts);
   }
 
   fetchExplanationTexts(): string[] {
