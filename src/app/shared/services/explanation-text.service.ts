@@ -167,9 +167,13 @@ export class ExplanationTextService implements OnDestroy {
     console.log("Final explanation texts:", this.explanationTexts);
   }
 
-  fetchExplanationTexts(): string[] {
+  /* fetchExplanationTexts(): string[] {
     console.log("Current explanationTexts:", this.explanationTexts);
     return Object.values(this.explanationTexts).map(subject => subject.value);
+  } */
+
+  fetchExplanationTexts(): Promise<string[]> {
+    return Promise.resolve(["Hardcoded explanation 1", "Hardcoded explanation 2"]);
   }
 
   // Retrieve explanation for a specific question
