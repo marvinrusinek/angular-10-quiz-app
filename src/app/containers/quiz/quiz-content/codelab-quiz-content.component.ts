@@ -240,7 +240,7 @@ export class CodelabQuizContentComponent
           console.error('Error in getCurrentQuestionIndex$ subscription:', error);
         }
       });
-  }  
+  }
   
   private subscribeToExplanationChanges(): void {
     this.selectedOptionSubscription =
@@ -377,11 +377,7 @@ export class CodelabQuizContentComponent
   
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
-    console.log('Setting explanation text for question index:', questionIndex);
-    console.log('Fetching explanation text for question index:', questionIndex);
-    console.log('Explanation text from the API:', nextExplanationText);
     this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, nextExplanationText);
-    console.log('Set explanation for index', questionIndex, ':', nextExplanationText);
   }
 
   updateExplanationForQuestion(question: QuizQuestion): void {
@@ -430,11 +426,8 @@ export class CodelabQuizContentComponent
     const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
 
     this.explanationText$ = combineLatest([explanationText$, selectedOptionExplanation$]).pipe(
-      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText),
-      tap(explanation => console.log('Final Explanation:', explanation))
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
     ) as Observable<string>;
-
-    console.log('Explanation Text Observable::>>', this.explanationText$);
 
     this.explanationText$.subscribe({
       next: displayText => console.log('Received Explanation Text::>>', displayText),
