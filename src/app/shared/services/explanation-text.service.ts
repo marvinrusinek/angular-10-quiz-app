@@ -128,8 +128,13 @@ export class ExplanationTextService implements OnDestroy {
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-    
+
     console.log(`Checking explanation for index ${numericIndex}:`, this.explanationTexts[numericIndex]);
+
+    if (numericIndex === 1) { // Assuming index 1 corresponds to Q2
+      console.log("Hardcoded explanation for Q2");
+    }
+    console.log(`Explanation for Q2:`, this.explanationTexts[1].value);
 
     // Check if the numericIndex key exists in the explanationTexts Record
     if (this.explanationTexts.hasOwnProperty(numericIndex)) {
