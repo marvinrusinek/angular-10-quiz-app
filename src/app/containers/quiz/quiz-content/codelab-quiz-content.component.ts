@@ -428,12 +428,6 @@ export class CodelabQuizContentComponent
     this.explanationText$ = combineLatest([explanationText$, selectedOptionExplanation$]).pipe(
       map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
     ) as Observable<string>;
-
-    this.explanationText$.subscribe({
-      next: displayText => console.log('Received Explanation Text::>>', displayText),
-      complete: () => console.log('Explanation Text Observable completed.'),
-      error: err => console.error('Error in Explanation Text Observable:', err)
-    });
   }
 
   private initializeCombinedQuestionData(): void {
