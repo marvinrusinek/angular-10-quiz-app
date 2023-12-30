@@ -1349,11 +1349,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
   
-    const newIndex = this.isNextQuestion ? questionIndex + 1 : questionIndex;
+    // If navigating to the next question, increment the index.
+    // If navigating to the previous question, decrement the index.
+    const newIndex = this.isNextQuestion ? questionIndex + 1 : questionIndex - 1;
     console.log("NEW INDEX", newIndex);
-    console.log('Navigating to index:', questionIndex);
+
+    // Use newIndex for navigation
+    console.log('Navigating to index:', newIndex);
     await this.navigateToQuestion(newIndex);
-  }  
+  }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
     // Reset explanation text before navigating
