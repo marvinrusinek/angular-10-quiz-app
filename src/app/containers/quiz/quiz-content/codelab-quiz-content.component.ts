@@ -511,16 +511,6 @@ export class CodelabQuizContentComponent
       });
     }
   }
-  
-  private setupExplanationTextSubscription(): void {
-    this.quizQuestionManagerService.explanationText$.subscribe(
-      (explanationText) => {
-        this.currentDisplayText = explanationText
-          ? explanationText
-          : this.currentQuestion?.getValue()?.questionText || '';
-      }
-    );
-  }
 
   private setupOptions(): void {
     // Update the options$ initialization using combineLatest
