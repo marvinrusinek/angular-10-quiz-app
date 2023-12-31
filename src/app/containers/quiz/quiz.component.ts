@@ -237,6 +237,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.getSelectedQuiz();
     this.subscribeToSelectedQuiz();
 
+    // Additional initialization
+    this.initializeFirstQuestionText();
+
     // Fetch and display the current question
     this.getQuestion();
     this.getCurrentQuestion();
@@ -555,10 +558,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
       // Convert the one-based index from the URL to a zero-based index for internal use
       const routeQuestionIndex = Math.max(+params['questionIndex'], 1); 
-      // this.currentQuestionIndex = routeQuestionIndex - 1;
-      // console.log('Current question index:', this.currentQuestionIndex);
-
-      this.initializeFirstQuestionText();
     });
   }
 
@@ -615,14 +614,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   }
 
   initializeFirstQuestionText(): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions: QuizQuestion[]) => {
-      if (questions && questions.length > 0) {
-        this.questions = questions;
-        this.questionToDisplay = questions[0].questionText;
-      } else {
-        console.warn('Question not found or invalid index');
-      }
-    });
+    this.quizDataService
+      .getQuestionsForQuiz(this.quizId)
+      .subscribe((questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.questionToDisplay = questions[0].questionText;
+        }
+      });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
