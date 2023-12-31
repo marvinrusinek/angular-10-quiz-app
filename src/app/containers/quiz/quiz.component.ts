@@ -555,8 +555,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.activatedRoute.params.subscribe((params) => {
       console.log('Route params:', params);
       this.quizId = params['quizId'];
-      const routeQuestionIndex = +params['questionIndex'];
-      this.currentQuestionIndex = routeQuestionIndex - 1;
+      const routeQuestionIndex = Math.max(+params['questionIndex'], 1); // Ensure index is at least 1
+      this.currentQuestionIndex = routeQuestionIndex - 1; // Convert to zero-based index
   
       // Convert to a number and ensure it's not less than 1
       // const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
