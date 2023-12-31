@@ -1230,6 +1230,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
         console.log('Current Question Index After:', this.currentQuestionIndex);
+        console.log('Navigating to next question. Index:', this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index");
@@ -1265,6 +1266,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       if (this.currentQuestionIndex > 0) {
         this.currentQuestionIndex--;
         console.log('Current question index after decrement:', this.currentQuestionIndex);
+        console.log('Navigating to previous question. Index:', this.currentQuestionIndex);
 
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
