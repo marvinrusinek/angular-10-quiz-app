@@ -1305,7 +1305,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         return;
       }
   
-      const { questionText, options, explanation } = await this.fetchQuestionDetails();
+      const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
       console.log('Fetched Question Data:', { questionText, options, explanation });
   
       this.setQuestionDetails(questionText, options, explanation);
@@ -1327,11 +1327,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     return isValid;
   }
   
-  private async fetchQuestionDetails(): Promise<QuizQuestion> {
-    const questionText = await this.quizService.getQuestionTextForIndex(this.currentQuestionIndex);
-    const options = await this.quizService.getNextOptions(this.currentQuestionIndex) || [];
-    const explanation = await this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex).toPromise();
-    console.log(`Fetched explanation for index ${this.currentQuestionIndex}:`, explanation);
+  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    // Fetching question details based on the provided questionIndex
+    const questionText = await this.quizService.getQuestionTextForIndex(questionIndex);
+    const options = await this.quizService.getNextOptions(questionIndex) || [];
+    const explanation = await this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).toPromise();
+    console.log(`Fetched explanation for index ${questionIndex}:`, explanation);
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
     this.quizDataService.setQuestionType(question);
