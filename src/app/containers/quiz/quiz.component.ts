@@ -226,7 +226,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
   ngOnInit(): void {
     // Subscribe to router events and initialize
-    this.subscribeRouterAndInit();
     this.initializeRouteParams();
 
     // Set up observables
@@ -518,50 +517,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     return typeof item === 'object' && 'quizId' in item;
   }
 
-  subscribeRouterAndInit(): void {
-    // Initialize the previous quizId and questionIndex values to the current values
-    let prevQuizId = this.quizId;
-    let prevQuestionIndex = this.questionIndex;
-  
-    this.getNextQuestion();
-  
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-  
-    // Subscribe to the router events and handle paramMap changes
-    this.routerSubscription = this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
-      switchMap(() => {
-        // Extract and update quizId every time navigation ends
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        this.quizId = quizId;
-  
-        // Return an observable of the paramMap
-        return this.activatedRoute.paramMap;
-      })
-    ).subscribe((params: ParamMap) => {
-      // Update questionIndex based on paramMap
-      const questionIndex = +params.get('questionIndex') || 0;
-      this.questionIndex = questionIndex;
-  
-      // Update the previous quizId and questionIndex values to the current values
-      prevQuizId = this.quizId;
-      prevQuestionIndex = this.questionIndex;
-  
-      this.handleParamMap(params);
-    });
-  }
-
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
-      console.log('Route params:', params);
-      this.quizId = params['quizId'];
-  
-      // Convert to a number and ensure it's not less than 1
-      const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
-  
-      // Adjust for zero-based index: subtract 1
-      this.currentQuestionIndex = routeQuestionIndex - 1;
-      console.log('Current question index:', this.currentQuestionIndex);
+        console.log('Route params:', params);
+
+        // Update quizId
+        this.quizId = params['quizId'];
+
+        // Update questionIndex and fetch question data
+        const routeQuestionIndex = Math.max(+params['questionIndex'], 1) - 1; // Adjust for zero-based index
+        if (this.currentQuestionIndex !== routeQuestionIndex) {
+            this.currentQuestionIndex = routeQuestionIndex;
+            console.log('Current question index:', this.currentQuestionIndex);
+            this.fetchAndSetQuestionData(this.currentQuestionIndex);
+        }
     });
   }
 
