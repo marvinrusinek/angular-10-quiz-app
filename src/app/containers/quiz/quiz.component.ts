@@ -1227,9 +1227,13 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         return;
       }
       console.log('Current Question Index Before:', this.currentQuestionIndex);
-      this.currentQuestionIndex++;
-      console.log('Current Question Index After:', this.currentQuestionIndex);
-      await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      if (this.currentQuestionIndex < totalQuestions - 1) {
+        this.currentQuestionIndex++;
+        console.log('Current Question Index After:', this.currentQuestionIndex);
+        await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+      } else {
+        console.log("Cannot navigate to invalid index");
+      }
     } catch (error) {
       console.error(
         'Error occurred while advancing to the next question:',
