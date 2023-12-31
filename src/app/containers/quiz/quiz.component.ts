@@ -558,7 +558,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
       // Convert the one-based index from the URL to a zero-based index for internal use
       const routeQuestionIndex = Math.max(+params['questionIndex'], 1); 
-      this.updateQuestionDisplay(routeQuestionIndex);
+      this.loadAndDisplayQuestion(routeQuestionIndex);
     });
   }
 
@@ -614,12 +614,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.handleOptions(options as Option[]);
   }
 
-  loadFirstQuestion(): void {
+  loadAndDisplayQuestion(questionIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId)
         .subscribe((questions: QuizQuestion[]) => {
-            if (questions && questions.length > 0) {
+            if (questions && questions.length > questionIndex) {
                 this.questions = questions;
-                this.updateQuestionDisplay(0); // Display the first question
+                this.questionToDisplay = questions[questionIndex].questionText;
+                this.optionsToDisplay = questions[questionIndex].options; // Update options here as well
+            } else {
+                console.warn('Question not found or invalid index');
             }
         });
   }
@@ -1238,7 +1241,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         this.currentQuestionIndex++;
         console.log('Current Question Index After:', this.currentQuestionIndex);
         console.log('Navigating to next question. Index:', this.currentQuestionIndex);
-        this.updateQuestionDisplay(this.currentQuestionIndex);
+        this.loadAndDisplayQuestion(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1276,7 +1279,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.log('Previous - New index:', this.currentQuestionIndex);
         console.log('Current question index after decrement:', this.currentQuestionIndex);
         console.log('Navigating to previous question. Index:', this.currentQuestionIndex);
-        this.updateQuestionDisplay(this.currentQuestionIndex);
+        this.loadAndDisplayQuestion(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log('Already at the first question. No action taken.');
