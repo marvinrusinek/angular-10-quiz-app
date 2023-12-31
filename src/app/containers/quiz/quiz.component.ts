@@ -244,9 +244,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.createQuestionData();
     this.subscribeToQuestionUpdates();
 
-    // Additional initialization
-    this.initializeFirstQuestionText();
-
     // Fetch additional quiz data
     this.fetchQuizData();
   }
@@ -558,9 +555,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
       // Convert the one-based index from the URL to a zero-based index for internal use
       const routeQuestionIndex = Math.max(+params['questionIndex'], 1); 
-      this.currentQuestionIndex = routeQuestionIndex - 1;
+      // this.currentQuestionIndex = routeQuestionIndex - 1;
+      // console.log('Current question index:', this.currentQuestionIndex);
 
-      console.log('Current question index:', this.currentQuestionIndex);
+      this.initializeQuestionText(routeQuestionIndex);
     });
   }
 
@@ -616,15 +614,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.handleOptions(options as Option[]);
   }
 
-  initializeFirstQuestionText(): void {
-    this.quizDataService
-      .getQuestionsForQuiz(this.quizId)
-      .subscribe((questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          this.questions = questions;
-          this.questionToDisplay = questions[0].questionText;
+  initializeQuestionText(questionIndex: number): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions: QuizQuestion[]) => {
+        if (questions && questions.length > questionIndex) {
+            this.questions = questions;
+            this.questionToDisplay = questions[questionIndex].questionText;
+        } else {
+            console.warn('Question not found or invalid index');
+            // Additional error handling
         }
-      });
+    });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
