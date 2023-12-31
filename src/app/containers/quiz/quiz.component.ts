@@ -555,12 +555,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.activatedRoute.params.subscribe((params) => {
       console.log('Route params:', params);
       this.quizId = params['quizId'];
+      const routeQuestionIndex = +params['questionIndex'];
+      this.currentQuestionIndex = routeQuestionIndex - 1;
   
       // Convert to a number and ensure it's not less than 1
-      const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
+      // const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
   
       // Adjust for zero-based index: subtract 1
-      this.currentQuestionIndex = routeQuestionIndex - 1;
+      // this.currentQuestionIndex = routeQuestionIndex - 1;
       console.log('Current question index:', this.currentQuestionIndex);
     });
   }
@@ -1271,7 +1273,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
-        console.log('No previous question available.');
+        console.log('Already at the first question. No action taken.');
+        return; // Early exit if already at the first question
       }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:',
@@ -1367,8 +1370,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
     console.log("Navigating to index:", questionIndex);
 
+    const adjustedIndexForUrl = questionIndex + 1;
+
     // Directly use questionIndex for navigation
-    await this.navigateToQuestion(questionIndex);
+    await this.navigateToQuestion(adjustedIndexForUrl);
   }
 
   /* private async resetUIAndNavigate(questionIndex: number): Promise<void> {
