@@ -1353,14 +1353,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
-
-    console.log('Navigating to index:', questionIndex);
-    await this.navigateToQuestion(questionIndex);
-  }
-  
-  /* private async resetUIAndNavigate(questionIndex: number): Promise<void> {
-    this.resetUI();
-    this.explanationTextService.resetStateBetweenQuestions();
   
     let newIndex: number;
 
@@ -1376,7 +1368,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
     // Use newIndex for navigation
     await this.navigateToQuestion(newIndex);
-  } */
+  }
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
     // Reset explanation text before navigating
