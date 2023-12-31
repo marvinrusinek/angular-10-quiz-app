@@ -1401,6 +1401,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
+    // Adjust for one-based URL index
+    const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+    console.log(`Attempting to navigate to URL: ${newUrl}`);
+
+    try {
+        await this.router.navigateByUrl(newUrl);
+        console.log(`Successfully navigated to URL: ${newUrl}`);
+    } catch (error) {
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
+    }
+  }
+
+  /* async navigateToQuestion(questionIndex: number): Promise<void> {
+    // Reset explanation text before navigating
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.resetStateBetweenQuestions();
+
     // Check if the questionIndex is valid
     if (questionIndex < 0) {
         console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
@@ -1408,8 +1426,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     }
 
     // Adjust for one-based URL index
-    const adjustedIndexForUrl = questionIndex + 1;
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
+    // const adjustedIndexForUrl = questionIndex + 1;
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
     console.log(`Attempting to navigate to URL: ${newUrl}`);
 
     // Update the current question index
@@ -1423,7 +1441,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.error(`Error navigating to URL: ${newUrl}:`, error);
         // Optionally, handle the error with more specific actions
     }
-  }
+  } */
 
   // Reset UI immediately before navigating
   private resetUI(): void {
