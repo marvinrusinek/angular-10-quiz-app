@@ -555,14 +555,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.activatedRoute.params.subscribe((params) => {
       console.log('Route params:', params);
       this.quizId = params['quizId'];
+
       const routeQuestionIndex = Math.max(+params['questionIndex'], 1); // Ensure index is at least 1
-      this.currentQuestionIndex = routeQuestionIndex - 1; // Convert to zero-based index
-  
-      // Convert to a number and ensure it's not less than 1
-      // const routeQuestionIndex = Math.max(+params['questionIndex'], 1);
-  
-      // Adjust for zero-based index: subtract 1
-      // this.currentQuestionIndex = routeQuestionIndex - 1;
+      const internalIndex = routeQuestionIndex - 1; // Convert to zero-based index
+
+      this.currentQuestionIndex = internalIndex;
       console.log('Current question index:', this.currentQuestionIndex);
     });
   }
@@ -1391,10 +1388,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     console.log(`Attempting to navigate to URL: ${newUrl}`);
 
     try {
-        await this.router.navigateByUrl(newUrl);
-        console.log(`Successfully navigated to URL: ${newUrl}`);
+      await this.router.navigateByUrl(newUrl);
+      console.log(`Successfully navigated to URL: ${newUrl}`);
     } catch (error) {
-        console.error(`Error navigating to URL: ${newUrl}:`, error);
+      console.error(`Error navigating to URL: ${newUrl}:`, error);
     }
   }
 
