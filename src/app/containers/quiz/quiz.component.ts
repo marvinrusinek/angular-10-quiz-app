@@ -1266,8 +1266,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.log('No previous question available.');
       }
     } catch (error) {
-      console.error(
-        'Error occurred while navigating to the previous question:',
+      console.error('Error occurred while navigating to the previous question:',
         error
       );
     } finally {
