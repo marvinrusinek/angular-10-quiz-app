@@ -1401,20 +1401,27 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
-    const adjustedIndexForUrl = questionIndex + 1; // Adjust for one-based URL index
+    // Check if the questionIndex is valid
+    if (questionIndex < 0) {
+        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+        return;
+    }
+
+    // Adjust for one-based URL index
+    const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
     console.log(`Attempting to navigate to URL: ${newUrl}`);
 
-    if (questionIndex >= 0) {
-        this.quizService.updateCurrentQuestionIndex(questionIndex);
-        this.currentQuestionIndex = questionIndex;
+    // Update the current question index
+    this.quizService.updateCurrentQuestionIndex(questionIndex);
+    this.currentQuestionIndex = questionIndex;
 
-        try {
-            await this.router.navigateByUrl(newUrl);
-            console.log(`Successfully navigated to Question ${newUrl}.`);
-        } catch (error) {
-            console.error(`Error navigating to Question ${newUrl}:`, error);
-        }
+    try {
+        await this.router.navigateByUrl(newUrl);
+        console.log(`Successfully navigated to URL: ${newUrl}`);
+    } catch (error) {
+        console.error(`Error navigating to URL: ${newUrl}:`, error);
+        // Optionally, handle the error with more specific actions
     }
   }
 
