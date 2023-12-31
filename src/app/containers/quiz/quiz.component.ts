@@ -1291,31 +1291,34 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
     console.log('Entering fetchAndSetQuestionData with index:', questionIndex);
-  
+
     try {
-      this.animationState$.next('animationStarted');
-      this.explanationTextService.setShouldDisplayExplanation(false);
-  
-      const isValidIndex = await this.isQuestionIndexValid(questionIndex);
-      console.log(`Index valid: ${isValidIndex}`);
-  
-      if (!isValidIndex) {
-        console.warn('Invalid question index. Aborting.');
-        return;
-      }
-  
-      const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
-      console.log('Fetched Question Data:', { questionText, options, explanation });
-  
-      this.setQuestionDetails(questionText, options, explanation);
-      console.log('Question details set, about to navigate');
-  
-      console.log('About to call resetUIAndNavigate with index:', questionIndex);
-      await this.resetUIAndNavigate(questionIndex);
+        this.animationState$.next('animationStarted');
+        this.explanationTextService.setShouldDisplayExplanation(false);
+
+        const isValidIndex = await this.isQuestionIndexValid(questionIndex);
+        console.log(`Index valid: ${isValidIndex}`);
+
+        if (!isValidIndex) {
+            console.warn('Invalid question index. Aborting.');
+            return;
+        }
+
+        const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
+        console.log(`Fetched data for question index ${questionIndex}:`);
+        console.log('Question Text:', questionText);
+        console.log('Options:', options);
+        console.log('Explanation:', explanation);
+
+        this.setQuestionDetails(questionText, options, explanation);
+        console.log('Question details set, about to navigate');
+
+        console.log('About to call resetUIAndNavigate with index:', questionIndex);
+        await this.resetUIAndNavigate(questionIndex);
     } catch (error) {
-      console.error('Error in fetchAndSetQuestionData:', error);
+        console.error('Error in fetchAndSetQuestionData:', error);
     }
-  
+
     console.log('Exiting fetchAndSetQuestionData');
   }
   
