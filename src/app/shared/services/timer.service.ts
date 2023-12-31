@@ -146,6 +146,17 @@ export class TimerService {
     }
   }
 
+  setElapsed(time: number): void {
+    this.elapsedTime = time;
+  }
+
+  calculateTotalElapsedTime(elapsedTimes: number[]): number {
+    if (elapsedTimes.length > 0) {
+      this.completionTime = elapsedTimes.reduce((acc, cur) => acc + cur, 0);
+      return this.completionTime;
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();

@@ -1221,7 +1221,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         .getTotalQuestions()
         .toPromise();
 
-      if (this.currentQuestionIndex >= totalQuestions - 1) {
+      if (this.currentQuestionIndex < totalQuestions - 1) {
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
         return;
