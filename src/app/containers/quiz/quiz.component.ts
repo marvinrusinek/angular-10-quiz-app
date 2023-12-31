@@ -558,7 +558,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       // this.currentQuestionIndex = routeQuestionIndex - 1;
       // console.log('Current question index:', this.currentQuestionIndex);
 
-      this.initializeQuestionText(routeQuestionIndex);
+      this.initializeFirstQuestionText();
     });
   }
 
@@ -614,11 +614,11 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.handleOptions(options as Option[]);
   }
 
-  initializeQuestionText(questionIndex: number): void {
+  initializeFirstQuestionText(): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions: QuizQuestion[]) => {
-      if (questions && questions.length > questionIndex) {
+      if (questions && questions.length > 0) {
         this.questions = questions;
-        this.questionToDisplay = questions[questionIndex].questionText;
+        this.questionToDisplay = questions[0].questionText;
       } else {
         console.warn('Question not found or invalid index');
       }
