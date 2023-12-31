@@ -178,7 +178,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
 
-  isNextQuestion = false;
+  isNextQuestion: boolean;
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
@@ -1241,6 +1241,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
+    console.log('advanceToPreviousQuestion called');
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1356,6 +1357,16 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
+
+    console.log("Navigating to index:", questionIndex);
+
+    // Directly use questionIndex for navigation
+    await this.navigateToQuestion(questionIndex);
+  }
+
+  /* private async resetUIAndNavigate(questionIndex: number): Promise<void> {
+    this.resetUI();
+    this.explanationTextService.resetStateBetweenQuestions();
   
     let newIndex: number;
 
@@ -1367,14 +1378,13 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     } else {
       // If navigating to the previous question, decrement the index.
       newIndex = questionIndex - 1;
-      console.log("TEST THIS");
     }
 
     console.log("Calculated new index for navigation:", newIndex);
 
     // Use newIndex for navigation
     await this.navigateToQuestion(newIndex);
-  }
+  } */
 
   async navigateToQuestion(questionIndex: number): Promise<void> {
     // Reset explanation text before navigating
@@ -1386,6 +1396,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
       this.quizId
     )}/${questionIndex}`;
+    console.log(`Attempting to navigate to URL: ${newUrl}`);
     console.log(`Constructed URL for navigation: ${newUrl}`);
 
     if (questionIndex >= 0) {
