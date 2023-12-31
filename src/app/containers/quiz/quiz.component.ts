@@ -1359,12 +1359,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   
     let newIndex: number;
 
+    console.log("INQ", this.isNextQuestion);
+
     if (this.isNextQuestion) {
       // If navigating to the next question, increment the index.
       newIndex = questionIndex + 1;
     } else {
       // If navigating to the previous question, decrement the index.
       newIndex = questionIndex - 1;
+      console.log("TEST THIS");
     }
 
     console.log("Calculated new index for navigation:", newIndex);
