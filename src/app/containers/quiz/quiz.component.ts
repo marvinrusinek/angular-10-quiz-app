@@ -238,7 +238,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.subscribeToSelectedQuiz();
 
     // Additional initialization
-    this.initializeFirstQuestionText();
+    this.loadFirstQuestion();
 
     // Fetch and display the current question
     this.getQuestion();
@@ -558,6 +558,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
       // Convert the one-based index from the URL to a zero-based index for internal use
       const routeQuestionIndex = Math.max(+params['questionIndex'], 1); 
+      this.updateQuestionDisplay(routeQuestionIndex);
     });
   }
 
@@ -613,15 +614,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.handleOptions(options as Option[]);
   }
 
-  initializeFirstQuestionText(): void {
-    this.quizDataService
-      .getQuestionsForQuiz(this.quizId)
-      .subscribe((questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          this.questions = questions;
-          this.questionToDisplay = questions[0].questionText;
-        }
-      });
+  loadFirstQuestion(): void {
+    this.quizDataService.getQuestionsForQuiz(this.quizId)
+        .subscribe((questions: QuizQuestion[]) => {
+            if (questions && questions.length > 0) {
+                this.questions = questions;
+                this.updateQuestionDisplay(0); // Display the first question
+            }
+        });
+  }
+
+  updateQuestionDisplay(index: number): void {
+    if (this.questions && this.questions.length > index) {
+        this.questionToDisplay = this.questions[index].questionText;
+        // Ensure that options and any other relevant data are also updated
+    } else {
+        console.warn('Question not found or invalid index');
+        // Handle invalid index or empty questions array
+    }
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
@@ -1228,6 +1238,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         this.currentQuestionIndex++;
         console.log('Current Question Index After:', this.currentQuestionIndex);
         console.log('Navigating to next question. Index:', this.currentQuestionIndex);
+        this.updateQuestionDisplay(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1265,7 +1276,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.log('Previous - New index:', this.currentQuestionIndex);
         console.log('Current question index after decrement:', this.currentQuestionIndex);
         console.log('Navigating to previous question. Index:', this.currentQuestionIndex);
-
+        this.updateQuestionDisplay(this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log('Already at the first question. No action taken.');
