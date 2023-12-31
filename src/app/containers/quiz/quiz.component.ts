@@ -616,17 +616,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.handleOptions(options as Option[]);
   }
 
-  initializeQuestionText(questionIndex: number): void {
-    this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions: QuizQuestion[]) => {
-      if (questions && questions.length > questionIndex) {
-        this.questions = questions;
-        this.questionToDisplay = questions[questionIndex].questionText;
-      } else {
-        // Handle empty questions array or invalid index
-        console.warn('Invalid question index or no questions available.');
-        // Consider redirecting to a 'not found' page or handling this scenario appropriately
-      }
-    });
+  initializeFirstQuestionText(): void {
+    this.quizDataService
+      .getQuestionsForQuiz(this.quizId)
+      .subscribe((questions: QuizQuestion[]) => {
+        if (questions && questions.length > 0) {
+          this.questions = questions;
+          this.questionToDisplay = questions[0].questionText;
+        }
+      });
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
