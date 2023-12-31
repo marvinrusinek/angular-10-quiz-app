@@ -1226,6 +1226,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.log('End of quiz reached.');
         return;
       }
+
       console.log('Current Question Index Before:', this.currentQuestionIndex);
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
@@ -1233,7 +1234,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.log('Navigating to next question. Index:', this.currentQuestionIndex);
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
-        console.log("Cannot navigate to invalid index");
+        console.log("Cannot navigate to invalid index.");
       }
     } catch (error) {
       console.error(
@@ -1398,10 +1399,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
     // Reset explanation text before navigating
     this.explanationTextService.resetStateBetweenQuestions();
-
+    const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(
       this.quizId
-    )}/${questionIndex}`;
+    )}/${adjustedIndexForUrl}`;
     console.log(`Attempting to navigate to URL: ${newUrl}`);
     console.log(`Constructed URL for navigation: ${newUrl}`);
 
