@@ -616,13 +616,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
   initializeQuestionText(questionIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe((questions: QuizQuestion[]) => {
-        if (questions && questions.length > questionIndex) {
-            this.questions = questions;
-            this.questionToDisplay = questions[questionIndex].questionText;
-        } else {
-            console.warn('Question not found or invalid index');
-            // Additional error handling
-        }
+      if (questions && questions.length > questionIndex) {
+        this.questions = questions;
+        this.questionToDisplay = questions[questionIndex].questionText;
+      } else {
+        console.warn('Question not found or invalid index');
+      }
     });
   }
 
