@@ -1297,7 +1297,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
   
-      const isValidIndex = await this.isQuestionIndexValid();
+      const isValidIndex = await this.isQuestionIndexValid(questionIndex);
       console.log(`Index valid: ${isValidIndex}`);
   
       if (!isValidIndex) {
@@ -1320,10 +1320,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     console.log('Exiting fetchAndSetQuestionData');
   }
   
-  private async isQuestionIndexValid(): Promise<boolean> {
+  private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
     const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
-    const isValid = this.currentQuestionIndex >= 0 && this.currentQuestionIndex < totalQuestions;
-    console.log(`isQuestionIndexValid - Index: ${this.currentQuestionIndex}, Total: ${totalQuestions}, IsValid: ${isValid}`);
+    const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
+    console.log(`isQuestionIndexValid - Index: ${questionIndex}, Total: ${totalQuestions}, IsValid: ${isValid}`);
     return isValid;
   }
   
