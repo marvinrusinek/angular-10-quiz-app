@@ -1268,13 +1268,14 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       console.log('Current index before decrement:', this.currentQuestionIndex);
       if (this.currentQuestionIndex > 0) {
         this.currentQuestionIndex--;
+        console.log('Previous - New index:', this.currentQuestionIndex);
         console.log('Current question index after decrement:', this.currentQuestionIndex);
         console.log('Navigating to previous question. Index:', this.currentQuestionIndex);
 
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log('Already at the first question. No action taken.');
-        return; // Early exit if already at the first question
+        return;
       }
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:',
@@ -1374,32 +1375,15 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     await this.navigateToQuestion(questionIndex);
   }
 
-  /* private async resetUIAndNavigate(questionIndex: number): Promise<void> {
-    this.resetUI();
-    this.explanationTextService.resetStateBetweenQuestions();
-  
-    let newIndex: number;
-
-    console.log("INQ", this.isNextQuestion);
-
-    if (this.isNextQuestion) {
-      // If navigating to the next question, increment the index.
-      newIndex = questionIndex + 1;
-    } else {
-      // If navigating to the previous question, decrement the index.
-      newIndex = questionIndex - 1;
-    }
-
-    console.log("Calculated new index for navigation:", newIndex);
-
-    // Use newIndex for navigation
-    await this.navigateToQuestion(newIndex);
-  } */
-
   async navigateToQuestion(questionIndex: number): Promise<void> {
     // Reset explanation text before navigating
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
+
+    if (questionIndex < 0) {
+      console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
+      return;
+    }
 
     // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
@@ -1413,35 +1397,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         console.error(`Error navigating to URL: ${newUrl}:`, error);
     }
   }
-
-  /* async navigateToQuestion(questionIndex: number): Promise<void> {
-    // Reset explanation text before navigating
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.resetStateBetweenQuestions();
-
-    // Check if the questionIndex is valid
-    if (questionIndex < 0) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
-        return;
-    }
-
-    // Adjust for one-based URL index
-    // const adjustedIndexForUrl = questionIndex + 1;
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
-    console.log(`Attempting to navigate to URL: ${newUrl}`);
-
-    // Update the current question index
-    this.quizService.updateCurrentQuestionIndex(questionIndex);
-    this.currentQuestionIndex = questionIndex;
-
-    try {
-        await this.router.navigateByUrl(newUrl);
-        console.log(`Successfully navigated to URL: ${newUrl}`);
-    } catch (error) {
-        console.error(`Error navigating to URL: ${newUrl}:`, error);
-        // Optionally, handle the error with more specific actions
-    }
-  } */
 
   // Reset UI immediately before navigating
   private resetUI(): void {
