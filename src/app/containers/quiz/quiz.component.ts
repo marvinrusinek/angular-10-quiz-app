@@ -1370,10 +1370,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
 
     console.log("Navigating to index:", questionIndex);
 
-    const adjustedIndexForUrl = questionIndex + 1;
-
     // Directly use questionIndex for navigation
-    await this.navigateToQuestion(adjustedIndexForUrl);
+    await this.navigateToQuestion(questionIndex);
   }
 
   /* private async resetUIAndNavigate(questionIndex: number): Promise<void> {
@@ -1403,7 +1401,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
-    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${questionIndex}`;
+    const adjustedIndexForUrl = questionIndex + 1; // Adjust for one-based URL index
+    const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
     console.log(`Attempting to navigate to URL: ${newUrl}`);
 
     if (questionIndex >= 0) {
