@@ -559,7 +559,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       // Convert the one-based index from the URL to a zero-based index for internal use
       // const routeQuestionIndex = Math.max(+params['questionIndex'], 1); 
       const routeQuestionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
-      this.updateQuestionDisplay(routeQuestionIndex);
+      
+      if (routeQuestionIndex === 0) {
+        this.initializeFirstQuestionText();
+      } else {
+        this.updateQuestionDisplay(routeQuestionIndex);
+      }
     });
   }
 
