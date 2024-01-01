@@ -618,6 +618,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.quizDataService.getQuestionsForQuiz(this.quizId)
         .subscribe((questions: QuizQuestion[]) => {
             if (questions && questions.length > questionIndex) {
+              console.log('Question to display:', this.questionToDisplay);
                 this.questionToDisplay = questions[questionIndex].questionText;
                 console.log("Question text to display:", this.questionToDisplay); // Debugging log
             } else {
