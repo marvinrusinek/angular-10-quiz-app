@@ -214,7 +214,7 @@ export class ExplanationTextService implements OnDestroy {
       .filter(index => index !== null);
   }
   
-  private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
+  /* private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
     if (correctOptionIndices.length > 1) {
       question.type = QuestionType.MultipleAnswer;
       return `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
@@ -224,7 +224,25 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       return 'No correct option selected...';
     }
-  }
+  } */
+
+  private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
+    if (correctOptionIndices.length > 1) {
+      question.type = QuestionType.MultipleAnswer;
+      
+      // Join all but the last index with ', ', and the last one with ' and '
+      let optionsText = correctOptionIndices.length > 2 
+        ? `${correctOptionIndices.slice(0, -1).join(', ')} and ${correctOptionIndices.slice(-1)}` 
+        : correctOptionIndices.join(' and ');
+  
+      return `Options ${optionsText} are correct because ${question.explanation}`;
+    } else if (correctOptionIndices.length === 1) {
+      question.type = QuestionType.SingleAnswer;
+      return `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
+    } else {
+      return 'No correct option selected...';
+    }
+  }  
   
   private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
     if (!this.formattedExplanations$[questionIndex]) {
