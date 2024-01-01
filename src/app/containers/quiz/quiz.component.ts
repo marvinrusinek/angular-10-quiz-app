@@ -1369,7 +1369,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.resetStateBetweenQuestions();
 
-    if (questionIndex < 0) {
+    if (questionIndex < 0 || questionIndex === undefined) {
       console.warn(`Invalid questionIndex: ${questionIndex}. Navigation aborted.`);
       return;
     }
