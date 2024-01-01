@@ -559,7 +559,20 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       // Convert the one-based index from the URL to a zero-based index for internal use
       // const routeQuestionIndex = Math.max(+params['questionIndex'], 1); 
       const routeQuestionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
+      this.updateQuestionDisplay(routeQuestionIndex);
     });
+  }
+
+  updateQuestionDisplay(questionIndex: number): void {
+    // Check if the index is within the bounds of the questions array
+    if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
+        // Update the component properties with the details of the specified question
+        const selectedQuestion = this.questions[questionIndex];
+        this.questionToDisplay = selectedQuestion.questionText;
+        this.optionsToDisplay = selectedQuestion.options;
+    } else {
+        console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
+    }
   }
 
   setObservables(): void {
@@ -624,16 +637,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
           this.optionsToDisplay = questions[0].options;
         }
       });
-  }
-
-  updateQuestionDisplay(index: number): void {
-    if (this.questions && this.questions.length > index) {
-        this.questionToDisplay = this.questions[index].questionText;
-        // Ensure that options and any other relevant data are also updated
-    } else {
-        console.warn('Question not found or invalid index');
-        // Handle invalid index or empty questions array
-    }
   }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
