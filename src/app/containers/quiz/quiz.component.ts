@@ -617,13 +617,17 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   loadAndDisplayQuestion(questionIndex: number): void {
     this.quizDataService.getQuestionsForQuiz(this.quizId)
         .subscribe((questions: QuizQuestion[]) => {
+            console.log("Fetched questions:", questions); // Add this for debugging
+
             if (questions && questions.length > questionIndex) {
                 this.questions = questions;
                 this.questionToDisplay = questions[questionIndex].questionText;
-                this.optionsToDisplay = questions[questionIndex].options; // Update options here as well
+                this.optionsToDisplay = questions[questionIndex].options;
             } else {
                 console.warn('Question not found or invalid index');
             }
+        }, error => {
+            console.error("Error fetching questions:", error);
         });
   }
 
