@@ -96,6 +96,7 @@ export class ExplanationTextService implements OnDestroy {
       // Check if the element at the specified index is a BehaviorSubject
       if (!(this.explanationTexts[index] instanceof BehaviorSubject)) {
         console.error('Invalid explanationTexts element at index', index);
+        console.log('Current content at index:', this.explanationTexts[index]);
         return;
       }
   
