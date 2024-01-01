@@ -1241,7 +1241,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       console.log('Current Question Index Before:', this.currentQuestionIndex);
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
-        
+
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1308,33 +1308,24 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   }
 
   private async fetchAndSetQuestionData(questionIndex: number): Promise<void> {
-    console.log('Entering fetchAndSetQuestionData with index:', questionIndex);
-
     try {
-        this.animationState$.next('animationStarted');
-        this.explanationTextService.setShouldDisplayExplanation(false);
+      this.animationState$.next('animationStarted');
+      this.explanationTextService.setShouldDisplayExplanation(false);
 
-        const isValidIndex = await this.isQuestionIndexValid(questionIndex);
-        console.log(`Index valid: ${isValidIndex}`);
+      const isValidIndex = await this.isQuestionIndexValid(questionIndex);
 
-        if (!isValidIndex) {
-            console.warn('Invalid question index. Aborting.');
-            return;
-        }
+      if (!isValidIndex) {
+        console.warn('Invalid question index. Aborting.');
+        return;
+      }
 
-        const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
-        console.log(`Fetched data for question index ${questionIndex}:`);
-        console.log('Question Text:', questionText);
-        console.log('Options:', options);
-        console.log('Explanation:', explanation);
+      const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
 
-        this.setQuestionDetails(questionText, options, explanation);
-        console.log('Question details set, about to navigate');
-
-        console.log('About to call resetUIAndNavigate with index:', questionIndex);
-        await this.resetUIAndNavigate(questionIndex);
+      this.setQuestionDetails(questionText, options, explanation);
+     
+      await this.resetUIAndNavigate(questionIndex);
     } catch (error) {
-        console.error('Error in fetchAndSetQuestionData:', error);
+      console.error('Error in fetchAndSetQuestionData:', error);
     }
 
     console.log('Exiting fetchAndSetQuestionData');
@@ -1343,7 +1334,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
     const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
     const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
-    console.log(`isQuestionIndexValid - Index: ${questionIndex}, Total: ${totalQuestions}, IsValid: ${isValid}`);
+
     return isValid;
   }
   
@@ -1352,7 +1343,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     const questionText = await this.quizService.getQuestionTextForIndex(questionIndex);
     const options = await this.quizService.getNextOptions(questionIndex) || [];
     const explanation = await this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).toPromise();
-    console.log(`Fetched explanation for index ${questionIndex}:`, explanation);
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
     this.quizDataService.setQuestionType(question);
@@ -1365,19 +1355,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.questionToDisplay = questionText;
     this.optionsToDisplay = options;
     this.explanationToDisplay = explanationText;
-
-    console.log('Question details updated in state:', { questionText, options, explanationText });
-    console.log('Current question after update:', this.currentQuestion);
-    this.cdRef.detectChanges();
   }
 
   private async resetUIAndNavigate(questionIndex: number): Promise<void> {
     this.resetUI();
     this.explanationTextService.resetStateBetweenQuestions();
 
-    console.log("Navigating to index:", questionIndex);
-
-    // Directly use questionIndex for navigation
     await this.navigateToQuestion(questionIndex);
   }
 
@@ -1394,11 +1377,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     // Adjust for one-based URL index
     const adjustedIndexForUrl = questionIndex + 1;
     const newUrl = `${QuizRoutes.QUESTION}${encodeURIComponent(this.quizId)}/${adjustedIndexForUrl}`;
-    console.log(`Attempting to navigate to URL: ${newUrl}`);
 
     try {
       await this.router.navigateByUrl(newUrl);
-      console.log(`Successfully navigated to URL: ${newUrl}`);
     } catch (error) {
       console.error(`Error navigating to URL: ${newUrl}:`, error);
     }
