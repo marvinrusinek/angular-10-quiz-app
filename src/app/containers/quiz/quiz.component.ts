@@ -1241,8 +1241,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       console.log('Current Question Index Before:', this.currentQuestionIndex);
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
-        console.log('Current Question Index After:', this.currentQuestionIndex);
-        console.log('Navigating to next question. Index:', this.currentQuestionIndex);
+        
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1258,7 +1257,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
   }
 
   async advanceToPreviousQuestion(): Promise<void> {
-    console.log('advanceToPreviousQuestion called');
     if (this.isNavigating) {
       console.warn('Navigation already in progress. Aborting.');
       return;
@@ -1277,11 +1275,10 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       console.log('Current index before decrement:', this.currentQuestionIndex);
       if (this.currentQuestionIndex > 0) {
         this.currentQuestionIndex--;
-
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
+
         this.resetUI();
         this.explanationTextService.resetStateBetweenQuestions();
-        // await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log('Already at the first question. No action taken.');
         return;
