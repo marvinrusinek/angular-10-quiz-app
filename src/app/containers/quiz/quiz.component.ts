@@ -1277,11 +1277,9 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
       console.log('Current index before decrement:', this.currentQuestionIndex);
       if (this.currentQuestionIndex > 0) {
         this.currentQuestionIndex--;
-        console.log('Previous - New index:', this.currentQuestionIndex);
-        console.log('Current question index after decrement:', this.currentQuestionIndex);
-        console.log('Navigating to previous question. Index:', this.currentQuestionIndex);
+
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
-        //await this.fetchAndSetQuestionData(this.currentQuestionIndex);
+        // await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log('Already at the first question. No action taken.');
         return;
