@@ -1279,6 +1279,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
         this.currentQuestionIndex--;
 
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
+        this.resetUI();
+        this.explanationTextService.resetStateBetweenQuestions();
         // await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log('Already at the first question. No action taken.');
