@@ -237,9 +237,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.getSelectedQuiz();
     this.subscribeToSelectedQuiz();
 
-    // Additional initialization
-    this.initializeFirstQuestionText();
-
     // Fetch and display the current question
     this.getQuestion();
     this.getCurrentQuestion();
