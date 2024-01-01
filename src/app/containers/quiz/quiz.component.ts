@@ -6,11 +6,9 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
-  Output,
-  SimpleChanges
+  Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -88,7 +86,7 @@ enum QuestionType {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
-export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -255,10 +253,6 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy, AfterViewIni
     this.selectedQuizSubscription?.unsubscribe();
     this.routerSubscription.unsubscribe();
     this.timerService.stopTimer(null);
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('Component changes:', changes);
   }
   
   ngAfterViewInit() {
