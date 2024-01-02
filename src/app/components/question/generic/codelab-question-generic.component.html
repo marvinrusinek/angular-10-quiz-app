@@ -2,40 +2,36 @@
   <!-- Multiple Answer Logic -->
   <ng-container *ngSwitchCase="'multiple'">
     <codelab-question-multiple-answer
-          [form]="questionForm"
-          [data]="data"
-          [question]="questionToDisplay"
-          [questions]="questions"
-          [questionData]="questionData"
-          [currentQuestion$]="currentQuestion$"
-          [currentQuestionIndex]="currentQuestionIndex"
-          [options]="getOptionsForQuestion()"
-          [optionsToDisplay]="optionsToDisplay"
-          [selectedOptions]="currentQuestion?.selectedOptions"
-          [correctAnswers]="correctAnswers"
-          [correctMessage]="correctMessage"
-          (answer)="updateClassName($event)"
-        ></codelab-question-multiple-answer>
-    <!-- Render multiple answer options -->
-    <!-- You'll need to adapt this to fit your application's needs -->
+      [form]="questionForm"
+      [data]="data"
+      [question]="questionToDisplay"
+      [questions]="questions"
+      [questionData]="questionData"
+      [currentQuestion$]="currentQuestion$"
+      [currentQuestionIndex]="currentQuestionIndex"
+      [options]="getOptionsForQuestion()"
+      [optionsToDisplay]="optionsToDisplay"
+      [selectedOptions]="currentQuestion?.selectedOptions"
+      [correctAnswers]="correctAnswers"
+      [correctMessage]="correctMessage"
+      (answer)="updateClassName($event)"
+    ></codelab-question-multiple-answer>
   </ng-container>
 
   <!-- Single Answer Logic -->
   <ng-container *ngSwitchCase="'single'">
     <codelab-question-single-answer
-          [data]="data"
-          [question]="questionToDisplay"
-          [questions]="questions"
-          [questionData]="questionData"
-          [options]="getOptionsForQuestion()"
-          [optionsToDisplay]="optionsToDisplay"
-          [currentQuestion]="currentQuestion"
-          [currentQuestionIndex]="currentQuestionIndex"
-          [selectedOption]="currentQuestion?.selectedOption"
-          [correctMessage]="correctMessage"
-          (answer)="updateClassName($event)"
-        ></codelab-question-single-answer>
-    <!-- Render single answer option -->
-    <!-- Again, adapt this according to your requirements -->
+      [data]="data"
+      [question]="questionToDisplay"
+      [questions]="questions"
+      [questionData]="questionData"
+      [options]="getOptionsForQuestion()"
+      [optionsToDisplay]="optionsToDisplay"
+      [currentQuestion]="currentQuestion"
+      [currentQuestionIndex]="currentQuestionIndex"
+      [selectedOption]="currentQuestion?.selectedOption"
+      [correctMessage]="correctMessage"
+      (answer)="updateClassName($event)"
+    ></codelab-question-single-answer>
   </ng-container>
 </ng-container>
