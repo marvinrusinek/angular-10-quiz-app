@@ -185,13 +185,9 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): { questionIndex: number, explanation: string } {
-    const questionKey = JSON.stringify(question);
-    if (!this.isQuestionValid(question)) {
-      console.log('Skipping already processed or invalid question:', question.questionText);
-      return { questionIndex, explanation: '' };
-    }
-
-    if (!this.isCurrentQuestion(question)) {
+    // Early return for invalid or non-current question
+    if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
+      console.log('Skipping question:', questionIndex, 'Reason:', !this.isQuestionValid(question) ? 'Invalid' : 'Not Current');
       return { questionIndex, explanation: '' };
     }
   
@@ -199,6 +195,9 @@ export class ExplanationTextService implements OnDestroy {
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
+
+    // Processing valid and current question
+    const questionKey = JSON.stringify(question);
     this.processedQuestions.add(questionKey);
   
     return { questionIndex, explanation: formattedExplanation };
