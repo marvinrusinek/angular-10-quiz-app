@@ -1249,16 +1249,10 @@ export class QuizService implements OnDestroy {
       const filteredQuestions = await lastValueFrom(
         this.getQuestionsForQuiz(quizId)
       );
-
-      this.getQuestionsForQuiz(quizId).subscribe(
-        filteredQuestions => {
-          console.log(`Questions fetched for quiz '${quizId}':`, filteredQuestions);
-          this.questions = filteredQuestions.questions;
-        },
-        error => {
-          console.error('Error fetching quiz questions:', error);
-        }
-      );
+      
+      const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
+      this.questions = questionsData.questions;
+      console.log('Questions after reset:', this.questions);
 
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
@@ -1381,10 +1375,13 @@ export class QuizService implements OnDestroy {
   }
 
   /********* reset functions ***********/
-  resetQuestions(): void {
+  async resetQuestions(): Promise<void> {
     this.quizData = _.cloneDeep(this.quizInitialState);
-    this.questions = _.cloneDeep(this.quizInitialState);
-    console.log('Questions after reset:', this.quizInitialState);
+    
+    const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
+    this.questions = questionsData.questions;
+
+    console.log('Questions after reset:', this.questions);
   }
 
   resetUserSelection(): void {
