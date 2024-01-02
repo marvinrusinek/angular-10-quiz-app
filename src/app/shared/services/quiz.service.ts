@@ -250,7 +250,6 @@ export class QuizService implements OnDestroy {
     this.initializeData();
     this.loadData();
     this.setupSubscriptions();
-    this.quizData = [];
   }
 
   ngOnDestroy(): void {
