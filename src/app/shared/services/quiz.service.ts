@@ -421,10 +421,7 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuiz(): Quiz | undefined {
-    if (Array.isArray(this.quizData)) {
-      return this.quizData.find((quiz) => quiz.quizId === this.quizId);
-    }
-    return undefined;
+    return this.quizData.find((quiz) => quiz.quizId === this.quizId);
   }
 
   addSelectedOption(option: Option) {
