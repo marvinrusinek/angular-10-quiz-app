@@ -190,12 +190,12 @@ export class ExplanationTextService implements OnDestroy {
       console.log('Skipping already processed or invalid question:', question.questionText);
       return { questionIndex, explanation: '' };
     }
-  
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
+
     if (!this.isCurrentQuestion(question)) {
       return { questionIndex, explanation: '' };
     }
   
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formattedExplanation = this.formatExplanation(question, correctOptionIndices);
     this.syncFormattedExplanationState(questionIndex, formattedExplanation);
     this.setFormattedExplanation(formattedExplanation);
