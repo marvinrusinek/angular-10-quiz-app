@@ -1374,6 +1374,7 @@ export class QuizService implements OnDestroy {
   resetQuestions(): void {
     this.quizData = _.cloneDeep(this.quizInitialState);
     this.questions = _.cloneDeep(this.quizInitialState);
+    console.log('Questions after reset:', this.questions);
   }
 
   resetUserSelection(): void {
