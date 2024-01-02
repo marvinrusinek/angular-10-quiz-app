@@ -1248,8 +1248,9 @@ export class QuizService implements OnDestroy {
       const quizId = this.quizId;
       const filteredQuestions = await lastValueFrom(
         this.getQuestionsForQuiz(quizId)
-      );
+      ); // logs all the quizzes
       
+      // logs the correct quiz questions correctly
       const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
       this.questions = questionsData.questions;
       console.log('Questions after reset:', this.questions);
@@ -1267,9 +1268,7 @@ export class QuizService implements OnDestroy {
         }
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       this.fetchCorrectAnswers();
-
       this.correctAnswersSubject.next(correctAnswers);
 
       const combinedQuestionData = {
@@ -1377,11 +1376,7 @@ export class QuizService implements OnDestroy {
   /********* reset functions ***********/
   async resetQuestions(): Promise<void> {
     this.quizData = _.cloneDeep(this.quizInitialState);
-    
-    const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
-    this.questions = questionsData.questions;
-
-    console.log('Questions after reset:', this.questions);
+    this.questions = [];   
   }
 
   resetUserSelection(): void {
