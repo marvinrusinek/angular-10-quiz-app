@@ -1253,6 +1253,7 @@ export class QuizService implements OnDestroy {
       // logs the correct quiz questions correctly
       const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
       this.questions = questionsData.questions;
+
       console.log('Questions after reset:', this.questions);
 
       // Calculate and set the correct answers for each question
@@ -1375,6 +1376,7 @@ export class QuizService implements OnDestroy {
 
   /********* reset functions ***********/
   resetQuestions(): void {
+    console.log("QIS", this.quizInitialState);
     this.quizData = _.cloneDeep(this.quizInitialState);
     this.questions = [];   
   }
