@@ -1374,7 +1374,7 @@ export class QuizService implements OnDestroy {
   }
 
   /********* reset functions ***********/
-  async resetQuestions(): Promise<void> {
+  resetQuestions(): void {
     this.quizData = _.cloneDeep(this.quizInitialState);
     this.questions = [];   
   }
