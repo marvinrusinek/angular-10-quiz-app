@@ -233,7 +233,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     // Initialize quiz-related properties
     this.initializeQuiz();
     this.getSelectedQuiz();
-    this.subscribeToSelectedQuiz();
 
     // Fetch and display the current question
     this.getQuestion();
@@ -257,18 +256,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   
   ngAfterViewInit() {
     console.log('View initialized. Current question:', this.currentQuestion);
-  }
-
-  subscribeToSelectedQuiz(): void {
-    this.quizService.getSelectedQuiz().subscribe((selectedQuiz) => {
-      if (selectedQuiz) {
-        this.quiz = selectedQuiz;
-        this.totalQuestions = selectedQuiz.questions.length;
-        this.lastQuestionIndex = this.totalQuestions - 1;
-      } else {
-        console.error('Selected quiz is null.');
-      }
-    });
   }
 
   private initializeQuiz(): void {
