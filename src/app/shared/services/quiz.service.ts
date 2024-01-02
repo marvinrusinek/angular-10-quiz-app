@@ -420,7 +420,10 @@ export class QuizService implements OnDestroy {
   }
 
   getCurrentQuiz(): Quiz | undefined {
-    return this.quizData.find((quiz) => quiz.quizId === this.quizId);
+    if (Array.isArray(this.quizData)) {
+      return this.quizData.find((quiz) => quiz.quizId === this.quizId);
+    }
+    return undefined;
   }
 
   addSelectedOption(option: Option) {
@@ -1377,8 +1380,14 @@ export class QuizService implements OnDestroy {
   /********* reset functions ***********/
   resetQuestions(): void {
     let currentQuizData = this.quizInitialState.find(quiz => quiz.quizId === this.quizId);
-    this.quizData = _.cloneDeep(currentQuizData);
-    this.questions = _.cloneDeep(currentQuizData.questions);
+    if (currentQuizData) {
+      this.quizData = [_.cloneDeep(currentQuizData)]; // Ensure it's an array
+      this.questions = _.cloneDeep(currentQuizData.questions);
+    } else {
+      // Handle case where currentQuizData is not found
+      this.quizData = [];
+      this.questions = [];
+    }
   }
 
   resetUserSelection(): void {
