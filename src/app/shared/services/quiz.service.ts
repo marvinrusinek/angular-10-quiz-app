@@ -1321,8 +1321,11 @@ export class QuizService implements OnDestroy {
   }
 
   private convertToOptions(options: Option[]): Option[] {
+    if (!Array.isArray(options)) {
+      return [];
+    }
     return options.map((option) => {
-      return { optionId: option.optionId, text: option.text } as Option;
+      return { optionId: option.optionId, text: option.text };
     });
   }
 
