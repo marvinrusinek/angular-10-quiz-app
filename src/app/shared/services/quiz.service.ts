@@ -1335,10 +1335,6 @@ export class QuizService implements OnDestroy {
     this.correctAnswersCountSubject.next(value);
   }
 
-  resetUserSelection(): void {
-    this.selectedOption$.next('');
-  }
-
   updateQuestion(question: QuizQuestion): void {
     this.currentQuestion.next({ ...question });
   }
@@ -1377,6 +1373,11 @@ export class QuizService implements OnDestroy {
   /********* reset functions ***********/
   resetQuestions(): void {
     this.quizData = _.cloneDeep(this.quizInitialState);
+    this.questions = _.cloneDeep(this.quizInitialState);
+  }
+
+  resetUserSelection(): void {
+    this.selectedOption$.next('');
   }
 
   resetAll(): void {
