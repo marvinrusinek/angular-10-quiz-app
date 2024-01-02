@@ -1389,6 +1389,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndex = 0;
   }
 
+  /********* sound functions ***********/
   initializeSounds(): void {
     this.correctSound = this.loadSound('http://www.marvinrusinek.com/sound-correct.mp3', 'Correct');
     this.incorrectSound = this.loadSound('http://www.marvinrusinek.com/sound-incorrect.mp3', 'Incorrect');
