@@ -1249,12 +1249,16 @@ export class QuizService implements OnDestroy {
       const filteredQuestions = await lastValueFrom(
         this.getQuestionsForQuiz(quizId)
       );
-      
-      if (filteredQuestions && filteredQuestions.questions.length > 0) {
-        this.questions = filteredQuestions.questions[0].questions;
-      } else {
-          console.error('No questions found for the quiz:', quizId);
-      }
+
+      this.getQuestionsForQuiz(quizId).subscribe(
+        filteredQuestions => {
+          console.log(`Questions fetched for quiz '${quizId}':`, filteredQuestions);
+          this.questions = filteredQuestions.questions;
+        },
+        error => {
+          console.error('Error fetching quiz questions:', error);
+        }
+      );
 
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
