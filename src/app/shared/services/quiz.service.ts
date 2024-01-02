@@ -1249,8 +1249,12 @@ export class QuizService implements OnDestroy {
       const filteredQuestions = await lastValueFrom(
         this.getQuestionsForQuiz(quizId)
       );
-      console.log("FQ", filteredQuestions);
-      this.questions = filteredQuestions.questions;
+      
+      if (filteredQuestions && filteredQuestions.questions.length > 0) {
+        this.questions = filteredQuestions.questions[0].questions;
+      } else {
+          console.error('No questions found for the quiz:', quizId);
+      }
 
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
