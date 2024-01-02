@@ -278,7 +278,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       // Page is now visible, resume updates in this component
       this.isPaused = false; // Unpause updates
-      this.setExplanationText(this.currentQuestion, this.currentQuestionIndex);
+      this.setExplanationText(this.currentQuestionIndex);
     }
   }
 
@@ -1213,10 +1213,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
-  async setExplanationText(
-    currentQuestion: QuizQuestion,
-    questionIndex: number
-  ): Promise<void> {
+  async setExplanationText(questionIndex: number): Promise<void> {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
