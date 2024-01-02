@@ -1248,7 +1248,7 @@ export class QuizService implements OnDestroy {
       const quizId = this.quizId;
       const filteredQuestions = await lastValueFrom(
         this.getQuestionsForQuiz(quizId)
-      ); // logs all the quizzes
+      ); // captures all the quizzes
       
       // logs the correct quiz questions correctly
       const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
