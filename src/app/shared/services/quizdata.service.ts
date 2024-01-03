@@ -21,7 +21,7 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
@@ -32,11 +32,11 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false',
+  TrueFalse = 'true_false'
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QuizDataService implements OnDestroy {
   quiz: Quiz;
@@ -51,7 +51,6 @@ export class QuizDataService implements OnDestroy {
 
   currentQuestionIndex = 0;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
-  maxIndex: number;
 
   selectedQuiz: Quiz;
   selectedQuiz$: BehaviorSubject<Quiz> = new BehaviorSubject<Quiz>(null);
@@ -77,7 +76,7 @@ export class QuizDataService implements OnDestroy {
     map(([currentQuestion, currentOptions]) => {
       return {
         question: currentQuestion,
-        options: currentOptions,
+        options: currentOptions
       };
     })
   );
@@ -248,9 +247,6 @@ export class QuizDataService implements OnDestroy {
             return '';
           }
         });
-
-        // Set maxIndex here after explanations are fetched
-        this.maxIndex = explanationTexts.length - 1;
 
         return of(explanationTexts);
       }),
