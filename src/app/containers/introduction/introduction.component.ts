@@ -32,6 +32,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   imagePath = '../../../assets/images/milestones/';
   introImg = '';
 
+  questionText = '';
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -46,6 +48,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
+
+    this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
   }
   
   ngOnDestroy(): void {
