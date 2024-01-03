@@ -17,7 +17,6 @@ export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
-  explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
   currentQuestionExplanation: string | null = null;
   formattedExplanations: Record<number, FormattedExplanation> = {};
