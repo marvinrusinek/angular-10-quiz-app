@@ -72,7 +72,9 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     // Ensure there is a BehaviorSubject for the specified index
-    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
+    if (!this.explanationTexts[index] || 
+        !(this.explanationTexts[index] instanceof BehaviorSubject)
+       ) {
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
     } else {
       // Update the value using next
@@ -93,7 +95,8 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     // Ensure that the element at index is initialized and is an instance of BehaviorSubject
-    if (!this.explanationTexts[index] || !(this.explanationTexts[index] instanceof BehaviorSubject)) {
+    if (!this.explanationTexts[index] || 
+        !(this.explanationTexts[index] instanceof BehaviorSubject)) {
       // Initialize the BehaviorSubject if it doesn't exist or is not an instance of BehaviorSubject
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
     }
@@ -122,17 +125,13 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeExplanationTexts(explanations: string[]): void {
-    console.log("initializeExplanationTexts method called");
-    console.log("Initializing explanation texts", explanations);
-
     // Initialize explanationTexts as an empty object
     this.explanationTexts = {};
 
     explanations.forEach((explanation, index) => {
       // Use the explanation if provided, otherwise set a default explanation
       const text = explanation || "Default explanation for missing data";
-      console.log(`Setting explanation for index ${index}:`, text);
-
+      
       // Create a BehaviorSubject for each explanation
       this.explanationTexts[index] = new BehaviorSubject(text);
     });
