@@ -22,9 +22,7 @@ export class ExplanationTextService implements OnDestroy {
   currentQuestionExplanation: string | null = null;
   maxIndex = -1;
 
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>(
-    ''
-  );
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   processedQuestions: Set<string> = new Set<string>();
@@ -39,9 +37,7 @@ export class ExplanationTextService implements OnDestroy {
   previousExplanationText$: Observable<string> =
     this.previousExplanationTextSource.asObservable();
 
-  private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(
-    false
-  );
+  private isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationTextDisplayed$: Observable<boolean> =
     this.isExplanationTextDisplayedSource.asObservable();
 
@@ -69,7 +65,7 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationTexts = explanations.reduce((acc, exp, index) => {
       acc[index] = {
         explanationText: new BehaviorSubject<string>(exp),
-        formattedExplanation: new BehaviorSubject<string>(''), // Initialize formatted explanation as empty string
+        formattedExplanation: new BehaviorSubject<string>('')
       };
       return acc;
     }, {});
@@ -153,7 +149,6 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   fetchExplanationTexts(): string[] {
-    console.log("Current explanationTexts:", this.explanationTexts);
     return Object.values(this.explanationTexts).map(subject => subject.value);
   }
 
