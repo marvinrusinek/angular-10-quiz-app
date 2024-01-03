@@ -221,6 +221,9 @@ export class QuizService implements OnDestroy {
   answersSubject = new BehaviorSubject<number[]>([0, 0, 0, 0]);
   answers$ = this.answersSubject.asObservable();
 
+  private quizResetSource = new Subject<void>();
+  quizReset$ = this.quizResetSource.asObservable();
+
   loadingQuestions = false;
   loadQuestionsLock = false;
   lock = false;
@@ -1398,6 +1401,7 @@ export class QuizService implements OnDestroy {
   }
 
   resetAll(): void {
+    this.quizResetSource.next();
     this.answers = null;
     this.correctAnswersForEachQuestion = [];
     this.correctAnswerOptions = [];

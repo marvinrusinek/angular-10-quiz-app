@@ -243,6 +243,17 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Fetch additional quiz data
     this.fetchQuizData();
+
+    this.quizService.quizReset$.subscribe(() => {
+      this.updateComponentState();
+    });
+  }
+
+  updateComponentState(): void {
+    // Fetch the updated quiz data from the service
+    this.questions = this.quizService.getQuestions();
+    // Reset any other local state as needed
+    // ...
   }
 
   ngOnDestroy(): void {
