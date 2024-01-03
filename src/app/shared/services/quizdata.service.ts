@@ -517,21 +517,12 @@ export class QuizDataService implements OnDestroy {
 
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
-  
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
   }  
 
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
     this.currentQuestionIndex$.next(this.currentQuestionIndex);
-  }
-
-  setPreviousQuestionText(text: string): void {
-    this.previousQuestionTextSubject.next(text);
-  }
-
-  getPreviousQuestionText(): Observable<string> {
-    return this.previousQuestionTextSubject.asObservable();
   }
 
   submitQuiz(quiz: Quiz): Observable<any> {
