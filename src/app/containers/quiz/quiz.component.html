@@ -71,6 +71,7 @@
             <button
               type="button"
               mat-icon-button
+              routerLinkActive="active"
               (click)="advanceToPreviousQuestion()"
               (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
               matTooltip="&laquo; Previous Question"
@@ -85,6 +86,7 @@
             <button
               type="button"
               mat-icon-button
+              routerLinkActive="active"
               (click)="restartQuiz()"
               matTooltip="Restart Quiz"
               matTooltipPosition="above"
@@ -101,6 +103,7 @@
             <button
               type="button"
               mat-icon-button
+              routerLinkActive="active"
               (click)="advanceToNextQuestion()"
               (window:keydown.ArrowRight)="advanceToNextQuestion()"
               (window:keydown.Enter)="advanceToNextQuestion()"
@@ -114,6 +117,7 @@
             <button *ngIf="shouldHideShowScoreNav()"
               type="submit"
               mat-raised-button
+              routerLinkActive="active"
               disableRipple="true"
               (click)="advanceToResults()"
               (window:keydown.Enter)="advanceToResults()"
