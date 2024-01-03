@@ -122,7 +122,7 @@ export class ExplanationTextService implements OnDestroy {
     // Check if the numericIndex key exists in the explanationTexts Record
     if (this.explanationTexts.hasOwnProperty(numericIndex)) {
       const explanationSubject = this.explanationTexts[numericIndex];
-      console.log(`Found explanation subject for index ${numericIndex}:`, explanationSubject);
+
       if (explanationSubject instanceof BehaviorSubject) {
         return explanationSubject.asObservable();
       } else {
@@ -134,10 +134,6 @@ export class ExplanationTextService implements OnDestroy {
       return of(undefined);
     }
   }
-
-  /* initializeExplanationTexts(explanations: string[]): void {
-    this.explanationTexts = explanations.map(explanation => new BehaviorSubject(explanation));
-  } */
 
   initializeExplanationTexts(explanations: string[]): void {
     console.log("initializeExplanationTexts method called");
@@ -162,10 +158,6 @@ export class ExplanationTextService implements OnDestroy {
     console.log("Current explanationTexts:", this.explanationTexts);
     return Object.values(this.explanationTexts).map(subject => subject.value);
   }
-
-  /* fetchExplanationTexts(): Promise<string[]> {
-    return Promise.resolve(["Hardcoded explanation 1", "Hardcoded explanation 2"]);
-  } */
 
   // Retrieve explanation for a specific question
   getExplanationForQuestion(questionId: string | number): string | undefined {
