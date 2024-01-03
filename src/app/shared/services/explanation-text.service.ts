@@ -11,7 +11,7 @@ enum QuestionType {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
@@ -48,8 +48,6 @@ export class ExplanationTextService implements OnDestroy {
   private shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ =
     this.shouldDisplayExplanationSource.asObservable();
-
-  lastDisplayedExplanationText = '';
 
   private destroyed$ = new Subject<void>();
 
