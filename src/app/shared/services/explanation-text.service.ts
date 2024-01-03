@@ -27,9 +27,6 @@ export class ExplanationTextService implements OnDestroy {
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   processedQuestions: Set<string> = new Set<string>();
 
-  private currentExplanationTextSource = new BehaviorSubject<string>('');
-  currentExplanationText$ = this.currentExplanationTextSource.asObservable();
-
   nextExplanationTextSource = new BehaviorSubject<string>(null);
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
