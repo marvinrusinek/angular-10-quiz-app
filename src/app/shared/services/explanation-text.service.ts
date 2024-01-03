@@ -20,10 +20,8 @@ export class ExplanationTextService implements OnDestroy {
   explanations: string[] = [];
   explanationTexts: Record<number, BehaviorSubject<string>> = {};
   currentQuestionExplanation: string | null = null;
-  maxIndex = -1;
-
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations: Record<number, FormattedExplanation> = {};
+  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   processedQuestions: Set<string> = new Set<string>();
 
@@ -66,8 +64,6 @@ export class ExplanationTextService implements OnDestroy {
       };
       return acc;
     }, {});
-  
-    this.maxIndex = Object.keys(this.explanationTexts).length - 1;
   }
   
   updateExplanationForIndex(index: number, explanation: string): void {
