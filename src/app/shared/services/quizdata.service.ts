@@ -296,7 +296,6 @@ export class QuizDataService implements OnDestroy {
       map((quiz: Quiz) => {
         // clone the questions array to avoid unintended mutations
         const questions = quiz.questions.map((question) => ({ ...question }));
-
         return questions;
       }),
       distinctUntilChanged((prevQuestions, currQuestions) => {
