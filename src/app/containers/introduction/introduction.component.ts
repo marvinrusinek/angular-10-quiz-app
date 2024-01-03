@@ -41,15 +41,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     private quizDataService: QuizDataService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
+  }
 
   ngOnInit(): void {
     this.initializeData();
     this.subscribeToSelectedQuiz();
     this.handleRouteParameters();
     this.initializeSelectedQuiz();
-
-    this.questionText = this.getQuestionText(this.selectedQuiz?.questions.length);
   }
   
   ngOnDestroy(): void {
