@@ -21,7 +21,7 @@
       <span i18n>Milestones &#x25BC;</span>
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
-      <span style="margin-left: 10px; font-weight: bold" i18n>Select a Quiz&hellip;</span>
+      <span style="margin-left: 10px" i18n><strong>Select a Quiz&hellip;</strong></span>
       <div *ngFor="let quiz of quizzes$ | async">
         <button mat-menu-item name="milestone" routerLinkActive="active" [routerLink]="['/intro/', quiz?.quizId]"
          data-i18n="quiz.milestone" style="outline: none !important; border: none !important;">
