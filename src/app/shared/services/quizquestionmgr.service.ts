@@ -5,10 +5,12 @@ import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QuizQuestionManagerService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> =
+    new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   explanationText: string;
   numberOfCorrectAnswers: number;
@@ -16,16 +18,12 @@ export class QuizQuestionManagerService {
   isOptionSelected = false;
   shouldDisplayExplanation = false;
   correctAnswersCount = 0; // not currently being used
-
   selectedOption: Option | null = null;
 
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
-
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
 
   setSelectedOption(option: Option): void {
     this.selectedOption = option;
