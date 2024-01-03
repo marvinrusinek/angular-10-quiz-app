@@ -1,15 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 
-import { QuestionType } from '../../shared/models/QuestionType.type';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
-/* enum QuestionType {
+enum QuestionType {
   SingleAnswer = 'single_answer',
   MultipleAnswer = 'multiple_answer',
   TrueFalse = 'true_false'
-} */
+}
 
 @Injectable({
   providedIn: 'root'
