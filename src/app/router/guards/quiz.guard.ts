@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
@@ -8,11 +8,11 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 enum QuizRoutes {
   INTRO = '/intro/',
   QUESTION = '/question/',
-  RESULTS = '/results/',
+  RESULTS = '/results/'
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QuizGuard implements CanActivate {
   constructor(
@@ -31,8 +31,6 @@ export class QuizGuard implements CanActivate {
           this.router.navigate(['/select']);
           return of(false);
         }
-
-        console.log('Selected quiz::::>>>', selectedQuiz);
 
         const totalQuestions = selectedQuiz.questions.length;
 
