@@ -206,15 +206,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.router.events.subscribe(event => {
-      console.log(event);
+    this.quizService.quizReset$.subscribe(() => {
+      this.updateComponentState();
     });
   }
 
-  @HostListener('window:focus', ['$event'])
+  /* @HostListener('window:focus', ['$event'])
   onFocus(event: FocusEvent): void {
     console.log('Tab focused. Current question:', this.currentQuestion);
-  }
+  } */
 
   ngOnInit(): void {
     // Subscribe to router events and initialize
@@ -235,10 +235,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Fetch additional quiz data
     this.fetchQuizData();
-
-    this.quizService.quizReset$.subscribe(() => {
-      this.updateComponentState();
-    });
   }
   
   ngOnDestroy(): void {
