@@ -1200,14 +1200,12 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.explanationTextService.setShouldDisplayExplanation(false);
 
       const isValidIndex = await this.isQuestionIndexValid(questionIndex);
-
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
       }
 
       const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
-
       this.setQuestionDetails(questionText, options, explanation);
      
       await this.resetUIAndNavigate(questionIndex);
@@ -1219,11 +1217,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
-    const totalQuestions: number = await this.quizService.getTotalQuestions().toPromise();
+    const totalQuestions: number = await firstValueFrom(this.quizService.getTotalQuestions());
     const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
-
     return isValid;
-  }
+  }  
   
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
     // Fetching question details based on the provided questionIndex
