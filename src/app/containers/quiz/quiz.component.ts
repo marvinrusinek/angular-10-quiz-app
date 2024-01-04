@@ -794,7 +794,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleRouteParams(params): Observable<
+  handleRouteParams(params: ParamMap): Observable<
     { quizId: string; questionIndex: number; 
       quizData: { quizId: string; questions: QuizQuestion[] } }> {
     const quizId = params.get('quizId');
