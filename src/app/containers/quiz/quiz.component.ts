@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -23,7 +22,6 @@ import {
   combineLatest,
   firstValueFrom,
   forkJoin,
-  from,
   Observable,
   of,
   Subject,
@@ -87,7 +85,7 @@ enum QuestionType {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [FormBuilder, QuizService, QuizDataService, QuizStateService, HighlightDirective]
 })
-export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
+export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
   @Input() data: {
     questionText: string;
@@ -177,7 +175,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
-  private destroy$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
@@ -243,16 +240,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateComponentState();
     });
   }
-
-  updateComponentState(): void {
-    this.quizService.getCurrentQuestion().pipe(
-      takeUntil(this.unsubscribe$)
-    ).subscribe((question: QuizQuestion) => {
-      this.currentQuestion = question;
-      this.options = question?.options || [];
-      this.loadExplanationTextForCurrentQuestion();
-    });
-  }
   
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -262,9 +249,15 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.routerSubscription.unsubscribe();
     this.timerService.stopTimer(null);
   }
-  
-  ngAfterViewInit() {
-    console.log('View initialized. Current question:', this.currentQuestion);
+
+  updateComponentState(): void {
+    this.quizService.getCurrentQuestion().pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+      this.options = question?.options || [];
+      this.loadExplanationTextForCurrentQuestion();
+    });
   }
 
   private initializeQuiz(): void {
