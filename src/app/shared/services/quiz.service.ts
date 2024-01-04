@@ -694,7 +694,6 @@ export class QuizService implements OnDestroy {
       }
 
       const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-
       if (!quiz) {
         throw new Error(`No questions found for quiz ID ${quizId}`);
       }
