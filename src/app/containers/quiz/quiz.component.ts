@@ -1233,7 +1233,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
-
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
@@ -1275,9 +1274,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
         return;
       }
     } catch (error) {
-      console.error('Error occurred while navigating to the previous question:',
-        error
-      );
+      console.error('Error occurred while navigating to the previous question:', error);
     } finally {
       this.isNavigatingToPrevious = false; // Reset after navigating
       this.isNavigating = false;
