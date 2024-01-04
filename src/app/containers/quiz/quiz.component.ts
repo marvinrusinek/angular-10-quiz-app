@@ -1116,6 +1116,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !!this.explanationText;
   }
 
+  private async getTotalQuestions(): Promise<number> {
+    return await firstValueFrom(this.quizService.getTotalQuestions());
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
@@ -1214,7 +1218,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
-    const totalQuestions: number = await firstValueFrom(this.quizService.getTotalQuestions());
+    const totalQuestions: number = await this.getTotalQuestions());
     const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
     return isValid;
   }  
