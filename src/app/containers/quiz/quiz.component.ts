@@ -993,6 +993,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  // maybe remove, but has correctAnswerOptions...
   async displayQuestion(quizId: string): Promise<void> {
     try {
       const currentQuestionObservable: Observable<QuizQuestion[]> =
@@ -1155,8 +1156,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn('Navigation already in progress. Aborting.');
       return;
     }
-
     this.isNavigating = true;
+
+    this.animationState$.next('animationStarted');
 
     try {
       if (this.currentQuestionIndex <= 0) {
