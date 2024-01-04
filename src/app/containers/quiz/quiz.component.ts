@@ -1224,10 +1224,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isNextQuestion = true;
 
     try {
-      const totalQuestions: number = await this.quizService
-        .getTotalQuestions()
-        .toPromise();
-
+      const totalQuestions: number = await firstValueFrom(this.quizService.getTotalQuestions());
       if (this.currentQuestionIndex >= totalQuestions - 1) {
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
