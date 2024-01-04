@@ -228,7 +228,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Fetch and display the current question
     this.getQuestion();
-    this.initializeQuestionStreams();
+    this.initializeQuestionStream();
     this.createQuestionData();
     this.subscribeToQuestionUpdates();
 
@@ -595,13 +595,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
   }
 
-  initializeQuestionStreams(): void {
+  initializeQuestionStream(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
-  
-    // Initialize next question and options streams
-    const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
   }
 
   createQuestionData(): void {
