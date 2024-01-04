@@ -1313,7 +1313,9 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     // Fetching question details based on the provided questionIndex
     const questionText = await this.quizService.getQuestionTextForIndex(questionIndex);
     const options = await this.quizService.getNextOptions(questionIndex) || [];
-    const explanation = await this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex).toPromise();
+    const explanation = await firstValueFrom(
+      this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex)
+    );
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
     this.quizDataService.setQuestionType(question);
