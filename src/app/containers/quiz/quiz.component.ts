@@ -404,10 +404,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   getExplanationText(): void {
-    this.explanationText$ = this.explanationTextService.getExplanationText$();
-
-    this.explanationTextService
-      .getExplanationText$()
+    this.explanationTextService.getExplanationText$()
       .subscribe((explanationText: string | null) => {
         this.explanationText = explanationText;
       });
