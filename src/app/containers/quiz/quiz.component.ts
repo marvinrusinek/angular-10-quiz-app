@@ -434,7 +434,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
         this.quizId = quizId;
         this.quizDataService.setCurrentQuestionIndex(0);
         this.question = questions[this.currentQuestionIndex];
-        this.handleQuizData(selectedQuiz, quizId, this.currentQuestionIndex);
+        this.handleQuizData(selectedQuiz, this.currentQuestionIndex);
       }),
       catchError((error) => {
         console.error('Error occurred:', error);
@@ -676,12 +676,12 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$,
       this.quizService.previousQuestion$,
-      this.quizService.previousOptions$,
+      this.quizService.previousOptions$
     ])
     .pipe(
       map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => ({
         question: nextQuestion ?? previousQuestion,
-        options: nextQuestion ? nextOptions : previousOptions,
+        options: nextQuestion ? nextOptions : previousOptions
       })),
       tap(({ question, options }) => {
         this.question$ = of(question);
@@ -730,11 +730,8 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
       const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
-      console.log('Fetched explanation texts:', explanationTexts);
   
       if (explanationTexts && explanationTexts.length > 0) {
-        console.log("Calling initializeExplanationTexts with:", explanationTexts);
-        console.log("About to call initializeExplanationTexts");
         this.explanationTextService.initializeExplanationTexts(explanationTexts);
       } else {
         console.log('No explanation texts were fetched dynamically');
@@ -763,7 +760,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       questionText: this.data.questionText,
       options: this.data.currentOptions,
       explanation: '',
-      type: QuestionType.MultipleAnswer,
+      type: QuestionType.MultipleAnswer
     };
   
     this.question = currentQuestion;
@@ -845,14 +842,13 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       map((quizData: { quizId: string; questions: QuizQuestion[] }) => ({
         quizId,
         questionIndex,
-        quizData,
+        quizData
       }))
     );
   }
 
   private handleQuizData(
     quiz: Quiz,
-    quizId: string,
     currentQuestionIndex: number
   ): void {
     if (!quiz) {
@@ -883,7 +879,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       const quiz = await this.quizDataService.getQuiz(id).toPromise();
       if (this.quiz.questions && this.quiz.questions?.length > 0) {
-        this.handleQuizData(quiz, this.quizId, this.currentQuestionIndex);
+        this.handleQuizData(quiz, this.currentQuestionIndex);
       }
     } catch (error) {
       console.log(error);
