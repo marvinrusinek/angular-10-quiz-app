@@ -282,8 +282,8 @@ export class QuizComponent implements OnInit, OnDestroy {
           const questions: QuizQuestion[] = quizData.questions || [];
 
           // Find the currentQuiz based on quizId
-          const currentQuiz: Quiz | undefined = questions.find(
-            (quiz) => quiz.quizId === quizId
+          const currentQuiz: Quiz = questions.find(
+            () => this.quizId === quizId
           );
 
           // Check if currentQuiz is defined
@@ -306,10 +306,7 @@ export class QuizComponent implements OnInit, OnDestroy {
                 console.error('Question not found:', currentQuestionIndex);
               }
             } else {
-              console.error(
-                'Invalid currentQuestionIndex:',
-                currentQuestionIndex
-              );
+              console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
             }
           } else {
             console.error('No quiz found with quizId:', quizId);
