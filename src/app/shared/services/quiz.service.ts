@@ -1436,6 +1436,7 @@ export class QuizService implements OnDestroy {
     this.correctOptions = [];
     this.correctMessage = '';
     this.currentQuestionIndex = 0;
+    this.questionIndex = 1;
   }
 
   /********* sound functions ***********/
