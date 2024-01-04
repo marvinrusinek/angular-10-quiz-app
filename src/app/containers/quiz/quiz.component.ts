@@ -1097,14 +1097,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.currentQuestionIndex === selectedQuiz?.questions.length - 1;
   }
 
-  shouldDisplayShowScoreButton(): boolean {
-    return this.questionIndex === this.lastQuestionIndex;
-  }
-
-  isLastQuestion(): boolean {
-    return this.questionIndex === this.totalQuestions - 1;
-  }
-
   shouldHideProgressBar(): boolean {
     return this.totalQuestions < 1;
   }
