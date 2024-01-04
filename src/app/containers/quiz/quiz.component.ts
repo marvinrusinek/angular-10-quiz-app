@@ -1237,7 +1237,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private setQuestionDetails(questionText: string, options: Option[], explanationText: string): void {
-    this.nextQuestionText = questionText;
     this.questionToDisplay = questionText;
     this.optionsToDisplay = options;
     this.explanationToDisplay = explanationText;
