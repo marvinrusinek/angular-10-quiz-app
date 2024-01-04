@@ -36,6 +36,7 @@ import {
   map,
   switchMap,
   take,
+  takeUntil,
   tap,
   withLatestFrom
 } from 'rxjs/operators';
@@ -180,6 +181,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
 
   constructor(
     private quizService: QuizService,
@@ -250,12 +252,14 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateComponentState(): void {
-    // Fetch the updated quiz data from the service
-    this.questions = this.quizService.getQuestions();
-    // Reset any other local state as needed
-    // ...
+    this.quizService.getCurrentQuestion().pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe((question: QuizQuestion) => {
+      this.currentQuestion = question;
+      // this.questions = this.quizService.getQuestions();
+    });
   }
-
+  
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
