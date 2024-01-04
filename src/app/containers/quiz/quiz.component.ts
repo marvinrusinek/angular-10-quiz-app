@@ -161,7 +161,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   lastQuestionIndex: number;
   totalQuestions = 0;
   questionIndex: number;
-  previousQuestionIndex: number;
   progressValue: number;
   correctCount: number;
   numberOfCorrectAnswers: number;
