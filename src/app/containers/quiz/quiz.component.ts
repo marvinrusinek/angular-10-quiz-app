@@ -238,7 +238,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Fetch and display the current question
     this.getQuestion();
-    // this.getCurrentQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
     this.subscribeToQuestionUpdates();
@@ -636,17 +635,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
-    return this.quizService.currentQuestion$.pipe(
-      tap((question) => {
-        this.currentQuestion = question;
-        this.options = question?.options || [];
-        this.loadExplanationTextForCurrentQuestion();
-      }),
-      map((question) => this.currentQuestion)
-    );
-  } */
-
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
@@ -805,8 +793,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       if (!this.quizService.questionsLoaded) {
         this.quizService.updateQuestions(quizId);
       }
-  
-      // this.getCurrentQuestion();
     });
   }
 
