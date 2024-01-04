@@ -993,10 +993,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  shouldDisplayExplanation(): boolean {
-    return this.quizService.shouldExplanationBeDisplayed();
-  }
-
   async displayQuestion(quizId: string): Promise<void> {
     try {
       const currentQuestionObservable: Observable<QuizQuestion[]> =
@@ -1051,6 +1047,10 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.selectedQuiz.questions[this.currentQuestionIndex];
     }
   } */
+
+  shouldDisplayExplanation(): boolean {
+    return this.quizService.shouldExplanationBeDisplayed();
+  }
 
   /************** template logic functions ******************/
   isMultipleCorrectAnswers(): boolean {
