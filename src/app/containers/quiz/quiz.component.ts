@@ -127,8 +127,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   indexOfQuizId: number;
   status: QuizStatus;
   isNavigating = false;
-  isNavigatingToNext: boolean;
-  isNavigatingToPrevious = false;
 
   selectedOption: Option;
   selectedOptions: Option[] = [];
@@ -177,8 +175,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
   optionsToDisplay: Option[] = [];
   explanationToDisplay = '';
 
-  isNextQuestion: boolean;
-
   animationState$ = new BehaviorSubject<AnimationState>('none');
   unsubscribe$ = new Subject<void>();
   private destroy$ = new Subject<void>();
@@ -203,7 +199,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       selectedOption: [null]
     });
 
-    this.isNavigatingToNext = false;
     this.elapsedTimeDisplay = 0;
 
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
@@ -1172,7 +1167,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.isNavigating = true;
-    this.isNextQuestion = true;
 
     try {
       const totalQuestions: number = await firstValueFrom(this.quizService.getTotalQuestions());
@@ -1205,14 +1199,12 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.isNavigating = true;
-    this.isNextQuestion = false;
 
     try {
       if (this.currentQuestionIndex <= 0) {
         console.log('No valid previous question available.');
         return;
       }
-      this.isNavigatingToPrevious = true; // Set to true before navigating
 
       if (this.currentQuestionIndex > 0) {
         this.currentQuestionIndex--;
@@ -1227,7 +1219,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch (error) {
       console.error('Error occurred while navigating to the previous question:', error);
     } finally {
-      this.isNavigatingToPrevious = false; // Reset after navigating
       this.isNavigating = false;
     }
   }
