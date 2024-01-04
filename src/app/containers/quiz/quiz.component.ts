@@ -28,7 +28,6 @@ import {
   Subscription
 } from 'rxjs';
 import {
-  catchError,
   distinctUntilChanged,
   filter,
   map,
