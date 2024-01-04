@@ -936,17 +936,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.isOptionSelected;
   }
 
-  onSelect(option: Option): void {
-    this.selectedOption = option;
-  }
-
-  selectAnswer(id: number): void {
-    this.selectedAnswerField = id;
-  }
-
   isNextDisabled(): boolean {
     return typeof this.selectedAnswerField === 'undefined';
-  }
+  } // might remove
 
   selectedAnswer(option: Option): void {
     this.answered = true;
