@@ -1426,6 +1426,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
     this.answers = null;
+    this.currentQuestion = this.quizService.questions[0];
     this.router.navigate([QuizRoutes.INTRO, this.quizId]);
   }
 
