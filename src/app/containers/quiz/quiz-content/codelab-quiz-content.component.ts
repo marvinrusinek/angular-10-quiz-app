@@ -131,7 +131,6 @@ export class CodelabQuizContentComponent
   ngOnInit(): void {
     this.initializeComponent();
     this.setupObservables();
-    this.subscribeToQuestionChanges();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
 
@@ -209,19 +208,6 @@ export class CodelabQuizContentComponent
           this.formattedExplanation = formattedExplanation;
 
           this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
-        }
-      });
-  }
-
-  private subscribeToQuestionChanges(): void {
-    this.quizService.currentQuestionIndex$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (index) => {
-          console.log('Current question index::::>>', index);
-        },
-        error: (error) => {
-          console.error('Error in getCurrentQuestionIndex$ subscription:', error);
         }
       });
   }
