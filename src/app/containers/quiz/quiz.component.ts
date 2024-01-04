@@ -1234,7 +1234,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
         return;
       }
 
-      console.log('Current Question Index Before:', this.currentQuestionIndex);
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
 
@@ -1268,7 +1267,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.isNavigatingToPrevious = true; // Set to true before navigating
 
-      console.log('Current index before decrement:', this.currentQuestionIndex);
       if (this.currentQuestionIndex > 0) {
         this.currentQuestionIndex--;
         this.router.navigate(['/question/', this.quizId, this.currentQuestionIndex + 1]);
