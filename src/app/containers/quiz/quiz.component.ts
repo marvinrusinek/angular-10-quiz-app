@@ -1375,7 +1375,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate([QuizRoutes.INTRO, this.quizId]);
   }
 
-  sendValuesToQuizService(): void {
+  /* sendValuesToQuizService(): void {
     this.sendQuizQuestionToQuizService();
     this.sendQuizQuestionsToQuizService();
     this.sendQuizIdToQuizService();
@@ -1430,7 +1430,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private sendQuizStatusToQuizService(): void {
     this.quizService.setQuizStatus(this.status);
-  }
+  } */
 
   // not called anywhere...
   private sendStartedQuizIdToQuizService(): void {
