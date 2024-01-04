@@ -1130,7 +1130,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.isNavigating = true;
 
     try {
-      const totalQuestions: number = await firstValueFrom(this.quizService.getTotalQuestions());
+      const totalQuestions: number = await this.getTotalQuestions();
       if (this.currentQuestionIndex >= totalQuestions - 1) {
         this.router.navigate([`${QuizRoutes.RESULTS}${this.quizId}`]);
         console.log('End of quiz reached.');
@@ -1218,7 +1218,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
-    const totalQuestions: number = await this.getTotalQuestions());
+    const totalQuestions: number = await this.getTotalQuestions();
     const isValid = questionIndex >= 0 && questionIndex < totalQuestions;
     return isValid;
   }  
