@@ -680,34 +680,48 @@ export class QuizService implements OnDestroy {
   }
 
   async updateQuestions(quizId: string): Promise<void> {
+    // Check if the quizId is different from the current quizId
     if (quizId === this.quizId) {
       return;
     }
 
     try {
-      if (this.currentQuestionPromise) {
-        await this.currentQuestionPromise;
-      }
-
+      // Load questions if they haven't been loaded
       if (!this.questions) {
-        this.questions = await this.loadQuestions().toPromise();
+        await this.loadQuestionsIfNotLoaded();
       }
 
-      const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
-      if (!quiz) {
-        throw new Error(`No questions found for quiz ID ${quizId}`);
-      }
+      // Set the current quiz based on the given quizId
+      await this.setCurrentQuiz(quizId);
 
-      await this.getCurrentQuestion().toPromise();
-
-      this.questions = quiz.questions;
-      this.setTotalQuestions(this.questions?.length);
-      this.quizId = quizId;
+      // Update the component's view to reflect the new current question
+      await this.updateCurrentQuestionView();
     } catch (error) {
       console.error('Error updating questions:', error);
       throw error;
     }
   }
+
+  async loadQuestionsIfNotLoaded(): Promise<void> {
+    this.questions = await this.loadQuestions().toPromise();
+  }
+
+  async setCurrentQuiz(quizId: string): Promise<void> {
+    const quiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+    if (!quiz) {
+      throw new Error(`No questions found for quiz ID ${quizId}`);
+    }
+
+    this.quizId = quizId;
+    this.questions = quiz.questions;
+    this.setTotalQuestions(this.questions?.length);
+  }
+
+  async updateCurrentQuestionView(): Promise<void> {
+    // Assuming getCurrentQuestion updates the view or component state
+    await this.getCurrentQuestion().toPromise();
+  }
+
 
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
