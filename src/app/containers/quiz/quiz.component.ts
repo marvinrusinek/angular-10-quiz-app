@@ -229,7 +229,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Initialize quiz-related properties
     this.initializeQuiz();
-    this.getSelectedQuiz();
 
     // Fetch and display the current question
     this.getQuestion();
@@ -417,25 +416,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       );
       this.currentQuiz = currentQuiz;
     });
-  }
-
-  getSelectedQuiz(): void {
-    this.selectedQuizSubscription = this.quizDataService.getSelectedQuiz().pipe(
-      filter((selectedQuiz) => !!selectedQuiz),
-      tap(selectedQuiz => {
-        const { quizId, questions } = selectedQuiz;
-        this.selectedQuiz = selectedQuiz;
-        this.quiz = selectedQuiz;
-        this.quizId = quizId;
-        this.quizDataService.setCurrentQuestionIndex(0);
-        this.question = questions[this.currentQuestionIndex];
-        this.handleQuizData(selectedQuiz, this.currentQuestionIndex);
-      }),
-      catchError((error) => {
-        console.error('Error occurred:', error);
-        return of(null);
-      })
-    ).subscribe();
   }
 
   getExplanationText(): void {

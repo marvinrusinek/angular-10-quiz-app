@@ -1363,10 +1363,6 @@ export class QuizService implements OnDestroy {
     return this.selectedQuizId !== null;
   }
 
-  getSelectedQuizId(): Observable<string> {
-    return this.quizId$.asObservable();
-  }
-
   getSelectedQuiz(): Observable<Quiz> {
     return this.selectedQuiz$;
   }
