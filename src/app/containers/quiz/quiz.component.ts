@@ -1140,10 +1140,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log("Cannot navigate to invalid index.");
       }
     } catch (error) {
-      console.error(
-        'Error occurred while advancing to the next question:',
-        error
-      );
+      console.error('Error occurred while advancing to the next question:', error);
     } finally {
       this.isNavigating = false;
     }
