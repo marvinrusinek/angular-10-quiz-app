@@ -256,7 +256,8 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       takeUntil(this.unsubscribe$)
     ).subscribe((question: QuizQuestion) => {
       this.currentQuestion = question;
-      // this.questions = this.quizService.getQuestions();
+      this.options = question?.options || [];
+      this.loadExplanationTextForCurrentQuestion();
     });
   }
   

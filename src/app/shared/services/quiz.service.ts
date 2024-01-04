@@ -932,8 +932,22 @@ export class QuizService implements OnDestroy {
       throw error;
     }
   }
-    
+
   getCurrentQuestion(): Observable<QuizQuestion> {
+    return this.questions$.pipe(
+      map(questions => {
+        const currentQuestionIndex = this.currentQuestionIndex ?? 0;
+        return questions[currentQuestionIndex];
+      }),
+      tap(currentQuestion => this.currentQuestionSubject.next(currentQuestion)),
+      catchError(error => {
+        console.error('Error getting quiz questions:', error);
+        return throwError(error);
+      })
+    );
+  }
+  
+  /* getCurrentQuestion(): Observable<QuizQuestion> {
     const quizId = this.getCurrentQuizId();
     
     return this.getQuestionsForQuiz(quizId).pipe(
@@ -958,7 +972,7 @@ export class QuizService implements OnDestroy {
         }
       })
     );
-  }
+  } */
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
