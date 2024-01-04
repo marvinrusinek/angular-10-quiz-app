@@ -953,8 +953,7 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
     return numberOfCorrectAnswers;
   }
 
-  /************** explanation functions *********************/
-  loadExplanationTextForCurrentQuestion(): void {
+  loadExplanationTextForCurrentQuestion(): void { // move to ETService
     this.explanationText = '';
     const currentQuestion = this.quizData[this.currentQuestionIndex];
 
@@ -967,37 +966,6 @@ export class QuizComponent implements OnInit, OnDestroy, AfterViewInit {
       // Handle the case when the current question doesn't exist
       this.explanationTextService.setNextExplanationText('');
     }
-  }
-
-  clearExplanationText(): void {
-    this.explanationText = '';
-  }
-
-  loadExplanationTextForNextQuestion(): void {
-    // Load the explanation text for the next question
-    const nextQuestionIndex = this.currentQuestionIndex + 1;
-
-    if (nextQuestionIndex < this.quizData.length) {
-      const nextQuestion = this.quizData[nextQuestionIndex];
-
-      if (this.isQuizQuestion(nextQuestion)) {
-        this.explanationText = nextQuestion.explanation;
-      } else {
-        // Handle the case when the next question doesn't exist
-        this.explanationText = '';
-      }
-    } else {
-      // Handle the case when there are no more questions
-      this.explanationText = '';
-    }
-  }
-
-  onAnswerSelectedOrNextQuestionClicked(): void {
-    // Clear or hide the explanation text
-    this.clearExplanationText();
-
-    // Load explanation text for the next question
-    this.loadExplanationTextForNextQuestion();
   }
 
   animationDoneHandler(): void {
