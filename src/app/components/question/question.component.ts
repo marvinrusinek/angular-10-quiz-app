@@ -1285,11 +1285,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isSelectedOption(option: Option): boolean {
-    console.log('this.selectedOption:', this.selectedOption);
-    console.log('option:', option);
-    /* return (
-      this.selectedOption && this.selectedOption.optionId === option.optionId
-    ); */
     return this.selectedOption === option;
   }
 
