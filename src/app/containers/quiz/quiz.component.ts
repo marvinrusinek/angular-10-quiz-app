@@ -187,13 +187,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private fb: FormBuilder,
     private cdRef: ChangeDetectorRef
   ) {
-    this.form = this.fb.group({
-      selectedOption: [null]
-    });
-
     this.elapsedTimeDisplay = 0;
 
     this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
