@@ -15,6 +15,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
+  firstValueFrom,
   Observable,
   of,
   ReplaySubject,
@@ -1226,13 +1227,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     if (questionData && questionData.explanation) {
       this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
 
-      const formattedExplanationObservable =
+      try {
+        const formattedExplanationObservable =
         this.explanationTextService.formatExplanationText(
           questionData,
           questionIndex
         );
-
-      try {
         const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
 
         // Ensure formattedExplanation is not void
