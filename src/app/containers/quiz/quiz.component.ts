@@ -323,8 +323,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   isQuizQuestion(obj: any): obj is QuizQuestion {
-    return 'questionText' in obj && 'options' in obj && 'explanation' in obj;
-  }
+    return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
+  }  
 
   private fetchQuestionAndOptions(): void {
     if (document.hidden) {
