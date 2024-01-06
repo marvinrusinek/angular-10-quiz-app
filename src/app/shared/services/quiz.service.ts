@@ -851,47 +851,47 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
-    const currentQuiz = this.getCurrentQuiz();
-    const previousIndex = questionIndex - 1;
+  getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
+    return new Promise((resolve, reject) => {
+      const currentQuiz = this.getCurrentQuiz();
+      const previousIndex = questionIndex - 1;
   
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      previousIndex >= 0 &&
-      previousIndex < currentQuiz.questions.length
-    ) {
-      return currentQuiz.questions[previousIndex];
-    }
-  
-    return undefined;
+      if (currentQuiz &&
+          currentQuiz.questions &&
+          previousIndex >= 0 &&
+          previousIndex < currentQuiz.questions.length) {
+        resolve(currentQuiz.questions[previousIndex]);
+      } else {
+        resolve(undefined);
+      }
+    });
   }
+    
+  getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
+    return new Promise((resolve, reject) => {
+      const currentQuiz = this.getCurrentQuiz();
   
-  getNextOptions(currentQuestionIndex: number): Option[] | undefined {
-    const currentQuiz = this.getCurrentQuiz();
+      if (currentQuiz &&
+          currentQuiz.questions &&
+          currentQuestionIndex >= 0 &&
+          currentQuestionIndex < currentQuiz.questions.length) {
+        const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
   
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      currentQuestionIndex >= 0 &&
-      currentQuestionIndex < currentQuiz.questions.length
-    ) {
-      const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+        // Broadcasting the current options
+        this.nextOptionsSource.next(currentOptions);
+        this.nextOptionsSubject.next(currentOptions);
   
-      // Broadcasting the current options
-      this.nextOptionsSource.next(currentOptions);
-      this.nextOptionsSubject.next(currentOptions);
+        resolve(currentOptions);
+      } else {
+        // Broadcasting null when index is invalid
+        this.nextOptionsSource.next(null);
+        this.nextOptionsSubject.next(null);
   
-      return currentOptions;
-    }
-  
-    // Broadcasting null when index is invalid
-    this.nextOptionsSource.next(null);
-    this.nextOptionsSubject.next(null);
-  
-    return undefined;
+        reject(new Error('Invalid question index'));
+      }
+    });
   }
-  
+    
   async getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
     try {
       const previousQuestion = await this.getPreviousQuestion(questionIndex);
