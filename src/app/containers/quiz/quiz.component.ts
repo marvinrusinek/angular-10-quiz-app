@@ -1275,9 +1275,16 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadQuestion(index: number) {
+    this.currentQuestionIndex = index;
+    this.currentQuestionText = this.questions[index].questionText;
+    this.cdRef.detectChanges();
+  }
+
   restartQuiz(): void {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
+    this.loadQuestion(0);
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
     });
