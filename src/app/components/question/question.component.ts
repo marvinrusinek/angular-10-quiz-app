@@ -281,8 +281,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private logInitialData(): void {
     console.log('this.questionData:', this.questionData);
-    console.log('this.data:', this.data);
-    console.log('this.data.currentOptions:', this.data?.options);
   }
 
   private initializeQuizQuestion(): void {
