@@ -188,18 +188,6 @@ export class ExplanationTextService implements OnDestroy {
       .map((option, index) => option.correct ? index + 1 : null)
       .filter(index => index !== null);
   }
-  
-  /* private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
-    if (correctOptionIndices.length > 1) {
-      question.type = QuestionType.MultipleAnswer;
-      return `Options ${correctOptionIndices.join(' and ')} are correct because ${question.explanation}`;
-    } else if (correctOptionIndices.length === 1) {
-      question.type = QuestionType.SingleAnswer;
-      return `Option ${correctOptionIndices[0]} is correct because ${question.explanation}`;
-    } else {
-      return 'No correct option selected...';
-    }
-  } */
 
   private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
     if (correctOptionIndices.length > 1) {
