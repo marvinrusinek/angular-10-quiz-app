@@ -148,7 +148,7 @@ export class ExplanationTextService implements OnDestroy {
     return this.explanationTexts[questionId];
   }
 
-  getFormattedExplanation$() {
+  getFormattedExplanation$(): Observable<string> {
     return this.formattedExplanation$.asObservable();
   }
 
