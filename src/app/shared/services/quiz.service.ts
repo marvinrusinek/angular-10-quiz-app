@@ -287,7 +287,7 @@ export class QuizService implements OnDestroy {
     this.loadRouteParams();
   }
 
-  public loadQuizData() {
+  public loadQuizData(): void {
     this.getQuizData()
       .pipe(
         distinctUntilChanged(),
@@ -301,7 +301,7 @@ export class QuizService implements OnDestroy {
           console.error('Error fetching quiz data:', err);
         }
       });
-  }  
+  }
 
   public loadRouteParams(): void {
     this.activatedRoute.paramMap
