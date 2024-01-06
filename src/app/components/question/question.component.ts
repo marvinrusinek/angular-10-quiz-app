@@ -79,7 +79,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() questionData: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
-  // @Input() questions: Observable<QuizQuestion[]> = of([]);
   @Input() questions: Observable<QuizQuestion[]>;
   @Input() options: Option[];
   @Input() optionsToDisplay: Option[];
@@ -98,7 +97,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isOptionSelected: boolean = false;
   @Input() selectionMessage: string;
   @Input() showFeedback: boolean = false;
-
 
   combinedQuestionData$: Subject<{
     questionText: string;
