@@ -1207,7 +1207,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.initializeExplanationTextDisplay();
 
     if (document.hidden) {
-        return;
+      return;
     }
 
     const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
