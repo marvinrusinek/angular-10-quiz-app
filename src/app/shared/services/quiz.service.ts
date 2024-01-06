@@ -892,20 +892,23 @@ export class QuizService implements OnDestroy {
     });
   }
     
-  async getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
-    try {
-      const previousQuestion = await this.getPreviousQuestion(questionIndex);
-      if (previousQuestion) {
-        console.log('Previous question retrieved:', previousQuestion);
-        return previousQuestion.options;
+  getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const previousQuestion = await this.getPreviousQuestion(questionIndex);
+        if (previousQuestion) {
+          console.log('Previous question retrieved:', previousQuestion);
+          resolve(previousQuestion.options); // Resolve with the options
+        } else {
+          console.log('No previous question found.');
+          resolve([]); // Resolve with an empty array
+        }
+      } catch (error) {
+        console.error('Error occurred while fetching options for the previous question:', error);
+        reject(error); // Reject the promise in case of an error
       }
-      console.log('No previous question found.');
-      return [];
-    } catch (error) {
-      console.error('Error occurred while fetching options for the previous question:', error);
-      throw error;
-    }
-  }
+    });
+  }  
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.questions$.pipe(
