@@ -1,9 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'codelab-question-generic',
-  templateUrl: './codelab-question-generic.component.html'
+  templateUrl: './codelab-question-generic.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodelabQuestionGenericComponent implements OnChanges {
   @Input() form: FormGroup;
