@@ -1280,59 +1280,52 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(): Promise<void> {
     try {
       const quizId = this.quizId;
-      const filteredQuestions = await lastValueFrom(
-        this.getQuestionsForQuiz(quizId)
-      ); // captures all the quizzes
-      
-      // logs the correct quiz questions correctly
-      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
+      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+  
+      if (!questionsData || !questionsData.questions) {
+        console.error('No questions data found for quizId:', quizId);
+        return;
+      }
+  
       this.questions = questionsData.questions;
-
-      // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
-      filteredQuestions.questions.forEach((question) => {
-        if (question?.options) {
-          const correctOptionNumbers = question.options
-            .filter((option) => option?.correct)
-            .map((option) => option?.optionId);
+  
+      this.questions.forEach((question) => {
+        const options = question.options || [];
+        const correctOptionNumbers = options
+          .filter((option) => option?.correct)
+          .map((option) => option?.optionId);
+  
+        if (correctOptionNumbers.length > 0) {
           correctAnswers.set(question.questionText, correctOptionNumbers);
         } else {
-          console.log('Options are undefined for question:', question);
+          console.log('No correct options or options are undefined for question:', question);
         }
       });
-
-      this.fetchCorrectAnswers();
+  
       this.correctAnswersSubject.next(correctAnswers);
-
+  
       const combinedQuestionData = {
         questionText: this.data.questionText,
         correctAnswersText: '',
         currentOptions: this.data.currentOptions,
       };
-
+  
       console.log('Combined Question Data to Emit:', combinedQuestionData);
       this.combinedQuestionDataSubject.next(combinedQuestionData);
-
-      // Update combinedQuestionDataSubject and fetch correct answers if needed
-      /* this.combinedQuestionDataSubject.next({
-        questionText: this.data.questionText,
-        correctAnswersText: '',
-        currentOptions: this.data.currentOptions,
-      }); */
-
-      // Fetch the correct answers for each question if they are not already available
+  
       this.questions.forEach((question) => {
         const currentCorrectAnswers = correctAnswers.get(question.questionText);
         if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
           this.setCorrectAnswers(question, this.data.currentOptions);
         }
       });
-
+  
       this.correctAnswersLoadedSubject.next(true);
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
     }
-  }
+  }  
 
   fetchCorrectAnswers(): void {
     // Assuming you have fetched the quiz questions and stored them in this.questions
