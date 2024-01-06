@@ -15,7 +15,6 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
-  firstValueFrom,
   Observable,
   of,
   ReplaySubject,
@@ -889,6 +888,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     data: any,
     currentOptions: Option[]
   ): Promise<void> {
+    console.log('Fetching correct answer text...');
     console.log('Data:', data);
 
     // Map option IDs to Option objects
@@ -1127,21 +1127,25 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptions.splice(index, 1);
     console.log('Option is already selected or clicked to unselect.');
   }
-
+  
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizStateService.isMultipleAnswer(currentQuestion).pipe(
-      tap(() => {
+    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
+      (isMultipleAnswer) => {
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+  
         if (this.quizService.selectedOptions.length > 0) {
           this.fetchQuestionsArray(currentQuestion);
         } else {
           this.explanationText$.next('');
         }
-      }),
-      catchError((error) => {
+      },
+      (error) => {
         console.error('Error in isMultipleAnswer subscription:', error);
-        return of([]);
-      })
-    ).subscribe();
+      },
+      () => {
+        console.log('isMultipleAnswer subscription completed');
+      }
+    );
   }
   
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
@@ -1212,46 +1216,40 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async setExplanationText(questionIndex: number): Promise<void> {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-  
+
     if (document.hidden) {
       return;
     }
-  
+
     const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
 
-    if (questionData && questionData.explanation) {
-      this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
-  
-      try {
-        const formattedExplanationObservable =
-          this.explanationTextService.formatExplanationText(questionData, questionIndex);
-        const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
-  
-        // Ensure formattedExplanation is not void
-        if (formattedExplanation) {
-          // Extract the explanation string if formattedExplanation is an object
-          const explanationText =
-            typeof formattedExplanation === 'string'
-              ? formattedExplanation
-              : formattedExplanation.explanation || 'No explanation available';
-  
-          this.explanationText$.next(explanationText);
-          this.updateCombinedQuestionData(
-            this.questions[questionIndex],
-            explanationText
-          );
-  
-          this.isAnswerSelectedChange.emit(true);
-          this.toggleVisibility.emit();
-          this.updateFeedbackVisibility();
-        } else {
-          console.error('Error: formatExplanationText returned void');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
+    this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
+
+    const formattedExplanation =
+      await this.explanationTextService.formatExplanationText(
+        questionData,
+        questionIndex
+      );
+
+    // Ensure formattedExplanation is not void
+    if (formattedExplanation) {
+      // Extract the explanation string if formattedExplanation is an object
+      const explanationText =
+      typeof formattedExplanation === 'string'
+        ? formattedExplanation
+        : formattedExplanation.explanation || 'No explanation available';
+
+      this.explanationText$.next(explanationText);
+      this.updateCombinedQuestionData(
+        this.questions[questionIndex],
+        explanationText
+      );
+
+      this.isAnswerSelectedChange.emit(true);
+      this.toggleVisibility.emit();
+      this.updateFeedbackVisibility();
     } else {
-      console.error('Error: questionData or explanation is undefined');
+      console.error('Error: formatExplanationText returned void');
     }
   }
 
@@ -1277,6 +1275,11 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isSelectedOption(option: Option): boolean {
+    console.log('this.selectedOption:', this.selectedOption);
+    console.log('option:', option);
+    /* return (
+      this.selectedOption && this.selectedOption.optionId === option.optionId
+    ); */
     return this.selectedOption === option;
   }
 

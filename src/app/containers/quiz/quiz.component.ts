@@ -7,8 +7,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
-  NgZone
+  Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -29,8 +28,6 @@ import {
   Subscription
 } from 'rxjs';
 import {
-  debounceTime,
-  delay,
   distinctUntilChanged,
   filter,
   map,
@@ -190,8 +187,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone
+    private cdRef: ChangeDetectorRef
   ) {
     this.elapsedTimeDisplay = 0;
 
@@ -221,13 +217,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Set up observables
     this.setObservables();
 
-    this.quizService.quizData$.pipe(
-      debounceTime(100)
-    ).subscribe(data => {
-      this.ngZone.run(() => { // Ensures change detection runs after setting data
-        this.quizData = data;
-      });
-    });
     // Initialize quiz-related properties
     this.initializeQuiz();
 
@@ -277,6 +266,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Check if quizData and this.quizId are defined
         if (quizData && quizId) {
+          console.log('Both quizData and quizId are defined.');
+
           // Confirm values for debugging
           console.log('quizData[quizId]:', quizData[quizId]);
 
@@ -290,7 +281,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Check if currentQuiz is defined
           if (currentQuiz) {
-            console.log('Current Quiz:::', currentQuiz);
+            console.log('Current Quiz:', currentQuiz);
             if (
               currentQuestionIndex >= 0 &&
               currentQuestionIndex < currentQuiz.questions?.length
@@ -506,6 +497,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
+      console.log('Route params:', params);
       this.quizId = params['quizId'];
 
       const routeQuestionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
@@ -848,6 +840,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setOptions(): void {
+    console.log('Setting options...');
+    console.log('Question:', this.question);
     console.log('Answers:', this.answers);
 
     if (!this.question) {
@@ -860,7 +854,18 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const options = this.question?.options?.map(option => option.value ?? 0) || [];
+    console.log('Options array:', this.question.options);
+
+    console.log('Options array before modification:', this.question.options);
+    const options =
+      this.question && this.question.options
+        ? this.question.options.map((option, index) => {
+            const value = 'value' in option ? option.value : 0;
+            console.log(`Original option ${index}:`, option);
+            console.log(`Modified value ${index}:`, value);
+            return value;
+          })
+        : [];
     console.log('Options array after modification:', options);
 
     this.quizService.setAnswers(options);
@@ -1195,6 +1200,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
+
+    console.log('Exiting fetchAndSetQuestionData');
   }
   
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
@@ -1286,16 +1293,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadQuestion(index: number) {
-    this.currentQuestionIndex = index;
-    this.currentQuestionText = this.questions[index].questionText;
-    this.cdRef.detectChanges();
-  }
-
   restartQuiz(): void {
     this.quizService.resetAll();
     this.quizService.resetQuestions();
-    this.loadQuestion(0);
     this.timerService.stopTimer((elapsedTime: number) => {
       this.elapsedTimeDisplay = elapsedTime;
     });
