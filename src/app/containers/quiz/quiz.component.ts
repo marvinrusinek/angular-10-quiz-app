@@ -266,8 +266,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
         // Check if quizData and this.quizId are defined
         if (quizData && quizId) {
-          console.log('Both quizData and quizId are defined.');
-
           // Confirm values for debugging
           console.log('quizData[quizId]:', quizData[quizId]);
 
