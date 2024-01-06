@@ -279,7 +279,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Check if currentQuiz is defined
           if (currentQuiz) {
-            console.log('Current Quiz:', currentQuiz);
+            console.log('Current Quiz:::', currentQuiz);
             if (
               currentQuestionIndex >= 0 &&
               currentQuestionIndex < currentQuiz.questions?.length
