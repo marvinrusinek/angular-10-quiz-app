@@ -45,12 +45,6 @@ import { SelectionMessageService } from '../../shared/services/selection-message
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { TimerService } from '../../shared/services/timer.service';
 
-enum QuestionType {
-  SingleAnswer = 'single_answer',
-  MultipleAnswer = 'multiple_answer',
-  TrueFalse = 'true_false'
-}
-
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
@@ -104,7 +98,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isOptionSelected: boolean = false;
   @Input() selectionMessage: string;
   @Input() showFeedback: boolean = false;
-  @Input() questionType: 'multiple' | 'single';
+
 
   combinedQuestionData$: Subject<{
     questionText: string;
