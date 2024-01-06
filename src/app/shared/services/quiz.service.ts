@@ -817,7 +817,7 @@ export class QuizService implements OnDestroy {
     return this.selectedQuiz.questions.length;
   }
 
-  /* getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
+  getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
     return new Promise((resolve, reject) => {
       try {
         const currentQuiz = this.getCurrentQuiz();
@@ -849,9 +849,9 @@ export class QuizService implements OnDestroy {
         reject(error);
       }
     });
-  } */
+  }
   
-  getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
+  /* getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
     const currentQuiz = this.getCurrentQuiz();
 
     if (
@@ -872,7 +872,7 @@ export class QuizService implements OnDestroy {
     this.nextQuestionSubject.next(null);
 
     return undefined;
-  }
+  } */
 
   async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     const currentQuiz = this.getCurrentQuiz();
