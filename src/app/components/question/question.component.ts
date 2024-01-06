@@ -1127,25 +1127,21 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptions.splice(index, 1);
     console.log('Option is already selected or clicked to unselect.');
   }
-  
+
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
-      (isMultipleAnswer) => {
-        console.log('isMultipleAnswer:', isMultipleAnswer);
-  
+    this.quizStateService.isMultipleAnswer(currentQuestion).pipe(
+      tap(() => {
         if (this.quizService.selectedOptions.length > 0) {
           this.fetchQuestionsArray(currentQuestion);
         } else {
           this.explanationText$.next('');
         }
-      },
-      (error) => {
+      }),
+      catchError((error) => {
         console.error('Error in isMultipleAnswer subscription:', error);
-      },
-      () => {
-        console.log('isMultipleAnswer subscription completed');
-      }
-    );
+        return of([]);
+      })
+    ).subscribe();
   }
   
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
