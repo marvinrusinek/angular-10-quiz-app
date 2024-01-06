@@ -113,12 +113,6 @@ export class MultipleAnswerComponent extends QuizQuestionComponent implements Af
     );
     console.log('CodelabQuizMultipleAnswerComponent - Options:', this.options);
 
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        console.log('MultipleAnswerComponent destroyed');
-      }
-    });
-
     if (this.currentQuestion && !this.currentQuestion.selectedOptions) {
       this.currentQuestion.selectedOptions = [];
     }

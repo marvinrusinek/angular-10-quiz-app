@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {
   BehaviorSubject,
+  firstValueFrom,
   from,
-  lastValueFrom,
   Observable,
   of,
   Subject,
@@ -1279,12 +1279,12 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(): Promise<void> {
     try {
       const quizId = this.quizId;
-      const filteredQuestions = await lastValueFrom(
+      const filteredQuestions = await firstValueFrom(
         this.getQuestionsForQuiz(quizId)
       ); // captures all the quizzes
       
       // logs the correct quiz questions correctly
-      const questionsData = await this.getQuestionsForQuiz(this.quizId).toPromise();
+      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
       this.questions = questionsData.questions;
 
       console.log('Questions after reset:', this.questions);
