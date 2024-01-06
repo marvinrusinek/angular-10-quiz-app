@@ -228,7 +228,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   }  
 
-  setCurrentQuestionExplanation(explanation: string) {
+  setCurrentQuestionExplanation(explanation: string): void {
     this.currentQuestionExplanation = explanation;
   }
 
@@ -279,7 +279,7 @@ export class ExplanationTextService implements OnDestroy {
     this.nextExplanationTextSource.next('');
   }
 
-  resetExplanationState() {
+  resetExplanationState(): void {
     this.formattedExplanation$.next('');
     this.explanationTexts = {};
     this.nextExplanationText$ = new BehaviorSubject<string | null>(null);
@@ -289,7 +289,7 @@ export class ExplanationTextService implements OnDestroy {
     this.nextExplanationTextSource.next('');
   }
 
-  resetProcessedQuestionsState() {
+  resetProcessedQuestionsState(): void {
     this.processedQuestions = new Set<string>();
   } 
 }
