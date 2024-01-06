@@ -1211,9 +1211,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   
     const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    console.log("QD", questionData);
-    console.log("QDE", questionData.explanation);
-
     if (questionData && questionData.explanation) {
       this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
   
