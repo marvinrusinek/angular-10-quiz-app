@@ -1203,49 +1203,60 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async setExplanationText(questionIndex: number): Promise<void> {
-    this.isExplanationTextDisplayed = true;
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
-  
+    this.setExplanationDisplayState(true);
+    
     if (document.hidden) {
       return;
     }
   
-    const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
-    if (questionData && questionData.explanation) {
-      this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
-  
-      try {
-        const formattedExplanationObservable =
-          this.explanationTextService.formatExplanationText(questionData, questionIndex);
-        const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
-  
-        // Ensure formattedExplanation is not void
-        if (formattedExplanation) {
-          // Extract the explanation string if formattedExplanation is an object
-          const explanationText =
-            typeof formattedExplanation === 'string'
-              ? formattedExplanation
-              : formattedExplanation.explanation || 'No explanation available';
-  
-          this.explanationText$.next(explanationText);
-          this.updateCombinedQuestionData(
-            this.questions[questionIndex],
-            explanationText
-          );
-  
-          this.isAnswerSelectedChange.emit(true);
-          this.toggleVisibility.emit();
-          this.updateFeedbackVisibility();
-        } else {
-          console.error('Error: formatExplanationText returned void');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
+    const questionData = this.getNextQuestionData(this.currentQuestionIndex);
+    if (questionData?.explanation) {
+      this.processExplanationText(questionData, questionIndex);
     } else {
-      console.error('Error: questionData or explanation is undefined');
+      this.logError('questionData or explanation is undefined');
     }
   }
+  
+  private setExplanationDisplayState(isDisplayed: boolean): void {
+    this.isExplanationTextDisplayed = isDisplayed;
+    this.explanationTextService.setIsExplanationTextDisplayed(isDisplayed);
+  }
+  
+  private getNextQuestionData(questionIndex: number): QuizQuestion {
+    return this.quizService.getNextQuestion(questionIndex);
+  }
+  
+  private async processExplanationText(questionData: QuizQuestion, questionIndex: number): Promise<void> {
+    try {
+      const formattedExplanationObservable = this.explanationTextService.formatExplanationText(questionData, questionIndex);
+      const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
+      this.handleFormattedExplanation(formattedExplanation, questionIndex);
+    } catch (error) {
+      this.logError('Error in processing explanation text', error);
+    }
+  }
+  
+  private handleFormattedExplanation(formattedExplanation: any, questionIndex: number): void {
+    if (formattedExplanation) {
+      const explanationText = typeof formattedExplanation === 'string' ? formattedExplanation : formattedExplanation.explanation || 'No explanation available';
+      this.updateUI(questionIndex, explanationText);
+    } else {
+      this.logError('formatExplanationText returned void');
+    }
+  }
+  
+  private updateUI(questionIndex: number, explanationText: string): void {
+    this.explanationText$.next(explanationText);
+    this.updateCombinedQuestionData(this.questions[questionIndex], explanationText);
+    this.isAnswerSelectedChange.emit(true);
+    this.toggleVisibility.emit();
+    this.updateFeedbackVisibility();
+  }
+  
+  private logError(message: string, error?: any): void {
+    console.error(message, error);
+  }
+  
 
   updateCombinedQuestionData(
     currentQuestion: QuizQuestion,
