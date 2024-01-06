@@ -577,15 +577,28 @@ export class QuizComponent implements OnInit, OnDestroy {
   initializeFirstQuestionText(): void {
     this.quizDataService
       .getQuestionsForQuiz(this.quizId)
-      .subscribe((questions: QuizQuestion[]) => {
-        if (questions && questions.length > 0) {
-          this.questions = questions;
-          this.questionToDisplay = questions[0].questionText;
-          this.optionsToDisplay = questions[0].options;
+      .subscribe({
+        next: (questions: QuizQuestion[]) => {
+          if (questions && questions.length > 0) {
+            this.questions = questions;
+            this.currentQuestion = questions[0];
+            this.questionToDisplay = this.currentQuestion.questionText;
+            this.optionsToDisplay = this.currentQuestion.options;
+          } else {
+            this.questions = [];
+            this.currentQuestion = null;
+            this.questionToDisplay = 'No questions available.';
+            this.optionsToDisplay = [];
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching questions:', err);
+          this.questionToDisplay = 'Error loading questions.';
+          this.optionsToDisplay = [];
         }
       });
   }
-
+  
   initializeQuestionStreams(): void {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
