@@ -372,11 +372,6 @@ export class CodelabQuizContentComponent
 
   private initializeNextQuestionSubscription(): void {
     this.nextQuestionSubscription = this.quizService.nextQuestion$
-      .pipe(
-        tap((nextQuestion) =>
-          console.log('Next question received', nextQuestion)
-        )
-      )
       .subscribe((nextQuestion) => {
         const question = nextQuestion as QuizQuestion;
         if (nextQuestion) {
