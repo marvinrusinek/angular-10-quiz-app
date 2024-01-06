@@ -866,25 +866,6 @@ export class QuizService implements OnDestroy {
       }
     });
   }
-    
-  async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
-    const currentQuiz = this.getCurrentQuiz();
-    const previousIndex = questionIndex - 1;
-
-    console.log('Current Quiz:', currentQuiz);
-    console.log('Previous Index:', previousIndex);
-  
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      previousIndex >= 0 &&
-      previousIndex < currentQuiz.questions.length
-    ) {
-      return currentQuiz.questions[previousIndex];
-    }
-  
-    return undefined;
-  }
   
   getNextOptions(currentQuestionIndex: number): Option[] | undefined {
     const currentQuiz = this.getCurrentQuiz();
@@ -909,7 +890,22 @@ export class QuizService implements OnDestroy {
     this.nextOptionsSubject.next(null);
   
     return undefined;
-  }  
+  }
+  
+  async getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
+    try {
+      const previousQuestion = await this.getPreviousQuestion(questionIndex);
+      if (previousQuestion) {
+        console.log('Previous question retrieved:', previousQuestion);
+        return previousQuestion.options;
+      }
+      console.log('No previous question found.');
+      return [];
+    } catch (error) {
+      console.error('Error occurred while fetching options for the previous question:', error);
+      throw error;
+    }
+  } 
 
   getCurrentQuestion(): Observable<QuizQuestion> {
     return this.questions$.pipe(
