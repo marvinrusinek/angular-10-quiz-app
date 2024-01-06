@@ -330,9 +330,6 @@ export class QuizDataService implements OnDestroy {
     quizId: string,
     questionIndex: number
   ): Observable<[QuizQuestion, Option[]]> {
-    console.log(
-      `getQuestionAndOptions called with quizId: ${quizId} and questionIndex: ${questionIndex}`
-    );
     if (
       this.hasQuestionAndOptionsLoaded &&
       this.currentQuestionIndex === questionIndex
