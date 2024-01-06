@@ -1200,8 +1200,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
     }
-
-    console.log('Exiting fetchAndSetQuestionData');
   }
   
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
