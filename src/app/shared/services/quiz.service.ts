@@ -850,36 +850,10 @@ export class QuizService implements OnDestroy {
       }
     });
   }
-  
-  /* getNextQuestion(currentQuestionIndex: number): QuizQuestion | undefined {
-    const currentQuiz = this.getCurrentQuiz();
-
-    if (
-      currentQuiz &&
-      currentQuiz.questions &&
-      currentQuestionIndex >= 0 &&
-      currentQuestionIndex <= currentQuiz.questions.length - 1
-    ) {
-      const nextQuestion = currentQuiz.questions[currentQuestionIndex];
-
-      this.nextQuestionSource.next(nextQuestion);
-      this.nextQuestionSubject.next(nextQuestion);
-      this.setCurrentQuestionAndNext(nextQuestion, '');
-      return nextQuestion;
-    }
-
-    this.nextQuestionSource.next(null);
-    this.nextQuestionSubject.next(null);
-
-    return undefined;
-  } */
 
   async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     const currentQuiz = this.getCurrentQuiz();
     const previousIndex = questionIndex - 1;
-
-    console.log('Current Quiz:', currentQuiz);
-    console.log('Previous Index:', previousIndex);
   
     if (
       currentQuiz &&
