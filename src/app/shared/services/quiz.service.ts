@@ -299,7 +299,6 @@ export class QuizService implements OnDestroy {
         },
         error: (err) => {
           console.error('Error fetching quiz data:', err);
-          // Handle error appropriately
         }
       });
   }
