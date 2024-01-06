@@ -217,6 +217,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Set up observables
     this.setObservables();
 
+    this.quizService.loadQuizData().subscribe(quizData => {
+      this.quizData = quizData;
+    });
+
     // Initialize quiz-related properties
     this.initializeQuiz();
 
