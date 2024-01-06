@@ -38,7 +38,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.activatedRoute.params.pipe(
       takeUntil(this.unsubscribe$),
-      tap(params => console.log("Activated Route Params: ", params)), // Log the route parameters
       switchMap((params: Params) => {
         if (params.questionIndex !== undefined) {
           this.questionNumber = +params.questionIndex;
@@ -51,7 +50,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         console.error('Error in switchMap: ', error);
         return throwError(error);
       })
-    ).subscribe((totalQuestions) => {
+    ).subscribe((totalQuestions: number) => {
       if (totalQuestions !== null) {
         this.totalQuestions = totalQuestions;
         this.updateBadgeText(this.questionNumber, totalQuestions); // Update badgeText here
