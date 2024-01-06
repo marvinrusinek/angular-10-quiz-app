@@ -32,6 +32,7 @@ import {
   tap
 } from 'rxjs/operators';
 
+import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -1223,7 +1224,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private isValidQuestionData(questionData: QuizQuestion): boolean {
-    return questionData && questionData.explanation;
+    return !!questionData && !!questionData.explanation;
   }
 
   private async processExplanationText(questionData: QuizQuestion, questionIndex: number): Promise<void> {
@@ -1237,12 +1238,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private async getFormattedExplanation(questionData: QuizQuestion, questionIndex: number): Promise<any> {
+  private async getFormattedExplanation(questionData: QuizQuestion, questionIndex: number): Promise<{ questionIndex: number, explanation: string }> {
     const formattedExplanationObservable = this.explanationTextService.formatExplanationText(questionData, questionIndex);
     return firstValueFrom(formattedExplanationObservable);
   }
 
-  private handleFormattedExplanation(formattedExplanation: any, questionIndex: number): void {
+  private handleFormattedExplanation(formattedExplanation: FormattedExplanation, questionIndex: number): void {
     if (!formattedExplanation) {
       console.error('Error: formatExplanationText returned void');
       return;
