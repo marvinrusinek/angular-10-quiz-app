@@ -1210,7 +1210,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
     if (this.isValidQuestionData(questionData)) {
       await this.processExplanationText(questionData, questionIndex);
     } else {
