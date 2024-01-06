@@ -867,47 +867,48 @@ export class QuizService implements OnDestroy {
     });
   }
     
-  getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
-    return new Promise((resolve, reject) => {
-      const currentQuiz = this.getCurrentQuiz();
+  async getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
+    const currentQuiz = this.getCurrentQuiz();
+    const previousIndex = questionIndex - 1;
+
+    console.log('Current Quiz:', currentQuiz);
+    console.log('Previous Index:', previousIndex);
   
-      if (currentQuiz &&
-          currentQuiz.questions &&
-          currentQuestionIndex >= 0 &&
-          currentQuestionIndex < currentQuiz.questions.length) {
-        const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      previousIndex >= 0 &&
+      previousIndex < currentQuiz.questions.length
+    ) {
+      return currentQuiz.questions[previousIndex];
+    }
   
-        // Broadcasting the current options
-        this.nextOptionsSource.next(currentOptions);
-        this.nextOptionsSubject.next(currentOptions);
-  
-        resolve(currentOptions);
-      } else {
-        // Broadcasting null when index is invalid
-        this.nextOptionsSource.next(null);
-        this.nextOptionsSubject.next(null);
-  
-        reject(new Error('Invalid question index'));
-      }
-    });
+    return undefined;
   }
-    
-  getPreviousOptions(questionIndex: number): Promise<Option[] | undefined> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const previousQuestion = await this.getPreviousQuestion(questionIndex);
-        if (previousQuestion) {
-          console.log('Previous question retrieved:', previousQuestion);
-          resolve(previousQuestion.options); // Resolve with the options
-        } else {
-          console.log('No previous question found.');
-          resolve([]); // Resolve with an empty array
-        }
-      } catch (error) {
-        console.error('Error occurred while fetching options for the previous question:', error);
-        reject(error); // Reject the promise in case of an error
-      }
-    });
+  
+  getNextOptions(currentQuestionIndex: number): Option[] | undefined {
+    const currentQuiz = this.getCurrentQuiz();
+  
+    if (
+      currentQuiz &&
+      currentQuiz.questions &&
+      currentQuestionIndex >= 0 &&
+      currentQuestionIndex < currentQuiz.questions.length
+    ) {
+      const currentOptions = currentQuiz.questions[currentQuestionIndex].options;
+  
+      // Broadcasting the current options
+      this.nextOptionsSource.next(currentOptions);
+      this.nextOptionsSubject.next(currentOptions);
+  
+      return currentOptions;
+    }
+  
+    // Broadcasting null when index is invalid
+    this.nextOptionsSource.next(null);
+    this.nextOptionsSubject.next(null);
+  
+    return undefined;
   }  
 
   getCurrentQuestion(): Observable<QuizQuestion> {
