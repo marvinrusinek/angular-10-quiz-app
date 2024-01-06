@@ -15,6 +15,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
+  firstValueFrom,
   Observable,
   of,
   ReplaySubject,
@@ -1216,40 +1217,48 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async setExplanationText(questionIndex: number): Promise<void> {
     this.isExplanationTextDisplayed = true;
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-
+  
     if (document.hidden) {
       return;
     }
-
+  
     const questionData = this.quizService.getNextQuestion(this.currentQuestionIndex);
+    console.log("QD", questionData);
+    console.log("QDE", questionData.explanation);
 
-    this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
-
-    const formattedExplanation =
-      await this.explanationTextService.formatExplanationText(
-        questionData,
-        questionIndex
-      );
-
-    // Ensure formattedExplanation is not void
-    if (formattedExplanation) {
-      // Extract the explanation string if formattedExplanation is an object
-      const explanationText =
-      typeof formattedExplanation === 'string'
-        ? formattedExplanation
-        : formattedExplanation.explanation || 'No explanation available';
-
-      this.explanationText$.next(explanationText);
-      this.updateCombinedQuestionData(
-        this.questions[questionIndex],
-        explanationText
-      );
-
-      this.isAnswerSelectedChange.emit(true);
-      this.toggleVisibility.emit();
-      this.updateFeedbackVisibility();
+    if (questionData && questionData.explanation) {
+      this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
+  
+      try {
+        const formattedExplanationObservable =
+          this.explanationTextService.formatExplanationText(questionData, questionIndex);
+        const formattedExplanation = await firstValueFrom(formattedExplanationObservable);
+  
+        // Ensure formattedExplanation is not void
+        if (formattedExplanation) {
+          // Extract the explanation string if formattedExplanation is an object
+          const explanationText =
+            typeof formattedExplanation === 'string'
+              ? formattedExplanation
+              : formattedExplanation.explanation || 'No explanation available';
+  
+          this.explanationText$.next(explanationText);
+          this.updateCombinedQuestionData(
+            this.questions[questionIndex],
+            explanationText
+          );
+  
+          this.isAnswerSelectedChange.emit(true);
+          this.toggleVisibility.emit();
+          this.updateFeedbackVisibility();
+        } else {
+          console.error('Error: formatExplanationText returned void');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
     } else {
-      console.error('Error: formatExplanationText returned void');
+      console.error('Error: questionData or explanation is undefined');
     }
   }
 
@@ -1275,11 +1284,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isSelectedOption(option: Option): boolean {
-    console.log('this.selectedOption:', this.selectedOption);
-    console.log('option:', option);
-    /* return (
-      this.selectedOption && this.selectedOption.optionId === option.optionId
-    ); */
     return this.selectedOption === option;
   }
 
