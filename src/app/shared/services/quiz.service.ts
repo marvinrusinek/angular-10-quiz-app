@@ -287,7 +287,7 @@ export class QuizService implements OnDestroy {
     this.loadRouteParams();
   }
 
-  public loadQuizData(): void {
+  public loadQuizData() {
     this.getQuizData()
       .pipe(
         distinctUntilChanged(),
