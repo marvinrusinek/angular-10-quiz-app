@@ -7,7 +7,8 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
+  NgZone
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -28,6 +29,8 @@ import {
   Subscription
 } from 'rxjs';
 import {
+  debounceTime,
+  delay,
   distinctUntilChanged,
   filter,
   map,
@@ -187,7 +190,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     private highlightDirective: HighlightDirective,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {
     this.elapsedTimeDisplay = 0;
 
@@ -217,13 +221,13 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Set up observables
     this.setObservables();
 
-    this.quizService.quizData$.subscribe(data => {
-      setTimeout(() => {
+    this.quizService.quizData$.pipe(
+      debounceTime(100)
+    ).subscribe(data => {
+      this.ngZone.run(() => { // Ensures change detection runs after setting data
         this.quizData = data;
-        this.isLoading = false;
-      }, 100); // Delay of 100ms
+      });
     });
-
     // Initialize quiz-related properties
     this.initializeQuiz();
 
