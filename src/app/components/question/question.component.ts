@@ -201,7 +201,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       this.initialized = true;
       this.initializeSelectedQuiz();
       this.initializeSelectedOption();
-      this.loadQuizQuestions();
 
       try {
         this.activatedRoute.params.subscribe((params) => {
@@ -332,7 +331,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe();
   }
 
-  private loadQuizQuestions(): void {
+  private async loadQuizQuestions(): Promise<void> {
     this.quizService.fetchQuizQuestions();
   }
 
