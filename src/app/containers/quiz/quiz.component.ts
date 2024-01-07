@@ -852,8 +852,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setOptions(): void {
-    console.log('Setting options...');
-    console.log('Question:', this.question);
     console.log('Answers:', this.answers);
 
     if (!this.question) {
@@ -866,15 +864,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Options array:', this.question.options);
-
-    console.log('Options array before modification:', this.question.options);
     const options =
       this.question && this.question.options
         ? this.question.options.map((option, index) => {
             const value = 'value' in option ? option.value : 0;
-            console.log(`Original option ${index}:`, option);
-            console.log(`Modified value ${index}:`, value);
             return value;
           })
         : [];
