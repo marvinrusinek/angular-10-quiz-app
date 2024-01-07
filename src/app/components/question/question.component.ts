@@ -362,13 +362,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private subscribeToCorrectAnswersAndData(): void {
-    console.log('Subscribing to correctAnswers$ and combinedQuestionData$');
-
-    // Log emissions of the combinedQuestionData$ observable
-    this.quizService.combinedQuestionData$.subscribe((data) => {
-      console.log('Combined Question Data:::>>', data);
-    });
-
     combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$,
@@ -466,7 +459,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('questionData:::', this.questionData);
     console.log('data:::', this.data);
     console.log('data.currentOptions:::', this.data.options);
-    console.log('After the if condition...');
     console.log('MY CORR MSG', this.correctMessage);
   }
 
