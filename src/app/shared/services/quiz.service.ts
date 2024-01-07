@@ -607,30 +607,6 @@ export class QuizService implements OnDestroy {
   getOptionsObservable(): Observable<Option[] | null> {
     return this.optionsSubject.asObservable();
   }
-
-  async getOptionsForFirstQuestion(quizId: string): Promise<Option[]> {
-    console.log("GET OPTIONS");
-    try {
-      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
-      console.log("QD", questionsData);
-      const questions = questionsData.questions;
-  
-      if (
-        Array.isArray(questions) &&
-        questions.length > 0 &&
-        Array.isArray(questions[0].questions) &&
-        questions[0].questions.length > 0 &&
-        Array.isArray(questions[0].questions[0].options)
-      ) {
-        return questions[0].questions[0].options;
-      } else {
-        return Promise.reject('No questions found or no options available for the provided quiz ID');
-      }           
-    } catch (error) {
-      console.error('Error occurred while fetching options for the first question:', error);
-      throw error;
-    }
-  }
     
   getCurrentQuizId(): string {
     return this.quizId;
