@@ -134,7 +134,6 @@ export class CodelabQuizContentComponent
 
     this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
     .subscribe((data: CombinedQuestionDataType) => {
-      console.log('Combined Question Data:', data);
       if (data && data.currentQuestion) {
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
           .pipe(takeUntil(this.destroy$))
@@ -416,8 +415,7 @@ export class CodelabQuizContentComponent
     return this.quizStateService.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
-        currentQuestion,
-        currentOptions
+        currentQuestion, currentOptions
       }))
     );
   }
@@ -431,7 +429,6 @@ export class CodelabQuizContentComponent
     isExplanationDisplayed: boolean,
     formattedExplanation: string
   ): Observable<CombinedQuestionDataType> {
-    console.log("CQD", currentQuestionData);
     const { currentQuestion, currentOptions } = currentQuestionData;
   
     const questionText = currentQuestion
