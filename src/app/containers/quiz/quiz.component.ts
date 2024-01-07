@@ -1119,6 +1119,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     return await firstValueFrom(this.quizService.getTotalQuestions());
   }
 
+  loadCurrentQuestionAndExplanation(): void {
+    // Assuming 'questions' is an array of all questions
+    if (this.questionIndex < this.questions.length) {
+      this.currentQuestion = this.questions[this.questionIndex];
+      // Load the explanation for the current question
+      // ...
+    }
+  }
+
   /************************ paging functions *********************/
   async advanceToNextQuestion(): Promise<void> {
     if (this.isNavigating) {
@@ -1138,6 +1147,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
+        this.loadCurrentQuestionAndExplanation();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
