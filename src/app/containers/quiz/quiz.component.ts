@@ -310,13 +310,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
-
-    // Add the code to fetch and initialize explanation texts
-    this.quizDataService
-      .getAllExplanationTextsForQuiz(this.quizId)
-      .subscribe((explanations) => {
-        this.explanationTextService.initializeExplanations(explanations);
-      });
   }
 
   isQuizQuestion(obj: any): obj is QuizQuestion {
@@ -395,6 +388,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.explanationTextService.getExplanationText$()
       .subscribe((explanationText: string | null) => {
         this.explanationText = explanationText;
+      });
+
+    this.quizDataService
+      .getAllExplanationTextsForQuiz(this.quizId)
+      .subscribe((explanations) => {
+        this.explanationTextService.initializeExplanations(explanations);
       });
   }
 
