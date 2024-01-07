@@ -23,12 +23,11 @@ import {
   startWith,
   switchMap,
   takeUntil,
-  tap,
   withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
-import { CombinedDataType } from '../../../shared/models/CombinedDataType.model';
+import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
@@ -47,7 +46,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
 export class CodelabQuizContentComponent
   implements OnInit, OnChanges, OnDestroy
 {
-  @Input() combinedQuestionData$: Observable<CombinedDataType> | null = null;
+  @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion: BehaviorSubject<QuizQuestion> =
     new BehaviorSubject<QuizQuestion>(null);
   @Input() explanationToDisplay: string;
