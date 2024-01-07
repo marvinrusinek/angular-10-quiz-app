@@ -657,7 +657,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.initializeSelectedQuizData(selectedQuiz);
 
-      const questionData: QuizQuestion = await this.fetchQuestionData(quizId, questionIndex);
+      const questionData: CombinedQuestionDataType = await this.fetchQuestionData(quizId, questionIndex);
       if (questionData) {
         this.processQuestionData(questionData);
       } else {
