@@ -87,12 +87,7 @@ enum QuestionType {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Input() data: {
-    questionText: string;
-    correctAnswersText?: string;
-    currentOptions: Option[];
-    explanationText: string;
-  };
+  @Input() data: QuizQuestion;
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -711,17 +706,17 @@ private processQuestionData(questionData: QuizQuestion): void {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
-    this.quizService.setCurrentOptions(this.data.currentOptions);
+    this.quizService.setCurrentOptions(this.data.options);
   
     const currentQuestion: QuizQuestion = {
       questionText: this.data.questionText,
-      options: this.data.currentOptions,
-      explanation: this.data.explanationText,
+      options: this.data.options,
+      explanation: this.data.explanation,
       type: QuestionType.MultipleAnswer
     };
     this.question = currentQuestion;
   
-    const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
+    const correctAnswerOptions = this.data.options.filter((option) => option.correct);
     this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
     this.quizService.setCorrectAnswersLoaded(true);
     this.quizService.correctAnswersLoadedSubject.next(true);
@@ -805,7 +800,7 @@ private processQuestionData(questionData: QuizQuestion): void {
   }
 
   private handleQuizData(
-    quiz: Quiz,
+    quiz: Quiz, 
     currentQuestionIndex: number
   ): void {
     if (!quiz) {
@@ -828,7 +823,6 @@ private processQuestionData(questionData: QuizQuestion): void {
       console.error('Question not found');
       return;
     }
-
     this.question = question;
   }
 
