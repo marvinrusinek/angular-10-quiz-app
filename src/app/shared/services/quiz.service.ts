@@ -611,7 +611,7 @@ export class QuizService implements OnDestroy {
   async getOptionsForFirstQuestion(quizId: string): Promise<Option[]> {
     console.log("GET OPTIONS");
     try {
-      const questionsData = await this.getQuestionsForQuiz(quizId).toPromise();
+      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
       console.log("QD", questionsData);
       const questions = questionsData.questions;
   
