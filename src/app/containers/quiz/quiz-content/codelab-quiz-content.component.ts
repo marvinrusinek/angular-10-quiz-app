@@ -393,9 +393,7 @@ export class CodelabQuizContentComponent
   }
 
   private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions().pipe(
-      tap((data: any) => console.log('Current Question and Options:', data))
-    );
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
   
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
   
