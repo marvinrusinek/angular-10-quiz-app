@@ -839,7 +839,7 @@ export class QuizService implements OnDestroy {
   }  
 
   getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const currentQuiz = this.getCurrentQuiz();
       const previousIndex = questionIndex - 1;
   
@@ -892,25 +892,11 @@ export class QuizService implements OnDestroy {
       console.error('Error occurred while fetching options for the previous question:', error);
       throw error;
     }
-  } 
+  }
 
   getCurrentQuestion(): Observable<QuizQuestion> {
-    return this.questions$.pipe(
-      map(questions => {
-        const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-        return questions[currentQuestionIndex];
-      }),
-      tap(currentQuestion => this.currentQuestionSubject.next(currentQuestion)),
-      catchError(error => {
-        console.error('Error getting quiz questions:', error);
-        return throwError(error);
-      })
-    );
-  }
-  
-  /* getCurrentQuestion(): Observable<QuizQuestion> {
     const quizId = this.getCurrentQuizId();
-    
+  
     return this.getQuestionsForQuiz(quizId).pipe(
       tap(({ quizId, questions }) => {
         this.questions = questions;
@@ -933,7 +919,8 @@ export class QuizService implements OnDestroy {
         }
       })
     );
-  } */
+  }
+  
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
