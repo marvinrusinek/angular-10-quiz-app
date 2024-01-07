@@ -856,13 +856,7 @@ private processQuestionData(questionData: QuizQuestion): void {
       return;
     }
 
-    const options =
-      this.question && this.question.options
-        ? this.question.options.map((option, index) => {
-            const value = 'value' in option ? option.value : 0;
-            return value;
-          })
-        : [];
+    const options = this.question?.options?.map(option => option.value ?? 0) || [];
     console.log('Options array after modification:', options);
 
     this.quizService.setAnswers(options);
