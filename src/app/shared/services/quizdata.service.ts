@@ -276,16 +276,16 @@ export class QuizDataService implements OnDestroy {
     questionIndex: number
   ): Observable<QuizQuestion | null> {
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      switchMap(([question, options]) => {
+      switchMap(([question]) => {
         if (!question) {
           return of(null); // Question not found
         }
 
         return of(question);
       }),
-      catchError((error) => {
+      catchError((error: any) => {
         console.error('Error getting quiz question:', error);
-        return throwError(error);
+        return throwError(() => new Error(error));
       }),
       distinctUntilChanged()
     );
