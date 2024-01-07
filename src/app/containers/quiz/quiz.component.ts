@@ -458,29 +458,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   private isQuiz(item: any): item is Quiz {
     return typeof item === 'object' && 'quizId' in item;
   }
-
-  handleRouteParameters(quizId: string, questionIndex: number): void {
-    this.quizId = quizId;
-    this.questionIndex = questionIndex;
-  
-    if (this.questionIndex === 0) {
-      this.initializeFirstQuestionText();
-    } else {
-      this.updateQuestionDisplay(this.questionIndex);
-    }
-  
-    this.getNextQuestion();
-  }
-
-  getRouteParameters(params: ParamMap): { quizId: string, questionIndex: number } {
-    const quizId = params.get('quizId');
-    const questionIndexRaw = params.get('questionIndex');
-  
-    // Convert to number and apply logic to ensure questionIndex is >= 0
-    let questionIndex = questionIndexRaw ? Math.max(+questionIndexRaw, 1) - 1 : 0;
-  
-    return { quizId, questionIndex };
-  }
   
   subscribeRouterAndInit(): void {
     this.routerSubscription = this.router.events.pipe(
@@ -497,7 +474,30 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { quizId, questionIndex } = this.getRouteParameters(params);
       this.handleRouteParameters(quizId, questionIndex);
     });
-  }  
+  }
+
+  getRouteParameters(params: ParamMap): { quizId: string, questionIndex: number } {
+    const quizId = params.get('quizId');
+    const questionIndexRaw = params.get('questionIndex');
+  
+    // Convert to number and apply logic to ensure questionIndex is >= 0
+    let questionIndex = questionIndexRaw ? Math.max(+questionIndexRaw, 1) - 1 : 0;
+  
+    return { quizId, questionIndex };
+  }
+
+  handleRouteParameters(quizId: string, questionIndex: number): void {
+    this.quizId = quizId;
+    this.questionIndex = questionIndex;
+  
+    if (this.questionIndex === 0) {
+      this.initializeFirstQuestionText();
+    } else {
+      this.updateQuestionDisplay(this.questionIndex);
+    }
+  
+    this.getNextQuestion();
+  }
   
   updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
