@@ -1229,22 +1229,21 @@ export class QuizService implements OnDestroy {
       const currentQuestion = await firstValueFrom(this.currentQuestion$);
 
       const combinedQuestionData: CombinedQuestionDataType = {
-        questionText: this.data.questionText,
+        questionText: currentQuestion.questionText,
         correctAnswersText: '',
         currentQuestion: currentQuestion, 
         currentOptions: this.data.currentOptions,
         isNavigatingToPrevious: false
       };
-
-      console.log('Combined Question Data to Emit:', combinedQuestionData);
       this.combinedQuestionDataSubject.next(combinedQuestionData);
 
-      // Update combinedQuestionDataSubject and fetch correct answers if needed
-      /* this.combinedQuestionDataSubject.next({
-        questionText: this.data.questionText,
+      this.combinedQuestionDataSubject.next({
+        questionText: currentQuestion.questionText,
         correctAnswersText: '',
+        currentQuestion: currentQuestion,
         currentOptions: this.data.currentOptions,
-      }); */
+        isNavigatingToPrevious: false
+      });
 
       // Fetch the correct answers for each question if they are not already available
       this.questions.forEach((question) => {
