@@ -26,7 +26,7 @@ import { Howl } from 'howler';
 import _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
-import { CombinedDataType } from '../../shared/models/CombinedDataType.model';
+import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -236,7 +236,7 @@ export class QuizService implements OnDestroy {
   highScores: QuizScore[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
-  combinedQuestionDataSubject: BehaviorSubject<CombinedDataType> = new BehaviorSubject<CombinedDataType>(null);
+  combinedQuestionDataSubject: BehaviorSubject<CombinedQuestionDataType> = new BehaviorSubject<CombinedQuestionDataType>(null);
   combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
   destroy$ = new Subject<void>();
@@ -1230,7 +1230,7 @@ export class QuizService implements OnDestroy {
 
       const currentQuestion = await firstValueFrom(this.currentQuestion$);
 
-      const combinedQuestionData: CombinedDataType = {
+      const combinedQuestionData: CombinedQuestionDataType = {
         questionText: this.data.questionText,
         correctAnswersText: '',
         currentQuestion: currentQuestion, 
