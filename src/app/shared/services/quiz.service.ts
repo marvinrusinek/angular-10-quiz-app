@@ -1202,53 +1202,71 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(): Promise<void> {
     try {
       const quizId = this.quizId;
-      const filteredQuestions = await firstValueFrom(
-        this.getQuestionsForQuiz(quizId)
-      ); // captures all the quizzes
-      
-      // logs the correct quiz questions correctly
-      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
-      this.questions = questionsData.questions;
-
-      // Calculate and set the correct answers for each question
-      const correctAnswers = new Map<string, number[]>();
-      filteredQuestions.questions.forEach((question) => {
-        if (question?.options) {
-          const correctOptionNumbers = question.options
-            .filter((option) => option?.correct)
-            .map((option) => option?.optionId);
-          correctAnswers.set(question.questionText, correctOptionNumbers);
-        } else {
-          console.log('Options are undefined for question:', question);
-        }
-      });
-
-      this.fetchCorrectAnswers();
+  
+      // Fetch and set questions
+      const questions = await this.fetchAndSetQuestions(quizId);
+  
+      // Calculate correct answers
+      const correctAnswers = this.calculateCorrectAnswers(questions);
       this.correctAnswersSubject.next(correctAnswers);
-
-      const currentQuestion = await firstValueFrom(this.currentQuestion$);
-
-      const combinedQuestionData: CombinedQuestionDataType = {
-        questionText: currentQuestion.questionText,
-        correctAnswersText: '',
-        currentQuestion: currentQuestion, 
-        currentOptions: this.data.currentOptions,
-        isNavigatingToPrevious: false
-      };
-      this.combinedQuestionDataSubject.next(combinedQuestionData);
-
-      // Fetch the correct answers for each question if they are not already available
-      this.questions.forEach((question) => {
-        const currentCorrectAnswers = correctAnswers.get(question.questionText);
-        if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
-          this.setCorrectAnswers(question, this.data.currentOptions);
-        }
-      });
-
+  
+      // Initialize combined question data
+      await this.initializeCombinedQuestionData();
+  
+      // Set correct answers for questions
+      this.setCorrectAnswersForQuestions(questions, correctAnswers);
+  
       this.correctAnswersLoadedSubject.next(true);
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
     }
+  }
+
+  async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
+    try {
+      const questionsData = await firstValueFrom(this.getQuestionsForQuiz(quizId));
+      this.questions = questionsData.questions;
+      return questionsData.questions;
+    } catch (error) {
+      console.error('Error fetching questions for quiz:', error);
+      return [];
+    }
+  }
+
+  calculateCorrectAnswers(questions: QuizQuestion[]): Map<string, number[]> {
+    const correctAnswers = new Map<string, number[]>();
+    questions.forEach((question) => {
+      if (question?.options) {
+        const correctOptionNumbers = question.options
+          .filter((option) => option?.correct)
+          .map((option) => option?.optionId);
+        correctAnswers.set(question.questionText, correctOptionNumbers);
+      } else {
+        console.log('Options are undefined for question:', question);
+      }
+    });
+    return correctAnswers;
+  }
+
+  async initializeCombinedQuestionData(): Promise<void> {
+    const currentQuestion = await firstValueFrom(this.currentQuestion$);
+    const combinedQuestionData: CombinedQuestionDataType = {
+      questionText: currentQuestion.questionText,
+      correctAnswersText: '',
+      currentQuestion: currentQuestion, 
+      currentOptions: this.data.currentOptions,
+      isNavigatingToPrevious: false
+    };
+    this.combinedQuestionDataSubject.next(combinedQuestionData);
+  }
+
+  setCorrectAnswersForQuestions(questions: QuizQuestion[], correctAnswers: Map<string, number[]>): void {
+    questions.forEach((question) => {
+      const currentCorrectAnswers = correctAnswers.get(question.questionText);
+      if (!currentCorrectAnswers || currentCorrectAnswers.length === 0) {
+        this.setCorrectAnswers(question, this.data.currentOptions);
+      }
+    });
   }
 
   fetchCorrectAnswers(): void {
@@ -1266,6 +1284,7 @@ export class QuizService implements OnDestroy {
     this.correctAnswersSubject.next(correctAnswers);
   }
 
+  
   private convertToOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
       return [];
