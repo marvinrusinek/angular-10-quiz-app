@@ -1147,6 +1147,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
+        this.currentQuestion = this.questions[this.currentQuestionIndex];
         this.loadCurrentQuestionAndExplanation();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
@@ -1209,23 +1210,33 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
-
+  
+      // Check if the question index is valid
       const isValidIndex = await this.isQuestionIndexValid(questionIndex);
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
       }
-
-      const { questionText, options, explanation } = await this.fetchQuestionDetails(questionIndex);
-      this.setQuestionDetails(questionText, options, explanation);
-     
-      await this.resetUIAndNavigate(questionIndex);
+  
+      // Fetch question details for the given index
+      const questionDetails = await this.fetchQuestionDetails(questionIndex);
+      if (questionDetails) {
+        const { questionText, options, explanation } = questionDetails;
+        // Set question details
+        this.currentQuestion = questionDetails; // Assuming questionDetails is the whole question object
+        this.setQuestionDetails(questionText, options, explanation);
+  
+        // Reset UI and handle any necessary navigation
+        await this.resetUIAndNavigate(questionIndex);
+      } else {
+        console.warn('No question details found for index:', questionIndex);
+      }
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
+    } finally {
+      console.log('Exiting fetchAndSetQuestionData');
     }
-
-    console.log('Exiting fetchAndSetQuestionData');
-  }
+  }  
   
   private async isQuestionIndexValid(questionIndex: number): Promise<boolean> {
     const totalQuestions: number = await this.getTotalQuestions();
