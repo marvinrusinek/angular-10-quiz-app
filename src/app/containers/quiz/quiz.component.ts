@@ -87,7 +87,7 @@ enum QuestionType {
 })
 export class QuizComponent implements OnInit, OnDestroy {
   @Output() optionSelected = new EventEmitter<Option>();
-  @Input() data: QuizQuestion;
+  @Input() data: CombinedQuestionDataType;
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() form: FormGroup;
@@ -657,7 +657,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.initializeSelectedQuizData(selectedQuiz);
 
-      const questionData = await this.fetchQuestionData(quizId, questionIndex);
+      const questionData: QuizQuestion = await this.fetchQuestionData(quizId, questionIndex);
       if (questionData) {
         this.processQuestionData(questionData);
       } else {
@@ -714,21 +714,21 @@ export class QuizComponent implements OnInit, OnDestroy {
     return combinedQuestionData;
   }
     
-  private processQuestionData(questionData: QuizQuestion): void {
+  private processQuestionData(questionData: CombinedQuestionDataType): void {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
-    this.quizService.setCurrentOptions(this.data.options);
+    this.quizService.setCurrentOptions(this.data.currentOptions);
     
     const currentQuestion: QuizQuestion = {
       questionText: this.data.questionText,
-      options: this.data.options,
-      explanation: this.data.explanation,
+      options: this.data.currentOptions,
+      explanation: this.data.explanationText,
       type: QuestionType.MultipleAnswer
     };
     this.question = currentQuestion;
     
-    const correctAnswerOptions = this.data.options.filter((option) => option.correct);
+    const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
     this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
     this.quizService.setCorrectAnswersLoaded(true);
     this.quizService.correctAnswersLoadedSubject.next(true);
