@@ -698,16 +698,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setSelectedQuiz(selectedQuiz);
   }
   
-  private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
-    return this.quizService.getQuestionData(quizId, questionIndex);
-  }
+  private async fetchQuestionData(quizId: string, questionIndex: number): Promise<CombinedQuestionDataType> {
+    const questionData = this.quizService.getQuestionData(quizId, questionIndex);
+    if (!questionData) {
+      return null;
+    }
   
-private processQuestionData(questionData: QuizQuestion): void {
+    // Transform questionData to CombinedQuestionDataType
+    const combinedQuestionData: CombinedQuestionDataType = {
+      ...questionData,
+      currentQuestion: this.currentQuestion,
+      isNavigatingToPrevious: false
+    };
+  
+    return combinedQuestionData;
+  }
+    
+  private processQuestionData(questionData: QuizQuestion): void {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
     this.quizService.setCurrentOptions(this.data.options);
-  
+    
     const currentQuestion: QuizQuestion = {
       questionText: this.data.questionText,
       options: this.data.options,
@@ -715,12 +727,12 @@ private processQuestionData(questionData: QuizQuestion): void {
       type: QuestionType.MultipleAnswer
     };
     this.question = currentQuestion;
-  
+    
     const correctAnswerOptions = this.data.options.filter((option) => option.correct);
     this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
     this.quizService.setCorrectAnswersLoaded(true);
     this.quizService.correctAnswersLoadedSubject.next(true);
-  
+    
     console.log('Correct Answer Options:', correctAnswerOptions);
   }
   
