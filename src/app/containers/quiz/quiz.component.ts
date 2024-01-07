@@ -38,6 +38,7 @@ import {
   withLatestFrom
 } from 'rxjs/operators';
 
+import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -90,6 +91,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     questionText: string;
     correctAnswersText?: string;
     currentOptions: Option[];
+    explanationText: string;
   };
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() selectedQuiz: Quiz = {} as Quiz;
@@ -517,13 +519,13 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
-      this.quizStateService.currentOptions$,
+      this.quizStateService.currentOptions$
     ]).pipe(
       distinctUntilChanged(),
       map(([question, options]) => {
         return {
           ...question,
-          options,
+          options
         };
       })
     );
@@ -705,7 +707,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return await this.quizService.getQuestionData(quizId, questionIndex);
   }
   
-  private processQuestionData(questionData: any): void {
+private processQuestionData(questionData: QuizQuestion): void {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
@@ -714,10 +716,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     const currentQuestion: QuizQuestion = {
       questionText: this.data.questionText,
       options: this.data.currentOptions,
-      explanation: '',
+      explanation: this.data.explanationText,
       type: QuestionType.MultipleAnswer
     };
-  
     this.question = currentQuestion;
   
     const correctAnswerOptions = this.data.currentOptions.filter((option) => option.correct);
@@ -725,7 +726,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setCorrectAnswersLoaded(true);
     this.quizService.correctAnswersLoadedSubject.next(true);
   
-    console.log('Question Data:', currentQuestion);
     console.log('Correct Answer Options:', correctAnswerOptions);
   }
   
