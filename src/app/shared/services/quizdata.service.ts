@@ -341,9 +341,7 @@ export class QuizDataService implements OnDestroy {
 
     const quiz$ = this.loadQuizData();
     const currentQuestion$ = this.getQuizQuestionByIdAndIndex(
-      quiz$,
-      quizId,
-      questionIndex
+      quiz$, quizId, questionIndex
     ).pipe(
       shareReplay({ refCount: true, bufferSize: 1 })
     ) as Observable<QuizQuestion>;
@@ -366,11 +364,11 @@ export class QuizDataService implements OnDestroy {
 
   loadQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      catchError((err) => {
+      catchError((err: any) => {
         console.log('Error:', err);
         return of(null);
       }),
-      retryWhen((errors) => errors.pipe(delay(1000), take(3))),
+      retryWhen((errors: any) => errors.pipe(delay(1000), take(3))),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
