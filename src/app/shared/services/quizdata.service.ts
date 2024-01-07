@@ -260,7 +260,7 @@ export class QuizDataService implements OnDestroy {
   async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
     try {
       // Simulate an asynchronous operation, e.g., fetching data from a service
-      const question = await this.getQuestion(quizId, currentQuestionIndex).toPromise();
+      const question = await this.fetchQuizQuestionByIdAndIndex(quizId, currentQuestionIndex).toPromise();
       this.setQuestion(question);
     } catch (error) {
       console.error('Error setting question:', error);
@@ -271,7 +271,7 @@ export class QuizDataService implements OnDestroy {
     this.question = question;
   }
 
-  getQuestion(
+  fetchQuizQuestionByIdAndIndex(
     quizId: string,
     questionIndex: number
   ): Observable<QuizQuestion | null> {
@@ -305,7 +305,7 @@ export class QuizDataService implements OnDestroy {
   }
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
-    return this.getQuestion(quizId, questionIndex).pipe(
+    return this.fetchQuizQuestionByIdAndIndex(quizId, questionIndex).pipe(
       map((question) => {
         if (!question) {
           console.error('Question is null or undefined in getOptions');
