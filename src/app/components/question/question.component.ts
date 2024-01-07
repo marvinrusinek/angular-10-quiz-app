@@ -521,6 +521,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm();
   }
 
+  // not being called, potentially remove, but might need for getting correct answers text to display
   private loadQuestionsForQuiz(quizId: string): void {
     console.log('start of lqfq');
     console.log('QI:::>>>', quizId);
@@ -648,12 +649,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadCurrentQuestion(): Promise<void> {
-    console.log('LCQ');
     console.log(
-      'loadCurrentQuestion() called with quizId:',
-      this.quizId,
-      'and questionIndex:',
-      this.currentQuestionIndex
+      'loadCurrentQuestion() called with quizId:', this.quizId,
+      'and questionIndex:', this.currentQuestionIndex
     );
   
     if (!this.isInputValid()) {
