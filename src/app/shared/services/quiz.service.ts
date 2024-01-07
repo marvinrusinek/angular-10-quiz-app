@@ -920,7 +920,6 @@ export class QuizService implements OnDestroy {
       })
     );
   }
-  
 
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
