@@ -459,53 +459,40 @@ export class QuizComponent implements OnInit, OnDestroy {
     return typeof item === 'object' && 'quizId' in item;
   }
 
-  subscribeRouterAndInit(): void {
-    // Initialize the previous quizId and questionIndex values to the current values
-    let prevQuizId = this.quizId;
-    let prevQuestionIndex = this.questionIndex;
+  handleRouteParameters(quizId: string, questionIndex: number): void {
+    this.quizId = quizId;
+    this.questionIndex = questionIndex;
+  
+    if (this.questionIndex === 0) {
+      this.initializeFirstQuestionText();
+    } else {
+      this.updateQuestionDisplay(this.questionIndex);
+    }
   
     this.getNextQuestion();
-  
-    this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-  
-    // Subscribe to the router events and handle paramMap changes
+  }
+
+  subscribeRouterAndInit(): void {
     this.routerSubscription = this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
-      switchMap(() => {
-        // Extract and update quizId every time navigation ends
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        this.quizId = quizId;
-  
-        // Return an observable of the paramMap
-        return this.activatedRoute.paramMap;
-      })
+      switchMap(() => this.activatedRoute.paramMap)
     ).subscribe((params: ParamMap) => {
-      // Update questionIndex based on paramMap
+      const quizId = params.get('quizId');
       const questionIndex = +params.get('questionIndex') || 0;
-      this.questionIndex = questionIndex;
   
-      // Update the previous quizId and questionIndex values to the current values
-      prevQuizId = this.quizId;
-      prevQuestionIndex = this.questionIndex;
-  
-      this.handleParamMap(params);
+      this.handleRouteParameters(quizId, questionIndex);
     });
   }
 
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params: ParamMap) => {
-      this.quizId = params['quizId'];
-
-      const routeQuestionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
+      const quizId = params['quizId'];
+      const questionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
       
-      if (routeQuestionIndex === 0) {
-        this.initializeFirstQuestionText();
-      } else {
-        this.updateQuestionDisplay(routeQuestionIndex);
-      }
+      this.handleRouteParameters(quizId, questionIndex);
     });
   }
-
+  
   updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
