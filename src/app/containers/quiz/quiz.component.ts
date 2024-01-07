@@ -472,26 +472,32 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getNextQuestion();
   }
 
+  getRouteParameters(params: ParamMap): { quizId: string, questionIndex: number } {
+    const quizId = params.get('quizId');
+    const questionIndexRaw = params.get('questionIndex');
+  
+    // Convert to number and apply logic to ensure questionIndex is >= 0
+    let questionIndex = questionIndexRaw ? Math.max(+questionIndexRaw, 1) - 1 : 0;
+  
+    return { quizId, questionIndex };
+  }
+  
   subscribeRouterAndInit(): void {
     this.routerSubscription = this.router.events.pipe(
       filter((event: Event) => event instanceof NavigationEnd),
       switchMap(() => this.activatedRoute.paramMap)
     ).subscribe((params: ParamMap) => {
-      const quizId = params.get('quizId');
-      const questionIndex = +params.get('questionIndex') || 0;
+      const { quizId, questionIndex } = this.getRouteParameters(params);
+      this.handleRouteParameters(quizId, questionIndex);
+    });
+  }
   
-      this.handleRouteParameters(quizId, questionIndex);
-    });
-  }
-
   initializeRouteParams(): void {
-    this.activatedRoute.params.subscribe((params: ParamMap) => {
-      const quizId = params['quizId'];
-      const questionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
-      
+    this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      const { quizId, questionIndex } = this.getRouteParameters(params);
       this.handleRouteParameters(quizId, questionIndex);
     });
-  }
+  }  
   
   updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
