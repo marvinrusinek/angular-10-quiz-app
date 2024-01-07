@@ -151,7 +151,7 @@ export class QuizDataService implements OnDestroy {
     this.selectedQuiz$.next(quiz);
     this.selectedQuiz$
       .pipe(take(1), distinctUntilChanged())
-      .subscribe((selectedQuiz) => {
+      .subscribe((selectedQuiz: Quiz) => {
         this.selectedQuizSubject.next(selectedQuiz);
       });
   }
