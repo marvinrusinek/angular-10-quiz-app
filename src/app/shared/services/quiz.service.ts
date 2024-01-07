@@ -618,7 +618,7 @@ export class QuizService implements OnDestroy {
         tap((questions) => {
           this.questions = questions;
         }),
-        catchError((error) => {
+        catchError((error: any) => {
           console.error('Error fetching questions:', error);
           return of([]); // Handle the error gracefully
         }),
