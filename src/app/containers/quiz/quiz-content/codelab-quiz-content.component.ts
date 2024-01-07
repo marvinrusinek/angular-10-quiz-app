@@ -413,7 +413,7 @@ export class CodelabQuizContentComponent
   }
   
   private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
-    return this.currentQuestion$.pipe(
+    return this.quizStateService.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
         currentQuestion,
