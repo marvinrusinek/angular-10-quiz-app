@@ -707,14 +707,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  public getQuestion(index: number): Observable<QuizQuestion> {
-    return this.quizDataService.getSelectedQuiz().pipe(
-      map((selectedQuiz) => {
-        return selectedQuiz.questions[index];
-      })
-    );
-  }
-
   public incrementScore(): void {
     this.quizService.score++;
   }
