@@ -699,7 +699,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
-    return await this.quizService.getQuestionData(quizId, questionIndex);
+    return this.quizService.getQuestionData(quizId, questionIndex);
   }
   
 private processQuestionData(questionData: QuizQuestion): void {
