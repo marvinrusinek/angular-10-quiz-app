@@ -1182,7 +1182,7 @@ export class QuizService implements OnDestroy {
 
         const options: Option[] = nextQuestion.options.map((option) => ({
           value: option.value,
-          text: option.text,
+          text: option.text
         }));
 
         this.optionsSource.next(options);
@@ -1255,7 +1255,7 @@ export class QuizService implements OnDestroy {
       const combinedQuestionData = {
         questionText: this.data.questionText,
         correctAnswersText: '',
-        currentOptions: this.data.currentOptions,
+        currentOptions: this.data.currentOptions
       };
 
       console.log('Combined Question Data to Emit:', combinedQuestionData);
