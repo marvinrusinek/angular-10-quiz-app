@@ -23,6 +23,7 @@ import {
   startWith,
   switchMap,
   takeUntil,
+  tap,
   withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -393,7 +394,9 @@ export class CodelabQuizContentComponent
   }
 
   private initializeCombinedQuestionData(): void {
-    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
+    const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions().pipe(
+      tap((data: any) => console.log('Current Question and Options:', data))
+    );
   
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
   
@@ -427,52 +430,34 @@ export class CodelabQuizContentComponent
     numberOfCorrectAnswers: number | undefined,
     isExplanationDisplayed: boolean,
     formattedExplanation: string
-  ): Observable<any> {
+  ): Observable<CombinedQuestionDataType> {
+    console.log("CQD", currentQuestionData);
     const { currentQuestion, currentOptions } = currentQuestionData;
   
     const questionText = currentQuestion
       ? this.getQuestionText(currentQuestion, this.questions)
       : '';
   
-    if (this.currentQuestion !== null && this.questions.length > 0) {
-      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(
-        currentQuestion
-      );
-  
-      let correctAnswersText = '';
-      if (
-        questionHasMultipleAnswers &&
-        !isExplanationDisplayed &&
-        numberOfCorrectAnswers !== undefined &&
-        numberOfCorrectAnswers > 1
-      ) {
-        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-          numberOfCorrectAnswers
-        );
+    let correctAnswersText = '';
+    if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
+      const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
+      if (questionHasMultipleAnswers) {
+        correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
       }
-  
-      return of({
-        questionText: questionText,
-        currentQuestion: currentQuestion,
-        explanationText: formattedExplanation,
-        correctAnswersText: correctAnswersText,
-        currentOptions: currentOptions,
-        isNavigatingToPrevious: false,
-        formattedExplanation: formattedExplanation
-      });
-    } else {
-      console.log('currentQuestion or this.questions is null');
-      return of({
-        questionText: '',
-        currentQuestion: null,
-        explanationText: '',
-        correctAnswersText: '',
-        currentOptions: [],
-        isNavigatingToPrevious: false,
-        formattedExplanation: ''
-      });
     }
-  }
+  
+    const combinedQuestionData: CombinedQuestionDataType = {
+      questionText: questionText,
+      currentQuestion: currentQuestion,
+      explanationText: formattedExplanation,
+      correctAnswersText: correctAnswersText,
+      currentOptions: currentOptions,
+      isNavigatingToPrevious: false,  // or some logic to determine this
+      formattedExplanation: formattedExplanation
+    };
+  
+    return of(combinedQuestionData);
+  }  
 
   private setupOptions(): void {
     // Update the options$ initialization using combineLatest
