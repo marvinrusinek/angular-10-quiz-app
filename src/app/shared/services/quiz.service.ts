@@ -23,7 +23,7 @@ import {
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { CombinedDataType } from '../../shared/models/CombinedDataType.model';
