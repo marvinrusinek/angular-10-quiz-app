@@ -1270,7 +1270,6 @@ export class QuizService implements OnDestroy {
   }
 
   fetchCorrectAnswers(): void {
-    // Assuming you have fetched the quiz questions and stored them in this.questions
     const correctAnswers = new Map<string, number[]>();
     this.questions.forEach((question) => {
       const correctOptionNumbers =
@@ -1284,7 +1283,7 @@ export class QuizService implements OnDestroy {
     this.correctAnswersSubject.next(correctAnswers);
   }
 
-  
+
   private convertToOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
       return [];
