@@ -1210,8 +1210,6 @@ export class QuizService implements OnDestroy {
       const questionsData = await firstValueFrom(this.getQuestionsForQuiz(this.quizId));
       this.questions = questionsData.questions;
 
-      console.log('Questions after reset:', this.questions);
-
       // Calculate and set the correct answers for each question
       const correctAnswers = new Map<string, number[]>();
       filteredQuestions.questions.forEach((question) => {
