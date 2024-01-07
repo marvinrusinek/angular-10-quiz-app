@@ -565,13 +565,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       currentQuestionIndex
     );
 
-    const [question, options] = await forkJoin([
+    const [question, options] = await firstValueFrom(forkJoin([
       this.question$.pipe(take(1)),
-      this.options$.pipe(take(1)),
-    ]).toPromise();
+      this.options$.pipe(take(1))
+    ]));
 
     this.handleQuestion(question as QuizQuestion);
     this.handleOptions(options as Option[]);
+
+    this.cdRef.detectChanges();
   }
 
   initializeFirstQuestionText(): void {
