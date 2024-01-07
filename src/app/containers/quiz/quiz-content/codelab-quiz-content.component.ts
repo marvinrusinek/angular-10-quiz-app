@@ -452,13 +452,13 @@ export class CodelabQuizContentComponent
       }
   
       return of({
-        questionText,
-        currentQuestion,
+        questionText: questionText,
+        currentQuestion: currentQuestion,
         explanationText: formattedExplanation,
-        correctAnswersText,
-        currentOptions,
+        correctAnswersText: correctAnswersText,
+        currentOptions: currentOptions,
         isNavigatingToPrevious: false,
-        formattedExplanation
+        formattedExplanation: formattedExplanation
       });
     } else {
       console.log('currentQuestion or this.questions is null');
