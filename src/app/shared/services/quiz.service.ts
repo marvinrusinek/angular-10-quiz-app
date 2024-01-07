@@ -620,7 +620,7 @@ export class QuizService implements OnDestroy {
         }),
         catchError((error: any) => {
           console.error('Error fetching questions:', error);
-          return of([]); // Handle the error gracefully
+          return of([]);
         }),
         shareReplay({ bufferSize: 1, refCount: true })
       );
@@ -1337,7 +1337,7 @@ export class QuizService implements OnDestroy {
   resetQuestions(): void {
     let currentQuizData = this.quizInitialState.find(quiz => quiz.quizId === this.quizId);
     if (currentQuizData) {
-      this.quizData = _.cloneDeep(currentQuizData);
+      this.quizData = _.cloneDeep([currentQuizData]);
       // this.questions = _.cloneDeep(currentQuizData.questions);
       this.questions = currentQuizData.questions;
     } else {
