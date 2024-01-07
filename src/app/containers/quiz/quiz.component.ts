@@ -1223,7 +1223,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (questionDetails) {
         const { questionText, options, explanation } = questionDetails;
         // Set question details
-        this.currentQuestion = questionDetails; // Assuming questionDetails is the whole question object
+        this.currentQuestion = questionDetails;
         this.setQuestionDetails(questionText, options, explanation);
   
         // Reset UI and handle any necessary navigation
