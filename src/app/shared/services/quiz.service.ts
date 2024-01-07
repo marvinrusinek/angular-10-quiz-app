@@ -1237,14 +1237,6 @@ export class QuizService implements OnDestroy {
       };
       this.combinedQuestionDataSubject.next(combinedQuestionData);
 
-      this.combinedQuestionDataSubject.next({
-        questionText: currentQuestion.questionText,
-        correctAnswersText: '',
-        currentQuestion: currentQuestion,
-        currentOptions: this.data.currentOptions,
-        isNavigatingToPrevious: false
-      });
-
       // Fetch the correct answers for each question if they are not already available
       this.questions.forEach((question) => {
         const currentCorrectAnswers = correctAnswers.get(question.questionText);
