@@ -831,7 +831,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         filter((quiz) => !!quiz),
         map((quiz) => quiz.questions[this.currentQuestionIndex])
       )
-      .subscribe((currentQuestion) => {
+      .subscribe((currentQuestion: QuizQuestion) => {
         if (!currentQuestion) {
           console.error('Question not found');
           return;
@@ -902,43 +902,27 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // This is an asynchronous function named onOptionClicked which takes an option object as an argument and returns a Promise.
   async onOptionClicked(option: Option): Promise<void> {
-
-    // Calls a method addSelectedOption from quizService and passes the selected option to it.
     this.quizService.addSelectedOption(option);
 
     // Retrieves the current question index and stores it in a variable.
     const questionIndex = this.currentQuestionIndex;
 
-    // Calls fetchExplanationText method with the current question index, 
-    // then subscribes to the returned Observable to get the explanation text.
-    // Once received, it sets the explanationText property of the class to this new value.
     this.fetchExplanationText(questionIndex).subscribe(explanationText => {
       this.explanationText = explanationText;
     });
     
-    // Subscribes to the formattedExplanation$ Observable from explanationTextService. 
-    // Whenever a new explanation text is emitted, it updates the explanationText property of the class.
     this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
       this.explanationText = explanationText;
     });
 
-    // Subscribes to the currentQuestion$ Observable from quizStateService, but only takes one value (the latest).
-    // When a new current question is emitted, it updates the currentQuestion property of the class
-    // and then processes the option selection with the current question and the selected option.
-    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion: QuizQuestion) => {
       this.currentQuestion = currentQuestion;
       this.processOptionSelection(this.currentQuestion, option);
     });
 
-    // Calls a method to update answers based on the selected option.
     this.updateAnswersForOption(option);
-
-    // Checks and handles the logic if the selected answer is correct.
     this.checkAndHandleCorrectAnswer();
-
-    // Logs debugging information, useful for troubleshooting or understanding the flow of the program.
     this.logDebugInformation();
   }
 
