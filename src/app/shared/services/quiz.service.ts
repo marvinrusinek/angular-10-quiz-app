@@ -818,38 +818,25 @@ export class QuizService implements OnDestroy {
   }
 
   getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
-    return new Promise((resolve, reject) => {
-      try {
-        const currentQuiz = this.getCurrentQuiz();
+    return new Promise((resolve) => {
+      const currentQuiz = this.getCurrentQuiz();
   
-        if (!currentQuiz) {
-          throw new Error("No current quiz available");
-        }
-  
-        if (
+      if (currentQuiz && 
           currentQuiz.questions &&
           currentQuestionIndex >= 0 &&
-          currentQuestionIndex < currentQuiz.questions.length - 1
-        ) {
-          const nextQuestionIndex = currentQuestionIndex;
-          if (nextQuestionIndex < currentQuiz.questions.length) {
-            const nextQuestion = currentQuiz.questions[nextQuestionIndex];
-            this.nextQuestionSource.next(nextQuestion);
-            this.nextQuestionSubject.next(nextQuestion);
-            this.setCurrentQuestionAndNext(nextQuestion, '');
-            resolve(nextQuestion);
-            return;
-          }
-        }
-  
+          currentQuestionIndex < currentQuiz.questions.length) {
+        const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+        this.nextQuestionSource.next(nextQuestion);
+        this.nextQuestionSubject.next(nextQuestion);
+        this.setCurrentQuestionAndNext(nextQuestion, '');
+        resolve(nextQuestion);
+      } else {
         this.nextQuestionSource.next(null);
         this.nextQuestionSubject.next(null);
         resolve(undefined);
-      } catch (error) {
-        reject(error);
       }
     });
-  }
+  }  
 
   getPreviousQuestion(questionIndex: number): Promise<QuizQuestion | undefined> {
     return new Promise((resolve, reject) => {
