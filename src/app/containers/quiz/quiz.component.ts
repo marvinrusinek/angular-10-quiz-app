@@ -502,12 +502,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
-        // Update the component properties with the details of the specified question
-        const selectedQuestion = this.questions[questionIndex];
-        this.questionToDisplay = selectedQuestion.questionText;
-        this.optionsToDisplay = selectedQuestion.options;
+      // Update the component properties with the details of the specified question
+      const selectedQuestion = this.questions[questionIndex];
+      this.questionToDisplay = selectedQuestion.questionText;
+      this.optionsToDisplay = selectedQuestion.options;
     } else {
-        console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
+      console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
   }
 
