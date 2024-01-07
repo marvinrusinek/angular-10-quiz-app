@@ -474,7 +474,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   subscribeRouterAndInit(): void {
     this.routerSubscription = this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
+      filter((event: Event) => event instanceof NavigationEnd),
       switchMap(() => this.activatedRoute.paramMap)
     ).subscribe((params: ParamMap) => {
       const quizId = params.get('quizId');
