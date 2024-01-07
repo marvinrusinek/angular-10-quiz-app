@@ -132,7 +132,7 @@ export class CodelabQuizContentComponent
     this.subscribeToFormattedExplanationChanges();
 
     this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
-    .subscribe(data => {
+    .subscribe((data: CombinedQuestionDataType) => {
       console.log('Combined Question Data:', data);
       if (data && data.currentQuestion) {
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
