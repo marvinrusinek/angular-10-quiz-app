@@ -946,7 +946,7 @@ export class QuizService implements OnDestroy {
   }
 
   // generically shuffle arrays in-place using Durstenfeld's shuffling algorithm
-  shuffle<T>(arg: T[]): any {
+  shuffle<T>(arg: T[]): T[] {
     if (!arg || arg.length === 0) {
       return arg;
     }
