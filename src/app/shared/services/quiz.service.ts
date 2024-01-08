@@ -886,7 +886,7 @@ export class QuizService implements OnDestroy {
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
         return throwError(error);
-      } as any),
+      }),
       switchMap((questions: QuizQuestion[]) => {
         if (Array.isArray(questions) && questions.length > 0) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
