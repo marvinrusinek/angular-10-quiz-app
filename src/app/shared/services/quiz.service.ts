@@ -615,7 +615,7 @@ export class QuizService implements OnDestroy {
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map((questions: any) =>
-        questions.filter((question) => {
+        questions.filter((question: QuizQuestion) => {
           return question.quizId === quizId;
         })
       ),
@@ -623,7 +623,7 @@ export class QuizService implements OnDestroy {
         console.error('An error occurred while loading questions:', error);
         return throwError('Something went wrong.');
       }),
-      map((filteredQuestions) => {
+      map((filteredQuestions: QuizQuestion[]) => {
         this.updateCurrentQuestion();
         return { quizId, questions: filteredQuestions };
       }),
@@ -680,8 +680,6 @@ export class QuizService implements OnDestroy {
   }
 
   loadQuestions(): Observable<QuizQuestion[]> {
-    console.log('Loading questions');
-
     const quizId = this.getCurrentQuizId();
 
     if (this.currentQuestionPromise) {
@@ -755,7 +753,7 @@ export class QuizService implements OnDestroy {
       quizId: this.selectedQuiz.quizId,
       attemptDateTime: new Date(),
       score: this.calculateTotalCorrectAnswers(),
-      totalQuestions: this.questions.length,
+      totalQuestions: this.questions.length
     };
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
