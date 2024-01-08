@@ -264,7 +264,7 @@ export class QuizService implements OnDestroy {
     return this._multipleAnswer;
   }
 
-  get quizData$() {
+  get quizData$(): Observable<Quiz[]> {
     return this._quizData$.asObservable();
   }
 
@@ -273,7 +273,7 @@ export class QuizService implements OnDestroy {
     return this.http.get<Quiz[]>(this.quizUrl, { headers });
   }  
 
-  setSelectedQuiz(selectedQuiz: Quiz) {
+  setSelectedQuiz(selectedQuiz: Quiz): void {
     this.selectedQuiz$.next(selectedQuiz);
   }
 
@@ -354,7 +354,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestion$ = this.currentQuestionSource.asObservable();
   }
 
-  setupSubscriptions() {
+  setupSubscriptions(): void {
     this.currentQuestion.subscribe((question) => {
       this.question = question;
     });
@@ -433,16 +433,11 @@ export class QuizService implements OnDestroy {
     this.selectedOptions.push(option);
   }
 
-  /* setAnswers(answers: number[]): void {
-    this.answers = answers;
-  } */
-
   setAnswers(answers: number[]): void {
-    console.log('Setting answers:::', answers);
     this.answersSubject.next(answers);
   }
 
-  setAnswerStatus(status: boolean) {
+  setAnswerStatus(status: boolean): void {
     this.answerStatus.next(status);
   }
 
@@ -596,20 +591,8 @@ export class QuizService implements OnDestroy {
     );
   }
   
-  public updateCurrentQuestionIndex(index: number): void {
-    this.currentQuestionIndexSubject.next(index);
-  }
-
   getCurrentQuestionIndexObservable(): Observable<number> {
     return this.currentQuestionIndexSubject.asObservable();
-  }
-
-  getCurrentQuestionObservable(): Observable<QuizQuestion | null> {
-    return this.currentQuestion.asObservable();
-  }
-
-  getOptionsObservable(): Observable<Option[] | null> {
-    return this.optionsSubject.asObservable();
   }
     
   getCurrentQuizId(): string {
