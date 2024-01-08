@@ -878,18 +878,18 @@ export class QuizService implements OnDestroy {
     const quizId = this.getCurrentQuizId();
   
     return this.getQuestionsForQuiz(quizId).pipe(
-      tap(({ quizId, questions }) => {
+      tap((questions) => {
         this.questions = questions;
         this.questionLoadingSubject.next(true);
         this.loadingQuestions = false;
       }),
-      catchError((error) => {
+      catchError((error: any) => {
         console.error('Error getting quiz questions:', error);
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
         return throwError(error);
       }),
-      switchMap(({ quizId, questions }) => {
+      switchMap((questions) => {
         if (Array.isArray(questions) && questions.length > 0) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
           this.currentQuestionSubject.next(questions[currentQuestionIndex]);
