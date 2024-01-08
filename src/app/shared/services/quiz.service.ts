@@ -878,7 +878,7 @@ export class QuizService implements OnDestroy {
     const quizId = this.getCurrentQuizId();
   
     return this.getQuestionsForQuiz(quizId).pipe(
-      tap((questions) => {
+      tap((questions: QuizQuestion[]) => {
         this.questions = questions;
         this.questionLoadingSubject.next(true);
         this.loadingQuestions = false;
@@ -889,7 +889,7 @@ export class QuizService implements OnDestroy {
         this.loadingQuestions = false;
         return throwError(error);
       }),
-      switchMap((questions) => {
+      switchMap((questions: QuizQuestion[]) => {
         if (Array.isArray(questions) && questions.length > 0) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
           this.currentQuestionSubject.next(questions[currentQuestionIndex]);
