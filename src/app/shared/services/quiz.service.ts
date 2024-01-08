@@ -534,6 +534,10 @@ export class QuizService implements OnDestroy {
     this.sendCorrectCountToResults(this.correctCount);
   }
 
+  updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
+    this.combinedQuestionDataSubject.next(newData);
+  }
+
   isQuestionAnswered(): boolean {
     return this.isOptionSelected;
   }
