@@ -724,11 +724,11 @@ export class QuizService implements OnDestroy {
     this.questionLoadingSubject.next(true);
 
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
-      tap((questions) => {
+      tap((questions: QuizQuestion[]) => {
         this.questions = questions;
         this.updateQuestions(quizId);
       }),
-      catchError((error) => {
+      catchError((error: any) => {
         console.error('Error getting quiz questions:', error);
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
