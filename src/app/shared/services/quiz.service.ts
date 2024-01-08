@@ -532,11 +532,6 @@ export class QuizService implements OnDestroy {
     return this.isOptionSelected;
   }
   
-  // Update the current question text
-  public setCurrentQuestionText(questionText: string): void {
-    this.currentQuestionTextSubject.next(questionText);
-  }
-
   async setCurrentQuestionIndex(index: number): Promise<void> {
     try {
       if (!this.quizId) {
