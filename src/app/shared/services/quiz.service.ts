@@ -698,10 +698,8 @@ export class QuizService implements OnDestroy {
   }
 
   async updateCurrentQuestionView(): Promise<void> {
-    // Assuming getCurrentQuestion updates the view or component state
-    await this.getCurrentQuestion().toPromise();
+    await firstValueFrom(this.getCurrentQuestion());
   }
-
 
   loadQuestions(): Observable<QuizQuestion[]> {
     console.log('Loading questions');
@@ -888,7 +886,7 @@ export class QuizService implements OnDestroy {
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
         return throwError(error);
-      }),
+      } as any),
       switchMap((questions: QuizQuestion[]) => {
         if (Array.isArray(questions) && questions.length > 0) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
