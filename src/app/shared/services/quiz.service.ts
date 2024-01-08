@@ -683,7 +683,7 @@ export class QuizService implements OnDestroy {
   }
 
   async loadQuestionsIfNotLoaded(): Promise<void> {
-    this.questions = await this.loadQuestions().toPromise();
+    this.questions = await firstValueFrom(this.loadQuestions());
   }
 
   async setCurrentQuiz(quizId: string): Promise<void> {
