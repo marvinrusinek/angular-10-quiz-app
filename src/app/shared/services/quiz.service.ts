@@ -572,20 +572,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  getCurrentQuestionIndex$(): Observable<number> {
-    return this.activatedRoute.paramMap.pipe(
-      map(paramMap => paramMap.get('questionIndex')),
-      filter(questionIndexParam => !!questionIndexParam),
-      map(questionIndexParam => parseInt(questionIndexParam, 10)),
-      filter(questionIndex => !isNaN(questionIndex)),
-      map(questionIndex => questionIndex - 1),
-      catchError((error) => {
-        console.error('Error getting question index:', error);
-        return of(-1);
-      })
-    );
-  }
-  
   getCurrentQuestionIndexObservable(): Observable<number> {
     return this.currentQuestionIndexSubject.asObservable();
   }
