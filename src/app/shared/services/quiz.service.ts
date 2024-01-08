@@ -67,8 +67,6 @@ export class QuizService implements OnDestroy {
   question: QuizQuestion;
   questions: QuizQuestion[];
   questions$: Observable<QuizQuestion[]>;
-  questionsAndOptions: [QuizQuestion, Option[]][] = [];
-  questionSubjectEmitted = false;
   quizQuestions: QuizQuestion[];
   nextQuestion: QuizQuestion;
   isOptionSelected = false;
