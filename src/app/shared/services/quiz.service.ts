@@ -977,22 +977,6 @@ export class QuizService implements OnDestroy {
     return this.questions[index];
   }
 
-  getQuestionByExplanation(explanation: string): QuizQuestion | null {
-    if (!this.quizData || this.quizData.length === 0) {
-      return null;
-    }
-
-    for (const quiz of this.quizData) {
-      for (const question of quiz.questions) {
-        if (question.explanation === explanation) {
-          return question;
-        }
-      }
-    }
-
-    return null;
-  }
-
   /********* setter functions ***********/
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
