@@ -970,13 +970,6 @@ export class QuizService implements OnDestroy {
     return quizSelectionParams;
   }
 
-  getQuestionByIndex(index: number): QuizQuestion {
-    if (index < 0 || index >= this.questions.length) {
-      throw new Error('Question index out of bounds');
-    }
-    return this.questions[index];
-  }
-
   /********* setter functions ***********/
   public setQuestionData(data: any): void {
     this.questionDataSubject.next(data);
