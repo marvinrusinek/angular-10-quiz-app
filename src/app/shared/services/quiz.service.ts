@@ -1077,7 +1077,7 @@ export class QuizService implements OnDestroy {
         this.selectedQuiz = loadedQuiz;
         console.log('Quiz loaded successfully', loadedQuiz);
       }),
-      catchError((err) => {
+      catchError((err: any) => {
         console.error('Error loading quiz', err);
         // Handle the error gracefully and return null or an appropriate value
         return of(null);
@@ -1089,19 +1089,19 @@ export class QuizService implements OnDestroy {
     this.status = value;
   }
 
-  setStartedQuizId(value: string) {
+  setStartedQuizId(value: string): void {
     this.startedQuizId = value;
   }
 
-  setContinueQuizId(value: string) {
+  setContinueQuizId(value: string): void {
     this.continueQuizId = value;
   }
 
-  setQuizCompleted(completed: boolean) {
+  setQuizCompleted(completed: boolean): void {
     this.quizCompleted = completed;
   }
 
-  setCompletedQuizId(value: string) {
+  setCompletedQuizId(value: string): void {
     this.completedQuizId = value;
   }
 
