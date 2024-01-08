@@ -90,8 +90,8 @@ export class QuizService implements OnDestroy {
   resources: Resource[];
   quizId = '';
   answers: number[] = [];
-  private answerStatus = new BehaviorSubject<boolean>(false);
-  answerStatus$ = this.answerStatus.asObservable();
+  private answerStatus = new BehaviorSubject<boolean>(false); // currently not being used 01-08-24
+  answerStatus$ = this.answerStatus.asObservable(); // currently not being used 01-08-24
   totalQuestions = 0;
   correctCount: number;
 
@@ -221,7 +221,6 @@ export class QuizService implements OnDestroy {
   quizReset$ = this.quizResetSource.asObservable();
 
   loadingQuestions = false;
-  loadQuestionsLock = false;
   lock = false;
   questionsLoaded = false;
   questionLoadingSubject: Subject<boolean> = new Subject<boolean>();
