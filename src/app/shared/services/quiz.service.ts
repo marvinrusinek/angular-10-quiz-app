@@ -159,8 +159,6 @@ export class QuizService implements OnDestroy {
 
   private _multipleAnswer: boolean;
   checkedShuffle: boolean;
-  isGettingQuestion = false;
-  isGettingCurrentQuestion = false;
 
   private questionSource = new BehaviorSubject<QuizQuestion>(null);
   question$ = this.questionSource.asObservable();
