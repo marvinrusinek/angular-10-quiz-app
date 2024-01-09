@@ -69,18 +69,6 @@ export class QuizDataService implements OnDestroy {
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$ = this.currentOptionsSubject.asObservable();
 
-  currentQuestionAndOptions$ = combineLatest([
-    this.currentQuestionSubject.asObservable(),
-    this.currentOptionsSubject.asObservable(),
-  ]).pipe(
-    map(([currentQuestion, currentOptions]) => {
-      return {
-        question: currentQuestion,
-        options: currentOptions
-      };
-    })
-  );
-
   private quizUrl = 'assets/data/quiz.json';
   private destroy$ = new Subject<void>();
 
