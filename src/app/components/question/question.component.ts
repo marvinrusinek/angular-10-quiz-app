@@ -110,7 +110,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
-  optionsSubscription: Subscription;
   options$: Observable<Option[]>;
   quiz: Quiz;
   questionsObservableSubscription: Subscription;
@@ -135,8 +134,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
   correctAnswersLoaded = false;
-  correctAnswersSubscription: Subscription;
-  correctAnswersLoadedSubscription: Subscription;
   questionDataSubscription: Subscription;
   isExplanationTextDisplayed = false;
 
@@ -246,11 +243,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
-    this.optionsSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
-    this.correctAnswersSubscription?.unsubscribe();
-    this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
   trackByFn(option: Option) {
