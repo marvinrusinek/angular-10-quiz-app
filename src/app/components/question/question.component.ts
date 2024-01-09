@@ -663,7 +663,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.options = question.options;
           }
         }),
-        catchError((error) => {
+        catchError((error: HttpErrorResponse) => {
           console.error('Error in currentQuestion$ subscription:', error);
           return of(null);
         })
