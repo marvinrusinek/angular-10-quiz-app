@@ -216,7 +216,7 @@ export class QuizDataService implements OnDestroy {
     return this.getQuiz(quizId).pipe(
       switchMap((quiz: Quiz) => {
         if (!quiz) {
-          return throwError(new Error(`Quiz with ID ${quizId} not found`));
+          throw new Error(`Quiz with ID ${quizId} not found`);
         }
 
         const explanationTexts = quiz.questions.map((question) => {
@@ -265,7 +265,10 @@ export class QuizDataService implements OnDestroy {
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error getting quiz question:', error);
-        return throwError(() => new Error(error));
+        const customError = new Error('An error occurred while fetching data.');
+        return new Observable((observer) => {
+          observer.error(customError);
+        });
       }),
       distinctUntilChanged()
     );
