@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class SharedVisibilityService {
   private isPageHidden = false;
   private pageVisibilitySubject = new Subject<boolean>();
-
   pageVisibility$ = this.pageVisibilitySubject.asObservable();
 
   constructor() {
@@ -18,7 +17,7 @@ export class SharedVisibilityService {
     });
   }
 
-  isPageHiddenNow() {
+  isPageHiddenNow(): boolean {
     return this.isPageHidden;
   }
 }
