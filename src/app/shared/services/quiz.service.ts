@@ -475,7 +475,7 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
-    console.log('Current Question::', this.currentQuestion);
+    console.log('Current Question::', this.currentQuestion);  // NOT the current question
   
     if (!this.currentQuestion || !this.answers) {
       console.error('Question or Answers is not defined');

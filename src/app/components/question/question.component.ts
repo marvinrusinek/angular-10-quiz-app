@@ -958,17 +958,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private logDebugInformation(): void {
     console.log('Answers:', this.answers);
-    console.log('Current Question:', this.question);
   }
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-    console.log('ISCORRECT', isCorrect);
 
     if (isCorrect) {
       // Stop the timer and provide an empty callback
       this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!'); // add additional logic here
+        console.log('Correct answer selected!');
+        // add additional logic here
       });
     }
   }
