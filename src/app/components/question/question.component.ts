@@ -974,8 +974,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   fetchExplanationText(questionIndex: number): Observable<string> {
-    console.log('Fetching explanation text for question index:', questionIndex);
-
     return this.quizService.getTotalQuestions().pipe(
       switchMap((totalQuestions) => {
         if (
