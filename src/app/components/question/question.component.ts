@@ -69,8 +69,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
-  @Output() isAnswered: boolean = false;
-  @Output() quizEnded: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() isAnswered = false;
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -85,19 +84,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() optionsToDisplay: Option[];
   @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  @Input() currentQuestionIndex: number = 0;
+  @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
-  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
+  @Input() shouldDisplayNumberOfCorrectAnswers = false;
   @Input() explanationTextValue$: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
   @Input() explanationText: string | null;
   @Input() explanationTextValue: string;
-  @Input() isOptionSelected: boolean = false;
+  @Input() isOptionSelected = false;
   @Input() selectionMessage: string;
-  @Input() showFeedback: boolean = false;
+  @Input() showFeedback = false;
 
   combinedQuestionData$: Subject<{
     questionText: string;
@@ -127,12 +126,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   optionChecked: { [optionId: number]: boolean } = {};
   answers: any[] = [];
   correctOptionIndex: number;
-  selectedOptionIndex: number | null = null;
-  prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  explanationTextSubscription: Subscription;
   displayExplanation = false;
   isChangeDetected = false;
   feedbackDisplayed = false;
@@ -251,7 +247,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
     this.optionsSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
     this.correctAnswersSubscription?.unsubscribe();
