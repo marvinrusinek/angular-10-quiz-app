@@ -1025,24 +1025,23 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
-      (isMultipleAnswer) => {
-        console.log('isMultipleAnswer:', isMultipleAnswer);
-
-        if (this.quizService.selectedOptions.length > 0) {
-          this.fetchQuestionsArray(currentQuestion);
-        } else {
-          this.explanationText$.next('');
-        }
-      },
-      (error) => {
-        console.error('Error in isMultipleAnswer subscription:', error);
-      },
-      () => {
-        console.log('isMultipleAnswer subscription completed');
-      }
-    );
-  }
+    this.quizStateService
+      .isMultipleAnswer(currentQuestion)
+      .subscribe({
+        next: (isMultipleAnswer: boolean) => {
+          console.log('isMultipleAnswer:', isMultipleAnswer);
+  
+          if (this.quizService.selectedOptions.length > 0) {
+            this.fetchQuestionsArray(currentQuestion);
+          } else {
+            this.explanationText$.next('');
+          }
+        },
+        error: (error) => {
+          console.error('Error in isMultipleAnswer subscription:', error);
+        },
+      });
+  }  
 
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.questions.subscribe(
