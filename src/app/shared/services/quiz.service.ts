@@ -35,6 +35,8 @@ import { QuizScore } from '../../shared/models/QuizScore.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 
+import { ExplanationTextService } from '../../shared/services/explanation-text.service';
+
 enum QuizRoutes {
   INTRO = '/intro/',
   QUESTION = '/question/',
@@ -241,6 +243,7 @@ export class QuizService implements OnDestroy {
   incorrectSound: Howl;
 
   constructor(
+    private explanationTextService: ExplanationTextService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private http: HttpClient
@@ -1185,15 +1188,46 @@ export class QuizService implements OnDestroy {
   }
 
   async initializeCombinedQuestionData(): Promise<void> {
-    const currentQuestion = await firstValueFrom(this.currentQuestion$);
-    const combinedQuestionData: CombinedQuestionDataType = {
-      questionText: currentQuestion.questionText,
-      correctAnswersText: '',
-      currentQuestion: currentQuestion, 
-      currentOptions: this.data.currentOptions,
-      isNavigatingToPrevious: false
-    };
-    this.combinedQuestionDataSubject.next(combinedQuestionData);
+    try {
+      const currentQuestion = await firstValueFrom(this.currentQuestion$);
+      if (currentQuestion) {
+        const combinedQuestionData: CombinedQuestionDataType = {
+          questionText: currentQuestion.questionText,
+          correctAnswersText: '',
+          currentQuestion: currentQuestion, 
+          currentOptions: this.data.currentOptions,
+          isNavigatingToPrevious: false,
+          explanationText: '',
+          formattedExplanation: this.explanationTextService.formattedExplanation$
+        };
+        this.combinedQuestionDataSubject.next(combinedQuestionData);
+      } else {
+        // Set combinedQuestionData with default or placeholder values
+        const defaultCombinedQuestionData: CombinedQuestionDataType = {
+          questionText: '',
+          correctAnswersText: '',
+          currentQuestion: null,
+          currentOptions: [],
+          isNavigatingToPrevious: false,
+          explanationText: '',
+          formattedExplanation: ''
+        };
+        this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
+      }
+    } catch (error) {
+      console.error('Error in initializeCombinedQuestionData:', error);
+      // Handle error or set combinedQuestionData to a safe default state.
+      const errorStateCombinedQuestionData: CombinedQuestionDataType = {
+        questionText: 'Error loading question',
+        correctAnswersText: '',
+        currentQuestion: null,
+        currentOptions: [],
+        isNavigatingToPrevious: false,
+        explanationText: '',
+        formattedExplanation: 'An error occurred while loading the question.'
+      };
+      this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
+    }
   }
 
   setCorrectAnswersForQuestions(questions: QuizQuestion[], correctAnswers: Map<string, number[]>): void {
