@@ -144,7 +144,7 @@ export class QuizDataService implements OnDestroy {
         const quiz = this.quizzes.find((q) => q.quizId === quizId);
         if (!quiz) {
           console.error('Selected quiz not found');
-          return throwError('Selected quiz not found');
+          throw new Error('Selected quiz not found');
         }
         this.setSelectedQuiz(quiz);
         return of(undefined);
@@ -168,7 +168,7 @@ export class QuizDataService implements OnDestroy {
 
   getQuiz(quizId: string): Observable<Quiz> {
     if (!quizId) {
-      return throwError('quizId parameter is null or undefined');
+      throw new Error('quizId parameter is null or undefined');
     }
 
     return this.http.get<Quiz[]>(`${this.quizUrl}`).pipe(
@@ -194,7 +194,7 @@ export class QuizDataService implements OnDestroy {
 
   getQuizById(quizId: string): Observable<Quiz> {
     if (!quizId) {
-      return throwError(new Error(`Quiz ID is undefined`));
+      throw new Error(`Quiz ID is undefined`);
     }
 
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
