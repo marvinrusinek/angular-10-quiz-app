@@ -151,7 +151,7 @@ export class QuizDataService implements OnDestroy {
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error retrieving quizzes:', error);
-        return throwError('Error retrieving quizzes');
+        throw new Error('Error retrieving quizzes');
       }),
       takeUntil(this.destroy$)
     );
@@ -187,7 +187,7 @@ export class QuizDataService implements OnDestroy {
         return quiz;
       }),
       catchError((error: HttpErrorResponse) => {
-        return throwError('Error getting quiz\n' + error.message);
+        throw new Error('Error getting quiz\n' + error.message);
       })
     );
   }
@@ -201,7 +201,7 @@ export class QuizDataService implements OnDestroy {
       map((quizzes: Quiz[]) => quizzes.find((quiz) => quiz.quizId === quizId)),
       switchMap((quiz) => {
         if (!quiz) {
-          return throwError(new Error(`Quiz with ID ${quizId} not found`));
+          throw new Error(`Quiz with ID ${quizId} not found`);
         }
         return of(quiz);
       }),
