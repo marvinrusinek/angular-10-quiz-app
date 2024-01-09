@@ -44,7 +44,6 @@ export class QuizDataService implements OnDestroy {
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId = '';
-  currentQuizId = '';
   question: QuizQuestion | null = null;
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
 
@@ -59,14 +58,8 @@ export class QuizDataService implements OnDestroy {
   currentQuestion$: QuizQuestion;
   options$: Option[];
 
-  previousQuestionTextSubject = new BehaviorSubject<string>('');
-
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
-
-  currentQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
-  currentOptionsSubject = new BehaviorSubject<Option[]>([]);
-  currentOptions$ = this.currentOptionsSubject.asObservable();
 
   private quizUrl = 'assets/data/quiz.json';
   private destroy$ = new Subject<void>();
