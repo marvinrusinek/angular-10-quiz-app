@@ -145,7 +145,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   showExplanation = false;
   displayExplanation = false;
   explanationText: string | null;
-  explanationTextValue$: Observable<string | null>;
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$: Observable<string | null> =
     this.explanationTextSource.asObservable();
