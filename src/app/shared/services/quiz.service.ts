@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {
   BehaviorSubject,
+  combineLatest,
   firstValueFrom,
   from,
   Observable,
@@ -1199,6 +1200,9 @@ export class QuizService implements OnDestroy {
           formattedExplanation: this.explanationTextService.formattedExplanation$.value
         };
         this.combinedQuestionDataSubject.next(combinedQuestionData);
+        this.combinedQuestionData$ = combineLatest([
+          this.combinedQuestionDataSubject.asObservable()
+        ]);
       } else {
         // Set combinedQuestionData with default or placeholder values
         const defaultCombinedQuestionData: CombinedQuestionDataType = {
@@ -1211,10 +1215,12 @@ export class QuizService implements OnDestroy {
           formattedExplanation: ''
         };
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
+        this.combinedQuestionData$ = combineLatest([
+          this.combinedQuestionDataSubject.asObservable()
+        ]);
       }
     } catch (error) {
       console.error('Error in initializeCombinedQuestionData:', error);
-      // Handle error or set combinedQuestionData to a safe default state.
       const errorStateCombinedQuestionData: CombinedQuestionDataType = {
         questionText: 'Error loading question',
         correctAnswersText: '',
@@ -1225,6 +1231,9 @@ export class QuizService implements OnDestroy {
         formattedExplanation: 'An error occurred while loading the question.'
       };
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
+      this.combinedQuestionData$ = combineLatest([
+        this.combinedQuestionDataSubject.asObservable()
+      ]);
     }
   }
 
