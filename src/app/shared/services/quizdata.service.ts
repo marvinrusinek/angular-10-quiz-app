@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
@@ -47,7 +47,6 @@ export class QuizDataService implements OnDestroy {
   currentQuizId = '';
   question: QuizQuestion | null = null;
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
-  currentQuestionAndOptions: [QuizQuestion, Option[]];
 
   currentQuestionIndex = 0;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
@@ -368,7 +367,7 @@ export class QuizDataService implements OnDestroy {
     questionIndex: number = 0
   ): Observable<QuizQuestion> {
     const quizId$ = this.activatedRoute.params.pipe(
-      map((params: ParamMap) => params.quizId),
+      map((params) => params.quizId),
       filter((quizId) => !!quizId),
       take(1)
     );
