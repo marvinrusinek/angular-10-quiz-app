@@ -361,7 +361,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private subscribeToCorrectAnswersAndData(): void {
-    console.log('CQD::', this.quizService.combinedQuestionData$);
+    console.log('CQD::', this.quizService.combinedQuestionData$.value);
     combineLatest([
       this.quizService.correctAnswers$,
       this.quizService.combinedQuestionData$,
@@ -399,6 +399,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               questionText: this.data.questionText,
               correctAnswersText: '',
               currentOptions: this.data.options,
+              currentQuestion: this.currentQuestion,
+              isNavigatingToPrevious: false
             });
           }
           console.log('CA:', this.correctAnswers);
