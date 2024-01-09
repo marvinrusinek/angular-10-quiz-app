@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
+  firstValueFrom,
   Observable,
   of,
   ReplaySubject,
@@ -239,8 +240,9 @@ export class QuizDataService implements OnDestroy {
 
   async asyncOperationToSetQuestion(quizId: string, currentQuestionIndex: number): Promise<void> {
     try {
-      // Simulate an asynchronous operation, e.g., fetching data from a service
-      const question = await this.fetchQuizQuestionByIdAndIndex(quizId, currentQuestionIndex).toPromise();
+      const question = await firstValueFrom(
+        this.fetchQuizQuestionByIdAndIndex(quizId, currentQuestionIndex)
+      );
       this.setQuestion(question);
     } catch (error) {
       console.error('Error setting question:', error);
