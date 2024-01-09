@@ -680,7 +680,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-      const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
+      const explanationTextsArray: string[] = this.explanationTextService.fetchExplanationTexts();
+      const explanationTextsObservable: Observable<string[]> = of(explanationTextsArray);
+      const explanationTexts = await firstValueFrom(explanationTextsObservable);
   
       if (explanationTexts && explanationTexts.length > 0) {
         this.explanationTextService.initializeExplanationTexts(explanationTexts);
