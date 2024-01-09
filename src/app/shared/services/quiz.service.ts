@@ -1198,7 +1198,7 @@ export class QuizService implements OnDestroy {
           currentOptions: this.data.currentOptions,
           isNavigatingToPrevious: false,
           explanationText: '',
-          formattedExplanation: this.explanationTextService.formattedExplanation$
+          formattedExplanation: this.explanationTextService.formattedExplanation$.value
         };
         this.combinedQuestionDataSubject.next(combinedQuestionData);
       } else {
