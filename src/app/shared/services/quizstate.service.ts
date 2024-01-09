@@ -11,8 +11,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 export class QuizStateService {
   currentQuestion: BehaviorSubject<QuizQuestion | null> 
     = new BehaviorSubject<QuizQuestion | null>(null);
-  private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private currentQuestionSource = new Subject<QuizQuestion>();
+  private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   currentQuestion$: Observable<QuizQuestion> = this.currentQuestionSubject.asObservable();
 
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
@@ -31,7 +31,7 @@ export class QuizStateService {
     }
   
     question$.pipe(
-      catchError((error) => {
+      catchError((error: any) => {
         console.error(error);
         return throwError(error);
       }),
