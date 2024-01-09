@@ -324,7 +324,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeSelectedOption(): void {
     of(this.selectedOption)
-      .pipe(tap((option) => this.selectedOption$.next(option)))
+      .pipe(tap((option: Option) => this.selectedOption$.next(option)))
       .subscribe();
   }
 
@@ -364,7 +364,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     console.log('CQD::', this.quizService.combinedQuestionData$.value);
     combineLatest([
       this.quizService.correctAnswers$,
-      this.quizService.combinedQuestionData$,
+      this.quizService.combinedQuestionData$
     ])
       .pipe(take(1))
       .subscribe(([correctAnswers, data]) => {
