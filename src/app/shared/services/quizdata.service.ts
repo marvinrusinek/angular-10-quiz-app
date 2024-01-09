@@ -325,7 +325,7 @@ export class QuizDataService implements OnDestroy {
     ).pipe(
       shareReplay({ refCount: true, bufferSize: 1 })
     ) as Observable<QuizQuestion>;
-    const options$ = this.getQuestionOptions(currentQuestion$).pipe(
+    const options$: Observable<Option[]> = this.getQuestionOptions(currentQuestion$).pipe(
       shareReplay({ refCount: true, bufferSize: 1 })
     );
 
