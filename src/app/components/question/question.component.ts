@@ -291,8 +291,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
-            questions.forEach((q: QuizQuestion) => {
-              q.selectedOptions = null;
+            questions.forEach((quizQuestion: QuizQuestion) => {
+              quizQuestion.selectedOptions = null;
             });
             return questions;
           })
@@ -315,7 +315,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeSelectedQuiz(): void {
     if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
         this.selectedQuiz.next(quiz);
         this.setQuestionOptions();
       });
@@ -374,7 +374,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         );
         console.log('Subscription triggered with data:', data);
 
-        if (data) {
+        if (data !== null) {
           this.data = {
             questionText: data.questionText,
             explanationText:
