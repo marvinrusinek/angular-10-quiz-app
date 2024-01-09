@@ -92,7 +92,7 @@ export class QuizDataService implements OnDestroy {
     this.http
       .get<Quiz[]>(this.quizUrl)
       .pipe(
-        tap((quizzes) => {
+        tap((quizzes: Quiz[]) => {
           this.quizzes$.next(quizzes);
           this.quizzes = quizzes;
           if (quizzes.length > 0) {
@@ -100,7 +100,7 @@ export class QuizDataService implements OnDestroy {
             this.selectedQuiz$.next(this.selectedQuiz);
           }
         }),
-        catchError((error) => {
+        catchError((error: HttpErrorResponse) => {
           console.error('Error loading quizzes:', error);
           return [];
         })
@@ -110,11 +110,11 @@ export class QuizDataService implements OnDestroy {
 
   getQuizData(quizId: string): Observable<QuizQuestion[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map((quizzes) => {
+      map((quizzes: Quiz[]) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
         return selectedQuiz ? selectedQuiz.questions : [];
       }),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error fetching quiz data:', error);
         return of([]);
       })
@@ -127,7 +127,7 @@ export class QuizDataService implements OnDestroy {
         this.quizzes = quizzes;
         this.quizzesSubject.next(quizzes);
       }),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error retrieving quizzes:', error);
         return of([]);
       })
@@ -156,7 +156,7 @@ export class QuizDataService implements OnDestroy {
         this.setSelectedQuiz(quiz);
         return of(undefined);
       }),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error retrieving quizzes:', error);
         return throwError('Error retrieving quizzes');
       }),
@@ -167,7 +167,7 @@ export class QuizDataService implements OnDestroy {
   getSelectedQuiz(): Observable<Quiz | null> {
     return this.selectedQuiz$.pipe(
       distinctUntilChanged(),
-      filter((selectedQuiz) => !!selectedQuiz),
+      filter((selectedQuiz: Quiz) => !!selectedQuiz),
       take(1),
       catchError(() => of(null))
     );
