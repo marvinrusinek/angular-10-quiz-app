@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
@@ -238,7 +238,7 @@ export class QuizDataService implements OnDestroy {
 
         return of(explanationTexts);
       }),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error getting explanation texts:', error);
         return of([]);
       })
@@ -271,7 +271,7 @@ export class QuizDataService implements OnDestroy {
 
         return of(question);
       }),
-      catchError((error: any) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error getting quiz question:', error);
         return throwError(() => new Error(error));
       }),
@@ -307,7 +307,7 @@ export class QuizDataService implements OnDestroy {
         return options;
       }),
       distinctUntilChanged(),
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error('Error fetching question:', error);
         throw error; // rethrow the error to propagate it to the caller
       })
@@ -352,8 +352,8 @@ export class QuizDataService implements OnDestroy {
 
   loadQuizData(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      catchError((err: any) => {
-        console.log('Error:', err);
+      catchError((error: HttpErrorResponse) => {
+        console.log('Error:', error);
         return of(null);
       }),
       retryWhen((errors: any) => errors.pipe(delay(1000), take(3))),
@@ -368,7 +368,7 @@ export class QuizDataService implements OnDestroy {
     questionIndex: number = 0
   ): Observable<QuizQuestion> {
     const quizId$ = this.activatedRoute.params.pipe(
-      map((params) => params.quizId),
+      map((params: ParamMap) => params.quizId),
       filter((quizId) => !!quizId),
       take(1)
     );
@@ -385,8 +385,8 @@ export class QuizDataService implements OnDestroy {
           })
         );
       }),
-      catchError((err) => {
-        console.log('Error:', err);
+      catchError((error: HttpErrorResponse) => {
+        console.log('Error:', error);
         return of(null);
       }),
       distinctUntilChanged(
@@ -450,8 +450,8 @@ export class QuizDataService implements OnDestroy {
 
         return options;
       }),
-      catchError((err) => {
-        console.log('Error:', err);
+      catchError((error: HttpErrorResponse) => {
+        console.log('Error:', error);
         return of(null);
       }),
       distinctUntilChanged(
@@ -479,8 +479,8 @@ export class QuizDataService implements OnDestroy {
 
         return [question, options];
       }),
-      catchError((err) => {
-        console.log('Error:', err);
+      catchError((error: HttpErrorResponse) => {
+        console.log('Error:', error);
         return of(null);
       }),
       distinctUntilChanged(
@@ -503,7 +503,7 @@ export class QuizDataService implements OnDestroy {
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
-  }  
+  }
 
   setCurrentQuestionIndex(index: number): void {
     this.currentQuestionIndex = index;
@@ -513,7 +513,7 @@ export class QuizDataService implements OnDestroy {
   submitQuiz(quiz: Quiz): Observable<any> {
     const submitUrl = `${this.quizUrl}/results/${quiz.quizId}`;
     return this.http.post(submitUrl, quiz).pipe(
-      catchError((error) => {
+      catchError((error: HttpErrorResponse) => {
         console.error(`Error submitting quiz ${quiz.quizId}`, error);
         return throwError(error);
       }),
