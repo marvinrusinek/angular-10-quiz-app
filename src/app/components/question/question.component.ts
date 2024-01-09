@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -20,7 +20,7 @@ import {
   of,
   ReplaySubject,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -29,7 +29,7 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -49,9 +49,9 @@ import { TimerService } from '../../shared/services/timer.service';
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
+export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy { 
   @Output() answer = new EventEmitter<number>();
   @Output() answersChange = new EventEmitter<string[]>();
   @Output() selectionChanged: EventEmitter<{
@@ -69,7 +69,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     new EventEmitter<boolean>();
   @Output() isAnsweredChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
-  @Output() isAnswered = false;
+  @Output() isAnswered: boolean = false;
+  @Output() quizEnded: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Input() data: {
     questionText: string;
     explanationText?: string;
@@ -84,17 +85,19 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() optionsToDisplay: Option[];
   @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  @Input() currentQuestionIndex = 0;
+  @Input() currentQuestionIndex: number = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
-  @Input() shouldDisplayNumberOfCorrectAnswers = false;
+  @Input() shouldDisplayNumberOfCorrectAnswers: boolean = false;
+  @Input() explanationTextValue$: BehaviorSubject<string | null> =
+    new BehaviorSubject<string | null>(null);
   @Input() explanationText: string | null;
   @Input() explanationTextValue: string;
-  @Input() isOptionSelected = false;
+  @Input() isOptionSelected: boolean = false;
   @Input() selectionMessage: string;
-  @Input() showFeedback = false;
+  @Input() showFeedback: boolean = false;
 
   combinedQuestionData$: Subject<{
     questionText: string;
@@ -105,15 +108,18 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   isMultipleAnswer$: Observable<boolean>;
   questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
+  questionsObservableSubscription: Subscription;
   selectedOption: Option | null;
   selectedOptions: Option[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
+  optionsSubscription: Subscription;
   options$: Observable<Option[]>;
   quiz: Quiz;
-  questionsObservableSubscription: Subscription;
   currentQuestionSubscription: Subscription;
   currentQuestionSource: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
+  questionsAndOptions: [QuizQuestion, Option[]][] = [];
+  currentQuestionLoaded: boolean = false;
   questionForm: FormGroup = new FormGroup({});
   selectedQuiz = new ReplaySubject<Quiz>(1);
   currentOptions: Option[] | undefined;
@@ -123,17 +129,22 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   optionChecked: { [optionId: number]: boolean } = {};
   answers: any[] = [];
   correctOptionIndex: number;
+  selectedOptionIndex: number | null = null;
+  prevSelectedOption: Option;
   shuffleOptions = true;
   shuffledOptions: Option[];
   explanationText$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  displayExplanation = false;
+  explanationTextSubscription: Subscription;
+  displayExplanation: boolean = false;
   isChangeDetected = false;
   feedbackDisplayed = false;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectionMessage$: Observable<string>;
-  correctAnswersLoaded = false;
+  correctAnswersLoaded: boolean = false;
+  correctAnswersSubscription: Subscription;
+  correctAnswersLoadedSubscription: Subscription;
   questionDataSubscription: Subscription;
-  isExplanationTextDisplayed = false;
+  isExplanationTextDisplayed: boolean = false;
 
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
@@ -169,15 +180,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedOptionService = selectedOptionService;
     this.selectionMessageService = selectionMessageService;
     this.sharedVisibilityService = sharedVisibilityService;
-
+    
     this.questionForm = this.fb.group({
       selectedOption: [''],
     });
 
-    this.sharedVisibilitySubscription =
-      this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
-        this.handlePageVisibilityChange(isHidden);
-      });
+    this.sharedVisibilitySubscription = this.sharedVisibilityService.pageVisibility$.subscribe((isHidden) => {
+      this.handlePageVisibilityChange(isHidden);
+    });
   }
 
   async ngOnInit(): Promise<void> {
@@ -241,8 +251,12 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
     this.questionsObservableSubscription?.unsubscribe();
     this.currentQuestionSubscription?.unsubscribe();
+    this.optionsSubscription?.unsubscribe();
+    this.explanationTextSubscription?.unsubscribe();
     this.multipleAnswerSubscription?.unsubscribe();
     this.sharedVisibilitySubscription?.unsubscribe();
+    this.correctAnswersSubscription?.unsubscribe();
+    this.correctAnswersLoadedSubscription?.unsubscribe();
   }
 
   trackByFn(option: Option) {
@@ -278,8 +292,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         .getAllQuestions()
         .pipe(
           map((questions: QuizQuestion[]) => {
-            questions.forEach((quizQuestion: QuizQuestion) => {
-              quizQuestion.selectedOptions = null;
+            questions.forEach((q: QuizQuestion) => {
+              q.selectedOptions = null;
             });
             return questions;
           })
@@ -302,7 +316,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeSelectedQuiz(): void {
     if (this.quizDataService.selectedQuiz$) {
-      this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
+      this.quizDataService.selectedQuiz$.subscribe((quiz) => {
         this.selectedQuiz.next(quiz);
         this.setQuestionOptions();
       });
@@ -311,7 +325,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private initializeSelectedOption(): void {
     of(this.selectedOption)
-      .pipe(tap((option: Option) => this.selectedOption$.next(option)))
+      .pipe(tap((option) => this.selectedOption$.next(option)))
       .subscribe();
   }
 
@@ -348,10 +362,9 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   } */
 
   private subscribeToCorrectAnswersAndData(): void {
-    console.log('CQD::', this.quizService.combinedQuestionData$.value);
     combineLatest([
       this.quizService.correctAnswers$,
-      this.quizService.combinedQuestionData$.pipe(filter(data => data !== null))
+      this.quizService.combinedQuestionData$,
     ])
       .pipe(take(1))
       .subscribe(([correctAnswers, data]) => {
@@ -361,7 +374,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         );
         console.log('Subscription triggered with data:', data);
 
-        if (data !== null) {
+        if (data) {
           this.data = {
             questionText: data.questionText,
             explanationText:
@@ -386,8 +399,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
               questionText: this.data.questionText,
               correctAnswersText: '',
               currentOptions: this.data.options,
-              currentQuestion: this.currentQuestion,
-              isNavigatingToPrevious: false
             });
           }
           console.log('CA:', this.correctAnswers);
@@ -637,6 +648,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  
   isOption(option: Option | string): option is Option {
     return (option as Option).optionId !== undefined;
   }
@@ -661,7 +673,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
             this.options = question.options;
           }
         }),
-        catchError((error: HttpErrorResponse) => {
+        catchError((error) => {
           console.error('Error in currentQuestion$ subscription:', error);
           return of(null);
         })
@@ -693,6 +705,14 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       console.error('Invalid Quiz object');
     }
+  }
+
+  public getQuestion(index: number): Observable<QuizQuestion> {
+    return this.quizDataService.getSelectedQuiz().pipe(
+      map((selectedQuiz) => {
+        return selectedQuiz.questions[index];
+      })
+    );
   }
 
   public incrementScore(): void {
@@ -819,7 +839,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
         filter((quiz) => !!quiz),
         map((quiz) => quiz.questions[this.currentQuestionIndex])
       )
-      .subscribe((currentQuestion: QuizQuestion) => {
+      .subscribe((currentQuestion) => {
         if (!currentQuestion) {
           console.error('Question not found');
           return;
@@ -890,92 +910,99 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  // This is an asynchronous function named onOptionClicked which takes an option object as an argument and returns a Promise.
   async onOptionClicked(option: Option): Promise<void> {
+
+    // Calls a method addSelectedOption from quizService and passes the selected option to it.
     this.quizService.addSelectedOption(option);
 
     // Retrieves the current question index and stores it in a variable.
     const questionIndex = this.currentQuestionIndex;
 
-    this.fetchExplanationText(questionIndex).subscribe((explanationText) => {
+    // Calls fetchExplanationText method with the current question index, 
+    // then subscribes to the returned Observable to get the explanation text.
+    // Once received, it sets the explanationText property of the class to this new value.
+    this.fetchExplanationText(questionIndex).subscribe(explanationText => {
+      this.explanationText = explanationText;
+    });
+    
+    // Subscribes to the formattedExplanation$ Observable from explanationTextService. 
+    // Whenever a new explanation text is emitted, it updates the explanationText property of the class.
+    this.explanationTextService.formattedExplanation$.subscribe(explanationText => {
       this.explanationText = explanationText;
     });
 
-    this.explanationTextService.formattedExplanation$.subscribe(
-      (explanationText) => {
-        this.explanationText = explanationText;
-      }
-    );
+    // Subscribes to the currentQuestion$ Observable from quizStateService, but only takes one value (the latest).
+    // When a new current question is emitted, it updates the currentQuestion property of the class
+    // and then processes the option selection with the current question and the selected option.
+    this.quizStateService.currentQuestion$.pipe(take(1)).subscribe((currentQuestion) => {
+      this.currentQuestion = currentQuestion;
+      this.processOptionSelection(this.currentQuestion, option);
+    });
 
-    this.quizStateService.currentQuestion$
-      .pipe(take(1))
-      .subscribe((currentQuestion: QuizQuestion) => {
-        this.currentQuestion = currentQuestion;
-        this.processOptionSelection(this.currentQuestion, option);
-      });
-
+    // Calls a method to update answers based on the selected option.
     this.updateAnswersForOption(option);
+
+    // Checks and handles the logic if the selected answer is correct.
     this.checkAndHandleCorrectAnswer();
+
+    // Logs debugging information, useful for troubleshooting or understanding the flow of the program.
     this.logDebugInformation();
   }
 
-  private processOptionSelection(
-    currentQuestion: QuizQuestion,
-    option: Option
-  ): void {
+  private processOptionSelection(currentQuestion: QuizQuestion, option: Option): void {
+    console.log('Processing option selection...');
     this.handleOptionClicked(currentQuestion, option);
-
+  
     // Check if the clicked option is selected
     const isOptionSelected = this.isSelectedOption(option);
-
+  
     // Set shouldDisplayExplanation to true when an option is selected, otherwise set it to false
     this.explanationTextService.setShouldDisplayExplanation(isOptionSelected);
     this.explanationTextService.toggleExplanationDisplay(isOptionSelected);
   }
 
   private updateAnswersForOption(option: Option): void {
-    const answerIndex = this.answers.findIndex(
-      (answer) => answer === option.value
-    );
-
+    const answerIndex = this.answers.findIndex((answer) => answer === option.value);
+  
     if (answerIndex !== -1) {
       this.answers[answerIndex] = true;
     }
-
+  
     // Emit the updated answers
     this.quizService.answersSubject.next(this.answers);
   }
 
   private logDebugInformation(): void {
     console.log('Answers:', this.answers);
+    console.log('Current Question:', this.question);
   }
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
-
+    console.log("ISCORRECT", isCorrect);
+  
     if (isCorrect) {
       // Stop the timer and provide an empty callback
       this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!');
-        // add additional logic here
+        console.log('Correct answer selected!'); // add additional logic here
       });
     }
   }
-
+  
   fetchExplanationText(questionIndex: number): Observable<string> {
+    console.log('Fetching explanation text for question index:', questionIndex);
+  
     return this.quizService.getTotalQuestions().pipe(
-      switchMap((totalQuestions) => {
-        if (
-          typeof questionIndex !== 'number' ||
-          questionIndex < 0 ||
-          questionIndex >= totalQuestions
-        ) {
+      switchMap(totalQuestions => {
+        if (typeof questionIndex !== 'number' || 
+            questionIndex < 0 || 
+            questionIndex >= totalQuestions) {
           console.warn(`Invalid question index: ${questionIndex}`);
           return of('Invalid question index');
         }
-
-        return this.explanationTextService.getExplanationTextForQuestionIndex(
-          questionIndex
-        );
+  
+        return this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
       })
     );
   }
@@ -983,7 +1010,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((o) => o === option);
-
+  
     if (!isOptionSelected && index === -1) {
       this.addSelectedOption(option, currentQuestion);
     } else {
@@ -992,43 +1019,41 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
       this.unselectOption();
     }
-
+  
     this.handleMultipleAnswer(currentQuestion);
   }
-
-  private addSelectedOption(
-    option: Option,
-    currentQuestion: QuizQuestion
-  ): void {
+  
+  private addSelectedOption(option: Option, currentQuestion: QuizQuestion): void {
     this.selectedOptions.push(option);
     console.log('After Click - selectedOptions:', this.selectedOptions);
     this.selectOption(currentQuestion, option);
   }
-
+  
   private removeSelectedOption(index: number): void {
     this.selectedOptions.splice(index, 1);
     console.log('Option is already selected or clicked to unselect.');
   }
-
-  private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
-    this.quizStateService
-      .isMultipleAnswer(currentQuestion)
-      .subscribe({
-        next: (isMultipleAnswer: boolean) => {
-          console.log('isMultipleAnswer:', isMultipleAnswer);
   
-          if (this.quizService.selectedOptions.length > 0) {
-            this.fetchQuestionsArray(currentQuestion);
-          } else {
-            this.explanationText$.next('');
-          }
-        },
-        error: (error) => {
-          console.error('Error in isMultipleAnswer subscription:', error);
-        },
-      });
-  }  
-
+  private handleMultipleAnswer(currentQuestion: QuizQuestion): void {
+    this.quizStateService.isMultipleAnswer(currentQuestion).subscribe(
+      (isMultipleAnswer) => {
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+  
+        if (this.quizService.selectedOptions.length > 0) {
+          this.fetchQuestionsArray(currentQuestion);
+        } else {
+          this.explanationText$.next('');
+        }
+      },
+      (error) => {
+        console.error('Error in isMultipleAnswer subscription:', error);
+      },
+      () => {
+        console.log('isMultipleAnswer subscription completed');
+      }
+    );
+  }
+  
   private fetchQuestionsArray(currentQuestion: QuizQuestion): void {
     this.questions.subscribe(
       (questionsArray) => {
@@ -1042,11 +1067,8 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       }
     );
   }
-
-  private isSameQuestion(
-    question1: QuizQuestion,
-    question2: QuizQuestion
-  ): boolean {
+  
+  private isSameQuestion(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return (
       question1.questionText === question2.questionText &&
       question1.explanation === question2.explanation
@@ -1104,9 +1126,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    const questionData = await this.quizService.getNextQuestion(
-      this.currentQuestionIndex
-    );
+    const questionData = await this.quizService.getNextQuestion(this.currentQuestionIndex);
     if (this.isValidQuestionData(questionData)) {
       await this.processExplanationText(questionData, questionIndex);
     } else {
@@ -1123,63 +1143,38 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     return !!questionData && !!questionData.explanation;
   }
 
-  private async processExplanationText(
-    questionData: QuizQuestion,
-    questionIndex: number
-  ): Promise<void> {
-    this.explanationTextService.setCurrentQuestionExplanation(
-      questionData.explanation
-    );
+  private async processExplanationText(questionData: QuizQuestion, questionIndex: number): Promise<void> {
+    this.explanationTextService.setCurrentQuestionExplanation(questionData.explanation);
 
     try {
-      const formattedExplanation = await this.getFormattedExplanation(
-        questionData,
-        questionIndex
-      );
+      const formattedExplanation = await this.getFormattedExplanation(questionData, questionIndex);
       this.handleFormattedExplanation(formattedExplanation, questionIndex);
     } catch (error) {
       console.error('Error in processing explanation text:', error);
     }
   }
 
-  private async getFormattedExplanation(
-    questionData: QuizQuestion,
-    questionIndex: number
-  ): Promise<{ questionIndex: number; explanation: string }> {
-    const formattedExplanationObservable =
-      this.explanationTextService.formatExplanationText(
-        questionData,
-        questionIndex
-      );
+  private async getFormattedExplanation(questionData: QuizQuestion, questionIndex: number): Promise<{ questionIndex: number, explanation: string }> {
+    const formattedExplanationObservable = this.explanationTextService.formatExplanationText(questionData, questionIndex);
     return firstValueFrom(formattedExplanationObservable);
   }
 
-  private handleFormattedExplanation(
-    formattedExplanation: FormattedExplanation,
-    questionIndex: number
-  ): void {
+  private handleFormattedExplanation(formattedExplanation: FormattedExplanation, questionIndex: number): void {
     if (!formattedExplanation) {
       console.error('Error: formatExplanationText returned void');
       return;
     }
 
-    const explanationText =
-      typeof formattedExplanation === 'string'
-        ? formattedExplanation
-        : formattedExplanation.explanation || 'No explanation available';
+    const explanationText = typeof formattedExplanation === 'string'
+      ? formattedExplanation
+      : formattedExplanation.explanation || 'No explanation available';
 
     this.updateExplanationUI(questionIndex, explanationText);
   }
 
-  private updateExplanationUI(
-    questionIndex: number,
-    explanationText: string
-  ): void {
+  private updateExplanationUI(questionIndex: number, explanationText: string): void {
     this.explanationText$.next(explanationText);
-    this.updateCombinedQuestionData(
-      this.questions[questionIndex],
-      explanationText
-    );
+    this.updateCombinedQuestionData(this.questions[questionIndex], explanationText);
     this.emitUIUpdateEvents();
   }
 
@@ -1189,6 +1184,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.updateFeedbackVisibility();
   }
 
+  
   updateCombinedQuestionData(
     currentQuestion: QuizQuestion,
     explanationText: string
