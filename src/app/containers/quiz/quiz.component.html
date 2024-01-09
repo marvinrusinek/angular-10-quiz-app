@@ -43,7 +43,6 @@
             [previousQuestionIndex]="previousQuestionIndex"
             [multipleAnswer]="multipleAnswer"
             (answersChange)="checkIfAnsweredCorrectly()"
-            [explanationTextValue$]="explanationTextValue$ | async"
             [selectionMessage]="selectionMessage$ | async"
             [showFeedback]="showFeedback"
           ></codelab-quiz-question>

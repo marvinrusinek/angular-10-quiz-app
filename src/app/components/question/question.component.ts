@@ -90,8 +90,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() multipleAnswer: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   @Input() shouldDisplayNumberOfCorrectAnswers = false;
-  @Input() explanationTextValue$: BehaviorSubject<string | null> =
-    new BehaviorSubject<string | null>(null);
   @Input() explanationText: string | null;
   @Input() explanationTextValue: string;
   @Input() isOptionSelected = false;
