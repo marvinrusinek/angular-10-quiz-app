@@ -114,6 +114,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   optionsSubscription: Subscription;
   options$: Observable<Option[]>;
   quiz: Quiz;
+  questionsObservableSubscription: Subscription;
   currentQuestionSubscription: Subscription;
   currentQuestionSource: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
