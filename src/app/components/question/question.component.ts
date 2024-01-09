@@ -933,7 +933,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     currentQuestion: QuizQuestion,
     option: Option
   ): void {
-    console.log('Processing option selection...');
     this.handleOptionClicked(currentQuestion, option);
 
     // Check if the clicked option is selected
