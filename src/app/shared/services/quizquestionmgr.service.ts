@@ -42,20 +42,12 @@ export class QuizQuestionManagerService {
     this.shouldDisplayExplanation = !!explanation;
   }
 
-  getExplanationText(): string | null {
-    return this.explanationText;
-  }
-
   get explanationText$(): Observable<string | null> {
     return this.explanationTextSubject.asObservable();
   }
 
   getCurrentQuestion$(): Observable<QuizQuestion | null> {
     return this.currentQuestion$.asObservable();
-  }
-
-  setExplanationDisplayed(displayed: boolean): void {
-    this.shouldDisplayExplanation = displayed;
   }
 
   getNumberOfCorrectAnswersText(
@@ -74,8 +66,8 @@ export class QuizQuestionManagerService {
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
-    const safeOptions = options ?? [];
-    const numberOfCorrectAnswers = safeOptions.reduce(
+    const validOptions = options ?? [];
+    const numberOfCorrectAnswers = validOptions.reduce(
       (count, option) => count + (option.correct ? 1 : 0),
       0
     );
