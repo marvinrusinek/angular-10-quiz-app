@@ -10,7 +10,6 @@ export class SharedVisibilityService {
   pageVisibility$ = this.pageVisibilitySubject.asObservable();
 
   constructor() {
-    // Add the visibility change event listener in the constructor
     document.addEventListener('visibilitychange', () => {
       this.isPageHidden = document.hidden;
       this.pageVisibilitySubject.next(this.isPageHidden);
