@@ -233,7 +233,7 @@ export class QuizService implements OnDestroy {
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
 
   combinedQuestionDataSubject: BehaviorSubject<CombinedQuestionDataType> = new BehaviorSubject<CombinedQuestionDataType>(null);
-  combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+  combinedQuestionData$: Observable<CombinedQuestionDataType> = this.combinedQuestionDataSubject.asObservable();
 
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
@@ -1202,7 +1202,7 @@ export class QuizService implements OnDestroy {
         this.combinedQuestionDataSubject.next(combinedQuestionData);
         this.combinedQuestionData$ = combineLatest([
           this.combinedQuestionDataSubject.asObservable()
-        ]);
+        ]).pipe(map(([combinedData]) => combinedData));
       } else {
         // Set combinedQuestionData with default or placeholder values
         const defaultCombinedQuestionData: CombinedQuestionDataType = {
@@ -1217,7 +1217,7 @@ export class QuizService implements OnDestroy {
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
         this.combinedQuestionData$ = combineLatest([
           this.combinedQuestionDataSubject.asObservable()
-        ]);
+        ]).pipe(map(([combinedData]) => combinedData));
       }
     } catch (error) {
       console.error('Error in initializeCombinedQuestionData:', error);
@@ -1233,7 +1233,7 @@ export class QuizService implements OnDestroy {
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
       this.combinedQuestionData$ = combineLatest([
         this.combinedQuestionDataSubject.asObservable()
-      ]);
+      ]).pipe(map(([combinedData]) => combinedData));
     }
   }
 
