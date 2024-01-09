@@ -56,7 +56,7 @@ export class QuizDataService implements OnDestroy {
     new BehaviorSubject<Quiz | null>(null);
 
   currentQuestion$: QuizQuestion;
-  options$: Option[];
+  options$: Observable<Option[]>;
 
   hasQuestionAndOptionsLoaded = false;
   questionAndOptionsSubject = new ReplaySubject<[QuizQuestion, Option[]]>(1);
@@ -331,7 +331,7 @@ export class QuizDataService implements OnDestroy {
 
     this.processQuestionAndOptions(
       currentQuestion$,
-      options$ as Observable<Option[]>,
+      options$,
       questionIndex
     ).subscribe((questionAndOptions) => {
       this.questionAndOptionsSubject.next(questionAndOptions);
