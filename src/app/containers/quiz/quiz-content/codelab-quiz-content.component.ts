@@ -110,6 +110,7 @@ export class CodelabQuizContentComponent
     new BehaviorSubject<boolean>(false);
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
+  isCurrentQuestionMultipleAnswer: boolean;
 
   private destroy$ = new Subject<void>();
 
@@ -155,12 +156,16 @@ export class CodelabQuizContentComponent
       switchMap((currentQuestionData: CombinedQuestionDataType) => {
         if (currentQuestionData && currentQuestionData.currentQuestion) {
           return this.quizStateService.isMultipleAnswer(currentQuestionData.currentQuestion).pipe(
-            map(isMultipleAnswer => ({
-              ...currentQuestionData,
-              isMultipleAnswer: isMultipleAnswer
-            } as ExtendedQuestionData))
+            map(isMultipleAnswer => {
+              this.isCurrentQuestionMultipleAnswer = isMultipleAnswer;
+              return {
+                ...currentQuestionData,
+                isMultipleAnswer: isMultipleAnswer
+              } as ExtendedQuestionData;
+            })
           );
         } else {
+          this.isCurrentQuestionMultipleAnswer = false;
           return of({
             ...currentQuestionData,
             isMultipleAnswer: false
@@ -169,6 +174,7 @@ export class CodelabQuizContentComponent
       }),
       takeUntil(this.destroy$)
     );
+    
 
     this.combinedQuestionData$.subscribe((combinedData: ExtendedQuestionData) => {
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
