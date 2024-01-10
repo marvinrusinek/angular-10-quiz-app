@@ -28,6 +28,7 @@ import {
   Subscription
 } from 'rxjs';
 import {
+  catchError,
   distinctUntilChanged,
   filter,
   map,
@@ -864,8 +865,16 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async getQuiz(id: string): Promise<void> {
     try {
-      const quiz = await this.quizDataService.getQuiz(id).toPromise();
-      if (this.quiz.questions && this.quiz.questions?.length > 0) {
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(id).pipe(
+          catchError((error: Error) => {
+            console.error('Error fetching quiz:', error);
+            throw error;
+          })
+        )
+      ) as Quiz;
+  
+      if (quiz.questions && quiz.questions.length > 0) {
         this.handleQuizData(quiz, this.currentQuestionIndex);
       }
     } catch (error) {
