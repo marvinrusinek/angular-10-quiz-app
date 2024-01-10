@@ -575,7 +575,7 @@ export class CodelabQuizContentComponent
     );
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
     try {
       console.log('Current question:', data.currentQuestion);
   
@@ -607,6 +607,55 @@ export class CodelabQuizContentComponent
       console.log('correctAnswers:', correctAnswers);
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
+  } */
+
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    try {
+      console.log('Current question:', data.currentQuestion);
+  
+      if (!data || !data.currentQuestion) {
+        this.correctAnswersText = ''; // Reset the text when there's no question data
+        console.error('Current question is not defined.');
+        return;
+      }
+  
+      const isNavigatingToPrevious = data.isNavigatingToPrevious;
+      const correctAnswers = data.currentQuestion.options.filter(option => option.correct);
+      
+      if (isNavigatingToPrevious && correctAnswers.length > 1) {
+        this.shouldDisplayCorrectAnswers = true;
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
+      }
+  
+      console.log('correctAnswersText:', this.correctAnswersText);
+      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+      console.log('correctAnswers:', correctAnswers);
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<boolean> {
+    try {
+      if (!data || !data.currentQuestion) {
+        return false;
+      }
+  
+      const isNavigatingToPrevious = data.isNavigatingToPrevious;
+  
+      // Check if it's a multiple-answer question
+      const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(data.currentQuestion));
+  
+      // Determine if it's a multiple-answer question based on the number of correct options
+      const hasMultipleCorrectOptions = data.currentQuestion.options.filter(option => option.correct).length > 1;
+  
+      // Display correct answers text for multiple-answer questions when navigating using previous
+      return isMultipleAnswer && hasMultipleCorrectOptions && !isNavigatingToPrevious;
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+      return false;
     }
   }
 
