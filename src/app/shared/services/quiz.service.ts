@@ -1322,10 +1322,8 @@ export class QuizService implements OnDestroy {
     let currentQuizData = this.quizInitialState.find(quiz => quiz.quizId === this.quizId);
     if (currentQuizData) {
       this.quizData = _.cloneDeep([currentQuizData]);
-      // this.questions = _.cloneDeep(currentQuizData.questions);
       this.questions = currentQuizData.questions;
     } else {
-      // Handle case where currentQuizData is not found
       this.quizData = null;
       this.questions = [];
     }
@@ -1343,7 +1341,6 @@ export class QuizService implements OnDestroy {
     this.correctOptions = [];
     this.correctMessage = '';
     this.currentQuestionIndex = 0;
-    this.questionIndex = 1;
   }
 
   /********* sound functions ***********/
