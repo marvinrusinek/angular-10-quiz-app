@@ -681,6 +681,7 @@ export class CodelabQuizContentComponent
       isNavigatingToPrevious;
   }
 
+
   calculateNumberOfCorrectAnswers(options: Option[]): number {
     const safeOptions = options ?? [];
     const numberOfCorrectAnswers = safeOptions.reduce(
