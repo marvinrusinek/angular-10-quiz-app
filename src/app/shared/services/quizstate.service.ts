@@ -64,7 +64,7 @@ export class QuizStateService {
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     try {
-      let correctAnswersCount;
+      let correctAnswersCount: number;
       if (question && question.options) {
         // Check if the question has more than one correct answer
         correctAnswersCount = question.options
