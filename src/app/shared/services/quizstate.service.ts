@@ -55,7 +55,7 @@ export class QuizStateService {
   }
 
   updateCurrentQuestion(newQuestion: QuizQuestion): void {
-    this.currentQuestionSubject.next(newQuestion);
+    this.currentQuestionSubject.next(newQuestion); 
   }
 
   setCurrentOptions(options: Option[]): void {
