@@ -343,39 +343,41 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeSelectedQuiz(): void {
-    this.quizDataService.getQuizById(this.quizId).subscribe(
-      (quiz: Quiz) => {
+    this.quizDataService.getQuizById(this.quizId).subscribe({
+      next: (quiz: Quiz) => {
         this.selectedQuiz = quiz;
         this.numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers();
       },
-      (error: any) => {
+      error: (error: any) => {
         console.error(error);
       }
-    );
+    });
   }
 
   private initializeObservables(): void {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     this.quizDataService.setSelectedQuizById(quizId);
-    this.quizDataService.selectedQuiz$.subscribe((quiz) => {
+    this.quizDataService.selectedQuiz$.subscribe((quiz: Quiz) => {
       this.selectedQuiz = quiz;
     });
   }
 
-  getNextQuestion(): void {
-    const nextQuestion = this.quizService.getNextQuestion(
-      this.currentQuestionIndex
-    );
-    if (nextQuestion) {
-      this.currentQuestion = nextQuestion;
-      this.currentQuestion$ = of(nextQuestion);
-      this.explanationTextService.setNextExplanationText(
-        nextQuestion.explanation
-      );
-    } else {
-      this.currentQuestion = null;
+  async getNextQuestion(): Promise<void> {
+    try {
+      const nextQuestion: QuizQuestion = await this.quizService.getNextQuestion(this.currentQuestionIndex);
+      
+      if (nextQuestion) {
+        this.currentQuestion = nextQuestion;
+        this.currentQuestion$ = of(nextQuestion);
+        this.explanationTextService.setNextExplanationText(nextQuestion.explanation);
+      } else {
+        this.currentQuestion = null;
+        this.currentQuestion$ = of(null);
+      }
+    } catch (error) {
+      console.error('Error fetching next question:', error);
     }
-  }
+  }  
 
   /* potentially remove: not being used...
   onSelectionChange(questionIndex: number, answerIndex: number): void {
