@@ -45,6 +45,7 @@ export class QuizDataService implements OnDestroy {
   quizzes: Quiz[] = [];
   quizzesSubject = new BehaviorSubject<Quiz[]>(this.quizzes);
   quizId = '';
+  currentQuizId = '';
   question: QuizQuestion | null = null;
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
 
