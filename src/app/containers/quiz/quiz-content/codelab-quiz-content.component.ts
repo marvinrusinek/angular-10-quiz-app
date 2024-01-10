@@ -14,7 +14,8 @@ import {
   Observable,
   of,
   Subject,
-  Subscription
+  Subscription,
+  toPromise
 } from 'rxjs';
 import {
   catchError,
@@ -587,7 +588,9 @@ export class CodelabQuizContentComponent
       const isNavigatingToPrevious = data.isNavigatingToPrevious;
   
       // Check if it's a multiple-answer question
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
+        toPromise()
+      );
   
       // Assuming you have correct answers information available in the current question
       const correctAnswers = data.currentQuestion.correctAnswers || [];
