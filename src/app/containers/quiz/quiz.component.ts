@@ -952,12 +952,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     const currentQuestion = this.quizData[this.currentQuestionIndex];
 
     if (this.isQuizQuestion(currentQuestion)) {
-      // Assuming each question has an 'explanation' property
       this.explanationTextService.setNextExplanationText(
         currentQuestion.explanation
       );
     } else {
-      // Handle the case when the current question doesn't exist
       this.explanationTextService.setNextExplanationText('');
     }
   }
