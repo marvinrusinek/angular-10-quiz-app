@@ -511,7 +511,7 @@ export class CodelabQuizContentComponent
     return '';
   }
   
-  shouldDisplayCorrectAnswersText(data: any): void {
+  /* shouldDisplayCorrectAnswersText(data: any): void {
     if (!data || !data.currentQuestion) {
       this.displayCorrectAnswers = false;
       return;
@@ -522,6 +522,21 @@ export class CodelabQuizContentComponent
       .subscribe((isMultipleAnswer: boolean) => {
         this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       });
+  } */
+
+  shouldDisplayCorrectAnswersText(data: any): void {
+    this.combinedQuestionData$ = this.quizStateService.getCurrentQuestion().pipe(
+      switchMap((data: any) => {
+        if (!data || !data.currentQuestion) {
+          this.displayCorrectAnswers = false;
+          return of({ data: null, isMultipleAnswer: false });
+        }
+        return this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
+          map((isMultipleAnswer: boolean) => ({ data, isMultipleAnswer }))
+        );
+      }),
+      takeUntil(this.destroy$)
+    );
   }
 
   getNumberOfCorrectAnswers(data: any): number {
