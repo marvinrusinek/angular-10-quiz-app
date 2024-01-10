@@ -135,6 +135,7 @@ export class CodelabQuizContentComponent
     this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
     .subscribe((data: CombinedQuestionDataType) => {
       if (data && data.currentQuestion) {
+        console.log('Current question::>>', data.currentQuestion);
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
           .pipe(takeUntil(this.destroy$))
           .subscribe((isMultipleAnswer: boolean) => {
