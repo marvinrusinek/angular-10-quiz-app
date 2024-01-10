@@ -667,6 +667,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       const quizId = this.activatedRoute.snapshot.params['quizId'];
       const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+      const zeroBasedQuestionIndex = questionIndex - 1;
   
       const quizData = await this.fetchQuizDataFromService();
       const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
@@ -677,7 +678,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.initializeSelectedQuizData(selectedQuiz);
 
-      const questionData = await this.fetchQuestionData(quizId, questionIndex);
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
       if (questionData) {
         this.processQuestionData(questionData);
       } else {
