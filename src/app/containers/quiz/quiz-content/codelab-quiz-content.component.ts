@@ -660,6 +660,14 @@ export class CodelabQuizContentComponent
   } */
 
   async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    const isQuestionDisplayed = !!data.questionText;
+    const isExplanationDisplayed = !!data.explanationText;
+    const isNavigatingToPrevious = data.isNavigatingToPrevious;
+
+    console.log('isQuestionDisplayed:', isQuestionDisplayed);
+    console.log('isExplanationDisplayed:', isExplanationDisplayed);
+    console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+
     if (!data || !data.currentQuestion) {
       this.shouldDisplayCorrectAnswers = false;
       console.error('Current question is not defined');
@@ -670,15 +678,10 @@ export class CodelabQuizContentComponent
       .isMultipleAnswer(data.currentQuestion)
       .toPromise();
 
-    const isQuestionDisplayed = !!data.questionText;
-    const isExplanationDisplayed = !!data.explanationText;
-    const isNavigatingToPrevious = data.isNavigatingToPrevious;
-
     this.shouldDisplayCorrectAnswers =
       currentQuestionHasMultipleAnswers &&
       isQuestionDisplayed &&
-      !isExplanationDisplayed &&
-      isNavigatingToPrevious;
+      !isExplanationDisplayed;
   }
 
 
