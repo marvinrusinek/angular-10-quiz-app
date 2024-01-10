@@ -722,21 +722,16 @@ export class QuizComponent implements OnInit, OnDestroy {
   private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
     try {
       const rawData = await firstValueFrom(of(this.quizService.getQuestionData(quizId, questionIndex)));
-      
-      // Now you can work with the resolved rawData as the expected type
-      // For example, if rawData is a string, you can transform it into a QuizQuestion object
       const transformedData: QuizQuestion = {
         questionText: rawData.questionText,
         options: [],
         explanation: '',
-        questionType: 'multiple-choice'
+        type: QuestionType.SingleAnswer
       };
-      
       return transformedData;
     } catch (error) {
       console.error('Error fetching question data:', error);
-      // Handle the error as needed
-      throw error; // Optionally rethrow the error if necessary
+      throw error;
     }
   }
 
