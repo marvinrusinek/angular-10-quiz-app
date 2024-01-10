@@ -10,12 +10,12 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
   combineLatest,
+  firstValueFrom,
   forkJoin,
   Observable,
   of,
   Subject,
-  Subscription,
-  toPromise
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -588,9 +588,7 @@ export class CodelabQuizContentComponent
       const isNavigatingToPrevious = data.isNavigatingToPrevious;
   
       // Check if it's a multiple-answer question
-      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
-        toPromise()
-      );
+      const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(data.currentQuestion));
   
       // Assuming you have correct answers information available in the current question
       const correctAnswers = data.currentQuestion.correctAnswers || [];
