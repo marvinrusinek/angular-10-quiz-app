@@ -38,6 +38,10 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
+interface ExtendedQuestionData extends CombinedQuestionDataType {
+  isMultipleAnswer: boolean;
+}
+
 @Component({
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
@@ -132,7 +136,7 @@ export class CodelabQuizContentComponent
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
 
-    this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
+    /* this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
     .subscribe((data: CombinedQuestionDataType) => {
       if (data && data.currentQuestion) {
         console.log('Current question::>>', data.currentQuestion);
@@ -145,6 +149,29 @@ export class CodelabQuizContentComponent
       } else {
         this.shouldDisplayCorrectAnswers = false;
       }
+    }); */
+
+    this.combinedQuestionData$ = this.quizStateService.getCurrentQuestion().pipe(
+      switchMap((currentQuestionData: CombinedQuestionDataType) => {
+        if (currentQuestionData && currentQuestionData.currentQuestion) {
+          return this.quizStateService.isMultipleAnswer(currentQuestionData.currentQuestion).pipe(
+            map(isMultipleAnswer => ({
+              ...currentQuestionData,
+              isMultipleAnswer: isMultipleAnswer
+            } as ExtendedQuestionData))
+          );
+        } else {
+          return of({
+            ...currentQuestionData,
+            isMultipleAnswer: false
+          } as ExtendedQuestionData);
+        }
+      }),
+      takeUntil(this.destroy$)
+    );
+
+    this.combinedQuestionData$.subscribe((combinedData: ExtendedQuestionData) => {
+      this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
   }
 
@@ -526,7 +553,7 @@ export class CodelabQuizContentComponent
       });
   } */
 
-  shouldDisplayCorrectAnswersText(data: any): void {
+  /* shouldDisplayCorrectAnswersText(data: any): void {
     this.combinedQuestionData$ = this.quizStateService.getCurrentQuestion().pipe(
       switchMap((data: any) => {
         if (!data || !data.currentQuestion) {
@@ -539,6 +566,41 @@ export class CodelabQuizContentComponent
       }),
       takeUntil(this.destroy$)
     );
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    try {
+      console.log('Current question:', data.currentQuestion);
+  
+      if (!data || !data.currentQuestion) {
+        this.shouldDisplayCorrectAnswers = false;
+        console.error('Current question is not defined.');
+        return;
+      }
+  
+      const isNavigatingToPrevious = data.isNavigatingToPrevious;
+  
+      // Check if it's a multiple-answer question
+      const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(data.currentQuestion);
+  
+      // Assuming you have correct answers information available in the current question
+      const correctAnswers = data.currentQuestion.correctAnswers || [];
+  
+      // Display correct answers text for multiple-answer questions when navigating using previous
+      this.shouldDisplayCorrectAnswers =
+        isMultipleAnswer &&
+        isNavigatingToPrevious &&
+        !data.explanationText &&
+        !!data.questionText &&
+        correctAnswers.length > 1;
+  
+      console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
+      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+      console.log('isMultipleAnswer:', isMultipleAnswer);
+      console.log('correctAnswers:', correctAnswers);
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
   }
 
   getNumberOfCorrectAnswers(data: any): number {
