@@ -69,6 +69,7 @@ export class QuizStateService {
         const correctAnswersCount = question.options
           .filter(option => option.correct)
           .length;
+        console.log('Correct answers count:', correctAnswersCount);
   
         return of(correctAnswersCount > 1);
       } else {
