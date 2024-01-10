@@ -474,7 +474,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     // Subscribe to the router events and handle paramMap changes
     this.routerSubscription = this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
+      filter((event: Event) => event instanceof NavigationEnd),
       switchMap(() => {
         // Extract and update quizId every time navigation ends
         const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -514,12 +514,12 @@ export class QuizComponent implements OnInit, OnDestroy {
   updateQuestionDisplay(questionIndex: number): void {
     // Check if the index is within the bounds of the questions array
     if (this.questions && questionIndex >= 0 && questionIndex < this.questions.length) {
-        // Update the component properties with the details of the specified question
-        const selectedQuestion = this.questions[questionIndex];
-        this.questionToDisplay = selectedQuestion.questionText;
-        this.optionsToDisplay = selectedQuestion.options;
+      // Update the component properties with the details of the specified question
+      const selectedQuestion = this.questions[questionIndex];
+      this.questionToDisplay = selectedQuestion.questionText;
+      this.optionsToDisplay = selectedQuestion.options;
     } else {
-        console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
+      console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
   }
 
@@ -529,7 +529,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
-      this.quizStateService.currentOptions$,
+      this.quizStateService.currentOptions$
     ]).pipe(
       distinctUntilChanged(),
       map(([question, options]) => {
@@ -554,25 +554,30 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   async getQuestion(): Promise<void> {
-    const quizId = this.activatedRoute.snapshot.params.quizId;
-    const currentQuestionIndex = this.currentQuestionIndex;
+    try {
+      const quizId = this.activatedRoute.snapshot.params.quizId;
+      const currentQuestionIndex = this.currentQuestionIndex;
 
-    this.question$ = this.quizDataService.getQuestion(
-      quizId,
-      currentQuestionIndex
-    );
-    this.options$ = this.quizDataService.getOptions(
-      quizId,
-      currentQuestionIndex
-    );
+      const [question] = await firstValueFrom(
+        this.quizDataService.getQuestionAndOptions(quizId, currentQuestionIndex).pipe(
+          take(1)
+        )
+      ) as [QuizQuestion, Option[]];
 
-    const [question, options] = await forkJoin([
-      this.question$.pipe(take(1)),
-      this.options$.pipe(take(1)),
-    ]).toPromise();
+      this.question$ = of(question);
+      
+      this.options$ = this.quizDataService.getOptions(
+        quizId,
+        currentQuestionIndex
+      );
 
-    this.handleQuestion(question as QuizQuestion);
-    this.handleOptions(options as Option[]);
+      this.handleQuestion(question);
+      
+      const options = await firstValueFrom(this.options$.pipe(take(1))) as Option[];
+      this.handleOptions(options);
+    } catch (error) {
+      console.error('Error fetching question and options:', error);
+    }
   }
 
   initializeFirstQuestionText(): void {
