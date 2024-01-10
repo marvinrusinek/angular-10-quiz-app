@@ -38,6 +38,7 @@ import {
   withLatestFrom
 } from 'rxjs/operators';
 
+import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -717,11 +718,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
   }
-  
+
   private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
-    return await this.quizService.getQuestionData(quizId, questionIndex);
+    try {
+      const rawData = await firstValueFrom(of(this.quizService.getQuestionData(quizId, questionIndex)));
+      
+      // Now you can work with the resolved rawData as the expected type
+      // For example, if rawData is a string, you can transform it into a QuizQuestion object
+      const transformedData: QuizQuestion = {
+        questionText: rawData.questionText,
+        options: [],
+        explanation: '',
+        questionType: 'multiple-choice'
+      };
+      
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching question data:', error);
+      // Handle the error as needed
+      throw error; // Optionally rethrow the error if necessary
+    }
   }
-  
+
   private processQuestionData(questionData: any): void {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
