@@ -741,28 +741,28 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
-    this.quizService.setCurrentOptions(this.data.currentOptions);
+    
+    // Subscribe to the observable to get the actual data
+    this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
+      // Construct currentQuestion inside the subscription
+      const currentQuestion: QuizQuestion = {
+        questionText: this.data.questionText,
+        options: options,
+        explanation: this.explanationTextService.formattedExplanation$.value,
+        type: this.quizDataService.questionType as QuestionType
+      };
+      this.question = currentQuestion;
   
-    const currentQuestion: QuizQuestion = {
-      questionText: this.data.questionText,
-      options: this.quizService.currentOptions.value,
-      explanation: this.explanationTextService.formattedExplanation$.value,
-      type: this.quizDataService.questionType as QuestionType
-    };
+      const correctAnswerOptions = currentQuestion.options.filter((option: Option) => option.correct);
+      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+      this.quizService.setCorrectAnswersLoaded(true);
+      this.quizService.correctAnswersLoadedSubject.next(true);
   
-    this.question = currentQuestion;
-
-    console.log('questionData::>>', questionData);
-    console.log('currentOptions::>>', currentQuestion.options);
-  
-    const correctAnswerOptions = currentQuestion.options.filter((option: Option) => option.correct);
-    this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
-    this.quizService.setCorrectAnswersLoaded(true);
-    this.quizService.correctAnswersLoadedSubject.next(true);
-  
-    console.log('Question Data:', currentQuestion);
-    console.log('Correct Answer Options:', correctAnswerOptions);
+      console.log('Question Data:', currentQuestion);
+      console.log('Correct Answer Options:', correctAnswerOptions);
+    });
   }
+  
   
   private subscribeToQuestions(quizId: string, questionIndex: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
