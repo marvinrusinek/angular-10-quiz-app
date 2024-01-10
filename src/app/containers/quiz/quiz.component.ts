@@ -758,11 +758,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.quizService.setCorrectAnswersLoaded(true);
       this.quizService.correctAnswersLoadedSubject.next(true);
   
-      console.log('Question Data:', currentQuestion);
       console.log('Correct Answer Options:', correctAnswerOptions);
     });
   }
-  
   
   private subscribeToQuestions(quizId: string, questionIndex: string): void {
     this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
