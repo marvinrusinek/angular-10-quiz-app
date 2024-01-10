@@ -61,7 +61,7 @@ export class CodelabQuizContentComponent
   @Input() questions: QuizQuestion[];
   @Input() options!: Option[];
   @Input() options$: Observable<Option[]>;
-  @Input() correctAnswersText: string;
+  @Input() correctAnswersText: string = '';
   quizId = '';
   questionIndex: number;
   currentQuestionIndexValue: number;
@@ -573,7 +573,7 @@ export class CodelabQuizContentComponent
       console.log('Current question:', data.currentQuestion);
   
       if (!data || !data.currentQuestion) {
-        this.shouldDisplayCorrectAnswers = false;
+        this.correctAnswersText = ''; // Reset the text when there's no question data
         console.error('Current question is not defined.');
         return;
       }
@@ -594,7 +594,7 @@ export class CodelabQuizContentComponent
         !!data.questionText &&
         correctAnswers.length > 1;
   
-      console.log('shouldDisplayCorrectAnswers:', this.shouldDisplayCorrectAnswers);
+      console.log('correctAnswersText:', this.correctAnswersText);
       console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
       console.log('isMultipleAnswer:', isMultipleAnswer);
       console.log('correctAnswers:', correctAnswers);
