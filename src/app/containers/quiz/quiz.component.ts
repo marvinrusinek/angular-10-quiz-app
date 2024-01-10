@@ -1367,10 +1367,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.currentQuestionIndex = 0;
     this.questionIndex = 1;
 
-    // Initialize the first question
     this.initializeFirstQuestionText();
-  
-    // Navigate to the first question
     this.router.navigate(['/question/', this.quizId, 1]);
     this.resetUI();
   }
