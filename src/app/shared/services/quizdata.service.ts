@@ -48,6 +48,7 @@ export class QuizDataService implements OnDestroy {
   currentQuizId = '';
   question: QuizQuestion | null = null;
   questionAndOptions: [QuizQuestion, Option[]] | null = null;
+  questionType: string;
 
   currentQuestionIndex = 0;
   currentQuestionIndex$ = new BehaviorSubject<number>(0);
@@ -501,6 +502,7 @@ export class QuizDataService implements OnDestroy {
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+    this.questionType = question.type;
   }
 
   setCurrentQuestionIndex(index: number): void {

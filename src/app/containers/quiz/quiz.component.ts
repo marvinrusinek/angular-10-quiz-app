@@ -747,7 +747,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       questionText: this.data.questionText,
       options: questionData.options,
       explanation: this.explanationTextService.formattedExplanation$.value,
-      type: QuestionType.SingleAnswer
+      type: this.quizDataService.questionType as QuestionType
     };
   
     this.question = currentQuestion;
