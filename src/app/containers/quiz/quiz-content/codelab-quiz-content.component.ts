@@ -138,6 +138,7 @@ export class CodelabQuizContentComponent
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
           .pipe(takeUntil(this.destroy$))
           .subscribe((isMultipleAnswer: boolean) => {
+            console.log('Is multiple answer:', isMultipleAnswer);
             this.shouldDisplayCorrectAnswers = isMultipleAnswer;
           });
       } else {
