@@ -327,7 +327,7 @@ export const QUIZ_DATA: Quiz[] = [
         options: [
           { text: 'Pass the service to the client.', correct: true },
           { text: 'Allow the client to find service.', correct: true },
-          { text: 'Allow the client to build service.', correct: true },
+          { text: 'Allow the client to build service.' },
           { text: 'Give the client part service.' }
         ],
         explanation: 'a service gets passed to the client during DI'
