@@ -694,12 +694,14 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
   
   private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
-    return quizData.find((quiz) => quiz.quizId === quizId);
+    return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
   }
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-      const explanationTexts = await this.explanationTextService.fetchExplanationTexts();
+      const explanationTextsArray: string[] = this.explanationTextService.fetchExplanationTexts();
+      const explanationTextsObservable: Observable<string[]> = of(explanationTextsArray);
+      const explanationTexts = await firstValueFrom(explanationTextsObservable);
   
       if (explanationTexts && explanationTexts.length > 0) {
         this.explanationTextService.initializeExplanationTexts(explanationTexts);
