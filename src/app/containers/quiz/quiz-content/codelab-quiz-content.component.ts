@@ -648,11 +648,11 @@ export class CodelabQuizContentComponent
       // Check if it's a multiple-answer question
       const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(data.currentQuestion));
   
-      // Determine if it's a multiple-answer question based on the number of correct options
-      const hasMultipleCorrectOptions = data.currentQuestion.options.filter(option => option.correct).length > 1;
+      // Determine the number of correct answers using the getNumberOfCorrectAnswers function
+      const numberOfCorrectAnswers = this.getNumberOfCorrectAnswers(data.currentQuestion);
   
       // Display correct answers text for multiple-answer questions when navigating using previous
-      return isMultipleAnswer && hasMultipleCorrectOptions && !isNavigatingToPrevious;
+      return isMultipleAnswer && numberOfCorrectAnswers > 1 && !isNavigatingToPrevious;
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
       return false;
