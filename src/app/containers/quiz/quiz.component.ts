@@ -670,8 +670,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       const zeroBasedQuestionIndex = questionIndex - 1;
   
       const quizData = await this.fetchQuizDataFromService();
+
       const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
-  
       if (!selectedQuiz) {
         console.error('Selected quiz not found in quizData.');
         return;
