@@ -167,9 +167,9 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
 
-    this.setupShouldDisplayCorrectAnswers();
+    // this.setupShouldDisplayCorrectAnswers();
 
-    // this.shouldDisplayCorrectAnswersText();
+    this.shouldDisplayCorrectAnswersText();
 
     /* this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       map(data => {
@@ -658,7 +658,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     const isQuestionDisplayed = !!data.questionText;
     const isExplanationDisplayed = !!data.explanationText;
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
@@ -681,9 +681,9 @@ export class CodelabQuizContentComponent
       currentQuestionHasMultipleAnswers &&
       isQuestionDisplayed &&
       !isExplanationDisplayed;
-  } */
+  }
 
-  async shouldDisplayCorrectAnswersText(): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(): Promise<void> {
     this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       switchMap(data => {
         if (!data || !data.currentQuestion) {
@@ -700,7 +700,7 @@ export class CodelabQuizContentComponent
         );
       })
     );
-  }
+  } */
 
   /* private setupShouldDisplayCorrectAnswers(): void {
     this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
@@ -721,18 +721,6 @@ export class CodelabQuizContentComponent
       tap(shouldDisplay => console.log('Should display correct answers:', shouldDisplay))
     );
   } */
-
-  setupShouldDisplayCorrectAnswers(): void {
-    this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
-      switchMap(data => {
-        if (data && Array.isArray(data.options)) {
-          return this.quizStateService.isMultipleAnswer(data);
-        }
-        return of(false);
-      }),
-      tap(shouldDisplay => console.log('Should display correct answers:', shouldDisplay))
-    );
-  }
   
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
