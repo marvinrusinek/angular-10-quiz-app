@@ -168,6 +168,7 @@ export class CodelabQuizContentComponent
     });
 
     this.combinedQuestionData$.subscribe(data => {
+      console.log('Data from combinedQuestionData$:', data);
       this.shouldDisplayCorrectAnswersText(data);
     });
   }
@@ -548,8 +549,13 @@ export class CodelabQuizContentComponent
   
       const isNavigatingToPrevious = data.isNavigatingToPrevious;
       const correctAnswers = data.currentQuestion.options.filter(option => option.correct);
+
+      const currentQuestionHasMultipleAnswers = await firstValueFrom(
+        this.quizStateService.isMultipleAnswer(data.currentQuestion)
+      );
       
-      this.shouldDisplayCorrectAnswers = isNavigatingToPrevious && correctAnswers.length > 1;
+      // this.shouldDisplayCorrectAnswers = isNavigatingToPrevious && correctAnswers.length > 1;
+      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
