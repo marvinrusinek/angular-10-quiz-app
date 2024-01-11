@@ -539,28 +539,17 @@ export class CodelabQuizContentComponent
   }
   
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
-    try {
-      if (!data || !data.currentQuestion) {
-        this.correctAnswersText = ''; // Reset the text when there's no question data
-        this.shouldDisplayCorrectAnswers = false; // Reset the flag
-        console.error('Current question is not defined.');
-        return;
-      }
-  
-      const isNavigatingToPrevious = data.isNavigatingToPrevious;
-      const correctAnswers = data.currentQuestion.options.filter(option => option.correct);
-
-      const currentQuestionHasMultipleAnswers = await firstValueFrom(
-        this.quizStateService.isMultipleAnswer(data.currentQuestion)
-      );
-      
-      // this.shouldDisplayCorrectAnswers = isNavigatingToPrevious && correctAnswers.length > 1;
-      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-    } catch (error) {
-      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    if (!data || !data.currentQuestion) {
+      this.shouldDisplayCorrectAnswers = false;
+      return;
     }
+    
+    const currentQuestionHasMultipleAnswers = await firstValueFrom(
+      this.quizStateService.isMultipleAnswer(data.currentQuestion)
+    );
+    
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
   }
-  
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
     const safeOptions = options ?? [];
