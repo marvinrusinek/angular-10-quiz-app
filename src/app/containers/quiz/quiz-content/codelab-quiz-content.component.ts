@@ -138,43 +138,7 @@ export class CodelabQuizContentComponent
     this.setupObservables();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
-
-    this.combinedQuestionData$ = this.quizStateService.getCurrentQuestion().pipe(
-      switchMap((currentQuestionData: CombinedQuestionDataType) => {
-        if (currentQuestionData && currentQuestionData.currentQuestion) {
-          return this.quizStateService.isMultipleAnswer(currentQuestionData.currentQuestion).pipe(
-            map(isMultipleAnswer => {
-              this.isCurrentQuestionMultipleAnswer = isMultipleAnswer;
-              return {
-                ...currentQuestionData,
-                isMultipleAnswer: isMultipleAnswer
-              } as ExtendedQuestionData;
-            })
-          );
-        } else {
-          this.isCurrentQuestionMultipleAnswer = false;
-          return of({
-            ...currentQuestionData,
-            isMultipleAnswer: false
-          } as ExtendedQuestionData);
-        }
-      }),
-      takeUntil(this.destroy$)
-    );
-    
-
-    this.combinedQuestionData$.subscribe((combinedData: ExtendedQuestionData) => {
-      this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
-    });
-
-    /* this.combinedQuestionData$.subscribe(data => {
-      this.shouldDisplayCorrectAnswersText(data);
-    }); */
-
-    this.combinedQuestionData$.subscribe(async data => {
-      console.log('Data from combinedQuestionData$:', data);
-      await this.shouldDisplayCorrectAnswersText(data);
-    });
+    this.processQuestionData();
   }
 
   ngOnChanges(): void {
@@ -198,6 +162,24 @@ export class CodelabQuizContentComponent
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
+
+  processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      // First logic block: Update isCurrentQuestionMultipleAnswer
+      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
+  
+      // Second logic block: Update shouldDisplayCorrectAnswers
+      this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
+  
+      // Third logic block: Additional processing
+      console.log('Data from combinedQuestionData$:', combinedData);
+      await this.shouldDisplayCorrectAnswersText(combinedData);
+  
+      // Additional logic can be added here if needed
+    });
+  }  
 
   private initializeComponent(): void {
     this.initializeQuestionData();
