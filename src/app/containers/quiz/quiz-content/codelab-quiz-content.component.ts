@@ -167,10 +167,10 @@ export class CodelabQuizContentComponent
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
       this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
-  
-      console.log('Data from combinedQuestionData$:', combinedData);
+      
       await this.shouldDisplayCorrectAnswersText(combinedData);
     });
   }  
