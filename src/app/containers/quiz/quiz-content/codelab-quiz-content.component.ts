@@ -167,7 +167,18 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
 
-    this.setupShouldDisplayCorrectAnswers();
+    // this.setupShouldDisplayCorrectAnswers();
+
+    this.shouldDisplayCorrectAnswersText();
+
+    /* this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
+      map(data => {
+        if (data && data.currentQuestion) {
+          return this.quizStateService.isMultipleAnswer(data.currentQuestion);
+        }
+        return false;
+      })
+    ); */
   }
 
   ngOnChanges(): void {
@@ -671,25 +682,34 @@ export class CodelabQuizContentComponent
       isQuestionDisplayed &&
       !isExplanationDisplayed;
   } */
-  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+
+  async shouldDisplayCorrectAnswersText(): Promise<void> {
     this.shouldDisplayCorrectAnswers$ = combineLatest([
       this.combinedQuestionData$,
       this.quizStateService.currentQuestion$
     ]).pipe(
       map(([data, currentQuestion]) => {
+        console.log('Data:', data);
+        console.log('Current Question:', currentQuestion);
+  
         if (!data || !currentQuestion) {
           console.error('Current question or data is not defined');
           return false;
         }
-    
+  
         const isQuestionDisplayed = !!data.questionText;
         const isExplanationDisplayed = !!data.explanationText;
         const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
-    
+  
+        console.log('isQuestionDisplayed:', isQuestionDisplayed);
+        console.log('isExplanationDisplayed:', isExplanationDisplayed);
+        console.log('isMultipleAnswer:', isMultipleAnswer);
+  
         return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
       })
     );
   }
+  
 
   private setupShouldDisplayCorrectAnswers(): void {
     this.shouldDisplayCorrectAnswers$ = combineLatest([
