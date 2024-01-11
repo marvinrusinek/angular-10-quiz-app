@@ -167,9 +167,9 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
 
-    // this.setupShouldDisplayCorrectAnswers();
+    this.setupShouldDisplayCorrectAnswers();
 
-    this.shouldDisplayCorrectAnswersText();
+    // this.shouldDisplayCorrectAnswersText();
 
     /* this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       map(data => {
@@ -684,51 +684,44 @@ export class CodelabQuizContentComponent
   } */
 
   async shouldDisplayCorrectAnswersText(): Promise<void> {
-    this.shouldDisplayCorrectAnswers$ = combineLatest([
-      this.combinedQuestionData$,
-      this.quizStateService.currentQuestion$
-    ]).pipe(
-      map(([data, currentQuestion]) => {
-        console.log('Data:', data);
-        console.log('Current Question:', currentQuestion);
-  
-        if (!data || !currentQuestion) {
+    this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
+      switchMap(data => {
+        if (!data || !data.currentQuestion) {
           console.error('Current question or data is not defined');
-          return false;
+          return of(false);
         }
   
         const isQuestionDisplayed = !!data.questionText;
         const isExplanationDisplayed = !!data.explanationText;
-        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
   
-        console.log('isQuestionDisplayed:', isQuestionDisplayed);
-        console.log('isExplanationDisplayed:', isExplanationDisplayed);
-        console.log('isMultipleAnswer:', isMultipleAnswer);
-  
-        return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
+        // Use switchMap to handle the isMultipleAnswer observable
+        return this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
+          map(isMultipleAnswer => isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed)
+        );
       })
     );
   }
-  
 
   private setupShouldDisplayCorrectAnswers(): void {
-    this.shouldDisplayCorrectAnswers$ = combineLatest([
-      this.combinedQuestionData$,
-      this.quizStateService.currentQuestion$
-    ]).pipe(
-      map(([data, currentQuestion]) => {
-        console.log('Data:', data, 'Current Question:', currentQuestion);
-        if (!data || !currentQuestion) {
+    this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
+      switchMap(data => {
+        if (!data || !data.currentQuestion) {
           console.error('Current question or data is not defined');
-          return false;
+          return of(false);
         }
   
         const isQuestionDisplayed = !!data.questionText;
         const isExplanationDisplayed = !!data.explanationText;
-        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
   
-        return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
-      })
+        return this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
+          tap(isMultipleAnswer => console.log('isMultipleAnswer:', isMultipleAnswer)),
+          map(isMultipleAnswer => {
+            console.log('Evaluating conditions:', isMultipleAnswer, isQuestionDisplayed, !isExplanationDisplayed);
+            return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
+          })
+        );
+      }),
+      tap(result => console.log('Final result for displaying correct answers:', result))
     );
   }
 
