@@ -89,7 +89,7 @@ export class QuizStateService {
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
     if (question && Array.isArray(question.options)) {
       const correctAnswersCount = question.options.filter(option => option.correct).length;
-      return of(correctAnswersCount > 1);
+      return of(correctAnswersCount > 1); // true for multiple answers, false otherwise
     } else {
       return of(false);
     }

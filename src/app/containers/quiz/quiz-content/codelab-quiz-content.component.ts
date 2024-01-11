@@ -725,20 +725,15 @@ export class CodelabQuizContentComponent
   setupShouldDisplayCorrectAnswers(): void {
     this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       switchMap(data => {
-        console.log('Combined Question Data:', data); // Debugging log
-  
-        if (data && data.currentQuestion) {
-          return this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
-            tap(isMultiple => console.log('Is Multiple Answer:', isMultiple)), // Debugging log
-            map(isMultipleAnswer => isMultipleAnswer)
-          );
-        } else {
-          return of(false);
+        if (data?.currentQuestion) {
+          return this.quizStateService.isMultipleAnswer(data.currentQuestion);
         }
+        return of(false);
       }),
-      tap(result => console.log('Final result for displaying correct answers:', result)) // Debugging log
+      tap(result => console.log('Should display correct answers:', result))
     );
   }
+  
   
 
 
