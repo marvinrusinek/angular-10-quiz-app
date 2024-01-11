@@ -550,6 +550,33 @@ export class CodelabQuizContentComponent
     return '';
   }
   
+  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    try {
+      console.log('Current question:', data.currentQuestion);
+  
+      if (!data || !data.currentQuestion) {
+        this.correctAnswersText = ''; // Reset the text when there's no question data
+        console.error('Current question is not defined.');
+        return;
+      }
+  
+      const isNavigatingToPrevious = data.isNavigatingToPrevious;
+      const correctAnswers = data.currentQuestion.options.filter(option => option.correct);
+      
+      if (isNavigatingToPrevious && correctAnswers.length > 1) {
+        this.shouldDisplayCorrectAnswers = true;
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
+      }
+  
+      console.log('correctAnswersText:', this.correctAnswersText);
+      console.log('isNavigatingToPrevious:', isNavigatingToPrevious);
+      console.log('correctAnswers:', correctAnswers);
+    } catch (error) {
+      console.error('Error in shouldDisplayCorrectAnswersText:', error);
+    }
+  }
+
   /* shouldDisplayCorrectAnswersText(data: any): void {
     if (!data || !data.currentQuestion) {
       this.displayCorrectAnswers = false;
@@ -662,7 +689,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     const isQuestionDisplayed = !!data.questionText;
     const isExplanationDisplayed = !!data.explanationText;
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
@@ -685,7 +712,7 @@ export class CodelabQuizContentComponent
       currentQuestionHasMultipleAnswers &&
       isQuestionDisplayed &&
       !isExplanationDisplayed;
-  }
+  } */
 
   /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     console.log('Data received:', data);
