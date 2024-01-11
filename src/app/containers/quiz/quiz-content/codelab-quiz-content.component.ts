@@ -169,7 +169,11 @@ export class CodelabQuizContentComponent
 
     // this.setupShouldDisplayCorrectAnswers();
 
-    this.shouldDisplayCorrectAnswersText();
+    // this.shouldDisplayCorrectAnswersText();
+
+    this.combinedQuestionData$.subscribe(data => {
+      this.shouldDisplayCorrectAnswersText(data);
+    });
 
     /* this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       map(data => {
@@ -682,6 +686,43 @@ export class CodelabQuizContentComponent
       isQuestionDisplayed &&
       !isExplanationDisplayed;
   }
+
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    console.log('Data received:', data);
+  
+    if (!data || !data.currentQuestion) {
+      this.shouldDisplayCorrectAnswers = false;
+      console.error('Current question is not defined');
+      return;
+    }
+  
+    const currentQuestionHasMultipleAnswers = await this.quizStateService
+      .isMultipleAnswer(data.currentQuestion)
+      .toPromise();
+  
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers &&
+      !!data.questionText &&
+      !data.explanationText;
+  
+    console.log('Should display correct answers:', this.shouldDisplayCorrectAnswers);
+  } */
+
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+    if (!data || !data.currentQuestion) {
+      this.shouldDisplayCorrectAnswers = false;
+      console.error('Current question is not defined');
+      return;
+    }
+  
+    const currentQuestionHasMultipleAnswers = await this.quizStateService
+      .isMultipleAnswer(data.currentQuestion)
+      .toPromise();
+  
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+    console.log('Should display correct answers:', this.shouldDisplayCorrectAnswers);
+  } */
+  
+  
 
   /* async shouldDisplayCorrectAnswersText(): Promise<void> {
     this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
