@@ -167,23 +167,7 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
 
-    this.shouldDisplayCorrectAnswers$ = combineLatest([
-      this.combinedQuestionData$,
-      this.quizStateService.currentQuestion$ // replace with the actual observable
-    ]).pipe(
-      map(([data, currentQuestion]) => {
-        if (!data || !currentQuestion) {
-          console.error('Current question or data is not defined');
-          return false;
-        }
-    
-        const isQuestionDisplayed = !!data.questionText;
-        const isExplanationDisplayed = !!data.explanationText;
-        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
-    
-        return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
-      })
-    );
+    this.setupShouldDisplayCorrectAnswers();
   }
 
   ngOnChanges(): void {
@@ -663,7 +647,7 @@ export class CodelabQuizContentComponent
     }
   } */
 
-  async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: any): Promise<void> {
     const isQuestionDisplayed = !!data.questionText;
     const isExplanationDisplayed = !!data.explanationText;
     const isNavigatingToPrevious = data.isNavigatingToPrevious;
@@ -686,6 +670,46 @@ export class CodelabQuizContentComponent
       currentQuestionHasMultipleAnswers &&
       isQuestionDisplayed &&
       !isExplanationDisplayed;
+  } */
+  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.combinedQuestionData$,
+      this.quizStateService.currentQuestion$
+    ]).pipe(
+      map(([data, currentQuestion]) => {
+        if (!data || !currentQuestion) {
+          console.error('Current question or data is not defined');
+          return false;
+        }
+    
+        const isQuestionDisplayed = !!data.questionText;
+        const isExplanationDisplayed = !!data.explanationText;
+        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
+    
+        return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
+      })
+    );
+  }
+
+  private setupShouldDisplayCorrectAnswers(): void {
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.combinedQuestionData$,
+      this.quizStateService.currentQuestion$
+    ]).pipe(
+      map(([data, currentQuestion]) => {
+        console.log('Data:', data, 'Current Question:', currentQuestion);
+        if (!data || !currentQuestion) {
+          console.error('Current question or data is not defined');
+          return false;
+        }
+  
+        const isQuestionDisplayed = !!data.questionText;
+        const isExplanationDisplayed = !!data.explanationText;
+        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
+  
+        return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
+      })
+    );
   }
 
 
