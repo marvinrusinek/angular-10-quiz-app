@@ -551,9 +551,10 @@ export class CodelabQuizContentComponent
   }
   
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
-    try {  
+    try {
       if (!data || !data.currentQuestion) {
         this.correctAnswersText = ''; // Reset the text when there's no question data
+        this.shouldDisplayCorrectAnswers = false; // Reset the flag
         console.error('Current question is not defined.');
         return;
       }
@@ -561,15 +562,12 @@ export class CodelabQuizContentComponent
       const isNavigatingToPrevious = data.isNavigatingToPrevious;
       const correctAnswers = data.currentQuestion.options.filter(option => option.correct);
       
-      if (isNavigatingToPrevious && correctAnswers.length > 1) {
-        this.shouldDisplayCorrectAnswers = true;
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
+      this.shouldDisplayCorrectAnswers = isNavigatingToPrevious && correctAnswers.length > 1;
     } catch (error) {
       console.error('Error in shouldDisplayCorrectAnswersText:', error);
     }
   }
+  
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
     const safeOptions = options ?? [];
