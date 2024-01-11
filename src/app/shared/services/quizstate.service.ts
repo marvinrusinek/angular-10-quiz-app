@@ -86,21 +86,14 @@ export class QuizStateService {
     }
   } */
 
-  // In your QuizStateService
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    // Check if the question and its options are defined and options is an array
     if (question && Array.isArray(question.options)) {
-      // Count the number of correct answers
       const correctAnswersCount = question.options.filter(option => option.correct).length;
-      // Return true if there are more than one correct answers, otherwise false
       return of(correctAnswersCount > 1);
     } else {
-      // Return false if question or options are undefined or not an array
       return of(false);
     }
   }
-
-  
 
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
