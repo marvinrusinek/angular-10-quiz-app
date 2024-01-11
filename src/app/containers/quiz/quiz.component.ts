@@ -1261,8 +1261,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       console.error('Error in fetchAndSetQuestionData:', error);
-    } finally {
-      console.log('Exiting fetchAndSetQuestionData');
     }
   }  
   
