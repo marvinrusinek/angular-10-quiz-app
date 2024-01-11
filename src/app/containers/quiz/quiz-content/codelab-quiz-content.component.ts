@@ -138,21 +138,6 @@ export class CodelabQuizContentComponent
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
 
-    /* this.combinedQuestionData$.pipe(takeUntil(this.destroy$))
-    .subscribe((data: CombinedQuestionDataType) => {
-      if (data && data.currentQuestion) {
-        console.log('Current question::>>', data.currentQuestion);
-        this.quizStateService.isMultipleAnswer(data.currentQuestion)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((isMultipleAnswer: boolean) => {
-            console.log('Is multiple answer:', isMultipleAnswer);
-            this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-          });
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
-    }); */
-
     this.combinedQuestionData$ = this.quizStateService.getCurrentQuestion().pipe(
       switchMap((currentQuestionData: CombinedQuestionDataType) => {
         if (currentQuestionData && currentQuestionData.currentQuestion) {
