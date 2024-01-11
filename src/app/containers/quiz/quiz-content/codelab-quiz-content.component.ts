@@ -84,6 +84,7 @@ export class CodelabQuizContentComponent
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
   shouldDisplayCorrectAnswers = false;
+  shouldDisplayCorrectAnswers$: Observable<boolean>;
 
   currentQuestionSubscription: Subscription;
   explanationTextSubscription: Subscription;
@@ -165,6 +166,24 @@ export class CodelabQuizContentComponent
     this.combinedQuestionData$.subscribe((combinedData: ExtendedQuestionData) => {
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
+
+    this.shouldDisplayCorrectAnswers$ = combineLatest([
+      this.combinedQuestionData$,
+      this.quizStateService.currentQuestion$ // replace with the actual observable
+    ]).pipe(
+      map(([data, currentQuestion]) => {
+        if (!data || !currentQuestion) {
+          console.error('Current question or data is not defined');
+          return false;
+        }
+    
+        const isQuestionDisplayed = !!data.questionText;
+        const isExplanationDisplayed = !!data.explanationText;
+        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(currentQuestion);
+    
+        return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
+      })
+    );
   }
 
   ngOnChanges(): void {
