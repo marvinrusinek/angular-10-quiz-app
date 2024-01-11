@@ -702,7 +702,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private setupShouldDisplayCorrectAnswers(): void {
+  /* private setupShouldDisplayCorrectAnswers(): void {
     this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       switchMap(data => {
         if (!data || !data.currentQuestion) {
@@ -714,14 +714,30 @@ export class CodelabQuizContentComponent
         const isExplanationDisplayed = !!data.explanationText;
   
         return this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
-          tap(isMultipleAnswer => console.log('isMultipleAnswer:', isMultipleAnswer)),
-          map(isMultipleAnswer => {
-            console.log('Evaluating conditions:', isMultipleAnswer, isQuestionDisplayed, !isExplanationDisplayed);
-            return isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed;
-          })
+          tap(isMultipleAnswer => console.log('Is Multiple Answer:', isMultipleAnswer)),
+          map(isMultipleAnswer => isMultipleAnswer && isQuestionDisplayed && !isExplanationDisplayed)
         );
       }),
-      tap(result => console.log('Final result for displaying correct answers:', result))
+      tap(shouldDisplay => console.log('Should display correct answers:', shouldDisplay))
+    );
+  } */
+
+  setupShouldDisplayCorrectAnswers(): void {
+    this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
+      switchMap(data => {
+        // Check if data and the currentQuestion are defined
+        if (data && data.currentQuestion) {
+          // Use isMultipleAnswer and switchMap to handle the returned Observable
+          return this.quizStateService.isMultipleAnswer(data.currentQuestion).pipe(
+            map(isMultipleAnswer => {
+              // Additional conditions can be added here if necessary
+              return isMultipleAnswer;
+            })
+          );
+        } else {
+          return of(false); // Return false if data or currentQuestion is not defined
+        }
+      })
     );
   }
 
