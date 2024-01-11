@@ -167,10 +167,10 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
     });
 
-    this.combinedQuestionData$.subscribe(data => {
+    /* this.combinedQuestionData$.subscribe(async data => {
       console.log('Data from combinedQuestionData$:', data);
-      this.shouldDisplayCorrectAnswersText(data);
-    });
+      await this.shouldDisplayCorrectAnswersText(data);
+    }); */
   }
 
   ngOnChanges(): void {
