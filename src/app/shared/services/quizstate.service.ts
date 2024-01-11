@@ -82,17 +82,6 @@ export class QuizStateService {
     }
   }
 
-  /* isMultipleAnswer(question: QuizQuestion): boolean {
-    if (question && Array.isArray(question.options)) {
-      const correctAnswersCount = question.options.filter(option => option.correct).length;
-      console.log('Question:', question.questionText, 'Is Multiple Answer:', correctAnswersCount > 1);
-      return correctAnswersCount > 1;
-    }
-    return false;
-  } */
-  
-  
-
   setQuizQuestionCreated(): void {
     this.quizQuestionCreated = true;
   }
