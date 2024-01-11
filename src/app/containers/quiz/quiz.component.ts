@@ -501,7 +501,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-      const routeQuestionIndex = +params['questionIndex'] ? Math.max(+params['questionIndex'], 1) - 1 : 0;
+      const routeQuestionIndex = 
+        +params['questionIndex'] ? 
+          Math.max(+params['questionIndex'], 1) - 1 : 0;
       
       if (routeQuestionIndex === 0) {
         this.initializeFirstQuestionText();
