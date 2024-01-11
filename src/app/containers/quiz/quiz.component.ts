@@ -885,7 +885,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setOptions(): void {
-    console.log('Setting options...');
     console.log('Question:', this.question);
     console.log('Answers:', this.answers);
 
