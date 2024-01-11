@@ -86,19 +86,15 @@ export class QuizStateService {
     }
   } */
 
-  isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
-    console.log("Question received in isMultipleAnswer:", question);
-  
-    if (question && Array.isArray(question.options)) {
-      const correctAnswersCount = question.options.filter(option => option.correct).length;
-      console.log('Correct answers count:', correctAnswersCount);
+  isMultipleAnswer(data: QuizQuestion): Observable<boolean> {
+    if (data && Array.isArray(data.options)) {
+      const correctAnswersCount = data.options.filter(option => option.correct).length;
+      console.log('Question:', data.questionText, 'Correct answers count:', correctAnswersCount);
       return of(correctAnswersCount > 1);
     } else {
-      console.warn("Question options are undefined or not an array", question);
       return of(false);
     }
   }
-  
   
 
   setQuizQuestionCreated(): void {

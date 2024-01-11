@@ -725,9 +725,8 @@ export class CodelabQuizContentComponent
   setupShouldDisplayCorrectAnswers(): void {
     this.shouldDisplayCorrectAnswers$ = this.combinedQuestionData$.pipe(
       switchMap(data => {
-        console.log("Current question data::>>", data.currentQuestion);
-        if (data && data.currentQuestion) {
-          return this.quizStateService.isMultipleAnswer(data.currentQuestion);
+        if (data && Array.isArray(data.options)) {
+          return this.quizStateService.isMultipleAnswer(data);
         }
         return of(false);
       }),
@@ -735,9 +734,6 @@ export class CodelabQuizContentComponent
     );
   }
   
-  
-  
-
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
     const safeOptions = options ?? [];
