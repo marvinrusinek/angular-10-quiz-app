@@ -63,6 +63,7 @@ export class QuizStateService {
   }
 
   isMultipleAnswer(question: QuizQuestion): Observable<boolean> {
+    console.log("QOPTS::", question.options);
     try {
       let correctAnswersCount: number;
       if (question && Array.isArray(question.options)) {
