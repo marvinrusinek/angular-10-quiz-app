@@ -251,76 +251,69 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuiz(): void {
+    this.setupInitialQuizState();
+    this.handleRouteParamsChange();
+    this.prepareQuizData();
+  }
+  
+  private setupInitialQuizState(): void {
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
-
-    this.activatedRoute.paramMap
-      .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
-      .subscribe(({ quizId, questionIndex, quizData }) => {
-        this.quizData = quizData.questions;
-        this.quizId = quizId;
-
-        const currentQuestionIndex = questionIndex - 1;
-
-        // Check if quizData and this.quizId are defined
-        if (quizData && quizId) {
-          // Confirm values for debugging
-          console.log('quizData[quizId]:', quizData[quizId]);
-
-          // Access the questions property directly
-          const questions: QuizQuestion[] = quizData.questions || [];
-
-          // Find the currentQuiz based on quizId
-          const currentQuiz: Quiz = questions.find(
-            () => this.quizId === quizId
-          );
-
-          // Check if currentQuiz is defined
-          if (currentQuiz) {
-            console.log('Current Quiz:', currentQuiz);
-            if (
-              currentQuestionIndex >= 0 &&
-              currentQuestionIndex < currentQuiz.questions?.length
-            ) {
-              this.initializeQuizState();
-
-              // Load the current question's explanation text
-              if (
-                this.isQuizQuestion(currentQuiz.questions[currentQuestionIndex])
-              ) {
-                this.explanationTextService.setNextExplanationText(
-                  currentQuiz.questions[currentQuestionIndex].explanation
-                );
-              } else {
-                console.error('Question not found:', currentQuestionIndex);
-              }
-            } else {
-              console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
-            }
-          } else {
-            console.error('No quiz found with quizId:', quizId);
-          }
-        } else {
-          console.error('quizData or quizId is undefined.');
-        }
-      });
-
-    this.getExplanationText();
-    this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
-
-    // Add the code to fetch and initialize explanation texts
+  }
+  
+  private handleRouteParamsChange(): void {
+    this.activatedRoute.paramMap
+      .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
+      .subscribe(this.processQuizData.bind(this));
+  }
+  
+  private processQuizData({ quizId, questionIndex, quizData }): void {
+    if (!quizData || !quizId) {
+      console.error('quizData or quizId is undefined.');
+      return;
+    }
+  
+    this.quizData = quizData.questions;
+    this.quizId = quizId;
+    const currentQuestionIndex = questionIndex - 1;
+  
+    if (!this.isValidQuestionIndex(currentQuestionIndex, quizData.questions)) {
+      console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+      return;
+    }
+  
+    this.initializeQuizState();
+    this.setExplanationTextForCurrentQuestion(quizData.questions, currentQuestionIndex);
+  }
+  
+  private isValidQuestionIndex(index: number, questions: QuizQuestion[]): boolean {
+    return index >= 0 && index < questions.length;
+  }
+  
+  private setExplanationTextForCurrentQuestion(questions: QuizQuestion[], index: number): void {
+    const currentQuestion = questions[index];
+    if (this.isQuizQuestion(currentQuestion)) {
+      this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
+    } else {
+      console.error('Question not found:', index);
+    }
+  }
+  
+  private prepareQuizData(): void {
+    this.getExplanationText();
+    this.fetchQuestionAndOptions();
+  
     this.quizDataService
       .getAllExplanationTextsForQuiz(this.quizId)
-      .subscribe((explanations) => {
+      .subscribe(explanations => {
         this.explanationTextService.initializeExplanations(explanations);
       });
   }
-
+  
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
   }  
