@@ -320,7 +320,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.quizDataService
       .getAllExplanationTextsForQuiz(this.quizId)
       .subscribe(explanations => this.explanationTextService.initializeExplanations(explanations));
-  }  
+  }
 
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
