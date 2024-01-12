@@ -183,40 +183,16 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.options = this.getOptionsForQuestion();
     this.selectedOption = this.question ? this.getSelectedOption() : undefined;
-
+  
     this.logInitialData();
     this.initializeQuizQuestion();
     this.subscribeToRouterEvents();
-
+  
     if (!this.initialized) {
-      this.initialized = true;
-      this.initializeSelectedQuiz();
-      this.initializeSelectedOption();
-
-      try {
-        this.activatedRoute.params.subscribe((params) => {
-          this.quizId = params['quizId'];
-        });
-
-        await this.loadQuizQuestions();
-
-        this.subscribeToCorrectAnswersAndData();
-        await this.quizDataService.asyncOperationToSetQuestion(
-          this.quizId,
-          this.currentQuestionIndex
-        );
-        this.initializeMultipleAnswer();
-        // this.initializeCorrectAnswerOptions();
-        // this.subscribeToCorrectAnswers();
-      } catch (error) {
-        console.error('Error getting current question:', error);
-      }
+      await this.initializeQuiz();
     }
-
-    this.quizService.answers$.subscribe((answers) => {
-      this.answers = answers;
-    });
-
+  
+    this.subscribeToAnswers();
     this.subscribeToSelectionMessage();
     this.subscriptionToOptions();
     this.logFinalData();
@@ -247,6 +223,36 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   trackByFn(option: Option) {
     return option.optionId;
+  }
+  
+  private async initializeQuiz(): Promise<void> {
+    this.initialized = true;
+    this.initializeSelectedQuiz();
+    this.initializeSelectedOption();
+    this.subscribeToActivatedRouteParams();
+  
+    try {
+      await this.loadQuizQuestions();
+      this.subscribeToCorrectAnswersAndData();
+      await this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
+      this.initializeMultipleAnswer();
+      // this.initializeCorrectAnswerOptions();
+      // this.subscribeToCorrectAnswers();
+    } catch (error) {
+      console.error('Error getting current question:', error);
+    }
+  }
+  
+  private subscribeToActivatedRouteParams(): void {
+    this.activatedRoute.params.subscribe(params => {
+      this.quizId = params['quizId'];
+    });
+  }
+  
+  private subscribeToAnswers(): void {
+    this.quizService.answers$.subscribe(answers => {
+      this.answers = answers;
+    });
   }
 
   private handlePageVisibilityChange(isHidden: boolean): void {
