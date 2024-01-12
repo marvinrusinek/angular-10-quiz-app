@@ -518,7 +518,7 @@ export class CodelabQuizContentComponent
     return '';
   }
   
-  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
     if (!data || !data.currentQuestion) {
       this.shouldDisplayCorrectAnswers = false;
       return;
@@ -529,9 +529,9 @@ export class CodelabQuizContentComponent
     );
     
     this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-  } */
+  }
 
-  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<boolean> {
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<boolean> {
     const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
   
     // Determine if it's a multiple-answer question
@@ -540,7 +540,7 @@ export class CodelabQuizContentComponent
     this.shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationTextDisplayed;
   
     return this.shouldDisplayCorrectAnswers;
-  }
+  } */
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
     const safeOptions = options ?? [];
