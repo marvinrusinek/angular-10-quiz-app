@@ -1071,7 +1071,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   // potentially remove, not being used
-  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+  /* shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return (
       this.shouldDisplayNumberOfCorrectAnswers &&
       this.isMultipleCorrectAnswers() &&
@@ -1079,7 +1079,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       !this.shouldDisplayExplanation() &&
       !this.shouldDisplayExplanationText()
     );
-  }
+  } */
 
   shouldApplyLastQuestionClass(): boolean {
     return this.questionIndex === this.totalQuestions;
