@@ -251,27 +251,26 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuiz(): void {
-    this.setupInitialQuizState();
-    this.handleRouteParamsChange();
-    this.prepareQuizData();
+    this.setupInitialState();
+    this.subscribeToRouteParams();
+    this.initializeQuizDependencies();
   }
   
-  private setupInitialQuizState(): void {
+  private setupInitialState(): void {
     this.currentQuestionIndex = 0;
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    this.setCurrentQuizForQuizId(this.quizId);
     this.shouldDisplayNumberOfCorrectAnswers = true;
     this.explanationTextService.resetProcessedQuestionsState();
-    this.initializeSelectedQuiz();
-    this.initializeObservables();
   }
   
-  private handleRouteParamsChange(): void {
+  private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(switchMap((params: ParamMap) => this.handleRouteParams(params)))
-      .subscribe(this.processQuizData.bind(this));
+      .subscribe(this.processRouteData.bind(this));
   }
   
-  private processQuizData({ quizId, questionIndex, quizData }): void {
+  private processRouteData({ quizId, questionIndex, quizData }): void {
     if (!quizData || !quizId) {
       console.error('quizData or quizId is undefined.');
       return;
@@ -279,41 +278,50 @@ export class QuizComponent implements OnInit, OnDestroy {
   
     this.quizData = quizData.questions;
     this.quizId = quizId;
-    const currentQuestionIndex = questionIndex - 1;
+    this.processQuizData(questionIndex, quizData);
+  }
   
-    if (!this.isValidQuestionIndex(currentQuestionIndex, quizData.questions)) {
-      console.error('Invalid currentQuestionIndex:', currentQuestionIndex);
+  private processQuizData(questionIndex: number, quizData: any): void {
+    const currentQuestionIndex = questionIndex - 1;
+    const questions = quizData.questions || [];
+    const currentQuiz = questions.find(() => this.quizId === this.quizId);
+  
+    if (!currentQuiz || !this.isValidQuestionIndex(currentQuestionIndex, currentQuiz.questions)) {
+      console.error('No quiz found or invalid currentQuestionIndex:', currentQuestionIndex);
       return;
     }
   
     this.initializeQuizState();
-    this.setExplanationTextForCurrentQuestion(quizData.questions, currentQuestionIndex);
+    this.setExplanationTextForCurrentQuestion(currentQuiz, currentQuestionIndex);
   }
   
   private isValidQuestionIndex(index: number, questions: QuizQuestion[]): boolean {
     return index >= 0 && index < questions.length;
   }
   
-  private setExplanationTextForCurrentQuestion(questions: QuizQuestion[], index: number): void {
-    const currentQuestion = questions[index];
-    if (this.isQuizQuestion(currentQuestion)) {
-      this.explanationTextService.setNextExplanationText(currentQuestion.explanation);
+  private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
+    const question = quiz.questions[index];
+    if (this.isQuizQuestion(question)) {
+      this.explanationTextService.setNextExplanationText(question.explanation);
     } else {
       console.error('Question not found:', index);
     }
   }
   
-  private prepareQuizData(): void {
+  private initializeQuizDependencies(): void {
     this.getExplanationText();
     this.fetchQuestionAndOptions();
-  
-    this.quizDataService
-      .getAllExplanationTextsForQuiz(this.quizId)
-      .subscribe(explanations => {
-        this.explanationTextService.initializeExplanations(explanations);
-      });
+    this.initializeSelectedQuiz();
+    this.initializeObservables();
+    this.fetchAllExplanationTexts();
   }
   
+  private fetchAllExplanationTexts(): void {
+    this.quizDataService
+      .getAllExplanationTextsForQuiz(this.quizId)
+      .subscribe(explanations => this.explanationTextService.initializeExplanations(explanations));
+  }  
+
   isQuizQuestion(obj: any): obj is QuizQuestion {
     return obj && 'questionText' in obj && 'options' in obj && 'explanation' in obj;
   }  
