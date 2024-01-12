@@ -458,38 +458,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   subscribeRouterAndInit(): void {
-    // Initialize the previous quizId and questionIndex values to the current values
-    let prevQuizId = this.quizId;
-    let prevQuestionIndex = this.questionIndex;
-  
     this.getNextQuestion();
-  
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
   
-    // Subscribe to the router events and handle paramMap changes
     this.routerSubscription = this.router.events.pipe(
       filter((event: Event) => event instanceof NavigationEnd),
       switchMap(() => {
-        // Extract and update quizId every time navigation ends
-        const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-        this.quizId = quizId;
-  
-        // Return an observable of the paramMap
+        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
         return this.activatedRoute.paramMap;
       })
     ).subscribe((params: ParamMap) => {
-      // Update questionIndex based on paramMap
-      const questionIndex = +params.get('questionIndex') || 0;
-      this.questionIndex = questionIndex;
-  
-      // Update the previous quizId and questionIndex values to the current values
-      prevQuizId = this.quizId;
-      prevQuestionIndex = this.questionIndex;
-  
+      this.questionIndex = +params.get('questionIndex') || 0;
       this.handleParamMap(params);
     });
   }
-
+  
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
