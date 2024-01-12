@@ -519,6 +519,8 @@ export class CodelabQuizContentComponent
   }
   
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    this.shouldDisplayCorrectAnswers = false;
+    
     if (!data || !data.currentQuestion) {
       this.shouldDisplayCorrectAnswers = false;
       return;
@@ -527,6 +529,7 @@ export class CodelabQuizContentComponent
     const currentQuestionHasMultipleAnswers = await firstValueFrom(
       this.quizStateService.isMultipleAnswer(data.currentQuestion)
     );
+    console.log("CQHMA", currentQuestionHasMultipleAnswers);
     
     this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
   }
