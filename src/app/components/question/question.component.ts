@@ -10,6 +10,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
@@ -30,6 +31,7 @@ import {
   take,
   takeUntil,
   tap,
+  throwError
 } from 'rxjs/operators';
 
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -567,9 +569,37 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   private processCombinedQuestionData(question: QuizQuestion): Observable<any> {
-    // Existing logic for combinedQuestionData processing
-    // ...
-  }
+    // Fetch all quizzes and find the one containing the question
+    return this.quizService.getQuizData().pipe(
+      map((quizzes: Quiz[]) => {
+        const relatedQuiz = quizzes.find(quiz => quiz.questions.some(q => q.questionText === question.questionText));
+        if (!relatedQuiz) {
+          throw new Error(`Quiz containing the question not found`);
+        }
+  
+        // Find the index of the question in the quiz
+        const questionIndex = relatedQuiz.questions.findIndex(q => q.questionText === question.questionText);
+  
+        // If additional data is needed, like specific question details
+        const questionData = this.quizService.getQuestionData(relatedQuiz.quizId, questionIndex);
+        if (!questionData) {
+          throw new Error('Question data not found');
+        }
+  
+        // Combine the question with its related quiz and additional data
+        return {
+          question: question,
+          quiz: relatedQuiz,
+          additionalData: questionData
+        };
+      }),
+      catchError(error => {
+        console.error('Error processing combined question data:', error);
+        // Handle the error or rethrow it
+        return throwError(error);
+      })
+    );
+  }  
   
   private updateCurrentQuestionAndCorrectAnswers(question: QuizQuestion): void {
     this.updateCurrentQuestion(question);
