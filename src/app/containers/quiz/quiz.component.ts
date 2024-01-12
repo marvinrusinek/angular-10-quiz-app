@@ -501,35 +501,39 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   setObservables(): void {
+    this.initializeCurrentQuestionAndOptionsObservables();
+    this.createCombinedQuestionWithOptionsObservable();
+    this.subscribeToCurrentQuestionWithOptions();
+  }
+  
+  private initializeCurrentQuestionAndOptionsObservables(): void {
     this.currentQuestion$ = this.quizStateService.currentQuestion$;
     this.options$ = this.quizStateService.currentOptions$;
-
+  }
+  
+  private createCombinedQuestionWithOptionsObservable(): void {
     this.currentQuestionWithOptions$ = combineLatest([
       this.quizStateService.currentQuestion$,
       this.quizStateService.currentOptions$
     ]).pipe(
       distinctUntilChanged(),
-      map(([question, options]) => {
-        return {
-          ...question,
-          options,
-        };
-      })
+      map(([question, options]) => ({
+        ...question,
+        options,
+      }))
     );
-
-    // Subscribe to the currentOptions$ observable with the latest value from currentQuestion$
+  }
+  
+  private subscribeToCurrentQuestionWithOptions(): void {
     this.quizStateService.currentQuestion$
       .pipe(withLatestFrom(this.quizStateService.currentOptions$))
       .subscribe(([currentQuestion, correctAnswerOptions]) => {
         if (currentQuestion && correctAnswerOptions) {
-          this.quizService.setCorrectAnswers(
-            currentQuestion,
-            correctAnswerOptions
-          );
+          this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
         }
       });
   }
-
+  
   async getQuestion(): Promise<void> {
     try {
       const quizId = this.activatedRoute.snapshot.params.quizId;
