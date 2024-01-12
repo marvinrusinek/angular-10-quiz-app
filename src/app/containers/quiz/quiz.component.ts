@@ -295,8 +295,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setExplanationTextForCurrentQuestion(currentQuiz, currentQuestionIndex);
   }
   
-  private isValidQuestionIndex(index: number, questions: QuizQuestion[]): boolean {
-    return index >= 0 && index < questions.length;
+  private isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
+    return index >= 0 && questions && index < questions.length;
   }
   
   private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
@@ -407,48 +407,41 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   private initializeQuizState(): void {
-    const currentQuiz: Quiz | undefined = this.findQuizByQuizId(this.quizId);
-
-    if (currentQuiz) {
-      const currentQuestionIndex = this.currentQuestionIndex;
-
-      if (
-        currentQuestionIndex >= 0 &&
-        currentQuiz.questions &&
-        currentQuestionIndex < currentQuiz.questions.length
-      ) {
-        const currentQuestion: QuizQuestion =
-          currentQuiz.questions[currentQuestionIndex];
-
-        if (currentQuestion) {
-          this.currentQuestion = currentQuestion;
-          this.options = currentQuestion.options;
-          this.selectionMessageService.updateSelectionMessage('');
-
-          if (currentQuestion.options && currentQuestion.options.length > 0) {
-            this.quizService.correctOptions = currentQuestion.options
-              .filter((option) => option.correct && option.value !== undefined)
-              .map((option) => option.value?.toString());
-          } else {
-            console.error('Invalid question options:', currentQuestion);
-          }
-
-          this.quizService.showQuestionText$ = of(true);
-          this.selectedOption$.next(null);
-          this.explanationTextService.explanationText$.next('');
-          this.cdRef.detectChanges();
-        } else {
-          console.error(
-            'Invalid question index:',
-            this.currentQuestionIndex + 1
-          );
-        }
-      } else {
-        console.error('Invalid quiz:', this.quizId);
-      }
+    const currentQuiz = this.findQuizByQuizId(this.quizId);
+  
+    if (!currentQuiz || !this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
+      console.error(`Invalid quiz or question index: Quiz ID ${this.quizId}, Question Index ${this.currentQuestionIndex + 1}`);
+      return;
     }
+  
+    const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
+    this.setCurrentQuestionState(currentQuestion);
   }
-
+  
+  private setCurrentQuestionState(question: QuizQuestion): void {
+    if (!question) {
+      console.error('Invalid question:', question);
+      return;
+    }
+  
+    this.currentQuestion = question;
+    this.options = question.options;
+    this.selectionMessageService.updateSelectionMessage('');
+  
+    if (question.options && question.options.length > 0) {
+      this.quizService.correctOptions = question.options
+        .filter(option => option.correct && option.value !== undefined)
+        .map(option => option.value?.toString());
+    } else {
+      console.error('Invalid question options:', question);
+    }
+  
+    this.quizService.showQuestionText$ = of(true);
+    this.selectedOption$.next(null);
+    this.explanationTextService.explanationText$.next('');
+    this.cdRef.detectChanges();
+  }
+  
   // Helper function to find a quiz by quizId
   private findQuizByQuizId(quizId: string): Quiz | undefined {
     for (const item of this.quizData) {
