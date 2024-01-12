@@ -1070,6 +1070,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return this.numberOfCorrectAnswers > 1;
   }
 
+  // potentially remove, not being used
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return (
       this.shouldDisplayNumberOfCorrectAnswers &&
