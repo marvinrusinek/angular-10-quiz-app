@@ -5,9 +5,9 @@
         {{ combinedText }}
       </span>    
       <span class="number-correct"
-        *ngIf="shouldDisplayCorrectAnswers"
+        *ngIf="shouldDisplayCorrectAnswersText(data)"
       >
-        {{ correctAnswersText }}
+        {{ correctAnswersText$ | async }}
       </span>
     </h3>
   </section>

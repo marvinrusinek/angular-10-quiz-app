@@ -138,6 +138,8 @@ export class CodelabQuizContentComponent
     this.setupObservables();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
+    const currentQuestion = this.questions[0];
+  this.correctAnswersText = `Correct Answers: ${this.calculateAndDisplayNumberOfCorrectAnswers(currentQuestion)}`;
     this.processQuestionData();
   }
 
@@ -166,33 +168,14 @@ export class CodelabQuizContentComponent
   processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
-    ).subscribe((combinedData: ExtendedQuestionData) => {
-      console.log('Current question data:', combinedData.currentQuestion);
-  
-      if (combinedData.currentQuestion && combinedData.currentQuestion.options) {
-        combinedData.currentQuestion.options.forEach((option, index) => {
-          console.log(`Option ${index + 1}:`, option.text, 'Correct:', option.correct);
-        });
-  
-        const correctAnswersCount = combinedData.currentQuestion.options.filter(option => option.correct).length;
-        console.log('Correct answers count for current question:', correctAnswersCount);
-  
-        this.shouldDisplayCorrectAnswers = correctAnswersCount > 1;
-        this.correctAnswersText = this.shouldDisplayCorrectAnswers ? `Correct Answers: ${correctAnswersCount}` : '';
-      }
+    ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
+      this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
+      
+      await this.shouldDisplayCorrectAnswersText(combinedData);
     });
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-   
+  }  
 
   private initializeComponent(): void {
     this.initializeQuestionData();
@@ -335,16 +318,30 @@ export class CodelabQuizContentComponent
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(question: QuizQuestion): void {
+    console.log("MY OPTS::", question.options);
+
+    // Debugging: Log the options that are considered correct
+    const correctOptions = this.quizStateService.currentQuestion.value.options.filter(option => option.correct);
+    console.log('Correct options:', correctOptions);
+  
+    // Calculate the number of correct answers
     this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-      question.options
+      this.quizStateService.currentQuestion.value.options
     );
   
+    // Get the text for the number of correct answers
     const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
       this.numberOfCorrectAnswers
     );
   
+    // Log the correct answers text
+    console.log('Correct answers text:', correctAnswersText);
+  
+    // Update the correct answers text source
     this.correctAnswersTextSource.next(correctAnswersText);
   }
+  
+  
   
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     const questions: QuizQuestion[] = await firstValueFrom(
