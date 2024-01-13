@@ -1052,7 +1052,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     });
 
     if (this.currentQuestionIndex === this.selectedQuiz.questions.length - 1) {
-      await this.quizDataService.submitQuiz(this.selectedQuiz).toPromise();
+      await firstValueFrom(this.quizDataService.submitQuiz(this.selectedQuiz));
       this.router.navigate(['quiz', 'result']); // or just results?
     } else {
       this.currentQuestionIndex++;
