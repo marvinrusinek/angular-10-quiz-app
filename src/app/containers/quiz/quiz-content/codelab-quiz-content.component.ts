@@ -21,6 +21,7 @@ import {
   catchError,
   distinctUntilChanged,
   map,
+  mergeMap,
   startWith,
   switchMap,
   takeUntil,
@@ -296,19 +297,16 @@ export class CodelabQuizContentComponent
   }
   
   private subscribeToCurrentQuestion(): void {
-    this.currentQuestion$.subscribe((question) => {
-      if (question && question.options) {
-        this.options = question.options;
-      }
-    });
-  
-    this.currentQuestionSubscription = this.quizStateService.currentQuestion$.subscribe(
-      async (question: QuizQuestion) => {
-        if (question) {
-          await this.processCurrentQuestion(question);
-        }
-      }
-    );
+    this.currentQuestionSubscription = this.quizStateService.currentQuestion$
+      .pipe(
+        mergeMap(async (question: QuizQuestion) => {
+          console.log("QUESTION::", question);
+          if (question) {
+            await this.processCurrentQuestion(question);
+          }
+        })
+      )
+      .subscribe();
   }
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
