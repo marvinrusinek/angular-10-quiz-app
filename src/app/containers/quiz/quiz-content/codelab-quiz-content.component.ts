@@ -438,11 +438,6 @@ export class CodelabQuizContentComponent
     }
   }
 
-  getNumberOfCorrectAnswers(data: any): number {
-    const correctAnswers = data?.correctAnswers || [];
-    return correctAnswers.length;
-  }
-
   shouldDisplayNumberOfCorrectAnswersCount(): boolean {
     return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
   }
