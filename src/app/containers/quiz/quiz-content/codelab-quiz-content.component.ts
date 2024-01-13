@@ -171,8 +171,6 @@ export class CodelabQuizContentComponent
 
   private initializeComponent(): void {
     this.initializeQuestionData();
-    this.initializeNextQuestionSubscription();
-    this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
   }
 
@@ -324,29 +322,6 @@ export class CodelabQuizContentComponent
         this.explanationText = null;
       }
     });
-  }
-
-  private initializeNextQuestionSubscription(): void {
-    this.nextQuestionSubscription = this.quizService.nextQuestion$
-      .subscribe((nextQuestion) => {
-        const question = nextQuestion as QuizQuestion;
-        if (nextQuestion) {
-          this.currentQuestion.next(question);
-          this.currentOptions$.next(question.options);
-        } else {
-          // Handle the scenario when there are no more questions
-          this.router.navigate(['/results']);
-        }
-      });
-  }
-
-  private initializeExplanationTextSubscription(): void {
-    const explanationText$ = this.explanationTextService.getExplanationText$();
-    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
-
-    this.explanationText$ = combineLatest([explanationText$, selectedOptionExplanation$]).pipe(
-      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
-    ) as Observable<string>;
   }
 
   private initializeCombinedQuestionData(): void {
