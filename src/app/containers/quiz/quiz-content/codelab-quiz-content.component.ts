@@ -134,9 +134,10 @@ export class CodelabQuizContentComponent
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
+    this.setupOptions();
+    this.setupExplanationTextDisplay();
   }
 
   ngOnChanges(): void {
@@ -177,21 +178,6 @@ export class CodelabQuizContentComponent
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
-    this.setupOptions();
-    this.setupExplanationTextDisplay();
-  }
-  
-  private subscribeToExplanationChanges(): void {
-    this.selectedOptionSubscription =
-      this.selectedOptionService.selectedOptionExplanation$.subscribe(
-        (explanationText) => {
-          if (explanationText) {
-            this.explanationText = explanationText;
-          } else {
-            this.explanationText = 'No explanation available.';
-          }
-        }
-      );
   }
 
   private subscribeToFormattedExplanationChanges(): void {
