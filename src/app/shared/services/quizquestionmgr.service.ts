@@ -43,7 +43,7 @@ export class QuizQuestionManagerService {
       this.numberOfCorrectAnswers = 0;
       this.shouldDisplayNumberOfCorrectAnswers = false;
     }
-  }  
+  }
 
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
