@@ -345,7 +345,7 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'In which of the following does dependency injection occur?',
         options: [
-          { text: '@Injectable()' },
+          { text: '@Injectable()', correct: true },
           { text: 'constructor', correct: true },
           { text: 'function' },
           { text: 'NgModule' }
