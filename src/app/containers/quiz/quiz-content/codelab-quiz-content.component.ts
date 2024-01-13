@@ -138,8 +138,8 @@ export class CodelabQuizContentComponent
     this.setupObservables();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
-    const currentQuestion = this.questions[0];
-  this.correctAnswersText = `Correct Answers: ${this.calculateAndDisplayNumberOfCorrectAnswers(currentQuestion)}`;
+    //const currentQuestion = this.questions[0];
+  //this.correctAnswersText = `Correct Answers: ${this.calculateAndDisplayNumberOfCorrectAnswers(currentQuestion)}`;
     this.processQuestionData();
   }
 
