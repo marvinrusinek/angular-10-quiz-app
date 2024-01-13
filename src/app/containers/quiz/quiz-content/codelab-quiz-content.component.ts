@@ -21,11 +21,9 @@ import {
   catchError,
   distinctUntilChanged,
   map,
-  mergeMap,
   startWith,
   switchMap,
   takeUntil,
-  tap,
   withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -139,8 +137,6 @@ export class CodelabQuizContentComponent
     this.setupObservables();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
-    //const currentQuestion = this.questions[0];
-  //this.correctAnswersText = `Correct Answers: ${this.calculateAndDisplayNumberOfCorrectAnswers(currentQuestion)}`;
     this.processQuestionData();
   }
 
@@ -170,7 +166,6 @@ export class CodelabQuizContentComponent
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
       this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
       
@@ -237,13 +232,13 @@ export class CodelabQuizContentComponent
       (formattedExplanation) => {
         this.explanationToDisplay = formattedExplanation;
       }
-    );    
+    );
   }
 
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params) => this.fetchQuestionsAndExplanationTexts(params)),
+        switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
       .subscribe(([questions, explanationTexts]) => {
@@ -299,7 +294,7 @@ export class CodelabQuizContentComponent
   private subscribeToCurrentQuestion(): void {
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
-        mergeMap(async (question: QuizQuestion) => {
+        switchMap(async (question: QuizQuestion) => {
           if (question) {
             await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
           }
