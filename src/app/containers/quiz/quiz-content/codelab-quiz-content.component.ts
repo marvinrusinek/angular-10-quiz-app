@@ -136,12 +136,10 @@ export class CodelabQuizContentComponent
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.setupObservables();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
-    //const currentQuestion = this.questions[0];
-  //this.correctAnswersText = `Correct Answers: ${this.calculateAndDisplayNumberOfCorrectAnswers(currentQuestion)}`;
     this.processQuestionData();
+    this.setupCombinedTextObservable();
   }
 
   ngOnChanges(): void {
@@ -184,39 +182,6 @@ export class CodelabQuizContentComponent
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
     this.setupOptions();
-  }
-
-  private setupObservables(): void {
-    this.setupExplanationTextDisplay();
-    this.setupExplanationTextObservable();
-    this.setupFormattedExplanationObservable();
-  }
-
-  private setupExplanationTextObservable(): void {
-    this.explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$,
-    ]).pipe(
-      map(([explanationText, selectedOptionExplanation]) =>
-        selectedOptionExplanation || explanationText
-      )
-    );
-  }
-
-  private setupFormattedExplanationObservable(): void {
-    this.formattedExplanation$
-      .pipe(
-        withLatestFrom(this.quizService.currentQuestionIndex$),
-        distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(([formattedExplanation, currentQuestionIndex]) => {
-        if (formattedExplanation !== null && formattedExplanation !== undefined) {
-          this.formattedExplanation = formattedExplanation;
-
-          this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
-        }
-      });
   }
   
   private subscribeToExplanationChanges(): void {
@@ -482,7 +447,7 @@ export class CodelabQuizContentComponent
     );
   }
 
-  private setupExplanationTextDisplay(): void {    
+  private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
@@ -492,9 +457,13 @@ export class CodelabQuizContentComponent
     ]).pipe(
       switchMap(this.determineTextToDisplay.bind(this)),
       startWith(''),
-      catchError(this.handleError.bind(this))
+      catchError((error) => {
+        // Handle the error here, e.g., log it or return a default value
+        console.error('Error in combinedText$ observable:', error);
+        return of('Default Text'); // Replace with an appropriate default value
+      })
     );
-  }
+  }  
   
   private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
@@ -504,11 +473,6 @@ export class CodelabQuizContentComponent
       return of(textToDisplay);
     }
   }
-
-  private handleError(error: any): Observable<string> {
-    console.error('An error occurred:', error);
-    return of('Error: unable to load explanation text');
-  }  
 
   getQuestionText(
     currentQuestion: QuizQuestion,
@@ -534,11 +498,6 @@ export class CodelabQuizContentComponent
   
       this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     }
-  }
-
-  getNumberOfCorrectAnswers(data: any): number {
-    const correctAnswers = data?.correctAnswers || [];
-    return correctAnswers.length;
   }
 
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
