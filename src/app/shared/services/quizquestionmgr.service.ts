@@ -17,7 +17,6 @@ export class QuizQuestionManagerService {
   shouldDisplayExplanation = false;
   correctAnswersCount = 0; // not currently being used
   selectedOption: Option | null = null;
-  validOptions: Option[];
 
   private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> =
     new BehaviorSubject<QuizQuestion | null>(null);
@@ -32,6 +31,9 @@ export class QuizQuestionManagerService {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     const currentQuestionValue = this.currentQuestion$.getValue();
+    /* this.numberOfCorrectAnswers = currentQuestionValue.options.filter(
+      (option) => option.correct
+    ).length; */
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
 
@@ -64,8 +66,8 @@ export class QuizQuestionManagerService {
   }
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
-    this.validOptions = options ?? [];
-    const numberOfCorrectAnswers = this.validOptions.reduce(
+    const validOptions = options ?? [];
+    const numberOfCorrectAnswers = validOptions.reduce(
       (count, option) => count + (option.correct ? 1 : 0),
       0
     );
@@ -77,7 +79,9 @@ export class QuizQuestionManagerService {
     if (!currentQuestionValue) {
       return false;
     }
-    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(this.validOptions);
+    const numberOfCorrectAnswers = currentQuestionValue.options.filter(
+      (option) => option.correct
+    ).length;
     return numberOfCorrectAnswers > 1;
   }
 }
