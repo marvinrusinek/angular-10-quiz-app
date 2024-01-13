@@ -21,9 +21,11 @@ import {
   catchError,
   distinctUntilChanged,
   map,
+  mergeMap,
   startWith,
   switchMap,
   takeUntil,
+  tap,
   withLatestFrom
 } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -127,13 +129,19 @@ export class CodelabQuizContentComponent
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.formattedExplanation$ = this.explanationTextService
+      .formattedExplanation$ as BehaviorSubject<string>;
   }
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.processQuestionData();
+    this.setupObservables();
+    this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
-    this.setupCombinedTextObservable();
+    //const currentQuestion = this.questions[0];
+  //this.correctAnswersText = `Correct Answers: ${this.calculateAndDisplayNumberOfCorrectAnswers(currentQuestion)}`;
+    this.processQuestionData();
   }
 
   ngOnChanges(): void {
@@ -162,6 +170,7 @@ export class CodelabQuizContentComponent
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
       this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
       
@@ -171,7 +180,56 @@ export class CodelabQuizContentComponent
 
   private initializeComponent(): void {
     this.initializeQuestionData();
+    this.initializeNextQuestionSubscription();
+    this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
+    this.setupOptions();
+  }
+
+  private setupObservables(): void {
+    this.setupExplanationTextDisplay();
+    this.setupExplanationTextObservable();
+    this.setupFormattedExplanationObservable();
+  }
+
+  private setupExplanationTextObservable(): void {
+    this.explanationText$ = combineLatest([
+      this.explanationTextService.getExplanationText$(),
+      this.selectedOptionService.selectedOptionExplanation$,
+    ]).pipe(
+      map(([explanationText, selectedOptionExplanation]) =>
+        selectedOptionExplanation || explanationText
+      )
+    );
+  }
+
+  private setupFormattedExplanationObservable(): void {
+    this.formattedExplanation$
+      .pipe(
+        withLatestFrom(this.quizService.currentQuestionIndex$),
+        distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(([formattedExplanation, currentQuestionIndex]) => {
+        if (formattedExplanation !== null && formattedExplanation !== undefined) {
+          this.formattedExplanation = formattedExplanation;
+
+          this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
+        }
+      });
+  }
+  
+  private subscribeToExplanationChanges(): void {
+    this.selectedOptionSubscription =
+      this.selectedOptionService.selectedOptionExplanation$.subscribe(
+        (explanationText) => {
+          if (explanationText) {
+            this.explanationText = explanationText;
+          } else {
+            this.explanationText = 'No explanation available.';
+          }
+        }
+      );
   }
 
   private subscribeToFormattedExplanationChanges(): void {
@@ -179,13 +237,13 @@ export class CodelabQuizContentComponent
       (formattedExplanation) => {
         this.explanationToDisplay = formattedExplanation;
       }
-    );
+    );    
   }
 
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
+        switchMap((params) => this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
       .subscribe(([questions, explanationTexts]) => {
@@ -241,7 +299,7 @@ export class CodelabQuizContentComponent
   private subscribeToCurrentQuestion(): void {
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
-        switchMap(async (question: QuizQuestion) => {
+        mergeMap(async (question: QuizQuestion) => {
           if (question) {
             await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
           }
@@ -272,6 +330,8 @@ export class CodelabQuizContentComponent
     // Update the correct answers text source
     this.correctAnswersTextSource.next(correctAnswersText);
   }
+  
+  
   
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     const questions: QuizQuestion[] = await firstValueFrom(
@@ -320,6 +380,29 @@ export class CodelabQuizContentComponent
         this.explanationText = null;
       }
     });
+  }
+
+  private initializeNextQuestionSubscription(): void {
+    this.nextQuestionSubscription = this.quizService.nextQuestion$
+      .subscribe((nextQuestion) => {
+        const question = nextQuestion as QuizQuestion;
+        if (nextQuestion) {
+          this.currentQuestion.next(question);
+          this.currentOptions$.next(question.options);
+        } else {
+          // Handle the scenario when there are no more questions
+          this.router.navigate(['/results']);
+        }
+      });
+  }
+
+  private initializeExplanationTextSubscription(): void {
+    const explanationText$ = this.explanationTextService.getExplanationText$();
+    const selectedOptionExplanation$ = this.selectedOptionService.selectedOptionExplanation$;
+
+    this.explanationText$ = combineLatest([explanationText$, selectedOptionExplanation$]).pipe(
+      map(([explanationText, selectedOptionExplanation]) => selectedOptionExplanation || explanationText)
+    ) as Observable<string>;
   }
 
   private initializeCombinedQuestionData(): void {
@@ -382,9 +465,24 @@ export class CodelabQuizContentComponent
     };
   
     return of(combinedQuestionData);
+  }  
+
+  private setupOptions(): void {
+    // Update the options$ initialization using combineLatest
+    this.options$ = combineLatest([
+      this.currentQuestion$,
+      this.currentOptions$
+    ]).pipe(
+      map(([currentQuestion, currentOptions]) => {
+        if (currentQuestion && currentQuestion.options) {
+          return currentQuestion.options;
+        }
+        return [];
+      })
+    );
   }
 
-  private setupCombinedTextObservable(): void {    
+  private setupExplanationTextDisplay(): void {    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
@@ -434,8 +532,43 @@ export class CodelabQuizContentComponent
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
       );
   
+      console.log("Multiple Answers?", currentQuestionHasMultipleAnswers);
+      console.log("Current Question", data.currentQuestion);
+  
       this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     }
+  }
+  
+  
+  
+
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<boolean> {
+    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
+  
+    // Determine if it's a multiple-answer question
+    const isMultipleAnswer = numberOfCorrectAnswers > 1;
+
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationTextDisplayed;
+  
+    return this.shouldDisplayCorrectAnswers;
+  } */
+
+  calculateNumberOfCorrectAnswers(options: Option[]): number {
+    const safeOptions = options ?? [];
+    const numberOfCorrectAnswers = safeOptions.reduce(
+      (count, option) => count + (option.correct ? 1 : 0),
+      0
+    );
+    return numberOfCorrectAnswers;
+  }
+
+  getNumberOfCorrectAnswers(data: any): number {
+    const correctAnswers = data?.correctAnswers || [];
+    return correctAnswers.length;
+  }
+
+  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
+    return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
   }
 
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
