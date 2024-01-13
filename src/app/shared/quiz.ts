@@ -345,9 +345,9 @@ export const QUIZ_DATA: Quiz[] = [
       {
         questionText: 'In which of the following does dependency injection occur?',
         options: [
-          { text: '@Injectable()', correct: true },
+          { text: '@Injectable()' },
           { text: 'constructor', correct: true },
-          { text: 'function' },
+          { text: 'function', correct: true },
           { text: 'NgModule' }
         ],
         explanation: 'object instantiations are taken care of by the constructor in Angular'
