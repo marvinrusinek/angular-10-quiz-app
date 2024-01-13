@@ -178,7 +178,7 @@ export class CodelabQuizContentComponent
   private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeNextQuestionSubscription();
-    this.initializeExplanationTextSubscription();
+    // this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
   }
 
