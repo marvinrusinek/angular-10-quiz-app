@@ -134,7 +134,6 @@ export class CodelabQuizContentComponent
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.setupObservables();
     this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
@@ -179,39 +178,7 @@ export class CodelabQuizContentComponent
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
     this.setupOptions();
-  }
-
-  private setupObservables(): void {
     this.setupExplanationTextDisplay();
-    this.setupExplanationTextObservable();
-    this.setupFormattedExplanationObservable();
-  }
-
-  private setupExplanationTextObservable(): void {
-    this.explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$(),
-      this.selectedOptionService.selectedOptionExplanation$,
-    ]).pipe(
-      map(([explanationText, selectedOptionExplanation]) =>
-        selectedOptionExplanation || explanationText
-      )
-    );
-  }
-
-  private setupFormattedExplanationObservable(): void {
-    this.formattedExplanation$
-      .pipe(
-        withLatestFrom(this.quizService.currentQuestionIndex$),
-        distinctUntilChanged((prev, curr) => prev[0] === curr[0] && prev[1] === curr[1]),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(([formattedExplanation, currentQuestionIndex]) => {
-        if (formattedExplanation !== null && formattedExplanation !== undefined) {
-          this.formattedExplanation = formattedExplanation;
-
-          this.explanationTextService.updateFormattedExplanation(currentQuestionIndex, this.formattedExplanation);
-        }
-      });
   }
   
   private subscribeToExplanationChanges(): void {
