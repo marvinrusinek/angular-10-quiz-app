@@ -19,13 +19,11 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  distinctUntilChanged,
   map,
   mergeMap,
   startWith,
   switchMap,
   takeUntil,
-  tap,
   withLatestFrom
 } from 'rxjs/operators';
 
