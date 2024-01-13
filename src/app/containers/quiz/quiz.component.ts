@@ -1107,10 +1107,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     return !this.formControl || this.formControl.valid === false;
   }
 
-  shouldDisplayExplanationText(): boolean {
-    return !!this.explanationText;
-  }
-
   private async getTotalQuestions(): Promise<number> {
     return await firstValueFrom(this.quizService.getTotalQuestions());
   }

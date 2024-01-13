@@ -74,10 +74,6 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers;
   }
 
-  shouldDisplayExplanationText(): boolean {
-    return !!this.explanationText;
-  }
-
   isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
     if (!currentQuestionValue) {
