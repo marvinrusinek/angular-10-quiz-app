@@ -298,7 +298,7 @@ export class CodelabQuizContentComponent
 
     // Subscribe to explanationText$ and update the explanation text accordingly
     explanationText$.subscribe((explanationText) => {
-      if (this.areQuestionsEqual(question, this.question)) {
+      if (this.quizService.areQuestionsEqual(question, this.question)) {
         this.explanationText = explanationText as string;
       } else {
         this.explanationText = null;
