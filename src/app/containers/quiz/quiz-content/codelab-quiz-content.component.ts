@@ -131,8 +131,8 @@ export class CodelabQuizContentComponent
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
+    this.subscribeToFormattedExplanationChanges();
     this.setupExplanationTextDisplay();
   }
 
