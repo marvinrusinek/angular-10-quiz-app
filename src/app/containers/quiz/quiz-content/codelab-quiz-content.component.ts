@@ -133,7 +133,7 @@ export class CodelabQuizContentComponent
     this.initializeComponent();
     this.processQuestionData();
     this.subscribeToFormattedExplanationChanges();
-    this.setupExplanationTextDisplay();
+    this.setupCombinedTextObservable();
   }
 
   ngOnChanges(): void {
@@ -411,7 +411,7 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }
 
-  private setupExplanationTextDisplay(): void {    
+  private setupCombinedTextObservable(): void {    
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
       this.previousQuestion$,
