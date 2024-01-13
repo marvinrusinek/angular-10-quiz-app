@@ -136,7 +136,6 @@ export class CodelabQuizContentComponent
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.subscribeToExplanationChanges();
     this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
     this.setupCombinedTextObservable();
@@ -182,19 +181,6 @@ export class CodelabQuizContentComponent
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
     this.setupOptions();
-  }
-  
-  private subscribeToExplanationChanges(): void {
-    this.selectedOptionSubscription =
-      this.selectedOptionService.selectedOptionExplanation$.subscribe(
-        (explanationText) => {
-          if (explanationText) {
-            this.explanationText = explanationText;
-          } else {
-            this.explanationText = 'No explanation available.';
-          }
-        }
-      );
   }
 
   private subscribeToFormattedExplanationChanges(): void {
