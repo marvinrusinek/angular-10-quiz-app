@@ -28,7 +28,6 @@ import {
   tap,
   withLatestFrom
 } from 'rxjs/operators';
-import { isEqual } from 'lodash';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -351,7 +350,7 @@ export class CodelabQuizContentComponent
     const { currentQuestion, currentOptions } = currentQuestionData;
   
     const questionText = currentQuestion
-      ? this.getQuestionText(currentQuestion, this.questions)
+      ? this.quizService.getQuestionText(currentQuestion, this.questions)
       : '';
   
     let correctAnswersText = '';
@@ -399,20 +398,6 @@ export class CodelabQuizContentComponent
       return of(textToDisplay);
     }
   }
-
-  getQuestionText(
-    currentQuestion: QuizQuestion,
-    questions: QuizQuestion[]
-  ): string {
-    if (currentQuestion && questions && questions.length > 0) {
-      for (let i = 0; i < questions.length; i++) {
-        if (this.areQuestionsEqual(currentQuestion, questions[i])) {
-          return questions[i]?.questionText;
-        }
-      }
-    }
-    return '';
-  }
   
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
     this.shouldDisplayCorrectAnswers = false;
@@ -424,9 +409,5 @@ export class CodelabQuizContentComponent
   
       this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     }
-  }
-
-  areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
-    return isEqual(question1, question2);
   }
 }

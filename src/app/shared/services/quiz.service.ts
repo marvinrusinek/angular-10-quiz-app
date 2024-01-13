@@ -24,7 +24,7 @@ import {
   tap
 } from 'rxjs/operators';
 import { Howl } from 'howler';
-import _ from 'lodash';
+import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
@@ -388,6 +388,20 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
+  getQuestionText(
+    currentQuestion: QuizQuestion,
+    questions: QuizQuestion[]
+  ): string {
+    if (currentQuestion && questions && questions.length > 0) {
+      for (let i = 0; i < questions.length; i++) {
+        if (this.areQuestionsEqual(currentQuestion, questions[i])) {
+          return questions[i]?.questionText;
+        }
+      }
+    }
+    return '';
+  }
+
   getQuestionTextForIndex(index: number): string | undefined {
     const currentQuiz = this.getCurrentQuiz();
     if (
@@ -424,6 +438,10 @@ export class QuizService implements OnDestroy {
       return this.quizData.find((quiz) => quiz.quizId === this.quizId);
     }
     return undefined;
+  }
+
+  areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
+    return isEqual(question1, question2);
   }
 
   addSelectedOption(option: Option) {
