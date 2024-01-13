@@ -180,7 +180,6 @@ export class CodelabQuizContentComponent
     this.initializeNextQuestionSubscription();
     this.initializeExplanationTextSubscription();
     this.initializeCombinedQuestionData();
-    this.setupOptions();
   }
 
   private subscribeToFormattedExplanationChanges(): void {
@@ -194,7 +193,7 @@ export class CodelabQuizContentComponent
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params) => this.fetchQuestionsAndExplanationTexts(params)),
+        switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
       .subscribe(([questions, explanationTexts]) => {
@@ -418,21 +417,6 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }  
 
-  private setupOptions(): void {
-    // Update the options$ initialization using combineLatest
-    this.options$ = combineLatest([
-      this.currentQuestion$,
-      this.currentOptions$
-    ]).pipe(
-      map(([currentQuestion, currentOptions]) => {
-        if (currentQuestion && currentQuestion.options) {
-          return currentQuestion.options;
-        }
-        return [];
-      })
-    );
-  }
-
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
       this.nextQuestion$,
@@ -443,10 +427,8 @@ export class CodelabQuizContentComponent
     ]).pipe(
       switchMap(this.determineTextToDisplay.bind(this)),
       startWith(''),
-      catchError((error) => {
-        // Handle the error here, e.g., log it or return a default value
+      catchError((error: Error) => {
         console.error('Error in combinedText$ observable:', error);
-        return of('Default Text'); // Replace with an appropriate default value
       })
     );
   }  
