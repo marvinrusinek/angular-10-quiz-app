@@ -273,8 +273,6 @@ export class CodelabQuizContentComponent
     this.correctAnswersTextSource.next(correctAnswersText);
   }
   
-  
-  
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     const questions: QuizQuestion[] = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.quizId)
@@ -438,15 +436,6 @@ export class CodelabQuizContentComponent
   
       this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     }
-  }
-
-  calculateNumberOfCorrectAnswers(options: Option[]): number {
-    const safeOptions = options ?? [];
-    const numberOfCorrectAnswers = safeOptions.reduce(
-      (count, option) => count + (option.correct ? 1 : 0),
-      0
-    );
-    return numberOfCorrectAnswers;
   }
 
   getNumberOfCorrectAnswers(data: any): number {
