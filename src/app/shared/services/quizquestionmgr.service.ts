@@ -78,22 +78,6 @@ export class QuizQuestionManagerService {
     return !!this.explanationText;
   }
 
-  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    if (!this.currentQuestion$) {
-      return false;
-    }
-
-    const hasMultipleCorrectAnswers = this.isMultipleCorrectAnswers();
-
-    const displayNumberOfCorrectAnswers =
-      this.shouldDisplayNumberOfCorrectAnswers &&
-      hasMultipleCorrectAnswers &&
-      !this.isOptionSelected &&
-      !this.shouldDisplayExplanationText();
-
-    return displayNumberOfCorrectAnswers && !this.shouldDisplayExplanation;
-  }
-
   isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
     if (!currentQuestionValue) {

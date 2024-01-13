@@ -438,10 +438,6 @@ export class CodelabQuizContentComponent
     }
   }
 
-  shouldDisplayNumberOfCorrectAnswersCount(): boolean {
-    return this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswersCount();
-  }
-
   areQuestionsEqual(question1: QuizQuestion, question2: QuizQuestion): boolean {
     return isEqual(question1, question2);
   }
