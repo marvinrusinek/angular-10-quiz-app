@@ -2,9 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  OnInit,
   OnChanges,
-  OnDestroy
+  OnDestroy,
+  OnInit
 } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import {
@@ -121,9 +121,6 @@ export class CodelabQuizContentComponent
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.formattedExplanation$ = this.explanationTextService
-      .formattedExplanation$ as BehaviorSubject<string>;
   }
 
   ngOnInit(): void {
