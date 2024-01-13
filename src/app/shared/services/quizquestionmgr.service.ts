@@ -30,21 +30,12 @@ export class QuizQuestionManagerService {
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
-  
-    // Check if currentQuestionValue is defined and has options
     const currentQuestionValue = this.currentQuestion$.getValue();
-    if (currentQuestionValue && currentQuestionValue.options) {
-      this.numberOfCorrectAnswers = currentQuestionValue.options.filter(
-        (option) => option.correct
-      ).length;
-      this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
-    } else {
-      console.error("currentQuestionValue is undefined or options are missing.");
-      this.numberOfCorrectAnswers = 0;
-      this.shouldDisplayNumberOfCorrectAnswers = false;
-    }
+    /* this.numberOfCorrectAnswers = currentQuestionValue.options.filter(
+      (option) => option.correct
+    ).length; */
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
-  
 
   setExplanationText(explanation: string): void {
     this.explanationTextSubject.next(explanation);
