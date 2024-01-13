@@ -76,10 +76,6 @@ export class CodelabQuizContentComponent
   nextQuestion$: Observable<QuizQuestion | null>;
   previousQuestion$: Observable<QuizQuestion | null>;
 
-  questionsWithExplanations: {
-    question: QuizQuestion;
-    explanation: string;
-  }[] = [];
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
     new BehaviorSubject<string>('0');
@@ -199,8 +195,6 @@ export class CodelabQuizContentComponent
           return;
         }
   
-        this.storeExplanationTexts(explanationTexts);
-        this.collectQuestionsWithExplanations(questions);
         this.initializeCurrentQuestionIndex();
         this.setQuestions(questions);
         this.subscribeToCurrentQuestion();
@@ -219,17 +213,6 @@ export class CodelabQuizContentComponent
     } else {
       return of([null, []]);
     }
-  }
-  
-  private storeExplanationTexts(explanationTexts: Record<number, BehaviorSubject<string>>): void {
-    this.explanationTextService.explanationTexts = explanationTexts;
-  }
-  
-  private collectQuestionsWithExplanations(questions: QuizQuestion[]): void {
-    this.questionsWithExplanations = questions.map((question) => ({
-      question,
-      explanation: question.explanation || ''
-    }));
   }
   
   private initializeCurrentQuestionIndex(): void {
