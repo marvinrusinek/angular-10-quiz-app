@@ -70,7 +70,7 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers;
   }
 
-  /* isMultipleCorrectAnswers(): boolean {
+  isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
     if (!currentQuestionValue) {
       return false;
@@ -79,9 +79,9 @@ export class QuizQuestionManagerService {
       (option) => option.correct
     ).length;
     return numberOfCorrectAnswers > 1;
-  } */
+  }
 
-  isMultipleCorrectAnswers(): boolean {
+  /* isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
     if (!currentQuestionValue || !currentQuestionValue.options) {
       return false;
@@ -89,5 +89,5 @@ export class QuizQuestionManagerService {
   
     const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(currentQuestionValue.options);
     return numberOfCorrectAnswers > 1;
-  }  
+  } */
 }
