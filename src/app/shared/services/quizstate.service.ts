@@ -71,6 +71,7 @@ export class QuizStateService {
           .filter(option => option.correct)
           .length;
         const hasMultipleAnswers = correctAnswersCount > 1;
+        console.log("HASMULTI", hasMultipleAnswers);
         return of(hasMultipleAnswers);
       } else {
         correctAnswersCount = 0;

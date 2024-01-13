@@ -166,14 +166,33 @@ export class CodelabQuizContentComponent
   processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(async (combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
-      this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
-      
-      await this.shouldDisplayCorrectAnswersText(combinedData);
+    ).subscribe((combinedData: ExtendedQuestionData) => {
+      console.log('Current question data:', combinedData.currentQuestion);
+  
+      if (combinedData.currentQuestion && combinedData.currentQuestion.options) {
+        combinedData.currentQuestion.options.forEach((option, index) => {
+          console.log(`Option ${index + 1}:`, option.text, 'Correct:', option.correct);
+        });
+  
+        const correctAnswersCount = combinedData.currentQuestion.options.filter(option => option.correct).length;
+        console.log('Correct answers count for current question:', correctAnswersCount);
+  
+        this.shouldDisplayCorrectAnswers = correctAnswersCount > 1;
+        this.correctAnswersText = this.shouldDisplayCorrectAnswers ? `Correct Answers: ${correctAnswersCount}` : '';
+      }
     });
-  }  
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+   
 
   private initializeComponent(): void {
     this.initializeQuestionData();
@@ -525,9 +544,15 @@ export class CodelabQuizContentComponent
       const currentQuestionHasMultipleAnswers = await firstValueFrom(
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
       );
+  
+      console.log("Multiple Answers?", currentQuestionHasMultipleAnswers);
+      console.log("Current Question", data.currentQuestion);
+  
       this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     }
   }
+  
+  
   
 
   /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<boolean> {
