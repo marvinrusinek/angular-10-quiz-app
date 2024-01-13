@@ -328,9 +328,9 @@ export class CodelabQuizContentComponent
   }
   
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
-    const questions: QuizQuestion[] = await this.quizDataService
-      .getQuestionsForQuiz(this.quizId)
-      .toPromise();
+    const questions: QuizQuestion[] = await firstValueFrom(
+      this.quizDataService.getQuestionsForQuiz(this.quizId)
+    );
   
     const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
   
@@ -454,7 +454,7 @@ export class CodelabQuizContentComponent
       explanationText: formattedExplanation,
       correctAnswersText: correctAnswersText,
       currentOptions: currentOptions,
-      isNavigatingToPrevious: false,  // or some logic to determine this
+      isNavigatingToPrevious: false,
       formattedExplanation: formattedExplanation
     };
   
