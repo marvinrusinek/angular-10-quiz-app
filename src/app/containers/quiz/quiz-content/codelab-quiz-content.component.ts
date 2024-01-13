@@ -300,7 +300,6 @@ export class CodelabQuizContentComponent
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
-          console.log("QUESTION::", question);
           if (question) {
             await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
           }
@@ -316,11 +315,7 @@ export class CodelabQuizContentComponent
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(question: QuizQuestion): void {
-    console.log("MY OPTS::", question.options);
-
-    // Debugging: Log the options that are considered correct
     const correctOptions = this.quizStateService.currentQuestion.value.options.filter(option => option.correct);
-    console.log('Correct options:', correctOptions);
   
     // Calculate the number of correct answers
     this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
@@ -331,9 +326,6 @@ export class CodelabQuizContentComponent
     const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
       this.numberOfCorrectAnswers
     );
-  
-    // Log the correct answers text
-    console.log('Correct answers text:', correctAnswersText);
   
     // Update the correct answers text source
     this.correctAnswersTextSource.next(correctAnswersText);
