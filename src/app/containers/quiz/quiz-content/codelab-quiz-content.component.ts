@@ -436,26 +436,9 @@ export class CodelabQuizContentComponent
         this.quizStateService.isMultipleAnswer(data.currentQuestion)
       );
   
-      console.log("Multiple Answers?", currentQuestionHasMultipleAnswers);
-      console.log("Current Question", data.currentQuestion);
-  
       this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
     }
   }
-  
-  
-  
-
-  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<boolean> {
-    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(data.currentOptions);
-  
-    // Determine if it's a multiple-answer question
-    const isMultipleAnswer = numberOfCorrectAnswers > 1;
-
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationTextDisplayed;
-  
-    return this.shouldDisplayCorrectAnswers;
-  } */
 
   calculateNumberOfCorrectAnswers(options: Option[]): number {
     const safeOptions = options ?? [];
