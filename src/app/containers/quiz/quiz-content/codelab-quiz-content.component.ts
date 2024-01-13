@@ -127,14 +127,12 @@ export class CodelabQuizContentComponent
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
-    this.explanationTextService.setShouldDisplayExplanation(false);
   }
 
   ngOnInit(): void {
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
-    this.setupOptions();
     this.setupExplanationTextDisplay();
   }
 
@@ -411,21 +409,6 @@ export class CodelabQuizContentComponent
     };
   
     return of(combinedQuestionData);
-  }  
-
-  private setupOptions(): void {
-    // Update the options$ initialization using combineLatest
-    this.options$ = combineLatest([
-      this.currentQuestion$,
-      this.currentOptions$
-    ]).pipe(
-      map(([currentQuestion, currentOptions]) => {
-        if (currentQuestion && currentQuestion.options) {
-          return currentQuestion.options;
-        }
-        return [];
-      })
-    );
   }
 
   private setupExplanationTextDisplay(): void {    
