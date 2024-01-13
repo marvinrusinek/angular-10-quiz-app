@@ -128,8 +128,6 @@ export class CodelabQuizContentComponent
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
     this.explanationTextService.setShouldDisplayExplanation(false);
-    this.formattedExplanation$ = this.explanationTextService
-      .formattedExplanation$ as BehaviorSubject<string>;
   }
 
   ngOnInit(): void {
