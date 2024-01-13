@@ -76,12 +76,13 @@ export class QuizQuestionManagerService {
 
   isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
-    if (!currentQuestionValue) {
-      return false;
+    if (currentQuestionValue && Array.isArray(currentQuestionValue.options)) {
+      const numberOfCorrectAnswers = currentQuestionValue.options.filter(
+        (option) => option.correct
+      ).length;
+      return numberOfCorrectAnswers > 1;
     }
-    const numberOfCorrectAnswers = currentQuestionValue.options.filter(
-      (option) => option.correct
-    ).length;
-    return numberOfCorrectAnswers > 1;
+  
+    return false;
   }
 }
