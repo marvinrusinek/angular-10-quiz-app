@@ -30,10 +30,6 @@ export class QuizQuestionManagerService {
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
-    const currentQuestionValue = this.currentQuestion$.getValue();
-    /* this.numberOfCorrectAnswers = currentQuestionValue.options.filter(
-      (option) => option.correct
-    ).length; */
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
   }
 
