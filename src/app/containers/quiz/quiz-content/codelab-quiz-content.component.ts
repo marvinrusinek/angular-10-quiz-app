@@ -193,7 +193,7 @@ export class CodelabQuizContentComponent
     });
   } */
 
-  processQuestionData(): void {
+  /* processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
@@ -202,6 +202,17 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
       
       await this.shouldDisplayCorrectAnswersText(combinedData);
+    });
+  } */
+
+  processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+    
+      await this.shouldDisplayCorrectAnswersText(combinedData);
+      console.log('After shouldDisplayCorrectAnswersText call');
     });
   }
 
@@ -451,6 +462,30 @@ export class CodelabQuizContentComponent
     // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
     this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
   }
+
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    // Determine if the current question has multiple answers
+    const currentQuestionHasMultipleAnswers = data && data.currentQuestion
+      ? await firstValueFrom(
+          this.quizStateService.isMultipleAnswer(data.currentQuestion)
+        )
+      : false;
+  
+    // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+  } */
+
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    // Determine if the current question has multiple answers
+    const currentQuestionHasMultipleAnswers = data && data.currentQuestion
+      ? await firstValueFrom(
+          this.quizStateService.isMultipleAnswer(data.currentQuestion)
+        )
+      : false;
+  
+    // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+  } */
 
   /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
     // Determine if the current question has multiple answers
