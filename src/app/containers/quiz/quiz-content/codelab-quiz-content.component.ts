@@ -81,9 +81,7 @@ export class CodelabQuizContentComponent
   shouldDisplayCorrectAnswers$: Observable<boolean>;
 
   currentQuestionSubscription: Subscription;
-  explanationTextSubscription: Subscription;
   nextQuestionSubscription: Subscription;
-  selectedOptionSubscription: Subscription;
   formattedExplanationSubscription: Subscription;
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
@@ -102,8 +100,6 @@ export class CodelabQuizContentComponent
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   isExplanationDisplayed = false;
-  shouldDisplayCorrectAnswersText$: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
   isCurrentQuestionMultipleAnswer: boolean;
@@ -145,9 +141,7 @@ export class CodelabQuizContentComponent
     this.destroy$.next();
     this.destroy$.complete();
     this.currentQuestionSubscription?.unsubscribe();
-    this.explanationTextSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
-    this.selectedOptionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
@@ -384,6 +378,7 @@ export class CodelabQuizContentComponent
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
       if (questionHasMultipleAnswers) {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
+        console.log("CAT", correctAnswersText);
       }
     }
   
@@ -426,14 +421,14 @@ export class CodelabQuizContentComponent
   }
   
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
-    // this.shouldDisplayCorrectAnswers = false;
+    // Determine if the current question has multiple answers
+    const currentQuestionHasMultipleAnswers = data && data.currentQuestion
+      ? await firstValueFrom(
+          this.quizStateService.isMultipleAnswer(data.currentQuestion)
+        )
+      : false;
   
-    if (data && data.currentQuestion) {
-      const currentQuestionHasMultipleAnswers = await firstValueFrom(
-        this.quizStateService.isMultipleAnswer(data.currentQuestion)
-      );
-  
-      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-    }
-  }
+    // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+  }  
 }
