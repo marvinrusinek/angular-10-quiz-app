@@ -353,7 +353,7 @@
         "explanation": "DI simplifies both programming and testing as well as being a popular design pattern"
       },
       {
-        "questionText": "In software development, which of the following statements are true about Dependency Injection (DI)? Select all that apply.",
+        "questionText": "Which of the following statements are true about Dependency Injection (DI)? Select all that apply.",
         "options": [
           { "text": "DI is a technique where a class receives its dependencies from external sources rather than creating them itself.", "correct": true },
           { "text": "DI always leads to significant performance improvements in applications." },
