@@ -171,7 +171,7 @@ export class CodelabQuizContentComponent
       await this.shouldDisplayCorrectAnswersText(combinedData);
       console.log('After shouldDisplayCorrectAnswersText call');
     });
-  }  
+  }
 
   calculateCorrectAnswersText(question: any): string {
     const correctAnswersCount = question.options.filter(option => option.correct).length;
