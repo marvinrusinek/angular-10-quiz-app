@@ -85,8 +85,7 @@ export class CodelabQuizContentComponent
   formattedExplanationSubscription: Subscription;
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
- // correctAnswersText$ = this.correctAnswersTextSource.asObservable();
-  correctAnswersText$ = new BehaviorSubject<string>('');
+  correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   private explanationTextSource = new BehaviorSubject<string>(null);
   explanationText$ = this.explanationTextSource.asObservable();
@@ -165,6 +164,7 @@ export class CodelabQuizContentComponent
       await this.shouldDisplayCorrectAnswersText(combinedData);
     });
   }
+
 
   calculateCorrectAnswersText(question: any): string {
     const correctAnswersCount = question.options.filter(option => option.correct).length;
@@ -402,14 +402,14 @@ export class CodelabQuizContentComponent
   }
 
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
-    if (data && data.currentQuestion) {
-      // Check if the current question is multiple-answer
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswer(data.currentQuestion)
-      );
+    // Determine if the current question has multiple answers
+    const currentQuestionHasMultipleAnswers = data && data.currentQuestion
+      ? await firstValueFrom(
+          this.quizStateService.isMultipleAnswer(data.currentQuestion)
+        )
+      : false;
   
-      // Set shouldDisplayCorrectAnswers to true only for multiple-answer questions
-      this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-    }
-  }  
+    // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+  }   
 }
