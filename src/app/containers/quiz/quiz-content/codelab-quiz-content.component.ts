@@ -147,7 +147,7 @@ export class CodelabQuizContentComponent
     this.explanationTextService.resetStateBetweenQuestions();
   }
 
-  processQuestionData(): void {
+  /* processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
@@ -171,7 +171,19 @@ export class CodelabQuizContentComponent
       await this.shouldDisplayCorrectAnswersText(combinedData);
       console.log('After shouldDisplayCorrectAnswersText call');
     });
+  } */
+
+  processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+    
+      await this.shouldDisplayCorrectAnswersText(combinedData);
+      console.log('After shouldDisplayCorrectAnswersText call');
+    });
   }
+  
 
   calculateCorrectAnswersText(question: any): string {
     const correctAnswersCount = question.options.filter(option => option.correct).length;
