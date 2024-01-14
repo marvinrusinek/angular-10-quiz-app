@@ -146,50 +146,6 @@ export class CodelabQuizContentComponent
     this.explanationTextService.resetStateBetweenQuestions();
   }
 
-  /* processQuestionData(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async (combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
-      this.shouldDisplayCorrectAnswers = combinedData.isMultipleAnswer;
-      
-      await this.shouldDisplayCorrectAnswersText(combinedData);
-    });
-  } */
-
-  /* processQuestionData(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async (combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
-  
-      // Update shouldDisplayCorrectAnswers based on whether the current question is multiple-answer
-      this.shouldDisplayCorrectAnswers = this.isCurrentQuestionMultipleAnswer;
-      
-      await this.shouldDisplayCorrectAnswersText(combinedData);
-    });
-  } */
-
-  /* processQuestionData(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async (combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
-  
-      // Update shouldDisplayCorrectAnswers only for multiple-answer questions
-      if (this.isCurrentQuestionMultipleAnswer) {
-        this.shouldDisplayCorrectAnswers = true;
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
-      
-      await this.shouldDisplayCorrectAnswersText(combinedData);
-    });
-  } */
-
   processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
