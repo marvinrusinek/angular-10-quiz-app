@@ -353,6 +353,16 @@
         "explanation": "DI simplifies both programming and testing as well as being a popular design pattern"
       },
       {
+        "questionText": "In software development, which of the following statements are true about Dependency Injection (DI)? Select all that apply.",
+        "options": [
+          { "text": "DI is a technique where a class receives its dependencies from external sources rather than creating them itself.", "correct": true },
+          { "text": "DI always leads to significant performance improvements in applications." },
+          { "text": "DI helps in reducing the coupling between classes, making the code more modular.", "correct": true },
+          { "text": "DI is only applicable for high-level modules and cannot be used with low-level modules." }
+        ],
+        "explanation": "DI involves a class receiving dependencies from external sources and reduces coupling between classes, enhancing modularity."
+      },
+      {
         "questionText": "In which of the following does dependency injection occur?",
         "options": [
           { "text": "@Injectable()" },
