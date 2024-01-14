@@ -217,7 +217,8 @@ export class CodelabQuizContentComponent
   
       if (this.isCurrentQuestionMultipleAnswer) {
         this.shouldDisplayCorrectAnswers = true;
-        this.correctAnswersText = this.calculateCorrectAnswersText(combinedData.currentQuestion);
+        const correctAnswersCount = combinedData.currentQuestion.options.filter(option => option.correct).length;
+        this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(correctAnswersCount);
       } else {
         this.shouldDisplayCorrectAnswers = false;
         this.correctAnswersText = ''; // Clear the text for non-multiple-answer questions
