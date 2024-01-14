@@ -351,60 +351,24 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }  
 
-  /* processQuestionData(): void {
+  processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
       console.log('Data from combinedQuestionData$:', combinedData);
   
-      // Determine if the current question is a multiple-answer question
-      const isMultipleAnswerQuestion = combinedData && combinedData.currentQuestion
-        ? await firstValueFrom(this.quizStateService.isMultipleAnswer(combinedData.currentQuestion))
-        : false;
+      if (combinedData && combinedData.currentQuestion) {
+        // Check if the current question is multiple-answer
+        const isMultipleAnswer = await firstValueFrom(
+          this.quizStateService.isMultipleAnswer(combinedData.currentQuestion)
+        );
   
-      this.shouldDisplayCorrectAnswers = isMultipleAnswerQuestion;
-  
-      if (this.shouldDisplayCorrectAnswers) {
-        // Calculate the number of correct answers for multiple-answer questions
-        const correctAnswersCount = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(combinedData.currentQuestion.options);
-        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(correctAnswersCount);
-        // Update the observable or state to display the number of correct answers
-        this.correctAnswersTextSource.next(correctAnswersText);
-      } else {
-        // Reset for single-answer questions
-        this.correctAnswersTextSource.next('');
-      }
-    });
-  } */
-  
-  processQuestionData(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async (combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
-  
-      // Update shouldDisplayCorrectAnswers only for multiple-answer questions
-      if (this.isCurrentQuestionMultipleAnswer) {
-        this.shouldDisplayCorrectAnswers = true;
+        // Set shouldDisplayCorrectAnswers based on whether the current question is multiple-answer
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
       } else {
         this.shouldDisplayCorrectAnswers = false;
       }
-      
-      await this.shouldDisplayCorrectAnswersText(combinedData);
     });
-  }
-
-  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
-    if (data && data.currentQuestion) {
-      // Check if the current question is multiple-answer
-      const isMultipleAnswer = await firstValueFrom(
-        this.quizStateService.isMultipleAnswer(data.currentQuestion)
-      );
-  
-      // Set shouldDisplayCorrectAnswers to true only for multiple-answer questions
-      this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-    }
   }
 
   private setupCombinedTextObservable(): void {
