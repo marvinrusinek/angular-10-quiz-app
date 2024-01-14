@@ -402,14 +402,14 @@ export class CodelabQuizContentComponent
   }
 
   async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
-    // this.shouldDisplayCorrectAnswers = false;
+    // Determine if the current question has multiple answers
+    const currentQuestionHasMultipleAnswers = data && data.currentQuestion
+      ? await firstValueFrom(
+          this.quizStateService.isMultipleAnswer(data.currentQuestion)
+        )
+      : false;
   
-    if (data && data.currentQuestion) {
-      const currentQuestionHasMultipleAnswers = await firstValueFrom(
-        this.quizStateService.isMultipleAnswer(data.currentQuestion)
-      );
-  
-      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-    }
+    // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
   }
 }
