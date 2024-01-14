@@ -195,7 +195,10 @@ export class CodelabQuizContentComponent
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
       console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
+  
+      // Log to check if the question is identified as multiple-answer
+      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer ?? false;
+      console.log('Is current question multiple-answer:', this.isCurrentQuestionMultipleAnswer);
   
       // Update shouldDisplayCorrectAnswers only for multiple-answer questions
       if (this.isCurrentQuestionMultipleAnswer) {
@@ -203,10 +206,15 @@ export class CodelabQuizContentComponent
       } else {
         this.shouldDisplayCorrectAnswers = false;
       }
-      
+  
+      // Log the status of shouldDisplayCorrectAnswers
+      console.log('Should display correct answers:', this.shouldDisplayCorrectAnswers);
+  
+      // Await and log the result of shouldDisplayCorrectAnswersText
       await this.shouldDisplayCorrectAnswersText(combinedData);
+      console.log('After shouldDisplayCorrectAnswersText call');
     });
-  }
+  }  
 
   calculateCorrectAnswersText(question: any): string {
     const correctAnswersCount = question.options.filter(option => option.correct).length;
