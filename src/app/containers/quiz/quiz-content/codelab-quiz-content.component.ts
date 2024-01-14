@@ -195,8 +195,7 @@ export class CodelabQuizContentComponent
       await this.shouldDisplayCorrectAnswersText(combinedData);
     });
   }
-  
-  
+    
   private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
