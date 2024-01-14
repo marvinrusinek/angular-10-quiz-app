@@ -358,15 +358,26 @@ export class CodelabQuizContentComponent
     ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
       console.log('Data from combinedQuestionData$:', combinedData);
   
-      // Check if the current question is a multiple-answer question
+      // Determine if the current question is a multiple-answer question
       const isMultipleAnswerQuestion = combinedData && combinedData.currentQuestion
         ? await firstValueFrom(this.quizStateService.isMultipleAnswer(combinedData.currentQuestion))
         : false;
   
-      // Set shouldDisplayCorrectAnswers based on whether the current question is multiple-answer
       this.shouldDisplayCorrectAnswers = isMultipleAnswerQuestion;
+  
+      if (this.shouldDisplayCorrectAnswers) {
+        // Calculate the number of correct answers for multiple-answer questions
+        const correctAnswersCount = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(combinedData.currentQuestion.options);
+        const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(correctAnswersCount);
+        // Update the observable or state to display the number of correct answers
+        this.correctAnswersTextSource.next(correctAnswersText);
+      } else {
+        // Reset for single-answer questions
+        this.correctAnswersTextSource.next('');
+      }
     });
   }
+  
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
