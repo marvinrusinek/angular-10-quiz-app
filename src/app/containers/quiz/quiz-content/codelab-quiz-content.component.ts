@@ -190,7 +190,7 @@ export class CodelabQuizContentComponent
     });
   } */
 
-  processQuestionData(): void {
+  /* processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
@@ -206,8 +206,39 @@ export class CodelabQuizContentComponent
       
       await this.shouldDisplayCorrectAnswersText(combinedData);
     });
-  }
+  } */
 
+  /* processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
+  
+      // Set shouldDisplayCorrectAnswers based on whether the question is multiple-answer
+      this.shouldDisplayCorrectAnswers = this.isCurrentQuestionMultipleAnswer;
+  
+      await this.shouldDisplayCorrectAnswersText(combinedData);
+    });
+  } */
+
+  processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
+  
+      // Update shouldDisplayCorrectAnswers only for multiple-answer questions
+      if (this.isCurrentQuestionMultipleAnswer) {
+        // Set the correctAnswersText based on the value from combinedData
+        this.correctAnswersTextSource.next(combinedData.correctAnswersText);
+      } else {
+        // Set it to an empty string for single-answer questions
+        this.correctAnswersTextSource.next('');
+      }
+    });
+  }
     
   private initializeComponent(): void {
     this.initializeQuestionData();
@@ -439,7 +470,7 @@ export class CodelabQuizContentComponent
     }
   }
   
-  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
     // Determine if the current question has multiple answers
     const currentQuestionHasMultipleAnswers = data && data.currentQuestion
       ? await firstValueFrom(
@@ -449,5 +480,40 @@ export class CodelabQuizContentComponent
   
     // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
     this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-  }  
+  } */
+
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    if (data && data.currentQuestion) {
+      const currentQuestionHasMultipleAnswers = await firstValueFrom(
+        this.quizStateService.isMultipleAnswer(data.currentQuestion)
+      );
+  
+      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+    } else {
+      this.shouldDisplayCorrectAnswers = false; // Default to false if there's no current question
+    }
+  } */
+
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    if (data && data.currentQuestion) {
+      const currentQuestionHasMultipleAnswers = await firstValueFrom(
+        this.quizStateService.isMultipleAnswer(data.currentQuestion)
+      );
+  
+      // Set shouldDisplayCorrectAnswers to true only for multiple-answer questions
+      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+    }
+  } */
+
+  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+    if (data && data.currentQuestion) {
+      // Check if the current question is multiple-answer
+      const isMultipleAnswer = await firstValueFrom(
+        this.quizStateService.isMultipleAnswer(data.currentQuestion)
+      );
+  
+      // Set shouldDisplayCorrectAnswers to true only for multiple-answer questions
+      this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+    }
+  } 
 }
