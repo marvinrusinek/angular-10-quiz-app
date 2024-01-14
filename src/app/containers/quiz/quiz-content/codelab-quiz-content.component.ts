@@ -37,7 +37,7 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
-interface ExtendedQuestionData extends CombinedQuestionDataType {
+interface ExtendedQuestionDataType extends CombinedQuestionDataType {
   isMultipleAnswer: boolean;
 }
 
@@ -173,7 +173,7 @@ export class CodelabQuizContentComponent
     });
   } */
 
-  processQuestionData(): void {
+  /* processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
@@ -182,8 +182,15 @@ export class CodelabQuizContentComponent
       await this.shouldDisplayCorrectAnswersText(combinedData);
       console.log('After shouldDisplayCorrectAnswersText call');
     });
-  }
-  
+  } */
+
+  processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
+      await this.shouldDisplayCorrectAnswersText(combinedData);
+    });
+  }  
 
   calculateCorrectAnswersText(question: any): string {
     const correctAnswersCount = question.options.filter(option => option.correct).length;
@@ -420,7 +427,7 @@ export class CodelabQuizContentComponent
     }
   }
   
-  async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+  /* async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
     // Determine if the current question has multiple answers
     const currentQuestionHasMultipleAnswers = data && data.currentQuestion
       ? await firstValueFrom(
@@ -429,6 +436,20 @@ export class CodelabQuizContentComponent
       : false;
   
     // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
-    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-  }  
+    this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers; */
+
+    async shouldDisplayCorrectAnswersText(data: CombinedQuestionDataType): Promise<void> {
+      const currentQuestionHasMultipleAnswers = data && data.currentQuestion
+        ? await firstValueFrom(this.quizStateService.isMultipleAnswer(data.currentQuestion))
+        : false;
+    
+      this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
+    
+      if (this.shouldDisplayCorrectAnswers) {
+        const correctAnswersCount = data.currentQuestion.options.filter(option => option.correct).length;
+        this.correctAnswersText$.next(`Number of correct answers: ${correctAnswersCount}`);
+      } else {
+        this.correctAnswersText$.next('');
+      }
+  }    
 }
