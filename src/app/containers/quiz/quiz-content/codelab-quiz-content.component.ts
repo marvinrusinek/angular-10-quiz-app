@@ -172,7 +172,7 @@ export class CodelabQuizContentComponent
     });
   } */
 
-  processQuestionData(): void {
+  /* processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
@@ -188,7 +188,22 @@ export class CodelabQuizContentComponent
       
       await this.shouldDisplayCorrectAnswersText(combinedData);
     });
+  } */
+
+  processQuestionData(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async (combinedData: ExtendedQuestionData) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
+  
+      // Update shouldDisplayCorrectAnswers only for multiple-answer questions
+      this.shouldDisplayCorrectAnswers = this.isCurrentQuestionMultipleAnswer;
+  
+      await this.shouldDisplayCorrectAnswersText(combinedData);
+    });
   }
+  
     
   private initializeComponent(): void {
     this.initializeQuestionData();
