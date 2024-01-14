@@ -411,5 +411,5 @@ export class CodelabQuizContentComponent
   
     // Set shouldDisplayCorrectAnswers based on whether the current question has multiple answers
     this.shouldDisplayCorrectAnswers = currentQuestionHasMultipleAnswers;
-  }
+  }  
 }
