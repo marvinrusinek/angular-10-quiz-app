@@ -217,8 +217,7 @@ export class CodelabQuizContentComponent
   
       if (this.isCurrentQuestionMultipleAnswer) {
         this.shouldDisplayCorrectAnswers = true;
-        const correctAnswersCount = combinedData.currentQuestion.options.filter(option => option.correct).length;
-        this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(correctAnswersCount);
+        this.correctAnswersText = this.calculateCorrectAnswersText(combinedData.currentQuestion);
       } else {
         this.shouldDisplayCorrectAnswers = false;
         this.correctAnswersText = ''; // Clear the text for non-multiple-answer questions
@@ -230,7 +229,7 @@ export class CodelabQuizContentComponent
     const correctAnswersCount = question.options.filter(option => option.correct).length;
     return `Number of correct answers: ${correctAnswersCount}`;
   }
-
+      
   private initializeComponent(): void {
     this.initializeQuestionData();
     this.initializeCombinedQuestionData();
