@@ -69,20 +69,6 @@ export class QuizQuestionManagerService {
     );
     return numberOfCorrectAnswers;
   }
-
-  /* isMultipleCorrectAnswers(): boolean {
-    const currentQuestionValue = this.currentQuestion$.getValue();
-    return !!currentQuestionValue && this.calculateNumberOfCorrectAnswers(currentQuestionValue.options) > 1;
-  } */
-
-  /* isMultipleCorrectAnswers(question: QuizQuestion): boolean {
-    if (!question || !question.options) {
-      return false;
-    }
-    
-    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(question.options);
-    return numberOfCorrectAnswers > 1;
-  } */
   
   isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
@@ -94,14 +80,4 @@ export class QuizQuestionManagerService {
     ).length;
     return numberOfCorrectAnswers > 1;
   }
-
-  /* isMultipleCorrectAnswers(): boolean {
-    const currentQuestionValue = this.currentQuestion$.getValue();
-    if (!currentQuestionValue || !currentQuestionValue.options) {
-      return false;
-    }
-  
-    const numberOfCorrectAnswers = this.calculateNumberOfCorrectAnswers(currentQuestionValue.options);
-    return numberOfCorrectAnswers > 1;
-  } */
 }
