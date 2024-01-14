@@ -198,12 +198,16 @@ export class CodelabQuizContentComponent
       this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
   
       // Update shouldDisplayCorrectAnswers only for multiple-answer questions
-      this.shouldDisplayCorrectAnswers = this.isCurrentQuestionMultipleAnswer;
-  
+      if (this.isCurrentQuestionMultipleAnswer) {
+        this.shouldDisplayCorrectAnswers = true;
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
+      }
+      
       await this.shouldDisplayCorrectAnswersText(combinedData);
     });
   }
-  
+
     
   private initializeComponent(): void {
     this.initializeQuestionData();
