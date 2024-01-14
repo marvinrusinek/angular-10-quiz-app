@@ -190,7 +190,7 @@ export class CodelabQuizContentComponent
     });
   } */
 
-  /* processQuestionData(): void {
+  processQuestionData(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionData) => {
@@ -205,23 +205,6 @@ export class CodelabQuizContentComponent
       }
       
       await this.shouldDisplayCorrectAnswersText(combinedData);
-    });
-  } */
-
-  processQuestionData(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((combinedData: ExtendedQuestionData) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.isCurrentQuestionMultipleAnswer = combinedData.isMultipleAnswer;
-  
-      if (this.isCurrentQuestionMultipleAnswer) {
-        this.shouldDisplayCorrectAnswers = true;
-        this.correctAnswersText = this.calculateCorrectAnswersText(combinedData.currentQuestion);
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-        this.correctAnswersText = ''; // Clear the text for non-multiple-answer questions
-      }
     });
   }
 
