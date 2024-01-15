@@ -91,7 +91,7 @@ export class QuizQuestionManagerService {
       (option) => option.correct
     ).length;
   
-    console.log(`Question ID: ${currentQuestionValue.id}, Number of Correct Answers: ${numberOfCorrectAnswers}`);
+    //console.log(`Question ID: ${currentQuestionValue.id}, Number of Correct Answers: ${numberOfCorrectAnswers}`);
   
     return numberOfCorrectAnswers > 1;
   }  
