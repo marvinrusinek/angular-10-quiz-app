@@ -30,7 +30,7 @@ export class QuizQuestionManagerService {
   setCurrentQuestion(question: QuizQuestion): void {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
-    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers();
+    this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
   }
 
   setExplanationText(explanation: string): void {
@@ -81,17 +81,14 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers > 1;
   } */
 
-  isMultipleCorrectAnswers(): boolean {
-    const currentQuestionValue = this.currentQuestion$.getValue();
-    if (!currentQuestionValue || !Array.isArray(currentQuestionValue.options)) {
+  isMultipleCorrectAnswers(question: QuizQuestion): boolean {
+    if (!question || !Array.isArray(question.options)) {
       return false;
     }
   
-    const numberOfCorrectAnswers = currentQuestionValue.options.filter(
+    const numberOfCorrectAnswers = question.options.filter(
       (option) => option.correct
     ).length;
-  
-    //console.log(`Question ID: ${currentQuestionValue.id}, Number of Correct Answers: ${numberOfCorrectAnswers}`);
   
     return numberOfCorrectAnswers > 1;
   }  
