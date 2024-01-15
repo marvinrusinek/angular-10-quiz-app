@@ -24,7 +24,7 @@ export class QuizStateService {
 
   constructor() {}
 
-  setCurrentQuestion(question$: Observable<QuizQuestion | null>): void {
+  updateCurrentQuizState(question$: Observable<QuizQuestion | null>): void {
     if (question$ === null || question$ === undefined) {
       throwError('Question$ is null or undefined.');
       return;

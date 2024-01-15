@@ -215,7 +215,7 @@ export class CodelabQuizContentComponent
   }
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    this.quizQuestionManagerService.setCurrentQuestion(question);
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers(question);
     await this.fetchAndDisplayExplanationText(question);
   }

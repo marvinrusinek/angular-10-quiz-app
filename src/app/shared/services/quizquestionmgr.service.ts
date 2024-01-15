@@ -27,7 +27,7 @@ export class QuizQuestionManagerService {
     this.selectedOption = option;
   }
 
-  setCurrentQuestion(question: QuizQuestion): void {
+  updateCurrentQuestionDetail(question: QuizQuestion): void {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
