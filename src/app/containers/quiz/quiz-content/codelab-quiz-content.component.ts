@@ -117,6 +117,10 @@ export class CodelabQuizContentComponent
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
+
+    this.quizQuestionManagerService.currentQuestion$.subscribe(question => {
+      this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
+    });
   }
 
   ngOnInit(): void {
