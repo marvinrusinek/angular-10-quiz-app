@@ -70,7 +70,7 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers;
   }
   
-  isMultipleCorrectAnswers(): boolean {
+  /* isMultipleCorrectAnswers(): boolean {
     const currentQuestionValue = this.currentQuestion$.getValue();
     if (!currentQuestionValue) {
       return false;
@@ -79,5 +79,20 @@ export class QuizQuestionManagerService {
       (option) => option.correct
     ).length;
     return numberOfCorrectAnswers > 1;
-  }
+  } */
+
+  isMultipleCorrectAnswers(): boolean {
+    const currentQuestionValue = this.currentQuestion$.getValue();
+    if (!currentQuestionValue || !Array.isArray(currentQuestionValue.options)) {
+      return false;
+    }
+  
+    const numberOfCorrectAnswers = currentQuestionValue.options.filter(
+      (option) => option.correct
+    ).length;
+  
+    console.log(`Question ID: ${currentQuestionValue.id}, Number of Correct Answers: ${numberOfCorrectAnswers}`);
+  
+    return numberOfCorrectAnswers > 1;
+  }  
 }
