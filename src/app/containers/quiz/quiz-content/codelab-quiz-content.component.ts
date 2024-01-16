@@ -122,11 +122,13 @@ export class CodelabQuizContentComponent
 
   ngOnInit(): void {
     this.questionStateSubscription.add(
-      this.quizQuestionManagerService.currentQuestion$.subscribe((question: QuizQuestion) => {
-        if (question) {
-          this.currentQuestion.next(question);
-          this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
-        }
+      this.quizQuestionManagerService.currentQuestion$
+        .subscribe((question: QuizQuestion) => {
+          if (question) {
+            this.currentQuestion.next(question);
+            this.shouldDisplayCorrectAnswers = 
+              this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
+          }
       })
     );
 
