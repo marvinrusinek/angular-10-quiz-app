@@ -83,6 +83,7 @@ export class CodelabQuizContentComponent
   currentQuestionSubscription: Subscription;
   nextQuestionSubscription: Subscription;
   formattedExplanationSubscription: Subscription;
+  private questionStateSubscription: Subscription = new Subscription();
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
@@ -117,16 +118,18 @@ export class CodelabQuizContentComponent
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
-
-    this.quizQuestionManagerService.currentQuestion$.subscribe((question: QuizQuestion) => {
-      if (question) {
-        this.currentQuestion.next(question);
-        this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
-      }
-    });
   }
 
   ngOnInit(): void {
+    this.questionStateSubscription.add(
+      this.quizQuestionManagerService.currentQuestion$.subscribe((question: QuizQuestion) => {
+        if (question) {
+          this.currentQuestion.next(question);
+          this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
+        }
+      })
+    );
+
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
@@ -150,6 +153,7 @@ export class CodelabQuizContentComponent
     this.currentQuestionSubscription?.unsubscribe();
     this.nextQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+    this.questionStateSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
   }
       
