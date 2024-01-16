@@ -119,7 +119,10 @@ export class CodelabQuizContentComponent
     this.previousQuestion$ = this.quizService.previousQuestion$;
 
     this.quizQuestionManagerService.currentQuestion$.subscribe(question => {
-      this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
+      if (question) {
+        this.currentQuestion.next(question);
+        this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
+      }
     });
   }
 
