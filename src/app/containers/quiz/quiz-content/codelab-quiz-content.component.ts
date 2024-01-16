@@ -118,7 +118,7 @@ export class CodelabQuizContentComponent
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
 
-    this.quizQuestionManagerService.currentQuestion$.subscribe(question => {
+    this.quizQuestionManagerService.currentQuestion$.subscribe((question: QuizQuestion) => {
       if (question) {
         this.currentQuestion.next(question);
         this.shouldDisplayCorrectAnswers = this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
