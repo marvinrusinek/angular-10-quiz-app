@@ -127,7 +127,8 @@ export class CodelabQuizContentComponent
           if (question) {
             this.currentQuestion.next(question);
             this.shouldDisplayCorrectAnswers = 
-              this.quizQuestionManagerService.shouldDisplayNumberOfCorrectAnswers;
+              this.quizQuestionManagerService
+                .shouldDisplayNumberOfCorrectAnswers;
           }
       })
     );
