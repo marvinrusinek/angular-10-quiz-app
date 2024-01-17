@@ -214,6 +214,7 @@ export class CodelabQuizContentComponent
     this.questions = questions;
     this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndexValue = index;
+      console.log('Updated current question index value:', this.currentQuestionIndexValue);
     });
   }
   
