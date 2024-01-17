@@ -222,16 +222,10 @@ export class CodelabQuizContentComponent
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
-            console.log('All questions:', this.quizService.questions);
   
-            let currentQuestion;
-            if (Array.isArray(this.quizService.questions[0].questions)) {
-              // Assuming the first element is the quiz object with a questions array
-              currentQuestion = this.quizService.questions[0].questions[this.currentQuestionIndexValue];
-            } else {
-              // Assuming an array of QuizQuestion objects
-              currentQuestion = this.quizService.questions[this.currentQuestionIndexValue];
-            }
+            // Correctly typed as an array of Quiz objects
+            const currentQuiz: Quiz = this.quizService.questions[0]; // Assuming there's only one quiz object
+            const currentQuestion: QuizQuestion = currentQuiz.questions[this.currentQuestionIndexValue];
   
             console.log('Current question from array:', currentQuestion);
   
@@ -241,6 +235,7 @@ export class CodelabQuizContentComponent
       )
       .subscribe();
   }
+  
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     console.log("Received question in processCurrentQuestion:", question);
