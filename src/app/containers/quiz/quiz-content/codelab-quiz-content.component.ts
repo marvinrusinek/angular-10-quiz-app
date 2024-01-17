@@ -396,7 +396,7 @@ export class CodelabQuizContentComponent
         this.shouldDisplayCorrectAnswers = false;
       }
     });
-  }  
+  }
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
