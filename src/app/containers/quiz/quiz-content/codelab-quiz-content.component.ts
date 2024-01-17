@@ -29,7 +29,6 @@ import {
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
-import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -214,7 +213,6 @@ export class CodelabQuizContentComponent
     this.questions = questions;
     this.currentQuestionIndex$.subscribe((index) => {
       this.currentQuestionIndexValue = index;
-      console.log('Updated current question index value:', this.currentQuestionIndexValue);
     });
   }
   
@@ -223,14 +221,11 @@ export class CodelabQuizContentComponent
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
-            console.log('Current question index from QuizService:', this.quizService.currentQuestionIndex);
-  
-            const currentQuiz: Quiz = this.quizService.questions[0];
-            const currentQuestion: QuizQuestion = currentQuiz.questions[this.quizService.currentQuestionIndex];
-  
-            console.log('Current question from array:', currentQuestion);
-  
-            await this.processCurrentQuestion(currentQuestion);
+            console.log('Current question index:', this.currentQuestionIndexValue);
+            console.log('Question from service:', question);
+            console.log('Question from array:', this.quizService.questions[this.currentQuestionIndexValue]);
+
+            await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
           }
         })
       )
