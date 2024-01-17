@@ -244,19 +244,14 @@ export class CodelabQuizContentComponent
   
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    console.log("Received question in processCurrentQuestion:", question);
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers(question);
     await this.fetchAndDisplayExplanationText(question);
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(question: QuizQuestion): void {
-    const correctOptions = this.quizStateService.currentQuestion.value.options.filter(option => option.correct);
-  
     // Calculate the number of correct answers
-    this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
-      this.quizStateService.currentQuestion.value.options
-    );
+    this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(question.options);
   
     // Get the text for the number of correct answers
     const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
@@ -266,8 +261,6 @@ export class CodelabQuizContentComponent
     // Update the correct answers text source
     this.correctAnswersTextSource.next(correctAnswersText);
   }
-  
-  
   
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     const questions: QuizQuestion[] = await firstValueFrom(
@@ -335,7 +328,9 @@ export class CodelabQuizContentComponent
     );
   }
   
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+  private combineCurrentQuestionAndOptions(): 
+    Observable<{ currentQuestion: QuizQuestion | null, 
+                 currentOptions: Option[] }> {
     return this.quizStateService.currentQuestion$.pipe(
       withLatestFrom(this.currentOptions$),
       map(([currentQuestion, currentOptions]) => ({
@@ -364,7 +359,6 @@ export class CodelabQuizContentComponent
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
       if (questionHasMultipleAnswers) {
         correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numberOfCorrectAnswers);
-        console.log("CAT", correctAnswersText);
       }
     }
   
