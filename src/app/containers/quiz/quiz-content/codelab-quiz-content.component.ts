@@ -211,9 +211,12 @@ export class CodelabQuizContentComponent
   
   private setQuestions(questions: QuizQuestion[]): void {
     this.questions = questions;
-    this.currentQuestionIndex$.subscribe((index) => {
-      this.currentQuestionIndexValue = index;
-    });
+    this.quizService.currentQuestionIndex$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index: number) => {
+        this.currentQuestionIndexValue = index;
+        console.log('Current question index updated to:', index);
+      });
   }
   
   private subscribeToCurrentQuestion(): void {
