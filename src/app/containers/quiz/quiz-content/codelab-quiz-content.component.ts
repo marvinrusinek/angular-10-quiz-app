@@ -223,6 +223,7 @@ export class CodelabQuizContentComponent
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
             console.log('Question from service:', question);
+            console.log('All questions in quizService:', this.quizService.questions);
   
             // Assuming each quiz object has its own 'questions' array
             const currentQuiz = this.quizService.questions[quizIndex];
