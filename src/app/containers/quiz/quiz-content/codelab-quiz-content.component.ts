@@ -229,7 +229,7 @@ export class CodelabQuizContentComponent
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
-            await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
+            await this.processCurrentQuestion(question);
           }
         })
       )
