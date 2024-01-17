@@ -223,14 +223,19 @@ export class CodelabQuizContentComponent
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
             console.log('Question from service:', question);
-            console.log('Question from array:', this.quizService.questions[this.currentQuestionIndexValue]);
-
-            await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
+  
+            // Assuming each quiz object has its own 'questions' array
+            const currentQuiz = this.quizService.questions[this.quizService.currentQuestionIndex];
+            const currentQuestion = currentQuiz.questions[this.currentQuestionIndexValue];
+  
+            console.log('Current question from array:', currentQuestion);
+  
+            await this.processCurrentQuestion(currentQuestion);
           }
         })
       )
       .subscribe();
-  }
+  }  
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     console.log("Received question in processCurrentQuestion:", question);
