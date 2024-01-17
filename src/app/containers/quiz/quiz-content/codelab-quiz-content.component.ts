@@ -221,6 +221,10 @@ export class CodelabQuizContentComponent
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
+            console.log('Current question index:', this.currentQuestionIndexValue);
+            console.log('Question from service:', question);
+            console.log('Question from array:', this.quizService.questions[this.currentQuestionIndexValue]);
+
             await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
           }
         })
@@ -229,6 +233,7 @@ export class CodelabQuizContentComponent
   }
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    console.log("Received question in processCurrentQuestion:", question);
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers(question);
     await this.fetchAndDisplayExplanationText(question);
