@@ -414,11 +414,15 @@ export class CodelabQuizContentComponent
     );
   }  
   
-  private determineTextToDisplay([nextQuestion, previousQuestion, nextExplanationText, formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && (!previousQuestion || !previousQuestion.questionText)) {
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, nextExplanationText, 
+     formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && 
+        (!previousQuestion || !previousQuestion.questionText)) {
       return of('');
     } else {
-      const textToDisplay = shouldDisplayExplanation ? this.explanationToDisplay || '' : this.questionToDisplay || '';
+      const textToDisplay = shouldDisplayExplanation ? 
+        this.explanationToDisplay || '' : this.questionToDisplay || '';
       return of(textToDisplay);
     }
   }
