@@ -29,6 +29,7 @@ import {
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
+import { Quiz } from '../../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -223,9 +224,9 @@ export class CodelabQuizContentComponent
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
   
-            // Accessing the current question based on the structure
-            const currentQuiz = this.quizService.questions[0];
-            const currentQuestion = currentQuiz.questions[this.currentQuestionIndexValue];
+            // Correctly typed as an array of Quiz objects
+            const currentQuiz: Quiz = this.quizService.questions[0];
+            const currentQuestion: QuizQuestion = currentQuiz.questions[this.currentQuestionIndexValue];
   
             console.log('Current question from array:', currentQuestion);
   
@@ -234,7 +235,7 @@ export class CodelabQuizContentComponent
         })
       )
       .subscribe();
-  }  
+  }
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     console.log("Received question in processCurrentQuestion:", question);
