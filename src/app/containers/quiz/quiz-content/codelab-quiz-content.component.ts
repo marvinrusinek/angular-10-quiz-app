@@ -267,7 +267,7 @@ export class CodelabQuizContentComponent
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
-      return; // Exit the function or handle the error appropriately
+      return;
     }    
 
     const questions: QuizQuestion[] = await firstValueFrom(
