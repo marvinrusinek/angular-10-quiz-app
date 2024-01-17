@@ -222,11 +222,9 @@ export class CodelabQuizContentComponent
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
-            console.log('Question from service:', question);
-            console.log('All questions in quizService:', this.quizService.questions);
   
-            // Assuming each quiz object has its own 'questions' array
-            const currentQuiz = this.quizService.questions[quizIndex];
+            // Accessing the current question based on the structure
+            const currentQuiz = this.quizService.questions[0];
             const currentQuestion = currentQuiz.questions[this.currentQuestionIndexValue];
   
             console.log('Current question from array:', currentQuestion);
