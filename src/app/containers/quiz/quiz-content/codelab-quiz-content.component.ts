@@ -222,10 +222,20 @@ export class CodelabQuizContentComponent
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
-            console.log('Question from service:', question);
-            console.log('Question from array:', this.quizService.questions[this.currentQuestionIndexValue]);
-
-            await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
+            console.log('All questions:', this.quizService.questions);
+  
+            let currentQuestion;
+            if (Array.isArray(this.quizService.questions[0].questions)) {
+              // Assuming the first element is the quiz object with a questions array
+              currentQuestion = this.quizService.questions[0].questions[this.currentQuestionIndexValue];
+            } else {
+              // Assuming an array of QuizQuestion objects
+              currentQuestion = this.quizService.questions[this.currentQuestionIndexValue];
+            }
+  
+            console.log('Current question from array:', currentQuestion);
+  
+            await this.processCurrentQuestion(currentQuestion);
           }
         })
       )
