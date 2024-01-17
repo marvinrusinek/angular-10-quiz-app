@@ -221,6 +221,7 @@ export class CodelabQuizContentComponent
     this.currentQuestionSubscription = this.quizStateService.currentQuestion$
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
+          console.log('Received question:', question);
           if (question) {
             console.log('Current question index:', this.currentQuestionIndexValue);
   
