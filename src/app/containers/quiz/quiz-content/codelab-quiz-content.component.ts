@@ -265,12 +265,16 @@ export class CodelabQuizContentComponent
   }
   
   private async fetchAndDisplayExplanationText(question: QuizQuestion): Promise<void> {
+    if (!question || !question.questionText) {
+      console.error('Question is undefined or missing questionText');
+      return; // Exit the function or handle the error appropriately
+    }    
+
     const questions: QuizQuestion[] = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.quizId)
     );
   
     const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
-  
     if (questionIndex !== -1 && questionIndex < questions.length - 1) {
       const zeroBasedIndex = questionIndex - 1;
       const nextQuestion = questions[zeroBasedIndex + 1];
