@@ -133,6 +133,13 @@ export class CodelabQuizContentComponent
       })
     );
 
+    this.quizService.getCurrentQuestionIndexObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index: number) => {
+        this.currentQuestionIndexValue = index;
+        console.log('Current question index updated to:', index);
+      });
+
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.processQuestionData();
