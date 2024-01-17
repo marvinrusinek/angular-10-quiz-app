@@ -82,7 +82,10 @@ export class QuizQuestionManagerService {
   } */
 
   isMultipleCorrectAnswers(question: QuizQuestion): boolean {
+    console.log('Processing question:', question);
+  
     if (!question || !Array.isArray(question.options)) {
+      console.log('Question is invalid or has no options array.');
       return false;
     }
   
@@ -90,6 +93,9 @@ export class QuizQuestionManagerService {
       (option) => option.correct
     ).length;
   
-    return numberOfCorrectAnswers > 1;
+    const isMultiple = numberOfCorrectAnswers > 1;
+    console.log(`Number of correct answers: ${numberOfCorrectAnswers}. Is multiple: ${isMultiple}`);
+  
+    return isMultiple;
   }  
 }
