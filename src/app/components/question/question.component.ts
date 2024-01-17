@@ -653,32 +653,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe();
   }
 
-  setQuizQuestion(quizId: string | null | undefined): void {
-    if (!quizId) {
-      console.error('Quiz ID is undefined');
-      return;
-    }
-
-    this.quizId = quizId;
-    const quiz = this.quizService.quizData.find(
-      (q: Quiz) => q.quizId === quizId
-    );
-
-    if (quiz && quiz.questions && quiz.questions.length > 0) {
-      this.quiz = quiz;
-      const question = quiz.questions[this.currentQuestionIndex];
-
-      if (question) {
-        this.currentQuestion = question;
-        this.options = this.currentQuestion.options;
-      } else {
-        console.error('Invalid Question ID');
-      }
-    } else {
-      console.error('Invalid Quiz object');
-    }
-  }
-
   public incrementScore(): void {
     this.quizService.score++;
   }
