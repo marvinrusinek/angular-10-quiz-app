@@ -137,7 +137,6 @@ export class CodelabQuizContentComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((index: number) => {
         this.currentQuestionIndexValue = index;
-        console.log('Current question index updated to:', index);
       });
 
     this.initializeComponent();
