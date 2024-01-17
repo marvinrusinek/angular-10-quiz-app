@@ -222,7 +222,6 @@ export class CodelabQuizContentComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((index: number) => {
         this.currentQuestionIndexValue = index;
-        console.log('Current question index updated to:', index);
       });
   }
   
@@ -231,18 +230,13 @@ export class CodelabQuizContentComponent
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
-            console.log('Current question index:', this.currentQuestionIndexValue);
-            console.log('Question from service:', question);
-            console.log('Question from array:', this.quizService.questions[this.currentQuestionIndexValue]);
-
             await this.processCurrentQuestion(this.quizService.questions[this.currentQuestionIndexValue]);
           }
         })
       )
       .subscribe();
   }
-  
-  
+
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -275,7 +269,6 @@ export class CodelabQuizContentComponent
     );
 
     const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
-
     if (questionIndex !== -1 && questionIndex < questions.length - 1) {
       const nextQuestion = questions[questionIndex + 1];
 
