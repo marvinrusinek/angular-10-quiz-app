@@ -245,13 +245,15 @@ export class CodelabQuizContentComponent
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
-    this.calculateAndDisplayNumberOfCorrectAnswers(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
     await this.fetchAndDisplayExplanationText(question);
   }
   
-  private calculateAndDisplayNumberOfCorrectAnswers(question: QuizQuestion): void {
+  private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
-    this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(question.options);
+    this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+      this.quizStateService.currentQuestion.value.options
+    );
   
     // Get the text for the number of correct answers
     const correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
