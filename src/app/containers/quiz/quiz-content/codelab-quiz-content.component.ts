@@ -268,19 +268,19 @@ export class CodelabQuizContentComponent
     if (!question || !question.questionText) {
       console.error('Question is undefined or missing questionText');
       return;
-    }    
+    }
 
     const questions: QuizQuestion[] = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.quizId)
     );
-  
+
     const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
+
     if (questionIndex !== -1 && questionIndex < questions.length - 1) {
-      const zeroBasedIndex = questionIndex - 1;
-      const nextQuestion = questions[zeroBasedIndex + 1];
-  
+      const nextQuestion = questions[questionIndex + 1];
+
       if (nextQuestion) {
-        this.setExplanationForNextQuestion(zeroBasedIndex + 1, nextQuestion);
+        this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
       } else {
         console.warn('Next question not found in the questions array.');
