@@ -107,11 +107,11 @@ export class ExplanationTextService implements OnDestroy {
 
   getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-
+  
     // Check if the numericIndex key exists in the explanationTexts Record
     if (this.explanationTexts.hasOwnProperty(numericIndex)) {
       const explanationSubject = this.explanationTexts[numericIndex];
-
+  
       if (explanationSubject instanceof BehaviorSubject) {
         return explanationSubject.asObservable();
       } else {
@@ -119,8 +119,10 @@ export class ExplanationTextService implements OnDestroy {
         return of(undefined);
       }
     } else {
-      console.warn(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
-      return of(undefined);
+      console.error(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
+      // Depending on your application's requirements, you might want to throw an error here.
+      // Alternatively, you can return a default explanation or handle it in another way.
+      return of(undefined); // Returning undefined as a fallback.
     }
   }
 
