@@ -1139,8 +1139,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (this.currentQuestionIndex < totalQuestions - 1) {
         this.currentQuestionIndex++;
         this.quizService.currentQuestionIndexSource.next(this.currentQuestionIndex);
-        this.currentQuestion = this.questions[this.currentQuestionIndex];
-        this.loadCurrentQuestionAndExplanation();
+        // this.currentQuestion = this.questions[this.currentQuestionIndex];
+        // this.loadCurrentQuestionAndExplanation();
         await this.fetchAndSetQuestionData(this.currentQuestionIndex);
       } else {
         console.log("Cannot navigate to invalid index.");
