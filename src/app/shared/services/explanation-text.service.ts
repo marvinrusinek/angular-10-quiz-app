@@ -120,9 +120,7 @@ export class ExplanationTextService implements OnDestroy {
       }
     } else {
       console.error(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
-      // Depending on your application's requirements, you might want to throw an error here.
-      // Alternatively, you can return a default explanation or handle it in another way.
-      return of(undefined); // Returning undefined as a fallback.
+      return of(undefined);
     }
   }
 
