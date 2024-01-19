@@ -141,7 +141,7 @@ export class CodelabQuizContentComponent
 
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
-    this.processQuestionData();
+    this.handleQuestionDisplayLogic();
     this.setupCombinedTextObservable();
   }
 
@@ -373,7 +373,7 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }  
 
-  processQuestionData(): void {
+  handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionDataType) => {

@@ -661,7 +661,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
       const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
       if (questionData) {
-        this.processQuestionData(questionData);
+        this.initializeAndPrepareQuestion(questionData);
       } else {
         this.data = null;
       }
@@ -718,7 +718,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
-  private processQuestionData(questionData: CombinedQuestionDataType): void {
+  private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType): void {
     this.data = questionData;
     this.quizService.fetchQuizQuestions();
     this.quizService.setQuestionData(questionData);
