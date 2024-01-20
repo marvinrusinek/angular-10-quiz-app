@@ -129,9 +129,10 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   getExplanationTextForQuestionIndex(index) {
-    console.log(`Accessing explanationTexts at index ${index}:`, this.explanationTexts[index]);
-    console.log(`Full state of explanationTexts just before accessing index ${index}:`, this.explanationTexts);
+    console.log(`Retrieving explanation for index ${index}`);
+
     const explanationObject = this.explanationTexts[index];
+    console.log(`Retrieved object at index ${index}:`, explanationObject);
     
     if (!explanationObject) {
         console.error(`No object found at index ${index}.`);
