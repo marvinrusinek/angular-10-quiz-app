@@ -326,7 +326,7 @@ export class QuizDataService implements OnDestroy {
         .pipe(distinctUntilChanged());
     }
 
-    const quiz$ = this.loadQuizData();
+    const quiz$ = this.fetchQuizDataFromAPI();
     const currentQuestion$ = this.getQuizQuestionByIdAndIndex(
       quiz$, quizId, questionIndex
     ).pipe(
@@ -349,7 +349,7 @@ export class QuizDataService implements OnDestroy {
       .pipe(distinctUntilChanged());
   }
 
-  loadQuizData(): Observable<Quiz[]> {
+  fetchQuizDataFromAPI(): Observable<Quiz[]> {
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       catchError((error: HttpErrorResponse) => {
         console.log('Error:', error);
