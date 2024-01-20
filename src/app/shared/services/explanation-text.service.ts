@@ -134,7 +134,6 @@ export class ExplanationTextService implements OnDestroy {
     }
 
     explanations.forEach((explanation, index) => {
-      // Use the explanation if provided, otherwise set a default explanation
       const text = explanation || "Default explanation for missing data";
       
       // Create a BehaviorSubject for each explanation
