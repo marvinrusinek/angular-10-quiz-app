@@ -17,7 +17,7 @@ export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
-  explanationTexts: Record<number, BehaviorSubject<string>> = {};
+  explanationTexts: Record<number, BehaviorSubject<string>>;
   currentQuestionExplanation: string | null = null;
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -45,6 +45,7 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
 
+    this.explanationTexts = {};
     this.explanationTexts[2] = new BehaviorSubject("Temporary explanation for Q3");
   }
 
@@ -59,30 +60,10 @@ export class ExplanationTextService implements OnDestroy {
 
   initializeExplanations(explanations: string[]): void {
     this.explanationTexts = explanations.reduce((acc, exp, index) => {
-      acc[index] = {
-        explanationText: new BehaviorSubject<string>(exp),
-        formattedExplanation: new BehaviorSubject<string>('')
-      };
+      acc[index] = new BehaviorSubject<string>(exp);
       return acc;
     }, {});
   }
-  
-  updateExplanationForIndex(index: number, explanation: string): void {
-    if (index < 0 || !this.explanationTexts) {
-      console.error('Invalid operation for index:', index);
-      return;
-    }
-
-    // Ensure there is a BehaviorSubject for the specified index
-    if (!this.explanationTexts[index] || 
-        !(this.explanationTexts[index] instanceof BehaviorSubject)
-       ) {
-      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-    } else {
-      // Update the value using next
-      this.explanationTexts[index].next(explanation);
-    }
-  }  
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     // Ensure that index is within the valid range
@@ -225,7 +206,6 @@ export class ExplanationTextService implements OnDestroy {
       // Update the formattedExplanations array
       const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
       this.formattedExplanations[questionIndex] = formattedExplanationObj;
-      this.updateExplanationForIndex(questionIndex, formattedExplanation);
     } else {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
     }
