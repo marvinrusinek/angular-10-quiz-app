@@ -687,6 +687,10 @@ export class QuizComponent implements OnInit, OnDestroy {
   
       if (explanationTextsArray && explanationTextsArray.length > 0) {
         this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
+
+        // Debugging: Test access immediately after initialization
+        const testAccess = this.explanationTextService.getExplanationTextForQuestionIndex(2);
+        console.log('Test access to index 2:', testAccess);
       } else {
         console.log('No explanation texts were fetched dynamically');
       }
