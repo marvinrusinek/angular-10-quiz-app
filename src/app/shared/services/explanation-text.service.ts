@@ -44,6 +44,8 @@ export class ExplanationTextService implements OnDestroy {
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
+
+    this.explanationTexts[2] = new BehaviorSubject("Temporary explanation for Q3");
   }
 
   ngOnDestroy(): void {
