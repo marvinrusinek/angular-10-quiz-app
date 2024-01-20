@@ -171,23 +171,6 @@ export class ExplanationTextService implements OnDestroy {
     return Object.values(this.explanationTexts).map(subject => subject.value);
   }
 
-  // Retrieve explanation for a specific question
-  getExplanationForQuestion(questionId: string | number): string | undefined {
-    return this.explanationTexts[questionId];
-  }
-
-  getFormattedExplanation$(): Observable<string> {
-    return this.formattedExplanation$.asObservable();
-  }
-
-  updateFormattedExplanation(questionIndex: number, formattedExplanation: string): void {
-    // Verify that the index is valid and the array is initialized properly
-    if (this.formattedExplanations$[questionIndex]) {
-      // Update the explanation text based on the provided question index
-      this.formattedExplanations$[questionIndex].next(formattedExplanation);
-    }
-  }
-
   formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {
     // Early return for invalid or non-current question
     if (!this.isQuestionValid(question) || !this.isCurrentQuestion(question)) {
