@@ -71,22 +71,21 @@ export class ExplanationTextService implements OnDestroy {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
-
-    // Ensure that the explanationTexts array is initialized
+  
+    // Ensure that the explanationTexts object is initialized
     if (!this.explanationTexts) {
-      this.explanationTexts = [];
+      this.explanationTexts = {};
     }
-
-    // Ensure that the element at index is initialized and is an instance of BehaviorSubject
-    if (!this.explanationTexts[index] || 
-        !(this.explanationTexts[index] instanceof BehaviorSubject)) {
-      // Initialize the BehaviorSubject if it doesn't exist or is not an instance of BehaviorSubject
+  
+    // Check if there is already a BehaviorSubject at the given index
+    if (!this.explanationTexts[index]) {
+      // Initialize the BehaviorSubject if it doesn't exist
       this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
+    } else {
+      // Update the existing BehaviorSubject with the new explanation
+      this.explanationTexts[index].next(explanation);
     }
-
-    // Update the existing BehaviorSubject with the new explanation
-    this.explanationTexts[index].next(explanation);
-  }
+  }  
 
   /* getExplanationTextForQuestionIndex(index) {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
