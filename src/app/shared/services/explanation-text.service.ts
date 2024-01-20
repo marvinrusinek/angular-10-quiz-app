@@ -113,25 +113,17 @@ export class ExplanationTextService implements OnDestroy {
   getExplanationTextForQuestionIndex(index: number) {
     console.log(`Retrieving explanation for index ${index}`);
 
-    const explanationObject = this.explanationTexts[index];
-    console.log(`Retrieved object at index ${index}:`, explanationObject);
-    
-    if (!explanationObject) {
-        console.error(`No object found at index ${index}.`);
-        return of(undefined);
+    // Check if the key exists in the record
+    if (!(index in this.explanationTexts)) {
+      console.error(`No BehaviorSubject found at index ${index}.`);
+      return of(undefined);
     }
 
-    if (explanationObject instanceof BehaviorSubject) {
-        return explanationObject.asObservable();
-    } else if (typeof explanationObject === 'object') {
-        console.log(`Object at index ${index} is a regular object.`);
-        // Process the regular object based on your application's logic
-        // For example, return a specific property or a transformed version of the object
-        return of(explanationObject); // Replace with actual processing logic
-    } else {
-        console.warn(`Unexpected type at index ${index}.`);
-        return of(undefined); // or handle this case as needed
-    }
+    const explanationObject = this.explanationTexts[index];
+    console.log(`Retrieved BehaviorSubject at index ${index}:`, explanationObject);
+
+    // Since all values are BehaviorSubjects, this check is simplified
+    return explanationObject.asObservable();
   }
 
   initializeExplanationTexts(explanations: string[]): void {
