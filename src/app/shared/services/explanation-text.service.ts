@@ -133,20 +133,12 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
 
-    const hardcodedExplanations = [
-      "Explanation for Q1",
-      "Explanation for Q2",
-      "Explanation for Q3",
-      "Explanation for Q4",
-      "Explanation for Q5"
-  ];
-
-    hardcodedExplanations.forEach((explanation, index) => {
+    explanations.forEach((explanation, index) => {
       const text = explanation || "Default explanation for missing data";
       this.explanationTexts[index] = new BehaviorSubject(text);
     });
 
-    console.log("Final explanation texts (hardcoded):", this.explanationTexts);
+    console.log("Final explanation texts:", this.explanationTexts);
   }
 
   fetchExplanationTexts(): string[] {
