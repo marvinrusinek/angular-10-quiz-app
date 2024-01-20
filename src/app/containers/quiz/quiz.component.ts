@@ -1206,6 +1206,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
+
+      console.log('Fetching data for question index:', questionIndex);
   
       // Check if the question index is valid
       const isValidIndex = await this.isQuestionIndexValid(questionIndex);
@@ -1218,6 +1220,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
       if (questionDetails) {
         const { questionText, options, explanation } = questionDetails;
+        console.log('Fetched question details:', questionDetails);
         // Set question details
         this.currentQuestion = questionDetails;
         this.setQuestionDetails(questionText, options, explanation);

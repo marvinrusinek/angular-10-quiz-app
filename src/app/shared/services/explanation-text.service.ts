@@ -129,6 +129,8 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   getExplanationTextForQuestionIndex(index) {
+    console.log(`Accessing explanationTexts at index ${index}:`, this.explanationTexts[index]);
+    console.log(`Full state of explanationTexts just before accessing index ${index}:`, this.explanationTexts);
     const explanationObject = this.explanationTexts[index];
     
     if (!explanationObject) {
