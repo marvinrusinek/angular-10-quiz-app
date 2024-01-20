@@ -105,7 +105,7 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationTexts[index].next(explanation);
   }
 
-  getExplanationTextForQuestionIndex(index) {
+  /* getExplanationTextForQuestionIndex(index) {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
     console.log('Numeric Index:', numericIndex);
     console.log('Explanation Texts:', this.explanationTexts);
@@ -125,6 +125,33 @@ export class ExplanationTextService implements OnDestroy {
     } else {
         console.warn(`No explanation text found at index ${numericIndex}. Current explanation texts:`, this.explanationTexts);
         return of(undefined);
+    }
+  } */
+
+  getExplanationTextForQuestionIndex(index) {
+    const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
+    console.log('Numeric Index:', numericIndex);
+    console.log('Explanation Texts:', this.explanationTexts);
+
+    const explanationObject = this.explanationTexts[numericIndex];
+
+    if (!explanationObject) {
+        console.error(`No object found at index ${numericIndex}.`);
+        return of(undefined);
+    }
+
+    if (explanationObject instanceof BehaviorSubject) {
+      return explanationObject.asObservable();
+    } else {
+      console.log(`Object at index ${numericIndex} is a regular object.`);
+
+      // Example handling (customize as needed):
+      if (typeof explanationObject === 'object' && explanationObject !== null) {
+        return of(explanationObject); // Replace this with your actual processing logic
+      } else {
+        console.warn('Encountered an unexpected type at index:', numericIndex);
+        return of(undefined);
+      }
     }
   }
 
