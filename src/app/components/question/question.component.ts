@@ -906,25 +906,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  fetchExplanationText(questionIndex: number): Observable<string> {
-    return this.quizService.getTotalQuestions().pipe(
-      switchMap((totalQuestions) => {
-        if (
-          typeof questionIndex !== 'number' ||
-          questionIndex < 0 ||
-          questionIndex >= totalQuestions
-        ) {
-          console.warn(`Invalid question index: ${questionIndex}`);
-          return of('Invalid question index');
-        }
-
-        return this.explanationTextService.getExplanationTextForQuestionIndex(
-          questionIndex
-        );
-      })
-    );
-  }
-
   handleOptionClicked(currentQuestion: QuizQuestion, option: Option): void {
     const isOptionSelected = this.checkOptionSelected(option);
     const index = this.selectedOptions.findIndex((o) => o === option);
