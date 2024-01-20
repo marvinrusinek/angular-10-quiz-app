@@ -190,16 +190,6 @@ export class ExplanationTextService implements OnDestroy {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
-  private isQuestionValid(question: QuizQuestion): boolean {
-    return question && question.questionText && !this.processedQuestions.has(question.questionText);
-  }
-  
-  private getCorrectOptionIndices(question: QuizQuestion): number[] {
-    return question.options
-      .map((option, index) => option.correct ? index + 1 : null)
-      .filter(index => index !== null);
-  }
-
   private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
     if (correctOptionIndices.length > 1) {
       question.type = QuestionType.MultipleAnswer;
@@ -237,7 +227,17 @@ export class ExplanationTextService implements OnDestroy {
     } else {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
     }
-  }  
+  }
+  
+  private isQuestionValid(question: QuizQuestion): boolean {
+    return question && question.questionText && !this.processedQuestions.has(question.questionText);
+  }
+  
+  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    return question.options
+      .map((option, index) => option.correct ? index + 1 : null)
+      .filter(index => index !== null);
+  }
 
   setCurrentQuestionExplanation(explanation: string): void {
     this.currentQuestionExplanation = explanation;
