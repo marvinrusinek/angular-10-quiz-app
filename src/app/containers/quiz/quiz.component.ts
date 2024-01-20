@@ -684,21 +684,24 @@ export class QuizComponent implements OnInit, OnDestroy {
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
       const explanationTextsArray: string[] = this.explanationTextService.fetchExplanationTexts();
-  
+    
       if (explanationTextsArray && explanationTextsArray.length > 0) {
+        console.log('Fetched explanation texts array:', explanationTextsArray);
+  
         this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
-
-        /* this.explanationTextService.getExplanationTextForQuestionIndex(2)
+  
+        // Debugging the state after initialization
+        this.explanationTextService.getExplanationTextForQuestionIndex(2)
           .subscribe(explanationText => {
             console.log('Explanation for question 2:', explanationText);
-          }); */
+          });
       } else {
         console.log('No explanation texts were fetched dynamically');
       }
     } catch (error) {
       console.error('Error fetching explanation texts:', error);
     }
-  }  
+  }
     
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
