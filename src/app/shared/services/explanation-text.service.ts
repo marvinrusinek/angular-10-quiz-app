@@ -105,28 +105,26 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationTexts[index].next(explanation);
   }
 
-  getExplanationTextForQuestionIndex(index: number | string): Observable<string | undefined> {
+  getExplanationTextForQuestionIndex(index) {
     const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-
     console.log('Numeric Index:', numericIndex);
     console.log('Explanation Texts:', this.explanationTexts);
-  
-    // Calculate the length of the explanationTexts object
+
     const explanationTextsKeys = Object.keys(this.explanationTexts);
     const textsLength = explanationTextsKeys.length;
   
     if (isNaN(numericIndex) || numericIndex < 0 || numericIndex >= textsLength) {
-      console.error(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
-      return of(undefined);
+        console.error(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
+        return of(undefined);
     }
-  
+
     const explanationObject = this.explanationTexts[numericIndex];
   
     if (explanationObject instanceof BehaviorSubject) {
-      return explanationObject.asObservable();
+        return explanationObject.asObservable();
     } else {
-      console.warn(`No explanation text found at index ${numericIndex}`);
-      return of(undefined);
+        console.warn(`No explanation text found at index ${numericIndex}. Current explanation texts:`, this.explanationTexts);
+        return of(undefined);
     }
   }
 
