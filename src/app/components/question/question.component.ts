@@ -854,16 +854,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     // Retrieves the current question index and stores it in a variable.
     const questionIndex = this.currentQuestionIndex;
 
-    this.fetchExplanationText(questionIndex).subscribe((explanationText) => {
-      this.explanationText = explanationText;
-    });
-
-    this.explanationTextService.formattedExplanation$.subscribe(
-      (explanationText) => {
-        this.explanationText = explanationText;
-      }
-    );
-
     this.quizStateService.currentQuestion$
       .pipe(take(1))
       .subscribe((currentQuestion: QuizQuestion) => {
