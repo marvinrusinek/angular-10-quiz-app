@@ -133,8 +133,12 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
 
+    this.explanationTexts = {};
+
     explanations.forEach((explanation, index) => {
-      const text = explanation || "Default explanation for missing data";
+      // Validate each explanation; use a default text if it's missing
+      const text = explanation || `Default explanation for question ${index + 1}`;
+
       this.explanationTexts[index] = new BehaviorSubject(text);
     });
 
