@@ -113,7 +113,9 @@ export class ExplanationTextService implements OnDestroy {
   getExplanationTextForQuestionIndex(index: number) {
     console.log(`Retrieving explanation for index ${index}`);
 
-    // Check if the key exists in the record
+    // Log the current state of explanationTexts for debugging
+    console.log(`Current state of explanationTexts:`, this.explanationTexts);
+
     if (!(index in this.explanationTexts)) {
       console.error(`No BehaviorSubject found at index ${index}.`);
       return of(undefined);
@@ -122,7 +124,6 @@ export class ExplanationTextService implements OnDestroy {
     const explanationObject = this.explanationTexts[index];
     console.log(`Retrieved BehaviorSubject at index ${index}:`, explanationObject);
 
-    // Since all values are BehaviorSubjects, this check is simplified
     return explanationObject.asObservable();
   }
 
