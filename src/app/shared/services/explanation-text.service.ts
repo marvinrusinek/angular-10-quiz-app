@@ -128,7 +128,7 @@ export class ExplanationTextService implements OnDestroy {
     }
   } */
 
-  getExplanationTextForQuestionIndex(index) {
+  getExplanationTextForQuestionIndex(index: number) {
     console.log(`Retrieving explanation for index ${index}`);
 
     const explanationObject = this.explanationTexts[index];
@@ -228,7 +228,7 @@ export class ExplanationTextService implements OnDestroy {
       console.error(`No element at index ${questionIndex} in formattedExplanations$`);
     }
   }
-  
+
   private isQuestionValid(question: QuizQuestion): boolean {
     return question && question.questionText && !this.processedQuestions.has(question.questionText);
   }
