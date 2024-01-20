@@ -17,7 +17,7 @@ export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
-  explanationTexts: Record<number, BehaviorSubject<string>>;
+  explanationTexts: Record<number, BehaviorSubject<string>> = {};
   currentQuestionExplanation: string | null = null;
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -128,8 +128,10 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeExplanationTexts(explanations: string[]): void {
-    // Initialize explanationTexts as an empty object
-    this.explanationTexts = {};
+    if (!explanations || explanations.length === 0) {
+      console.error('No explanation texts provided to initialize.');
+      return;
+    }
 
     explanations.forEach((explanation, index) => {
       // Use the explanation if provided, otherwise set a default explanation
