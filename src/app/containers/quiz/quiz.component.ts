@@ -688,10 +688,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (explanationTextsArray && explanationTextsArray.length > 0) {
         this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
 
-        this.explanationTextService.getExplanationTextForQuestionIndex(2)
+        /* this.explanationTextService.getExplanationTextForQuestionIndex(2)
           .subscribe(explanationText => {
             console.log('Explanation for question 2:', explanationText);
-          });
+          }); */
       } else {
         console.log('No explanation texts were fetched dynamically');
       }

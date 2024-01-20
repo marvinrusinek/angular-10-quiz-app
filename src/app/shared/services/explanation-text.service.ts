@@ -141,6 +141,12 @@ export class ExplanationTextService implements OnDestroy {
     explanations.forEach((explanation, index) => {
       const text = explanation || `Default explanation for question ${index + 1}`;
       this.explanationTexts[index] = new BehaviorSubject(text);
+      console.log(`Initialized explanation for index ${index}:`, text);
+    });
+
+    // Testing access right after initialization
+    this.getExplanationTextForQuestionIndex(2).subscribe(text => {
+      console.log('Explanation for question 3:', text);
     });
 
     console.log("Final explanation texts:", this.explanationTexts);
