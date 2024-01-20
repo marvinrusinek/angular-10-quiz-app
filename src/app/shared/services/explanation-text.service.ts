@@ -129,29 +129,23 @@ export class ExplanationTextService implements OnDestroy {
   } */
 
   getExplanationTextForQuestionIndex(index) {
-    const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-    console.log('Numeric Index:', numericIndex);
-    console.log('Explanation Texts:', this.explanationTexts);
-
-    if (numericIndex < 0 || numericIndex >= Object.keys(this.explanationTexts).length) {
-        console.error(`No object found at index ${numericIndex}. Index is out of bounds.`);
-        return of(undefined);
-    }
-
-    const explanationObject = this.explanationTexts[numericIndex];
-
+    const explanationObject = this.explanationTexts[index];
+    
     if (!explanationObject) {
-        console.warn(`No object found at index ${numericIndex}.`);
-        return of(undefined); // or return a default value
+        console.error(`No object found at index ${index}.`);
+        return of(undefined);
     }
 
     if (explanationObject instanceof BehaviorSubject) {
         return explanationObject.asObservable();
-    } else {
-        console.log(`Object at index ${numericIndex} is a regular object.`);
-        // Handle the regular object case here
-        // Process the regular object based on your application logic
+    } else if (typeof explanationObject === 'object') {
+        console.log(`Object at index ${index} is a regular object.`);
+        // Process the regular object based on your application's logic
+        // For example, return a specific property or a transformed version of the object
         return of(explanationObject); // Replace with actual processing logic
+    } else {
+        console.warn(`Unexpected type at index ${index}.`);
+        return of(undefined); // or handle this case as needed
     }
   }
 
