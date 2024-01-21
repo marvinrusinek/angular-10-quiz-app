@@ -5,6 +5,7 @@ import { IntroductionComponent } from '../containers/introduction/introduction.c
 import { QuizComponent } from '../containers/quiz/quiz.component';
 import { QuizSelectionComponent } from '../containers/quiz-selection/quiz-selection.component';
 import { ResultsComponent } from '../containers/results/results.component';
+import { QuizResolverService } from '../shared/services/quiz-resolver.service';
 import { QuizGuard } from './guards/quiz.guard';
 
 const routes: Routes = [
@@ -26,7 +27,8 @@ const routes: Routes = [
   {
     path: 'question/:quizId/:questionIndex',
     component: QuizComponent,
-    pathMatch: 'full'
+    pathMatch: 'full',
+    resolve: { quizData: QuizResolverService }
     // canActivate: [QuizGuard],
     // runGuardsAndResolvers: 'always'
   },
