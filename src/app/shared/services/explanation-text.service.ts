@@ -128,29 +128,15 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   initializeExplanationTexts(explanations: string[]): void {
-    if (!explanations || explanations.length === 0) {
-      console.error('No explanation texts provided to initialize.');
-      return;
-    }
+    this.explanationTexts = {};
 
     explanations.forEach((explanation, index) => {
-      const text = explanation || `Default explanation for question ${index + 1}`;
-      this.explanationTexts[index] = new BehaviorSubject(text);
-      console.log(`Initialized explanation for index ${index}:`, text);
+        const text = explanation || `Default explanation for question ${index + 1}`;
+        this.explanationTexts[index] = new BehaviorSubject(text);
+        console.log(`Initialized explanation for index ${index}:`, text);
     });
-
-    // Testing access right after initialization
-    /* this.getExplanationTextForQuestionIndex(2).subscribe(text => {
-      console.log('Explanation for question 3:', text);
-    });
-
-    console.log("Final explanation texts:", this.explanationTexts); */
 
     console.log("Final explanation texts:", this.explanationTexts);
-  }
-
-  initializeQuizExplanations(quizId: string, explanations: string[]): void {
-    this.explanationTexts[quizId] = explanations.map(explanation => new BehaviorSubject(explanation));
   }
 
   fetchQuizExplanations(quizId: string): string[] {
