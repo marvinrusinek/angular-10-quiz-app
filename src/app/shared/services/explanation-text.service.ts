@@ -162,10 +162,10 @@ export class ExplanationTextService implements OnDestroy {
     // Retrieve the current value of each BehaviorSubject
     return Object.values(this.explanationTexts).map(subject => {
       if (subject instanceof BehaviorSubject) {
-        return subject.value; // Get the current value of the BehaviorSubject
+        return subject.value;
       } else {
         console.error('Error: Encountered a non-BehaviorSubject entry in explanationTexts.');
-        return 'Invalid explanation data'; // Or handle this case as needed
+        return 'Invalid explanation data';
       }
     });
   }
