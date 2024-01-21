@@ -681,7 +681,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
   }
 
-  async fetchAndInitializeExplanationTexts(quizId: string): Promise<void> {
+  async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
       this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
         next: (quizQuestions) => {
@@ -1256,7 +1256,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Fetch the explanation text
     const explanation = await firstValueFrom(
-        this.explanationTextService.getExplanationTextForQuestionIndex(this.currentQuestionIndex)
+        this.explanationTextService.getExplanationTextForQuestionIndex(2)
     );
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
