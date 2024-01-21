@@ -683,14 +683,14 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(quizId: string): Promise<void> {
     try {
-      this.quizDataService.getQuestionsForQuiz(quizId).subscribe({
+      this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
         next: (quizQuestions) => {
           const explanations = quizQuestions.map(question => question.explanation);
           this.explanationTextService.initializeExplanationTexts(explanations);
-          console.log("Initialized explanation texts for quiz:", quizId, this.explanationTextService.explanationTexts);
+          console.log("Initialized explanation texts for quiz:", this.quizId, this.explanationTextService.explanationTexts);
         },
         error: (error) => {
-          console.error(`Error fetching questions for quiz ${quizId}:`, error);
+          console.error(`Error fetching questions for quiz ${this.quizId}:`, error);
         }
       });
     } catch (error) {
