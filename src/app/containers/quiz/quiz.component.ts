@@ -698,8 +698,12 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-      const quizQuestions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.quizId));
-      const explanations = quizQuestions.map(question => question.explanation);
+      if (!this.quizData || this.quizData.length === 0) {
+        console.error('Quiz data is not available.');
+        return;
+      }
+
+      const explanations = this.quizData.map(question => question.explanation);
       this.explanationTextService.initializeExplanationTexts(explanations);
     } catch (error) {
       console.error('Error in fetchAndInitializeExplanationTexts:', error);
