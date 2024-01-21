@@ -681,30 +681,22 @@ export class QuizComponent implements OnInit, OnDestroy {
     return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
   }
 
-  async fetchAndInitializeExplanationTexts(): Promise<void> {
+  async fetchAndInitializeExplanationTexts(quizId: string): Promise<void> {
     try {
-      // Fetching quiz data from QuizService
-      this.quizService.getQuizData().subscribe({
-        next: (quizzes) => {
-          quizzes.forEach(quiz => {
-            const quizId = this.quizId; 
-            const explanations = quiz.questions.map(question => question.explanation);
-  
-            // Initialize explanations for each quiz
-            this.explanationTextService.initializeQuizExplanations(quizId, explanations);
-          });
-  
-          // Optional: Log a message once all quizzes have been initialized
-          console.log("All quizzes' explanations initialized.");
+      this.quizDataService.getQuestionsForQuiz(quizId).subscribe({
+        next: (quizQuestions) => {
+          const explanations = quizQuestions.map(question => question.explanation);
+          this.explanationTextService.initializeExplanationTexts(explanations);
+          console.log("Initialized explanation texts for quiz:", quizId, this.explanationTextService.explanationTexts);
         },
         error: (error) => {
-          console.error('Error fetching quiz data:', error);
+          console.error(`Error fetching questions for quiz ${quizId}:`, error);
         }
-      });      
+      });
     } catch (error) {
       console.error('Error in fetchAndInitializeExplanationTexts:', error);
     }
-  } 
+  }  
   
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
