@@ -691,8 +691,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
         next: (quizQuestions) => {
+          // Map the quiz questions to their explanations
           const explanations = quizQuestions.map(question => question.explanation);
+
+          // Initialize the explanation texts with the mapped explanations
           this.explanationTextService.initializeExplanationTexts(explanations);
+
           console.log("Initialized explanation texts for quiz:", this.quizId, this.explanationTextService.explanationTexts);
         },
         error: (error) => {
@@ -702,8 +706,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndInitializeExplanationTexts:', error);
     }
-  }  
-  
+  }
+ 
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
