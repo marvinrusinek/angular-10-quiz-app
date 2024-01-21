@@ -72,9 +72,6 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
 
-    this.explanationTexts[2] = new BehaviorSubject('Diagnostic explanation for index 2');
-    console.log("Diagnostic explanation texts:", this.explanationTexts);
-  
     // Ensure that the explanationTexts object is initialized
     if (!this.explanationTexts) {
       this.explanationTexts = {};
