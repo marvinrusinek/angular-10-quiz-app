@@ -687,7 +687,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
   }
 
-  async fetchAndInitializeExplanationTexts(): Promise<void> {
+  /* async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
       this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
         next: (quizQuestions) => {
@@ -705,6 +705,40 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.error('Error in fetchAndInitializeExplanationTexts:', error);
+    }
+  } */
+
+  async fetchAndInitializeExplanationTexts(): Promise<void> {
+    try {
+        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+            next: (quizQuestions) => {
+                // Step 1: Log the fetched quiz questions
+                console.log("Fetched quiz questions:", quizQuestions);
+
+                // Extract explanations from the quiz questions
+                const explanations = quizQuestions.map(question => question.explanation);
+                
+                // Initialize the explanation texts
+                this.explanationTextService.initializeExplanationTexts(explanations);
+
+                // Step 2: Manually set an explanation for index 2 (third question) for testing
+                this.explanationTextService.explanationTexts[2] = new BehaviorSubject("Manual explanation for Q3");
+
+                // Optional: Log the initialized explanation texts
+                console.log("Initialized explanation texts for quiz:", this.quizId, this.explanationTextService.explanationTexts);
+
+                // Testing access to the manually set explanation for index 2
+                const explanation = firstValueFrom(
+                    this.explanationTextService.getExplanationTextForQuestionIndex(2)
+                );
+                console.log('Explanation for question 3:', explanation);
+            },
+            error: (error) => {
+                console.error(`Error fetching questions for quiz ${this.quizId}:`, error);
+            }
+        });
+    } catch (error) {
+        console.error('Error in fetchAndInitializeExplanationTexts:', error);
     }
   }
  

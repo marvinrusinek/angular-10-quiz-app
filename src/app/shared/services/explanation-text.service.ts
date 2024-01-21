@@ -17,7 +17,7 @@ export class ExplanationTextService implements OnDestroy {
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
     string | null
   >('');
-  explanationTexts: Record<number, BehaviorSubject<string>> = {};
+  explanationTexts: Record<number, string> = {};
   currentQuestionExplanation: string | null = null;
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -44,9 +44,6 @@ export class ExplanationTextService implements OnDestroy {
   constructor() {
     this.explanationText$.next('');
     this.shouldDisplayExplanationSource.next(false);
-
-    this.explanationTexts = {};
-    this.explanationTexts[2] = new BehaviorSubject("Temporary explanation for Q3");
   }
 
   ngOnDestroy(): void {
@@ -110,26 +107,21 @@ export class ExplanationTextService implements OnDestroy {
     }
   } */
 
-  getExplanationTextForQuestionIndex(index: number): Observable<string> {
-    console.log("Attempting to retrieve explanation for index", index);
-    console.log("Current state of explanationTexts:", this.explanationTexts);
-
-    const explanationObject = this.explanationTexts[index];
-    if (!explanationObject) {
-        console.error(`No BehaviorSubject found at index ${index}.`);
-        return of('Explanation not found.');
+  getExplanationTextForQuestionIndex(index: number): string {
+    const explanation = this.explanationTexts[index];
+    if (explanation === undefined) {
+      console.error(`No explanation found at index ${index}.`);
+      return 'Explanation not found.';
     }
 
-    return explanationObject.asObservable();
+    return explanation;
   }
 
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
 
     explanations.forEach((explanation, index) => {
-      const text = explanation || `Default explanation for question ${index + 1}`;
-      this.explanationTexts[index] = new BehaviorSubject(text);
-      console.log(`Initialized explanation for index ${index}:`, text);
+        this.explanationTexts[index] = explanation;
     });
 
     console.log("Final explanation texts:", this.explanationTexts);
