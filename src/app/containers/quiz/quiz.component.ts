@@ -474,7 +474,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to the resolved data
     this.activatedRoute.data.subscribe(data => {
-      this.quizData = data.quizData;
+      this.quizData = data.quizData; // Ensure that data.quizData is an array
+      this.fetchAndInitializeExplanationTexts();
     });
   }
   
@@ -671,9 +672,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
       this.initializeSelectedQuizData(selectedQuiz);
 
-      // Fetch and initialize explanations before fetching question data
-      await this.fetchAndInitializeExplanationTexts();
-
       // Now that explanations are initialized, fetch question data
       const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
       if (questionData) {
@@ -698,8 +696,10 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-      if (!this.quizData || this.quizData.length === 0) {
-        console.error('Quiz data is not available.');
+      console.log('Quiz data:', this.quizData); // check!
+
+      if (!Array.isArray(this.quizData)) {
+        console.error('Quiz data is not in the expected array format.');
         return;
       }
 
