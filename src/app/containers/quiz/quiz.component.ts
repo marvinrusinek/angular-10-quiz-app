@@ -482,12 +482,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (routeQuestionIndex === 0) {
         this.initializeFirstQuestionText();
       } else {
-        this.updateQuestionDisplay(routeQuestionIndex);
+        this.updateQuestionDisplay(1);
       }
     });
   }
 
   updateQuestionDisplay(questionIndex: number): void {
+    console.log('Total questions available:', this.questions.length);
+
     console.log('Input Question Index:', questionIndex);
     console.log('Questions Array:', this.questions);
 
