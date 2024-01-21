@@ -121,7 +121,8 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationTexts = {};
 
     explanations.forEach((explanation, index) => {
-        this.explanationTexts[index] = explanation;
+      this.explanationTexts[index] = explanation;
+      console.log(`Initialized explanation for index ${index}:`, explanation);
     });
 
     console.log("Final explanation texts:", this.explanationTexts);

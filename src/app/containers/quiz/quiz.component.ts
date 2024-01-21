@@ -717,6 +717,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
           // Extract explanations from the quiz questions
           const explanations = quizQuestions.map(question => question.explanation);
+
+          console.log("Extracted explanations:", explanations);
                 
           // Initialize the explanation texts as simple strings
           this.explanationTextService.initializeExplanationTexts(explanations);
