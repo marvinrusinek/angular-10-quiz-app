@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+
 import { QuizService } from './quiz.service';
 import { ExplanationTextService } from './explanation-text.service';
 
@@ -8,7 +9,10 @@ import { ExplanationTextService } from './explanation-text.service';
   providedIn: 'root'
 })
 export class QuizResolverService implements Resolve<any> {
-  constructor(private quizService: QuizService, private explanationTextService: ExplanationTextService) {}
+  constructor(
+    private quizService: QuizService,
+    private explanationTextService: ExplanationTextService
+  ) {}
 
   async resolve(route: ActivatedRouteSnapshot): Promise<any> {
     const quizId = route.params['quizId'];
