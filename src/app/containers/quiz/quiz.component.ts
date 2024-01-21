@@ -683,29 +683,21 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-        const explanationTextsArray: string[] = this.explanationTextService.fetchExplanationTexts();
-        console.log("Fetched explanation texts array:", explanationTextsArray);
-
-        if (explanationTextsArray && explanationTextsArray.length > 0) {
-            console.log("Explanations array before initialization:", this.explanationTextService.explanationTexts);
-
-            this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
-
-            // Debugging the state after initialization
-            console.log("Initialized explanation texts:", this.explanationTextService.explanationTexts);
-
-            // Test access to index 2
-            this.explanationTextService.getExplanationTextForQuestionIndex(2).subscribe(explanationText => {
-                console.log('Explanation for question 3:', explanationText);
-            });
-        } else {
-            console.log('No explanation texts were fetched dynamically');
-        }
+      // Fetching quiz data from QuizService
+      this.quizService.getQuizData().subscribe(quizzes => {
+        const explanations = quizzes.flatMap(quiz => 
+            quiz.questions.map(question => question.explanation)
+        );
+        this.explanationTextService.initializeExplanationTexts(explanations);
+        console.log("Initialized explanation texts:", this.explanationTextService.explanationTexts);
+    }, error => {
+        console.error('Error fetching quiz data:', error);
+    });
     } catch (error) {
-        console.error('Error fetching explanation texts:', error);
+        console.error('Error in fetchAndInitializeExplanationTexts:', error);
     }
   }
-    
+  
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
