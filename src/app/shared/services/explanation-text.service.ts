@@ -110,19 +110,15 @@ export class ExplanationTextService implements OnDestroy {
     }
   } */
 
-  getExplanationTextForQuestionIndex(index: number) {
-    console.log(`Retrieving explanation for index ${index}`);
-
-    // Log the current state of explanationTexts for debugging
-    console.log(`Current state of explanationTexts:`, this.explanationTexts);
-
-    if (!(index in this.explanationTexts)) {
-      console.error(`No BehaviorSubject found at index ${index}.`);
-      return of(undefined);
-    }
+  getExplanationTextForQuestionIndex(index: number): Observable<string> {
+    console.log("Attempting to retrieve explanation for index", index);
+    console.log("Current state of explanationTexts:", this.explanationTexts);
 
     const explanationObject = this.explanationTexts[index];
-    console.log(`Retrieved BehaviorSubject at index ${index}:`, explanationObject);
+    if (!explanationObject) {
+        console.error(`No BehaviorSubject found at index ${index}.`);
+        return of('Explanation not found.');
+    }
 
     return explanationObject.asObservable();
   }
