@@ -710,38 +710,33 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-        this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
-            next: (quizQuestions) => {
-                // Step 1: Log the fetched quiz questions
-                console.log("Fetched quiz questions:", quizQuestions);
+      this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
+        next: (quizQuestions) => {
+          // Log the fetched quiz questions
+          console.log("Fetched quiz questions:", quizQuestions);
 
-                // Extract explanations from the quiz questions
-                const explanations = quizQuestions.map(question => question.explanation);
+          // Extract explanations from the quiz questions
+          const explanations = quizQuestions.map(question => question.explanation);
                 
-                // Initialize the explanation texts
-                this.explanationTextService.initializeExplanationTexts(explanations);
+          // Initialize the explanation texts as simple strings
+          this.explanationTextService.initializeExplanationTexts(explanations);
 
-                // Step 2: Manually set an explanation for index 2 (third question) for testing
-                this.explanationTextService.explanationTexts[2] = new BehaviorSubject("Manual explanation for Q3");
+          // Log the initialized explanation texts
+          console.log("Initialized explanation texts for quiz:", this.quizId, this.explanationTextService.explanationTexts);
 
-                // Optional: Log the initialized explanation texts
-                console.log("Initialized explanation texts for quiz:", this.quizId, this.explanationTextService.explanationTexts);
-
-                // Testing access to the manually set explanation for index 2
-                const explanation = firstValueFrom(
-                    this.explanationTextService.getExplanationTextForQuestionIndex(2)
-                );
-                console.log('Explanation for question 3:', explanation);
-            },
-            error: (error) => {
-                console.error(`Error fetching questions for quiz ${this.quizId}:`, error);
-            }
-        });
+          // Access the explanation for the third question as a string
+          const explanationForThirdQuestion = this.explanationTextService.getExplanationTextForQuestionIndex(2);
+          console.log('Explanation for question 3:', explanationForThirdQuestion);
+        },
+        error: (error) => {
+          console.error(`Error fetching questions for quiz ${this.quizId}:`, error);
+        }
+      });
     } catch (error) {
         console.error('Error in fetchAndInitializeExplanationTexts:', error);
     }
   }
- 
+
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
     this.quizService.setSelectedQuiz(selectedQuiz);
