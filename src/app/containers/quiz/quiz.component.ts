@@ -1294,9 +1294,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     console.log('Size of explanationTexts:', Object.keys(this.explanationTextService.explanationTexts).length);
 
     // Fetch the explanation text
-    const explanation = await firstValueFrom(
-        this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex)
-    );
+    const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
 
     let question: QuizQuestion = { questionText, options, explanation, type: null };
     this.quizDataService.setQuestionType(question);
