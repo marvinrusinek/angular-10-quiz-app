@@ -459,7 +459,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   subscribeRouterAndInit(): void {
     this.getNextQuestion();
     this.selectionMessage$ = this.selectionMessageService.selectionMessage$;
-  
+
+    // Subscribe to router events
     this.routerSubscription = this.router.events.pipe(
       filter((event: Event) => event instanceof NavigationEnd),
       switchMap(() => {
@@ -469,6 +470,11 @@ export class QuizComponent implements OnInit, OnDestroy {
     ).subscribe((params: ParamMap) => {
       this.questionIndex = +params.get('questionIndex') || 0;
       this.handleParamMap(params);
+    });
+
+    // Subscribe to the resolved data
+    this.activatedRoute.data.subscribe(data => {
+      this.quizData = data.quizData;
     });
   }
   
