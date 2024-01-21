@@ -683,23 +683,24 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchAndInitializeExplanationTexts(): Promise<void> {
     try {
-      const explanationTextsArray: string[] = this.explanationTextService.fetchExplanationTexts();
-    
-      if (explanationTextsArray && explanationTextsArray.length > 0) {
-        console.log('Fetched explanation texts array:', explanationTextsArray);
-  
-        this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
-  
-        // Debugging the state after initialization
-        this.explanationTextService.getExplanationTextForQuestionIndex(2)
-          .subscribe(explanationText => {
-            console.log('Explanation for question 2:', explanationText);
-          });
-      } else {
-        console.log('No explanation texts were fetched dynamically');
-      }
+        const explanationTextsArray: string[] = this.explanationTextService.fetchExplanationTexts();
+        console.log("Fetched explanation texts array:", explanationTextsArray);
+
+        if (explanationTextsArray && explanationTextsArray.length > 0) {
+            this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
+
+            // Debugging the state after initialization
+            console.log("Initialized explanation texts:", this.explanationTextService.explanationTexts);
+
+            // Test access to index 2
+            this.explanationTextService.getExplanationTextForQuestionIndex(2).subscribe(explanationText => {
+                console.log('Explanation for question 3:', explanationText);
+            });
+        } else {
+            console.log('No explanation texts were fetched dynamically');
+        }
     } catch (error) {
-      console.error('Error fetching explanation texts:', error);
+        console.error('Error fetching explanation texts:', error);
     }
   }
     
