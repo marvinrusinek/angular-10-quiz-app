@@ -475,17 +475,21 @@ export class QuizComponent implements OnInit, OnDestroy {
   initializeRouteParams(): void {
     this.activatedRoute.params.subscribe((params) => {
       this.quizId = params['quizId'];
-      const routeQuestionIndex = 
-        +params['questionIndex'] ? 
-          Math.max(+params['questionIndex'], 1) - 1 : 0;
-      
-      if (routeQuestionIndex === 0) {
+
+      // Correctly handle the case where 'questionIndex' might be 0 or undefined
+      const routeQuestionIndex = params['questionIndex'] !== undefined ? +params['questionIndex'] : 0;
+
+      // Adjust for zero-based indexing
+      const adjustedIndex = Math.max(0, routeQuestionIndex - 1);
+
+      if (adjustedIndex === 0) {
         this.initializeFirstQuestionText();
       } else {
-        this.updateQuestionDisplay(1);
+        this.updateQuestionDisplay(adjustedIndex);
       }
     });
   }
+
 
   updateQuestionDisplay(questionIndex: number): void {
     console.log('Total questions available:', this.questions.length);
