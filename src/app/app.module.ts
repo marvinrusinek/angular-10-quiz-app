@@ -47,6 +47,7 @@ import { ResetBackgroundDirective } from './directives/reset-background.directiv
 import { QuizService } from './shared/services/quiz.service';
 import { QuizDataService } from './shared/services/quizdata.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
+import { QuizResolverService } from './shared/services/quiz-resolver.service';
 import { QuizStateService } from './shared/services/quizstate.service';
 import { ExplanationTextService } from './shared/services/explanation-text.service';
 import { SelectedOptionService } from './shared/services/selectedoption.service';
@@ -119,6 +120,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizService,
     QuizDataService,
     QuizQuestionManagerService,
+    QuizResolverService,
     QuizStateService,
     ExplanationTextService,
     SelectedOptionService,
