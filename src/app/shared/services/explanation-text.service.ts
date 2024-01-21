@@ -136,8 +136,6 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
 
-    this.explanationTexts = {};
-
     explanations.forEach((explanation, index) => {
       const text = explanation || `Default explanation for question ${index + 1}`;
       this.explanationTexts[index] = new BehaviorSubject(text);
@@ -145,15 +143,31 @@ export class ExplanationTextService implements OnDestroy {
     });
 
     // Testing access right after initialization
-    this.getExplanationTextForQuestionIndex(2).subscribe(text => {
+    /* this.getExplanationTextForQuestionIndex(2).subscribe(text => {
       console.log('Explanation for question 3:', text);
     });
+
+    console.log("Final explanation texts:", this.explanationTexts); */
 
     console.log("Final explanation texts:", this.explanationTexts);
   }
 
   fetchExplanationTexts(): string[] {
-    return Object.values(this.explanationTexts).map(subject => subject.value);
+    // Check if explanationTexts is initialized and has entries
+    if (!this.explanationTexts || Object.keys(this.explanationTexts).length === 0) {
+      console.warn('Warning: explanationTexts is not initialized or is empty.');
+      return [];
+    }
+
+    // Retrieve the current value of each BehaviorSubject
+    return Object.values(this.explanationTexts).map(subject => {
+      if (subject instanceof BehaviorSubject) {
+        return subject.value; // Get the current value of the BehaviorSubject
+      } else {
+        console.error('Error: Encountered a non-BehaviorSubject entry in explanationTexts.');
+        return 'Invalid explanation data'; // Or handle this case as needed
+      }
+    });
   }
 
   formatExplanationText(question: QuizQuestion, questionIndex: number): Observable<{ questionIndex: number, explanation: string }> {

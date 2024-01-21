@@ -687,6 +687,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         console.log("Fetched explanation texts array:", explanationTextsArray);
 
         if (explanationTextsArray && explanationTextsArray.length > 0) {
+            console.log("Explanations array before initialization:", this.explanationTextService.explanationTexts);
+
             this.explanationTextService.initializeExplanationTexts(explanationTextsArray);
 
             // Debugging the state after initialization
