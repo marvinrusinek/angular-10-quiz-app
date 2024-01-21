@@ -686,11 +686,16 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Fetching quiz data from QuizService
       this.quizService.getQuizData().subscribe({
         next: (quizzes) => {
-          const explanations = quizzes.flatMap(quiz => 
-            quiz.questions.map(question => question.explanation)
-          );
-          this.explanationTextService.initializeExplanationTexts(explanations);
-          console.log("Initialized explanation texts:", this.explanationTextService.explanationTexts);
+          quizzes.forEach(quiz => {
+            const quizId = this.quizId; 
+            const explanations = quiz.questions.map(question => question.explanation);
+  
+            // Initialize explanations for each quiz
+            this.explanationTextService.initializeQuizExplanations(quizId, explanations);
+          });
+  
+          // Optional: Log a message once all quizzes have been initialized
+          console.log("All quizzes' explanations initialized.");
         },
         error: (error) => {
           console.error('Error fetching quiz data:', error);
@@ -699,7 +704,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error in fetchAndInitializeExplanationTexts:', error);
     }
-  }
+  } 
   
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
     this.quizService.setQuizData([selectedQuiz]);
