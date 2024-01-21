@@ -652,33 +652,33 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   async fetchQuizData(): Promise<void> {
     try {
-        const quizId = this.activatedRoute.snapshot.params['quizId'];
-        const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-        const zeroBasedQuestionIndex = questionIndex - 1;
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+      const zeroBasedQuestionIndex = questionIndex - 1;
 
-        const quizData = await this.fetchQuizDataFromService();
+      const quizData = await this.fetchQuizDataFromService();
 
-        const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
-        if (!selectedQuiz) {
-            console.error('Selected quiz not found in quizData.');
-            return;
-        }
-        this.initializeSelectedQuizData(selectedQuiz);
+      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found in quizData.');
+        return;
+      }
+      this.initializeSelectedQuizData(selectedQuiz);
 
-        // Fetch and initialize explanations before fetching question data
-        await this.fetchAndInitializeExplanationTexts();
+      // Fetch and initialize explanations before fetching question data
+      await this.fetchAndInitializeExplanationTexts();
 
-        // Now that explanations are initialized, fetch question data
-        const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-        if (questionData) {
-            this.initializeAndPrepareQuestion(questionData);
-        } else {
-            this.data = null;
-        }
+      // Now that explanations are initialized, fetch question data
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (questionData) {
+        this.initializeAndPrepareQuestion(questionData);
+      } else {
+        this.data = null;
+      }
 
-        this.subscribeToQuestions(quizId, questionIndex);
+      this.subscribeToQuestions(quizId, questionIndex);
     } catch (error) {
-        console.error('Error in fetchQuizData:', error);
+      console.error('Error in fetchQuizData:', error);
     }
   }
   
