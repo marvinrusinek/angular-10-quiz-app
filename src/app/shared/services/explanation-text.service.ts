@@ -72,6 +72,9 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
 
+    this.explanationTexts[2] = new BehaviorSubject('Diagnostic explanation for index 2');
+    console.log("Diagnostic explanation texts:", this.explanationTexts);
+  
     // Ensure that the explanationTexts object is initialized
     if (!this.explanationTexts) {
       this.explanationTexts = {};
@@ -149,6 +152,20 @@ export class ExplanationTextService implements OnDestroy {
     console.log("Final explanation texts:", this.explanationTexts);
   }
 
+  initializeQuizExplanations(quizId: string, explanations: string[]): void {
+    this.explanationTexts[quizId] = explanations.map(explanation => new BehaviorSubject(explanation));
+  }
+
+  fetchQuizExplanations(quizId: string): string[] {
+    const quizExplanations = this.explanationTexts[quizId];
+    if (!quizExplanations) {
+        console.error(`No explanations found for quiz with ID: ${quizId}`);
+        return [];
+    }
+    return quizExplanations.map(subject => subject.value);
+  }
+
+  // remove?
   fetchExplanationTexts(): string[] {
     // Check if explanationTexts is initialized and has entries
     if (!this.explanationTexts || Object.keys(this.explanationTexts).length === 0) {
