@@ -28,7 +28,7 @@ export class QuizResolverService implements Resolve<any> {
   async resolve(route: ActivatedRouteSnapshot): Promise<any> {
     const quizId = route.params['quizId'];
     const quizDataObservable = this.quizService.getQuestionsForQuiz(quizId).pipe(
-      tap(quizData => {
+      tap((quizData: QuizData) => {
         const explanations = quizData.questions.map(question => question.explanation);
         this.explanationTextService.initializeExplanationTexts(explanations);
         console.log('Resolver initialized explanations:', explanations);
