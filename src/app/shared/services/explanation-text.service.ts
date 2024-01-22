@@ -73,29 +73,6 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationTexts[index] = explanation;
   }  
 
-  /* getExplanationTextForQuestionIndex(index) {
-    const numericIndex = typeof index === 'number' ? index : parseInt(index, 10);
-    console.log('Numeric Index:', numericIndex);
-    console.log('Explanation Texts:', this.explanationTexts);
-
-    const explanationTextsKeys = Object.keys(this.explanationTexts);
-    const textsLength = explanationTextsKeys.length;
-  
-    if (isNaN(numericIndex) || numericIndex < 0 || numericIndex >= textsLength) {
-        console.error(`Invalid index: ${numericIndex}. Index not found in explanation texts.`);
-        return of(undefined);
-    }
-
-    const explanationObject = this.explanationTexts[numericIndex];
-  
-    if (explanationObject instanceof BehaviorSubject) {
-        return explanationObject.asObservable();
-    } else {
-        console.warn(`No explanation text found at index ${numericIndex}. Current explanation texts:`, this.explanationTexts);
-        return of(undefined);
-    }
-  } */
-
   getExplanationTextForQuestionIndex(index: number): string {
     const explanation = this.explanationTexts[index];
     if (explanation === undefined) {
