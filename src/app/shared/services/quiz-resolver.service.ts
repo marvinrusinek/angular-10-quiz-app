@@ -26,8 +26,8 @@ export class QuizResolverService implements Resolve<QuizQuestion[]> {
 
     // Ensure that the 'questions' property exists and is an array
     if (!response || !Array.isArray(response.questions)) {
-        console.error('Response is invalid or questions are not available');
-        return [];
+      console.error('Response is invalid or questions are not available');
+      return [];
     }
 
     const questions = response.questions;

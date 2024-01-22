@@ -480,7 +480,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.activatedRoute.data.subscribe(data => {
       this.quizData = data.quizData as QuizData;
       if (this.quizData?.questions) {
-        const explanations = this.quizData.questions.map(question => question.explanation);
+        const explanations = this.quizData?.questions.map(question => question?.explanation);
         this.explanationTextService.initializeExplanationTexts(explanations);
       } else {
         console.error("Quiz data or questions are undefined");
