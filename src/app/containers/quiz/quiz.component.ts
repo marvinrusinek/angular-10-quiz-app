@@ -41,6 +41,7 @@ import {
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizData } from '../../shared/models/QuizData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
@@ -98,7 +99,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   formControl: FormControl;
   quiz: Quiz;
   quiz$: Observable<Quiz>;
-  quizData: QuizQuestion[] = [];
+  quizData: QuizData;
   quizId = '';
   quizName$: Observable<string>;
   quizResources: QuizResource[];
@@ -474,8 +475,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to the resolved data
     this.activatedRoute.data.subscribe(data => {
-      this.quizData = data.quizData; // Ensure that data.quizData is an array
-      this.fetchAndInitializeExplanationTexts();
+      this.quizData = data.quizData;
+      const explanations = this.quizData.questions.map(question => question.explanation);
+      this.explanationTextService.initializeExplanationTexts(explanations);
     });
   }
   
@@ -692,22 +694,6 @@ export class QuizComponent implements OnInit, OnDestroy {
   
   private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
     return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
-  }
-
-  async fetchAndInitializeExplanationTexts(): Promise<void> {
-    try {
-      console.log('Quiz data:', this.quizData); // check!
-
-      if (!Array.isArray(this.quizData)) {
-        console.error('Quiz data is not in the expected array format.');
-        return;
-      }
-
-      const explanations = this.quizData.map(question => question.explanation);
-      this.explanationTextService.initializeExplanationTexts(explanations);
-    } catch (error) {
-      console.error('Error in fetchAndInitializeExplanationTexts:', error);
-    }
   }
 
   private initializeSelectedQuizData(selectedQuiz: Quiz): void {
