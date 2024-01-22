@@ -20,6 +20,8 @@ export class QuizResolverService implements Resolve<QuizQuestion[]> {
     const response = await firstValueFrom(this.quizService.getQuestionsForQuiz(quizId));
     const questions = response.questions;
 
+    console.log("Resolved questions:", questions);
+
     // Initialize explanations
     const explanations = questions.map(question => question.explanation);
     this.explanationTextService.initializeExplanationTexts(explanations);
