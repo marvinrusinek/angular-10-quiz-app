@@ -225,7 +225,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
-    this.subscribeToCurrentQuestionWithOptions();
     this.subscribeToQuestionUpdates();
 
     // Fetch additional quiz data
@@ -608,16 +607,6 @@ export class QuizComponent implements OnInit, OnDestroy {
             )
       )
     );
-  }
-
-  private subscribeToCurrentQuestionWithOptions(): void {
-    this.quizStateService.currentQuestion$
-      .pipe(withLatestFrom(this.quizStateService.currentOptions$))
-      .subscribe(([currentQuestion, correctAnswerOptions]) => {
-        if (currentQuestion && correctAnswerOptions) {
-          this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
-        }
-      });
   }
 
   subscribeToQuestionUpdates(): void {
