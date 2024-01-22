@@ -101,24 +101,10 @@ export class ExplanationTextService implements OnDestroy {
     return of({ questionIndex, explanation: formattedExplanation });
   }
 
-  private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
-    if (!this.formattedExplanations$[questionIndex]) {
-      // Initialize the BehaviorSubject if it doesn't exist at the specified index
-      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
-    }
-  
-    // Access the BehaviorSubject at the specified questionIndex
-    const subjectAtIndex = this.formattedExplanations$[questionIndex];
-  
-    if (subjectAtIndex) {
-      subjectAtIndex.next(formattedExplanation);
-      
-      // Update the formattedExplanations array
-      const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
-      this.formattedExplanations[questionIndex] = formattedExplanationObj;
-    } else {
-      console.error(`No element at index ${questionIndex} in formattedExplanations$`);
-    }
+  private getCorrectOptionIndices(question: QuizQuestion): number[] {
+    return question.options
+      .map((option, index) => option.correct ? index + 1 : null)
+      .filter(index => index !== null);
   }
 
   private formatExplanation(question: QuizQuestion, correctOptionIndices: number[]): string {
@@ -139,14 +125,28 @@ export class ExplanationTextService implements OnDestroy {
     }
   }  
 
+  private syncFormattedExplanationState(questionIndex: number, formattedExplanation: string): void {
+    if (!this.formattedExplanations$[questionIndex]) {
+      // Initialize the BehaviorSubject if it doesn't exist at the specified index
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
+    }
+  
+    // Access the BehaviorSubject at the specified questionIndex
+    const subjectAtIndex = this.formattedExplanations$[questionIndex];
+  
+    if (subjectAtIndex) {
+      subjectAtIndex.next(formattedExplanation);
+      
+      // Update the formattedExplanations array
+      const formattedExplanationObj: FormattedExplanation = { questionIndex, explanation: formattedExplanation };
+      this.formattedExplanations[questionIndex] = formattedExplanationObj;
+    } else {
+      console.error(`No element at index ${questionIndex} in formattedExplanations$`);
+    }
+  }
+
   private isQuestionValid(question: QuizQuestion): boolean {
     return question && question.questionText && !this.processedQuestions.has(question.questionText);
-  }
-  
-  private getCorrectOptionIndices(question: QuizQuestion): number[] {
-    return question.options
-      .map((option, index) => option.correct ? index + 1 : null)
-      .filter(index => index !== null);
   }
 
   setCurrentQuestionExplanation(explanation: string): void {
