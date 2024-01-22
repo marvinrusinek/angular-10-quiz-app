@@ -102,7 +102,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .getQuizById(quizId)
       .pipe(
         catchError((error) => {
-          console.error(`Error fetching quiz: ${error}`);
+          console.error(`Error fetching quiz::::: ${error}`);
           return throwError(error);
         })
       )
