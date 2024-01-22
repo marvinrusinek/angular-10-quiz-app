@@ -218,6 +218,9 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
 
+    // Fetch additional quiz data
+    this.fetchQuizData();
+
     // Initialize quiz-related properties
     this.initializeQuiz();
 
@@ -225,10 +228,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
-    this.subscribeToQuestionUpdates();
-
-    // Fetch additional quiz data
-    this.fetchQuizData();
   }
   
   ngOnDestroy(): void {
@@ -247,6 +246,108 @@ export class QuizComponent implements OnInit, OnDestroy {
       this.currentQuestion = question;
       this.options = question?.options || [];
       this.loadExplanationTextForCurrentQuestion();
+    });
+  }
+
+  async fetchQuizData(): Promise<void> {
+    try {
+      const quizId = this.activatedRoute.snapshot.params['quizId'];
+      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
+      const zeroBasedQuestionIndex = questionIndex - 1;
+
+      const quizData = await this.fetchQuizDataFromService();
+
+      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
+      if (!selectedQuiz) {
+        console.error('Selected quiz not found in quizData.');
+        return;
+      }
+      this.initializeSelectedQuizData(selectedQuiz);
+
+      // Now that explanations are initialized, fetch question data
+      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
+      if (questionData) {
+        this.initializeAndPrepareQuestion(questionData);
+      } else {
+        this.data = null;
+      }
+
+      this.subscribeToQuestions(quizId, questionIndex);
+    } catch (error) {
+      console.error('Error in fetchQuizData:', error);
+    }
+  }
+  
+  private async fetchQuizDataFromService(): Promise<Quiz[]> {
+    return await firstValueFrom(this.quizService.getQuizData());
+  }
+  
+  private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
+    return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
+  }
+
+  private initializeSelectedQuizData(selectedQuiz: Quiz): void {
+    this.quizService.setQuizData([selectedQuiz]);
+    this.quizService.setSelectedQuiz(selectedQuiz);
+  }
+
+  private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
+    try {
+      const rawData = await firstValueFrom(of(this.quizService.getQuestionData(quizId, questionIndex)));
+      const transformedData: QuizQuestion = {
+        questionText: rawData.questionText,
+        options: [],
+        explanation: '',
+        type: QuestionType.SingleAnswer
+      };
+      return transformedData;
+    } catch (error) {
+      console.error('Error fetching question data:', error);
+      throw error;
+    }
+  }
+
+  private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType): void {
+    this.data = questionData;
+    this.quizService.fetchQuizQuestions();
+    this.quizService.setQuestionData(questionData);
+    
+    // Subscribe to the observable to get the actual data
+    this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
+      // Construct currentQuestion inside the subscription
+      const currentQuestion: QuizQuestion = {
+        questionText: this.data.questionText,
+        options: options,
+        explanation: this.explanationTextService.formattedExplanation$.value,
+        type: this.quizDataService.questionType as QuestionType
+      };
+      this.question = currentQuestion;
+  
+      const correctAnswerOptions = currentQuestion.options.filter((option: Option) => option.correct);
+      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+      this.quizService.setCorrectAnswersLoaded(true);
+      this.quizService.correctAnswersLoadedSubject.next(true);
+  
+      console.log('Correct Answer Options:', correctAnswerOptions);
+    });
+  }
+  
+  private subscribeToQuestions(quizId: string, questionIndex: string): void {
+    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
+      const numericIndex = +questionIndex;
+      if (!isNaN(numericIndex)) {
+        this.quizService.setCurrentQuestionIndex(numericIndex);
+      } else {
+        console.error('Invalid questionIndex:', questionIndex);
+        return;
+      }
+  
+      this.quizService.setQuestions(questions);
+      this.quizService.setTotalQuestions(questions.length);
+  
+      if (!this.quizService.questionsLoaded) {
+        this.quizService.updateQuestions(quizId);
+      }
     });
   }
 
@@ -607,128 +708,6 @@ export class QuizComponent implements OnInit, OnDestroy {
             )
       )
     );
-  }
-
-  subscribeToQuestionUpdates(): void {
-    combineLatest([
-      this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
-      this.quizService.previousQuestion$,
-      this.quizService.previousOptions$
-    ])
-    .pipe(
-      map(([nextQuestion, nextOptions, previousQuestion, previousOptions]) => ({
-        question: nextQuestion ?? previousQuestion,
-        options: nextQuestion ? nextOptions : previousOptions
-      })),
-      tap(({ question, options }) => {
-        this.question$ = of(question);
-        this.options$ = of(options);
-      })
-    )
-    .subscribe();
-  }
-
-  async fetchQuizData(): Promise<void> {
-    try {
-      const quizId = this.activatedRoute.snapshot.params['quizId'];
-      const questionIndex = this.activatedRoute.snapshot.params['questionIndex'];
-      const zeroBasedQuestionIndex = questionIndex - 1;
-
-      const quizData = await this.fetchQuizDataFromService();
-
-      const selectedQuiz = this.findSelectedQuiz(quizData, quizId);
-      if (!selectedQuiz) {
-        console.error('Selected quiz not found in quizData.');
-        return;
-      }
-      this.initializeSelectedQuizData(selectedQuiz);
-
-      // Now that explanations are initialized, fetch question data
-      const questionData = await this.fetchQuestionData(quizId, zeroBasedQuestionIndex);
-      if (questionData) {
-        this.initializeAndPrepareQuestion(questionData);
-      } else {
-        this.data = null;
-      }
-
-      this.subscribeToQuestions(quizId, questionIndex);
-    } catch (error) {
-      console.error('Error in fetchQuizData:', error);
-    }
-  }
-  
-  private async fetchQuizDataFromService(): Promise<Quiz[]> {
-    return await firstValueFrom(this.quizService.getQuizData());
-  }
-  
-  private findSelectedQuiz(quizData: Quiz[], quizId: string): Quiz | undefined {
-    return quizData.find((quiz: Quiz) => quiz.quizId === quizId);
-  }
-
-  private initializeSelectedQuizData(selectedQuiz: Quiz): void {
-    this.quizService.setQuizData([selectedQuiz]);
-    this.quizService.setSelectedQuiz(selectedQuiz);
-  }
-
-  private async fetchQuestionData(quizId: string, questionIndex: number): Promise<any> {
-    try {
-      const rawData = await firstValueFrom(of(this.quizService.getQuestionData(quizId, questionIndex)));
-      const transformedData: QuizQuestion = {
-        questionText: rawData.questionText,
-        options: [],
-        explanation: '',
-        type: QuestionType.SingleAnswer
-      };
-      return transformedData;
-    } catch (error) {
-      console.error('Error fetching question data:', error);
-      throw error;
-    }
-  }
-
-  private initializeAndPrepareQuestion(questionData: CombinedQuestionDataType): void {
-    this.data = questionData;
-    this.quizService.fetchQuizQuestions();
-    this.quizService.setQuestionData(questionData);
-    
-    // Subscribe to the observable to get the actual data
-    this.quizStateService.currentOptions$.subscribe((options: Option[]) => {
-      // Construct currentQuestion inside the subscription
-      const currentQuestion: QuizQuestion = {
-        questionText: this.data.questionText,
-        options: options,
-        explanation: this.explanationTextService.formattedExplanation$.value,
-        type: this.quizDataService.questionType as QuestionType
-      };
-      this.question = currentQuestion;
-  
-      const correctAnswerOptions = currentQuestion.options.filter((option: Option) => option.correct);
-      this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
-      this.quizService.setCorrectAnswersLoaded(true);
-      this.quizService.correctAnswersLoadedSubject.next(true);
-  
-      console.log('Correct Answer Options:', correctAnswerOptions);
-    });
-  }
-  
-  private subscribeToQuestions(quizId: string, questionIndex: string): void {
-    this.quizDataService.getQuestionsForQuiz(quizId).subscribe((questions) => {
-      const numericIndex = +questionIndex;
-      if (!isNaN(numericIndex)) {
-        this.quizService.setCurrentQuestionIndex(numericIndex);
-      } else {
-        console.error('Invalid questionIndex:', questionIndex);
-        return;
-      }
-  
-      this.quizService.setQuestions(questions);
-      this.quizService.setTotalQuestions(questions.length);
-  
-      if (!this.quizService.questionsLoaded) {
-        this.quizService.updateQuestions(quizId);
-      }
-    });
   }
 
   handleOptions(options: Option[]): void {
