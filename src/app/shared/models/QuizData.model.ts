@@ -1,6 +1,6 @@
 import { QuizQuestion } from './QuizQuestion.model';
 
-interface QuizData {
+export interface QuizData {
   quizId: string;
   questions: QuizQuestion[];
 }
