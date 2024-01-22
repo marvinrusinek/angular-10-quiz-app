@@ -218,9 +218,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.subscribeRouterAndInit();
     this.initializeRouteParams();
 
-    // Set up observables
-    this.setObservables();
-
     // Initialize quiz-related properties
     this.initializeQuiz();
 
@@ -228,6 +225,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
+    this.subscribeToCurrentQuestionWithOptions();
     this.subscribeToQuestionUpdates();
 
     // Fetch additional quiz data
@@ -523,26 +521,6 @@ export class QuizComponent implements OnInit, OnDestroy {
       console.warn(`Invalid question index: ${questionIndex}. Unable to update the question display.`);
     }
   }
-
-  setObservables(): void {
-    this.initializeCurrentQuestionAndOptionsObservables();
-    this.subscribeToCurrentQuestionWithOptions();
-  }
-  
-  private initializeCurrentQuestionAndOptionsObservables(): void {
-    this.currentQuestion$ = this.quizStateService.currentQuestion$;
-    this.options$ = this.quizStateService.currentOptions$;
-  }
-  
-  private subscribeToCurrentQuestionWithOptions(): void {
-    this.quizStateService.currentQuestion$
-      .pipe(withLatestFrom(this.quizStateService.currentOptions$))
-      .subscribe(([currentQuestion, correctAnswerOptions]) => {
-        if (currentQuestion && correctAnswerOptions) {
-          this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
-        }
-      });
-  }
   
   async getQuestion(): Promise<void> {
     try {
@@ -630,6 +608,16 @@ export class QuizComponent implements OnInit, OnDestroy {
             )
       )
     );
+  }
+
+  private subscribeToCurrentQuestionWithOptions(): void {
+    this.quizStateService.currentQuestion$
+      .pipe(withLatestFrom(this.quizStateService.currentOptions$))
+      .subscribe(([currentQuestion, correctAnswerOptions]) => {
+        if (currentQuestion && correctAnswerOptions) {
+          this.quizService.setCorrectAnswers(currentQuestion, correctAnswerOptions);
+        }
+      });
   }
 
   subscribeToQuestionUpdates(): void {
