@@ -55,13 +55,6 @@ export class ExplanationTextService implements OnDestroy {
     return this.explanationText$.asObservable();
   }
 
-  initializeExplanations(explanations: string[]): void {
-    this.explanationTexts = explanations.reduce((acc, exp, index) => {
-      acc[index] = new BehaviorSubject<string>(exp);
-      return acc;
-    }, {});
-  }
-
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -81,6 +74,13 @@ export class ExplanationTextService implements OnDestroy {
     return explanation;
   }
 
+  initializeExplanations(explanations: string[]): void {
+    this.explanationTexts = explanations.reduce((acc, exp, index) => {
+      acc[index] = new BehaviorSubject<string>(exp);
+      return acc;
+    }, {});
+  }
+  
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
 
@@ -178,10 +178,6 @@ export class ExplanationTextService implements OnDestroy {
     } catch (error) {
       console.error('Error updating explanation text:', error);
     }
-  }
-
-  setPreviousExplanationText(explanationText: string): void {
-    this.previousExplanationTextSource.next(explanationText);
   }
 
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
