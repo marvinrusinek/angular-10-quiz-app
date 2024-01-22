@@ -582,9 +582,13 @@ export class QuizComponent implements OnInit, OnDestroy {
           return;
       }
   
-      this.quizData = quizInfo.questions; // Assign the questions array to this.quizData
-      const explanations = this.quizData.map(question => question.explanation);
-      this.explanationTextService.initializeExplanationTexts(explanations);
+      this.quizData = quizInfo; // Assign the whole QuizData object to this.quizData
+      if (this.quizData.questions) {
+          const explanations = this.quizData.questions.map(question => question.explanation);
+          this.explanationTextService.initializeExplanationTexts(explanations);
+      } else {
+          console.error("Questions are undefined");
+      }
     });
   }
   
