@@ -578,7 +578,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Initialize questions stream
     this.questions$ = this.quizDataService.getQuestionsForQuiz(this.quizId);
 
-    // Initialize next question and options streams
+    // Initialize next question and options streams (utilized in binding to the template)
     const nextQuestion$ = this.quizService.getNextQuestion(this.currentQuestionIndex);
     const nextOptions$ = this.quizService.getNextOptions(this.currentQuestionIndex);
   }
