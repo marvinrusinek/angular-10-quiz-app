@@ -69,19 +69,8 @@ export class ExplanationTextService implements OnDestroy {
       return;
     }
   
-    // Ensure that the explanationTexts object is initialized
-    if (!this.explanationTexts) {
-      this.explanationTexts = {};
-    }
-  
-    // Check if there is already a BehaviorSubject at the given index
-    if (!this.explanationTexts[index]) {
-      // Initialize the BehaviorSubject if it doesn't exist
-      this.explanationTexts[index] = new BehaviorSubject<string>(explanation);
-    } else {
-      // Update the existing BehaviorSubject with the new explanation
-      this.explanationTexts[index].next(explanation);
-    }
+    // Update the explanation at the given index
+    this.explanationTexts[index] = explanation;
   }  
 
   /* getExplanationTextForQuestionIndex(index) {
