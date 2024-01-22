@@ -37,11 +37,6 @@ import {
   withLatestFrom
 } from 'rxjs/operators';
 
-interface QuizData {
-  quizId: string;
-  questions: QuizQuestion[];
-}
-
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -62,6 +57,11 @@ import { HighlightDirective } from '../../directives/highlight.directive';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
+
+interface QuizData {
+  quizId: string;
+  questions: QuizQuestion[];
+}
 
 enum QuizRoutes {
   INTRO = 'intro/',
