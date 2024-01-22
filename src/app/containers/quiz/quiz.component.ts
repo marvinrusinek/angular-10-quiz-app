@@ -576,6 +576,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to the resolved data
     this.activatedRoute.data.subscribe(data => {
+      console.log("Data received from resolver:", data);
       this.quizData = data.quizData as QuizData;
       if (this.quizData?.questions) {
         const explanations = this.quizData?.questions.map(question => question?.explanation);
