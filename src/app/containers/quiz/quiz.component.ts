@@ -479,8 +479,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     // Subscribe to the resolved data
     this.activatedRoute.data.subscribe(data => {
       this.quizData = data.quizData as QuizData;
-      const explanations = this.quizData.questions.map(question => question.explanation);
-      this.explanationTextService.initializeExplanationTexts(explanations);
+      if (this.quizData?.questions) {
+        const explanations = this.quizData.questions.map(question => question.explanation);
+        this.explanationTextService.initializeExplanationTexts(explanations);
+      } else {
+        console.error("Quiz data or questions are undefined");
+      }
     });
   }
   
