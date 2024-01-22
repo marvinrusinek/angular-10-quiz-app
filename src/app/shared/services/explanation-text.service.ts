@@ -184,10 +184,6 @@ export class ExplanationTextService implements OnDestroy {
     this.previousExplanationTextSource.next(explanationText);
   }
 
-  getNextExplanationText(): Observable<string> {
-    return this.nextExplanationText$;
-  }
-
   setIsExplanationTextDisplayed(isDisplayed: boolean): void {
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
