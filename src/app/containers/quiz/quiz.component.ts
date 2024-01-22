@@ -16,7 +16,6 @@ import {
   ParamMap,
   Router
 } from '@angular/router';
-
 import {
   BehaviorSubject,
   combineLatest,
@@ -37,6 +36,11 @@ import {
   tap,
   withLatestFrom
 } from 'rxjs/operators';
+
+interface QuizData {
+  quizId: string;
+  questions: QuizQuestion[];
+}
 
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
@@ -475,8 +479,9 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to the resolved data
     this.activatedRoute.data.subscribe(data => {
-      this.quizData = data.quizData;
-      const explanations = this.quizData.questions.map(question => question.explanation);
+      // Assuming data.quizData is of the structure { quizId: string; questions: QuizQuestion[] }
+      this.quizData = data.quizData.questions; // Assign the questions array to this.quizData
+      const explanations = this.quizData.map(question => question.explanation);
       this.explanationTextService.initializeExplanationTexts(explanations);
     });
   }
