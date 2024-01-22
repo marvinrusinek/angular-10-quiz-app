@@ -45,7 +45,6 @@ interface QuizData {
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
-import { QuizData } from '../../shared/models/QuizData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
@@ -479,9 +478,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
     // Subscribe to the resolved data
     this.activatedRoute.data.subscribe(data => {
-      // Assuming data.quizData is of the structure { quizId: string; questions: QuizQuestion[] }
-      this.quizData = data.quizData.questions; // Assign the questions array to this.quizData
-      const explanations = this.quizData.map(question => question.explanation);
+      this.quizData = data.quizData as QuizData;
+      const explanations = this.quizData.questions.map(question => question.explanation);
       this.explanationTextService.initializeExplanationTexts(explanations);
     });
   }
