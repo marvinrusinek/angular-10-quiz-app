@@ -63,13 +63,11 @@ export class ExplanationTextService implements OnDestroy {
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
-    // Ensure that index is within the valid range
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
       return;
     }
   
-    // Update the explanation at the given index
     this.explanationTexts[index] = explanation;
   }  
 
@@ -88,37 +86,6 @@ export class ExplanationTextService implements OnDestroy {
 
     explanations.forEach((explanation, index) => {
       this.explanationTexts[index] = explanation;
-      console.log(`Initialized explanation for index ${index}:`, explanation);
-    });
-
-    console.log("Final explanation texts:", this.explanationTexts);
-  }
-
-  fetchQuizExplanations(quizId: string): string[] {
-    const quizExplanations = this.explanationTexts[quizId];
-    if (!quizExplanations) {
-        console.error(`No explanations found for quiz with ID: ${quizId}`);
-        return [];
-    }
-    return quizExplanations.map(subject => subject.value);
-  }
-
-  // remove?
-  fetchExplanationTexts(): string[] {
-    // Check if explanationTexts is initialized and has entries
-    if (!this.explanationTexts || Object.keys(this.explanationTexts).length === 0) {
-      console.warn('Warning: explanationTexts is not initialized or is empty.');
-      return [];
-    }
-
-    // Retrieve the current value of each BehaviorSubject
-    return Object.values(this.explanationTexts).map(subject => {
-      if (subject instanceof BehaviorSubject) {
-        return subject.value;
-      } else {
-        console.error('Error: Encountered a non-BehaviorSubject entry in explanationTexts.');
-        return 'Invalid explanation data';
-      }
     });
   }
 
