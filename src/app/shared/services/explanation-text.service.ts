@@ -74,13 +74,6 @@ export class ExplanationTextService implements OnDestroy {
     return explanation;
   }
 
-  initializeExplanations(explanations: string[]): void {
-    this.explanationTexts = explanations.reduce((acc, exp, index) => {
-      acc[index] = new BehaviorSubject<string>(exp);
-      return acc;
-    }, {});
-  }
-  
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
 

@@ -414,13 +414,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.fetchQuestionAndOptions();
     this.initializeSelectedQuiz();
     this.initializeObservables();
-    this.fetchAllExplanationTexts();
-  }
-  
-  private fetchAllExplanationTexts(): void {
-    this.quizDataService
-      .getAllExplanationTextsForQuiz(this.quizId)
-      .subscribe(explanations => this.explanationTextService.initializeExplanations(explanations));
   }
 
   isQuizQuestion(obj: any): obj is QuizQuestion {
