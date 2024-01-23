@@ -505,7 +505,7 @@ export class QuizDataService implements OnDestroy {
     return this.http.post(submitUrl, quiz).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error(`Error submitting quiz ${quiz.quizId}`, error);
-        return throwError(error);
+        throw new Error(`Error submitting quiz ${quiz.quizId}`);
       }),
       distinctUntilChanged()
     );
