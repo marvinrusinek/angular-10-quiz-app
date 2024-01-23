@@ -1150,8 +1150,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     try {
       this.animationState$.next('animationStarted');
       this.explanationTextService.setShouldDisplayExplanation(false);
-
-      console.log('Fetching data for question index:', questionIndex);
   
       // Check if the question index is valid
       const isValidIndex = await this.isQuestionIndexValid(questionIndex);
