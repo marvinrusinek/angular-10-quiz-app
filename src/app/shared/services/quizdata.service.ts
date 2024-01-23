@@ -489,16 +489,6 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  selectQuiz(quiz: Quiz): void {
-    this.selectedQuizSubject.next(quiz);
-  }
-
-  getCurrentQuestionIndex(): Observable<number> {
-    return this.currentQuestionIndex$
-      .asObservable()
-      .pipe(distinctUntilChanged());
-  }
-
   setQuestionType(question: QuizQuestion): void {
     const numCorrectAnswers = question.options.filter((option) => option.correct).length;
     question.type = numCorrectAnswers > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
