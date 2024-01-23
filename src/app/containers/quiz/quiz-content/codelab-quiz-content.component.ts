@@ -241,7 +241,6 @@ export class CodelabQuizContentComponent
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    console.log(`About to process question:`, question);
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
     await this.fetchAndDisplayExplanationText(question);
