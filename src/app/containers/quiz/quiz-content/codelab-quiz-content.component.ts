@@ -399,20 +399,24 @@ export class CodelabQuizContentComponent
 
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((combinedData: ExtendedQuestionDataType) => {
+      takeUntil(this.destroy$),
+      switchMap(combinedData => {
+        if (combinedData && combinedData.currentQuestion) {
+          return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).pipe(
+            map(isMultipleAnswer => ({
+              combinedData,
+              isMultipleAnswer
+            }))
+          );
+        } else {
+          return of({ combinedData, isMultipleAnswer: false });
+        }
+      })
+    ).subscribe(({ combinedData, isMultipleAnswer }) => {
       console.log('Data from combinedQuestionData$:', combinedData);
-  
-      if (combinedData && combinedData.currentQuestion) {
-        // Check if the current question is multiple-answer
-        // Assuming isMultipleAnswer is a synchronous function
-        this.shouldDisplayCorrectAnswers = 
-          this.quizStateService.isMultipleAnswer(combinedData.currentQuestion);
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
+      this.shouldDisplayCorrectAnswers = isMultipleAnswer;
     });
-  }  
+  }
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
