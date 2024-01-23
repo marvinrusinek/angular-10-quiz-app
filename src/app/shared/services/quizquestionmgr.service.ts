@@ -28,6 +28,7 @@ export class QuizQuestionManagerService {
   }
 
   updateCurrentQuestionDetail(question: QuizQuestion): void {
+    console.log("checking question", question);
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
