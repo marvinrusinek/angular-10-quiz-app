@@ -1164,7 +1164,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       const questionDetails = await this.fetchQuestionDetails(questionIndex);
       if (questionDetails) {
         const { questionText, options, explanation } = questionDetails;
-        console.log('Fetched question details:', questionDetails);
+
         // Set question details
         this.currentQuestion = questionDetails;
         this.quizStateService.updateCurrentQuestion(questionDetails);
