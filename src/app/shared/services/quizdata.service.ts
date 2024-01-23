@@ -431,8 +431,8 @@ export class QuizDataService implements OnDestroy {
     currentQuestion$: Observable<QuizQuestion>
   ): Observable<Option[]> {
     return currentQuestion$.pipe(
-      filter((question) => !!question),
-      map((question) => {
+      filter((question: QuizQuestion) => !!question),
+      map((question: QuizQuestion) => {
         if (!question) {
           throw new Error('Question object is null');
         }
