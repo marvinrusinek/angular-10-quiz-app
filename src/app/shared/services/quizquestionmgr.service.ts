@@ -77,9 +77,7 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers > 1;
   } */
 
-  isMultipleCorrectAnswers(question: QuizQuestion): boolean {
-    console.log('Processing question:', question);
-  
+  isMultipleCorrectAnswers(question: QuizQuestion): boolean {  
     if (!question || !Array.isArray(question.options)) {
       console.log('Question is invalid or has no options array.');
       return false;
