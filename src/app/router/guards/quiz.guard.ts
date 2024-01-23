@@ -28,7 +28,6 @@ export class QuizGuard implements CanActivate {
     return this.quizDataService.selectedQuizSubject.pipe(
       switchMap((selectedQuiz: Quiz) => {
         if (!selectedQuiz) {
-          console.error('Selected quiz is null.');
           this.router.navigate(['/select']);
           return of(false);
         }
