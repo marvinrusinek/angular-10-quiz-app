@@ -375,27 +375,7 @@ export class CodelabQuizContentComponent
     };
   
     return of(combinedQuestionData);
-  }  
-
-  /* handleQuestionDisplayLogic(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-  
-      if (combinedData && combinedData.currentQuestion) {
-        // Check if the current question is multiple-answer
-        const isMultipleAnswer = await firstValueFrom(
-          this.quizStateService.isMultipleAnswer(combinedData.currentQuestion)
-        );
-  
-        // Set shouldDisplayCorrectAnswers based on whether the current question is multiple-answer
-        this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
-      }
-    });
-  } */
+  }
 
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
