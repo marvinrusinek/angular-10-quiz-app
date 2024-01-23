@@ -121,7 +121,7 @@ export class CodelabQuizContentComponent
   }
 
   ngOnInit(): void {
-    this.questionStateSubscription.add(
+    /* this.questionStateSubscription.add(
       this.quizQuestionManagerService.currentQuestion$
         .subscribe((question: QuizQuestion) => {
           if (question) {
@@ -131,7 +131,7 @@ export class CodelabQuizContentComponent
                 .shouldDisplayNumberOfCorrectAnswers;
           }
       })
-    );
+    ); */
 
     this.quizService.getCurrentQuestionIndexObservable()
       .pipe(takeUntil(this.destroy$))
@@ -377,7 +377,7 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }  
 
-  handleQuestionDisplayLogic(): void {
+  /* handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(async (combinedData: ExtendedQuestionDataType) => {
@@ -395,7 +395,24 @@ export class CodelabQuizContentComponent
         this.shouldDisplayCorrectAnswers = false;
       }
     });
-  }
+  } */
+
+  handleQuestionDisplayLogic(): void {
+    this.combinedQuestionData$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((combinedData: ExtendedQuestionDataType) => {
+      console.log('Data from combinedQuestionData$:', combinedData);
+  
+      if (combinedData && combinedData.currentQuestion) {
+        // Check if the current question is multiple-answer
+        // Assuming isMultipleAnswer is a synchronous function
+        this.shouldDisplayCorrectAnswers = 
+          this.quizStateService.isMultipleAnswer(combinedData.currentQuestion);
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
+      }
+    });
+  }  
 
   private setupCombinedTextObservable(): void {
     this.combinedText$ = combineLatest([
