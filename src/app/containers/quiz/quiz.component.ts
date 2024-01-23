@@ -605,8 +605,6 @@ export class QuizComponent implements OnInit, OnDestroy {
 
 
   updateQuestionDisplay(questionIndex: number): void {
-    console.log('Total questions available:', this.questions.length);
-
     console.log('Input Question Index:', questionIndex);
     console.log('Questions Array:', this.questions);
 
