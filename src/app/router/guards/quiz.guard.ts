@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
+import { Quiz } from '../../shared/models/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
 enum QuizRoutes {
@@ -25,7 +26,7 @@ export class QuizGuard implements CanActivate {
     const questionIndex = +route.params['questionIndex'];
 
     return this.quizDataService.selectedQuizSubject.pipe(
-      switchMap((selectedQuiz) => {
+      switchMap((selectedQuiz: Quiz) => {
         if (!selectedQuiz) {
           console.error('Selected quiz is null.');
           this.router.navigate(['/select']);
