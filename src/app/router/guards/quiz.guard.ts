@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
-import { Quiz } from '../../shared/models/quiz.service';
+import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 
 enum QuizRoutes {
