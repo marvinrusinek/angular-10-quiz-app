@@ -617,7 +617,7 @@ export class QuizService implements OnDestroy {
     return this.http.get<QuizQuestion[]>(this.quizUrl).pipe(
       map((questions: QuizQuestion[]) =>
         questions.filter((question: QuizQuestion) => {
-          return question.quizId === quizId;
+          return (question as any).quizId === quizId;
         })
       ),
       catchError((error: HttpErrorResponse) => {
