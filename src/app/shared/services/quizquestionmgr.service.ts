@@ -42,14 +42,6 @@ export class QuizQuestionManagerService {
     this.shouldDisplayExplanation = !!explanation;
   }
 
-  get explanationText$(): Observable<string | null> {
-    return this.explanationTextSubject.asObservable();
-  }
-
-  getCurrentQuestion$(): Observable<QuizQuestion | null> {
-    return this.currentQuestion$.asObservable();
-  }
-
   getNumberOfCorrectAnswersText(
     numberOfCorrectAnswers: number | undefined
   ): string {
