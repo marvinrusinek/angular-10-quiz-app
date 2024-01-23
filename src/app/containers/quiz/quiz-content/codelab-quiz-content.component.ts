@@ -172,17 +172,19 @@ export class CodelabQuizContentComponent
   }
 
   private subscribeToFormattedExplanationChanges(): void {
-    this.formattedExplanationSubscription = this.explanationTextService.formattedExplanation$.subscribe(
-      (formattedExplanation) => {
-        this.explanationToDisplay = formattedExplanation;
-      }
+    this.formattedExplanationSubscription = 
+      this.explanationTextService.formattedExplanation$.subscribe(
+        (formattedExplanation) => {
+          this.explanationToDisplay = formattedExplanation;
+        }
     );    
   }
 
   private initializeQuestionData(): void {
     this.activatedRoute.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.fetchQuestionsAndExplanationTexts(params)),
+        switchMap((params: ParamMap) => 
+          this.fetchQuestionsAndExplanationTexts(params)),
         takeUntil(this.destroy$)
       )
       .subscribe(([questions, explanationTexts]) => {
@@ -196,7 +198,8 @@ export class CodelabQuizContentComponent
       });
   }
   
-  private fetchQuestionsAndExplanationTexts(params: ParamMap): Observable<[QuizQuestion[] | null, string[]]> {
+  private fetchQuestionsAndExplanationTexts(params: ParamMap): 
+    Observable<[QuizQuestion[] | null, string[]]> {
     this.quizId = params.get('quizId');
     if (this.quizId) {
       return forkJoin([
