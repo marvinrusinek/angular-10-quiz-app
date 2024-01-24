@@ -371,7 +371,7 @@ export class CodelabQuizContentComponent
     const combinedQuestionData: CombinedQuestionDataType = {
       questionText: currentQuestion.questionText,
       currentQuestion: currentQuestion,
-      explanationText: formattedExplanation,
+      explanationText: currentQuestion.explanation,
       correctAnswersText: correctAnswersText,
       currentOptions: currentOptions,
       isNavigatingToPrevious: false,
