@@ -23,6 +23,7 @@ import {
   mergeMap,
   startWith,
   switchMap,
+  take,
   takeUntil,
   withLatestFrom
 } from 'rxjs/operators';
@@ -238,9 +239,11 @@ export class CodelabQuizContentComponent
     await this.fetchAndDisplayExplanationText(question);
 
     // Update shouldDisplayCorrectAnswers for the new question
-    this.quizStateService.isMultipleAnswer(question).subscribe(isMultiple => {
-      this.shouldDisplayCorrectAnswers = isMultiple;
-    });
+    this.quizStateService.isMultipleAnswer(question)
+      .pipe(take(1))
+      .subscribe(isMultiple => {
+        this.shouldDisplayCorrectAnswers = isMultiple;
+      });
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
