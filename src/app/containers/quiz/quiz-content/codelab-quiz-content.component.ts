@@ -242,7 +242,10 @@ export class CodelabQuizContentComponent
     this.quizStateService.isMultipleAnswer(question)
       .pipe(take(1))
       .subscribe((isMultiple: boolean) => {
-        this.shouldDisplayCorrectAnswers = isMultiple;
+        // Set shouldDisplayCorrectAnswers only if the explanation is not displayed
+        if (!this.isExplanationDisplayed) {
+          this.shouldDisplayCorrectAnswers = isMultiple;
+        }
       });
   }
   
