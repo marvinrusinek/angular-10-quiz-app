@@ -121,18 +121,6 @@ export class CodelabQuizContentComponent
   }
 
   ngOnInit(): void {
-    /* this.questionStateSubscription.add(
-      this.quizQuestionManagerService.currentQuestion$
-        .subscribe((question: QuizQuestion) => {
-          if (question) {
-            this.currentQuestion.next(question);
-            this.shouldDisplayCorrectAnswers = 
-              this.quizQuestionManagerService
-                .shouldDisplayNumberOfCorrectAnswers;
-          }
-      })
-    ); */
-
     this.quizService.getCurrentQuestionIndexObservable()
       .pipe(takeUntil(this.destroy$))
       .subscribe((index: number) => {
@@ -141,8 +129,7 @@ export class CodelabQuizContentComponent
 
     this.quizStateService.resetQuiz$.subscribe(() => {
       this.shouldDisplayCorrectAnswers = false;
-    });
-    
+    });    
 
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
