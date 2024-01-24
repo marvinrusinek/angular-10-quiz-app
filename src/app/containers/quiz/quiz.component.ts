@@ -1074,6 +1074,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
 
     this.isNavigating = true;
+    this.quizService.setIsNavigatingToPrevious(false);
 
     try {
       const totalQuestions: number = await this.getTotalQuestions();
@@ -1105,8 +1106,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       return;
     }
     this.isNavigating = true;
+    this.quizService.setIsNavigatingToPrevious(true);
 
-    this.animationState$.next('animationStarted');
+    // this.animationState$.next('animationStarted');
 
     try {
       if (this.currentQuestionIndex <= 0) {
