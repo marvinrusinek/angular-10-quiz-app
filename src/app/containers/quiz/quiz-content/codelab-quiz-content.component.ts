@@ -73,6 +73,7 @@ export class CodelabQuizContentComponent
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   previousQuestion$: Observable<QuizQuestion | null>;
+  isNavigatingToPrevious: boolean;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> =
@@ -119,6 +120,10 @@ export class CodelabQuizContentComponent
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
+
+    this.quizService.getIsNavigatingToPrevious().subscribe(
+      isNavigating => this.isNavigatingToPrevious = isNavigating
+    );
   }
 
   ngOnInit(): void {
@@ -374,7 +379,7 @@ export class CodelabQuizContentComponent
       explanationText: currentQuestion.explanation,
       correctAnswersText: correctAnswersText,
       currentOptions: currentOptions,
-      isNavigatingToPrevious: false,
+      isNavigatingToPrevious: this.isNavigatingToPrevious,
       formattedExplanation: formattedExplanation
     };
   
