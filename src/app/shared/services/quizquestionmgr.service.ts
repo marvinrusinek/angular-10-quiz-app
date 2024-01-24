@@ -61,17 +61,6 @@ export class QuizQuestionManagerService {
     );
     return numberOfCorrectAnswers;
   }
-  
-  /* isMultipleCorrectAnswers(): boolean {
-    const currentQuestionValue = this.currentQuestion$.getValue();
-    if (!currentQuestionValue) {
-      return false;
-    }
-    const numberOfCorrectAnswers = currentQuestionValue.options.filter(
-      (option) => option.correct
-    ).length;
-    return numberOfCorrectAnswers > 1;
-  } */
 
   isMultipleCorrectAnswers(question: QuizQuestion): boolean {  
     if (!question || !Array.isArray(question.options)) {
@@ -83,9 +72,7 @@ export class QuizQuestionManagerService {
       (option) => option.correct
     ).length;
   
-    const isMultiple = numberOfCorrectAnswers > 1;
-    console.log(`Number of correct answers: ${numberOfCorrectAnswers}. Is multiple: ${isMultiple}`);
-  
+    const isMultiple = numberOfCorrectAnswers > 1;  
     return isMultiple;
   }  
 }
