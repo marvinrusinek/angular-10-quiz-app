@@ -238,8 +238,9 @@ export class CodelabQuizContentComponent
     await this.fetchAndDisplayExplanationText(question);
 
     // Update shouldDisplayCorrectAnswers for the new question
-    this.shouldDisplayCorrectAnswers = 
-      this.quizStateService.isMultipleAnswer(question) && !this.isExplanationDisplayed;
+    this.quizStateService.isMultipleAnswer(question).subscribe(isMultiple => {
+      this.shouldDisplayCorrectAnswers = isMultiple;
+    });
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
