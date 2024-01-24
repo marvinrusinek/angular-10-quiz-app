@@ -131,7 +131,7 @@ export class CodelabQuizContentComponent
 
     this.quizStateService.resetQuiz$.subscribe(() => {
       this.shouldDisplayCorrectAnswers = false;
-    });    
+    });
 
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
@@ -254,7 +254,7 @@ export class CodelabQuizContentComponent
     });
   } */
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
 
@@ -267,6 +267,38 @@ export class CodelabQuizContentComponent
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
+  } */
+
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // First, handle the display of the explanation for the current question
+    await this.fetchAndDisplayExplanationText(question);
+
+    // Then, update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+
+    // Lastly, check if the current question requires displaying the correct answers count
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+
+    // Handle the display of correct answers
+    this.handleCorrectAnswersDisplay(question);
+
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+  }
+
+  private handleCorrectAnswersDisplay(question: QuizQuestion): void {
+    this.isExplanationTextDisplayed$.pipe(take(1)).subscribe(isExplanationDisplayed => {
+        const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question);
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
+    });
   }
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
@@ -301,7 +333,7 @@ export class CodelabQuizContentComponent
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
-        // this.isExplanationTextDisplayedSource.next(true);
+        this.explanationTextService.isExplanationTextDisplayedSource.next(true);
         this.shouldDisplayCorrectAnswers = false;
         // this.isExplanationTextDisplayedSource.next(false);
       } else {
