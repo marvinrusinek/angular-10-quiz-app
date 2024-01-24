@@ -188,6 +188,8 @@ export class QuizService implements OnDestroy {
   private currentQuizSubject = new BehaviorSubject<Quiz>(null);
   currentQuiz$ = this.currentQuizSubject.asObservable();
 
+  private isNavigatingToPrevious = new BehaviorSubject<boolean>(false);
+
   // correctAnswersSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
   // public correctAnswers$: Observable<number[]> = this.correctAnswersSubject.asObservable();
   private correctAnswersSubject: BehaviorSubject<Map<string, number[]>> =
@@ -1340,6 +1342,14 @@ export class QuizService implements OnDestroy {
   navigateToResults() {
     this.quizCompleted = true;
     this.router.navigate([QuizRoutes.RESULTS, this.quizId]);
+  }
+
+  setIsNavigatingToPrevious(value: boolean): void {
+    this.isNavigatingToPrevious.next(value);
+  }
+
+  getIsNavigatingToPrevious(): Observable<boolean> {
+    return this.isNavigatingToPrevious.asObservable();
   }
 
   /********* reset functions ***********/
