@@ -31,9 +31,6 @@ export class QuizQuestionManagerService {
     this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
     this.shouldDisplayNumberOfCorrectAnswers = this.isMultipleCorrectAnswers(question);
-    
-    // Log the outcome of isMultipleCorrectAnswers with the question details
-    console.log(`Processing question:`, question, `isMultipleCorrectAnswers: ${this.shouldDisplayNumberOfCorrectAnswers}`);
   }
 
   setExplanationText(explanation: string): void {
