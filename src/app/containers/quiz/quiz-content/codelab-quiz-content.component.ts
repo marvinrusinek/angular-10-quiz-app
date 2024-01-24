@@ -97,7 +97,6 @@ export class CodelabQuizContentComponent
 
   displayCorrectAnswers = false;
   isExplanationTextDisplayed = false;
-  isExplanationShown = false;
   nextExplanationText = '';
   isExplanationTextDisplayed$: Observable<boolean>;
   formattedExplanation = '';
@@ -243,11 +242,8 @@ export class CodelabQuizContentComponent
     this.quizStateService.isMultipleAnswer(question)
       .pipe(take(1))
       .subscribe((isMultiple: boolean) => {
-        this.shouldDisplayCorrectAnswers = isMultiple && !this.isExplanationShown;
+        this.shouldDisplayCorrectAnswers = isMultiple;
       });
-
-    // Reset isExplanationShown for the new question
-    this.isExplanationShown = false;
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
@@ -282,7 +278,6 @@ export class CodelabQuizContentComponent
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
-        this.isExplanationShown = true; 
         this.shouldDisplayCorrectAnswers = false;
       } else {
         console.warn('Next question not found in the questions array.');
