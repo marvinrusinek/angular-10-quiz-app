@@ -375,7 +375,7 @@ export class CodelabQuizContentComponent
       correctAnswersText: correctAnswersText,
       currentOptions: currentOptions,
       isNavigatingToPrevious: false,
-      formattedExplanation: formattedExplanation
+      formattedExplanation: this.explanationTextService.formattedExplanation
     };
   
     return of(combinedQuestionData);
