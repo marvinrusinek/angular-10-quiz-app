@@ -233,7 +233,7 @@ export class CodelabQuizContentComponent
       .subscribe();
   }
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Fetch and display explanation for the previous question
     await this.fetchAndDisplayExplanationText(question);
 
@@ -252,8 +252,23 @@ export class CodelabQuizContentComponent
     ).subscribe((shouldDisplay: boolean) => {
       this.shouldDisplayCorrectAnswers = shouldDisplay;
     });
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+
+    // Determine whether to display correct answers count
+    const isExplanationDisplayed = await this.isExplanationTextDisplayed$.pipe(take(1)).toPromise();
+    const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(question).toPromise();
+
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   }
-  
+
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
     this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
