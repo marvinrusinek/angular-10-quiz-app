@@ -250,7 +250,6 @@ export class CodelabQuizContentComponent
       )
     ).subscribe((shouldDisplay: boolean) => {
       this.shouldDisplayCorrectAnswers = shouldDisplay;
-      console.log(`Updated shouldDisplayCorrectAnswers: ${this.shouldDisplayCorrectAnswers}`);
     });
   }
   
