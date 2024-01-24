@@ -1160,7 +1160,12 @@ export class QuizService implements OnDestroy {
       const quizId = this.quizId;
   
       // Fetch and set questions
-      const questions = await this.fetchAndSetQuestions(quizId);
+      const quizData = await this.fetchAndSetQuestions(quizId);
+  
+      // Extract the questions array from the quiz data
+      const questions = quizData.questions;
+  
+      console.log('Questions array extracted:', questions);  // For verification
   
       // Calculate correct answers
       const correctAnswers = this.calculateCorrectAnswers(questions);
@@ -1176,7 +1181,7 @@ export class QuizService implements OnDestroy {
     } catch (error) {
       console.error('Error fetching quiz questions:', error);
     }
-  }
+  }  
 
   async fetchAndSetQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
