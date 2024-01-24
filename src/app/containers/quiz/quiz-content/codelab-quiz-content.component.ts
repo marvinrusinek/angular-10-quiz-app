@@ -97,11 +97,11 @@ export class CodelabQuizContentComponent
 
   displayCorrectAnswers = false;
   isExplanationTextDisplayed = false;
-  nextExplanationText = '';
   isExplanationTextDisplayed$: Observable<boolean>;
+  isExplanationDisplayed = false;
+  nextExplanationText = '';
   formattedExplanation = '';
   formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  isExplanationDisplayed = false;
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
   isCurrentQuestionMultipleAnswer: boolean;
@@ -234,15 +234,25 @@ export class CodelabQuizContentComponent
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Fetch and display explanation for the previous question
     await this.fetchAndDisplayExplanationText(question);
+
+    // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
 
-    this.quizStateService.isMultipleAnswer(question)
-      .pipe(take(1))
-      .subscribe((isMultiple: boolean) => {
-        this.shouldDisplayCorrectAnswers = isMultiple;
-      });
+    // React to changes in explanation display state
+    this.isExplanationTextDisplayed$.pipe(
+      take(1),
+      switchMap(isExplanationDisplayed => 
+        this.quizStateService.isMultipleAnswer(question).pipe(
+          map(isMultiple => isMultiple && !isExplanationDisplayed)
+        )
+      )
+    ).subscribe(shouldDisplay => {
+      this.shouldDisplayCorrectAnswers = shouldDisplay;
+      console.log(`Updated shouldDisplayCorrectAnswers: ${this.shouldDisplayCorrectAnswers}`);
+    });
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
