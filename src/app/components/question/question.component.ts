@@ -140,10 +140,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   private initialized = false;
   private destroy$: Subject<void> = new Subject<void>();
 
-  multipleAnswerSubject = new BehaviorSubject<boolean>(false);
-  multipleAnswer$ = this.multipleAnswerSubject.asObservable();
   multipleAnswerSubscription: Subscription;
-
   sharedVisibilitySubscription: Subscription;
 
   isPaused = false;
@@ -237,7 +234,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
       await this.loadQuizQuestions();
       this.subscribeToCorrectAnswersAndData();
       await this.quizDataService.asyncOperationToSetQuestion(this.quizId, this.currentQuestionIndex);
-      this.initializeMultipleAnswer();
       // this.initializeCorrectAnswerOptions();
       // this.subscribeToCorrectAnswers();
     } catch (error) {
@@ -325,30 +321,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
   private async loadQuizQuestions(): Promise<void> {
     this.quizService.fetchQuizQuestions();
-  }
-
-  private initializeMultipleAnswer(): void {
-    if (!this.question) {
-      console.error(
-        'Question is not defined when initializing multipleAnswer.'
-      );
-      return;
-    }
-
-    this.multipleAnswer = new BehaviorSubject<boolean>(false);
-
-    this.quizStateService.isMultipleAnswer(this.question).subscribe((value) => {
-      console.log('Multiple answer value:', value);
-      this.multipleAnswer.next(value);
-
-      if (!this.multipleAnswerSubscription) {
-        this.multipleAnswerSubscription =
-          this.quizStateService.multipleAnswer$.subscribe((value) => {
-            console.log('Multiple answer value:', value);
-            this.multipleAnswer.next(value);
-          });
-      }
-    });
   }
 
   /* private initializeCorrectAnswerOptions(): void {
