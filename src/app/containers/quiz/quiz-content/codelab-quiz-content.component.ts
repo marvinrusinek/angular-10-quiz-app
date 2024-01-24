@@ -241,7 +241,7 @@ export class CodelabQuizContentComponent
     // Update shouldDisplayCorrectAnswers for the new question
     this.quizStateService.isMultipleAnswer(question)
       .pipe(take(1))
-      .subscribe(isMultiple => {
+      .subscribe((isMultiple: boolean) => {
         this.shouldDisplayCorrectAnswers = isMultiple;
       });
   }
