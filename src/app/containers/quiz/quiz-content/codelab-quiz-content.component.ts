@@ -38,10 +38,6 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 
-interface ExtendedQuestionDataType extends CombinedQuestionDataType {
-  isMultipleAnswer: boolean;
-}
-
 @Component({
   selector: 'codelab-quiz-content-component',
   templateUrl: './codelab-quiz-content.component.html',
