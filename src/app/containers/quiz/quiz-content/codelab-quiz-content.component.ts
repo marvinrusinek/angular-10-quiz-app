@@ -139,6 +139,11 @@ export class CodelabQuizContentComponent
         this.currentQuestionIndexValue = index;
       });
 
+    this.quizStateService.resetQuiz$.subscribe(() => {
+      this.shouldDisplayCorrectAnswers = false;
+    });
+    
+
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();

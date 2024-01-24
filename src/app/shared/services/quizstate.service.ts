@@ -18,6 +18,9 @@ export class QuizStateService {
   currentOptionsSubject = new BehaviorSubject<Option[]>([]);
   currentOptions$: Observable<Option[]> = this.currentOptionsSubject.asObservable();
 
+  private resetQuizSubject = new Subject<void>();
+  resetQuiz$ = this.resetQuizSubject.asObservable();
+
   multipleAnswer$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   private quizQuestionCreated = false;
