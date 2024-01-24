@@ -1282,14 +1282,16 @@ export class QuizService implements OnDestroy {
     this.correctAnswersSubject.next(correctAnswers);
   }
 
-
   private convertToOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
       return [];
     }
-    return options.map((option) => {
-      return { optionId: option.optionId, text: option.text };
-    });
+    return options.reduce((acc, option) => {
+      if (option && typeof option === 'object' && 'optionId' in option) {
+        acc.push({ optionId: option.optionId, text: option.text });
+      }
+      return acc;
+    }, [] as Option[]);
   }
 
   isQuizSelected(): boolean {
