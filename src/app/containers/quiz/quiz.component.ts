@@ -1192,16 +1192,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }  
   
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    // Log the current question index for debugging
-    console.log('Fetching details for question index:', questionIndex);
-
     // Fetching question details based on the provided questionIndex
     const questionText = this.quizService.getQuestionTextForIndex(questionIndex);
     const options = this.quizService.getNextOptions(questionIndex) || [];
-
-    // Add debugging logs to inspect the state before calling getExplanationTextForQuestionIndex
-    console.log('Current state of explanationTexts:', this.explanationTextService.explanationTexts);
-    console.log('Size of explanationTexts:', Object.keys(this.explanationTextService.explanationTexts).length);
 
     // Fetch the explanation text
     const explanation = this.explanationTextService.getExplanationTextForQuestionIndex(questionIndex);
