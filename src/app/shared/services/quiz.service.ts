@@ -1161,7 +1161,9 @@ export class QuizService implements OnDestroy {
       const quizId = this.quizId;
   
       // Fetch and set questions (assuming it returns QuizQuestion[])
-      const questions: QuizQuestion[] = await this.fetchAndSetQuestions(quizId);
+      const quizObject: Quiz = await this.fetchAndSetQuestions(quizId) as Quiz;
+
+      const questions = quizObject.questions;
   
       if (!questions || questions.length === 0) {
         console.error('No questions received from fetchAndSetQuestions');
