@@ -225,7 +225,6 @@ export class CodelabQuizContentComponent
       .pipe(
         mergeMap(async (question: QuizQuestion) => {
           if (question) {
-            console.log("Received new question in subscription:", question);
             await this.processCurrentQuestion(question);
           }
         })
