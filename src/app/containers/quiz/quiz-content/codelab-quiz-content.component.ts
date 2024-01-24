@@ -269,7 +269,7 @@ export class CodelabQuizContentComponent
     this.calculateAndDisplayNumberOfCorrectAnswers();
   } */
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // First, handle the display of the explanation for the current question
     await this.fetchAndDisplayExplanationText(question);
 
@@ -280,6 +280,20 @@ export class CodelabQuizContentComponent
     // Lastly, check if the current question requires displaying the correct answers count
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
     this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    await this.fetchAndDisplayExplanationText(question);
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+  
+    // Determine whether to display the correct answers count for the current question
+    this.shouldDisplayCorrectAnswersForQuestion(question);
+  }
+
+  private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !this.isExplanationDisplayed;
   }
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
@@ -314,6 +328,7 @@ export class CodelabQuizContentComponent
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
+        this.isExplanationDisplayed = true;
       } else {
         console.warn('Next question not found in the questions array.');
       }
