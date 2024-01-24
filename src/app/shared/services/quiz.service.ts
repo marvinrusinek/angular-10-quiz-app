@@ -387,6 +387,7 @@ export class QuizService implements OnDestroy {
     return null;
   }
 
+  // maybe remove, might not be used...
   getQuestionText(
     currentQuestion: QuizQuestion,
     questions: QuizQuestion[]

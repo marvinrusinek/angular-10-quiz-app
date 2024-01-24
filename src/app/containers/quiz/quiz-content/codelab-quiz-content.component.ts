@@ -360,10 +360,6 @@ export class CodelabQuizContentComponent
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuestionData;
   
-    const questionText = currentQuestion
-      ? this.quizService.getQuestionText(currentQuestion, this.questions)
-      : '';
-  
     let correctAnswersText = '';
     if (currentQuestion && !isExplanationDisplayed && numberOfCorrectAnswers !== undefined && numberOfCorrectAnswers > 1) {
       const questionHasMultipleAnswers = this.quizStateService.isMultipleAnswer(currentQuestion);
@@ -373,7 +369,7 @@ export class CodelabQuizContentComponent
     }
   
     const combinedQuestionData: CombinedQuestionDataType = {
-      questionText: questionText,
+      questionText: currentQuestion.questionText,
       currentQuestion: currentQuestion,
       explanationText: formattedExplanation,
       correctAnswersText: correctAnswersText,
