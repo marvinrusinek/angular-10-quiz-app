@@ -647,7 +647,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public setCorrectMessage(correctAnswers: number[]): void {
-    console.log('SCM');
     this.quizService.correctAnswersLoadedSubject.subscribe(
       (loaded: boolean) => {
         if (loaded) {
