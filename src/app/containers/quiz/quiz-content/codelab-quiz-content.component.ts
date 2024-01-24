@@ -248,7 +248,7 @@ export class CodelabQuizContentComponent
           map(isMultiple => isMultiple && !isExplanationDisplayed)
         )
       )
-    ).subscribe(shouldDisplay => {
+    ).subscribe((shouldDisplay: boolean) => {
       this.shouldDisplayCorrectAnswers = shouldDisplay;
       console.log(`Updated shouldDisplayCorrectAnswers: ${this.shouldDisplayCorrectAnswers}`);
     });
