@@ -255,8 +255,6 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    this.explanationTextService.isExplanationTextDisplayedSource.next(false);
-
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
 
@@ -301,7 +299,6 @@ export class CodelabQuizContentComponent
       const nextQuestion = questions[questionIndex + 1];
 
       if (nextQuestion) {
-        this.explanationTextService.isExplanationTextDisplayedSource.next(true);
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
         // this.isExplanationTextDisplayedSource.next(true);
