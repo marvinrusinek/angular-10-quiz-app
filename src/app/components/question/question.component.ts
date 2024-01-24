@@ -486,7 +486,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
 
     // Update other form-related logic
     this.updateCorrectAnswers();
-    this.updateMultipleAnswer();
     this.resetForm();
   }
 
@@ -736,10 +735,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     data.isMultipleAnswer = await this.quizStateService.isMultipleAnswer(
       this.question
     );
-  }
-
-  private updateMultipleAnswer(): void {
-    this.multipleAnswerSubject.next(this.correctAnswers?.length > 1);
   }
 
   setQuestionOptions(): void {
