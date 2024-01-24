@@ -369,27 +369,6 @@ export class CodelabQuizContentComponent
     return of(combinedQuestionData);
   }
 
-  /* handleQuestionDisplayLogic(): void {
-    this.combinedQuestionData$.pipe(
-      takeUntil(this.destroy$),
-      switchMap(combinedData => {
-        if (combinedData && combinedData.currentQuestion) {
-          return this.quizStateService.isMultipleAnswer(combinedData.currentQuestion).pipe(
-            map(isMultipleAnswer => ({
-              combinedData,
-              isMultipleAnswer
-            }))
-          );
-        } else {
-          return of({ combinedData, isMultipleAnswer: false });
-        }
-      })
-    ).subscribe(({ combinedData, isMultipleAnswer }) => {
-      console.log('Data from combinedQuestionData$:', combinedData);
-      this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-    });
-  } */
-
   handleQuestionDisplayLogic(): void {
     this.combinedQuestionData$.pipe(
       takeUntil(this.destroy$),
