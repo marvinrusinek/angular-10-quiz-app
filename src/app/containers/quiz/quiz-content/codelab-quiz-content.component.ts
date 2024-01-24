@@ -325,6 +325,8 @@ export class CodelabQuizContentComponent
     const currentQuestionAndOptions$ = this.combineCurrentQuestionAndOptions();
   
     this.isExplanationTextDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
+
+    this.formattedExplanation$ = this.explanationTextService.formattedExplanation$;
   
     this.combinedQuestionData$ = combineLatest([
       currentQuestionAndOptions$,
@@ -375,7 +377,7 @@ export class CodelabQuizContentComponent
       correctAnswersText: correctAnswersText,
       currentOptions: currentOptions,
       isNavigatingToPrevious: false,
-      formattedExplanation: this.explanationTextService.formattedExplanation$.getValue()
+      formattedExplanation: formattedExplanation
     };
   
     return of(combinedQuestionData);
