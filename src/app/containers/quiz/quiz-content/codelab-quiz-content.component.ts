@@ -255,20 +255,20 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    this.explanationTextService.isExplanationTextDisplayedSource.next(false);
+
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
+
+    // Update shouldDisplayCorrectAnswers for the new question
+    const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(question).toPromise();
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
 
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
-
-    // Set shouldDisplayCorrectAnswers based on question type and explanation display state
-    const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(question).toPromise();
-    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
-
-    if (isMultipleAnswer && !isExplanationDisplayed) {
-        this.shouldDisplayCorrectAnswers = true;
-    }
   }
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
@@ -301,6 +301,7 @@ export class CodelabQuizContentComponent
       const nextQuestion = questions[questionIndex + 1];
 
       if (nextQuestion) {
+        this.explanationTextService.isExplanationTextDisplayedSource.next(true);
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
         // this.isExplanationTextDisplayedSource.next(true);
