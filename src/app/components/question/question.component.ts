@@ -386,7 +386,6 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
           this.fetchCorrectAnswersAndText(this.data, this.data.options);
           this.quizService.setCorrectAnswerOptions(this.correctAnswers);
 
-          console.log('Updating correct message and question form.');
           this.updateQuestionForm();
         } else {
           console.log(
