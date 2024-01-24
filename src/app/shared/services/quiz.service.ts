@@ -29,6 +29,7 @@ import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizData } from '../../shared/models/QuizData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { QuizScore } from '../../shared/models/QuizScore.model';
@@ -1160,7 +1161,7 @@ export class QuizService implements OnDestroy {
       const quizId = this.quizId;
   
       // Fetch and set questions
-      const quizData = await this.fetchAndSetQuestions(quizId);
+      const quizData = await this.fetchAndSetQuestions(quizId) as QuizData;
   
       // Extract the questions array from the quiz data
       const questions = quizData.questions;
