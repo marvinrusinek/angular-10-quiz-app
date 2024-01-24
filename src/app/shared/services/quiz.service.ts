@@ -1160,13 +1160,15 @@ export class QuizService implements OnDestroy {
     try {
       const quizId = this.quizId;
   
-      // Fetch and set questions
-      const quizData = await this.fetchAndSetQuestions(quizId) as QuizData;
+      // Fetch and set questions (assuming it returns QuizQuestion[])
+      const questions: QuizQuestion[] = await this.fetchAndSetQuestions(quizId);
   
-      // Extract the questions array from the quiz data
-      const questions = quizData.questions;
+      if (!questions || questions.length === 0) {
+        console.error('No questions received from fetchAndSetQuestions');
+        return;
+      }
   
-      console.log('Questions array extracted:', questions);  // For verification
+      console.log('Questions array extracted:', questions); // For verification
   
       // Calculate correct answers
       const correctAnswers = this.calculateCorrectAnswers(questions);
