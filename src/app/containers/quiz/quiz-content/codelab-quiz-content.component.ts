@@ -234,11 +234,10 @@ export class CodelabQuizContentComponent
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    await this.fetchAndDisplayExplanationText(question);
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
-    await this.fetchAndDisplayExplanationText(question);
 
-    // Update shouldDisplayCorrectAnswers for the new question
     this.quizStateService.isMultipleAnswer(question)
       .pipe(take(1))
       .subscribe((isMultiple: boolean) => {
