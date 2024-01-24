@@ -1169,7 +1169,7 @@ export class QuizService implements OnDestroy {
       }
   
       const questions: QuizQuestion[] = questionObjects[0].questions;
-      console.log('Questions array extracted:', questions[0].questions); // For verification
+      console.log('Questions array extracted:', questions);
   
       // Calculate correct answers
       const correctAnswers = this.calculateCorrectAnswers(questions);
