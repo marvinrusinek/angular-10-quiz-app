@@ -262,8 +262,8 @@ export class CodelabQuizContentComponent
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
 
-    // Determine whether to display correct answers count
-    const isExplanationDisplayed = await this.isExplanationTextDisplayed$.pipe(take(1)).toPromise();
+    // Check if explanation is displayed and if the question is multiple-answer
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
     const isMultipleAnswer = await this.quizStateService.isMultipleAnswer(question).toPromise();
 
     this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
@@ -302,6 +302,7 @@ export class CodelabQuizContentComponent
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
         this.shouldDisplayCorrectAnswers = false;
+        this.isExplanationTextDisplayedSource.next(true);
       } else {
         console.warn('Next question not found in the questions array.');
       }
