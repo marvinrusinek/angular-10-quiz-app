@@ -376,11 +376,11 @@ export class CodelabQuizContentComponent
     const combinedQuestionData: CombinedQuestionDataType = {
       questionText: currentQuestion.questionText,
       currentQuestion: currentQuestion,
-      explanationText: currentQuestion.explanation,
-      correctAnswersText: correctAnswersText,
       currentOptions: currentOptions,
-      isNavigatingToPrevious: this.isNavigatingToPrevious,
-      formattedExplanation: formattedExplanation
+      explanationText: currentQuestion.explanation,
+      formattedExplanation: formattedExplanation,
+      correctAnswersText: correctAnswersText,
+      isNavigatingToPrevious: this.isNavigatingToPrevious
     };
   
     return of(combinedQuestionData);
