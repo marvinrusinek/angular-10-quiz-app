@@ -905,9 +905,7 @@ export class QuizQuestionComponent implements OnInit, OnChanges, OnDestroy {
     this.quizStateService
       .isMultipleAnswer(currentQuestion)
       .subscribe({
-        next: (isMultipleAnswer: boolean) => {
-          console.log('isMultipleAnswer:', isMultipleAnswer);
-  
+        next: () => {
           if (this.quizService.selectedOptions.length > 0) {
             this.fetchQuestionsArray(currentQuestion);
           } else {
