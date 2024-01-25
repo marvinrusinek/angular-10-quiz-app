@@ -327,10 +327,10 @@ export class CodelabQuizContentComponent
       map(([isMultipleAnswer, isExplanationDisplayed]) => 
         isMultipleAnswer && !isExplanationDisplayed
       )
-    ).subscribe(shouldDisplay => {
+    ).subscribe((shouldDisplay: boolean) => {
       this.shouldDisplayCorrectAnswers = shouldDisplay;
     });
-  }  
+  }
 
   private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
