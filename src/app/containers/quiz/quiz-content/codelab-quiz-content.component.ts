@@ -395,13 +395,16 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details
+    // First, handle the display of the explanation for the current question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Then, update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
-    this.isQuestionActive = true; // Mark the question as active
   
-    // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
+    // Lastly, check if the current question requires displaying the correct answers count
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer;
   }
 
   private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
@@ -449,7 +452,7 @@ export class CodelabQuizContentComponent
       console.warn('Current question not found in the questions array.');
     }
 
-    this.isQuestionActive = false;
+    this.isExplanationDisplayed = true;
   }
   
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
