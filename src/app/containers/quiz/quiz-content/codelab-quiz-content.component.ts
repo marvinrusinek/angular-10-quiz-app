@@ -504,7 +504,6 @@ export class CodelabQuizContentComponent
       console.warn('Current question not found in the questions array.');
     }
 
-    this.explanationTextService.setExplanationText(determinedExplanationText);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
   }
   
