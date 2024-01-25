@@ -102,6 +102,7 @@ export class CodelabQuizContentComponent
   displayCorrectAnswersText = false;
   explanationDisplayed = false;
   isCurrentQuestionMultipleAnswer: boolean;
+  isQuestionActive = false;
 
   private destroy$ = new Subject<void>();
 
@@ -370,7 +371,7 @@ export class CodelabQuizContentComponent
     this.shouldDisplayCorrectAnswers = isMultipleAnswer;
   } */
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -391,6 +392,16 @@ export class CodelabQuizContentComponent
       .subscribe((shouldDisplayCorrectAnswers: boolean) => {
         this.shouldDisplayCorrectAnswers = shouldDisplayCorrectAnswers;
       });
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+    this.isQuestionActive = true; // Mark the question as active
+  
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
   }
 
   private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
@@ -437,6 +448,8 @@ export class CodelabQuizContentComponent
     } else {
       console.warn('Current question not found in the questions array.');
     }
+
+    this.isQuestionActive = false;
   }
   
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
