@@ -402,21 +402,16 @@ export class CodelabQuizContentComponent
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
   
-    // Update the state for displaying the correct answers count
-    this.updateShouldDisplayCorrectAnswersState(question);
+    // Lastly, check if the current question requires displaying the correct answers count
+    this.updateShouldDisplayCorrectAnswers(question);
   }
 
-  private updateShouldDisplayCorrectAnswersState(question: QuizQuestion): void {
-    this.quizStateService.isMultipleAnswer(question).pipe(
-      take(1),
-      map(isMultipleAnswer => {
-        // Determine if the explanation is displayed
-        const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
-        return isMultipleAnswer && !isExplanationDisplayed;
-      })
-    ).subscribe((shouldDisplay: boolean) => {
-      this.shouldDisplayCorrectAnswers = shouldDisplay;
-    });
+  private updateShouldDisplayCorrectAnswers(question: QuizQuestion): void {
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
+  
+    // Update shouldDisplayCorrectAnswers based on whether it's a multiple-answer question and the explanation is not displayed
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   }
 
   private updateCorrectAnswersVisibility(question: QuizQuestion, isExplanationDisplayed: boolean): void {
