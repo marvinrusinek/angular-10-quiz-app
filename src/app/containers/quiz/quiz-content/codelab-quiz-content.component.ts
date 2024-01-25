@@ -398,21 +398,16 @@ export class CodelabQuizContentComponent
     // Update question details first
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
-
-    // Determine if the current question is a multiple-answer type
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
-
+  
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
-
-    // Determine if the explanation text is currently being displayed
-    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
-
-    // Only display the "# of correct answers" text if it's a multiple-answer question and explanation text is not displayed
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
-}
   
+    // Determine if the current question is a multiple-answer type
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
   
+    // Update the display state based on whether it's a multiple-answer question and explanation text is displayed
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+  }
 
   private updateCorrectAnswersDisplayState(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
