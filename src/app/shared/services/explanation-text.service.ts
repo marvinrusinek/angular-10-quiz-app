@@ -39,6 +39,9 @@ export class ExplanationTextService implements OnDestroy {
   shouldDisplayExplanation$ =
     this.shouldDisplayExplanationSource.asObservable();
 
+  private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
+  isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
+
   private destroyed$ = new Subject<void>();
 
   constructor() {
@@ -57,12 +60,12 @@ export class ExplanationTextService implements OnDestroy {
 
   setExplanationText(explanation: string) {
     this.explanationText$.next(explanation);
-    this.isExplanationDisplayed$.next(true);
+    this.isExplanationDisplayedSource.next(true); // Set to true when explanation is displayed
   }
-
+  
   resetExplanationText() {
     this.explanationText$.next('');
-    this.isExplanationDisplayed$.next(false);
+    this.isExplanationDisplayedSource.next(false); // Set to false when explanation is hidden
   }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
