@@ -307,7 +307,7 @@ export class CodelabQuizContentComponent
     this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   } */
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -330,6 +330,23 @@ export class CodelabQuizContentComponent
     ).subscribe((shouldDisplay: boolean) => {
       this.shouldDisplayCorrectAnswers = shouldDisplay;
     });
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+
+    // After fetching and displaying the explanation text, update the isExplanationTextDisplayed state
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+
+    // Then, update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+
+    // Check if the current question is multiple-answer and if the explanation text is not displayed
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   }
 
   private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
@@ -369,14 +386,12 @@ export class CodelabQuizContentComponent
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
-        this.explanationTextService.setIsExplanationTextDisplayed(true);
+        this.isExplanationDisplayed = true;
       } else {
         console.warn('Next question not found in the questions array.');
-        this.explanationTextService.setIsExplanationTextDisplayed(false);
       }
     } else {
       console.warn('Current question not found in the questions array.');
-      this.explanationTextService.setIsExplanationTextDisplayed(false);
     }
   }
   
