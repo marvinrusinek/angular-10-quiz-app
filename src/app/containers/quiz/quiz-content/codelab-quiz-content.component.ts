@@ -134,7 +134,21 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.manageCorrectAnswersVisibility();
+    this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
+      if (!isDisplayed) {
+        // When the explanation text is not displayed, check if the current question is multiple-answer
+        const currentQuestion = this.quizQuestionManagerService.currentQuestion$.getValue();
+        if (currentQuestion) {
+          this.quizStateService.isMultipleAnswer(currentQuestion)
+            .pipe(take(1))
+            .subscribe((isMultipleAnswer: boolean) => {
+              this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+            });
+        }
+      } else {
+        this.shouldDisplayCorrectAnswers = false;
+      }
+    });
 
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
@@ -397,12 +411,16 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // First, handle the display of the explanation for the current question
-    await this.fetchAndDisplayExplanationText(question);
-  
-    // Then, update question details
+    // Update question details first
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
+  
+    // Then, handle the display of the explanation for the current question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Determine if the current question is multiple-answer and if explanation text is not displayed
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer;
   }
 
   private manageCorrectAnswersVisibility(): void {
@@ -469,6 +487,13 @@ export class CodelabQuizContentComponent
       }
     } else {
       console.warn('Current question not found in the questions array.');
+    }
+
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+
+    // If the explanation text is displayed, ensure that correct answers count is not displayed
+    if (this.explanationTextService.isExplanationTextDisplayed$.getValue()) {
+      this.shouldDisplayCorrectAnswers = false;
     }
   }
   
