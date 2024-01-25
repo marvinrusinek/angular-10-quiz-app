@@ -135,18 +135,9 @@ export class CodelabQuizContentComponent
     });
 
     this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-      if (!isDisplayed) {
-        // When the explanation text is not displayed, check if the current question is multiple-answer
-        const currentQuestion = this.quizQuestionManagerService.currentQuestion$.getValue();
-        if (currentQuestion) {
-          this.quizStateService.isMultipleAnswer(currentQuestion)
-            .pipe(take(1))
-            .subscribe((isMultipleAnswer: boolean) => {
-              this.shouldDisplayCorrectAnswers = isMultipleAnswer;
-            });
-        }
-      } else {
-        this.shouldDisplayCorrectAnswers = false;
+      const currentQuestion = this.quizQuestionManagerService.currentQuestion$.getValue();
+      if (currentQuestion) {
+        this.updateCorrectAnswersVisibility(currentQuestion, isDisplayed);
       }
     });
 
@@ -411,16 +402,23 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details first
+    // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
   
-    // Then, handle the display of the explanation for the current question
+    // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
   
-    // Determine if the current question is multiple-answer and if explanation text is not displayed
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+    // Determine if the explanation text is displayed
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
+  
+    // Update the visibility of the correct answers count
+    this.updateCorrectAnswersVisibility(question, isExplanationDisplayed);
+  }
+
+  private updateCorrectAnswersVisibility(question: QuizQuestion, isExplanationDisplayed: boolean): void {
+    const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   }
 
   private manageCorrectAnswersVisibility(): void {
@@ -490,11 +488,6 @@ export class CodelabQuizContentComponent
     }
 
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-
-    // If the explanation text is displayed, ensure that correct answers count is not displayed
-    if (this.explanationTextService.isExplanationTextDisplayed$.getValue()) {
-      this.shouldDisplayCorrectAnswers = false;
-    }
   }
   
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
