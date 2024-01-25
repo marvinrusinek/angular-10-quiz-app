@@ -55,6 +55,16 @@ export class ExplanationTextService implements OnDestroy {
     return this.explanationText$.asObservable();
   }
 
+  setExplanationText(explanation: string) {
+    this.explanationText$.next(explanation);
+    this.isExplanationDisplayed$.next(true);
+  }
+
+  resetExplanationText() {
+    this.explanationText$.next('');
+    this.isExplanationDisplayed$.next(false);
+  }
+
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
       console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
