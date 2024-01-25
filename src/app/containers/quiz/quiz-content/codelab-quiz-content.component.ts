@@ -134,6 +134,8 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
+    this.manageCorrectAnswersVisibility();
+
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();
@@ -401,10 +403,27 @@ export class CodelabQuizContentComponent
     // Then, update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
+  }
+
+  private manageCorrectAnswersVisibility(): void {
+    const currentQuestion$ = this.quizQuestionManagerService.currentQuestion$;
+    const explanationDisplayed$ = this.explanationTextService.isExplanationTextDisplayed$;
   
-    // Lastly, check if the current question requires displaying the correct answers count
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+    combineLatest([currentQuestion$, explanationDisplayed$])
+      .pipe(
+        switchMap(([currentQuestion, isExplanationDisplayed]) => 
+          this.quizStateService.isMultipleAnswer(currentQuestion).pipe(
+            map(isMultipleAnswer => ({
+              isMultipleAnswer,
+              isExplanationDisplayed
+            }))
+          )
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ isMultipleAnswer, isExplanationDisplayed }) => {
+        this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
+      });
   }
 
   private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
@@ -432,27 +451,25 @@ export class CodelabQuizContentComponent
       console.error('Question is undefined or missing questionText');
       return;
     }
-
+  
     const questions: QuizQuestion[] = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.quizId)
     );
-
+  
     const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
     if (questionIndex !== -1 && questionIndex < questions.length - 1) {
       const nextQuestion = questions[questionIndex + 1];
-
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
-        this.isExplanationDisplayed = true;
+        // Set the explanation display state to true when a new explanation is fetched
+        this.explanationTextService.setIsExplanationTextDisplayed(true);
       } else {
         console.warn('Next question not found in the questions array.');
       }
     } else {
       console.warn('Current question not found in the questions array.');
     }
-
-    this.isExplanationDisplayed = true;
   }
   
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
