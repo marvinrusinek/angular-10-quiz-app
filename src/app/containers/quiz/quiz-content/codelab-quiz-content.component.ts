@@ -134,13 +134,6 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.explanationTextService.isExplanationTextDisplayed$.subscribe(isDisplayed => {
-      const currentQuestion = this.quizQuestionManagerService.currentQuestion$.getValue();
-      if (currentQuestion) {
-        this.updateCorrectAnswersVisibility(currentQuestion, isDisplayed);
-      }
-    });
-
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();
@@ -409,11 +402,14 @@ export class CodelabQuizContentComponent
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
   
-    // Determine if the explanation text is displayed
-    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
-  
-    // Update the visibility of the correct answers count
-    this.updateCorrectAnswersVisibility(question, isExplanationDisplayed);
+    // Combine Observables to determine correct answers visibility
+    combineLatest([
+      this.quizStateService.isMultipleAnswer(question),
+      this.explanationTextService.isExplanationTextDisplayed$
+    ]).pipe(take(1))
+     .subscribe(([isMultipleAnswer, isExplanationDisplayed]) => {
+       this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
+     });
   }
 
   private updateCorrectAnswersVisibility(question: QuizQuestion, isExplanationDisplayed: boolean): void {
