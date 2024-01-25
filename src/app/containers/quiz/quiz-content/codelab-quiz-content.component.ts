@@ -395,21 +395,28 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details
+    // First, handle the display of the explanation for the current question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Then, update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
   
-    // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
-  
-    // Combine Observables to determine correct answers visibility
-    combineLatest([
-      this.quizStateService.isMultipleAnswer(question),
-      this.explanationTextService.isExplanationTextDisplayed$
-    ]).pipe(take(1))
-     .subscribe(([isMultipleAnswer, isExplanationDisplayed]) => {
-       this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
-     });
+    // Update the state for displaying the correct answers count
+    this.updateShouldDisplayCorrectAnswersState(question);
+  }
+
+  private updateShouldDisplayCorrectAnswersState(question: QuizQuestion): void {
+    this.quizStateService.isMultipleAnswer(question).pipe(
+      take(1),
+      map(isMultipleAnswer => {
+        // Determine if the explanation is displayed
+        const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
+        return isMultipleAnswer && !isExplanationDisplayed;
+      })
+    ).subscribe((shouldDisplay: boolean) => {
+      this.shouldDisplayCorrectAnswers = shouldDisplay;
+    });
   }
 
   private updateCorrectAnswersVisibility(question: QuizQuestion, isExplanationDisplayed: boolean): void {
