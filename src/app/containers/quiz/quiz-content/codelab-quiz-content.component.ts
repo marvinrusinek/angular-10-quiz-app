@@ -603,7 +603,7 @@ export class CodelabQuizContentComponent
         }
       })
     ).subscribe(({ combinedData, isMultipleAnswer }) => {
-      console.log('Data from combinedQuestionData$::::::', combinedData);
+      // console.log('Data from combinedQuestionData$:', combinedData);
       this.shouldDisplayCorrectAnswers = isMultipleAnswer;
     });
   }
