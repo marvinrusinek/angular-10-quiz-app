@@ -307,7 +307,7 @@ export class CodelabQuizContentComponent
     this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   } */
 
-  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -330,19 +330,6 @@ export class CodelabQuizContentComponent
     ).subscribe((shouldDisplay: boolean) => {
       this.shouldDisplayCorrectAnswers = shouldDisplay;
     });
-  } */
-
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details
-    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
-    this.calculateAndDisplayNumberOfCorrectAnswers();
-  
-    // Determine if it's a multiple-answer question
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer; // Set the flag here
-  
-    // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
   }
 
   private shouldDisplayCorrectAnswersForQuestion(question: QuizQuestion): void {
@@ -382,13 +369,14 @@ export class CodelabQuizContentComponent
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
         this.updateExplanationForQuestion(nextQuestion);
-        this.shouldDisplayCorrectAnswers = false;
-        this.isExplanationDisplayed = true;
+        this.explanationTextService.setIsExplanationTextDisplayed(true);
       } else {
         console.warn('Next question not found in the questions array.');
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
       }
     } else {
       console.warn('Current question not found in the questions array.');
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
     }
   }
   
