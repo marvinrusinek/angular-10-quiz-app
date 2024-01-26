@@ -145,6 +145,7 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
+    this.updateQuizStatus();
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();
@@ -500,7 +501,7 @@ export class CodelabQuizContentComponent
     }
   }
 
-  updateQuizStatus() {
+  updateQuizStatus(): void {
     this.questionText = this.question.questionText;
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
     this.quizService.updateQuestionText(this.questionText);
