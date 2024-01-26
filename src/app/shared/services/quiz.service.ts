@@ -499,7 +499,13 @@ export class QuizService implements OnDestroy {
     try {
       const quizzes = await firstValueFrom(this.getQuizData());
       if (quizzes && quizzes.length > 0) {
-        this.quiz = quizzes[0]; // Assuming you want the first quiz
+        // Check if quizId is valid and within the range of available quizzes
+        if (this.quizId != null && quizzes[this.quizId]) {
+          this.quiz = quizzes[this.quizId]; // Use quizId to select the specific quiz
+        } else {
+          console.error('Invalid quizId or quizId out of bounds');
+          return false;
+        }
       } else {
         console.error('No quizzes available');
         return false;
@@ -514,6 +520,7 @@ export class QuizService implements OnDestroy {
   
     if (this.quiz && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.quiz.questions.length) {
       this.currentQuestion.next(this.quiz.questions[this.currentQuestionIndex]);
+      console.log("MY CQ", this.currentQuestion);
     } else {
       console.error('Quiz is not initialized or currentQuestionIndex is out of bounds');
       return false;
