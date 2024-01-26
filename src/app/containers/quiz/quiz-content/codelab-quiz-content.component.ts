@@ -431,6 +431,23 @@ export class CodelabQuizContentComponent
     ).subscribe();
   } */
 
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Reset the state when moving to a new question
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+
+    // Determine display of "# of correct answers"
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
+    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
+  } */
+
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Reset the state when moving to a new question
     this.explanationTextService.setIsExplanationTextDisplayed(false);
@@ -447,6 +464,7 @@ export class CodelabQuizContentComponent
     const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
     this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
   }
+
 
   private updateCorrectAnswersDisplayState(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
