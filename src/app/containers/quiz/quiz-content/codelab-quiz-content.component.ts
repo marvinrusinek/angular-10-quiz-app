@@ -243,7 +243,7 @@ export class CodelabQuizContentComponent
       .subscribe();
   }
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -278,7 +278,36 @@ export class CodelabQuizContentComponent
 
     // Manually trigger change detection to ensure view updates
     this.cdRef.detectChanges();
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+  
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Determine whether to display the correct answers count for the current question
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayedSource.getValue();
+    
+    // Check if this is the first question (or a newly loaded one)
+    const isFirstQuestion = !this.quizQuestionManagerService.hasCurrentQuestion();
+    
+    // Set shouldDisplayCorrectAnswers based on conditions
+    if (isFirstQuestion) {
+      // Don't display for the first question
+      this.shouldDisplayCorrectAnswers = false;
+    } else {
+      this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
+    }
+  
+    // Manually trigger change detection to ensure view updates
+    this.cdRef.detectChanges();
   }
+  
+  
   
   
 

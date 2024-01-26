@@ -74,5 +74,9 @@ export class QuizQuestionManagerService {
   
     const isMultiple = numberOfCorrectAnswers > 1;  
     return isMultiple;
-  }  
+  }
+  
+  hasCurrentQuestion(): boolean {
+    return !!this.currentQuestion$;
+  }
 }
