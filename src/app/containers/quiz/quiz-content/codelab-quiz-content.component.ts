@@ -418,9 +418,9 @@ export class CodelabQuizContentComponent
     }
   
     const combinedQuestionData: CombinedQuestionDataType = {
-      questionText: currentQuestion ? currentQuestion.questionText : '',
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
+      questionText: currentQuestion ? currentQuestion.questionText : '',
       explanationText: currentQuestion ? currentQuestion.explanation : '',
       formattedExplanation: formattedExplanation,
       correctAnswersText: correctAnswersText,
