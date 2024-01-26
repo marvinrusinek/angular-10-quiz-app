@@ -56,6 +56,10 @@ export class ExplanationTextService implements OnDestroy {
     this.destroyed$.complete();
   }
 
+  setExplanationDisplayed(isDisplayed: boolean): void {
+    this.explanationDisplayedSource.next(isDisplayed);
+  }
+
   notifyExplanationDisplayed() {
     this.explanationDisplayedSource.next(true);
   }

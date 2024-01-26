@@ -449,22 +449,25 @@ export class CodelabQuizContentComponent
   } */
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Reset the state when moving to a new question
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-    // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
-
-    // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
 
-    // Determine display of "# of correct answers"
-    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
-    const isExplanationDisplayed = this.explanationTextService.isExplanationTextDisplayed$.getValue();
-    this.shouldDisplayCorrectAnswers = isMultipleAnswer && !isExplanationDisplayed;
-  }
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+    
+    // Combine observables to determine if correct answers count should be displayed
+    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
+    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
 
+    combineLatest([isMultipleAnswer$, isExplanationDisplayed$]).pipe(
+      take(1),
+      map(([isMultipleAnswer, isExplanationDisplayed]) => 
+        isMultipleAnswer && !isExplanationDisplayed
+      )
+    ).subscribe((shouldDisplayCorrectAnswers: boolean) => {
+      this.shouldDisplayCorrectAnswers = shouldDisplayCorrectAnswers;
+    });
+  }
 
   private updateCorrectAnswersDisplayState(question: QuizQuestion): void {
     const isMultipleAnswer = this.quizStateService.isMultipleAnswer(question).getValue();
