@@ -42,6 +42,8 @@ export class ExplanationTextService implements OnDestroy {
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
 
+  private explanationDisplayedSource = new BehaviorSubject<boolean>(false);
+
   private destroyed$ = new Subject<void>();
 
   constructor() {
@@ -52,6 +54,20 @@ export class ExplanationTextService implements OnDestroy {
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  notifyExplanationDisplayed() {
+    this.explanationDisplayedSource.next(true);
+  }
+
+  onExplanationDisplayed(callback: () => void) {
+    this.explanationDisplayedSource.asObservable().subscribe((isDisplayed) => {
+      if (isDisplayed) callback();
+    });
+  }
+
+  isExplanationDisplayed(): boolean {
+    return this.explanationDisplayedSource.getValue();
   }
 
   getExplanationText$(): Observable<string | null> {
