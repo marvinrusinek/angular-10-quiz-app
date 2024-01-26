@@ -487,6 +487,14 @@ export class QuizService implements OnDestroy {
     }
   
     const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, answers);
+
+    if (correctAnswerFound.includes(true)) {
+      // The answer is correct, update the score accordingly
+      this.updateScoreForCorrectAnswer();
+    } else {
+      // The answer is incorrect, update the score accordingly
+      this.updateScoreForIncorrectAnswer();
+    }
   
     // ...rest of function logic...
     // Process user answers, update score, etc.
@@ -543,17 +551,25 @@ export class QuizService implements OnDestroy {
     }));
   }
 
-  incrementScore(answers: number[], correctAnswerFound: boolean): void {
-    // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
-    if (correctAnswerFound && answers.length === this.numberOfCorrectAnswers) {
-      this.updateCorrectCountForResults(this.correctCount + 1);
+  incrementScore(answers: number[], correctAnswerFound: boolean, isMultipleAnswer: boolean): void {
+    if (isMultipleAnswer) {
+      // For multiple-answer questions, ALL correct answers should be marked correct for the score to increase
+      if (correctAnswerFound && answers.length === this.numberOfCorrectAnswers) {
+        this.updateCorrectCountForResults(this.correctCount + 1);
+      }
+    } else {
+      // For single-answer questions, a single correct answer should increase the score
+      if (correctAnswerFound) {
+        this.updateCorrectCountForResults(this.correctCount + 1);
+      }
     }
   }
-
+  
   private updateCorrectCountForResults(value: number): void {
     this.correctCount = value;
     this.sendCorrectCountToResults(this.correctCount);
   }
+  
 
   updateCombinedQuestionData(newData: CombinedQuestionDataType): void {
     this.combinedQuestionDataSubject.next(newData);
@@ -917,7 +933,6 @@ export class QuizService implements OnDestroy {
     return Math.round((correctAnswers / totalQuestions) * 100);
   }
   
-
   saveHighScores(): void {
     this.quizScore = {
       quizId: this.quizId,
