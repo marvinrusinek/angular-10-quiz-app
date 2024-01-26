@@ -394,7 +394,7 @@ export class CodelabQuizContentComponent
       });
   } */
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -402,7 +402,25 @@ export class CodelabQuizContentComponent
     // Determine if the current question is a multiple-answer question
     const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
     this.shouldDisplayCorrectAnswers = isMultipleAnswer;
+  } */
+
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Then, update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+  
+    // Check if the current question is multiple-answer
+    const isMultipleAnswer = await firstValueFrom(this.quizStateService.isMultipleAnswer(question));
+  
+    // Use a method or a setter in ExplanationTextService to update the display logic
+    this.explanationTextService.onExplanationDisplayed(() => {
+      this.shouldDisplayCorrectAnswers = isMultipleAnswer && !this.explanationTextService.isExplanationDisplayed();
+    });
   }
+  
   
 
   private updateCorrectAnswersDisplayState(question: QuizQuestion): void {
