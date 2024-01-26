@@ -9,8 +9,7 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
-  throwError
+  Subscription
 } from 'rxjs';
 import {
   catchError,
@@ -20,7 +19,8 @@ import {
   shareReplay,
   switchMap,
   takeUntil,
-  tap
+  tap,
+  throwError
 } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
@@ -917,7 +917,7 @@ export class QuizService implements OnDestroy {
         this.questionLoadingSubject.next(true);
         this.loadingQuestions = false;
       }),
-      catchError((error: any) => {
+      catchError((error: Error) => {
         console.error('Error getting quiz questions:', error);
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
