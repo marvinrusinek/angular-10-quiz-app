@@ -463,29 +463,36 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
-
+  
     const foundQuiz = await this.fetchAndFindQuiz(this.quizId);
     if (!foundQuiz) {
       return false;
     }
     this.quiz = foundQuiz;
-
+  
     if (!this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex)) {
       return false;
     }
-
+  
     const currentQuestionValue = this.currentQuestion.getValue();
-    if (!this.validateAnswers(currentQuestionValue, this.answers)) {
+    const answers = this.answers;
+  
+    // Check if currentQuestionValue and answers are defined and not empty
+    if (!currentQuestionValue || !answers || answers.length === 0) {
       return false;
     }
-
-    const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, this.answers);
-
+  
+    if (!this.validateAnswers(currentQuestionValue, answers)) {
+      return false;
+    }
+  
+    const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, answers);
+  
     // ...rest of function logic...
     // Process user answers, update score, etc.
-
+  
     return correctAnswerFound.includes(true);
-  }
+  }  
 
   async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
     try {
@@ -513,7 +520,7 @@ export class QuizService implements OnDestroy {
   }
 
   validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
-    if (!currentQuestionValue || !answers) {
+    if (!currentQuestionValue || !answers || answers.length === 0) {
       console.error('Question or Answers is not defined');
       return false;
     }
