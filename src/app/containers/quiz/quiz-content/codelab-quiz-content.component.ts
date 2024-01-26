@@ -504,6 +504,6 @@ export class CodelabQuizContentComponent
     this.questionText = this.question.questionText;
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
     this.quizService.updateQuestionText(this.questionText);
-    this.quizService.updateCorrectAnswersCount(this.correctAnswersText);
+    this.quizService.updateCorrectAnswersText(this.correctAnswersText);
   }
 }
