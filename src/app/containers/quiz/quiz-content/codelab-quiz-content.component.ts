@@ -97,6 +97,9 @@ export class CodelabQuizContentComponent
 
   combinedText$: Observable<string>;
 
+  questionText = '';
+  correctAnswersCount = 0;
+
   displayCorrectAnswers = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
@@ -495,5 +498,10 @@ export class CodelabQuizContentComponent
       // For all other types of questions, do not display correct answers
       this.shouldDisplayCorrectAnswers = false;
     }
+  }
+
+  updateQuizStatus() {
+    this.quizService.updateQuestionText(this.questionText);
+    this.quizService.updateCorrectAnswersCount(this.correctAnswersCount);
   }
 }
