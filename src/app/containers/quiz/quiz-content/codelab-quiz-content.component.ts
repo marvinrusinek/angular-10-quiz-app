@@ -243,14 +243,14 @@ export class CodelabQuizContentComponent
   }
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details and calculate the number of correct answers
+    // Update question details and display correct answers
     this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
   
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
   
     // Determine if correct answers count should be displayed
-    this.handleCorrectAnswersDisplay();
+    this.handleCorrectAnswersDisplay(question);
   }
   
   // Function to update question details and display correct answers
@@ -260,7 +260,7 @@ export class CodelabQuizContentComponent
   }
   
   // Function to handle the display of correct answers
-  private handleCorrectAnswersDisplay(): void {
+  private handleCorrectAnswersDisplay(question: QuizQuestion): void {
     const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
   
@@ -282,10 +282,11 @@ export class CodelabQuizContentComponent
       });
   }
   
-  // Function to check if it's a single-answer question
+  // Function to check if it's a single-answer question with an explanation
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
-    return !isMultipleAnswer && !isExplanationDisplayed;
+    return !isMultipleAnswer && isExplanationDisplayed;
   }
+  
   
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
