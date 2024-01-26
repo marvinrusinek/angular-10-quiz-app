@@ -468,9 +468,7 @@ export class QuizService implements OnDestroy {
     if (!foundQuiz) {
       return false;
     }
-
     this.quiz = foundQuiz;
-    console.log('Quiz:', this.quiz);
 
     if (!this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex)) {
       return false;
