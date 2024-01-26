@@ -33,7 +33,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     private quizService: QuizService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) {
+    this.quizService.badgeText.subscribe(updatedText => {
+      this.badgeText = updatedText;
+    });
+  }
 
   ngOnInit(): void {
     this.activatedRoute.params.pipe(
@@ -82,5 +86,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     if (questionNumber > 0 && questionNumber <= totalQuestions) {
       this.badgeText = 'Question ' + questionNumber + ' of ' + totalQuestions;
     }
+  }
+
+  updateQuestionBadge() {
+    this.quizService.updateBadgeText(this.badgeText);
   }
 }
