@@ -314,7 +314,13 @@ export class CodelabQuizContentComponent
     );
   
     const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
-    if (questionIndex !== -1 && questionIndex < questions.length - 1) {
+  
+    if (questionIndex === -1) {
+      console.error('Current question not found in the questions array.');
+      return;
+    }
+  
+    if (questionIndex < questions.length - 1) {
       const nextQuestion = questions[questionIndex + 1];
       if (nextQuestion) {
         this.setExplanationForNextQuestion(questionIndex + 1, nextQuestion);
@@ -325,11 +331,11 @@ export class CodelabQuizContentComponent
         console.warn('Next question not found in the questions array.');
       }
     } else {
-      console.warn('Current question not found in the questions array.');
+      console.warn('Current question is the last question in the array.');
     }
-
+  
     this.explanationTextService.setIsExplanationTextDisplayed(true);
-  }
+  }  
   
   private setExplanationForNextQuestion(questionIndex: number, nextQuestion: QuizQuestion): void {
     const nextExplanationText = nextQuestion.explanation;
