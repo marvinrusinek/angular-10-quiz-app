@@ -90,8 +90,8 @@ export class QuizService implements OnDestroy {
   resources: Resource[];
   quizId = '';
   answers: number[] = [];
-  private answerStatus = new BehaviorSubject<boolean>(false); // currently not being used 01-08-24
-  answerStatus$ = this.answerStatus.asObservable(); // currently not being used 01-08-24
+  private answerStatus = new BehaviorSubject<boolean>(false);
+  answerStatus$ = this.answerStatus.asObservable();
   totalQuestions = 0;
   correctCount: number;
 
@@ -778,7 +778,7 @@ export class QuizService implements OnDestroy {
     return this.shouldDisplayExplanation;
   }
 
-  submitQuiz(): Observable<void> {
+  /* submitQuiz(): Observable<void> {
     const quizScore: QuizScore = {
       quizId: this.selectedQuiz.quizId,
       attemptDateTime: new Date(),
@@ -787,13 +787,43 @@ export class QuizService implements OnDestroy {
     };
     this.quizScore = quizScore;
     return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
-  }
+  } */
 
-  calculateTotalCorrectAnswers(): number {
+  /* calculateTotalCorrectAnswers(): number {
     let totalCorrect = 0;
     for (const answerArray of this.correctAnswers.values()) {
       totalCorrect += answerArray.length;
     }
+    return totalCorrect;
+  } */
+
+  submitQuiz(userAnswers: number[]): Observable<void> {
+    const quizScore: QuizScore = {
+      quizId: this.selectedQuiz.quizId,
+      attemptDateTime: new Date(),
+      score: this.calculateTotalCorrectAnswers(userAnswers), // Pass the user answers to calculate the score
+      totalQuestions: this.questions.length,
+    };
+    this.quizScore = quizScore;
+    return this.http.post<void>(`${this.quizUrl}/quiz/scores`, quizScore);
+  }
+  
+  calculateTotalCorrectAnswers(userAnswers: number[]): number {
+    let totalCorrect = 0;
+  
+    // Assuming `userAnswers` contains the user's answers, you can compare them to correct answers
+    for (let i = 0; i < this.questions.length; i++) {
+      const correctAnswers = this.correctAnswers.get(i.toString()); // Get correct answers for each question
+      if (correctAnswers) {
+        // Compare user's answer to correct answers
+        for (const userAnswer of userAnswers) {
+          if (correctAnswers.includes(userAnswer)) {
+            totalCorrect++;
+          }
+        }
+      }
+    }
+  
     return totalCorrect;
   }
 
