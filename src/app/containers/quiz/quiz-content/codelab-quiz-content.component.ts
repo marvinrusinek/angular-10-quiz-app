@@ -312,17 +312,10 @@ export class CodelabQuizContentComponent
     const questions: QuizQuestion[] = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.quizId)
     );
-
-    console.log('Questions Array Length:', questions.length);
-    console.log('Current Question Text:', question.questionText);
-    console.log('All Question Texts:', questions.map(q => q.questionText));
   
     const questionIndex = questions.findIndex((q) =>
       q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
     );
-    console.log('Current Question Text (Trimmed and Lowercase):', question.questionText.trim().toLowerCase());
-    console.log('All Question Texts (Trimmed and Lowercase):', questions.map(q => q.questionText.trim().toLowerCase()));
-
   
     if (questionIndex === -1) {
       console.error('Current question not found in the questions array.');
@@ -340,11 +333,7 @@ export class CodelabQuizContentComponent
         console.warn('Next question not found in the questions array.');
       }
     } else {
-      // Handle the last question case
-      // You can choose to perform any specific action or logging here
-      // For example, you may decide not to proceed further or display a message.
-      // Suppress the warning for this case
-      console.warn('Current question is the last question in the array.');
+      // console.warn('Current question is the last question in the array.');
     }
       
     this.explanationTextService.setIsExplanationTextDisplayed(true);
