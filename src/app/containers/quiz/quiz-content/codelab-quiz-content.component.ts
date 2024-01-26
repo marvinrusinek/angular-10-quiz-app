@@ -98,7 +98,7 @@ export class CodelabQuizContentComponent
   combinedText$: Observable<string>;
 
   questionText = '';
-  correctAnswersCount = 0;
+  correctAnswersText = '';
 
   displayCorrectAnswers = false;
   isExplanationTextDisplayed = false;
@@ -501,7 +501,9 @@ export class CodelabQuizContentComponent
   }
 
   updateQuizStatus() {
+    this.questionText = this.question.questionText;
+    this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
     this.quizService.updateQuestionText(this.questionText);
-    this.quizService.updateCorrectAnswersCount(this.correctAnswersCount);
+    this.quizService.updateCorrectAnswersCount(this.correctAnswersText);
   }
 }
