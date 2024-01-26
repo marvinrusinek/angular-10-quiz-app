@@ -495,15 +495,17 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
-    console.log("QUIZID", this.quizId);
-  
+    console.log("Quiz ID:", this.quizId);
+
     try {
       const quizzes = await firstValueFrom(this.getQuizData());
-      if (quizzes && Object.keys(quizzes).length > 0) {
-        if (this.quizId && quizzes[this.quizId]) {
-          this.quiz = quizzes[this.quizId];
+      if (quizzes && quizzes.length > 0) {
+        // Find the quiz with the matching quizId
+        const foundQuiz = quizzes.find(quiz => quiz.quizId === this.quizId);
+        if (foundQuiz) {
+          this.quiz = foundQuiz;
         } else {
-          console.error('Invalid quizId or quizId not found in quizzes');
+          console.error(`Invalid quizId (${this.quizId}) or not found in quizzes`);
           return false;
         }
       } else {
@@ -514,10 +516,10 @@ export class QuizService implements OnDestroy {
       console.error('Error fetching quizzes:', error);
       return false;
     }
-  
+
     console.log('Quiz:', this.quiz);
     console.log('Current Question Index:', this.currentQuestionIndex);
-  
+
     if (this.quiz && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.quiz.questions.length) {
       this.currentQuestion.next(this.quiz.questions[this.currentQuestionIndex]);
       console.log("MY CQ", this.currentQuestion);
@@ -525,11 +527,11 @@ export class QuizService implements OnDestroy {
       console.error('Quiz is not initialized or currentQuestionIndex is out of bounds');
       return false;
     }
-  
+
     const currentQuestionValue = this.currentQuestion.getValue(); // Use getValue for synchronous access
     if (!currentQuestionValue || !this.answers) {
-      console.error('Question or Answers is not defined');
-      return false;
+        console.error('Question or Answers is not defined');
+        return false;
     }
   
     const questionCopy = { ...currentQuestionValue }; // Create a copy to avoid unintended modifications
