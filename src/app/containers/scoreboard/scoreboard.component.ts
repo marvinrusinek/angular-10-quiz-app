@@ -8,8 +8,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, ReplaySubject, of, Subject, throwError } from 'rxjs';
-import { catchError, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, ReplaySubject, of, Subject } from 'rxjs';
+import { catchError, startWith, switchMap, takeUntil, tap, throwError } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -50,7 +50,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
         }
         return of(null);
       }),
-      catchError((error) => {
+      catchError((error: Error) => {
         console.error('Error in switchMap: ', error);
         return throwError(error);
       })
@@ -61,6 +61,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       }
       return of(totalQuestions);
     });
+
+    this.updateQuestionBadge();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -88,7 +90,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  updateQuestionBadge() {
+  updateQuestionBadge(): void {
     this.quizService.updateBadgeText(this.badgeText);
   }
 }
