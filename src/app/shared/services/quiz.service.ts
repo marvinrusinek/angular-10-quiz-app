@@ -490,12 +490,12 @@ export class QuizService implements OnDestroy {
 
     if (correctAnswerFound.includes(true)) {
       // The answer is correct, update the score accordingly
-      this.updateScoreForCorrectAnswer();
+      this.incrementScore(this.answers, true, this.multipleAnswer);
     } else {
       // The answer is incorrect, update the score accordingly
-      this.updateScoreForIncorrectAnswer();
+      this.incrementScore(this.answers, false, this.multipleAnswer);
     }
-  
+      
     // ...rest of function logic...
     // Process user answers, update score, etc.
   
