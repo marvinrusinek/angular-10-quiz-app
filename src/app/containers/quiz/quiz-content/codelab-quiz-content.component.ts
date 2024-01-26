@@ -332,6 +332,9 @@ export class CodelabQuizContentComponent
       }
     } else {
       console.warn('Current question is the last question in the array.');
+      // Handle the case where the current question is the last question
+      // You can choose to perform any specific action or logging here
+      // For example, you may decide not to proceed further or display a message.
     }
   
     this.explanationTextService.setIsExplanationTextDisplayed(true);
