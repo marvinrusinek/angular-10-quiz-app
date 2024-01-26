@@ -495,15 +495,15 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
+    console.log("QUIZID", this.quizId);
   
     try {
       const quizzes = await firstValueFrom(this.getQuizData());
-      if (quizzes && quizzes.length > 0) {
-        // Check if quizId is valid and within the range of available quizzes
-        if (this.quizId != null && quizzes[this.quizId]) {
-          this.quiz = quizzes[this.quizId]; // Use quizId to select the specific quiz
+      if (quizzes && Object.keys(quizzes).length > 0) {
+        if (this.quizId && quizzes[this.quizId]) {
+          this.quiz = quizzes[this.quizId];
         } else {
-          console.error('Invalid quizId or quizId out of bounds');
+          console.error('Invalid quizId or quizId not found in quizzes');
           return false;
         }
       } else {
