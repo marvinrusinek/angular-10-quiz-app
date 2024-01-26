@@ -907,10 +907,16 @@ export class QuizService implements OnDestroy {
   }
 
   calculatePercentageOfCorrectlyAnsweredQuestions(): number {
-    return Math.round(
-      (this.correctAnswersCountSubject.getValue() / this.totalQuestions) * 100
-    );
+    const correctAnswers = this.correctAnswersCountSubject.getValue();
+    const totalQuestions = this.totalQuestions;
+  
+    if (totalQuestions === 0) {
+      return 0; // Handle division by zero
+    }
+  
+    return Math.round((correctAnswers / totalQuestions) * 100);
   }
+  
 
   saveHighScores(): void {
     this.quizScore = {
