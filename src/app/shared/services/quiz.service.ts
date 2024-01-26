@@ -495,15 +495,36 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
-    this.currentQuestion.next(this.quiz.questions[this.currentQuestionIndex]);
-    console.log('Current Question::', this.currentQuestion);  // NOT the current question
   
-    if (!this.currentQuestion || !this.answers) {
+    try {
+      const quizzes = await firstValueFrom(this.getQuizData());
+      if (quizzes && quizzes.length > 0) {
+        this.quiz = quizzes[0]; // Assuming you want the first quiz
+      } else {
+        console.error('No quizzes available');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error fetching quizzes:', error);
+      return false;
+    }
+  
+    console.log('Quiz:', this.quiz);
+    console.log('Current Question Index:', this.currentQuestionIndex);
+  
+    if (this.quiz && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.quiz.questions.length) {
+      this.currentQuestion.next(this.quiz.questions[this.currentQuestionIndex]);
+    } else {
+      console.error('Quiz is not initialized or currentQuestionIndex is out of bounds');
+      return false;
+    }
+  
+    const currentQuestionValue = this.currentQuestion.getValue(); // Use getValue for synchronous access
+    if (!currentQuestionValue || !this.answers) {
       console.error('Question or Answers is not defined');
       return false;
     }
   
-    const currentQuestionValue = this.currentQuestion.value; // Access the value if it's an observable
     const questionCopy = { ...currentQuestionValue }; // Create a copy to avoid unintended modifications
   
     const correctAnswerFound = await Promise.all(this.answers.map(async (answer) => {
@@ -530,10 +551,9 @@ export class QuizService implements OnDestroy {
   
     this.incrementScore(this.answers, correctAnswerFound.includes(true));
   
-    // Return whether any selected answer was correct
     return correctAnswerFound.includes(true);
   }
-
+  
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
     if (correctAnswerFound && answers.length === this.numberOfCorrectAnswers) {
