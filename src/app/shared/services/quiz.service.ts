@@ -495,6 +495,7 @@ export class QuizService implements OnDestroy {
 
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
+    this.currentQuestion.next(this.quiz.questions[this.currentQuestionIndex]);
     console.log('Current Question::', this.currentQuestion);  // NOT the current question
   
     if (!this.currentQuestion || !this.answers) {
