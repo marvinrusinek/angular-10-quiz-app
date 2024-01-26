@@ -35,7 +35,7 @@ export class ReturnComponent implements OnInit {
     this.quizService.resetQuestions();
     this.timerService.elapsedTimes = [];
     this.timerService.completionTime = 0;
-    this.router.navigate(["/intro/", this.quizId]).then();
+    this.router.navigate(["/intro/", this.quizId]);
   }
 
   selectQuiz(): void {
@@ -43,6 +43,6 @@ export class ReturnComponent implements OnInit {
     this.quizService.resetQuestions();
     this.quizId = "";
     this.indexOfQuizId = 0;
-    this.router.navigate(["/select/"]).then();
+    this.router.navigate(["/select/"]);
   }
 }
