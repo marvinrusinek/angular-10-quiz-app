@@ -556,22 +556,27 @@ export class CodelabQuizContentComponent
       const textToDisplay = shouldDisplayExplanation ? 
         this.explanationToDisplay || '' : this.questionToDisplay || '';
   
-      // Add an if statement to handle single-answer questions
-      if (this.isSingleAnswerQuestion) {
-        // Check if an explanation is displayed
-        if (shouldDisplayExplanation) {
-          // Do not display correct answers for single-answer questions with an explanation
-          this.shouldDisplayCorrectAnswers = false;
-        } else {
-          // Display correct answers for single-answer questions without an explanation
-          this.shouldDisplayCorrectAnswers = true;
-        }
-      } else {
-        // For all other types of questions, do not display correct answers
-        this.shouldDisplayCorrectAnswers = false;
-      }
-  
+      this.handleSingleAnswerQuestions(shouldDisplayExplanation);
+
       return of(textToDisplay);
     }
-  }  
+  }
+
+  // Function to handle displaying correct answers for single-answer questions
+  private handleSingleAnswerQuestions(shouldDisplayExplanation: boolean) {
+    // Add an if statement to handle single-answer questions
+    if (this.isSingleAnswerQuestion) {
+      // Check if an explanation is displayed
+      if (shouldDisplayExplanation) {
+        // Do not display correct answers for single-answer questions with an explanation
+        this.shouldDisplayCorrectAnswers = false;
+      } else {
+        // Display correct answers for single-answer questions without an explanation
+        this.shouldDisplayCorrectAnswers = true;
+      }
+    } else {
+      // For all other types of questions, do not display correct answers
+      this.shouldDisplayCorrectAnswers = false;
+    }
+  }
 }
