@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -108,6 +109,7 @@ export class CodelabQuizContentComponent
   explanationDisplayed = false;
   isCurrentQuestionMultipleAnswer: boolean;
   isQuestionActive = false;
+  isSingleAnswerQuestion: boolean = false;
 
   
 
@@ -120,7 +122,8 @@ export class CodelabQuizContentComponent
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -141,7 +144,7 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
+   // this.explanationTextService.setIsExplanationTextDisplayed(false);
 
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
@@ -243,7 +246,7 @@ export class CodelabQuizContentComponent
       .subscribe();
   }
 
-  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
@@ -278,8 +281,86 @@ export class CodelabQuizContentComponent
 
     // Manually trigger change detection to ensure view updates
     this.cdRef.detectChanges();
-  }
+  } */
+
+  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
   
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Combine observables to determine if correct answers count should be displayed
+    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
+    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
+  
+    // Wait for both values and debounce the state update
+    let isMultipleAnswer: boolean;
+    let isExplanationDisplayed: boolean;
+  
+    [isMultipleAnswer, isExplanationDisplayed] = await firstValueFrom(
+      combineLatest([
+        isMultipleAnswer$,
+        isExplanationDisplayed$
+      ]).pipe(
+        debounceTime(10),
+        map(([isMultipleAnswer, isExplanationDisplayed]) => [
+          isMultipleAnswer as boolean,
+          isExplanationDisplayed as boolean
+        ]),
+        take(1)
+      )
+    );
+  
+    // Delay the update of shouldDisplayCorrectAnswers to prevent flashing
+    setTimeout(() => {
+      this.shouldDisplayCorrectAnswersSubject.next(isMultipleAnswer && !isExplanationDisplayed);
+      // Manually trigger change detection to ensure view updates
+      this.cdRef.detectChanges();
+    }, 100); // Adjust the delay time as necessary
+  } */
+  
+  private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Update question details
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+  
+    // Fetch and display explanation for the question
+    await this.fetchAndDisplayExplanationText(question);
+  
+    // Combine observables to determine if correct answers count should be displayed
+    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
+    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
+  
+    // Wait for both values
+    const [isMultipleAnswer, isExplanationDisplayed] = await firstValueFrom(
+      combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
+    );
+  
+    // Check if it's a single-answer question
+    const isSingleAnswerQuestion = !isMultipleAnswer;
+  
+    // Use a switchMap to handle the display of correct answers
+    combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
+      .pipe(
+        take(1),
+        switchMap(([isMultipleAnswer, isExplanationDisplayed]) => {
+          if (isSingleAnswerQuestion && isExplanationDisplayed) {
+            // For single-answer questions with an explanation, do not display correct answers
+            return of(false);
+          } else {
+            // For all other cases, display correct answers
+            return of(isMultipleAnswer && !isExplanationDisplayed);
+          }
+        })
+      )
+      .subscribe((shouldDisplayCorrectAnswers: boolean) => {
+        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
+        // Manually trigger change detection to ensure view updates
+        this.cdRef.detectChanges();
+      });
+  }
   
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
@@ -449,7 +530,7 @@ export class CodelabQuizContentComponent
     );
   }  
   
-  private determineTextToDisplay(
+  /* private determineTextToDisplay(
     [nextQuestion, previousQuestion, nextExplanationText, 
      formattedExplanation, shouldDisplayExplanation]): Observable<string> {
     if ((!nextQuestion || !nextQuestion.questionText) && 
@@ -463,5 +544,34 @@ export class CodelabQuizContentComponent
 
       return of(textToDisplay);
     }
-  }
+  } */
+
+  private determineTextToDisplay(
+    [nextQuestion, previousQuestion, nextExplanationText, 
+    formattedExplanation, shouldDisplayExplanation]): Observable<string> {
+    if ((!nextQuestion || !nextQuestion.questionText) && 
+        (!previousQuestion || !previousQuestion.questionText)) {
+      return of('');
+    } else {
+      const textToDisplay = shouldDisplayExplanation ? 
+        this.explanationToDisplay || '' : this.questionToDisplay || '';
+  
+      // Add an if statement to handle single-answer questions
+      if (this.isSingleAnswerQuestion) {
+        // Check if an explanation is displayed
+        if (shouldDisplayExplanation) {
+          // Do not display correct answers for single-answer questions with an explanation
+          this.shouldDisplayCorrectAnswers = false;
+        } else {
+          // Display correct answers for single-answer questions without an explanation
+          this.shouldDisplayCorrectAnswers = true;
+        }
+      } else {
+        // For all other types of questions, do not display correct answers
+        this.shouldDisplayCorrectAnswers = false;
+      }
+  
+      return of(textToDisplay);
+    }
+  }  
 }
