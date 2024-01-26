@@ -53,6 +53,7 @@ export class SummaryReportComponent implements OnInit {
     this.calculateElapsedTime();
     this.quizService.saveHighScores();
     this.highScores = this.quizService.highScores;
+    console.log("QMP", this.quizMetadata.percentage);
   }
 
   calculateElapsedTime(): void {
