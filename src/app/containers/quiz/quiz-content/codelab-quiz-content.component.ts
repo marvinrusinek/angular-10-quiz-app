@@ -317,7 +317,12 @@ export class CodelabQuizContentComponent
     console.log('Current Question Text:', question.questionText);
     console.log('All Question Texts:', questions.map(q => q.questionText));
   
-    const questionIndex = questions.findIndex((q) => q.questionText === question.questionText);
+    const questionIndex = questions.findIndex((q) =>
+      q.questionText.trim().toLowerCase() === question.questionText.trim().toLowerCase()
+    );
+    console.log('Current Question Text (Trimmed and Lowercase):', question.questionText.trim().toLowerCase());
+    console.log('All Question Texts (Trimmed and Lowercase):', questions.map(q => q.questionText.trim().toLowerCase()));
+
   
     if (questionIndex === -1) {
       console.error('Current question not found in the questions array.');
