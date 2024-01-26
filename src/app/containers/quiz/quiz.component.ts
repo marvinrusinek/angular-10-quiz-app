@@ -1173,6 +1173,9 @@ export class QuizComponent implements OnInit, OnDestroy {
         this.currentQuestion = questionDetails;
         this.quizStateService.updateCurrentQuestion(questionDetails);
         this.setQuestionDetails(questionText, options, explanation);
+
+        // Check if the user has answered the question correctly
+        const isAnsweredCorrectly = this.quizService.checkIfAnsweredCorrectly(this.currentQuestion, this.userAnswers);
   
         // Reset UI and handle any necessary navigation
         await this.resetUIAndNavigate(questionIndex);
