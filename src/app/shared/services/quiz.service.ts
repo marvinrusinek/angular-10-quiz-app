@@ -461,108 +461,83 @@ export class QuizService implements OnDestroy {
     return !!this.answers[this.currentQuestionIndex];
   }
 
-  /* checkIfAnsweredCorrectly(): boolean {
-    console.log('Answers:', this.answers);
-    console.log('Current Question:', this.question);
-
-    if (!this.question || !this.answers) {
-      console.error('Question or Answers is not defined');
-      return false;
-    }
-  
-    const questionCopy = { ...this.question }; // Create a copy to avoid unintended modifications
-    const correctAnswerFound = this.answers.some((answer) => {
-      const option = questionCopy.options && questionCopy.options[answer];
-      console.log('Answer:', answer, 'Option:', option);
-      const isCorrect = option && option['selected'] && option['correct'];
-      console.log('Is correct:', isCorrect);
-      return isCorrect;
-    });
-  
-    if (this.isQuestionAnswered()) {
-      const answers = this.answers.map((answer) => answer + 1);
-      this.userAnswers.push(answers);
-    } else {
-      const answers = this.answers;
-      this.userAnswers.push(this.answers);
-    }
-  
-    this.incrementScore(this.answers, correctAnswerFound);
-  
-    // Return whether any of the selected answers was correct
-    return correctAnswerFound;
-  } */
-
   async checkIfAnsweredCorrectly(): Promise<boolean> {
     console.log('Answers::', this.answers);
-    console.log("Quiz ID:", this.quizId);
 
+    const foundQuiz = await this.fetchAndFindQuiz(this.quizId);
+    if (!foundQuiz) {
+      return false;
+    }
+
+    this.quiz = foundQuiz;
+    console.log('Quiz:', this.quiz);
+
+    if (!this.validateAndSetCurrentQuestion(this.quiz, this.currentQuestionIndex)) {
+      return false;
+    }
+
+    const currentQuestionValue = this.currentQuestion.getValue();
+    if (!this.validateAnswers(currentQuestionValue, this.answers)) {
+      return false;
+    }
+
+    const correctAnswerFound = await this.determineCorrectAnswer(currentQuestionValue, this.answers);
+
+    // ...rest of function logic...
+    // Process user answers, update score, etc.
+
+    return correctAnswerFound.includes(true);
+  }
+
+  async fetchAndFindQuiz(quizId: string): Promise<Quiz | null> {
     try {
       const quizzes = await firstValueFrom(this.getQuizData());
       if (quizzes && quizzes.length > 0) {
-        // Find the quiz with the matching quizId
-        const foundQuiz = quizzes.find(quiz => quiz.quizId === this.quizId);
-        if (foundQuiz) {
-          this.quiz = foundQuiz;
-        } else {
-          console.error(`Invalid quizId (${this.quizId}) or not found in quizzes`);
-          return false;
-        }
+        return quizzes.find(quiz => quiz.quizId === quizId) || null;
       } else {
         console.error('No quizzes available');
-        return false;
+        return null;
       }
     } catch (error) {
       console.error('Error fetching quizzes:', error);
-      return false;
+      return null;
     }
+  }
 
-    console.log('Quiz:', this.quiz);
-    console.log('Current Question Index:', this.currentQuestionIndex);
-
-    if (this.quiz && this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.quiz.questions.length) {
-      this.currentQuestion.next(this.quiz.questions[this.currentQuestionIndex]);
-      console.log("MY CQ", this.currentQuestion);
+  validateAndSetCurrentQuestion(quiz: Quiz, currentQuestionIndex: number): boolean {
+    if (quiz && currentQuestionIndex >= 0 && currentQuestionIndex < quiz.questions.length) {
+      this.currentQuestion.next(quiz.questions[currentQuestionIndex]);
+      return true;
     } else {
       console.error('Quiz is not initialized or currentQuestionIndex is out of bounds');
       return false;
     }
+  }
 
-    const currentQuestionValue = this.currentQuestion.getValue(); // Use getValue for synchronous access
-    if (!currentQuestionValue || !this.answers) {
-        console.error('Question or Answers is not defined');
-        return false;
+  validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
+    if (!currentQuestionValue || !answers) {
+      console.error('Question or Answers is not defined');
+      return false;
     }
-  
-    const questionCopy = { ...currentQuestionValue }; // Create a copy to avoid unintended modifications
-  
-    const correctAnswerFound = await Promise.all(this.answers.map(async (answer) => {
-      const option = questionCopy.options && questionCopy.options[answer];
+    return true;
+  }
+
+  async determineCorrectAnswer(question: QuizQuestion, answers: any[]): Promise<boolean[]> {
+    return await Promise.all(answers.map(async (answer) => {
+      const option = question.options && question.options[answer];
       console.log('Answer:', answer, 'Option:', option);
-  
+
       if (!option) {
         console.error('Option not found for answer:', answer);
         return false;
       }
-  
+
       const isCorrect = option['selected'] && option['correct'];
       console.log('Is correct:', isCorrect);
       return isCorrect;
     }));
-  
-    if (this.isQuestionAnswered()) {
-      const answers = this.answers.map((answer) => answer + 1);
-      this.userAnswers.push(answers);
-    } else {
-      const answers = this.answers;
-      this.userAnswers.push(this.answers);
-    }
-  
-    this.incrementScore(this.answers, correctAnswerFound.includes(true));
-  
-    return correctAnswerFound.includes(true);
   }
-  
+
   incrementScore(answers: number[], correctAnswerFound: boolean): void {
     // TODO: for multiple-answer questions, ALL correct answers should be marked correct for the score to increase
     if (correctAnswerFound && answers.length === this.numberOfCorrectAnswers) {
