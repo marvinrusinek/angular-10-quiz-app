@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -122,8 +121,7 @@ export class CodelabQuizContentComponent
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private activatedRoute: ActivatedRoute
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -245,81 +243,6 @@ export class CodelabQuizContentComponent
       )
       .subscribe();
   }
-
-  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details
-    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
-    this.calculateAndDisplayNumberOfCorrectAnswers();
-
-    // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
-    
-    // Combine observables to determine if correct answers count should be displayed
-    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
-    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
-
-    // Wait for both values and debounce the state update
-    let isMultipleAnswer: boolean;
-    let isExplanationDisplayed: boolean;
-
-    [isMultipleAnswer, isExplanationDisplayed] = await firstValueFrom(
-      combineLatest([
-        isMultipleAnswer$,
-        isExplanationDisplayed$
-      ]).pipe(
-        debounceTime(10),
-        map(([isMultipleAnswer, isExplanationDisplayed]) => [
-          isMultipleAnswer as boolean,
-          isExplanationDisplayed as boolean
-        ]),
-        take(1)
-      )
-    );
-
-    // Update shouldDisplayCorrectAnswers using the BehaviorSubject
-    this.shouldDisplayCorrectAnswersSubject.next(isMultipleAnswer && !isExplanationDisplayed);
-
-    // Manually trigger change detection to ensure view updates
-    this.cdRef.detectChanges();
-  } */
-
-  /* private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details
-    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
-    this.calculateAndDisplayNumberOfCorrectAnswers();
-  
-    // Fetch and display explanation for the question
-    await this.fetchAndDisplayExplanationText(question);
-  
-    // Combine observables to determine if correct answers count should be displayed
-    const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
-    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
-  
-    // Wait for both values and debounce the state update
-    let isMultipleAnswer: boolean;
-    let isExplanationDisplayed: boolean;
-  
-    [isMultipleAnswer, isExplanationDisplayed] = await firstValueFrom(
-      combineLatest([
-        isMultipleAnswer$,
-        isExplanationDisplayed$
-      ]).pipe(
-        debounceTime(10),
-        map(([isMultipleAnswer, isExplanationDisplayed]) => [
-          isMultipleAnswer as boolean,
-          isExplanationDisplayed as boolean
-        ]),
-        take(1)
-      )
-    );
-  
-    // Delay the update of shouldDisplayCorrectAnswers to prevent flashing
-    setTimeout(() => {
-      this.shouldDisplayCorrectAnswersSubject.next(isMultipleAnswer && !isExplanationDisplayed);
-      // Manually trigger change detection to ensure view updates
-      this.cdRef.detectChanges();
-    }, 100); // Adjust the delay time as necessary
-  } */
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
     // Update question details
@@ -357,12 +280,9 @@ export class CodelabQuizContentComponent
       )
       .subscribe((shouldDisplayCorrectAnswers: boolean) => {
         this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-        // Manually trigger change detection to ensure view updates
-        this.cdRef.detectChanges();
       });
   }
   
-
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
     this.numberOfCorrectAnswers = this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
@@ -528,23 +448,7 @@ export class CodelabQuizContentComponent
         console.error('Error in combinedText$ observable:', error);
       })
     );
-  }  
-  
-  /* private determineTextToDisplay(
-    [nextQuestion, previousQuestion, nextExplanationText, 
-     formattedExplanation, shouldDisplayExplanation]): Observable<string> {
-    if ((!nextQuestion || !nextQuestion.questionText) && 
-        (!previousQuestion || !previousQuestion.questionText)) {
-      return of('');
-    } else {
-      const textToDisplay = shouldDisplayExplanation ? 
-        this.explanationToDisplay || '' : this.questionToDisplay || '';
-      
-      this.shouldDisplayCorrectAnswers = !shouldDisplayExplanation;
-
-      return of(textToDisplay);
-    }
-  } */
+  }
 
   private determineTextToDisplay(
     [nextQuestion, previousQuestion, nextExplanationText, 
