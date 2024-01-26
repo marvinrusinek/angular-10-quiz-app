@@ -243,31 +243,32 @@ export class CodelabQuizContentComponent
   }
   
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
-    // Update question details
-    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
-    this.calculateAndDisplayNumberOfCorrectAnswers();
+    // Update question details and calculate the number of correct answers
+    this.updateQuestionDetailsAndDisplayCorrectAnswers(question);
   
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
   
-    // Combine observables to determine if correct answers count should be displayed
+    // Determine if correct answers count should be displayed
+    this.handleCorrectAnswersDisplay();
+  }
+  
+  // Function to update question details and display correct answers
+  private updateQuestionDetailsAndDisplayCorrectAnswers(question: QuizQuestion): void {
+    this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
+    this.calculateAndDisplayNumberOfCorrectAnswers();
+  }
+  
+  // Function to handle the display of correct answers
+  private handleCorrectAnswersDisplay(): void {
     const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
   
-    // Wait for both values
-    const [isMultipleAnswer, isExplanationDisplayed] = await firstValueFrom(
-      combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
-    );
-  
-    // Check if it's a single-answer question
-    const isSingleAnswerQuestion = !isMultipleAnswer;
-  
-    // Use a switchMap to handle the display of correct answers
     combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
       .pipe(
         take(1),
         switchMap(([isMultipleAnswer, isExplanationDisplayed]) => {
-          if (isSingleAnswerQuestion && isExplanationDisplayed) {
+          if (this.isSingleAnswerWithExplanation(isMultipleAnswer, isExplanationDisplayed)) {
             // For single-answer questions with an explanation, do not display correct answers
             return of(false);
           } else {
@@ -279,6 +280,11 @@ export class CodelabQuizContentComponent
       .subscribe((shouldDisplayCorrectAnswers: boolean) => {
         this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
       });
+  }
+  
+  // Function to check if it's a single-answer question
+  private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
+    return !isMultipleAnswer && !isExplanationDisplayed;
   }
   
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
