@@ -19,6 +19,7 @@ import {
 } from 'rxjs';
 import {
   catchError,
+  debounceTime,
   map,
   mergeMap,
   startWith,
@@ -77,7 +78,10 @@ export class CodelabQuizContentComponent
     new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
   shouldDisplayCorrectAnswers = false;
-  shouldDisplayCorrectAnswers$: Observable<boolean>;
+  // shouldDisplayCorrectAnswers$: Observable<boolean>;
+  private shouldDisplayCorrectAnswersSubject = new BehaviorSubject<boolean>(false);
+  // Expose as an observable for use in the template
+  shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
 
   currentQuestionSubscription: Subscription;
   nextQuestionSubscription: Subscription;
@@ -104,6 +108,8 @@ export class CodelabQuizContentComponent
   explanationDisplayed = false;
   isCurrentQuestionMultipleAnswer: boolean;
   isQuestionActive = false;
+
+  
 
   private destroy$ = new Subject<void>();
 
@@ -238,25 +244,43 @@ export class CodelabQuizContentComponent
   }
 
   private async processCurrentQuestion(question: QuizQuestion): Promise<void> {
+    // Update question details
     this.quizQuestionManagerService.updateCurrentQuestionDetail(question);
     this.calculateAndDisplayNumberOfCorrectAnswers();
-  
+
     // Fetch and display explanation for the question
     await this.fetchAndDisplayExplanationText(question);
     
     // Combine observables to determine if correct answers count should be displayed
     const isMultipleAnswer$ = this.quizStateService.isMultipleAnswer(question);
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$;
-  
-    combineLatest([isMultipleAnswer$, isExplanationDisplayed$]).pipe(
-      take(1),
-      map(([isMultipleAnswer, isExplanationDisplayed]) => 
-        isMultipleAnswer && !isExplanationDisplayed
+
+    // Wait for both values and debounce the state update
+    let isMultipleAnswer: boolean;
+    let isExplanationDisplayed: boolean;
+
+    [isMultipleAnswer, isExplanationDisplayed] = await firstValueFrom(
+      combineLatest([
+        isMultipleAnswer$,
+        isExplanationDisplayed$
+      ]).pipe(
+        debounceTime(10),
+        map(([isMultipleAnswer, isExplanationDisplayed]) => [
+          isMultipleAnswer as boolean,
+          isExplanationDisplayed as boolean
+        ]),
+        take(1)
       )
-    ).subscribe((shouldDisplayCorrectAnswers: boolean) => {
-      this.shouldDisplayCorrectAnswers = shouldDisplayCorrectAnswers;
-    });
-  }  
+    );
+
+    // Update shouldDisplayCorrectAnswers using the BehaviorSubject
+    this.shouldDisplayCorrectAnswersSubject.next(isMultipleAnswer && !isExplanationDisplayed);
+
+    // Manually trigger change detection to ensure view updates
+    this.cdRef.detectChanges();
+  }
+  
+  
 
   private calculateAndDisplayNumberOfCorrectAnswers(): void {
     // Calculate the number of correct answers
