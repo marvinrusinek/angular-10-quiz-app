@@ -8,8 +8,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, ReplaySubject, of, Subject } from 'rxjs';
-import { catchError, startWith, switchMap, takeUntil, tap, throwError } from 'rxjs/operators';
+import { ReplaySubject, of, Subject } from 'rxjs';
+import { catchError, switchMap, takeUntil, throwError } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 import { TimerService } from '../../shared/services/timer.service';
@@ -18,7 +18,7 @@ import { TimerService } from '../../shared/services/timer.service';
   selector: 'codelab-scoreboard',
   templateUrl: './scoreboard.component.html',
   styleUrls: ['./scoreboard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedAnswer: number;
