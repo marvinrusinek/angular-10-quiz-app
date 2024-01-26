@@ -142,8 +142,6 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-   // this.explanationTextService.setIsExplanationTextDisplayed(false);
-
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
     this.handleQuestionDisplayLogic();
