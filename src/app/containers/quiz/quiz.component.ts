@@ -595,8 +595,8 @@ export class QuizComponent implements OnInit, OnDestroy {
       }
   
       this.quizData = quizInfo; // assign the whole QuizData object to this.quizData
-      if (this.quizData.questions) {
-        const explanations = this.quizData.questions.map(question => question.explanation);
+      if (this.quizData[0].questions) {
+        const explanations = this.quizData[0].questions.map(question => question.explanation);
         this.explanationTextService.initializeExplanationTexts(explanations);
       } else {
         console.error("Questions are undefined");
