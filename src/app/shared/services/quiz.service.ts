@@ -580,7 +580,7 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  updateCorrectAnswersText(newText: number) {
+  updateCorrectAnswersText(newText: string) {
     this.correctAnswersCountSource.next(newText);
   }
   
