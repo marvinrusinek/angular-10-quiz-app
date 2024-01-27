@@ -940,20 +940,36 @@ export class QuizService implements OnDestroy {
         console.error('Error getting quiz questions:', error);
         this.questionLoadingSubject.next(false);
         this.loadingQuestions = false;
-        return throwError(error);
+        // Return an observable that emits an error, ensuring the return type is consistent
+        return throwError(() => new Error('Error getting quiz questions'));
       }),
       switchMap((questions: QuizQuestion[]) => {
         if (Array.isArray(questions) && questions.length > 0) {
           const currentQuestionIndex = this.currentQuestionIndex ?? 0;
-          this.currentQuestionSubject.next(questions[currentQuestionIndex]);
+          // Ensure we're emitting a QuizQuestion or a suitable fallback
+          const currentQuestion = questions[currentQuestionIndex] ?? this.getFallbackQuestion();
+          this.currentQuestionSubject.next(currentQuestion);
           return this.currentQuestionSubject.asObservable();
         } else {
-          throw new Error('getCurrentQuestion() did not return an array');
+          // Provide a fallback observable for when questions are not available
+          return of(this.getFallbackQuestion());
         }
       })
     );
   }
 
+  getFallbackQuestion(): QuizQuestion {
+    // Check if quizData is available and has at least one question
+    if (Array.isArray(this.quizData) && this.quizData.length > 0 && this.quizData[0].questions.length > 0) {
+      // Return the first question of the first quiz as the fallback question
+      return this.quizData[0].questions[0];
+    } else {
+      // Fallback to a more generic error handling if no questions are available
+      console.error("No questions available for fallback.");
+      return null;
+    }
+  }
+  
   /* getCorrectAnswers(question: QuizQuestion): number[] {
     if (question && question.options) {
       return question.options
