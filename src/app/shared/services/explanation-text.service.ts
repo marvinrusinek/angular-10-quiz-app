@@ -60,20 +60,6 @@ export class ExplanationTextService implements OnDestroy {
     this.explanationDisplayedSource.next(isDisplayed);
   }
 
-  notifyExplanationDisplayed() {
-    this.explanationDisplayedSource.next(true);
-  }
-
-  onExplanationDisplayed(callback: () => void) {
-    this.explanationDisplayedSource.asObservable().subscribe((isDisplayed) => {
-      if (isDisplayed) callback();
-    });
-  }
-
-  isExplanationDisplayed(): boolean {
-    return this.explanationDisplayedSource.getValue();
-  }
-
   getExplanationText$(): Observable<string | null> {
     return this.explanationText$.asObservable();
   }
