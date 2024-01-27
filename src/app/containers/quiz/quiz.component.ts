@@ -506,14 +506,9 @@ export class QuizComponent implements OnInit, OnDestroy {
       });
   }
 
-  private initializeQuizState(): void {
-    console.log('Quiz Data:', this.quizData);
-    console.log('Quiz ID:', this.quizId);
-    console.log('Current Question Index:', this.currentQuestionIndex);
-  
+  private initializeQuizState(): void {  
     // Find the current quiz object by quizId
-    const currentQuiz = this.quizData.find(quiz => quiz.quizId === this.quizId);
-  
+    const currentQuiz = this.findQuizByQuizId(this.quizId);  
     if (!currentQuiz) {
       console.error(`Quiz not found: Quiz ID ${this.quizId}`);
       return;
