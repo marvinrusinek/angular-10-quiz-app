@@ -27,14 +27,11 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  distinctUntilChanged,
   filter,
   map,
   switchMap,
   take,
-  takeUntil,
-  tap,
-  withLatestFrom
+  takeUntil
 } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
