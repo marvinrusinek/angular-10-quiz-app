@@ -396,9 +396,10 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.setExplanationTextForCurrentQuestion(currentQuiz, currentQuestionIndex);
   }
   
-  private isValidQuestionIndex(index: number, questions: QuizQuestion[] | undefined): boolean {
-    return index >= 0 && questions && index < questions.length;
-  }
+  private isValidQuestionIndex(index: number, questions: QuizQuestion[]): boolean {
+    console.log(`Validating index: ${index}, Number of questions: ${questions.length}`);
+    return index >= 0 && index < questions.length;
+  }  
   
   private setExplanationTextForCurrentQuestion(quiz: Quiz, index: number): void {
     const question = quiz.questions[index];
@@ -508,7 +509,7 @@ export class QuizComponent implements OnInit, OnDestroy {
     const currentQuiz = this.findQuizByQuizId(this.quizId);
   
     if (!currentQuiz || !this.isValidQuestionIndex(this.currentQuestionIndex, currentQuiz.questions)) {
-      console.error(`Invalid quiz or question index: Quiz ID ${this.quizId}, Question Index ${this.currentQuestionIndex + 1}`);
+      console.error(`Invalid quiz or question index: Quiz ID ${this.quizId}, Question Index (0-based) ${this.currentQuestionIndex}`);
       return;
     }
   
