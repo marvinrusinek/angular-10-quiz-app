@@ -7,7 +7,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { concat, Observable } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 import { TimerService } from '../../../shared/services/timer.service';
 import { CountdownService } from '../../../shared/services/countdown.service';
@@ -47,7 +47,15 @@ export class TimerComponent implements OnInit, OnChanges {
     this.start$ = this.timerService.start$;
     this.reset$ = this.timerService.reset$;
     this.stop$ = this.timerService.stop$;
-    this.concat$ = concat(this.start$.pipe(first()), this.reset$);
+    this.concat$ = concat(
+      this.start$.pipe(
+        first(),
+        map(value => +value)
+      ),
+      this.reset$.pipe(
+        map(value => +value)
+      )
+    ) as Observable<number>;
     this.timeLeft$ = this.countdownService.startCountdown(30);
   }
 
