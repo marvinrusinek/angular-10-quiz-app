@@ -225,6 +225,12 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.getQuestion();
     this.initializeQuestionStreams();
     this.createQuestionData();
+
+    this.quizService.getCorrectAnswersText().pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe((text: string) => {
+      this.correctAnswersText = text;
+    });
   }
   
   ngOnDestroy(): void {
@@ -1180,6 +1186,11 @@ export class QuizComponent implements OnInit, OnDestroy {
       if (!isValidIndex) {
         console.warn('Invalid question index. Aborting.');
         return;
+      }
+
+      if (this.currentQuestion && this.quizStateService.isMultipleAnswer(this.currentQuestion)) {
+        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
+        this.quizService.updateCorrectAnswersText(newText);
       }
   
       // Fetch question details for the given index

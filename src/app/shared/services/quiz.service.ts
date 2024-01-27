@@ -259,7 +259,7 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText') || 'Default text';
+    const storedText = localStorage.getItem('correctAnswersCountText') || '';
     this.correctAnswersCountTextSource.next(storedText);
   }
   
@@ -583,9 +583,11 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
+
   updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
+    console.log(`Updating correct answers text to: ${newText}`);
     this.correctAnswersCountTextSource.next(newText);
+    localStorage.setItem('correctAnswersCountText', newText);
   }
 
   getCorrectAnswersText(): Observable<string> {

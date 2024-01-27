@@ -148,7 +148,12 @@ export class CodelabQuizContentComponent
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
     ); */
 
-    this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
+    this.quizService.getCorrectAnswersText()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((text: string) => {
+      console.log('Received correct answers count text:', text);
+      this.displayCorrectAnswersCountText(text);
+    });
 
     this.updateQuizStatus();
     this.initializeComponent();
