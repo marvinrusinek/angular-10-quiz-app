@@ -138,14 +138,16 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.quizService.correctAnswersCount.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
+    this.quizService.correctAnswersCountText.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
       console.log('Received correct answers count text:', text);
       this.displayCorrectAnswersCountText(text);
     });
 
-    this.quizService.updateCorrectAnswersText(
+    this.quizService.updateCorrectAnswersCountText(
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
     );
+
+    const correctAnswersText = this.quizService.getCorrectAnswersCountText();
 
     this.updateQuizStatus();
     this.initializeComponent();
@@ -512,6 +514,6 @@ export class CodelabQuizContentComponent
     this.questionText = this.question.questionText;
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
     this.quizService.updateQuestionText(this.questionText);
-    this.quizService.updateCorrectAnswersText(this.correctAnswersText);
+    this.quizService.updateCorrectAnswersCountText(this.correctAnswersText);
   }
 }

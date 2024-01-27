@@ -585,13 +585,23 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  updateCorrectAnswersCountText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText);
+  // Call this method to update the text
+  updateCorrectAnswersText(newText: string): void {
     this.correctAnswersCountTextSource.next(newText);
+    localStorage.setItem('correctAnswersText', newText);  // Persist the text in localStorage for across session persistence
   }
-  
-  getCorrectAnswersCountText(): string {
-    return localStorage.getItem('correctAnswersCountText') || 'Default Text';
+
+  // Method to get the observable for subscription in components
+  getCorrectAnswersText(): Observable<string> {
+    return this.correctAnswersCountTextSource.asObservable();
+  }
+
+  // Method to initialize the correct answers text from localStorage if available
+  initializeCorrectAnswersText(): void {
+    const storedText = localStorage.getItem('correctAnswersText');
+    if (storedText) {
+      this.correctAnswersCountTextSource.next(storedText);
+    }
   }
   
   private updateCorrectCountForResults(value: number): void {
