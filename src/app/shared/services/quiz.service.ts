@@ -212,7 +212,7 @@ export class QuizService implements OnDestroy {
   private questionTextSource = new BehaviorSubject<string>('');
   questionText = this.questionTextSource.asObservable();
   private correctAnswersCountTextSource = new BehaviorSubject<string>('');
-  correctAnswersCount = this.correctAnswersCountTextSource.asObservable();
+  correctAnswersCountText = this.correctAnswersCountTextSource.asObservable();
 
   private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
     false
@@ -585,9 +585,13 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
+  updateCorrectAnswersCountText(newText: string): void {
+    localStorage.setItem('correctAnswersCountText', newText);
     this.correctAnswersCountTextSource.next(newText);
+  }
+  
+  getCorrectAnswersCountText(): string {
+    return localStorage.getItem('correctAnswersCountText') || 'Default Text';
   }
   
   private updateCorrectCountForResults(value: number): void {
