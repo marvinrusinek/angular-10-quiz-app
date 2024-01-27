@@ -105,7 +105,8 @@ export class CodelabQuizContentComponent
   explanationDisplayed = false;
   isCurrentQuestionMultipleAnswer: boolean;
   isQuestionActive = false;
-  isSingleAnswerQuestion: boolean = false;
+  isSingleAnswerQuestion = false;
+  correctAnswersCountText = '';
 
   private destroy$ = new Subject<void>();
 
@@ -137,6 +138,10 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
+    this.quizService.correctAnswersCount.subscribe(text => {
+      this.displayCorrectAnswersCountText(text);
+    });
+
     this.updateQuizStatus();
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
@@ -163,6 +168,11 @@ export class CodelabQuizContentComponent
     this.formattedExplanationSubscription?.unsubscribe();
     this.questionStateSubscription?.unsubscribe();
     this.explanationTextService.resetStateBetweenQuestions();
+  }
+
+  displayCorrectAnswersCountText(text: string): void {
+    // Assign the text to the component property
+    this.correctAnswersCountText = text;
   }
       
   private initializeComponent(): void {
