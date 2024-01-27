@@ -259,8 +259,8 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText') || '';
-    this.correctAnswersCountTextSource = new BehaviorSubject<string>(storedText);
+    const storedText = localStorage.getItem('correctAnswersCountText') || 'Default text';
+    this.correctAnswersCountTextSource.next(storedText);
   }
   
   ngOnDestroy(): void {
@@ -586,6 +586,10 @@ export class QuizService implements OnDestroy {
   updateCorrectAnswersText(newText: string): void {
     localStorage.setItem('correctAnswersCountText', newText); // Persist the text
     this.correctAnswersCountTextSource.next(newText);
+  }
+
+  getCorrectAnswersText(): Observable<string> {
+    return this.correctAnswersCountTextSource.asObservable();
   }
   
   private updateCorrectCountForResults(value: number): void {

@@ -139,14 +139,16 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.quizService.correctAnswersCount.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
+    /* this.quizService.correctAnswersCountText.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
       console.log('Received correct answers count text:', text);
       this.displayCorrectAnswersCountText(text);
     });
 
     this.quizService.updateCorrectAnswersText(
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
-    );
+    ); */
+
+    this.correctAnswersText$ = this.quizService.getCorrectAnswersText();
 
     this.updateQuizStatus();
     this.initializeComponent();
