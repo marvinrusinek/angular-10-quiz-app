@@ -8,8 +8,7 @@ import {
   Observable,
   of,
   ReplaySubject,
-  Subject,
-  throwError,
+  Subject
 } from 'rxjs';
 import {
   catchError,
@@ -141,7 +140,7 @@ export class QuizDataService implements OnDestroy {
 
   setSelectedQuizById(quizId: string): Observable<void> {
     return this.getQuizzes().pipe(
-      switchMap((quizzes) => {
+      switchMap((quizzes: Quiz[]) => {
         this.quizzes = quizzes;
         const quiz = this.quizzes.find((q) => q.quizId === quizId);
         if (!quiz) {
