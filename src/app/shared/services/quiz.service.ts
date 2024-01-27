@@ -258,6 +258,11 @@ export class QuizService implements OnDestroy {
     this.initializeData();
     this.loadData();
     this.setupSubscriptions();
+
+    const storedText = localStorage.getItem('correctAnswersCountText');
+    if (storedText !== null) {
+      this.correctAnswersCountTextSource.next(storedText);
+    }
   }
 
   ngOnDestroy(): void {
