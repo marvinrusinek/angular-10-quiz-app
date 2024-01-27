@@ -138,7 +138,8 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.quizService.correctAnswersCount.subscribe(text => {
+    this.quizService.correctAnswersCount.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
+      console.log('Received correct answers count text:', text);
       this.displayCorrectAnswersCountText(text);
     });
 
