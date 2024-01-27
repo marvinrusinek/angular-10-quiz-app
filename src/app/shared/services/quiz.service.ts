@@ -584,8 +584,12 @@ export class QuizService implements OnDestroy {
   }
 
   updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
+    localStorage.setItem('correctAnswersCountText', newText); // Store the text in localStorage
     this.correctAnswersCountTextSource.next(newText);
+  }
+
+  getStoredCorrectAnswersText(): string {
+    return localStorage.getItem('correctAnswersCountText') || 'Default text';
   }
   
   private updateCorrectCountForResults(value: number): void {
