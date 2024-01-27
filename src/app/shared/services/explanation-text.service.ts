@@ -30,10 +30,6 @@ export class ExplanationTextService implements OnDestroy {
   isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationTextDisplayed$: Observable<boolean> =
     this.isExplanationTextDisplayedSource.asObservable();
-  
-  private previousExplanationTextSource = new BehaviorSubject<string>('');
-  previousExplanationText$: Observable<string> =
-    this.previousExplanationTextSource.asObservable();
 
   private shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ =
