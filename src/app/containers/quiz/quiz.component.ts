@@ -1312,7 +1312,6 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.initializeFirstQuestionText();
     this.router.navigate(['/question/', this.quizId, 1]);
     this.resetUI();
-    this.quizStateService.resetQuiz();
   }
 
   /* sendValuesToQuizService(): void {
