@@ -4,7 +4,8 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  OnInit
+  OnInit,
+  SimpleChanges
 } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import {
@@ -138,16 +139,14 @@ export class CodelabQuizContentComponent
       this.shouldDisplayCorrectAnswers = false;
     });
 
-    this.quizService.correctAnswersCountText.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
+    this.quizService.correctAnswersCount.pipe(takeUntil(this.destroy$)).subscribe((text: string) => {
       console.log('Received correct answers count text:', text);
       this.displayCorrectAnswersCountText(text);
     });
 
-    this.quizService.updateCorrectAnswersCountText(
+    this.quizService.updateCorrectAnswersText(
       this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
     );
-
-    const correctAnswersText = this.quizService.getCorrectAnswersCountText();
 
     this.updateQuizStatus();
     this.initializeComponent();
@@ -156,16 +155,21 @@ export class CodelabQuizContentComponent
     this.setupCombinedTextObservable();
   }
 
-  ngOnChanges(): void {
-    if (
-      this.correctAnswersText !== undefined &&
-      this.quizStateService.isMultipleAnswer(this.question)
-    ) {
-      this.correctAnswersTextSource.next(this.correctAnswersText);
-    } else {
-      this.correctAnswersTextSource.next('');
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.question && changes.question.currentValue) {
+      const isMultipleAnswer = this.quizStateService.isMultipleAnswer(changes.question.currentValue);
+  
+      // Only update the text if the question allows multiple answers
+      if (isMultipleAnswer) {
+        // Assuming getNumberOfCorrectAnswersText() method returns the desired text
+        const newText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(changes.question.currentValue.numberOfCorrectAnswers);
+        this.quizService.updateCorrectAnswersText(newText);
+      } else {
+        // Reset or clear the text if the new question does not allow multiple answers
+        this.quizService.updateCorrectAnswersText('');
+      }
     }
-  }
+  }  
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -514,6 +518,6 @@ export class CodelabQuizContentComponent
     this.questionText = this.question.questionText;
     this.correctAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers);
     this.quizService.updateQuestionText(this.questionText);
-    this.quizService.updateCorrectAnswersCountText(this.correctAnswersText);
+    this.quizService.updateCorrectAnswersText(this.correctAnswersText);
   }
 }

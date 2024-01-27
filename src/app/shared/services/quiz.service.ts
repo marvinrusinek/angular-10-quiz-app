@@ -212,7 +212,7 @@ export class QuizService implements OnDestroy {
   private questionTextSource = new BehaviorSubject<string>('');
   questionText = this.questionTextSource.asObservable();
   private correctAnswersCountTextSource = new BehaviorSubject<string>('');
-  correctAnswersCountText = this.correctAnswersCountTextSource.asObservable();
+  correctAnswersCount = this.correctAnswersCountTextSource.asObservable();
 
   private correctAnswersAvailabilitySubject = new BehaviorSubject<boolean>(
     false
@@ -259,12 +259,10 @@ export class QuizService implements OnDestroy {
     this.loadData();
     this.setupSubscriptions();
 
-    const storedText = localStorage.getItem('correctAnswersCountText');
-    if (storedText !== null) {
-      this.correctAnswersCountTextSource.next(storedText);
-    }
+    const storedText = localStorage.getItem('correctAnswersCountText') || '';
+    this.correctAnswersCountTextSource = new BehaviorSubject<string>(storedText);
   }
-
+  
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -585,23 +583,9 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  // Call this method to update the text
   updateCorrectAnswersText(newText: string): void {
+    localStorage.setItem('correctAnswersCountText', newText); // Persist the text
     this.correctAnswersCountTextSource.next(newText);
-    localStorage.setItem('correctAnswersText', newText);  // Persist the text in localStorage for across session persistence
-  }
-
-  // Method to get the observable for subscription in components
-  getCorrectAnswersText(): Observable<string> {
-    return this.correctAnswersCountTextSource.asObservable();
-  }
-
-  // Method to initialize the correct answers text from localStorage if available
-  initializeCorrectAnswersText(): void {
-    const storedText = localStorage.getItem('correctAnswersText');
-    if (storedText) {
-      this.correctAnswersCountTextSource.next(storedText);
-    }
   }
   
   private updateCorrectCountForResults(value: number): void {
