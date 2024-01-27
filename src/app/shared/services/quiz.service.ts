@@ -583,9 +583,14 @@ export class QuizService implements OnDestroy {
     this.questionTextSource.next(newQuestionText);
   }
 
-  updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersCountText', newText); // Store the text in localStorage
-    this.correctAnswersCountTextSource.next(newText);
+  updateCorrectAnswersCountText(newText: string): void {
+    localStorage.setItem('correctAnswersCountText', newText); // Persist the text in localStorage
+    this.correctAnswersCountTextSource.next(newText); // Update the BehaviorSubject
+  }
+  
+  getCorrectAnswersCountText(): string {
+    // Retrieve the text from localStorage if available, otherwise use the current value
+    return localStorage.getItem('correctAnswersCountText') || this.correctAnswersCountTextSource.getValue();
   }
 
   getStoredCorrectAnswersText(): string {
