@@ -143,6 +143,10 @@ export class CodelabQuizContentComponent
       this.displayCorrectAnswersCountText(text);
     });
 
+    this.quizService.updateCorrectAnswersText(
+      this.quizQuestionManagerService.getNumberOfCorrectAnswersText(this.numberOfCorrectAnswers)
+    );
+
     this.updateQuizStatus();
     this.initializeComponent();
     this.subscribeToFormattedExplanationChanges();
